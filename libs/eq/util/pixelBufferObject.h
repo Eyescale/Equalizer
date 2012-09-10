@@ -21,8 +21,9 @@
 
 #include <lunchbox/lock.h>
 
-#include <eq/client/gl.h>   // for GLEW
+#include <eq/client/api.h>
 #include <eq/client/types.h>
+#include <eq/fabric/error.h> // enum
 
 namespace eq
 {
@@ -33,8 +34,7 @@ namespace detail { class PixelBufferObject; }
     /** A C++ class to abstract OpenGL pixel buffer objects.
       *
       * If multiple PBOs of the same read/write type are used in the same 
-      * glContext they should be binded/mapped and unbinded/unmapped 
-      * sequentially.
+      * glContext they should be bound/mapped and unbound/unmapped sequentially.
       *
       * If thread-safe mode is used, buffer binding and mapping is locked until
       * the corresponding unbind/unmap happened.
@@ -45,7 +45,7 @@ namespace detail { class PixelBufferObject; }
     {
     public:
         /**
-         * Construct a new Pixel Buffer Object.
+         * Construct a new pixel buffer object.
          *
          * @param glewContext the OpenGL function table.
          * @param threadSafe true if PBO shall use locks to synchronize access.
@@ -54,20 +54,22 @@ namespace detail { class PixelBufferObject; }
         EQ_API PixelBufferObject( const GLEWContext* glewContext,
                                   const bool threadSafe );
 
-        /** Destruct the Frame Buffer Object */
+        /** Destruct the pixel buffer object */
         EQ_API virtual ~PixelBufferObject();
 
         /**
-         * Initialize the Pixel Buffer Object.
+         * Initialize the pixel buffer object.
          *
-         * @param size total number of bytes (has to be > 0)
+         * The PBO is bound after a successful operation.
+         *
+         * @param size total number of bytes (not 0)
          * @param type the access type: GL_READ_ONLY_ARB or GL_WRITE_ONLY_ARB
          * @return true on success, false otherwise
          * @version 1.3
          */
-        EQ_API virtual bool setup( const ssize_t size, const GLuint type );
+        EQ_API virtual bool setup( const size_t size, const unsigned type );
 
-        /** De-initialize the pixel buffer object. @version 1.3 */
+        /** Unbind and de-initialize the pixel buffer object. @version 1.3 */
         EQ_API virtual void destroy();
 
         /**
@@ -79,7 +81,7 @@ namespace detail { class PixelBufferObject; }
         EQ_API virtual const void* mapRead() const;
 
         /**
-         * Bind the PBO and mappe its data for writing.
+         * Bind the PBO and map its data for writing.
          *
          * @return pointer to the PBO memory
          * @version 1.3
@@ -101,10 +103,10 @@ namespace detail { class PixelBufferObject; }
         EQ_API virtual void unbind() const;
 
         /** @return the allocated size of the PBO. @version 1.3 */
-        EQ_API ssize_t getSize() const;
+        EQ_API size_t getSize() const;
 
         /** @return the reason for the last failed operation. @version 1.3 */
-        EQ_API const co::Error& getError() const;
+        EQ_API const eq::fabric::Error& getError() const;
 
         /** @return true if the pbo is intialized. @version 1.3 */
         EQ_API bool isInitialized() const;
@@ -113,7 +115,7 @@ namespace detail { class PixelBufferObject; }
         EQ_API bool isThreadSafe() const;
 
         /** @return OpenGL ID @version 1.3.2 */
-        GLuint getID() const;
+        unsigned getID() const;
 
     private:
         detail::PixelBufferObject* const _impl;

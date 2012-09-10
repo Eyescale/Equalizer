@@ -2,7 +2,6 @@
 .PHONY: debug tests cdash release xcode debug_glx docs clean clobber
 
 BUILD ?= debug
-PYTHON ?= python
 CMAKE ?= cmake
 
 ifeq ($(wildcard Makefile), Makefile)
@@ -17,8 +16,8 @@ clean:
 
 else
 
-default: $(BUILD) RELNOTES.txt README.rst
-all: debug release RELNOTES.txt README.rst
+default: $(BUILD)
+all: debug release
 clobber:
 	rm -rf debug release XCode debug_glx man cdash
 clean:
@@ -48,7 +47,7 @@ cdash: cdash/Makefile
 debug/Makefile:
 	@mkdir -p debug
 	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug \
-	-DCMAKE_INSTALL_PREFIX:PATH=install -DEQUALIZER_RUN_GPU_TESTS=ON
+	-DEQUALIZER_RUN_GPU_TESTS=ON
 
 release/Makefile:
 	@mkdir -p release
@@ -68,7 +67,7 @@ package: release/Makefile ../equalizergraphics/build/documents/Developer/API
 
 XCode/Equalizer.xcodeproj: CMakeLists.txt
 	@mkdir -p XCode
-	@cd XCode; $(CMAKE) -G Xcode .. -DCMAKE_INSTALL_PREFIX:PATH=install
+	@cd XCode; $(CMAKE) -G Xcode ..
 
 xcode: XCode/Equalizer.xcodeproj
 	open XCode/Equalizer.xcodeproj
@@ -86,11 +85,5 @@ docs: ../equalizergraphics/build/documents/Developer/API
 .PHONY: ../equalizergraphics/build/documents/Developer/API
 ../equalizergraphics/build/documents/Developer/API: ../equalizergraphics/build/documents/Developer/API/internal $(BUILD)/Makefile
 	@mkdir -p ../equalizergraphics/build/collage/documents/Developer/API
-
-RELNOTES.txt: libs/RelNotes.dox
-	-links -dump -width 65 $< > $@.tmp && mv $@.tmp $@
-
-README.rst: libs/RelNotes.dox
-	-$(PYTHON) CMake/html2rst.py $< > $@
 
 endif

@@ -15,6 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define EQ_SYSTEM_INCLUDES
 #include <test.h>
 #include <seq/sequel.h>
 #include <stdlib.h>

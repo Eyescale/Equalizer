@@ -120,7 +120,7 @@ void Config< S, C, O, L, CV, N, V >::attach( const UUID& id,
 }
 
 template< class C, class V >
-static VisitorResult _acceptImpl( C* config, V& visitor )
+VisitorResult _acceptImpl( C* config, V& visitor )
 { 
     VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
@@ -656,10 +656,8 @@ void Config< S, C, O, L, CV, N, V >::serialize( co::DataOStream& os,
     if( dirtyBits & Config::DIRTY_MEMBER )
         os << _appNodeID;
     if( dirtyBits & Config::DIRTY_ATTRIBUTES )
-    {
-        os.write( _fAttributes, C::FATTR_ALL * sizeof( float ));
-        os.write( _iAttributes, C::IATTR_ALL * sizeof( int32_t ));
-    }
+        os << co::Array< float >( _fAttributes, C::FATTR_ALL )
+           << co::Array< int32_t >( _iAttributes, C::IATTR_ALL );
     if( isMaster( ) )
     {
         if( dirtyBits & Config::DIRTY_NODES )
@@ -684,10 +682,8 @@ void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
     if( dirtyBits & Config::DIRTY_MEMBER )
         is >> _appNodeID;
     if( dirtyBits & Config::DIRTY_ATTRIBUTES )
-    {
-        is.read( _fAttributes, C::FATTR_ALL * sizeof( float ));
-        is.read( _iAttributes, C::IATTR_ALL * sizeof( int32_t ));
-    }
+        is >> co::Array< float >( _fAttributes, C::FATTR_ALL )
+           >> co::Array< int32_t >( _iAttributes, C::IATTR_ALL );
     if( isMaster( ))
     {
         if( dirtyBits & Config::DIRTY_NODES )

@@ -67,13 +67,13 @@ public:
 
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
-    co::Error getError() const
+    eq::fabric::Error getError() const
         { LBASSERTINFO( _error != ERROR_NONE, _error ); return _error; }
 
 private:
     bool _result; // success or failure
     bool _sync;   // call again after init failure
-    co::Error _error; // error message
+    eq::fabric::Error _error; // error message
 
     template< class T > VisitorResult _updateDown( T* entity ) const
         {

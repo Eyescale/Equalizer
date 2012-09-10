@@ -31,7 +31,7 @@ namespace detail { struct RBStat; }
     struct ChannelConfigInitPacket : public ChannelPacket
     {
         ChannelConfigInitPacket( const uint128_t& initID_ )
-                : initID( initID )
+                : initID( initID_ )
             {
                 command = fabric::CMD_CHANNEL_CONFIG_INIT;
                 size    = sizeof( ChannelConfigInitPacket );
@@ -48,7 +48,7 @@ namespace detail { struct RBStat; }
                 size      = sizeof( ChannelConfigInitReplyPacket );
             }
 
-        bool result;
+        uint64_t result; // bool, padded for valgrind
     };
 
     struct ChannelConfigExitPacket : public ChannelPacket

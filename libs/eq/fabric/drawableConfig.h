@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -57,7 +57,18 @@ namespace fabric
             os << "|ST";
         return os;
     }
+}
+}
 
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::DrawableConfig& value )
+{
+    byteswap( value.stencilBits );
+    byteswap( value.colorBits );
+    byteswap( value.alphaBits );
+    byteswap( value.accumBits );
+    byteswap( value.glVersion );
 }
 }
 #endif // EQ_DRAWABLECONFIG_H

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -422,7 +422,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     const Frames& inputFrames = compound->getInputFrames();
     LBASSERT( !inputFrames.empty( ));
 
-    std::vector< co::ObjectVersion > frameIDs;
+    co::ObjectVersions frames;
     for( Frames::const_iterator iter = inputFrames.begin(); 
          iter != inputFrames.end(); ++iter )
     {
@@ -431,21 +431,22 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
             continue;
 
-        frameIDs.push_back( co::ObjectVersion( frame ));
+        LBLOG( LOG_ASSEMBLY ) << *frame << std::endl;
+        frames.push_back( co::ObjectVersion( frame ));
     }
 
-    if( frameIDs.empty( ))
+    if( frames.empty( ))
         return;
 
     // assemble task
     ChannelFrameAssemblePacket packet;
     packet.context   = context;
-    packet.nFrames   = uint32_t( frameIDs.size( ));
+    packet.nFrames   = uint32_t( frames.size( ));
 
     LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet
         << std::endl;
-    _channel->send< co::ObjectVersion >( packet, frameIDs );
+    _channel->send< co::ObjectVersion >( packet, frames );
     _updated = true;
 }
 
@@ -461,8 +462,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     LBASSERT( !outputFrames.empty( ));
 
-    Frames frames;
-    std::vector< co::ObjectVersion > frameIDs;
+    co::ObjectVersions frames;
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -470,8 +470,8 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
             continue;
 
-        frames.push_back( frame );
-        frameIDs.push_back( co::ObjectVersion( frame ));
+        frames.push_back( co::ObjectVersion( frame ));
+        LBLOG( LOG_ASSEMBLY ) << *frame << std::endl;
     }
 
     if( frames.empty() )
@@ -482,7 +482,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     packet.context   = context;
     packet.nFrames   = uint32_t( frames.size( ));
 
-    _channel->send<co::ObjectVersion>( packet, frameIDs );
+    _channel->send<co::ObjectVersion>( packet, frames );
     _updated = true;
     LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " " << &packet

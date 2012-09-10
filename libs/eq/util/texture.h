@@ -19,7 +19,6 @@
 #ifndef EQUTIL_TEXTURE_H
 #define EQUTIL_TEXTURE_H
 
-#include <eq/client/gl.h>           // GLEW
 #include <eq/client/frame.h>        // Frame::Buffer enum
 
 #include <lunchbox/thread.h>         // thread debug macro
@@ -47,7 +46,7 @@ namespace detail { class Texture; }
          * functions.
          * @version 1.0
          */
-        EQ_API Texture( const GLenum target,
+        EQ_API Texture( const unsigned target,
                         const GLEWContext* const glewContext = 0 );
 
         /** Destruct the texture. @version 1.0 */
@@ -56,7 +55,7 @@ namespace detail { class Texture; }
         /** @name Data Access. */
         //@{
         /** @return the target of the texture. @version 1.0 */
-        EQ_API GLenum getTarget() const;
+        EQ_API unsigned getTarget() const;
 
         /**
          * @internal
@@ -69,7 +68,7 @@ namespace detail { class Texture; }
          * @sa init()
          * @version 1.0 
          */
-        EQ_API GLuint getInternalFormat() const;
+        EQ_API unsigned getInternalFormat() const;
 
         /** 
          * Set the external data format and type.
@@ -85,16 +84,16 @@ namespace detail { class Texture; }
          * @return the external data format of the texture, e.g., GL_RGBA.
          * @version 1.0
          */
-        EQ_API GLuint getFormat() const;
+        EQ_API unsigned getFormat() const;
 
         /**
          * @return the external data type of the texture, e.g., GL_HALF_FLOAT.
          * @version 1.0
          */
-        EQ_API GLuint getType() const;
+        EQ_API unsigned getType() const;
 
         /** @return the OpenGL texture name. @version 1.0 */
-        EQ_API GLuint getName() const;
+        EQ_API unsigned getName() const;
 
         /** @return the current width. @version 1.0 */
         EQ_API int32_t getWidth() const;
@@ -116,7 +115,7 @@ namespace detail { class Texture; }
          * @param height the height of the texture.
          * @version 1.0
          */
-        EQ_API void init( const GLuint internalFormat, const int32_t width,
+        EQ_API void init( const unsigned internalFormat, const int32_t width,
                           const int32_t height );
 
         /**
@@ -135,7 +134,7 @@ namespace detail { class Texture; }
          * texture at 0,0.
          * @version 1.0
          */
-        EQ_API void copyFromFrameBuffer( const GLuint internalFormat,
+        EQ_API void copyFromFrameBuffer( const unsigned internalFormat,
                                          const fabric::PixelViewport& pvp );
 
         /** Copy the specified buffer to the texture at 0,0. @version 1.0 */
@@ -152,7 +151,7 @@ namespace detail { class Texture; }
         EQ_API void bind() const;
 
         /** Create and bind a texture to the current FBO. @version 1.0 */
-        EQ_API void bindToFBO( const GLenum target, const int32_t width,
+        EQ_API void bindToFBO( const unsigned target, const int32_t width,
                                   const int32_t height );
         
         /** Resize the texture. @version 1.0 */
@@ -186,12 +185,13 @@ namespace detail { class Texture; }
          * @param height the height of the texture.
          * @version 1.0
          */
-        EQ_API void setGLData( const GLuint id, const GLuint internalFormat,
+        EQ_API void setGLData( const unsigned id, const unsigned internalFormat,
                                const int32_t width, const int32_t height );
         //@}
 
     private:
         detail::Texture* const _impl;
+
         /**
          * Set the internal pixel format of the texture, e.g., GL_RGBA16F.
          *
@@ -200,7 +200,7 @@ namespace detail { class Texture; }
          * 
          * @param internalFormat the OpenGL internal texture format.
          */
-        void _setInternalFormat( const GLuint internalFormat );
+        void _setInternalFormat( const unsigned internalFormat );
 
         /** Generate, if needed, a GL texture name. */
         void _generate();

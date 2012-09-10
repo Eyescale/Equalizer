@@ -77,6 +77,18 @@ bool Resources::discover( Config* config, const std::string& session,
         *filter |= gpusd::FilterPtr( new gpusd::SessionFilter( session ));
     gpusd::GPUInfos infos = gpusd::Module::discoverGPUs( filter );
 
+#ifdef EQ_USE_GPUSD_cgl
+    gpusd::cgl::Module::dispose();
+#elif defined(EQ_USE_GPUSD_glx)
+    gpusd::glx::Module::dispose();
+#endif
+#ifdef EQ_USE_GPUSD_wgl
+    gpusd::wgl::Module::dispose();
+#endif
+#ifdef EQ_USE_GPUSD_dns_sd
+    gpusd::dns_sd::Module::dispose();
+#endif
+
     if( infos.empty( ))
     {
         LBINFO << "No resources found for session " << session 
@@ -472,7 +484,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 eq::Range( static_cast< float >( start )/100000.f,
                            static_cast< float >( start + step )/100000.f ));
         
-        unsigned y = 0;
+        size_t y = 0;
         for( CompoundsCIter j = children.begin(); j != children.end(); ++j )
         {
             if( i != j )

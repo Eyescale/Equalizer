@@ -6,7 +6,7 @@ if(GLEW_MX_FOUND)
   set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
 else()
   set(EQ_GLEW_INTERNAL TRUE)
-  set(GLEW_VERSION 1.7.0)
+  set(GLEW_VERSION 1.9.0)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/glew-${GLEW_VERSION})
   set(GLEW_MX_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
   set(GLEW_LIBRARY "GLEW_MX-Equalizer")
@@ -21,15 +21,19 @@ else()
     set(_glxew_h "${GLEW_DIR}/include/GL/glxew.h")
     file(READ ${_glxew_h} _glxew_h_contents)
 
-    string(REGEX REPLACE "GL/glew.h" "eq/GL/glew.h"
-           _glxew_h_new "${_glxew_h_contents}")
+    string(REGEX REPLACE "GL/glew.h" "eq/GL/glew.h" _glxew_h_new
+      "${_glxew_h_contents}")
+    string(REGEX REPLACE "GLXEW_FUN_EXPORT\n"
+      "GLXEW_FUN_EXPORT GLEW_FUN_EXPORT\n" _glxew_h_new "${_glxew_h_new}")
+
     file(WRITE ${_glxew_h} "${_glxew_h_new}")
   endif(NOT EXISTS ${GLEW_DIR})
 
   set(GLEW_INCLUDES GL/glew.h GL/glxew.h GL/wglew.h)
   foreach(file ${GLEW_INCLUDES})
     update_file(${GLEW_DIR}/include/${file} ${OUTPUT_INCLUDE_DIR}/eq/${file})
-    install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL COMPONENT eqdev)
+    install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL
+      COMPONENT dev)
   endforeach()
 
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})

@@ -5,10 +5,6 @@
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
 
-option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
-option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
-option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
-option(EQUALIZER_USE_HWLOC "Test for hwloc support" ON)
 option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
@@ -16,24 +12,22 @@ option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
-mark_as_advanced(EQUALIZER_FORCE_OPENMP)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
 include(revision)
 
-set(RELEASE_VERSION 140) # OFF or 'Mm0' ABI version
+set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
+set(LAST_RELEASE 1.4.0)
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "3")
-set(VERSION_PATCH "6")
-set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set(VERSION_MINOR "5")
+set(VERSION_PATCH "0")
 
-set(CO_VERSION_MAJOR "0")
-set(CO_VERSION_MINOR "5")
-set(CO_VERSION_PATCH "6")
-set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
-
-set(EQ_OSX_VERSION 10.6)
+if(CMAKE_OSX_DEPLOYMENT_TARGET)
+  set(EQ_OSX_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
+else()
+  set(EQ_OSX_VERSION 10.6)
+endif()
 if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX${EQ_OSX_VERSION}.sdk
@@ -45,127 +39,59 @@ endif()
 
 include(Common)
 include(GitTargets)
+include(configure)
+
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
-if(EQUALIZER_USE_GPUSD)
-  find_package(gpusd 1.1.2)
-endif()
-
-set(EQ_FEATURES)
-
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  set (ALL_TARGETS "")
-  macro(add_executable _target)
-    _add_executable (${_target} ${ARGN})
-    set_property (GLOBAL APPEND PROPERTY ALL_TARGETS ${_target})
-  endmacro()
-endif()
-
-include(configure)
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 
+set(EQ_FEATURES)
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
   include(UseGnuWin32)
 endif(MSVC)
 
-find_package(VMMLIB REQUIRED)
-include_directories(SYSTEM ${VMMLIB_INCLUDE_DIRS})
-
-find_package(Boost 1.36 REQUIRED system regex date_time serialization)
-if(Boost_VERSION GREATER 103999)
-  set(CO_USE_BOOST_SERIALIZATION 1)
-endif()
-link_directories(${Boost_LIBRARY_DIRS})
-include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
-
 set(PTHREAD_LIBRARIES pthread)
-link_directories(${LUNCHBOX_LIBRARY_DIRS})
 
-if(EQUALIZER_USE_OPENMP)
-  find_package(OpenMP)
-endif()
-if(OPENMP_FOUND)
-  if(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION VERSION_LESS 4.3 AND
-      NOT EQUALIZER_FORCE_OPENMP)
-    message(STATUS "Disable OpenMP due to bug in gcc ${GCC_COMPILER_VERSION}")
-  else()
-    set(CO_OPENMP_USED 1)
-    set(EQ_FEATURES "${EQ_FEATURES} OpenMP")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  endif()
-endif(OPENMP_FOUND)
-
-find_package(OFED)
-if(OFED_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} RDMA")
+if(LUNCHBOX_USE_OPENMP)
+  find_package(OpenMP REQUIRED)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-find_package(UDT)
-if(UDT_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} UDT")
-endif()
-
-if(EQUALIZER_USE_HWLOC)
-  find_package(HWLOC)
-endif()
 if(HWLOC_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
 endif()
 
-if(APPLE)
-  # WAR otherwise MacPorts X11 (/opt/local) is preferred
-  LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
-  LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-endif()
-
-find_package(X11)
-
-if(APPLE)
-  LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
-  LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-endif(APPLE)
-
 if(X11_FOUND)
+  set(EQ_GLX_USED 1)
   if(APPLE)
-    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}" )
-    set(EQ_AGL_USED 1)
-    set(EQ_GLX_USED 1)
-  else(APPLE)
-    set(EQ_GLX_USED 1)
-  endif(APPLE)
+    link_directories(/usr/X11R6/lib)
+    include_directories(SYSTEM /usr/X11R6/include)
+  endif()
 endif(X11_FOUND)
 
-if(EQ_GLX_USED)
-  include_directories(SYSTEM ${X11_INCLUDE_DIR})
-  set(EQ_FEATURES "${EQ_FEATURES} GLX")
-endif(EQ_GLX_USED)
-if(EQ_AGL_USED)
-  set(EQ_FEATURES "${EQ_FEATURES} AGL")
-endif(EQ_AGL_USED)
-
 if(APPLE)
-  link_directories(/usr/X11R6/lib)
-  include_directories(SYSTEM /usr/X11R6/include)
   add_definitions(-DDarwin)
 
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
-      "Equalizer build architectures")
-  else()
-    set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-      "Equalizer build architectures")
+  foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+    if(ARCH STREQUAL "ppc" OR ARCH STREQUAL "i386")
+      set(EQ_AGL_USED 1)
+      list(APPEND EQ_EXAMPLES_OSX_ARCHITECTURES ${ARCH})
+    endif()
+  endforeach()
+  if(NOT EQ_EXAMPLES_OSX_ARCHITECTURES)
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
   endif()
-  mark_as_advanced(EQUALIZER_OSX_ARCHITECTURES)
-  
-  set(CMAKE_OSX_ARCHITECTURES "${EQUALIZER_OSX_ARCHITECTURES}")
-  message(STATUS "Building Equalizer ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
-  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "64")
+  list(REMOVE_DUPLICATES EQ_EXAMPLES_OSX_ARCHITECTURES)
+
+  set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
+  set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
+
+  if(CMAKE_OSX_ARCHITECTURES MATCHES "64")
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
@@ -173,23 +99,32 @@ if(APPLE)
   endif()
 endif(APPLE)
 
-set(EQ_DEFINITIONS ${EQ_DEFINITIONS}
-    -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
+if(EQ_GLX_USED)
+  include_directories(SYSTEM ${X11_INCLUDE_DIR})
+  set(EQ_FEATURES "${EQ_FEATURES} GLX")
+endif(EQ_GLX_USED)
+if(EQ_AGL_USED)
+  set(EQ_FEATURES "${EQ_FEATURES} AGL(32bit)")
+endif(EQ_AGL_USED)
+
+list(APPEND EQ_DEFINITIONS
+  -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
 
 if(EQUALIZER_BUILD_2_0_API)
-  set(EQ_DEFINITIONS ${EQ_DEFINITIONS} -DEQ_2_0_API)
+  list(APPEND EQ_DEFINITIONS -DEQ_2_0_API)
   set(EQ_FEATURES "${EQ_FEATURES} APIv2")
 else()
   set(EQ_FEATURES "${EQ_FEATURES} APIv1")
 endif()
 if(IS_ABSOLUTE ${CMAKE_INSTALL_PREFIX})
-  set(EQ_DEFINITIONS ${EQ_DEFINITIONS} -DEQ_INSTALL_DIR="${CMAKE_INSTALL_PREFIX}/")
+  list(APPEND EQ_DEFINITIONS -DEQ_INSTALL_DIR="${CMAKE_INSTALL_PREFIX}/")
 else()
-  set(EQ_DEFINITIONS ${EQ_DEFINITIONS} -DEQ_INSTALL_DIR="${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}/")
+  list(APPEND EQ_DEFINITIONS
+    -DEQ_INSTALL_DIR="${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}/")
 endif()
 add_definitions(${EQ_DEFINITIONS})
 
-add_subdirectory(tools)
+add_subdirectory(tools) # before examples, they depend on it
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
@@ -203,8 +138,24 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc) # must be after all targets
 
-install(FILES CMake/FindCollage.cmake
-  DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT codev)
+find_program(LINKS_EXECUTABLE links)
+if(LINKS_EXECUTABLE)
+  add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/RELNOTES.txt
+    COMMAND ${LINKS_EXECUTABLE} -dump libs/RelNotes.dox > RELNOTES.txt
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/libs/RelNotes.dox)
+  add_custom_target(RELNOTES.txt ALL DEPENDS ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
+endif()
+
+find_package(PythonInterp)
+if(PYTHON_EXECUTABLE)
+  add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/README.rst
+    COMMAND ${PYTHON_EXECUTABLE} CMake/html2rst.py libs/RelNotes.dox > README.rst
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/libs/RelNotes.dox)
+  add_custom_target(README.rst ALL DEPENDS ${CMAKE_SOURCE_DIR}/README.rst)
+endif()
+
 install(FILES CMake/FindEqualizer.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT eqdev)
 install(FILES CMake/FindGLEW_MX.cmake

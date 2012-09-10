@@ -50,9 +50,6 @@ foreach(FILE ${TEST_FILES})
     add_executable(${NAME} ${FILE})
     set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
 
-    if(${NAME} MATCHES "co_.*")
-      target_link_libraries(${NAME} lib_Collage_shared)
-    endif()
     if(${NAME} MATCHES "eq_.*")
       target_link_libraries(${NAME} lib_Equalizer_shared)
     endif()
@@ -74,7 +71,7 @@ foreach(FILE ${TEST_FILES})
       add_test(${NAME} ${EXECUTABLE})
       if(APPLE)
         set_property(TEST ${NAME} PROPERTY ENVIRONMENT
-          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIR}:$ENV{DYLD_LIBRARY_PATH}"
+          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIRS}:$ENV{DYLD_LIBRARY_PATH}"
           )
       endif()
     endif()

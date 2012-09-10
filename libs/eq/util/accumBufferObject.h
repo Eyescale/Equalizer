@@ -53,7 +53,7 @@ namespace util
          * @sa Window::getColorFormat(), glReadBuffer()
          * @version 1.0
          */
-        EQ_API bool init( const PixelViewport& pvp, const GLuint format );
+        EQ_API bool init( const PixelViewport& pvp, const unsigned format );
 
         /** De-initialize the Accumulation Buffer Object. @version 1.0 */
         EQ_API void exit();
@@ -68,7 +68,7 @@ namespace util
          *              during the load operation.
          * @version 1.0
          */
-        EQ_API void load( const GLfloat value );
+        EQ_API void load( const float value );
 
         /**
          * Accumulate the current read buffer into the accumulation buffer.
@@ -80,7 +80,7 @@ namespace util
          *              during the accum operation.
          * @version 1.0
          */
-        EQ_API void accum( const GLfloat value );
+        EQ_API void accum( const float value );
 
         /**
          * Transfer accumulation buffer values to the draw buffer.
@@ -92,7 +92,7 @@ namespace util
          *              values during the operation.
          * @version 1.0
          */
-        EQ_API void display( const GLfloat value );
+        EQ_API void display( const float value );
 
     private:
         /**
@@ -103,7 +103,7 @@ namespace util
          * @param value the brightness factor of the result.
          */
         void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp,
-                                   const GLfloat value );
+                                   const float value );
 
         Texture* _texture;
         PixelViewport _pvp;

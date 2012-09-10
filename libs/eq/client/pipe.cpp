@@ -111,6 +111,14 @@ class TransferThread : public co::Worker
 public:
     TransferThread() : co::Worker(), _running( true ){}
 
+    virtual bool init()
+        {
+            if( !co::Worker::init( ))
+                return false;
+            setName( "PipeTfer" );
+            return true;
+        }
+
     virtual bool stopRunning() { return !_running; }
     void postStop() { _running = false; }
 
@@ -166,6 +174,9 @@ public:
     /** All output frame datas used by the pipe during rendering. */
     FrameDataHash outputFrameDatas;
 
+    /** All input frame datas used by the pipe during rendering. */
+    FrameDataHash inputFrameDatas;
+
     /** All views used by the pipe's channels during rendering. */
     ViewHash views;
 
@@ -183,6 +194,7 @@ public:
 
 void RenderThread::run()
 {
+    setName( "PipeDraw" );
     LB_TS_THREAD( _pipe->_pipeThread );
     LBINFO << "Entered pipe thread" << std::endl;
 
@@ -195,7 +207,6 @@ void RenderThread::run()
     Worker::run();
 
     pipe->_exitCommandQueue();
-    LBINFO << "Leaving pipe thread" << std::endl;
 }
 }
 
@@ -296,7 +307,8 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-    LBINFO << "Set up pipe message pump for " << _impl->windowSystem << std::endl;
+    LBINFO << "Set up pipe message pump for " << _impl->windowSystem
+           << std::endl;
 
     Config* config = getConfig();
     config->setupMessagePump( this );
@@ -323,12 +335,12 @@ int32_t Pipe::_getAutoAffinity() const
     uint32_t port = getPort();
     uint32_t device = getDevice();
 
-    if( port == EQ_UNDEFINED_UINT32 && device == EQ_UNDEFINED_UINT32 )
+    if( port == LB_UNDEFINED_UINT32 && device == LB_UNDEFINED_UINT32 )
         return lunchbox::Thread::NONE;
 
-    if( port == EQ_UNDEFINED_UINT32 )
+    if( port == LB_UNDEFINED_UINT32 )
         port = 0;
-    if( device == EQ_UNDEFINED_UINT32 )
+    if( device == LB_UNDEFINED_UINT32 )
         device = 0;
 
     hwloc_topology_t topology;
@@ -340,55 +352,61 @@ int32_t Pipe::_getAutoAffinity() const
     // Set discovery flags
     if( hwloc_topology_set_flags( topology, loading_flags ) < 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_topology_set_flags() failed" << std::endl;
+        hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
     }
 
     if( hwloc_topology_load( topology ) < 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_topology_load() failed" << std::endl;
+        hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
     }
 
     // Get the cpuset for the socket connected to GPU attached to the display
-    // defined by its port and device 
-    hwloc_bitmap_t cpuSet;
+    // defined by its port and device
+    hwloc_bitmap_t cpuSet;  // alloc in hwloc_gl_get_display_cpuset
     if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
                                      &cpuSet ) < 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_gl_get_display_cpuset() failed" << std::endl;
         hwloc_topology_destroy( topology );
+        hwloc_bitmap_free( cpuSet );
         return lunchbox::Thread::NONE;
     }
 
-    const int numCpus = hwloc_get_nbobjs_inside_cpuset_by_type( topology, cpuSet,
-                                                              HWLOC_OBJ_SOCKET );
+    const int numCpus = hwloc_get_nbobjs_inside_cpuset_by_type( topology,
+                                                     cpuSet, HWLOC_OBJ_SOCKET );
     if( numCpus != 1 )
     {
-        EQINFO << "Automatic pipe thread placement failed: GPU attached to "
+        LBINFO << "Automatic pipe thread placement failed: GPU attached to "
                << numCpus << " processors" << std::endl;
         hwloc_topology_destroy( topology );
+        hwloc_bitmap_free( cpuSet );
         return lunchbox::Thread::NONE;
     }
 
     const hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type( topology,
-                                                   cpuSet, HWLOC_OBJ_SOCKET, 0 );
+                                                  cpuSet, HWLOC_OBJ_SOCKET, 0 );
     if( cpuObj == 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_get_obj_inside_cpuset_by_type() failed" << std::endl;
         hwloc_topology_destroy( topology );
+        hwloc_bitmap_free( cpuSet );
         return lunchbox::Thread::NONE;
     }
 
     const int cpuIndex = cpuObj->logical_index;
     hwloc_topology_destroy( topology );
+    hwloc_bitmap_free( cpuSet );
     return cpuIndex + lunchbox::Thread::SOCKET;
 #else
-    EQINFO << "Automatic thread placement not supported, no hwloc GL support"
+    LBINFO << "Automatic thread placement not supported, no hwloc GL support"
            << std::endl;
 #endif
     return lunchbox::Thread::NONE;
@@ -400,12 +418,12 @@ void Pipe::_setupAffinity()
     switch( affinity )
     {
         case AUTO:
-            detail::RenderThread::setAffinity( _getAutoAffinity( ));
+            lunchbox::Thread::setAffinity( _getAutoAffinity( ));
             break;
 
         case OFF:
         default:
-            detail::RenderThread::setAffinity( affinity );
+            lunchbox::Thread::setAffinity( affinity );
             break;
     }
 }
@@ -497,6 +515,8 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
 
         _impl->outputFrameDatas[ dataVersion.identifier ] = frameData;
     }
+    else
+        _impl->inputFrameDatas[ dataVersion.identifier ] = frameData;
 
     frame->setFrameData( frameData );
     return frame;
@@ -509,19 +529,26 @@ void Pipe::flushFrames( ObjectManager* om )
     for( FrameHashCIter i = _impl->frames.begin(); i !=_impl->frames.end(); ++i)
     {
         Frame* frame = i->second;
-
-        frame->deleteGLObjects( om );
-        frame->setFrameData( 0 ); // 'output' datas cleared below and from node
+        frame->setFrameData( 0 ); // datas are flushed below
         client->unmapObject( frame );
         delete frame;
     }
     _impl->frames.clear();
+
+    for( FrameDataHashCIter i = _impl->inputFrameDatas.begin();
+         i != _impl->inputFrameDatas.end(); ++i )
+    {
+        FrameDataPtr data = i->second;
+        data->deleteGLObjects( om );
+    }
+    _impl->inputFrameDatas.clear();
 
     for( FrameDataHashCIter i = _impl->outputFrameDatas.begin();
          i != _impl->outputFrameDatas.end(); ++i )
     {
         FrameDataPtr data = i->second;
         data->resetPlugins();
+        data->deleteGLObjects( om );
         client->unmapObject( data.get( ));
         getNode()->releaseFrameData( data );
     }
@@ -666,9 +693,9 @@ void Pipe::cancelThread()
         return;
 
     PipeExitThreadPacket pkg;
-    co::Command& command = getLocalNode()->allocCommand( sizeof( pkg ));
+    co::CommandPtr command = getLocalNode()->allocCommand( sizeof( pkg ));
     eq::PipeExitThreadPacket* packet =
-        command.getModifiable< eq::PipeExitThreadPacket >();
+        command->getModifiable< eq::PipeExitThreadPacket >();
 
     memcpy( packet, &pkg, sizeof( pkg ));
     dispatchCommand( command );

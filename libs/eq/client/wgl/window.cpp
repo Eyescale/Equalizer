@@ -820,12 +820,14 @@ HGLRC Window::createWGLContext()
     {
         LBASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
         const WindowIF* shareWGLWindow = 
-            static_cast< const WindowIF* >( sysWindow );
-        HGLRC shareCtx = shareWGLWindow->getWGLContext();
-
-        if( shareCtx && !wglShareLists( shareCtx, context ))
-            LBWARN << "Context sharing failed: " << lunchbox::sysError
-                   << std::endl;
+            dynamic_cast< const WindowIF* >( sysWindow );
+        if( shareWGLWindow )
+        {
+            HGLRC shareCtx = shareWGLWindow->getWGLContext();
+            if( shareCtx && !wglShareLists( shareCtx, context ))
+                LBWARN << "Context sharing failed: " << lunchbox::sysError
+                       << std::endl;
+        }
     }
 
     return context;
@@ -851,16 +853,47 @@ void Window::exitEventHandler()
 
 bool Window::processEvent( const WindowEvent& event )
 {
-    if( event.type == Event::WINDOW_EXPOSE )
+    switch( event.type )
     {
+      case Event::WINDOW_EXPOSE:
+      {
         LBASSERT( _wglWindow ); // PBuffers should not generate paint events
 
         // Invalidate update rectangle
         PAINTSTRUCT ps;
         BeginPaint( _wglWindow, &ps );
         EndPaint(   _wglWindow, &ps );
-    }
+        break;
+      }
 
+      case Event::WINDOW_POINTER_BUTTON_PRESS:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            // If no other button was pressed already, capture the mouse
+            event.pointerButtonPress.buttons == event.pointerButtonPress.button )
+        {
+            SetCapture( getWGLWindowHandle( ));
+            WindowEvent grabEvent = event;
+            grabEvent.type = Event::WINDOW_POINTER_GRAB;
+            processEvent( grabEvent );
+        }
+        break;
+
+      case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            // If no button is pressed anymore, release the mouse
+            event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
+        {
+            // Call early for consistent ordering
+            const bool result = SystemWindow::processEvent( event );
+
+            WindowEvent ungrabEvent = event;
+            ungrabEvent.type = Event::WINDOW_POINTER_UNGRAB;
+            processEvent( ungrabEvent );
+            ReleaseCapture();
+            return result;
+        }
+        break;
+    }
     return SystemWindow::processEvent( event );
 }
 

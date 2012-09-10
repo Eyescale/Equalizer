@@ -199,6 +199,10 @@ else()
   find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
   # Matching Collage versions
+  set(_eq_coVersion_1.5.0 "0.7.0")
+  set(_eq_coVersion_1.4.0 "0.6.0")
+  set(_eq_coVersion_1.3.7 "0.5.7")
+  set(_eq_coVersion_1.3.6 "0.5.6")
   set(_eq_coVersion_1.3.5 "0.5.5")
   set(_eq_coVersion_1.3.2 "0.5.2")
   set(_eq_coVersion_1.3.1 "0.5.1")
@@ -216,6 +220,10 @@ else()
   set(_eq_coVersion_1.0.2 "0.3.1")
   set(_eq_coVersion_1.0.1 "0.3.1")
   set(_eq_coVersion_1.0.0 "0.3.0")
+  if( "${_eq_coVersion_${EQUALIZER_VERSION}}" STREQUAL "" )
+    message(WARNING
+      "Unknown Collage version for Equalizer ${EQUALIZER_VERSION}")
+  endif()
   find_package(Collage "${_eq_coVersion_${EQUALIZER_VERSION}}" EXACT
                ${_eq_required} ${_eq_quiet})
   if(NOT COLLAGE_FOUND)
@@ -272,5 +280,5 @@ get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)
   message("-- Found Equalizer ${EQUALIZER_VERSION}/${EQUALIZER_VERSION_ABI} in ${EQUALIZER_INCLUDE_DIRS}"
-    ";${EQUALIZER_LIBRARIES}")
+    ":${EQUALIZER_LIBRARIES}")
 endif()

@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "seqPly.h"
+#include "application.h"
 
 int main( const int argc, char** argv )
 {

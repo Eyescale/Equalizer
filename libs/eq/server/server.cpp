@@ -140,9 +140,9 @@ void Server::deleteConfigs()
 //===========================================================================
 // packet handling methods
 //===========================================================================
-bool Server::dispatchCommand( co::Command& command )
+bool Server::dispatchCommand( co::CommandPtr command )
 {
-    switch( command->type )
+    switch( (*command)->type )
     {
         case fabric::PACKETTYPE_EQ_SERVER:
             return co::Dispatcher::dispatchCommand( command );
@@ -158,13 +158,11 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::Command& command = *(_mainThreadQueue.pop( ));
-        if( !command( ))
+        co::CommandPtr command = _mainThreadQueue.pop();
+        if( !(*command)( ))
         {
             LBABORT( "Error handling command " << command );
         }
-
-        command.release();
     }
     _mainThreadQueue.flush();
 }
@@ -173,7 +171,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
 {
     const ServerChooseConfigPacket* packet = 
         command.get<ServerChooseConfigPacket>();
-    LBINFO << "Handle choose config " << packet << std::endl;
+    LBVERB << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -258,7 +256,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
         command.get<ServerReleaseConfigPacket>();
-    LBINFO << "Handle release config " << packet << std::endl;
+    LBVERB << "Handle release config " << packet << std::endl;
 
     ServerReleaseConfigReplyPacket reply( packet );
     co::NodePtr node = command.getNode();

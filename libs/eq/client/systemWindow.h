@@ -171,7 +171,7 @@ namespace eq
         EQ_API void setError( const int32_t error );
 
         /** @return the error from the last failed operation. @version 1.0 */
-        EQ_API co::Error getError() const;
+        EQ_API eq::fabric::Error getError() const;
 
         /** Process an event. @version 1.0 */
         EQ_API virtual bool processEvent( const Event& event );

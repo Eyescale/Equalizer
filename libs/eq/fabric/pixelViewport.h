@@ -299,4 +299,14 @@ namespace fabric
 }
 }
 
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::PixelViewport& value )
+{
+    byteswap( value.x );
+    byteswap( value.y );
+    byteswap( value.w );
+    byteswap( value.h );
+}
+}
 #endif // EQFABRIC_PIXELVIEWPORT_H

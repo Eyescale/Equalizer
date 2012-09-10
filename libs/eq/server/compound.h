@@ -458,7 +458,7 @@ namespace server
          * @return true if the compound is active and the compound's channel is
          *         running.
          */
-        bool isRunning() const;
+        bool isActive() const;
 
         /** Initialize this compound. */
         void init();
@@ -546,9 +546,9 @@ namespace server
         /** Unique identifier for channel tasks. */
         uint32_t _taskID;
 
-        struct InheritData
+        struct Data
         {
-            InheritData();
+            Data();
 
             Channel*          channel;
             Viewport          vp;
@@ -576,9 +576,9 @@ namespace server
             };
         };
 
-        InheritData _data;
-        InheritData _backup;
-        InheritData _inherit;
+        Data _data;
+        Data _backup;
+        Data _inherit;
 
         /** The frustum description of this compound. */
         Frustum _frustum;
@@ -606,9 +606,9 @@ namespace server
         bool _removeChild( Compound* child );
 
         void _updateOverdraw( Wall& wall );
-        void _updateInheritRoot( const PixelViewport& oldPVP );
-        void _updateInheritNode( const PixelViewport& oldPVP );
-        void _updateInheritPVP( const PixelViewport& oldPVP );
+        void _updateInheritRoot();
+        void _updateInheritNode();
+        void _updateInheritPVP();
         void _updateInheritOverdraw();
         void _updateInheritStereo();
         void _updateInheritActive( const uint32_t frameNumber );

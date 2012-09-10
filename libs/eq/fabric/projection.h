@@ -85,5 +85,15 @@ namespace fabric
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Projection& );
 }
 }
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Projection& value )
+{
+    byteswap( value.origin );
+    byteswap( value.distance );
+    byteswap( value.fov );
+    byteswap( value.hpr );
+}
+}
 #endif // EQFABRIC_PROJECTION_H
 

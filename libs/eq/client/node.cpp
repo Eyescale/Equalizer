@@ -169,7 +169,7 @@ void Node::releaseFrameData( FrameDataPtr data )
 {
     lunchbox::ScopedWrite mutex( _frameDatas );
     FrameDataHashIter i = _frameDatas->find( data->getID( ));
-    EQASSERT( i != _frameDatas->end( ));
+    LBASSERT( i != _frameDatas->end( ));
     if( i == _frameDatas->end( ))
         return;
 
@@ -212,7 +212,8 @@ void Node::_setAffinity()
             break;
 
         case AUTO:
-            LBINFO << "No automatic thread placement for node threads "
+            // TODO
+            LBVERB << "No automatic thread placement for node threads "
                    << std::endl;
             break;
 
@@ -398,12 +399,11 @@ void Node::_flushObjects()
     }
 
     lunchbox::ScopedMutex<> mutex( _frameDatas );
-    LBASSERT( _frameDatas->empty( ));
-
     for( FrameDataHashCIter i = _frameDatas->begin();
          i != _frameDatas->end(); ++i )
     {
         FrameDataPtr frameData = i->second;
+        frameData->resetPlugins();
         client->unmapObject( frameData.get( ));
     }
     _frameDatas->clear();
@@ -415,12 +415,11 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::Command* command = _queue.pop();
+        co::CommandPtr command = _queue.pop();
         if( !command )
             return; // exit thread
 
         LBCHECK( (*command)( ));
-        command->release();
     }
 }
 
@@ -432,7 +431,7 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    transmitter.getQueue().wakeup();
+    transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
 }
 
@@ -524,7 +523,7 @@ bool Node::_cmdConfigExit( co::Command& command )
     }
     
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.getQueue().wakeup();
+    transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
     _flushObjects();
 

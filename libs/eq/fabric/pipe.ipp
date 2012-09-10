@@ -116,7 +116,7 @@ void Pipe< N, P, W, V >::serialize( co::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_WINDOWS && isMaster( ))
     {
         os << _mapNodeObjects();
@@ -134,7 +134,7 @@ void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is >> co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_WINDOWS )
     {
         if( isMaster( ))
@@ -360,7 +360,7 @@ void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
 
     _data.pvp = pvp;
     notifyPixelViewportChanged();    
-    LBINFO << "Pipe pvp set: " << _data.pvp << std::endl;
+    LBVERB << "Pipe pvp set: " << _data.pvp << std::endl;
 }
 
 template< class N, class P, class W, class V >
@@ -373,7 +373,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
         (*i)->notifyViewportChanged();
     }
     setDirty( DIRTY_PIXELVIEWPORT );
-    LBINFO << getName() << " pvp update: " << _data.pvp << std::endl;
+    LBVERB << getName() << " pvp update: " << _data.pvp << std::endl;
 }
 
 //----------------------------------------------------------------------

@@ -55,9 +55,10 @@ class View;
 class Window;
 class WindowSystem;
 struct ConfigEvent;
-struct PixelData;
-struct Statistic;
 struct Event;
+struct PixelData;
+struct PointerEvent;
+struct Statistic;
 
 using fabric::ANAGLYPH;
 using fabric::ASYNC;
@@ -206,6 +207,8 @@ typedef lunchbox::RefPtr< const Client >  ConstClientPtr;
 typedef lunchbox::RefPtr< Server >        ServerPtr;
 /** A reference-counted pointer to an eq::FrameData */
 typedef lunchbox::RefPtr< FrameData >     FrameDataPtr;
+/** A reference-counted pointer to a const eq::FrameData */
+typedef lunchbox::RefPtr< const FrameData >     ConstFrameDataPtr;
 
 namespace util
 {
@@ -253,6 +256,7 @@ typedef std::vector< uint16_t >   Vectorus;
 typedef Strings::const_iterator StringsCIter;
 
 using lunchbox::a_int32_t;
+using lunchbox::backtrace;
 using lunchbox::uint128_t;
 using lunchbox::UUID;
 

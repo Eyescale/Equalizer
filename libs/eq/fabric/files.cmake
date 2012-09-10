@@ -13,10 +13,12 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   config.h
   configPackets.h
   configVisitor.h
+  defines.h
   drawableConfig.h
   elementVisitor.h
   equalizerTypes.h
-  error.h
+  error.h 
+  errorRegistry.h
   eye.h
   focusMode.h
   frame.h
@@ -80,6 +82,7 @@ set(EQ_FABRIC_SOURCES
   client.cpp
   colorMask.cpp
   error.cpp
+  errorRegistry.cpp
   eye.cpp
   frame.cpp
   frustum.cpp

@@ -114,7 +114,7 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
               getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.nativeContext.vp << _data.nativeContext.pvp 
            << _data.fixedVP << _maxSize;
@@ -133,7 +133,7 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is >> co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_VIEWPORT )
     {
         // Ignore data from master (server) if we have local changes
@@ -144,9 +144,9 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.advanceBuffer( sizeof( _data.nativeContext.vp ) + 
-                              sizeof( _data.nativeContext.pvp ) + 
-                              sizeof( _data.fixedVP ) + sizeof( _maxSize ));
+            is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) + 
+                                   sizeof( _data.nativeContext.pvp ) + 
+                                   sizeof( _data.fixedVP ) + sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _drawable >> _data.nativeContext.view

@@ -105,7 +105,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
     registry.setString( ERROR_NODE_INIT, "Node init failed" );
     registry.setString( ERROR_PIPE_INIT, "Pipe init failed" );
 

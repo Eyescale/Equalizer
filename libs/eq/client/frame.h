@@ -113,8 +113,8 @@ namespace detail{ class Frame; }
         /** @return the frame's data. @version 1.3.2 */
         EQ_API FrameDataPtr getFrameData();
 
-        /** @return the frame's data. @version 1.3.2 */
-        EQ_API const FrameDataPtr getFrameData() const;
+        /** @return the frame's data. @version 1.4 */
+        EQ_API ConstFrameDataPtr getFrameData() const;
 
         /** @return the enabled frame buffer attachments. @version 1.0 */
         EQ_API uint32_t getBuffers() const;
@@ -178,7 +178,7 @@ namespace detail{ class Frame; }
          *
          * The newly read images are added to the data, existing images are
          * retained. The finish for the new images has to be done by the
-         * caller.
+         * caller. The regions are relative to the current OpenGL viewport.
          *
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.

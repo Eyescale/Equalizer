@@ -112,6 +112,7 @@
 #include <eq/client/windowSystem.h>
 
 #ifdef EQ_SYSTEM_INCLUDES
+#  include <eq/client/gl.h>
 #  include <eq/client/system.h>
 #endif
 

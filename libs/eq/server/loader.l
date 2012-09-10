@@ -19,6 +19,7 @@
 #include "compound.h"
 #include "equalizers/loadEqualizer.h"
 #include "equalizers/treeEqualizer.h"
+#include <co/connectionType.h>
 
 #include "parser.hpp"
 
@@ -111,6 +112,7 @@ EQ_WINDOW_IATTR_HINT_SWAPSYNC    { return EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC; }
 EQ_WINDOW_IATTR_HINT_DRAWABLE    { return EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE; }
 EQ_WINDOW_IATTR_HINT_STATISTICS { return EQTOKEN_WINDOW_IATTR_HINT_STATISTICS; }
 EQ_WINDOW_IATTR_HINT_SCREENSAVER {return EQTOKEN_WINDOW_IATTR_HINT_SCREENSAVER;}
+EQ_WINDOW_IATTR_HINT_GRAB_POINTER {return EQTOKEN_WINDOW_IATTR_HINT_GRAB_POINTER;}
 EQ_WINDOW_IATTR_PLANES_COLOR     { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA     { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
 EQ_WINDOW_IATTR_PLANES_DEPTH     { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
@@ -143,6 +145,7 @@ hint_thread                     { return EQTOKEN_HINT_THREAD; }
 hint_affinity                   { return EQTOKEN_HINT_AFFINITY; }
 hint_cuda_GL_interop            { return EQTOKEN_HINT_CUDA_GL_INTEROP; }
 hint_screensaver                { return EQTOKEN_HINT_SCREENSAVER; }
+hint_grab_pointer               { return EQTOKEN_HINT_GRAB_POINTER; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
 planes_color                    { return EQTOKEN_PLANES_COLOR; }
 planes_depth                    { return EQTOKEN_PLANES_DEPTH; }
@@ -153,8 +156,8 @@ planes_samples                  { return EQTOKEN_PLANES_SAMPLES; }
 ON                              { return EQTOKEN_ON; }
 OFF                             { return EQTOKEN_OFF; }
 AUTO                            { return EQTOKEN_AUTO; }
-core                            { return EQTOKEN_CORE; }
-socket                          { return EQTOKEN_SOCKET; }
+CORE                            { return EQTOKEN_CORE; }
+SOCKET                          { return EQTOKEN_SOCKET; }
 FASTEST                         { return EQTOKEN_FASTEST; }
 NICEST                          { return EQTOKEN_NICEST; }
 QUAD                            { return EQTOKEN_QUAD; }
@@ -193,7 +196,6 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
 IB                              { return EQTOKEN_IB; }
 PIPE                            { return EQTOKEN_PIPE; }
-PGM                             { return EQTOKEN_PGM; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }
 UDT                             { return EQTOKEN_UDT; }

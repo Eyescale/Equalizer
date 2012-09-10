@@ -63,9 +63,9 @@ void View::detach()
         PipeDetachViewPacket pkg( getID( ));
 
         co::LocalNodePtr localNode = getLocalNode();
-        co::Command& command = localNode->allocCommand( sizeof( pkg ));
+        co::CommandPtr command = localNode->allocCommand( sizeof( pkg ));
         PipeDetachViewPacket* packet = 
-            command.getModifiable< PipeDetachViewPacket >();
+            command->getModifiable< PipeDetachViewPacket >();
 
         memcpy( packet, &pkg, sizeof( pkg ));
         _pipe->dispatchCommand( command );

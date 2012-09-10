@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +17,8 @@
 
 #include "global.h"
 
+#include "errorRegistry.h"
+
 namespace eq
 {
 namespace fabric
@@ -24,6 +26,7 @@ namespace fabric
 namespace
 {
 static std::string _server;
+static ErrorRegistry _errorRegistry;
 }
 
 void Global::setServer( const std::string& server )
@@ -34,6 +37,11 @@ void Global::setServer( const std::string& server )
 const std::string& Global::getServer()
 {
     return _server;
+}
+
+ErrorRegistry& Global::getErrorRegistry()
+{
+    return _errorRegistry;
 }
 
 }

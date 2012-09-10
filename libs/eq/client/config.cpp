@@ -100,8 +100,7 @@ class Config
 {
 public:
     Config()
-            : lastEvent( 0 )
-            , currentFrame( 0 )
+            : currentFrame( 0 )
             , unlockedFrame( 0 )
             , finishedFrame( 0 )
             , running( false )
@@ -112,7 +111,7 @@ public:
     ~Config()
     {
         lastEvent = 0;
-        appNode   = 0;
+        appNode = 0;
         lunchbox::Log::setClock( 0 );
     }
 
@@ -123,7 +122,7 @@ public:
     CommandQueue eventQueue;
 
     /** The last received event to be released. */
-    co::Command* lastEvent;
+    co::CommandPtr lastEvent;
 
     /** The connections configured by the server for this config. */
     co::Connections connections;
@@ -173,9 +172,7 @@ Config::~Config()
     LBASSERT( getNodes().empty( ));
     LBASSERT( _impl->latencyObjects->empty() );
 
-    while( tryNextEvent( )) /* flush all pending events */ ;
-    if( _impl->lastEvent )
-        _impl->lastEvent->release();
+    _impl->lastEvent = 0;
     _impl->eventQueue.flush();
     delete _impl;
 }
@@ -367,11 +364,8 @@ bool Config::exit()
     bool ret = false;
     localNode->waitRequest( packet.requestID, ret );
 
-    while( tryNextEvent( )) /* flush all pending events */ ;
-    if( _impl->lastEvent )
-        _impl->lastEvent->release();
-    _impl->eventQueue.flush();
     _impl->lastEvent = 0;
+    _impl->eventQueue.flush();
     _impl->running = false;
     return ret;
 }
@@ -615,22 +609,18 @@ void Config::sendEvent( ConfigEvent& event )
 
 const ConfigEvent* Config::nextEvent()
 {
-    if( _impl->lastEvent )
-        _impl->lastEvent->release();
     _impl->lastEvent = _impl->eventQueue.pop();
-    return _impl->lastEvent->get<ConfigEvent>();
+    return _impl->lastEvent->get< ConfigEvent >();
 }
 
 const ConfigEvent* Config::tryNextEvent()
 {
-    co::Command* command = _impl->eventQueue.tryPop();
+    co::CommandPtr command = _impl->eventQueue.tryPop();
     if( !command )
         return 0;
 
-    if( _impl->lastEvent )
-        _impl->lastEvent->release();
     _impl->lastEvent = command;
-    return command->get<ConfigEvent>();
+    return command->get< ConfigEvent >();
 }
 
 bool Config::checkEvent() const
@@ -934,7 +924,6 @@ void Config::setupMessagePump( Pipe* pipe )
 void Config::_exitMessagePump()
 {
     MessagePump* pump = _impl->eventQueue.getMessagePump();
-
     _impl->eventQueue.setMessagePump( 0 );
 
     ClientPtr client = getClient();
@@ -1166,7 +1155,7 @@ bool Config::_cmdFrameFinish( co::Command& command )
         _impl->unlockedFrame = _impl->finishedFrame.get();
     }
 
-    getMainThreadQueue()->wakeup();
+    getMainThreadQueue()->push( 0 ); // wakeup signal
     return true;
 }
 

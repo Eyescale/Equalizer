@@ -99,7 +99,7 @@ Node< C, N, P, V >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_PIPES && isMaster( ))
     {
         os << _mapNodeObjects();
@@ -114,7 +114,7 @@ Node< C, N, P, V >::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is >> co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_PIPES )
     {
         if( isMaster( ))

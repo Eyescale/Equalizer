@@ -5,11 +5,22 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-find_package(OpenGL REQUIRED)
-find_package(Lunchbox 1.3.5 REQUIRED)
+if(APPLE)
+  # WAR otherwise MacPorts X11 (/opt/local) is preferred
+  LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
+  LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
+endif()
+
+include(FindPackages)
+
+if(APPLE)
+  LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
+  LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
+endif(APPLE)
+
 find_package(GLEW_MX)
 
-include_directories(${LUNCHBOX_INCLUDE_DIRS})
+include_directories(${COLLAGE_INCLUDE_DIRS})
 
 # CUDA
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)

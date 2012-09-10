@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,7 +60,7 @@ bool Client::connectServer( co::NodePtr server )
         if( !connDesc->fromString( address ))
             LBWARN << "Can't parse server address " << address << std::endl;
         LBASSERT( address.empty( ));
-        LBINFO << "Connecting to " << connDesc->toString() << std::endl;
+        LBINFO << "Connecting server " << connDesc->toString() << std::endl;
 
         server->addConnectionDescription( connDesc );
     }
@@ -93,26 +93,25 @@ void Client::processCommand( const uint32_t timeout )
 {
     co::CommandQueue* queue = getMainThreadQueue();
     LBASSERT( queue );
-    co::Command* command = queue->pop( timeout );
+    co::CommandPtr command = queue->pop( timeout );
     if( !command ) // just a wakeup()
         return;
 
     LBCHECK( (*command)( ));
-    command->release();
 }
 
-bool Client::dispatchCommand( co::Command& command )
+bool Client::dispatchCommand( co::CommandPtr command )
 {
-    LBVERB << "dispatchCommand " << command << std::endl;
+    LBVERB << "dispatch " << command << std::endl;
 
-    switch( command->type )
+    switch( (*command)->type )
     {
         case PACKETTYPE_EQ_CLIENT:
             return co::Dispatcher::dispatchCommand( command );
 
         case PACKETTYPE_EQ_SERVER:
         {
-            co::NodePtr node = command.getNode();
+            co::NodePtr node = command->getNode();
             return node->co::Dispatcher::dispatchCommand( command );
         }
 

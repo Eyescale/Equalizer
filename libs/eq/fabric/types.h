@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/error.h>
 #include <eq/fabric/vmmlib.h>
 #include <co/types.h>
 #include <lunchbox/refPtr.h>
@@ -30,6 +31,7 @@ namespace eq
 namespace fabric
 {
 class ColorMask;
+class ErrorRegistry;
 class Frustum;
 class Pixel;
 class PixelViewport;
@@ -43,22 +45,6 @@ class Wall;
 class Zoom;
 struct DrawableConfig;
 struct GPUInfo;
-
-typedef vmml::matrix< 3, 3, double > Matrix3d; //!< A 3x3 double matrix
-typedef vmml::matrix< 4, 4, double > Matrix4d; //!< A 4x4 double matrix
-typedef vmml::matrix< 3, 3, float >  Matrix3f; //!< A 3x3 float matrix
-typedef vmml::matrix< 4, 4, float >  Matrix4f; //!< A 4x4 float matrix
-typedef vmml::vector< 2, int > Vector2i; //!< A two-component integer vector
-typedef vmml::vector< 3, int > Vector3i; //!< A three-component integer vector
-typedef vmml::vector< 4, int > Vector4i; //!< A four-component integer vector
-typedef vmml::vector< 3, double >Vector3d; //!< A three-component double vector
-typedef vmml::vector< 4, double >Vector4d; //!< A four-component double vector
-typedef vmml::vector< 2, float > Vector2f; //!< A two-component float vector
-typedef vmml::vector< 3, float > Vector3f; //!< A three-component float vector
-typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
-/** A three-component byte vector */
-typedef vmml::vector< 3, unsigned char > Vector3ub;
-typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
 using lunchbox::uint128_t;
 using lunchbox::UUID;
@@ -97,7 +83,16 @@ struct WindowPath;
 #ifndef EQ_2_0_API
 using co::Serializable;
 #endif
+}
+}
 
+#ifndef EQ_2_0_API
+namespace co
+{
+using eq::fabric::Error;
+using eq::fabric::ErrorRegistry;
+using eq::fabric::ERROR_NONE;
 }
-}
+#endif
+
 #endif // EQFABRIC_TYPES_H

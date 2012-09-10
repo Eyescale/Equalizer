@@ -20,6 +20,7 @@
 
 #include "eventHandler.h"
 #include "pipe.h"
+#include "windowEvent.h"
 
 #include "../global.h"
 #include "../pipe.h"
@@ -444,7 +445,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     }
     setXDrawable( drawable );
     
-    LBINFO << "Created X11 drawable " << drawable << std::endl;
+    LBVERB << "Created X11 drawable " << drawable << std::endl;
     return true;
 }
     
@@ -574,7 +575,7 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
     XFlush( _xDisplay );
     setXDrawable( pbuffer );
 
-    LBINFO << "Created X11 PBuffer " << pbuffer << std::endl;
+    LBVERB << "Created X11 PBuffer " << pbuffer << std::endl;
     return true;
 }
 
@@ -696,7 +697,7 @@ void Window::configExit()
             XDestroyWindow( _xDisplay, drawable );
     }
 
-    LBINFO << "Destroyed GLX context and X drawable " << std::endl;
+    LBVERB << "Destroyed GLX context and X drawable " << std::endl;
 }
 
 void Window::makeCurrent( const bool cache ) const
@@ -770,7 +771,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
     
-    LBINFO << "Joined swap group " << group << " and barrier " << barrier
+    LBVERB << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 #else
     LBUNIMPLEMENTED;
@@ -790,6 +791,56 @@ void Window::leaveNVSwapBarrier()
 #else
     LBUNIMPLEMENTED;
 #endif
+}
+
+bool Window::processEvent( const WindowEvent& event )
+{
+    switch( event.type )
+    {
+      case Event::WINDOW_POINTER_BUTTON_PRESS:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW &&
+            // If no other button was pressed already, capture the mouse
+            event.pointerButtonPress.buttons == event.pointerButtonPress.button )
+        {
+            const unsigned int eventMask = ButtonPressMask | ButtonReleaseMask |
+                                           ButtonMotionMask;
+            const int result = XGrabPointer( getXDisplay(), getXDrawable(),
+                                             False, eventMask, GrabModeAsync,
+                                             GrabModeAsync, None, None,
+                                             CurrentTime );
+            if( result == GrabSuccess )
+            {
+                WindowEvent grabEvent = event;
+                grabEvent.type = Event::WINDOW_POINTER_GRAB;
+                processEvent( grabEvent );
+            }
+            else
+            {
+                LBWARN << "Failed to grab mouse: XGrabPointer returned "
+                       << result << std::endl;
+            }
+        }
+        break;
+
+      case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW &&
+            // If no button is pressed anymore, release the mouse
+            event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
+        {
+            // Call early for consistent ordering
+            const bool result = SystemWindow::processEvent( event );
+
+            WindowEvent ungrabEvent = event;
+            ungrabEvent.type = Event::WINDOW_POINTER_UNGRAB;
+            processEvent( ungrabEvent );
+            XUngrabPointer( getXDisplay(), CurrentTime );
+            return result;
+        }
+        break;
+    }
+    return SystemWindow::processEvent( event );
 }
 
 void Window::initEventHandler()

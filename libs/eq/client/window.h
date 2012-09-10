@@ -19,7 +19,6 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <eq/client/gl.h>            // GLEWContext
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 
@@ -210,7 +209,7 @@ namespace eq
          * execution of pending rendering requests.
          * @version 1.0
          */
-        virtual void flush() const { glFlush(); }
+        EQ_API virtual void flush() const;
 
         /** 
          * Finish outstanding rendering requests.
@@ -219,7 +218,7 @@ namespace eq
          * swap directly after the barrier is left.
          * @version 1.0
          */
-        virtual void finish() const { glFinish(); }
+        EQ_API virtual void finish() const;
 
         /** Swap the front and back buffer of the window. @version 1.0 */
         EQ_API virtual void swapBuffers();
@@ -476,6 +475,9 @@ namespace eq
         /** The time of the last swap command. */
         int64_t _lastSwapTime;
 
+        /** List of channels that have grabbed the mouse. */
+        Channels _grabbedChannels;
+
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
@@ -483,6 +485,9 @@ namespace eq
         void _addRenderContext( const RenderContext& context );
         friend class Channel;
         
+        /** @return the channels concerned by the given mouse event. */
+        Channels _getEventChannels( const PointerEvent& event );
+
         /** Set up object manager during initialization. */
         void _setupObjectManager();
         /** Release object manager. */

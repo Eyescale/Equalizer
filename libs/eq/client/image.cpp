@@ -18,6 +18,7 @@
 
 #include "image.h"
 
+#include "gl.h"
 #include "log.h"
 #include "pixelData.h"
 #include "windowSystem.h"
@@ -27,15 +28,16 @@
 
 #include <eq/fabric/colorMask.h>
 
+#include <co/compressorInfo.h>
+#include <co/cpuCompressor.h>
 #include <co/global.h>
+#include <co/plugin.h>
 #include <co/pluginRegistry.h>
+
 #include <lunchbox/memoryMap.h>
 #include <lunchbox/omp.h>
 
 // Internal headers
-#include "../../co/plugin.h"
-#include "../../co/compressorInfo.h"
-#include "../../co/cpuCompressor.h"
 #include "../util/gpuCompressor.h"
 
 #include <fstream>
@@ -467,11 +469,12 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _impl->getMemory( buffer );
 }
 
-void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
+bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                     const Vector2i& position, ObjectManager* glObjects ) const
 {
     LBASSERT( glObjects );
 
+    // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
     util::GPUCompressor* uploader = glObjects->obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );
@@ -482,8 +485,14 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
 
-    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ))
-        uploader->initUploader( externalFormat, internalFormat, flags );
+    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ) &&
+        !uploader->initUploader( externalFormat, internalFormat, flags ))
+    {
+        LBWARN << "Can't initialize upload plugin for " << std::hex
+               << externalFormat << " -> " << internalFormat << std::dec
+               << " upload" << std::endl;
+        return false;
+    }
 
     PixelViewport pvp = getPixelViewport();
     pvp.x = position.x() + pvp.x;
@@ -493,6 +502,7 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 
     uploader->upload( pixelData.pixels, pixelData.pvp, flags, pvp,
                       texture ? texture->getName() : 0 );
+    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -521,6 +531,7 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
 
     bool needFinish = (buffers & Frame::BUFFER_COLOR) &&
                          _startReadback( Frame::BUFFER_COLOR, zoom, glObjects );
+
     if( (buffers & Frame::BUFFER_DEPTH) &&
         _startReadback( Frame::BUFFER_DEPTH, zoom, glObjects ))
     {
@@ -593,7 +604,8 @@ bool Image::startReadback( const Frame::Buffer buffer,
                                                   texture->getHeight( )),
                                    texture->getName(), flags,
                                    memory.pvp, &memory.pixels ) :
-        downloader->startDownload( _impl->pvp, 0, flags, memory.pvp, &memory.pixels );
+        downloader->startDownload( _impl->pvp, 0, flags, memory.pvp,
+                                   &memory.pixels );
 
     downloader->setGLEWContext( 0 );
 
@@ -802,10 +814,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         memset_pattern4( data, &pixel, size );
 #else
         bzero( data, size );
-
-#ifdef CO_USE_OPENMP
 #pragma omp parallel for
-#endif
         for( ssize_t i = 3; i < size; i+=4 )
             data[i] = 255;
 #endif
@@ -1542,7 +1551,7 @@ bool Image::hasPixelData( const Frame::Buffer buffer ) const
 
 bool Image::hasAsyncReadback( const Frame::Buffer buffer ) const
 {
-    return _impl->getMemory(buffer).state == Memory::DOWNLOAD;
+    return _impl->getMemory( buffer ).state == Memory::DOWNLOAD;
 }
 
 bool Image::hasAsyncReadback() const

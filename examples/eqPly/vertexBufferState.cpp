@@ -92,8 +92,9 @@ void VertexBufferState::updateRegion( const BoundingBox& box )
         region[3] = std::max( corner[1], region[3] );
     }
 
-    // transform covered region from [ -1 -1 1 1 ] to normalized viewport
-    const Vector4f normalized( region[0] * .5f + .5f, region[1] * .5f + .5f,
+    // transform region of interest from [ -1 -1 1 1 ] to normalized viewport
+    const Vector4f normalized( region[0] * .5f + .5f,
+                               region[1] * .5f + .5f,
                                ( region[2] - region[0] ) * .5f,
                                ( region[3] - region[1] ) * .5f );
 

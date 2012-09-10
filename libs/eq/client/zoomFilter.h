@@ -19,15 +19,14 @@
 #ifndef EQ_ZOOMFILTER_H
 #define EQ_ZOOMFILTER_H
 
-#include <eq/client/gl.h>
 
 namespace eq
 {
     /** Filtering algorithm to applied during zoom operations. */
     EQ_API enum ZoomFilter
     {
-        FILTER_NEAREST = GL_NEAREST,
-        FILTER_LINEAR  = GL_LINEAR 
+        FILTER_NEAREST = 0x2600, //!< GL_NEAREST
+        FILTER_LINEAR  = 0x2601  //!< GL_LINEAR 
     };
 
 }

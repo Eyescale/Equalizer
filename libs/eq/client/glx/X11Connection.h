@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,9 +36,9 @@ namespace glx
     {
     public:
         X11Connection( Display* display )
-                : _display( display ) { _state = STATE_CONNECTED; }
+                : _display( display ) { _setState( STATE_CONNECTED ); }
         
-        virtual ~X11Connection() { _state = STATE_CLOSED; }
+        virtual ~X11Connection() { _setState( STATE_CLOSED ); }
 
         virtual Notifier getNotifier() const
             { return ConnectionNumber( _display ); }

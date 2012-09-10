@@ -91,7 +91,7 @@ FrameDataPtr Frame::getFrameData()
     return _impl->frameDataPtr;
 }
 
-const FrameDataPtr Frame::getFrameData() const
+ConstFrameDataPtr Frame::getFrameData() const
 {
     return _impl->frameDataPtr;
 }
@@ -146,6 +146,7 @@ void Frame::clear()
 
 void Frame::deleteGLObjects( ObjectManager* om )
 {
+    LBASSERT( _impl->frameData );
     if( _impl->frameData )
         _impl->frameData->deleteGLObjects( om );
 }

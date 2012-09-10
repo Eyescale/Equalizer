@@ -125,10 +125,18 @@ namespace detail { class Frame; }
         detail::Frame* const _impl;
     };
 
+    /** Print the frame to the given output stream. @version 1.4 */
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame& );
     /** Print the frame type to the given output stream. @version 1.0 */
     EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame::Type );
     /** Print the frame buffer value to the given output stream. @version 1.0 */
     EQFABRIC_API std::ostream& operator << (std::ostream&, const Frame::Buffer);
 }
+}
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Frame::Type& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
 }
 #endif // EQFABRIC_FRAME_H

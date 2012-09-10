@@ -65,10 +65,6 @@
 #ifdef WGL
 #  include <wingdi.h>
 
-#  ifndef WGL_ARB_pbuffer
-typedef void* HPBUFFERARB;
-#  endif
-
 #  ifndef WGL_NV_gpu_affinity
 #    define WGL_NV_gpu_affinity 1
 DECLARE_HANDLE(HGPUNV);

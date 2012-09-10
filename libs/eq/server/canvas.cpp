@@ -73,6 +73,8 @@ void Canvas::activateLayout( const uint32_t index )
 {
     if( _state == STATE_RUNNING )
         _switchLayout( getActiveLayoutIndex(), index );
+    else
+        Super::activateLayout( index );
 }
 
 void Canvas::init()

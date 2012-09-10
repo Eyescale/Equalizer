@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -70,9 +70,9 @@ namespace fabric
         EQFABRIC_INL N* findAppNode(); //!< @internal
         EQFABRIC_INL const N* findAppNode() const; //!< @internal
 
-        /** 
-         * Traverse this config and all children using a config visitor.
-         * 
+        /**
+         * Perform a depth-first traversal of this config.
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -86,7 +86,7 @@ namespace fabric
         template< typename T > EQFABRIC_INL T* find( const uint128_t& id );
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
-        template< typename T > 
+        template< typename T >
         EQFABRIC_INL const T* find( const uint128_t& id ) const;
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
@@ -140,7 +140,7 @@ namespace fabric
             IATTR_LAST,
             IATTR_ALL = IATTR_LAST + 5
         };
-        
+
         /** @internal */
         void setFAttribute( const FAttribute attr, const float value )
             { _fAttributes[attr] = value; }
@@ -161,13 +161,13 @@ namespace fabric
         /** @internal */
         static const std::string& getIAttributeString( const IAttribute attr );
         //@}
- 
+
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Set the maximum accepted latency for this config.
-         * 
+         *
          * The latency is defined as the maximum number of frames between the
          * start of a frame and the finish of the last rendering task for that
          * frame. Setting the latency of a running config finishes all pending
@@ -207,9 +207,9 @@ namespace fabric
                                           const uint32_t instanceID );
 
         /** @internal */
-        EQFABRIC_INL virtual void serialize( co::DataOStream& os, 
+        EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                              const uint64_t dirtyBits );
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                const uint64_t dirtyBits );
         EQFABRIC_INL virtual void notifyDetach();
 
@@ -247,7 +247,7 @@ namespace fabric
     private:
         /** The parent server. */
         lunchbox::RefPtr< S > _server;
-        
+
         /** Float attributes. */
         float _fAttributes[FATTR_ALL];
 
@@ -302,11 +302,11 @@ namespace fabric
         template< class, class > friend class Observer;
         void _addObserver( O* observer );
         bool _removeObserver( O* observer );
-        
+
         template< class, class, class > friend class Layout;
         void _addLayout( L* layout );
         bool _removeLayout( L* layout );
-        
+
         template< class, class, class, class > friend class Canvas;
         void _addCanvas( CV* canvas );
         bool _removeCanvas( CV* canvas );

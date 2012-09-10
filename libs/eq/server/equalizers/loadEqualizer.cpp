@@ -43,7 +43,7 @@ LoadEqualizer::LoadEqualizer( const Mode mode )
         , _boundaryf( std::numeric_limits<float>::epsilon() )
         , _assembleOnlyLimit( std::numeric_limits< float >::max( ) )
 {
-    LBINFO << "New LoadEqualizer @" << (void*)this << std::endl;
+    LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 
 LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
@@ -70,7 +70,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
     _checkHistory(); // execute to not leak memory
-    if( isFrozen() || !compound->isRunning() || !isActive( ))
+    if( isFrozen() || !compound->isActive() || !isActive( ))
         return;
 
     if( !_tree )
@@ -370,7 +370,7 @@ float LoadEqualizer::_getTotalResources( ) const
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
     {
        const Compound* compound = *i;
-       if( compound->isRunning( ))
+       if( compound->isActive( ))
            resources += compound->getUsage();
     }
 
@@ -394,7 +394,7 @@ void LoadEqualizer::_updateLeaf( Node* node )
     const Channel* channel = compound->getChannel();
     LBASSERT( channel );
     const PixelViewport& pvp = channel->getPixelViewport();
-    node->resources = compound->isRunning() ? compound->getUsage() : 0.f;
+    node->resources = compound->isActive() ? compound->getUsage() : 0.f;
     LBASSERT( node->resources >= 0.f );
 
     node->maxSize.x() = pvp.w; 

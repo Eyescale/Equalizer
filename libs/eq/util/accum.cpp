@@ -19,6 +19,8 @@
 #include "accumBufferObject.h"
 #include "accum.h"
 
+#include <eq/client/gl.h>
+
 namespace eq
 {
 namespace util

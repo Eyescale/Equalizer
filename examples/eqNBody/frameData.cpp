@@ -58,24 +58,20 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {       
     co::Serializable::serialize( os, dirtyBits );
         
-    if( dirtyBits & DIRTY_DATA ) {
-        if(_hPos && _hVel && _hCol) {
-            os.write(_hPos, sizeof(float)*_numBodies*4);
-            os.write(_hVel, sizeof(float)*_numBodies*4);
-            os.write(_hCol, sizeof(float)*_numBodies*4);
-        }
-    }
+    if( dirtyBits & DIRTY_DATA )
+        if(_hPos && _hVel && _hCol)
+            os << co::Array< float >( _hPos, _numBodies * 4 )
+               << co::Array< float >( _hVel, _numBodies * 4 )
+               << co::Array< float >( _hCol, _numBodies * 4 );
         
     if( dirtyBits & DIRTY_FLAGS )
         os << _statistics << _numBodies << _clusterScale << _velocityScale
            << _deltaTime << _newParameters;
         
     if( dirtyBits & DIRTY_PROXYDATA )
-    {
-        os << _numDataProxies;
-        os.write( _dataProxyID, sizeof(co::ObjectVersion) * MAX_NGPUS ); 
-        os.write(&_dataRanges[0], sizeof(float) * MAX_NGPUS);           
-    }
+        os << _numDataProxies
+           << co::Array< co::ObjectVersion >( _dataProxyID, MAX_NGPUS )
+           << co::Array< float >( _dataRanges, MAX_NGPUS );
 }
     
 void FrameData::deserialize( co::DataIStream& is,
@@ -83,24 +79,20 @@ void FrameData::deserialize( co::DataIStream& is,
 {
     co::Serializable::deserialize( is, dirtyBits );
         
-    if( dirtyBits & DIRTY_DATA ) {
-        if(_hPos && _hVel && _hCol) {
-            is.read(_hPos, sizeof(float)*_numBodies*4);
-            is.read(_hVel, sizeof(float)*_numBodies*4);
-            is.read(_hCol, sizeof(float)*_numBodies*4);
-        }
-    }
+    if( dirtyBits & DIRTY_DATA )
+        if(_hPos && _hVel && _hCol)
+            is >> co::Array< float >( _hPos, _numBodies*4 )
+               >> co::Array< float >( _hVel, _numBodies*4 )
+               >> co::Array< float >( _hCol, _numBodies*4 );
         
     if( dirtyBits & DIRTY_FLAGS )
         is >> _statistics >> _numBodies >> _clusterScale >> _velocityScale
            >> _deltaTime >> _newParameters;
         
     if( dirtyBits & DIRTY_PROXYDATA )
-    {
-        is >> _numDataProxies;
-        is.read( _dataProxyID, sizeof( co::ObjectVersion ) * MAX_NGPUS );
-        is.read(&_dataRanges[0], sizeof(float) * MAX_NGPUS);
-    }
+        is >> _numDataProxies
+           >> co::Array< co::ObjectVersion >( _dataProxyID, MAX_NGPUS )
+           >> co::Array< float >( _dataRanges, MAX_NGPUS );
 }
     
 void FrameData::addProxyID( const eq::uint128_t& pid, const float *range )

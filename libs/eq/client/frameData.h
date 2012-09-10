@@ -342,7 +342,7 @@ namespace server { class FrameData; }
 
         typedef lunchbox::Monitor< uint64_t > Monitor;
 
-        /** Data ready monitor synchronization primitive. */
+        /** Data ready monitor for output->input synchronization. */
         Monitor _readyVersion;
 
         typedef lunchbox::Monitor< uint32_t > Listener;
@@ -374,8 +374,8 @@ namespace server { class FrameData; }
         LB_TS_VAR( _commandThread );
     };
 
-    /** Print the frame data to the given output stream. @version 1.0 */
-    std::ostream& operator << ( std::ostream& os, const FrameData* data );
+    /** Print the frame data to the given output stream. @version 1.4 */
+    EQ_API std::ostream& operator << ( std::ostream&, const FrameData& );
 }
 
 #endif // EQ_FRAMEDATA_H

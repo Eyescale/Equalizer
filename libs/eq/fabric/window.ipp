@@ -45,6 +45,7 @@ std::string _iAttributeStrings[] = {
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_DRAWABLE ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_STATISTICS ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_SCREENSAVER ),
+    MAKE_WINDOW_ATTR_STRING( IATTR_HINT_GRAB_POINTER ),
     MAKE_WINDOW_ATTR_STRING( IATTR_PLANES_COLOR ),
     MAKE_WINDOW_ATTR_STRING( IATTR_PLANES_ALPHA ),
     MAKE_WINDOW_ATTR_STRING( IATTR_PLANES_DEPTH ),
@@ -141,7 +142,7 @@ void Window< P, W, C >::serialize( co::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_CHANNELS && isMaster( ))
     {
         os << _mapNodeObjects();
@@ -159,7 +160,7 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is >> co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_CHANNELS )
     {
         if( isMaster( ))
@@ -191,8 +192,8 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.advanceBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
-                              sizeof( _data.fixedVP ));
+            is.getRemainingBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
+                                   sizeof( _data.fixedVP ));
     }
 
     if( dirtyBits & DIRTY_DRAWABLECONFIG )

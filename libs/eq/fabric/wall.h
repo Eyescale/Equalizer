@@ -169,5 +169,21 @@ namespace fabric
     EQFABRIC_API std::ostream& operator << ( std::ostream&, const Wall::Type& );
 }
 }
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Wall::Type& value )
+{
+    byteswap( reinterpret_cast< uint32_t& >( value ));
+}
+
+template<> inline void byteswap( eq::fabric::Wall& value )
+{
+    byteswap( value.bottomLeft );
+    byteswap( value.bottomRight );
+    byteswap( value.topLeft );
+    byteswap( value.type );
+}
+}
 #endif // EQFABRIC_WALL_H
 

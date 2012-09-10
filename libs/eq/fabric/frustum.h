@@ -99,4 +99,11 @@ namespace fabric
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Frustum& );
 }
 }
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Frustum::Type& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
+
 #endif // EQFABRIC_FRUSTUM_H

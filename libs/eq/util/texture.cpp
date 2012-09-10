@@ -19,6 +19,7 @@
 #include "texture.h"
 
 #include <eq/client/image.h>
+#include <eq/client/gl.h>
 #include <co/plugins/compressor.h>
 
 namespace eq
@@ -64,7 +65,7 @@ public:
 };
 }
 
-Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
+Texture::Texture( const unsigned target, const GLEWContext* const glewContext )
         : _impl( new detail::Texture( target, glewContext ))
 {}
 

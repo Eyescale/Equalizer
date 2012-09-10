@@ -59,9 +59,9 @@ void Server< CL, S, CFG, NF, N, V >::setClient( ClientPtr client )
         return;
 
     co::CommandQueue* queue = static_cast< S* >( this )->getMainThreadQueue();
-    registerCommand( CMD_SERVER_CREATE_CONFIG, 
+    this->registerCommand( CMD_SERVER_CREATE_CONFIG,
                      CmdFunc( this, &Server::_cmdCreateConfig ), queue );
-    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
+    this->registerCommand( CMD_SERVER_DESTROY_CONFIG,
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 

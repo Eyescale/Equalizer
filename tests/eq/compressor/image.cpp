@@ -135,7 +135,7 @@ int main( int argc, char **argv )
             images.push_back( "images/" + filename );
     }
 
-    candidates = lunchbox::searchDirectory( "../compositor", "Result*.rgb" );
+    candidates = lunchbox::searchDirectory( ".", "Result*.rgb" );
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -143,7 +143,7 @@ int main( int argc, char **argv )
         const std::string& filename = *i;
         const size_t decompPos = filename.find( "out_" );
         if( decompPos == std::string::npos )
-            images.push_back( "../compositor/" + filename );
+            images.push_back( filename );
     }
     TEST( !images.empty( ));
 

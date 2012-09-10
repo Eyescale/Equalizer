@@ -18,18 +18,17 @@
 #ifndef EQFABRIC_ERROR_H
 #define EQFABRIC_ERROR_H
 
-#include <co/error.h>
+#include <eq/fabric/api.h>
 
 namespace eq
 {
 namespace fabric
 {
-    using co::ERROR_NONE;
-
     /** Defines errors produced by Equalizer classes. */
     enum Error
     {
-        ERROR_FBO_UNSUPPORTED = co::ERROR_CUSTOM, // 0x10000
+        ERROR_NONE = 0,
+        ERROR_FBO_UNSUPPORTED,
         ERROR_FRAMEBUFFER_UNSUPPORTED,
         ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT,
         ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT,
@@ -104,8 +103,12 @@ namespace fabric
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
-    inline std::ostream& operator << ( std::ostream& os, const Error& error)
-        { os << co::Error( error ); return os; }
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Error& );
 }
+}
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Error& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
 }
 #endif // EQFABRIC_ERROR_H

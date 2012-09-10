@@ -28,6 +28,9 @@ endif(HWLOC_GL_FOUND)
 
 if(MAGELLAN_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_MAGELLAN)
+  if(NOT EQ_AGL_USED)
+    list(APPEND EQUALIZER_DEFINES EQ_USE_MAGELLAN_GLX)
+  endif()
 endif(MAGELLAN_FOUND)
 
 if(GLSTATS_FOUND)
@@ -59,22 +62,20 @@ if(EQ_GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
 endif(EQ_GLX_USED)
 
-if(EQUALIZER_BUILD_2_0_API)
-  list(APPEND EQUALIZER_DEFINES EQ_2_0_API)
-endif()
-
 if(EQ_GLEW_INTERNAL)
   list(APPEND EQUALIZER_DEFINES EQ_GLEW_INTERNAL)
 endif()
 
 set(DEFINES_FILE ${OUTPUT_INCLUDE_DIR}/eq/client/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines${ARCH}.h.in)
+set(OPTIONS_CMAKE ${CMAKE_BINARY_DIR}/options.cmake)
 
 file(WRITE ${DEFINES_FILE_IN}
   "#ifndef EQ_DEFINES_${ARCH}_H\n"
   "#define EQ_DEFINES_${ARCH}_H\n\n"
   "#include <co/defines.h>\n\n"
   )
+file(WRITE ${OPTIONS_CMAKE} "# Optional modules enabled during build\n")
 
 foreach(DEF ${EQUALIZER_DEFINES})
   file(APPEND ${DEFINES_FILE_IN}
@@ -82,6 +83,9 @@ foreach(DEF ${EQUALIZER_DEFINES})
     "#  define ${DEF}\n"
     "#endif\n"
     )
+  if(DEF MATCHES "EQ_")
+    file(APPEND ${OPTIONS_CMAKE} "set(${DEF} ON)\n")
+  endif()
 endforeach(DEF ${EQUALIZER_DEFINES})
 
 if(EQ_AGL_USED) # special case

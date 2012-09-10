@@ -90,7 +90,7 @@ public:
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
-            if( !compound->isRunning( ))
+            if( !compound->isActive( ))
                 return TRAVERSE_CONTINUE;
 
             Pipe* pipe = compound->getPipe();
@@ -164,7 +164,7 @@ public:
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
-            if( !compound->isRunning( ))
+            if( !compound->isActive( ))
                 return TRAVERSE_CONTINUE;
 
             Pipe* pipe = compound->getPipe();
@@ -224,7 +224,7 @@ public:
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
-            if( !compound->isRunning( ))
+            if( !compound->isActive( ))
                 return TRAVERSE_CONTINUE;
 
             if( !_fallback )
@@ -313,7 +313,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
     const Compound* compound = getCompound();
 
-    if( isFrozen() || !compound->isRunning() || _nPipes == 0 )
+    if( isFrozen() || !compound->isActive() || _nPipes == 0 )
         // always execute code above to not leak memory
         return;
 
@@ -338,7 +338,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         LBASSERT( load.missing == 0 );
 
         Compound* child = children[ i ];
-        if( !child->isRunning( ))
+        if( !child->isActive( ))
             continue;
 
         float segmentResources( load.time / resourceTime );
@@ -359,7 +359,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     {
         Listener::Load& load = loads[ i ];
         Compound* child = children[ i ];
-        if( !child->isRunning( ))
+        if( !child->isActive( ))
             continue;
 
         float& leftOver = leftOvers[i];
@@ -384,7 +384,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         Listener::Load& load = loads[ i ];
         Compound* child = children[ i ];
 
-        if( !child->isRunning( ))
+        if( !child->isActive( ))
             continue;
 
         if( leftOver > MIN_USAGE || load.missing == 0 )
@@ -434,7 +434,7 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
         for( size_t i = 0; i < nChildren; ++i )
         {
             const Compound* child = children[ i ];
-            if( !child->isRunning( ))
+            if( !child->isActive( ))
                 continue;
 
             const Listener& listener = _listeners[ i ];
@@ -480,11 +480,11 @@ class PipeCounter : public CompoundVisitor
 {
 public:
     virtual VisitorResult visitPre( const Compound* compound )
-        { return compound->isRunning() ? TRAVERSE_CONTINUE : TRAVERSE_PRUNE; }
+        { return compound->isActive() ? TRAVERSE_CONTINUE : TRAVERSE_PRUNE; }
 
     virtual VisitorResult visitLeaf( const Compound* compound )
         {
-            if( !compound->isRunning( ))
+            if( !compound->isActive( ))
                 return TRAVERSE_PRUNE;
 
             const Pipe* pipe = compound->getPipe();

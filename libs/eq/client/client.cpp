@@ -70,12 +70,12 @@ Client::Client()
     registerCommand( fabric::CMD_CLIENT_EXIT, 
                      ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
 
-    LBINFO << "New client at " << (void*)this << std::endl;
+    LBVERB << "New client at " << (void*)this << std::endl;
 }
 
 Client::~Client()
 {
-    LBINFO << "Delete client at " << (void*)this << std::endl;
+    LBVERB << "Delete client at " << (void*)this << std::endl;
     LBASSERT( isClosed( ));
     close();
 }
@@ -120,11 +120,11 @@ co::ConnectionPtr _startLocalServer()
     dirNames.push_back( "" );
 
 #ifdef EQ_BUILD_DIR
-#ifdef NDEBUG
+#  ifdef NDEBUG
     dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Release/" );
-#else
+#  else
     dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Debug/" );
-#endif
+#  endif
     dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/" );
 #endif
 
@@ -133,6 +133,7 @@ co::ConnectionPtr _startLocalServer()
 #elif defined (_WIN32)
     const std::string libName = "libEqualizerServer.dll";
 #elif defined (Darwin)
+    dirNames.push_back( "/opt/local/lib/" ); // MacPorts
     const std::string libName = "libEqualizerServer.dylib";
 #else
     const std::string libName = "libEqualizerServer.so";
@@ -238,7 +239,7 @@ bool Client::initLocal( const int argc, char** argv )
             unitString >> _modelUnit;
         }
     }
-    LBINFO << "Launching " << getNodeID() << std::endl;
+    LBVERB << "Launching " << getNodeID() << std::endl;
 
     if( !Super::initLocal( argc, argv ))
         return false;
@@ -391,9 +392,9 @@ void Client::notifyDisconnect( co::NodePtr node )
 {
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
-        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
+        co::CommandPtr command = allocCommand( sizeof( eq::ClientExitPacket ));
         eq::ClientExitPacket* packet = 
-            command.getModifiable< eq::ClientExitPacket >();
+            command->getModifiable< eq::ClientExitPacket >();
         *packet = eq::ClientExitPacket();
         dispatchCommand( command );
 

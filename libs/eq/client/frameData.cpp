@@ -260,22 +260,22 @@ Images FrameData::startReadback( const Frame& frame,
                                  const DrawableConfig& config,
                                  const PixelViewports& regions )
 {
-    Images images;
-
     if( _data.buffers == Frame::BUFFER_NONE )
-        return images;
-
-    const eq::PixelViewport& framePVP = getPixelViewport();
-    const PixelViewport      absPVP   = framePVP + frame.getOffset();
-    if( !absPVP.isValid( ))
-        return images;
+        return Images();
 
     const Zoom& zoom = frame.getZoom();
     if( !zoom.isValid( ))
     {
         LBWARN << "Invalid zoom factor, skipping frame" << std::endl;
-        return images;
+        return Images();
     }
+
+    const eq::PixelViewport& framePVP = getPixelViewport();
+    const PixelViewport      absPVP   = framePVP + frame.getOffset();
+    if( !absPVP.isValid( ))
+        return Images();
+
+    Images images;
 
     // readback the whole screen when using textures
     if( getType() == eq::Frame::TYPE_TEXTURE )
@@ -466,12 +466,12 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const FrameData* data )
+std::ostream& operator << ( std::ostream& os, const FrameData& data )
 {
-    os << "frame data id " << data->getID() << "." << data->getInstanceID()
-       << " v" << data->getVersion() << ' ' << data->getImages().size()
-       << " images, ready " << ( data->isReady() ? 'y' :'n' );
-    return os;
+    return os << "frame data id " << data.getID() << "." << data.getInstanceID()
+              << " v" << data.getVersion() << ' ' << data.getImages().size()
+              << " images, ready " << ( data.isReady() ? 'y' :'n' ) << " "
+              << data.getZoom();
 }
 
 }

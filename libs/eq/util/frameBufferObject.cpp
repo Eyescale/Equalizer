@@ -19,6 +19,7 @@
 #include "frameBufferObject.h"
 
 #include <eq/client/error.h>
+#include <eq/client/gl.h>
 #include <eq/fabric/pixelViewport.h>
 
 #ifdef _WIN32
@@ -35,7 +36,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
-    , _error( co::ERROR_NONE )
+    , _error( eq::fabric::ERROR_NONE )
     , _valid( false )
 {
     LBASSERT( GLEW_EXT_framebuffer_object );
@@ -54,7 +55,7 @@ FrameBufferObject::~FrameBufferObject()
 
 void FrameBufferObject::_setError( const int32_t error )
 {
-    _error = co::Error( error );
+    _error = eq::fabric::Error( error );
 }
 
 bool FrameBufferObject::addColorTexture()

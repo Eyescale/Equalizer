@@ -40,6 +40,12 @@ namespace eq
     /** The current DSO binary revision. @version 1.0 */
 #   define EQ_VERSION_ABI @VERSION_ABI@
 
+    /** The Collage version used for linking. @version 1.5.1 */
+#   define EQ_COLLAGE_VERSION @COLLAGE_VERSION@
+
+    /** The Lunchbox version used for linking. @version 1.5.1 */
+#   define EQ_LUNCHBOX_VERSION @LUNCHBOX_VERSION@
+
 /** True if the current version is newer than the given one. @version 1.0 */
 #   define EQ_VERSION_GT( MAJOR, MINOR, PATCH )                         \
     ( (EQ_VERSION_MAJOR>MAJOR) ||                                       \

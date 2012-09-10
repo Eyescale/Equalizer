@@ -131,6 +131,7 @@
 %token EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE
 %token EQTOKEN_WINDOW_IATTR_HINT_STATISTICS
 %token EQTOKEN_WINDOW_IATTR_HINT_SCREENSAVER
+%token EQTOKEN_WINDOW_IATTR_HINT_GRAB_POINTER
 %token EQTOKEN_WINDOW_IATTR_PLANES_ACCUM
 %token EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
@@ -157,6 +158,7 @@
 %token EQTOKEN_HINT_AFFINITY
 %token EQTOKEN_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_HINT_SCREENSAVER
+%token EQTOKEN_HINT_GRAB_POINTER
 %token EQTOKEN_PLANES_COLOR
 %token EQTOKEN_PLANES_ALPHA
 %token EQTOKEN_PLANES_DEPTH
@@ -203,7 +205,6 @@
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SDP
 %token EQTOKEN_IB
-%token EQTOKEN_PGM
 %token EQTOKEN_RSP
 %token EQTOKEN_RDMA
 %token EQTOKEN_UDT
@@ -454,6 +455,11 @@ global:
          eq::server::Global::instance()->setWindowIAttribute(
              eq::server::Window::IATTR_HINT_SCREENSAVER, $2 );
      }
+     | EQTOKEN_WINDOW_IATTR_HINT_GRAB_POINTER IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::server::Window::IATTR_HINT_GRAB_POINTER, $2 );
+     }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
@@ -525,7 +531,6 @@ connectionType:
     | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
     | EQTOKEN_IB   { $$ = co::CONNECTIONTYPE_IB; }
     | EQTOKEN_PIPE { $$ = co::CONNECTIONTYPE_NAMEDPIPE; }
-    | EQTOKEN_PGM  { $$ = co::CONNECTIONTYPE_PGM; }
     | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
     | EQTOKEN_RDMA { $$ = co::CONNECTIONTYPE_RDMA; }
     | EQTOKEN_UDT  { $$ = co::CONNECTIONTYPE_UDT; }
@@ -656,7 +661,8 @@ pipeAttribute:
     | EQTOKEN_HINT_AFFINITY IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_AFFINITY, $2); }
     | EQTOKEN_HINT_CUDA_GL_INTEROP IATTR
-        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 ); }
+        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP,
+                                 $2 ); }
 
 window: EQTOKEN_WINDOW '{' 
             {
@@ -696,6 +702,8 @@ windowAttribute:
         { window->setIAttribute( eq::server::Window::IATTR_HINT_STATISTICS, $2 ); }
     | EQTOKEN_HINT_SCREENSAVER IATTR
         { window->setIAttribute( eq::server::Window::IATTR_HINT_SCREENSAVER, $2 ); }
+    | EQTOKEN_HINT_GRAB_POINTER IATTR
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_GRAB_POINTER, $2 ); }
     | EQTOKEN_PLANES_COLOR IATTR
         { window->setIAttribute( eq::server::Window::IATTR_PLANES_COLOR, $2 ); }
     | EQTOKEN_PLANES_ALPHA IATTR
