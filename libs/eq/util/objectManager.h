@@ -27,6 +27,8 @@
 #include <lunchbox/nonCopyable.h>      // base class
 #include <lunchbox/referenced.h>       // base class
 
+//#define EQ_OM_TRACE_ALLOCATIONS
+
 namespace eq
 {
 namespace util
@@ -160,6 +162,12 @@ namespace util
         typedef stde::hash_map< T, Accum* > AccumHash;
         typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
 
+#   ifdef EQ_OM_TRACE_ALLOCATIONS
+        typedef stde::hash_map< T, std::string > UploaderAllocs;
+#   endif
+
+
+
         struct SharedData : public lunchbox::Referenced
         {
             SharedData( const GLEWContext* glewContext );
@@ -178,6 +186,10 @@ namespace util
             PBOHash eqPixelBufferObjects;
             FontHash eqFonts;
             UploaderHash eqUploaders;
+
+#   ifdef EQ_OM_TRACE_ALLOCATIONS
+            UploaderAllocs eqUploaderAllocs;
+#   endif
 
             union // placeholder for binary-compatible changes
             {
