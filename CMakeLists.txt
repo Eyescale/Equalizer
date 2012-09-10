@@ -51,6 +51,12 @@ include(Common)
 include(GitTargets)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
+if(APPLE)
+  # WAR otherwise MacPorts X11 (/opt/local) is preferred
+  link_directories(/usr/X11R6/lib)
+  include_directories(SYSTEM /usr/X11R6/include)
+endif()
+
 if(EQUALIZER_USE_GPUSD)
   find_package(gpusd 1.4.0)
 endif()
@@ -132,10 +138,6 @@ endif(APPLE)
 
 if(X11_FOUND)
   set(EQ_GLX_USED 1)
-  if(APPLE)
-    link_directories(/usr/X11R6/lib)
-    include_directories(SYSTEM /usr/X11R6/include)
-  endif()
 endif(X11_FOUND)
 
 if(APPLE)
