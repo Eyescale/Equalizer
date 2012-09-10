@@ -293,7 +293,7 @@ bool Client::_setupClient( const std::string& clientArgs )
         return false;
     }
 
-    co::NodePtr server = createNode( fabric::NODETYPE_EQ_SERVER );
+    co::NodePtr server = createNode( fabric::NODETYPE_SERVER );
     if( !server->deserialize( description ))
         LBWARN << "Can't parse server data" << std::endl;
 
@@ -355,7 +355,7 @@ co::NodePtr Client::createNode( const uint32_t type )
 {
     switch( type )
     {
-        case fabric::NODETYPE_EQ_SERVER:
+        case fabric::NODETYPE_SERVER:
         {
             Server* server = new Server;
             server->setClient( this );
@@ -363,7 +363,7 @@ co::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return co::Node::createNode( type );
+            return Super::createNode( type );
     }
 }
 
@@ -391,7 +391,7 @@ public:
 
 void Client::notifyDisconnect( co::NodePtr node )
 {
-    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    if( node->getType() == fabric::NODETYPE_SERVER )
     {
         // local command dispatching
         co::NodeOCommand( this, this, fabric::CMD_CLIENT_EXIT );

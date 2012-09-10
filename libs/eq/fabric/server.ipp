@@ -36,7 +36,8 @@ namespace fabric
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 Server< CL, S, CFG, NF, N, V >::Server( NF* nodeFactory )
-        : _nodeFactory( nodeFactory )
+        : N( NODETYPE_SERVER )
+        , _nodeFactory( nodeFactory )
 {
     LBASSERT( nodeFactory );
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;

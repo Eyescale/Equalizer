@@ -95,9 +95,6 @@ namespace fabric
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** @sa co::Node::getType */
-        virtual uint32_t getType() const { return NODETYPE_EQ_SERVER; }
-
         template< class, class, class, class, class, class, class >
         friend class Config;
 

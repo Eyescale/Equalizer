@@ -92,9 +92,6 @@ namespace server
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** @sa co::Node::getType */
-        virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
-
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
                                      server::Node, ConfigVisitor >;
 
