@@ -66,6 +66,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
   set(CMAKE_COMPILER_IS_XLCXX ON)
 endif()
 
+include(TestBigEndian)
+test_big_endian(BIGENDIAN)
+if(BIGENDIAN)
+  add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   include(CompilerVersion)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
