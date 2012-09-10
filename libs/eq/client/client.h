@@ -129,7 +129,7 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** @sa co::Node::createNode */
+        /** @sa co::LocalNode::createNode */
         EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
         /** @internal */
