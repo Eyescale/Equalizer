@@ -362,7 +362,7 @@ co::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return co::Node::createNode( type );
+            return Super::createNode( type );
     }
 }
 
