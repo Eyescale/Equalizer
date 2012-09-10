@@ -106,10 +106,8 @@ bool Client::dispatchCommand( co::Command& command )
 {
     LBVERB << "dispatch " << command << std::endl;
 
-    if( command.getCommand() == fabric::CMD_CLIENT_EXIT )
-        return co::Dispatcher::dispatchCommand( command );
-
-    if( command.getCommand() >= co::CMD_NODE_CUSTOM )
+    if( command.getCommand() >= co::CMD_NODE_CUSTOM &&
+        command.getCommand() < CMD_SERVER_CUSTOM )
     {
         co::NodePtr node = command.getNode();
         return node->co::Dispatcher::dispatchCommand( command );

@@ -71,12 +71,16 @@ co::Command CommandQueue::pop( const uint32_t timeout )
                 _waitTime += ( _clock.getTime64() - start );
             return co::CommandQueue::pop( timeout );
         }
+        else if( timeout == 0 )
+            return co::Command();
 
         if( _messagePump )
         {
             if( start == -1 )
                 start = _clock.getTime64();
-            // TODO #145: timeout ignored here?!
+
+            LBASSERTINFO( timeout == LB_TIMEOUT_INDEFINITE,
+                          "Timeout implementation missing in code path" );
             _messagePump->dispatchOne(); // blocking - push will send wakeup
         }
         else
