@@ -389,7 +389,7 @@ namespace detail { class Config; }
          * @return the event command to pass additional data to
          * @version 1.5.1
          */
-        EQ_API co::ObjectOCommand sendEvent( const uint32_t type );
+        EQ_API EventOCommand sendEvent( const uint32_t type );
 
         /**
          * Get the next event.

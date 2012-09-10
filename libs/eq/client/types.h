@@ -266,6 +266,8 @@ struct ConfigEvent;
 #define COMMANDTYPE_EQ_CUSTOM COMMANDTYPE_CO_CUSTOM
 #endif
 
+typedef co::ObjectOCommand EventOCommand;
+
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
 
 // originator serial -> statistics

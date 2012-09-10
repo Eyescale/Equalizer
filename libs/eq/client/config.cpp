@@ -624,12 +624,12 @@ bool Config::handleEvent( const ConfigEvent* event )
 }
 #endif
 
-co::ObjectOCommand Config::sendEvent( const uint32_t type )
+EventOCommand Config::sendEvent( const uint32_t type )
 {
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    co::ObjectOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
+    EventOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
     cmd << type;
     return cmd;
 }
