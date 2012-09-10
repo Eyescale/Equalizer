@@ -67,10 +67,6 @@ endif()
 
 if(X11_FOUND)
   set(EQ_GLX_USED 1)
-  if(APPLE)
-    link_directories(/usr/X11R6/lib)
-    include_directories(SYSTEM /usr/X11R6/include)
-  endif()
 endif(X11_FOUND)
 
 if(APPLE)
