@@ -55,7 +55,7 @@ namespace fabric
 
     enum ClientCommand
     {
-        CMD_CLIENT_EXIT = co::CMD_NODE_CUSTOM,
+        CMD_CLIENT_EXIT = CMD_SERVER_CUSTOM,
         CMD_CLIENT_FILL1, // some buffer for binary-compatible patches
         CMD_CLIENT_FILL2,
         CMD_CLIENT_FILL3,

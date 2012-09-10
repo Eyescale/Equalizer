@@ -233,7 +233,6 @@ namespace eq
             ALL // must be last
         };
 
-
         uint32_t type;           //!< The event type
 
         // keep before 'uint128_t originator' for alignment

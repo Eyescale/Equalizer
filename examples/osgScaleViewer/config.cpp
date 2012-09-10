@@ -122,7 +122,7 @@ void Config::updateFrameData( float elapsed )
     _frameData.setCameraPosition( _frameData.getCameraPosition() +
                                   _moveDirection * elapsed );
     _frameData.setCameraLookAtPoint( _frameData.getCameraPosition() +
-                     cameraViewingDirection );
+                                     cameraViewingDirection );
     _frameData.setCameraUpVector( eq::Vector3f( 0., 1., 0. ));
 }
 

@@ -49,6 +49,7 @@ namespace seq
          */
         SEQ_API virtual bool handleEvent( const eq::ConfigEvent* event );
 #endif
+
         /**
          * Handle the given event command.
          *

@@ -584,9 +584,8 @@ void Config::sendEvent( ConfigEvent& event )
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    co::ObjectOCommand cmd( send( _impl->appNode,
-                                  fabric::CMD_CONFIG_EVENT_OLD ));
-    cmd << event.size << co::Array< void >( &event, event.size );
+    send( _impl->appNode, fabric::CMD_CONFIG_EVENT_OLD )
+        << event.size << co::Array< void >( &event, event.size );
 }
 
 const ConfigEvent* Config::nextEvent()
@@ -606,21 +605,31 @@ const ConfigEvent* Config::tryNextEvent()
 const ConfigEvent* Config::_convertEvent( co::ObjectCommand command )
 {
     LBASSERT( command.isValid( ));
-    LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT_OLD );
-    _impl->lastEvent = command;
 
+    if( command.getCommand() != fabric::CMD_CONFIG_EVENT_OLD )
+    {
+        _impl->lastEvent.clear();
+        return 0;
+    }
+
+    _impl->lastEvent = command;
     const uint64_t size = command.get< uint64_t >();
     return reinterpret_cast< const ConfigEvent* >
                                           ( command.getRemainingBuffer( size ));
 }
+
+bool Config::handleEvent( const ConfigEvent* event )
+{
+    return _handleEvent( event->data );
+}
 #endif
 
-co::ObjectOCommand Config::sendEvent( const uint32_t type )
+EventOCommand Config::sendEvent( const uint32_t type )
 {
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    co::ObjectOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
+    EventOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
     cmd << type;
     return cmd;
 }
@@ -634,6 +643,12 @@ EventCommand Config::getNextEvent( const uint32_t timeout ) const
 
 bool Config::handleEvent( EventCommand command )
 {
+#ifndef EQ_2_0_API
+    const ConfigEvent* configEvent = _convertEvent( command );
+    if( configEvent )
+        return handleEvent( configEvent );
+#endif
+
     LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
     const Event& event = command.get< Event >();
     return _handleEvent( event );
@@ -652,11 +667,6 @@ void Config::handleEvents()
         if( !eventCommand.isValid( ))
             break;
 
-#ifndef EQ_2_0_API
-        if( eventCommand.getCommand() == fabric::CMD_CONFIG_EVENT_OLD )
-            handleEvent( _convertEvent( eventCommand ));
-        else
-#endif
         handleEvent( eventCommand );
     }
 }
@@ -747,12 +757,6 @@ bool Config::_handleEvent( const Event& event )
     return false;
 }
 
-#ifndef EQ_2_0_API
-bool Config::handleEvent( const ConfigEvent* event )
-{
-    return _handleEvent( event->data );
-}
-#endif
 bool Config::_needsLocalSync() const
 {
     const Nodes& nodes = getNodes();

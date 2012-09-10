@@ -55,9 +55,6 @@ class SystemWindow;
 class View;
 class Window;
 class WindowSystem;
-#ifndef EQ_2_0_API
-struct ConfigEvent;
-#endif
 struct Event;
 struct PixelData;
 struct PointerEvent;
@@ -264,6 +261,13 @@ using lunchbox::uint128_t;
 using lunchbox::UUID;
 
 /** @cond IGNORE */
+#ifndef EQ_2_0_API
+struct ConfigEvent;
+#define COMMANDTYPE_EQ_CUSTOM COMMANDTYPE_CO_CUSTOM
+#endif
+
+typedef co::ObjectOCommand EventOCommand;
+
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
 
 // originator serial -> statistics
