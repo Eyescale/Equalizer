@@ -818,6 +818,7 @@ bool Config::exit()
     // which sets the running state to false anyway. Besides, this event is
     // not handled by the appNode because it is already in exiting procedure
     // and does not call handleEvents anymore
+    // eile: May be needed for reliability?
     send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
 
     _needsFinish = false;

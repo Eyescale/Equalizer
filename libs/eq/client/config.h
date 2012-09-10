@@ -367,6 +367,15 @@ namespace detail { class Config; }
          * @deprecated
          */
         EQ_API const ConfigEvent* tryNextEvent();
+
+        /**
+         * Handle one config event.
+         *
+         * @param event the event.
+         * @return true if the event requires a redraw, false if not.
+         * @deprecated
+         */
+        EQ_API virtual bool handleEvent( const ConfigEvent* event );
 #endif
 
         /**
@@ -396,7 +405,7 @@ namespace detail { class Config; }
          * @sa Client::processCommand()
          */
         EQ_API EventCommand getNextEvent( const uint32_t timeout =
-                                            LB_TIMEOUT_INDEFINITE ) const;
+                                              LB_TIMEOUT_INDEFINITE ) const;
 
         /**
          * Handle one config event.
@@ -421,17 +430,6 @@ namespace detail { class Config; }
          * @version 1.0
          */
         EQ_API virtual void handleEvents();
-
-#ifndef EQ_2_0_API
-        /**
-         * Handle one config event.
-         *
-         * @param event the event.
-         * @return true if the event requires a redraw, false if not.
-         * @deprecated
-         */
-        EQ_API virtual bool handleEvent( const ConfigEvent* event );
-#endif
         //@}
 
         /**

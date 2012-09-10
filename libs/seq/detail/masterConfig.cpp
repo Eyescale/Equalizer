@@ -208,6 +208,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
     return _redraw;
 }
 #endif
+
 bool MasterConfig::handleEvent( eq::EventCommand command )
 {
     switch( command.getEventType( ))
@@ -275,5 +276,6 @@ bool MasterConfig::handleEvent( eq::EventCommand command )
     }
     return _redraw;
 }
+
 }
 }
