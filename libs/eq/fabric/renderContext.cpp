@@ -39,13 +39,12 @@ RenderContext::RenderContext()
 {
 }
 
-RenderContext& RenderContext::operator = ( const Tile& tile )
+void RenderContext::apply( const Tile& tile )
 {
     frustum = tile.frustum;
     ortho = tile.ortho;
     pvp = tile.pvp;
     vp = tile.vp;
-    return *this;
 }
 
 std::ostream& operator << ( std::ostream& os, const RenderContext& ctx )

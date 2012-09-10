@@ -76,6 +76,7 @@ co::Command CommandQueue::pop( const uint32_t timeout )
         {
             if( start == -1 )
                 start = _clock.getTime64();
+            // TODO #145: timeout ignored here?!
             _messagePump->dispatchOne(); // blocking - push will send wakeup
         }
         else
