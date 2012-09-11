@@ -129,7 +129,11 @@ ObjectManager<T>::SharedData::~SharedData()
         LBWARN << eqUploaders.size()
                << " eq::GPUCompressor's still allocated in ObjectManager "
                << "destructor" << std::endl;
+#ifdef EQ_OM_TRACE_ALLOCATIONS
+    LBASSERTINFO( eqUploaderAllocs.empty(), eqUploaderAllocs.begin()->second );
+#else
     LBASSERTINFO( eqUploaders.empty(), (void*)eqUploaders.begin()->second );
+#endif
     eqUploaders.clear();
     delete glewContext;
 }
@@ -217,8 +221,7 @@ void ObjectManager<T>::deleteAll()
     _data->eqFrameBufferObjects.clear();
 
 #ifdef EQ_CLIENT_SHARED
-    for( typename UploaderHash::const_iterator i =
-             _data->eqUploaders.begin();
+    for( typename UploaderHash::const_iterator i = _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
     {
         GPUCompressor* uploader = i->second;
@@ -617,6 +620,12 @@ GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
 
     GPUCompressor* compressor = new GPUCompressor( _data->glewContext );
     _data->eqUploaders[ key ] = compressor;
+#ifdef EQ_OM_TRACE_ALLOCATIONS
+    std::ostringstream out;
+    out << lunchbox::backtrace;
+    _data->eqUploaderAllocs[ key ] = out.str();
+#endif
+
     return compressor;
 }
 
@@ -638,7 +647,9 @@ void ObjectManager<T>::deleteEqUploader( const T& key )
 
     GPUCompressor* compressor = i->second;
     _data->eqUploaders.erase( i );
-
+#ifdef EQ_OM_TRACE_ALLOCATIONS
+    _data->eqUploaderAllocs.erase( key );
+#endif
     delete compressor;
 }
 #endif
