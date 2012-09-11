@@ -11,11 +11,15 @@ endif()
 include(UpdateFile)
 include(GithubOrganization)
 
+# Configurables
 if(NOT CPACK_MACPORTS_VERSION)
   set(CPACK_MACPORTS_VERSION ${LAST_RELEASE})
 endif()
 if(NOT CPACK_MACPORTS_VERSION)
   set(CPACK_MACPORTS_VERSION ${VERSION})
+endif()
+if(NOT MACPORTS_DIR)
+  set(MACPORTS_DIR $"{GIT_ORIGIN_org}Ports")
 endif()
 
 # format dependencies list into port:name string
@@ -31,7 +35,7 @@ set(CPACK_MACPORTS_DEPENDS "${CPACK_MACPORTS_TEMP}")
 
 # Create and install Portfile
 set(PORTFILE_DIR "ports/${CPACK_MACPORTS_CATEGORY}/${CMAKE_PROJECT_NAME}")
-set(PORTFILE_GH_DIR "${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}Ports")
+set(PORTFILE_GH_DIR "${CMAKE_SOURCE_DIR}/../${MACPORTS_DIR}")
 set(PORTFILE "${CMAKE_BINARY_DIR}/${PORTFILE_DIR}/Portfile")
 set(PORTFILE_GH "${PORTFILE_GH_DIR}/${PORTFILE_DIR}/Portfile")
 
@@ -50,4 +54,4 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
 
 add_custom_target(Portfile
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/MacPortfile.cmake
-  COMMENT "Updating ${GIT_ORIGIN_ORG} Ports")
+  COMMENT "Updating ${MACPORTS_DIR}")
