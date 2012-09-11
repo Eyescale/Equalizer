@@ -19,16 +19,13 @@
 
 #include "compressorReadDrawPixels.h"
 
-#define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
-
-#ifndef EQ_ASYNC_PBO
-#  include <eq/fabric/pixelViewport.h>
-#endif
+#include <eq/fabric/pixelViewport.h>
 #include <eq/util/texture.h>
 #include <eq/util/pixelBufferObject.h>
 #include <lunchbox/buffer.h>
 
 #define glewGetContext() glewContext
+#define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
 
 namespace eq
 {
