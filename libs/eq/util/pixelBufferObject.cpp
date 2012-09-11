@@ -137,7 +137,7 @@ public:
             }
 
             bind();
-            return glMapBufferARB( GL_PIXEL_PACK_BUFFER_ARB, _type );
+            return glMapBufferARB( _getName(), GL_READ_ONLY_ARB );
         }
 
     void* mapWrite()
@@ -153,9 +153,9 @@ public:
 
             bind();
             // cancel all draw operations on this buffer to prevent stalling
-            EQ_GL_CALL( glBufferDataARB( GL_PIXEL_UNPACK_BUFFER_ARB, size, 0, 
+            EQ_GL_CALL( glBufferDataARB( _getName(), size, 0, 
                                          GL_STREAM_DRAW_ARB ));
-            return glMapBufferARB( GL_PIXEL_UNPACK_BUFFER_ARB, _type );
+            return glMapBufferARB( _getName(), GL_WRITE_ONLY_ARB );
         }
 
     void unmap() const

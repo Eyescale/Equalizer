@@ -1593,7 +1593,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
         const std::vector< uint128_t >& nodes = frame->getInputNodes( eye );
         const std::vector< uint128_t >& netNodes = frame->getInputNetNodes(eye);
 
-        for( size_t j = imagePos[i]; j < nImages; ++j )
+        for( uint64_t j = imagePos[i]; j < nImages; ++j )
         {
             if( images[j]->hasAsyncReadback( )) // finish async readback
             {
@@ -1640,7 +1640,7 @@ void Channel::_finishReadback( const co::ObjectVersion& frameDataVersion,
 }
 
 void Channel::_asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
-                              const size_t image,
+                              const uint64_t image,
                               const std::vector<uint128_t>& nodes,
                               const std::vector< uint128_t >& netNodes,
                               const uint32_t taskID )

@@ -19,12 +19,16 @@
 
 #include "compressorReadDrawPixels.h"
 
+#define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
+
+#ifndef EQ_ASYNC_PBO
+#  include <eq/fabric/pixelViewport.h>
+#endif
 #include <eq/util/texture.h>
 #include <eq/util/pixelBufferObject.h>
 #include <lunchbox/buffer.h>
 
 #define glewGetContext() glewContext
-#define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
 
 namespace eq
 {
@@ -477,20 +481,23 @@ void CompressorReadDrawPixels::finishDownload( const GLEWContext* glewContext,
     _copy4( outDims, inDims );
 
 #ifdef EQ_ASYNC_PBO
-    if( (flags&EQ_COMPRESSOR_USE_FRAMEBUFFER) && _pbo && _pbo->isInitialized( ))
+    if( (flags & EQ_COMPRESSOR_USE_FRAMEBUFFER) &&
+         _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
         _resizeBuffer( size );
 
         const void* ptr = _pbo->mapRead();
         if( ptr )
+        {
             memcpy( _buffer.getData(), ptr, size );
+            _pbo->unmap();
+        }
         else
         {
             LBERROR << "Can't map PBO: " << _pbo->getError()<< std::endl;
             EQ_GL_ERROR( "PixelBufferObject::mapRead()" );
         }
-        _pbo->unmap();
     }
 #else  // async RB through texture
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )

@@ -604,7 +604,7 @@ namespace detail { class Channel; struct RBStat; }
         bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 
         void _asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
-                             const size_t image,
+                             const uint64_t image,
                              const std::vector<uint128_t>& nodes,
                              const std::vector< uint128_t >& netNodes,
                              const uint32_t taskID );
