@@ -699,7 +699,7 @@ co::ObjectOCommand Node::send( const uint32_t cmd )
 co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 {
     return co::ObjectOCommand( co::Connections( 1, _bufferedTasks ), cmd,
-                               co::COMMANDTYPE_CO_OBJECT, id, EQ_INSTANCE_ALL );
+                               co::COMMANDTYPE_OBJECT, id, EQ_INSTANCE_ALL );
 }
 
 void Node::flushSendBuffer()

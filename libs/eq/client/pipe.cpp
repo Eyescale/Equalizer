@@ -692,7 +692,7 @@ void Pipe::cancelThread()
 
     // local command dispatching
     co::ObjectOCommand( this, getLocalNode(), fabric::CMD_PIPE_EXIT_THREAD,
-                        co::COMMANDTYPE_CO_OBJECT, getID(), EQ_INSTANCE_ALL );
+                        co::COMMANDTYPE_OBJECT, getID(), EQ_INSTANCE_ALL );
 }
 
 void Pipe::waitExited() const

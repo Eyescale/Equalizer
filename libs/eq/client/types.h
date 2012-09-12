@@ -263,7 +263,7 @@ using lunchbox::UUID;
 /** @cond IGNORE */
 #ifndef EQ_2_0_API
 struct ConfigEvent;
-#define COMMANDTYPE_EQ_CUSTOM COMMANDTYPE_CO_CUSTOM
+#define COMMANDTYPE_EQ_CUSTOM co::COMMANDTYPE_CUSTOM
 #endif
 
 typedef co::ObjectOCommand EventOCommand;
