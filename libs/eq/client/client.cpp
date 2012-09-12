@@ -394,7 +394,7 @@ void Client::notifyDisconnect( co::NodePtr node )
     if( node->getType() == fabric::NODETYPE_SERVER )
     {
         // local command dispatching
-        co::NodeOCommand( this, this, fabric::CMD_CLIENT_EXIT );
+        co::OCommand( this, this, fabric::CMD_CLIENT_EXIT );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;
