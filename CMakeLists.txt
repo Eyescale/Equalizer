@@ -2,7 +2,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
-cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
 option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)

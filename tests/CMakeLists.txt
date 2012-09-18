@@ -13,18 +13,14 @@ if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/tests)
 endif()
 
-if(CMAKE_VERSION VERSION_GREATER 2.7)
-  file(GLOB COMPOSITOR_IMAGES eq/compositor/*.rgb)
-  file(GLOB TEST_CONFIGS eq/server/reliability/*.eqc)
-  file(COPY eq/compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
-	  ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
-          DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif()
+file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
+file(GLOB TEST_CONFIGS server/reliability/*.eqc)
+file(COPY compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
+  ${COMPOSITOR_IMAGES} ${TEST_CONFIGS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/examples/include # test depend on examples... oh well
-  ${CMAKE_SOURCE_DIR} # some tests need private headers
+  ${CMAKE_SOURCE_DIR}/examples/include # test need tclap from examples
   )
 
 if(GLEW_MX_FOUND)
@@ -37,8 +33,8 @@ set(ALL_TESTS)
 foreach(FILE ${TEST_FILES})
   set(THIS_BUILD ON)
   if(EQ_BIG_ENDIAN)
-    if( ${FILE} MATCHES "eq/compressor/image.cpp" OR
-        ${FILE} MATCHES "eq/compositor/test.cpp" )
+    if( ${FILE} MATCHES "compressor/image.cpp" OR
+        ${FILE} MATCHES "compositor/test.cpp" )
       set(THIS_BUILD OFF)
     endif()
   endif()
@@ -50,16 +46,14 @@ foreach(FILE ${TEST_FILES})
     add_executable(${NAME} ${FILE})
     set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
 
-    if(${NAME} MATCHES "eq_.*")
-      target_link_libraries(${NAME} lib_Equalizer_shared)
-    endif()
-    if(${NAME} MATCHES "eq_server_.*")
+    target_link_libraries(${NAME} lib_Equalizer_shared)
+    if(${NAME} MATCHES "server_.*")
       target_link_libraries(${NAME} lib_EqualizerServer_shared)
     endif()
-    if(${NAME} MATCHES "eq_fabric_.*")
+    if(${NAME} MATCHES "fabric_.*")
       target_link_libraries(${NAME} lib_EqualizerFabric_shared)
     endif()
-    if(${NAME} MATCHES "seq_.*")
+    if(${NAME} MATCHES "sequel_.*")
       target_link_libraries(${NAME} lib_Sequel_shared)
     endif()
 
