@@ -1792,9 +1792,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                                 EQ_INSTANCE_ALL );
     command << frameDataVersion << image->getPixelViewport() << image->getZoom()
             << commandBuffers << frameNumber << image->getAlphaUsage();
-
-    connection->lockSend();
-    command.sendHeaderUnlocked( imageDataSize );
+    command.sendHeader( imageDataSize );
 
 #ifndef NDEBUG
     size_t sentBytes = 0;
@@ -1846,7 +1844,6 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         sentBytes << " != " << imageDataSize );
 #endif
 
-    connection->unlockSend();
     getLocalNode()->releaseSendToken( token );
 }
 

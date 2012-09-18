@@ -47,7 +47,7 @@ namespace fabric
         Matrix4f       headTransform;  //!< frustum transform for modelview
         Matrix4f       orthoTransform; //!< orthographic frustum transform
 
-        co::ObjectVersion view;       //!< destination view id and version
+        co::ObjectVersion view;        //!< destination view id and version
         uint128_t      frameID;        //!< identifier from Config::beginFrame
         PixelViewport  pvp;            //!< pixel viewport of channel wrt window
         Pixel          pixel;          //!< pixel decomposition wrt to dest
