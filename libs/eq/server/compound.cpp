@@ -526,7 +526,7 @@ void Compound::setProjection( const Projection& projection )
     LBVERB << "Projection: " << _data.frustumData << std::endl;
 }
 
-void Compound::updateFrustum( const Vector3f& eye, const float ratio )
+void Compound::updateFrustum( const Vector3f& eyeWorld, const float ratio )
 {
     if( !isDestination( )) // only set view/segment frusta on destination
         return;
@@ -548,7 +548,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         Wall wall( view->getWall( ));
 
         wall.apply( coverage );
-        wall.moveFocus( eye, ratio );
+        wall.moveFocus( eyeWorld, ratio );
         _updateOverdraw( wall );
         wall.scale( view->getModelUnit() );
 
@@ -592,7 +592,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
     const Viewport  coverage  = outputVP.getCoverage( channelVP );
 
     Wall wall( segment->getWall( ));
-    wall.moveFocus( eye, ratio );
+    wall.moveFocus( eyeWorld, ratio );
     wall.apply( coverage );
     _updateOverdraw( wall );
     wall.scale( view->getModelUnit() );
@@ -644,40 +644,108 @@ void Compound::computeTileFrustum( Frustumf& frustum, const Eye eye,
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
 
-    _computeFrustumCorners( frustum, frustumData, eyeWall, ortho, &vp);
+    _computeFrustumCorners( frustum, frustumData, eyeWall, ortho, eye, &vp );
 }
 
 namespace
 {
     static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
-                                       const Vector3f& eye )
+                                       const Vector3f& eyeWorld )
     {
-        // headTransform = -trans(eye) * view matrix (frustum position)
+        // headTransform = -trans(eyeWorld) * view matrix (frustum position)
         for( int i=0; i<16; i += 4 )
         {
-            result.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
-            result.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
-            result.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
+            result.array[i]   = xfm.array[i]   - eyeWorld[0] * xfm.array[i+3];
+            result.array[i+1] = xfm.array[i+1] - eyeWorld[1] * xfm.array[i+3];
+            result.array[i+2] = xfm.array[i+2] - eyeWorld[2] * xfm.array[i+3];
             result.array[i+3] = xfm.array[i+3];
         }
     }
+
+	static Matrix4f _computeHeadTransformCustom( const Matrix4f& trackMat, const Matrix4f& extr )
+	{
+		Vector3f pos;
+		trackMat.get_translation( pos );
+		Matrix4f rot = trackMat;
+		rot.set_translation( Vector3f(0, 0, 0) );
+
+		// forward transform
+		Matrix4f full_transform;
+		{
+			// split extrinsic calibration into rotational and translational part
+			Vector3f extr_C;
+			extr.get_translation( extr_C );
+			Matrix4f extr_rot = extr;
+			extr_rot.set_translation( Vector3f(0, 0, 0) );
+
+			// full rotation is "Tracker Rotation" * "Tracker->Eye Rotation"
+			//full_transform = rot;
+			//full_transform *= extr_rot;
+			full_transform.multiply( rot, extr_rot );
+
+			// full translation is "Tracker Translation" + "(Tracker Rotation)*(Tracker->Eye Translation)" 
+			Vector3f full_c = rot * extr_C;
+			full_c = pos + full_c;
+			full_transform.set_translation(full_c);
+		}
+
+		// split it up into R, C.
+		Vector3f C;
+		full_transform.get_translation( C );
+		Matrix4f R = full_transform;
+		R.set_translation(Vector3f(0,0,0));
+
+		// flip y- and z-axis rotation
+		for (int i=0;i<3;i++) {
+			R.at(i,1) = - R.at(i,1);
+			R.at(i,2) = - R.at(i,2);
+		}
+
+		// revert rotation on C
+		Matrix4f temp = R;
+		temp.transpose_to( R );
+		C = R*C;
+		Matrix4f result = R;
+
+		// invert c
+		C = C * (-1.0f);
+
+		// our new matrix is now R,c
+		result.set_translation( C );
+
+		return result;
+	}
 }
 
 void Compound::_computePerspective( RenderContext& context,
-                                    const Vector3f& eye ) const
+                                    const Vector3f& eyeWorld ) const
 {
     const FrustumData& frustumData = getInheritFrustumData();
 
-    _computeFrustumCorners( context.frustum, frustumData, eye, false);
-    _computeHeadTransform( context.headTransform, frustumData.getTransform(),
-                           eye );
+	const Channel* destChannel = getInheritChannel();
+	const View* view = destChannel->getView();
+	const Observer* observer = view ? view->getObserver() : 0;
 
-    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
-    if( isHMD )
-        context.headTransform *= _getInverseHeadMatrix();
+    _computeFrustumCorners( context.frustum, frustumData, eyeWorld, false, context.eye );
+
+	if( frustumData.getType() != Wall::TYPE_CUSTOM || !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ))
+	{
+		_computeHeadTransform( context.headTransform, frustumData.getTransform(),
+			                   eyeWorld );
+
+		const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+		if( isHMD )
+			context.headTransform *= _getInverseHeadMatrix();
+	}
+	else
+	{
+		context.headTransform = _computeHeadTransformCustom( observer->getHeadMatrix(),
+															 observer->getEyeWorld( context.eye ) );
+	}
 }
 
-void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
+void Compound::_computeOrtho( RenderContext& context,
+							  const Vector3f& eyeWorld ) const
 {
     // Compute corners for cyclop eye without perspective correction:
     const Vector3f cyclopWorld = _getEyePosition( EYE_CYCLOP );
@@ -685,16 +753,29 @@ void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f cyclopWall = xfm * cyclopWorld;
 
-    _computeFrustumCorners( context.ortho, frustumData, cyclopWall, true );
-    _computeHeadTransform( context.orthoTransform, xfm, eye );
+	const Channel* destChannel = getInheritChannel();
+	const View* view = destChannel->getView();
+	const Observer* observer = view ? view->getObserver() : 0;
 
-    // Apply stereo shearing
-    context.orthoTransform.array[8] += (cyclopWall[0] - eye[0]) / eye[2];
-    context.orthoTransform.array[9] += (cyclopWall[1] - eye[1]) / eye[2];
+    _computeFrustumCorners( context.ortho, frustumData, cyclopWall, true, context.eye );
 
-    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
-    if( isHMD )
-        context.orthoTransform *= _getInverseHeadMatrix();
+	if( frustumData.getType() != Wall::TYPE_CUSTOM || !observer )
+	{
+		_computeHeadTransform( context.orthoTransform, xfm, eyeWorld );
+
+		// Apply stereo shearing
+		context.orthoTransform.array[8] += (cyclopWall[0] - eyeWorld[0]) / eyeWorld[2];
+		context.orthoTransform.array[9] += (cyclopWall[1] - eyeWorld[1]) / eyeWorld[2];
+
+		const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+		if( isHMD )
+			context.orthoTransform *= _getInverseHeadMatrix();
+	}
+	else
+	{
+		context.orthoTransform = _computeHeadTransformCustom( observer->getHeadMatrix(),
+															  observer->getEyeWorld( context.eye ) );
+	}
 }
 
 Vector3f Compound::_getEyePosition( const Eye eye ) const
@@ -742,31 +823,91 @@ const Matrix4f& Compound::_getInverseHeadMatrix() const
 
 void Compound::_computeFrustumCorners( Frustumf& frustum,
                                        const FrustumData& frustumData,
-                                       const Vector3f& eye,
+                                       const Vector3f& eyeWorld,
                                        const bool ortho,
+									   const Eye eye,
                                        Viewport* invp /* = 0*/) const
 {
     const Channel* destination = getInheritChannel();
     frustum = destination->getFrustum();
 
-    const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
-    const float width_2  = frustumData.getWidth()  * .5f;
-    const float height_2 = frustumData.getHeight() * .5f;
+	const View* view = destination->getView();
+	const Observer* observer = view ? view->getObserver() : 0; 
+	if ( observer && !observer->getKMatrix( eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) &&
+		frustumData.getType() == Wall::TYPE_CUSTOM )
+	{
+		// perspective only
+		eq::Matrix4f kmat = observer->getKMatrix( eye );
 
-    if( eye.z() > 0 || ortho )
-    {
-        frustum.left()   =  ( -width_2  - eye.x() ) * ratio;
-        frustum.right()  =  (  width_2  - eye.x() ) * ratio;
-        frustum.bottom() =  ( -height_2 - eye.y() ) * ratio;
-        frustum.top()    =  (  height_2 - eye.y() ) * ratio;
-    }
-    else // eye behind near plane - 'mirror' x
-    {
-        frustum.left()   =  (  width_2  - eye.x() ) * ratio;
-        frustum.right()  =  ( -width_2  - eye.x() ) * ratio;
-        frustum.bottom() =  (  height_2 + eye.y() ) * ratio;
-        frustum.top()    =  ( -height_2 + eye.y() ) * ratio;
-    }
+		eq::Matrix4f projMat = eq::Matrix4f::IDENTITY;
+
+		const float width( destination->getPixelViewport().w );
+		const float height( destination->getPixelViewport().h );        
+		const float fnear( frustum.near_plane() );
+		const float ffar( frustum.far_plane() );
+
+		kmat.at(0,0) = -kmat.at(0,0);
+
+		projMat.at(0,0) = -2.f / width;
+		projMat.at(0,2) = -1.f / width - 1.f;
+		projMat.at(1,1) = 2.f / height;
+		projMat.at(1,2) = 1.f / height - 1.f;
+		projMat.at(2,2) = -(ffar + fnear)/  (ffar - fnear);
+		projMat.at(2,3) = -(1.f - projMat.at(2,2)) * fnear;
+		projMat.at(3,2) = -1.f;  
+
+		projMat *= kmat;
+		projMat(3,3) = 0.0;
+
+		if( projMat.at(3,0) !=  .0f || projMat.at(3,1)!= .0f ||
+			projMat.at(3,2) != -1.f || projMat.at(3,3)!= .0f )
+		{
+			EQERROR << "wrong matrix for projection calculation" << std::endl;
+			return;
+		}
+
+		eq::Matrix4f projTrans;
+		projMat.transpose_to( projTrans );
+		projMat = projTrans;
+
+		frustum.near_plane() = projMat.at(2,3) / (projMat.at(2,2) - 1.f);
+		frustum.far_plane() = projMat.at(2,3) / (1.f + projMat.at(2,2));
+
+		frustum.left() = frustum.near_plane() * (projMat.at(0,2) - 1.f) / projMat.at(0,0);
+		frustum.right() = frustum.near_plane() * (1.f + projMat.at(0,2)) / projMat.at(0,0);
+
+		frustum.top() = frustum.near_plane() * (1.f + projMat.at(1,2)) / projMat.at(1,1);
+		frustum.bottom() = frustum.near_plane() * (projMat.at(1,2) - 1.f) / projMat.at(1,1);
+
+		// move frustum according to principal point from k matrix
+		float displacementX = ( .5f - ( kmat.at(0,2) / width ) )  * fabs( frustum.right() - frustum.left() );
+		float displacementY = ( .5f - ( kmat.at(1,2) / height ) ) * fabs( frustum.top() - frustum.bottom() );
+		frustum.left()	 += displacementX;
+		frustum.right()  += displacementX;
+		frustum.top()	 -= displacementY;
+		frustum.bottom() -= displacementY;
+	}
+	else
+	{
+		const float ratio    = ortho ? 1.0f : frustum.near_plane() / eyeWorld.z();
+		const float width_2  = frustumData.getWidth()  * .5f;
+		const float height_2 = frustumData.getHeight() * .5f;
+
+		if( eyeWorld.z() > 0 || ortho )
+		{
+			frustum.left()   =  ( -width_2  - eyeWorld.x() ) * ratio;
+			frustum.right()  =  (  width_2  - eyeWorld.x() ) * ratio;
+			frustum.bottom() =  ( -height_2 - eyeWorld.y() ) * ratio;
+			frustum.top()    =  (  height_2 - eyeWorld.y() ) * ratio;
+		}
+		else // eye behind near plane - 'mirror' x
+		{
+			frustum.left()   =  (  width_2  - eyeWorld.x() ) * ratio;
+			frustum.right()  =  ( -width_2  - eyeWorld.x() ) * ratio;
+			frustum.bottom() =  (  height_2 + eyeWorld.y() ) * ratio;
+			frustum.top()    =  ( -height_2 + eyeWorld.y() ) * ratio;
+		}
+	}
 
     // move frustum according to pixel decomposition
     const Pixel& pixel = getInheritPixel();
@@ -777,11 +918,9 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
 
         if( pixel.w > 1 )
         {
-            const float         frustumWidth = frustum.right() - frustum.left();
-            const float           pixelWidth = frustumWidth /
-                static_cast<float>( destPVP.w );
-            const float               jitter = pixelWidth * pixel.x -
-                pixelWidth * .5f;
+            const float frustumWidth = frustum.right() - frustum.left();
+            const float pixelWidth = frustumWidth / static_cast<float>( destPVP.w );
+            const float jitter = pixelWidth * pixel.x - pixelWidth * .5f;
 
             frustum.left()  += jitter;
             frustum.right() += jitter;

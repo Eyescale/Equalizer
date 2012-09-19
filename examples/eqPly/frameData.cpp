@@ -42,6 +42,7 @@ FrameData::FrameData()
         , _ortho( false )
         , _statistics( false )
         , _help( false )
+		, _vwhmdMode( false )
         , _wireframe( false )
         , _pilotMode( false )
         , _idle( false )
@@ -58,7 +59,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _position << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _colorMode << _quality << _ortho
-           << _statistics << _help << _wireframe << _pilotMode << _idle
+           << _statistics << _help << _vwhmdMode << _wireframe << _pilotMode << _idle
            << _compression;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
@@ -73,7 +74,7 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _position >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho
-           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idle
+           >> _statistics >> _help >> _vwhmdMode >> _wireframe >> _pilotMode >> _idle
            >> _compression;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
@@ -127,6 +128,12 @@ void FrameData::toggleHelp()
 {
     _help = !_help;
     setDirty( DIRTY_FLAGS );
+}
+
+void FrameData::toggleVWHMDMode()
+{
+	_vwhmdMode = !_vwhmdMode;
+	setDirty( DIRTY_FLAGS );
 }
 
 void FrameData::toggleWireframe()

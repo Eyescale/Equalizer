@@ -127,6 +127,7 @@ namespace eqPly
         void _switchCanvas();
         void _switchView();
         void _switchViewMode();
+		void _toggleVWHMDMode();
         void _switchModel();
         void _freezeLoadBalancing( const bool onOff );
         void _adjustEyeBase( const float delta );

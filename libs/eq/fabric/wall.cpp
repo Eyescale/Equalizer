@@ -251,6 +251,10 @@ std::ostream& operator << ( std::ostream& os, const Wall::Type& type )
           os << "HMD";
           break;
 
+	  case Wall::TYPE_CUSTOM:
+		  os << "Custom";
+		  break;
+
       default:
           LBASSERT( false );
 

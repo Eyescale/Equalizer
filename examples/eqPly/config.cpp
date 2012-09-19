@@ -47,7 +47,7 @@ Config::Config( eq::ServerPtr parent )
         , _currentCanvas( 0 )
         , _messageTime( 0 )
         , _redraw( true )
-        , _useIdleAA( true )
+        , _useIdleAA( false )
         , _numFramesAA( 0 )
 {
 }
@@ -591,10 +591,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
         }
 
-        case 'o':
-        case 'O':
-            _frameData.toggleOrtho();
-            return true;
+//         case 'o':
+//         case 'O':
+//             _frameData.toggleOrtho();
+//             return true;
 
         case 's':
         case 'S':
@@ -614,6 +614,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'H':
             _frameData.toggleHelp();
             return true;
+
+		case 'o':
+			_toggleVWHMDMode();
+			return true;
 
         case 'd':
         case 'D':
@@ -962,6 +966,33 @@ void Config::_adjustModelScale( const float factor )
     _setMessage( stream.str( ));
 }
 
+void Config::_toggleVWHMDMode()
+{
+	_frameData.toggleVWHMDMode();
+	_setHeadMatrix( _getHeadMatrix() );
+	if ( _frameData.useVWHMDMode() )
+		_setMessage( "Using VW HMD mode" );
+	else
+		_setMessage( "Using normal HMD mode" );
+
+	eqPly::View* current = static_cast<eqPly::View*>( find< eq::View >( _frameData.getCurrentViewID( )) );
+	if( !current )
+		return;
+
+	if ( _frameData.useVWHMDMode() )
+	{
+		eq::Wall wall = current->getWall();
+		wall.type = eq::Wall::TYPE_CUSTOM;
+		current->setWall( wall );
+	}
+	else
+	{
+		eq::Wall wall = current->getWall();
+		wall.type = eq::Wall::TYPE_HMD;
+		current->setWall( wall );
+	}
+}
+
 void Config::_switchLayout( int32_t increment )
 {
     if( !_currentCanvas )
@@ -1001,14 +1032,88 @@ void Config::_toggleEqualizer()
         view->toggleEqualizer();
 }
 
+namespace
+{
+	eq::Matrix4f _embedMatrix3( eq::Matrix3f mtx )
+	{
+		eq::Matrix4f embeddedK = eq::Matrix4f::IDENTITY;
+		for(unsigned int i=0; i<3; i++) {    
+			for(unsigned int j=0; j<3; j++) {
+				embeddedK.at(i,j) = mtx.at(i, j);
+			}
+		}
+		embeddedK.at(2,2) = 1;//propagating z to new z
+		embeddedK.at(3,3) = 1;//propagating w to new w
+		return embeddedK;
+	}
+}
+
 // Note: real applications would use one tracking device per observer
 void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 {
-    const eq::Observers& observers = getObservers();
-    for( eq::ObserversCIter i = observers.begin(); i != observers.end(); ++i )
-    {
-        (*i)->setHeadMatrix( matrix );
-    }
+	eq::Matrix4f lkmatrix( eq::Matrix4f::IDENTITY );
+	eq::Matrix4f rkmatrix( eq::Matrix4f::IDENTITY );
+	eq::Matrix4f lextr( eq::Matrix4f::IDENTITY );
+	eq::Matrix4f rextr( eq::Matrix4f::IDENTITY );
+	if ( _frameData.useVWHMDMode() )
+	{
+		eq::Matrix3f lintrinsics_;
+		lintrinsics_.set_row( 0, eq::Vector3f( 1372.406099f, 0.f, 600.7874214f ) );
+		lintrinsics_.set_row( 1, eq::Vector3f( 0.f, 1372.406099f, 607.6069849f ) );
+		lintrinsics_.set_row( 2, eq::Vector3f( 0, 0, 1 ) );
+		lkmatrix = _embedMatrix3( lintrinsics_ );
+
+		eq::Matrix3f rintrinsics_;
+		rintrinsics_.set_row( 0, eq::Vector3f( 1410.936879f, 0.f, 645.7361442f ) );
+		rintrinsics_.set_row( 1, eq::Vector3f( 0, 1410.936879f, 448.4234384f ) );
+		rintrinsics_.set_row( 2, eq::Vector3f( 0, 0, 1 ) );
+		rkmatrix = _embedMatrix3( rintrinsics_ );
+
+		//lextr.set_row( 0, eq::Vector4f( 1.f, 0.f, 0.f, 11.5699f / 1000.f ) );
+		//lextr.set_row( 1, eq::Vector4f( 0.f, 0.98f, -0.17f, -110.138f / 1000.f ) );
+		//lextr.set_row( 2, eq::Vector4f( 0.f, 0.17f, 0.98f, -84.6303f / 1000.f ) );
+		//lextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+
+		//lextr.set_row( 0, eq::Vector4f( 1.0f, 0.0f, 0.0f, 0.03f ) );
+ 		//lextr.set_row( 1, eq::Vector4f( 0.f,  1.0f, 0.0f, 0.0f ) );
+ 		//lextr.set_row( 2, eq::Vector4f( 0.f,  0.0f, 1.0f, 0.0f ) );
+ 		//lextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+
+		//rextr.set_row( 0, eq::Vector4f( 0.98f, 0.f, 0.17f, 0.03f ) );
+		//rextr.set_row( 1, eq::Vector4f( 0.f,  1.f, 0.0f, 0.f ) );
+		//rextr.set_row( 2, eq::Vector4f( -0.17f,  0.0f, 0.98f, 2.f ) );
+		//rextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+
+		//lextr.set_row( 0, eq::Vector4f( 1.0f, 0.f, 0.f, 0.f ) );
+		//lextr.set_row( 1, eq::Vector4f( 0.f,  1, 0.0f, -0.03f ) );
+		//lextr.set_row( 2, eq::Vector4f( 0.f,  0.0f,1.0f, 0.f ) );
+		//lextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+
+		//rextr.set_row( 0, eq::Vector4f( 1.0f, 0.f, 0.f, 0.0f ) );
+		//rextr.set_row( 1, eq::Vector4f( 0.f,  1.f, 0.0f, 0.0f ) );
+		//rextr.set_row( 2, eq::Vector4f( 0.f,  0.0f, 1.0f, 0.0f ) );
+		//rextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+
+		//lextr.set_row( 0, eq::Vector4f( 0.998471f, -0.03373f, 0.0437856f, -31.539f / 1000.f ) );
+		//lextr.set_row( 1, eq::Vector4f( -0.0447895f, -0.0296045f, 0.998558f, 2.6461f / 1000.f ) );
+		//lextr.set_row( 2, eq::Vector4f( -0.0323851f, -0.998992f, -0.03107f, -2.57854f / 1000.f ) );
+		//lextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+
+		//rextr.set_row( 0, eq::Vector4f( 0.999468f, -0.00770544f, 0.0316896f, 32.1801f / 1000.f ) );
+		//rextr.set_row( 1, eq::Vector4f( -0.0310239f, 0.0749715f, 0.996703f, 4.56151f / 1000.f ) );
+		//rextr.set_row( 2, eq::Vector4f( -0.0100559f, -0.997156f, 0.0746926f, 1.2939f / 1000.f ) );
+		//rextr.set_row( 3, eq::Vector4f( 0, 0, 0, 1 ) );
+	}
+
+	const eq::Observers& observers = getObservers();
+	for( eq::ObserversCIter i = observers.begin(); i != observers.end(); ++i )
+	{
+		(*i)->setHeadMatrix( matrix );
+		(*i)->setEyeWorld( eq::EYE_LEFT, lextr );
+		(*i)->setKMatrix( eq::EYE_LEFT, lkmatrix );
+		(*i)->setEyeWorld( eq::EYE_RIGHT, rextr );
+		(*i)->setKMatrix( eq::EYE_RIGHT, rkmatrix );
+	}
 
     eq::Vector3f trans;
     matrix.get_translation( trans );

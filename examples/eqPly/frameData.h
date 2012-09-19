@@ -61,6 +61,7 @@ namespace eqPly
         void toggleOrtho();
         void toggleStatistics();
         void toggleHelp();
+		void toggleVWHMDMode();
         void toggleWireframe();
         void toggleColorMode();
         void adjustQuality( const float delta );
@@ -74,6 +75,7 @@ namespace eqPly
         bool useOrtho() const { return _ortho; }
         bool useStatistics() const { return _statistics; }
         bool showHelp() const { return _help; }
+		bool useVWHMDMode() const { return _vwhmdMode; }
         bool useWireframe() const { return _wireframe; }
         bool usePilotMode() const { return _pilotMode; }
         bool isIdle() const { return _idle; }
@@ -141,6 +143,7 @@ namespace eqPly
         bool             _ortho;
         bool             _statistics;
         bool             _help;
+		bool             _vwhmdMode;
         bool             _wireframe;
         bool             _pilotMode;
         bool             _idle;

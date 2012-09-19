@@ -23,6 +23,7 @@
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h> // enum
+#include <eq/fabric/eye.h>
 
 #include <string>
 #include <vector>
@@ -62,6 +63,18 @@ namespace fabric
 
         /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _data.eyeBase; }
+
+		/** Set the Kmatrix of this observer. @version 1.4 */
+		EQFABRIC_INL void setKMatrix( const Eye eye, const Matrix4f& mtx );
+
+		/** @return the current eye Kmatrix. @version 1.4 */
+		const Matrix4f& getKMatrix( const Eye eye ) const;
+
+		/** Set the eye world of this observer. @version 1.4 */
+		EQFABRIC_INL void setEyeWorld( const Eye eye, const Matrix4f& mtx );
+
+		/** @return the current eye world matrix. @version 1.4 */
+		const Matrix4f& getEyeWorld( const Eye eye ) const;
 
         /** Set the focal distance. @sa setFocusMode @version 1.1 */
         EQFABRIC_INL void setFocusDistance( const float focusDistance );
@@ -124,8 +137,10 @@ namespace fabric
             DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,
             DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1,
             DIRTY_FOCUS      = Object::DIRTY_CUSTOM << 2,
+			DIRTY_EYES       = Object::DIRTY_CUSTOM << 3,
+			DIRTY_KMATRIX    = Object::DIRTY_CUSTOM << 4,
             DIRTY_OBSERVER_BITS =
-                DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_OBJECT_BITS
+                DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_EYES | DIRTY_KMATRIX | DIRTY_OBJECT_BITS
         };
 
         /** @internal @return the bits to be re-committed by the master. */
@@ -151,6 +166,12 @@ namespace fabric
 
             /** The current head position. */
             Matrix4f headMatrix;
+
+			/** The current extrinsic matrix (eye offset). */
+			Matrix4f eyes[ eq::fabric::NUM_EYES ];
+
+			/** The current intrinsic Kmatrix. */
+			Matrix4f kmatrix[ eq::fabric::NUM_EYES ];
         }
             _data, _backup;
 

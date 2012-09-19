@@ -620,13 +620,21 @@ namespace server
         void _fireChildRemove( Compound* child );
 
         void _computePerspective( RenderContext& context, 
-                                  const Vector3f& eye ) const;
-        void _computeOrtho( RenderContext& context, const Vector3f& eye ) const;
+                                  const Vector3f& eyeWorld ) const;
+
+        void _computeOrtho( RenderContext& context,
+							const Vector3f& eyeWorld ) const;
+
         Vector3f _getEyePosition( const fabric::Eye eye ) const;
+
         const Matrix4f& _getInverseHeadMatrix() const;
+
         void _computeFrustumCorners( Frustumf& frustum, 
-            const FrustumData& frustumData, const Vector3f& eye, 
-            const bool ortho, Viewport* invp = 0 ) const;
+									 const FrustumData& frustumData,
+									 const Vector3f& eyeWorld, 
+									 const bool ortho,
+									 const Eye eye,
+									 Viewport* invp = 0 ) const;
     };
 
     std::ostream& operator << ( std::ostream& os, const Compound& compound );

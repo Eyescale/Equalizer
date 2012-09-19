@@ -33,6 +33,12 @@ template< typename C, typename O >
 Observer< C, O >::Observer( C* config )
         : _config( config )
 {
+	for( unsigned int eye = 0; eye < eq::fabric::NUM_EYES; ++eye )
+    {
+		_data.eyes[eye] = Matrix4f::IDENTITY;
+        _data.kmatrix[eye] = Matrix4f::IDENTITY;
+    }
+    
     LBASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
@@ -81,6 +87,10 @@ void Observer< C, O >::serialize( co::DataOStream& os,
         os << _data.focusDistance << _data.focusMode;
     if( dirtyBits & DIRTY_HEAD )
         os << _data.headMatrix;
+    if( dirtyBits & DIRTY_KMATRIX )
+        os << _data.kmatrix;
+    if( dirtyBits & DIRTY_EYES )
+        os << _data.eyes;
 }
 
 template< typename C, typename O >
@@ -95,6 +105,10 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
         is >> _data.focusDistance >> _data.focusMode;
     if( dirtyBits & DIRTY_HEAD )
         is >> _data.headMatrix;
+    if( dirtyBits & DIRTY_KMATRIX )
+        is >> _data.kmatrix;
+    if( dirtyBits & DIRTY_EYES )
+        is >> _data.eyes;
 }
 
 template< typename C, typename O >
@@ -168,6 +182,38 @@ void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 
     _data.headMatrix = matrix;
     setDirty( DIRTY_HEAD );
+}
+
+template< typename C, typename O >
+void Observer< C, O >::setKMatrix( const Eye eye, const Matrix4f& mtx )
+{
+    if ( getKMatrix( eye ) == mtx )
+        return;
+
+    _data.kmatrix[ co::base::getIndexOfLastBit( eye ) ] = mtx;
+    setDirty( DIRTY_KMATRIX );
+}
+
+template< typename C, typename O >
+const Matrix4f& Observer< C, O >::getKMatrix( const Eye eye ) const
+{
+    return _data.kmatrix[ co::base::getIndexOfLastBit( eye ) ];
+}
+
+template< typename C, typename O >
+void Observer< C, O >::setEyeWorld( const Eye eye, const Matrix4f& mtx )
+{
+    if ( getEyeWorld( eye ) == mtx )
+        return;
+
+    _data.eyes[ co::base::getIndexOfLastBit( eye ) ] = mtx;
+    setDirty( DIRTY_EYES );
+}
+
+template< typename C, typename O >
+const Matrix4f& Observer< C, O >::getEyeWorld( const Eye eye ) const
+{
+    return _data.eyes[ co::base::getIndexOfLastBit( eye ) ];
 }
 
 template< typename C, typename O >
