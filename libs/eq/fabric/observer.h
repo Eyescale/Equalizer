@@ -64,17 +64,17 @@ namespace fabric
         /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _data.eyeBase; }
 
-		/** Set the Kmatrix of this observer. @version 1.4 */
-		EQFABRIC_INL void setKMatrix( const Eye eye, const Matrix4f& mtx );
+        /** Set the Kmatrix of this observer. @version 1.4 */
+        EQFABRIC_INL void setKMatrix( const Eye eye, const Matrix4f& mtx );
 
-		/** @return the current eye Kmatrix. @version 1.4 */
-		const Matrix4f& getKMatrix( const Eye eye ) const;
+        /** @return the current eye Kmatrix. @version 1.4 */
+        EQFABRIC_INL const Matrix4f& getKMatrix( const Eye eye ) const;
 
-		/** Set the eye world of this observer. @version 1.4 */
-		EQFABRIC_INL void setEyeWorld( const Eye eye, const Matrix4f& mtx );
+        /** Set the eye world of this observer. @version 1.4 */
+        EQFABRIC_INL void setEyeWorld( const Eye eye, const Matrix4f& mtx );
 
-		/** @return the current eye world matrix. @version 1.4 */
-		const Matrix4f& getEyeWorld( const Eye eye ) const;
+        /** @return the current eye world matrix. @version 1.4 */
+        EQFABRIC_INL const Matrix4f& getEyeWorld( const Eye eye ) const;
 
         /** Set the focal distance. @sa setFocusMode @version 1.1 */
         EQFABRIC_INL void setFocusDistance( const float focusDistance );
