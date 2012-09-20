@@ -37,6 +37,7 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/iCommand.h>
 
 namespace eq
 {
@@ -516,7 +517,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     return focusDistance / distance;
 }
 
-bool View::_cmdFreezeLoadBalancing( co::Command& command )
+bool View::_cmdFreezeLoadBalancing( co::ICommand& command )
 {
     FreezeVisitor visitor( this, command.get< bool >( ));
     getConfig()->accept( visitor );

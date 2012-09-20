@@ -48,7 +48,6 @@
 #include <eq/fabric/task.h>
 #include <eq/fabric/tile.h>
 
-#include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/exception.h>
 #include <co/objectCommand.h>

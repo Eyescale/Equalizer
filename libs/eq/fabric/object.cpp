@@ -20,7 +20,7 @@
 
 #include "task.h"
 
-#include <co/command.h>
+#include <co/iCommand.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/types.h>
@@ -304,7 +304,7 @@ void Object::postRemove( Object* child )
     localNode->releaseObject( child );
 }
 
-bool Object::_cmdSync( co::Command& command )
+bool Object::_cmdSync( co::ICommand& command )
 {
     LBASSERT( isMaster( ));
     sync( co::VERSION_HEAD );

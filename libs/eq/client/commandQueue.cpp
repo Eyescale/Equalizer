@@ -20,7 +20,7 @@
 
 #include "messagePump.h"
 
-#include <co/command.h>
+#include <co/iCommand.h>
 #include <lunchbox/clock.h>
 
 namespace eq
@@ -42,14 +42,14 @@ CommandQueue::~CommandQueue()
     _messagePump = 0;
 }
 
-void CommandQueue::push( const co::Command& command )
+void CommandQueue::push( const co::ICommand& command )
 {
     co::CommandQueue::push( command );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-void CommandQueue::pushFront( const co::Command& command )
+void CommandQueue::pushFront( const co::ICommand& command )
 {
     co::CommandQueue::pushFront( command );
     if( _messagePump )
@@ -72,7 +72,7 @@ co::Command CommandQueue::pop( const uint32_t timeout )
             return co::CommandQueue::pop( timeout );
         }
         else if( timeout == 0 )
-            return co::Command();
+            return co::ICommand();
 
         if( _messagePump )
         {
@@ -87,14 +87,14 @@ co::Command CommandQueue::pop( const uint32_t timeout )
         {
             start = _clock.getTime64();
             // blocking
-            const co::Command& command = co::CommandQueue::pop( timeout );
+            const co::ICommand& command = co::CommandQueue::pop( timeout );
             _waitTime += ( _clock.getTime64() - start );
             return command;
         }
     }
 }
 
-co::Command CommandQueue::tryPop()
+co::ICommand CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking

@@ -27,7 +27,7 @@
 
 #include <eq/fabric/commands.h>
 
-#include <co/command.h>
+#include <co/iCommand.h>
 #include <co/connection.h>
 
 #include <algorithm>
@@ -144,7 +144,7 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Server::_cmdChooseConfigReply( co::Command& command )
+bool Server::_cmdChooseConfigReply( co::ICommand& command )
 {
     co::LocalNodePtr  localNode = command.getLocalNode();
     const UUID configID = command.get< UUID >();
@@ -176,14 +176,14 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
     return true;
 }
 
-bool Server::_cmdReleaseConfigReply( co::Command& command )
+bool Server::_cmdReleaseConfigReply( co::ICommand& command )
 {
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
-bool Server::_cmdShutdownReply( co::Command& command )
+bool Server::_cmdShutdownReply( co::ICommand& command )
 {
     co::LocalNodePtr localNode = command.getLocalNode();
     const uint32_t requestID = command.get< uint32_t >();

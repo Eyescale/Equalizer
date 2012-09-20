@@ -35,7 +35,7 @@
 
 #include <eq/fabric/commands.h>
 
-#include <co/command.h>
+#include <co/iCommand.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
 #include <co/init.h>
@@ -145,7 +145,7 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::Command command = _mainThreadQueue.pop();
+        co::ICommand command = _mainThreadQueue.pop();
         if( !command( ))
         {
             LBABORT( "Error handling command " << command );
@@ -154,7 +154,7 @@ void Server::handleCommands()
     _mainThreadQueue.flush();
 }
 
-bool Server::_cmdChooseConfig( co::Command& command )
+bool Server::_cmdChooseConfig( co::ICommand& command )
 {
     const uint32_t requestID = command.get< uint32_t >();
     uint32_t flags;
@@ -237,7 +237,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
     return true;
 }
 
-bool Server::_cmdReleaseConfig( co::Command& command )
+bool Server::_cmdReleaseConfig( co::ICommand& command )
 {
     UUID configID = command.get< UUID >();
     uint32_t requestID = command.get< uint32_t >();
@@ -295,13 +295,13 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     return true;
 }
 
-bool Server::_cmdDestroyConfigReply( co::Command& command )
+bool Server::_cmdDestroyConfigReply( co::ICommand& command )
 {
     serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
-bool Server::_cmdShutdown( co::Command& command )
+bool Server::_cmdShutdown( co::ICommand& command )
 {
     const uint32_t requestID = command.get< uint32_t >();
 
@@ -344,7 +344,7 @@ bool Server::_cmdShutdown( co::Command& command )
     return true;
 }
 
-bool Server::_cmdMap( co::Command& command )
+bool Server::_cmdMap( co::ICommand& command )
 {
     co::NodePtr node = command.getNode();
     _admins.push_back( node );
@@ -361,7 +361,7 @@ bool Server::_cmdMap( co::Command& command )
     return true;
 }
 
-bool Server::_cmdUnmap( co::Command& command )
+bool Server::_cmdUnmap( co::ICommand& command )
 {
     co::NodePtr node = command.getNode();
     co::Nodes::iterator i = stde::find( _admins, node );

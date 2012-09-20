@@ -29,7 +29,6 @@
 
 #include <eq/fabric/drawableConfig.h>
 #include <eq/util/objectManager.h>
-#include <co/command.h>
 #include <co/commandFunc.h>
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>

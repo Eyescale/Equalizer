@@ -23,7 +23,7 @@
 
 #include <eq/fabric/commands.h>
 
-#include <co/command.h>
+#include <co/iCommand.h>
 #include <co/commandQueue.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -95,14 +95,14 @@ void Client::processCommand( const uint32_t timeout )
 {
     co::CommandQueue* queue = getMainThreadQueue();
     LBASSERT( queue );
-    co::Command command = queue->pop( timeout );
+    co::ICommand command = queue->pop( timeout );
     if( !command.isValid( )) // just a wakeup()
         return;
 
     LBCHECK( command( ));
 }
 
-bool Client::dispatchCommand( co::Command& command )
+bool Client::dispatchCommand( co::ICommand& command )
 {
     LBVERB << "dispatch " << command << std::endl;
 

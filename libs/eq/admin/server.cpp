@@ -23,9 +23,8 @@
 #include "nodeFactory.h"
 
 #include <eq/fabric/commands.h>
-
-#include <co/command.h>
 #include <co/dispatcher.h>
+#include <co/iCommand.h>
 
 namespace eq
 {
@@ -98,14 +97,14 @@ co::CommandQueue* Server::getMainThreadQueue()
     return getClient()->getMainThreadQueue();
 }
 
-bool Server::_cmdMapReply( co::Command& command )
+bool Server::_cmdMapReply( co::ICommand& command )
 {
     ClientPtr client = getClient();
     client->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
-bool Server::_cmdUnmapReply( co::Command& command )
+bool Server::_cmdUnmapReply( co::ICommand& command )
 {
     ClientPtr client = getClient();
     client->serveRequest( command.get< uint32_t >( ));

@@ -23,7 +23,7 @@
 #include "leafVisitor.h"
 #include "log.h"
 
-#include <co/command.h>
+#include <co/iCommand.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
 
@@ -145,7 +145,7 @@ VisitorResult Server< CL, S, CFG, NF, N, V >::accept( V& visitor ) const
 // command handlers
 //---------------------------------------------------------------------------
 template< class CL, class S, class CFG, class NF, class N, class V > bool
-Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
+Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::ICommand& command )
 {
     const co::ObjectVersion configVersion = command.get< co::ObjectVersion >();
     const uint32_t requestID = command.get< uint32_t >();
@@ -165,7 +165,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V > bool
-Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
+Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::ICommand& command )
 {
     LBVERB << "Handle destroy config " << command << std::endl;
 

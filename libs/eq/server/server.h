@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,8 +24,8 @@
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/server.h>    // base class
-#include <co/command.h>      // used in inline method
-#include <co/commandQueue.h> // member
+#include <co/commandQueue.h>  // member
+#include <co/localNode.h>     // base class
 #include <lunchbox/clock.h>   // member
 
 namespace eq
@@ -38,24 +38,16 @@ namespace server
                                co::LocalNode, ServerVisitor >
     {
     public:
-        /**
-         * Constructs a new Server.
-         */
+        /** Construct a new server. */
         EQSERVER_API Server();
 
-        /**
-         * Initialize the server.
-         */
+        /** Initialize the server. */
         EQSERVER_API void init();
 
-        /**
-         * Exit the server.
-         */
+        /** De-initialize the server. */
         EQSERVER_API void exit();
 
-        /**
-         * The actual main loop of server.
-         */
+        /** The actual main loop of server. */
         EQSERVER_API void handleCommands();
 
         /**

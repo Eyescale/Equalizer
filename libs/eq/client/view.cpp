@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,7 +27,6 @@
 
 #include <eq/fabric/commands.h>
 
-#include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
