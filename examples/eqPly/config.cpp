@@ -981,9 +981,9 @@ void Config::_toggleVWHMDMode()
 
 	if ( _frameData.useVWHMDMode() )
 	{
-		eq::Wall wall = current->getWall();
-		wall.type = eq::Wall::TYPE_CUSTOM;
-		current->setWall( wall );
+//		eq::Wall wall = current->getWall();
+//		wall.type = eq::Wall::TYPE_CUSTOM;
+//		current->setWall( wall );
 	}
 	else
 	{

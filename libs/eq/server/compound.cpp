@@ -728,7 +728,7 @@ void Compound::_computePerspective( RenderContext& context,
 
     _computeFrustumCorners( context.frustum, frustumData, eyeWorld, false, context.eye );
 
-	if( frustumData.getType() != Wall::TYPE_CUSTOM || !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ))
+	if( !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
 	{
 		_computeHeadTransform( context.headTransform, frustumData.getTransform(),
 			                   eyeWorld );
@@ -759,7 +759,7 @@ void Compound::_computeOrtho( RenderContext& context,
 
     _computeFrustumCorners( context.ortho, frustumData, cyclopWall, true, context.eye );
 
-	if( frustumData.getType() != Wall::TYPE_CUSTOM || !observer )
+	if( !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
 	{
 		_computeHeadTransform( context.orthoTransform, xfm, eyeWorld );
 
@@ -833,8 +833,7 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
 
 	const View* view = destination->getView();
 	const Observer* observer = view ? view->getObserver() : 0; 
-	if ( observer && !observer->getKMatrix( eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) &&
-		frustumData.getType() == Wall::TYPE_CUSTOM )
+	if ( observer && !observer->getKMatrix( eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
 	{
 		// perspective only
 		eq::Matrix4f kmat = observer->getKMatrix( eye );
