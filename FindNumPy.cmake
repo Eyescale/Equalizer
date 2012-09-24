@@ -5,6 +5,13 @@
 
 cmake_minimum_required(VERSION 2.6)
 
+if(NUMPY_FIND_QUIETLY)
+  find_package(PythonInterp)
+else()
+  find_package(PythonInterp QUIET)
+  set(_numpy_out 1)
+endif()
+
 if (PYTHON_EXECUTABLE)
   # write a python script that finds the numpy path
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/FindNumpyPath.py 
@@ -14,8 +21,8 @@ if (PYTHON_EXECUTABLE)
   exec_program("${PYTHON_EXECUTABLE}" ${CMAKE_CURRENT_BINARY_DIR}
     ARGS "FindNumpyPath.py"
     OUTPUT_VARIABLE NUMPY_PATH)
-else(PYTHON_EXECUTABLE)
-  message("Python executable not found.")
+elseif(_numpy_out)
+  message(STATUS "Python executable not found.")
 endif(PYTHON_EXECUTABLE)
 
 find_path(PYTHON_NUMPY_INCLUDE_DIR numpy/arrayobject.h
@@ -31,6 +38,4 @@ if(PYTHON_NUMPY_INCLUDE_DIR)
 endif(PYTHON_NUMPY_INCLUDE_DIR)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Numpy DEFAULT_MSG
-        PYTHON_NUMPY_INCLUDE_DIR)
-
+find_package_handle_standard_args(Numpy DEFAULT_MSG PYTHON_NUMPY_INCLUDE_DIR)
