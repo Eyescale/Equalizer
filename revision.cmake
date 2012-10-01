@@ -1,5 +1,7 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
+set(GIT_REVISION 0)
+
 if(CMAKE_VERSION VERSION_LESS 2.8)
   message(STATUS "No revision version support, git not found")
   return()
