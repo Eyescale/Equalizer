@@ -1,18 +1,18 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
-IF(CMAKE_VERSION VERSION_LESS 2.8)
-  MESSAGE(STATUS "No revision version support, git not found")
+if(CMAKE_VERSION VERSION_LESS 2.8)
+  message(STATUS "No revision version support, git not found")
   return()
-ENDIF()
+endif()
 
-IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-  FIND_PACKAGE(Git)
-  IF(GIT_FOUND)
-    EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
+  find_package(Git)
+  if(GIT_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      OUTPUT_VARIABLE EQ_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
-    MESSAGE(STATUS "git revision ${EQ_REVISION}")
-  ELSE()
-    MESSAGE(STATUS "No revision version support, git not found")
-  ENDIF()
-ENDIF()
+      OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    MESSAGE(STATUS "git revision ${GIT_REVISION}")
+  else()
+    message(STATUS "No revision version support, git not found")
+  endif()
+endif()
