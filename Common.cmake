@@ -138,7 +138,7 @@ if(APPLE)
     set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
   endif (NOT CMAKE_INSTALL_NAME_DIR)
   message(STATUS
-    "Building ${CMAKE_PROJECT_NAME} for ${CMAKE_OSX_ARCHITECTURES}")
+    "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
 # hooks to gather all targets (libaries & executables)
