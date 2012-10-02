@@ -73,7 +73,7 @@ if(BIGENDIAN)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  include(CompilerVersion)
+  include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
