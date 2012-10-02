@@ -37,7 +37,7 @@
 
 #include <co/barrier.h>
 #include <co/connection.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 #include <lunchbox/scopedMutex.h>
 
 namespace eq
@@ -409,7 +409,7 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::Command command = _queue.pop();
+        co::ICommand command = _queue.pop();
         if( !command.isValid( ))
             return; // exit thread
 
@@ -425,19 +425,19 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    transmitter.getQueue().push( co::Command( )); // wake up to exit
+    transmitter.getQueue().push( co::ICommand( )); // wake up to exit
     transmitter.join();
 }
 
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Node::_cmdCreatePipe( co::Command& cmd )
+bool Node::_cmdCreatePipe( co::ICommand& cmd )
 {
     LB_TS_THREAD( _nodeThread );
     LBASSERT( _state >= STATE_INIT_FAILED );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const UUID pipeID = command.get< UUID >();
     const bool threaded = command.get< bool >();
 
@@ -455,9 +455,9 @@ bool Node::_cmdCreatePipe( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdDestroyPipe( co::Command& cmd )
+bool Node::_cmdDestroyPipe( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
@@ -476,9 +476,9 @@ bool Node::_cmdDestroyPipe( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdConfigInit( co::Command& cmd )
+bool Node::_cmdConfigInit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Init node " << command << std::endl;
@@ -507,9 +507,9 @@ bool Node::_cmdConfigInit( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdConfigExit( co::Command& cmd )
+bool Node::_cmdConfigExit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Node exit " << command << std::endl;
@@ -522,7 +522,7 @@ bool Node::_cmdConfigExit( co::Command& cmd )
     }
 
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.getQueue().push( co::Command( )); // wake up to exit
+    transmitter.getQueue().push( co::ICommand( )); // wake up to exit
     transmitter.join();
     _flushObjects();
 
@@ -531,11 +531,11 @@ bool Node::_cmdConfigExit( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameStart( co::Command& cmd )
+bool Node::_cmdFrameStart( co::ICommand& cmd )
 {
     LB_TS_THREAD( _nodeThread );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint128_t configVersion = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
@@ -563,11 +563,11 @@ bool Node::_cmdFrameStart( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameFinish( co::Command& cmd )
+bool Node::_cmdFrameFinish( co::ICommand& cmd )
 {
     LB_TS_THREAD( _nodeThread );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -584,9 +584,9 @@ bool Node::_cmdFrameFinish( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameDrawFinish( co::Command& cmd )
+bool Node::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -598,9 +598,9 @@ bool Node::_cmdFrameDrawFinish( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameTasksFinish( co::Command& cmd )
+bool Node::_cmdFrameTasksFinish( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -611,9 +611,9 @@ bool Node::_cmdFrameTasksFinish( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameDataTransmit( co::Command& cmd )
+bool Node::_cmdFrameDataTransmit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const co::ObjectVersion frameDataVersion =
                                              command.get< co::ObjectVersion >();
@@ -645,9 +645,9 @@ bool Node::_cmdFrameDataTransmit( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameDataReady( co::Command& cmd )
+bool Node::_cmdFrameDataReady( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const co::ObjectVersion frameDataVersion =
                                             command.get< co::ObjectVersion >();
@@ -663,9 +663,9 @@ bool Node::_cmdFrameDataReady( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdSetAffinity( co::Command& cmd )
+bool Node::_cmdSetAffinity( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     lunchbox::Thread::setAffinity( command.get< int32_t >( ));
     return true;

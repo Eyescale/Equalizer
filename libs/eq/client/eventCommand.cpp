@@ -33,15 +33,15 @@ public:
 };
 }
 
-EventCommand::EventCommand( const co::Command& command )
-    : co::ObjectCommand( command )
+EventCommand::EventCommand( const co::ICommand& command )
+    : co::ObjectICommand( command )
     , _impl( new detail::EventCommand )
 {
     _init();
 }
 
 EventCommand::EventCommand( const EventCommand& rhs )
-    : co::ObjectCommand( rhs )
+    : co::ObjectICommand( rhs )
     , _impl( new detail::EventCommand )
 {
     _init();

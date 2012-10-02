@@ -27,7 +27,7 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 namespace eq
 {
@@ -438,12 +438,12 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 }
 
 //----------------------------------------------------------------------
-// Command handlers
+// ICommand handlers
 //----------------------------------------------------------------------
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannel( co::Command& cmd )
+bool Window< P, W, C >::_cmdNewChannel( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     C* channel = 0;
     create( &channel );
@@ -460,9 +460,9 @@ bool Window< P, W, C >::_cmdNewChannel( co::Command& cmd )
 }
 
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannelReply( co::Command& cmd )
+bool Window< P, W, C >::_cmdNewChannelReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();

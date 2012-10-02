@@ -143,8 +143,8 @@ namespace server
         Private* _private; // placeholder for binary-compatible changes
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( co::Command& command );
-        bool _cmdConfigExitReply( co::Command& command );
+        bool _cmdConfigInitReply( co::ICommand& command );
+        bool _cmdConfigExitReply( co::ICommand& command );
     };
 }
 }

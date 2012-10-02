@@ -36,7 +36,7 @@
 
 #include <co/barrier.h>
 #include <co/global.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 #include <lunchbox/clock.h>
 #include <lunchbox/launcher.h>
@@ -710,9 +710,9 @@ void Node::flushSendBuffer()
 //===========================================================================
 // command handling
 //===========================================================================
-bool Node::_cmdConfigInitReply( co::Command& cmd )
+bool Node::_cmdConfigInitReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     LBVERB << "handle configInit reply " << command << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
     _state = command.get< uint64_t >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -720,9 +720,9 @@ bool Node::_cmdConfigInitReply( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdConfigExitReply( co::Command& cmd )
+bool Node::_cmdConfigExitReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     LBVERB << "handle configExit reply " << command << std::endl;
     LBASSERT( _state == STATE_EXITING );
 
@@ -730,9 +730,9 @@ bool Node::_cmdConfigExitReply( co::Command& cmd )
     return true;
 }
 
-bool Node::_cmdFrameFinishReply( co::Command& cmd )
+bool Node::_cmdFrameFinishReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     LBVERB << "handle frame finish reply " << command << std::endl;
 
     const uint32_t frameNumber = command.get< uint32_t >();

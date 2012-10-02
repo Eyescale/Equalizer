@@ -37,17 +37,17 @@ namespace eq
         virtual ~CommandQueue();
 
         /** @sa co::CommandQueue::push(). */
-        virtual void push( const co::Command& command );
+        virtual void push( const co::ICommand& command );
 
         /** @sa co::CommandQueue::pushFront(). */
-        virtual void pushFront( const co::Command& command );
+        virtual void pushFront( const co::ICommand& command );
 
         /** @sa co::CommandQueue::pop(). */
-        virtual co::Command pop( const uint32_t timeout =
+        virtual co::ICommand pop( const uint32_t timeout =
                                     LB_TIMEOUT_INDEFINITE );
 
         /** @sa co::CommandQueue::tryPop(). */
-        virtual co::Command tryPop();
+        virtual co::ICommand tryPop();
 
         /** @sa reset the time spent in pop() and return the previous value. */
         int64_t resetWaitTime()

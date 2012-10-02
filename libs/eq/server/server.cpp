@@ -138,7 +138,7 @@ void Server::deleteConfigs()
 }
 
 //===========================================================================
-// Command handling methods
+// ICommand handling methods
 //===========================================================================
 void Server::handleCommands()
 {

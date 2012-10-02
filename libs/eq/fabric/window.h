@@ -265,8 +265,8 @@ namespace fabric
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
         typedef co::CommandFunc< Window< P, W, C > > CmdFunc;
-        bool _cmdNewChannel( co::Command& command );
-        bool _cmdNewChannelReply( co::Command& command );
+        bool _cmdNewChannel( co::ICommand& command );
+        bool _cmdNewChannelReply( co::ICommand& command );
     };
 
     template< class P, class W, class C > EQFABRIC_INL

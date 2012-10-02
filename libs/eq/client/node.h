@@ -299,17 +299,17 @@ namespace eq
         void _flushObjects();
 
         /** The command functions. */
-        bool _cmdCreatePipe( co::Command& command );
-        bool _cmdDestroyPipe( co::Command& command );
-        bool _cmdConfigInit( co::Command& command );
-        bool _cmdConfigExit( co::Command& command );
-        bool _cmdFrameStart( co::Command& command );
-        bool _cmdFrameFinish( co::Command& command );
-        bool _cmdFrameDrawFinish( co::Command& command );
-        bool _cmdFrameTasksFinish( co::Command& command );
-        bool _cmdFrameDataTransmit( co::Command& command );
-        bool _cmdFrameDataReady( co::Command& command );
-        bool _cmdSetAffinity( co::Command& command );
+        bool _cmdCreatePipe( co::ICommand& command );
+        bool _cmdDestroyPipe( co::ICommand& command );
+        bool _cmdConfigInit( co::ICommand& command );
+        bool _cmdConfigExit( co::ICommand& command );
+        bool _cmdFrameStart( co::ICommand& command );
+        bool _cmdFrameFinish( co::ICommand& command );
+        bool _cmdFrameDrawFinish( co::ICommand& command );
+        bool _cmdFrameTasksFinish( co::ICommand& command );
+        bool _cmdFrameDataTransmit( co::ICommand& command );
+        bool _cmdFrameDataReady( co::ICommand& command );
+        bool _cmdSetAffinity( co::ICommand& command );
 
         LB_TS_VAR( _nodeThread );
         LB_TS_VAR( _commandThread );

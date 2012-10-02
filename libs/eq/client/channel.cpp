@@ -50,7 +50,7 @@
 
 #include <co/connectionDescription.h>
 #include <co/exception.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 #include <co/queueSlave.h>
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
@@ -1406,7 +1406,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     LBASSERT( queue );
     for( ;; )
     {
-        co::ObjectCommand tileCmd = queue->pop();
+        co::ObjectICommand tileCmd = queue->pop();
         if( !tileCmd.isValid( ))
             break;
 
@@ -1935,9 +1935,9 @@ void Channel::_deleteTransferContext()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Channel::_cmdConfigInit( co::Command& cmd )
+bool Channel::_cmdConfigInit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBLOG( LOG_INIT ) << "TASK channel config init " << command << std::endl;
 
@@ -1976,9 +1976,9 @@ bool Channel::_cmdConfigInit( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdConfigExit( co::Command& cmd )
+bool Channel::_cmdConfigExit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBLOG( LOG_INIT ) << "Exit channel " << command << std::endl;
 
@@ -1992,9 +1992,9 @@ bool Channel::_cmdConfigExit( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameStart( co::Command& cmd )
+bool Channel::_cmdFrameStart( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     RenderContext context = command.get< RenderContext >();
     const uint128_t version = command.get< uint128_t >();
@@ -2021,9 +2021,9 @@ bool Channel::_cmdFrameStart( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameFinish( co::Command& cmd )
+bool Channel::_cmdFrameFinish( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     RenderContext context = command.get< RenderContext >();
     const uint32_t frameNumber = command.get< uint32_t >();
@@ -2039,11 +2039,11 @@ bool Channel::_cmdFrameFinish( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameClear( co::Command& cmd )
+bool Channel::_cmdFrameClear( co::ICommand& cmd )
 {
     LBASSERT( _impl->state == STATE_RUNNING );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context  = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
@@ -2057,9 +2057,9 @@ bool Channel::_cmdFrameClear( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameDraw( co::Command& cmd )
+bool Channel::_cmdFrameDraw( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context  = command.get< RenderContext >();
     const bool finish = command.get< bool >();
 
@@ -2083,9 +2083,9 @@ bool Channel::_cmdFrameDraw( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
+bool Channel::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -2099,9 +2099,9 @@ bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameAssemble( co::Command& cmd )
+bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
 
@@ -2127,9 +2127,9 @@ bool Channel::_cmdFrameAssemble( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameReadback( co::Command& cmd )
+bool Channel::_cmdFrameReadback( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
 
@@ -2143,9 +2143,9 @@ bool Channel::_cmdFrameReadback( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFinishReadback( co::Command& cmd )
+bool Channel::_cmdFinishReadback( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << command
                                     << std::endl;
@@ -2165,9 +2165,9 @@ bool Channel::_cmdFinishReadback( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameSetReady( co::Command& cmd )
+bool Channel::_cmdFrameSetReady( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const co::ObjectVersion frameDataVersion = command.get<co::ObjectVersion>();
     detail::RBStat* stat = command.get< detail::RBStat* >();
@@ -2187,9 +2187,9 @@ bool Channel::_cmdFrameSetReady( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameTransmitImage( co::Command& cmd )
+bool Channel::_cmdFrameTransmitImage( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const co::ObjectVersion frameData = command.get< co::ObjectVersion >();
     const uint128_t nodeID = command.get< uint128_t >();
     const uint128_t netNodeID = command.get< uint128_t >();
@@ -2207,9 +2207,9 @@ bool Channel::_cmdFrameTransmitImage( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
+bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const co::ObjectVersion& frameDataVersion = command.get< co::ObjectVersion >();
     const std::vector< uint128_t >& nodes =
@@ -2236,9 +2236,9 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameViewStart( co::Command& cmd )
+bool Channel::_cmdFrameViewStart( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << command
@@ -2251,9 +2251,9 @@ bool Channel::_cmdFrameViewStart( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameViewFinish( co::Command& cmd )
+bool Channel::_cmdFrameViewFinish( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << command
@@ -2267,9 +2267,9 @@ bool Channel::_cmdFrameViewFinish( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdStopFrame( co::Command& cmd )
+bool Channel::_cmdStopFrame( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << command << std::endl;
@@ -2278,9 +2278,9 @@ bool Channel::_cmdStopFrame( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdFrameTiles( co::Command& cmd )
+bool Channel::_cmdFrameTiles( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const bool isLocal = command.get< bool >();
     const UUID& queueID = command.get< UUID >();
@@ -2294,9 +2294,9 @@ bool Channel::_cmdFrameTiles( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdDeleteTransferContext( co::Command& cmd )
+bool Channel::_cmdDeleteTransferContext( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBLOG( LOG_INIT ) << "Delete transfer context " << command << std::endl;
 

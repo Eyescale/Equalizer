@@ -627,24 +627,24 @@ namespace detail { class Channel; struct RBStat; }
         void _deleteTransferContext();
 
         /* The command handler functions. */
-        bool _cmdConfigInit( co::Command& command );
-        bool _cmdConfigExit( co::Command& command );
-        bool _cmdFrameStart( co::Command& command );
-        bool _cmdFrameFinish( co::Command& command );
-        bool _cmdFrameClear( co::Command& command );
-        bool _cmdFrameDraw( co::Command& command );
-        bool _cmdFrameDrawFinish( co::Command& command );
-        bool _cmdFrameAssemble( co::Command& command );
-        bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFinishReadback( co::Command& command );
-        bool _cmdFrameSetReady( co::Command& command );
-        bool _cmdFrameTransmitImage( co::Command& command );
-        bool _cmdFrameSetReadyNode( co::Command& command );
-        bool _cmdFrameViewStart( co::Command& command );
-        bool _cmdFrameViewFinish( co::Command& command );
-        bool _cmdStopFrame( co::Command& command );
-        bool _cmdFrameTiles( co::Command& command );
-        bool _cmdDeleteTransferContext( co::Command& command );
+        bool _cmdConfigInit( co::ICommand& command );
+        bool _cmdConfigExit( co::ICommand& command );
+        bool _cmdFrameStart( co::ICommand& command );
+        bool _cmdFrameFinish( co::ICommand& command );
+        bool _cmdFrameClear( co::ICommand& command );
+        bool _cmdFrameDraw( co::ICommand& command );
+        bool _cmdFrameDrawFinish( co::ICommand& command );
+        bool _cmdFrameAssemble( co::ICommand& command );
+        bool _cmdFrameReadback( co::ICommand& command );
+        bool _cmdFinishReadback( co::ICommand& command );
+        bool _cmdFrameSetReady( co::ICommand& command );
+        bool _cmdFrameTransmitImage( co::ICommand& command );
+        bool _cmdFrameSetReadyNode( co::ICommand& command );
+        bool _cmdFrameViewStart( co::ICommand& command );
+        bool _cmdFrameViewFinish( co::ICommand& command );
+        bool _cmdStopFrame( co::ICommand& command );
+        bool _cmdFrameTiles( co::ICommand& command );
+        bool _cmdDeleteTransferContext( co::ICommand& command );
 
         LB_TS_VAR( _pipeThread );
     };

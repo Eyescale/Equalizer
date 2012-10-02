@@ -389,17 +389,17 @@ namespace detail { class Pipe; class RenderThread; }
         void _flushQueues();
 
         /* The command functions. */
-        bool _cmdCreateWindow( co::Command& command );
-        bool _cmdDestroyWindow( co::Command& command );
-        bool _cmdConfigInit( co::Command& command );
-        bool _cmdConfigExit( co::Command& command );
-        bool _cmdFrameStartClock( co::Command& command );
-        bool _cmdFrameStart( co::Command& command );
-        bool _cmdFrameFinish( co::Command& command );
-        bool _cmdFrameDrawFinish( co::Command& command );
-        bool _cmdExitThread( co::Command& command );
-        bool _cmdDetachView( co::Command& command );
-        bool _cmdExitTransferThread( co::Command& command );
+        bool _cmdCreateWindow( co::ICommand& command );
+        bool _cmdDestroyWindow( co::ICommand& command );
+        bool _cmdConfigInit( co::ICommand& command );
+        bool _cmdConfigExit( co::ICommand& command );
+        bool _cmdFrameStartClock( co::ICommand& command );
+        bool _cmdFrameStart( co::ICommand& command );
+        bool _cmdFrameFinish( co::ICommand& command );
+        bool _cmdFrameDrawFinish( co::ICommand& command );
+        bool _cmdExitThread( co::ICommand& command );
+        bool _cmdDetachView( co::ICommand& command );
+        bool _cmdExitTransferThread( co::ICommand& command );
 
         LB_TS_VAR( _pipeThread );
     };

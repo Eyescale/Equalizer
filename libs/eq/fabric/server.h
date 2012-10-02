@@ -99,8 +99,8 @@ namespace fabric
         friend class Config;
 
         /* The command handler functions. */
-        bool _cmdCreateConfig( co::Command& command );
-        bool _cmdDestroyConfig( co::Command& command );
+        bool _cmdCreateConfig( co::ICommand& command );
+        bool _cmdDestroyConfig( co::ICommand& command );
     };
 
     template< class CL, class S, class CFG, class NF, class N, class V >

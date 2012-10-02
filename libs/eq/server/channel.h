@@ -224,10 +224,10 @@ namespace server
                             const Viewport& region );
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( co::Command& command );
-        bool _cmdConfigExitReply( co::Command& command );
-        bool _cmdFrameFinishReply( co::Command& command );
-        bool _cmdNop( co::Command& command )
+        bool _cmdConfigInitReply( co::ICommand& command );
+        bool _cmdConfigExitReply( co::ICommand& command );
+        bool _cmdFrameFinishReply( co::ICommand& command );
+        bool _cmdNop( co::ICommand& command )
             { return true; }
 
         virtual void updateCapabilities();

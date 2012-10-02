@@ -501,19 +501,19 @@ namespace eq
         void _enterBarrier( co::ObjectVersion barrier );
 
         /* The command functions. */
-        bool _cmdCreateChannel( co::Command& command );
-        bool _cmdDestroyChannel(co::Command& command );
-        bool _cmdConfigInit( co::Command& command );
-        bool _cmdConfigExit( co::Command& command );
-        bool _cmdFrameStart( co::Command& command );
-        bool _cmdFrameFinish( co::Command& command );
-        bool _cmdThrottleFramerate( co::Command& command );
-        bool _cmdFlush( co::Command& command );
-        bool _cmdFinish( co::Command& command );
-        bool _cmdBarrier( co::Command& command );
-        bool _cmdNVBarrier( co::Command& command );
-        bool _cmdSwap( co::Command& command );
-        bool _cmdFrameDrawFinish( co::Command& command );
+        bool _cmdCreateChannel( co::ICommand& command );
+        bool _cmdDestroyChannel(co::ICommand& command );
+        bool _cmdConfigInit( co::ICommand& command );
+        bool _cmdConfigExit( co::ICommand& command );
+        bool _cmdFrameStart( co::ICommand& command );
+        bool _cmdFrameFinish( co::ICommand& command );
+        bool _cmdThrottleFramerate( co::ICommand& command );
+        bool _cmdFlush( co::ICommand& command );
+        bool _cmdFinish( co::ICommand& command );
+        bool _cmdBarrier( co::ICommand& command );
+        bool _cmdNVBarrier( co::ICommand& command );
+        bool _cmdSwap( co::ICommand& command );
+        bool _cmdFrameDrawFinish( co::ICommand& command );
 
         LB_TS_VAR( _pipeThread );
     };

@@ -64,7 +64,7 @@ namespace detail { class Client; }
         virtual co::CommandQueue* getMainThreadQueue() = 0;
 
         /** @internal */
-        EQFABRIC_API virtual bool dispatchCommand( co::Command& command );
+        EQFABRIC_API virtual bool dispatchCommand( co::ICommand& command );
 
     protected:
         /** Construct a new client. @internal */

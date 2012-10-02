@@ -56,7 +56,7 @@ void CommandQueue::pushFront( const co::ICommand& command )
         _messagePump->postWakeup();
 }
 
-co::Command CommandQueue::pop( const uint32_t timeout )
+co::ICommand CommandQueue::pop( const uint32_t timeout )
 {
     int64_t start = -1;
     while( true )

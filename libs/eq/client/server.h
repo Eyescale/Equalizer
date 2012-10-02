@@ -85,9 +85,9 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
 
         /* The command handler functions. */
-        bool _cmdChooseConfigReply( co::Command& command );
-        bool _cmdReleaseConfigReply( co::Command& command );
-        bool _cmdShutdownReply( co::Command& command );
+        bool _cmdChooseConfigReply( co::ICommand& command );
+        bool _cmdReleaseConfigReply( co::ICommand& command );
+        bool _cmdShutdownReply( co::ICommand& command );
     };
 }
 

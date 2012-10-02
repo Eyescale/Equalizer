@@ -140,8 +140,8 @@ namespace fabric
                   class > friend class Config;
 
         typedef co::CommandFunc< Layout< C, L, V > > CmdFunc;
-        bool _cmdNewView( co::Command& command );
-        bool _cmdNewViewReply( co::Command& command );
+        bool _cmdNewView( co::ICommand& command );
+        bool _cmdNewViewReply( co::ICommand& command );
     };
 
     template< class C, class L, class V >

@@ -20,7 +20,7 @@
 
 #include <eq/client/api.h>
 #include <eq/client/types.h>
-#include <co/objectCommand.h>   // base class
+#include <co/objectICommand.h>   // base class
 
 namespace eq
 {
@@ -35,11 +35,11 @@ namespace detail { class EventCommand; }
      * by co::DataIStream. The user data sent with this command is added while
      * sending the event.
      */
-    class EventCommand : public co::ObjectCommand
+    class EventCommand : public co::ObjectICommand
     {
     public:
         /** @internal */
-        EQ_API EventCommand( const co::Command& command );
+        EQ_API EventCommand( const co::ICommand& command );
 
         /** Copy-construct an event command. @version 1.5.1 */
         EQ_API EventCommand( const EventCommand& rhs );

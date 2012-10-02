@@ -464,7 +464,7 @@ namespace detail { class Config; }
         bool _handleEvent( const Event& event );
 
 #ifndef EQ_2_0_API
-        const ConfigEvent* _convertEvent( co::ObjectCommand command );
+        const ConfigEvent* _convertEvent( co::ObjectICommand command );
 #endif
 
         /**
@@ -481,16 +481,16 @@ namespace detail { class Config; }
         void _exitMessagePump();
 
         /** The command functions. */
-        bool _cmdSyncClock( co::Command& command );
-        bool _cmdCreateNode( co::Command& command );
-        bool _cmdDestroyNode( co::Command& command );
-        bool _cmdInitReply( co::Command& command );
-        bool _cmdExitReply( co::Command& command );
-        bool _cmdUpdateVersion( co::Command& command );
-        bool _cmdUpdateReply( co::Command& command );
-        bool _cmdReleaseFrameLocal( co::Command& command );
-        bool _cmdFrameFinish( co::Command& command );
-        bool _cmdSwapObject( co::Command& command );
+        bool _cmdSyncClock( co::ICommand& command );
+        bool _cmdCreateNode( co::ICommand& command );
+        bool _cmdDestroyNode( co::ICommand& command );
+        bool _cmdInitReply( co::ICommand& command );
+        bool _cmdExitReply( co::ICommand& command );
+        bool _cmdUpdateVersion( co::ICommand& command );
+        bool _cmdUpdateReply( co::ICommand& command );
+        bool _cmdReleaseFrameLocal( co::ICommand& command );
+        bool _cmdFrameFinish( co::ICommand& command );
+        bool _cmdSwapObject( co::ICommand& command );
     };
 }
 

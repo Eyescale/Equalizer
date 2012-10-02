@@ -27,7 +27,7 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 namespace eq
 {
@@ -429,12 +429,12 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 }
 
 //----------------------------------------------------------------------
-// Command handlers
+// ICommand handlers
 //----------------------------------------------------------------------
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& cmd )
+Canvas< CFG, C, S, L >::_cmdNewSegment( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     S* segment = 0;
     create( &segment );
@@ -451,9 +451,9 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& cmd )
 }
 
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& cmd )
+Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();

@@ -115,7 +115,7 @@ namespace server
         float _computeFocusRatio( Vector3f& eye );
 
         /** The command functions. */
-        bool _cmdFreezeLoadBalancing( co::Command& command );
+        bool _cmdFreezeLoadBalancing( co::ICommand& command );
     };
 }
 }

@@ -46,7 +46,7 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
 #include <sstream>
@@ -985,9 +985,9 @@ ComputeContext* Pipe::getComputeContext()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Pipe::_cmdCreateWindow( co::Command& cmd )
+bool Pipe::_cmdCreateWindow( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const UUID windowID = command.get< UUID >();
 
     LBLOG( LOG_INIT ) << "Create window " << command << " id " << windowID
@@ -1002,9 +1002,9 @@ bool Pipe::_cmdCreateWindow( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdDestroyWindow( co::Command& cmd )
+bool Pipe::_cmdDestroyWindow( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
 
@@ -1046,11 +1046,11 @@ bool Pipe::_cmdDestroyWindow( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdConfigInit( co::Command& cmd )
+bool Pipe::_cmdConfigInit( co::ICommand& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t initID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -1095,9 +1095,9 @@ bool Pipe::_cmdConfigInit( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdConfigExit( co::Command& cmd )
+bool Pipe::_cmdConfigExit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _pipeThread );
     LBLOG( LOG_INIT ) << "TASK pipe config exit " << command << std::endl;
@@ -1116,20 +1116,20 @@ bool Pipe::_cmdConfigExit( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdExitThread( co::Command& )
+bool Pipe::_cmdExitThread( co::ICommand& )
 {
     LBASSERT( _impl->thread );
     _impl->thread->_pipe = 0;
     return true;
 }
 
-bool Pipe::_cmdExitTransferThread( co::Command& )
+bool Pipe::_cmdExitTransferThread( co::ICommand& )
 {
     _impl->transferThread.postStop();
     return true;
 }
 
-bool Pipe::_cmdFrameStartClock( co::Command& )
+bool Pipe::_cmdFrameStartClock( co::ICommand& )
 {
     LBVERB << "start frame clock" << std::endl;
     _impl->frameTimeMutex.set();
@@ -1138,11 +1138,11 @@ bool Pipe::_cmdFrameStartClock( co::Command& )
     return true;
 }
 
-bool Pipe::_cmdFrameStart( co::Command& cmd )
+bool Pipe::_cmdFrameStart( co::ICommand& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
@@ -1178,11 +1178,11 @@ bool Pipe::_cmdFrameStart( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdFrameFinish( co::Command& cmd )
+bool Pipe::_cmdFrameFinish( co::ICommand& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -1220,11 +1220,11 @@ bool Pipe::_cmdFrameFinish( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdFrameDrawFinish( co::Command& cmd )
+bool Pipe::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -1236,9 +1236,9 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdDetachView( co::Command& cmd )
+bool Pipe::_cmdDetachView( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _pipeThread );
 

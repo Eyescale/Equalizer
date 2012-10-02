@@ -38,7 +38,7 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
 
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 #include <lunchbox/debug.h>
 
@@ -446,9 +446,9 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 // command handling
 //===========================================================================
-bool Channel::_cmdConfigInitReply( co::Command& cmd )
+bool Channel::_cmdConfigInitReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const bool result = command.get< bool >();
 
     LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
@@ -458,7 +458,7 @@ bool Channel::_cmdConfigInitReply( co::Command& cmd )
     return true;
 }
 
-bool Channel::_cmdConfigExitReply( co::Command& command )
+bool Channel::_cmdConfigExitReply( co::ICommand& command )
 {
     LBLOG( LOG_INIT ) << "handle channel configExit reply " << command
                       << std::endl;
@@ -467,9 +467,9 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameFinishReply( co::Command& cmd )
+bool Channel::_cmdFrameFinishReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const Viewport region = command.get< Viewport >();
     const uint32_t frameNumber = command.get< uint32_t >();

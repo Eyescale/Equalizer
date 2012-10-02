@@ -207,7 +207,7 @@ namespace fabric
         inline void releaseChildren( const std::vector< C* >& children );
 
         /** @internal sync master object to the given slave commit. */
-        EQFABRIC_API bool _cmdSync( co::Command& command );
+        EQFABRIC_API bool _cmdSync( co::ICommand& command );
 
     private:
         struct BackupData

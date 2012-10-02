@@ -24,7 +24,7 @@
 #include "nameFinder.h"
 
 #include <co/global.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 #include "layout.ipp" // Layout::_removeObserver template impl
 
@@ -811,12 +811,12 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 }
 
 //----------------------------------------------------------------------
-// Command handlers
+// ICommand handlers
 //----------------------------------------------------------------------
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout( co::Command& cmd )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     L* layout = 0;
     create( &layout );
@@ -832,9 +832,9 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout( co::Command& cmd )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& cmd )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     CV* canvas = 0;
     create( &canvas );
@@ -850,9 +850,9 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& cmd )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& cmd )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     O* observer = 0;
     create( &observer );
@@ -868,9 +868,9 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& cmd )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::Command& cmd )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();

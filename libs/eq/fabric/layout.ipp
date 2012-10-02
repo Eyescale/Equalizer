@@ -27,7 +27,7 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 #include <lunchbox/stdExt.h>
 
@@ -284,12 +284,12 @@ V* Layout< C, L, V >::findView( const std::string& name )
 }
 
 //----------------------------------------------------------------------
-// Command handlers
+// ICommand handlers
 //----------------------------------------------------------------------
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewView( co::Command& cmd )
+Layout< C, L, V >::_cmdNewView( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     V* view = 0;
     create( &view );
@@ -306,9 +306,9 @@ Layout< C, L, V >::_cmdNewView( co::Command& cmd )
 }
 
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewViewReply( co::Command& cmd )
+Layout< C, L, V >::_cmdNewViewReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();
 

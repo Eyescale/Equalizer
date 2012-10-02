@@ -64,7 +64,7 @@ namespace fabric
         CMD_CLIENT_CUSTOM
     };
 
-    enum ObjectCommand
+    enum ObjectICommand
     {
         CMD_OBJECT_SYNC = co::CMD_OBJECT_CUSTOM, // 10
         CMD_OBJECT_CUSTOM = 15

@@ -139,7 +139,7 @@ namespace eq
         bool _setupClient( const std::string& clientArgs );
 
         /** The command functions. */
-        bool _cmdExit( co::Command& command );
+        bool _cmdExit( co::ICommand& command );
     };
 }
 

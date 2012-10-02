@@ -318,10 +318,10 @@ namespace fabric
         EQFABRIC_INL bool _removeNode( N* node );
 
         typedef co::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
-        bool _cmdNewLayout( co::Command& command );
-        bool _cmdNewCanvas( co::Command& command );
-        bool _cmdNewObserver( co::Command& command );
-        bool _cmdNewEntityReply( co::Command& command );
+        bool _cmdNewLayout( co::ICommand& command );
+        bool _cmdNewCanvas( co::ICommand& command );
+        bool _cmdNewObserver( co::ICommand& command );
+        bool _cmdNewEntityReply( co::ICommand& command );
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >

@@ -42,7 +42,7 @@
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
 
-#include <co/objectCommand.h>
+#include <co/objectICommand.h>
 
 #include <lunchbox/sleep.h>
 
@@ -943,9 +943,9 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdInit( co::Command& cmd )
+bool Config::_cmdInit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _mainThread );
     LBVERB << "handle config start init " << command << std::endl;
@@ -972,9 +972,9 @@ bool Config::_cmdInit( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdExit( co::Command& cmd )
+bool Config::_cmdExit( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle config exit " << command << std::endl;
     setError( ERROR_NONE );
@@ -991,9 +991,9 @@ bool Config::_cmdExit( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdUpdate( co::Command& cmd )
+bool Config::_cmdUpdate( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle config update " << command << std::endl;
 
@@ -1037,9 +1037,9 @@ bool Config::_cmdUpdate( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdStartFrame( co::Command& cmd )
+bool Config::_cmdStartFrame( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle config frame start " << command << std::endl;
 
@@ -1054,9 +1054,9 @@ bool Config::_cmdStartFrame( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdFinishAllFrames( co::Command& cmd )
+bool Config::_cmdFinishAllFrames( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle config all frames finish " << command << std::endl;
 
@@ -1064,9 +1064,9 @@ bool Config::_cmdFinishAllFrames( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdStopFrames( co::Command& cmd )
+bool Config::_cmdStopFrames( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle config stop frames " << command << std::endl;
 
@@ -1076,9 +1076,9 @@ bool Config::_cmdStopFrames( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdCreateReply( co::Command& cmd )
+bool Config::_cmdCreateReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LB_TS_THREAD( _cmdThread );
     LB_TS_NOT_THREAD( _mainThread );

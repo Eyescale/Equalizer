@@ -301,10 +301,10 @@ namespace server
         /** Send the frame finish command for the given frame number. */
         void _sendFrameFinish( const uint32_t frameNumber );
 
-        /* Command handler functions. */
-        bool _cmdConfigInitReply( co::Command& command );
-        bool _cmdConfigExitReply( co::Command& command );
-        bool _cmdFrameFinishReply( co::Command& command );
+        /* ICommand handler functions. */
+        bool _cmdConfigInitReply( co::ICommand& command );
+        bool _cmdConfigExitReply( co::ICommand& command );
+        bool _cmdFrameFinishReply( co::ICommand& command );
     };
 }
 }

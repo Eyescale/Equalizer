@@ -104,7 +104,7 @@ public:
 
 #ifndef EQ_2_0_API
     /** The last received event to be released. */
-    co::Command lastEvent;
+    co::ICommand lastEvent;
 #endif
 
     /** The connections configured by the server for this config. */
@@ -602,7 +602,7 @@ const ConfigEvent* Config::tryNextEvent()
     return _convertEvent( command );
 }
 
-const ConfigEvent* Config::_convertEvent( co::ObjectCommand command )
+const ConfigEvent* Config::_convertEvent( co::ObjectICommand command )
 {
     LBASSERT( command.isValid( ));
 
@@ -1001,9 +1001,9 @@ void Config::_releaseObjects()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdCreateNode( co::Command& cmd )
+bool Config::_cmdCreateNode( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "Handle create node " << command << std::endl;
 
@@ -1012,9 +1012,9 @@ bool Config::_cmdCreateNode( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdDestroyNode( co::Command& cmd )
+bool Config::_cmdDestroyNode( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "Handle destroy node " << command << std::endl;
 
@@ -1033,9 +1033,9 @@ bool Config::_cmdDestroyNode( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdInitReply( co::Command& cmd )
+bool Config::_cmdInitReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle init reply " << command << std::endl;
 
@@ -1048,9 +1048,9 @@ bool Config::_cmdInitReply( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdExitReply( co::Command& cmd )
+bool Config::_cmdExitReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     LBVERB << "handle exit reply " << command << std::endl;
 
@@ -1062,9 +1062,9 @@ bool Config::_cmdExitReply( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdUpdateVersion( co::Command& cmd )
+bool Config::_cmdUpdateVersion( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint32_t versionID = command.get< uint32_t >();
     const uint32_t finishID = command.get< uint32_t >();
@@ -1075,9 +1075,9 @@ bool Config::_cmdUpdateVersion( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdUpdateReply( co::Command& cmd )
+bool Config::_cmdUpdateReply( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint32_t requestID = command.get< uint32_t >();
     const bool result = command.get< bool >();
@@ -1087,18 +1087,18 @@ bool Config::_cmdUpdateReply( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdReleaseFrameLocal( co::Command& cmd )
+bool Config::_cmdReleaseFrameLocal( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     _frameStart(); // never happened from node
     releaseFrameLocal( command.get< uint32_t >( ));
     return true;
 }
 
-bool Config::_cmdFrameFinish( co::Command& cmd )
+bool Config::_cmdFrameFinish( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
 
     _impl->finishedFrame = command.get< uint32_t >();
 
@@ -1112,14 +1112,14 @@ bool Config::_cmdFrameFinish( co::Command& cmd )
         _impl->unlockedFrame = _impl->finishedFrame.get();
     }
 
-    co::Command empty;
+    co::ICommand empty;
     getMainThreadQueue()->push( empty ); // wakeup signal
     return true;
 }
 
-bool Config::_cmdSyncClock( co::Command& cmd )
+bool Config::_cmdSyncClock( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     const int64_t time = command.get< int64_t >();
 
     LBVERB << "sync global clock to " << time << ", drift "
@@ -1129,9 +1129,9 @@ bool Config::_cmdSyncClock( co::Command& cmd )
     return true;
 }
 
-bool Config::_cmdSwapObject( co::Command& cmd )
+bool Config::_cmdSwapObject( co::ICommand& cmd )
 {
-    co::ObjectCommand command( cmd );
+    co::ObjectICommand command( cmd );
     LBVERB << "Cmd swap object " << command << std::endl;
 
     const uint32_t requestID = command.get< uint32_t >();

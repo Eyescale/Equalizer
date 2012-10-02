@@ -221,8 +221,8 @@ namespace server
         void _updateSwap( const uint32_t frameNumber );
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( co::Command& command );
-        bool _cmdConfigExitReply( co::Command& command );
+        bool _cmdConfigInitReply( co::ICommand& command );
+        bool _cmdConfigExitReply( co::ICommand& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

@@ -88,12 +88,12 @@ namespace server
                                      server::Node, ConfigVisitor >;
 
         /** The command functions. */
-        bool _cmdChooseConfig( co::Command& command );
-        bool _cmdReleaseConfig( co::Command& command );
-        bool _cmdDestroyConfigReply( co::Command& command );
-        bool _cmdShutdown( co::Command& command );
-        bool _cmdMap( co::Command& command );
-        bool _cmdUnmap( co::Command& command );
+        bool _cmdChooseConfig( co::ICommand& command );
+        bool _cmdReleaseConfig( co::ICommand& command );
+        bool _cmdDestroyConfigReply( co::ICommand& command );
+        bool _cmdShutdown( co::ICommand& command );
+        bool _cmdMap( co::ICommand& command );
+        bool _cmdUnmap( co::ICommand& command );
     };
 }
 }
