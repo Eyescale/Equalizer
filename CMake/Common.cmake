@@ -56,7 +56,21 @@ endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
 # Compiler settings
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+  set(CMAKE_COMPILER_IS_XLCXX ON)
+endif()
+
+include(TestBigEndian)
+test_big_endian(BIGENDIAN)
+if(BIGENDIAN)
+  add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_COMPILER_IS_CLANG ON)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(CompilerVersion)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
@@ -69,7 +83,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
-endif(CMAKE_COMPILER_IS_GNUCXX)
+  if(CMAKE_COMPILER_IS_CLANG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
+  endif()
+elseif(CMAKE_COMPILER_IS_XLCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -q64")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -q64")
+endif()
 
 if(MSVC)
   add_definitions(
