@@ -66,7 +66,17 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
   set(CMAKE_COMPILER_IS_XLCXX ON)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+include(TestBigEndian)
+test_big_endian(BIGENDIAN)
+if(BIGENDIAN)
+  add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_COMPILER_IS_CLANG ON)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(CompilerVersion)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
@@ -75,10 +85,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
-  set(CMAKE_CXX_FLAGS_DEBUG
-    "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  endif()
+  if(CMAKE_COMPILER_IS_CLANG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
   endif()
 elseif(CMAKE_COMPILER_IS_XLCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -q64")
@@ -89,6 +100,7 @@ if(MSVC)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
     /D_SCL_SECURE_NO_WARNINGS
+    /wd4068 # disable unknown pragma warnings
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
@@ -134,7 +146,7 @@ if(APPLE)
     set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
   endif (NOT CMAKE_INSTALL_NAME_DIR)
   message(STATUS
-    "Building ${CMAKE_PROJECT_NAME} for ${CMAKE_OSX_ARCHITECTURES}")
+    "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
 # hooks to gather all targets (libaries & executables)
