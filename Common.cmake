@@ -100,6 +100,7 @@ if(MSVC)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
     /D_SCL_SECURE_NO_WARNINGS
+    /wd4068 # disable unknown pragma warnings
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
