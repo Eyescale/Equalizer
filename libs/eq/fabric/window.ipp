@@ -22,6 +22,7 @@
 #include "channel.h"
 #include "commands.h"
 #include "elementVisitor.h"
+#include "leafVisitor.h"
 #include "log.h"
 #include "task.h"
 

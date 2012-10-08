@@ -300,14 +300,6 @@ namespace
     {
         memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
     }
-
-    bool _compare4( const eq_uint64_t s1[4], const eq_uint64_t s2[4] )
-    {
-        for( size_t i = 0; i < 4; ++i )
-            if( s1[i] != s2[i] )
-                return false;
-        return true;
-    }
 }
 
 void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )

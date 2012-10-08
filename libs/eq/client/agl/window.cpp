@@ -499,7 +499,7 @@ bool Window::configInitAGLWindow()
         windowTitle << "Equalizer";
 #ifndef NDEBUG
         windowTitle << " (" << getpid() << ")";
-#endif;
+#endif
     }
     else
         windowTitle << name;

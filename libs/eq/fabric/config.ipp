@@ -21,7 +21,7 @@
 
 #include "paths.h"
 
-#include "nameFinder.h"
+#include "configVisitor.h"
 
 #include <co/global.h>
 #include <co/objectICommand.h>

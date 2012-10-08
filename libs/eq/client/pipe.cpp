@@ -44,6 +44,7 @@
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/task.h>
 
 #include <co/objectICommand.h>

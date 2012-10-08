@@ -67,8 +67,8 @@ static ServerThread _serverThread;
 }
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
-                                                      const std::string& config )
+extern "C" EQSERVER_API 
+co::Connection* eqsStartLocalServer( const std::string& config )
 {
 #pragma warning(pop)
     if( _serverThread.isRunning( ))
@@ -125,7 +125,8 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
-    return connection;
+    connection->ref(); // WAR "C" linkage
+    return connection.get();
 }
 
 extern "C" EQSERVER_API void eqsJoinLocalServer()
