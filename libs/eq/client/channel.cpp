@@ -757,6 +757,7 @@ void Channel::declareRegion( const eq::Viewport& vp )
 namespace
 {
 
+#ifndef NDEBUG
 bool _hasOverlap( PixelViewports& regions )
 {
     if( regions.size() < 2 )
@@ -772,6 +773,7 @@ bool _hasOverlap( PixelViewports& regions )
         }
     return false;
 }
+#endif
 
 /** Remove overlapping regions by merging them */
 bool _removeOverlap( PixelViewports& regions )
