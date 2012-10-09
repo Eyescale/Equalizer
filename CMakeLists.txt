@@ -28,6 +28,7 @@ if(CMAKE_OSX_DEPLOYMENT_TARGET)
 else()
   set(EQ_OSX_VERSION 10.6)
 endif()
+
 if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX${EQ_OSX_VERSION}.sdk
@@ -46,6 +47,10 @@ include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
+
+if(CMAKE_COMPILER_IS_CLANG)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual")
+endif()
 
 set(EQ_FEATURES)
 if(MSVC)

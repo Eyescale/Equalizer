@@ -782,27 +782,26 @@ viewField:
     | projection { view->setProjection( projection ); }
     | EQTOKEN_OBSERVER STRING
       {
-          eq::server::Observer* observer = 
-              config->find< eq::server::Observer >( $2 );
-          if( !observer )
+          eq::server::Observer* ob = config->find< eq::server::Observer >( $2 );
+          if( ob )
+              view->setObserver( ob ); 
+          else
           {
               yyerror( "No observer of the given name" );
               YYERROR;
           }
-          else
-              view->setObserver( observer ); 
       }
     | EQTOKEN_OBSERVER UNSIGNED
       {
           const eq::server::ObserverPath path( $2 );
-          eq::server::Observer* observer = config->getObserver( path );
-          if( !observer )
+          eq::server::Observer* ob = config->getObserver( path );
+          if( ob )
+              view->setObserver( ob ); 
+          else
           {
               yyerror( "No observer of the given index" );
               YYERROR;
           }
-          else
-              view->setObserver( observer ); 
       }
 
 viewMode:
@@ -816,27 +815,27 @@ canvasField:
     EQTOKEN_NAME STRING { canvas->setName( $2 ); }
     | EQTOKEN_LAYOUT STRING 
       {
-          eq::server::Layout* layout = config->find< eq::server::Layout >( $2 );
-          if( !layout )
+          eq::server::Layout* l = config->find< eq::server::Layout >( $2 );
+          if( l )
+              canvas->addLayout( l ); 
+          else
           {
               yyerror( "No layout of the given name" );
               YYERROR;
           }
-          else
-              canvas->addLayout( layout ); 
       }
     | swapBarrier { canvas->setSwapBarrier( swapBarrier ); swapBarrier = 0; }
     | EQTOKEN_LAYOUT UNSIGNED
       {
           const eq::server::LayoutPath path( $2 );
-          eq::server::Layout* layout = config->getLayout( path );
-          if( !layout )
+          eq::server::Layout* l = config->getLayout( path );
+          if( l )
+              canvas->addLayout( l ); 
+          else
           {
               yyerror( "No layout of the given index" );
               YYERROR;
           }
-          else
-              canvas->addLayout( layout ); 
       }
     | EQTOKEN_LAYOUT EQTOKEN_OFF
       {
@@ -853,25 +852,24 @@ segmentField:
     EQTOKEN_NAME STRING { segment->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
         {
-            eq::server::Channel* channel = 
-                config->find< eq::server::Channel >( $2 );
-            if( !channel )
+            eq::server::Channel* ch = config->find< eq::server::Channel >( $2 );
+            if( ch )
+                segment->setChannel( ch );
+            else
             {
                 yyerror( "No channel of the given name" );
                 YYERROR;
             }
-            else
-                segment->setChannel( channel );
         }
     | EQTOKEN_EYE  '['   { segment->setEyes( eq::fabric::EYE_UNDEFINED );}
-        segumentEyes  ']'
+        segmentEyes  ']'
     | EQTOKEN_VIEWPORT viewport
         { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | swapBarrier { segment->setSwapBarrier( swapBarrier ); swapBarrier = 0; }
     | wall       { segment->setWall( wall ); }
     | projection { segment->setProjection( projection ); }
 
-segumentEyes: /*null*/ | segumentEyes segumentEye
+segmentEyes: /*null*/ | segmentEyes segumentEye
 segumentEye:
     EQTOKEN_CYCLOP  { segment->enableEye( eq::fabric::EYE_CYCLOP ); }
     | EQTOKEN_LEFT  { segment->enableEye( eq::fabric::EYE_LEFT ); }
@@ -893,15 +891,14 @@ compoundField:
     | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
       {
-          eq::server::Channel* channel = 
-              config->find< eq::server::Channel >( $2 );
-          if( !channel )
+          eq::server::Channel* ch = config->find< eq::server::Channel >( $2 );
+          if( ch )
+              eqCompound->setChannel( ch );
+          else
           {
               yyerror( "No channel of the given name" );
               YYERROR;
           }
-          else
-              eqCompound->setChannel( channel );
       }
     | EQTOKEN_CHANNEL viewSegmentRef
       {
@@ -912,10 +909,9 @@ compoundField:
           }
           else
           {
-              eq::server::Channel* channel = 
-                  config->findChannel( segment, view );
-              if( channel )
-                  eqCompound->setChannel( channel );
+              eq::server::Channel* ch = config->findChannel( segment, view );
+              if( ch )
+                  eqCompound->setChannel( ch );
               else
               {
                   yyerror( "No channel for the given view and segment" );

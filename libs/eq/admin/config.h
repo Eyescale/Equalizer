@@ -47,7 +47,8 @@ namespace admin
         EQADMIN_API co::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** Commit all changes on this config and its children. @version 1.0 */
-        EQADMIN_API uint128_t commit();
+        EQADMIN_API virtual uint128_t commit( const uint32_t incarnation =
+                                              CO_COMMIT_NEXT );
 
         /** @internal */
         const Channel* findChannel( const std::string& name ) const

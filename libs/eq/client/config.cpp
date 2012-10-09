@@ -39,8 +39,8 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/fabric/configVisitor.h>
 #include <eq/fabric/commands.h>
+#include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
 
 #include <co/exception.h>

@@ -58,7 +58,7 @@ typedef co::CommandFunc<Client> ClientFunc;
 static co::ConnectionPtr _startLocalServer();
 static void _joinLocalServer();
 
-typedef co::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
+typedef co::Connection* (*eqsStartLocalServer_t)( const std::string& file );
 typedef void (*eqsJoinLocalServer_t)();
 
 typedef fabric::Client Super;
@@ -162,7 +162,10 @@ co::ConnectionPtr _startLocalServer()
         return 0;
     }
 
-    return eqsStartLocalServer( Global::getConfigFile( ));
+    co::ConnectionPtr conn = eqsStartLocalServer( Global::getConfigFile( ));
+    if( conn )
+        conn->unref(); // WAR "C" linkage
+    return conn;
 }
 
 static void _joinLocalServer()

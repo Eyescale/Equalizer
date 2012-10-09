@@ -5,11 +5,6 @@
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
-# versioning
-if(NOT EQ_REVISION)
-  set(EQ_REVISION 0)
-endif()
-
 update_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h ${OUTPUT_INCLUDE_DIR}/eq/client/version.h)
 install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq/client COMPONENT eqdev)
 # also install in old location for compatibility with old FindEqualizer scripts

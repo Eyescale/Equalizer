@@ -31,7 +31,7 @@
 
 #define DDS_RL (7)
 
-#define DDS_ISINTEL (*((unsigned char *)(&DDS_INTEL)+1)==0)
+#define DDS_ISINTEL ( *(unsigned char *)(&DDS_INTEL)+1 == 0 )
 
 FILE *DDS_file;
 

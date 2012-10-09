@@ -199,6 +199,7 @@ else()
   find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
   # Matching Collage versions
+  set(_eq_coVersion_1.5.1 "0.8.0")
   set(_eq_coVersion_1.5.0 "0.7.0")
   set(_eq_coVersion_1.4.0 "0.6.0")
   set(_eq_coVersion_1.3.7 "0.5.7")
