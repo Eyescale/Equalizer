@@ -47,7 +47,16 @@ namespace detail { class EventICommand; }
         /** Destruct an event command. @version 1.5.1 */
         EQ_API ~EventICommand();
 
-        /** @return the event type. @version 1.5.1 */
+        /**
+         * Returns the event type.
+         *
+         * The library events come with a value less than Event::USER. For those
+         * events, the only data that can be extracted from this command is the
+         * eq::Event struct.
+         *
+         * @return the event type.
+         * @version 1.5.1
+         */
         EQ_API uint32_t getEventType() const;
 
     private:
