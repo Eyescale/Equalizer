@@ -374,7 +374,7 @@ bool Config::_needNewFrame()
              _tracker.isRunning() || _redraw );
 }
 
-bool Config::handleEvent( eq::EventCommand command )
+bool Config::handleEvent( eq::EventICommand command )
 {
     switch( command.getEventType( ))
     {

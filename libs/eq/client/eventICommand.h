@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_EVENTCOMMAND_H
-#define EQ_EVENTCOMMAND_H
+#ifndef EQ_EVENTICOMMAND_H
+#define EQ_EVENTICOMMAND_H
 
 #include <eq/client/api.h>
 #include <eq/client/types.h>
@@ -25,7 +25,7 @@
 namespace eq
 {
 
-namespace detail { class EventCommand; }
+namespace detail { class EventICommand; }
 
     /**
      * A command specialization for config events.
@@ -35,33 +35,33 @@ namespace detail { class EventCommand; }
      * by co::DataIStream. The user data sent with this command is added while
      * sending the event.
      */
-    class EventCommand : public co::ObjectICommand
+    class EventICommand : public co::ObjectICommand
     {
     public:
         /** @internal */
-        EQ_API EventCommand( const co::ICommand& command );
+        EQ_API EventICommand( const co::ICommand& command );
 
         /** Copy-construct an event command. @version 1.5.1 */
-        EQ_API EventCommand( const EventCommand& rhs );
+        EQ_API EventICommand( const EventICommand& rhs );
 
         /** Destruct an event command. @version 1.5.1 */
-        EQ_API ~EventCommand();
+        EQ_API ~EventICommand();
 
         /** @return the event type. @version 1.5.1 */
         EQ_API uint32_t getEventType() const;
 
     private:
-        EventCommand();
-        EventCommand& operator = ( const EventCommand& );
-        detail::EventCommand* const _impl;
+        EventICommand();
+        EventICommand& operator = ( const EventICommand& );
+        detail::EventICommand* const _impl;
 
         void _init();
     };
 
     /** Print the event command to the given output stream. @version 1.5.1 */
     EQ_API std::ostream& operator << ( std::ostream& os,
-                                       const EventCommand& command );
+                                       const EventICommand& command );
 }
 
-#endif // EQ_EVENTCOMMAND_H
+#endif // EQ_EVENTICOMMAND_H
 

@@ -87,7 +87,7 @@
 #include <eq/client/config.h>
 #include <eq/client/configParams.h>
 #include <eq/client/event.h>
-#include <eq/client/eventCommand.h>
+#include <eq/client/eventICommand.h>
 #include <eq/client/error.h>
 #include <eq/client/exception.h>
 #include <eq/client/frame.h>

@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "eventCommand.h"
+#include "eventICommand.h"
 
 #include "event.h"
 
@@ -24,46 +24,46 @@ namespace eq
 
 namespace detail
 {
-class EventCommand
+class EventICommand
 {
 public:
-    EventCommand() {}
+    EventICommand() {}
 
     uint32_t eventType;
 };
 }
 
-EventCommand::EventCommand( const co::ICommand& command )
+EventICommand::EventICommand( const co::ICommand& command )
     : co::ObjectICommand( command )
-    , _impl( new detail::EventCommand )
+    , _impl( new detail::EventICommand )
 {
     _init();
 }
 
-EventCommand::EventCommand( const EventCommand& rhs )
+EventICommand::EventICommand( const EventICommand& rhs )
     : co::ObjectICommand( rhs )
-    , _impl( new detail::EventCommand )
+    , _impl( new detail::EventICommand )
 {
     _init();
 }
 
-EventCommand::~EventCommand()
+EventICommand::~EventICommand()
 {
     delete _impl;
 }
 
-void EventCommand::_init()
+void EventICommand::_init()
 {
     if( isValid( ))
         *this >> _impl->eventType;
 }
 
-uint32_t EventCommand::getEventType() const
+uint32_t EventICommand::getEventType() const
 {
     return _impl->eventType;
 }
 
-std::ostream& operator << ( std::ostream& os, const EventCommand& event )
+std::ostream& operator << ( std::ostream& os, const EventICommand& event )
 {
     os << "Event command, event type " << event.getEventType();
     return os;

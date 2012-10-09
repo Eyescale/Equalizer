@@ -55,7 +55,7 @@ uint32_t Config::startFrame( const eq::uint128_t& frameID )
     return eq::Config::startFrame( frameID );
 }
 
-bool Config::handleEvent( eq::EventCommand command )
+bool Config::handleEvent( eq::EventICommand command )
 {
     switch( command.getEventType( ))
     {

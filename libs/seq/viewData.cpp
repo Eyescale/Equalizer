@@ -22,7 +22,7 @@
 #  include <eq/client/configEvent.h>
 #endif
 #include <eq/client/event.h>
-#include <eq/client/eventCommand.h>
+#include <eq/client/eventICommand.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -70,7 +70,7 @@ bool ViewData::handleEvent( const eq::ConfigEvent* event )
 }
 #endif
 
-bool ViewData::handleEvent( eq::EventCommand command )
+bool ViewData::handleEvent( eq::EventICommand command )
 {
     const eq::Event& event = command.get< eq::Event >();
     return _handleEvent( event );

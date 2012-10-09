@@ -28,7 +28,7 @@
 #ifndef EQ_2_0_API
 #  include <eq/client/configEvent.h>
 #endif
-#include <eq/client/eventCommand.h>
+#include <eq/client/eventICommand.h>
 
 namespace seq
 {
@@ -116,7 +116,7 @@ bool View::handleEvent( const eq::ConfigEvent* event )
     return false;
 }
 #endif
-bool View::handleEvent( const eq::EventCommand& command )
+bool View::handleEvent( const eq::EventICommand& command )
 {
     ViewData* data = getViewData();
     LBASSERT( data );

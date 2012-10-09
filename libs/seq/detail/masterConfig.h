@@ -43,7 +43,7 @@ namespace detail
 #ifndef EQ_2_0_API
         virtual bool handleEvent( const eq::ConfigEvent* event );
 #endif
-        virtual bool handleEvent( eq::EventCommand command );
+        virtual bool handleEvent( eq::EventICommand command );
 
     private:
         uint128_t _currentViewID;

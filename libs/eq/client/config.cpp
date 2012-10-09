@@ -26,7 +26,7 @@
 #  include "configEvent.h"
 #endif
 #include "configStatistics.h"
-#include "eventCommand.h"
+#include "eventICommand.h"
 #include "global.h"
 #include "layout.h"
 #include "log.h"
@@ -590,13 +590,13 @@ void Config::sendEvent( ConfigEvent& event )
 
 const ConfigEvent* Config::nextEvent()
 {
-    EventCommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
+    EventICommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
     return _convertEvent( command );
 }
 
 const ConfigEvent* Config::tryNextEvent()
 {
-    EventCommand command = getNextEvent( 0 );
+    EventICommand command = getNextEvent( 0 );
     if( !command.isValid( ))
         return 0;
     return _convertEvent( command );
@@ -634,14 +634,14 @@ EventOCommand Config::sendEvent( const uint32_t type )
     return cmd;
 }
 
-EventCommand Config::getNextEvent( const uint32_t timeout ) const
+EventICommand Config::getNextEvent( const uint32_t timeout ) const
 {
     if( timeout == 0 )
         return _impl->eventQueue.tryPop();
     return _impl->eventQueue.pop( timeout );
 }
 
-bool Config::handleEvent( EventCommand command )
+bool Config::handleEvent( EventICommand command )
 {
 #ifndef EQ_2_0_API
     const ConfigEvent* configEvent = _convertEvent( command );
@@ -663,11 +663,11 @@ void Config::handleEvents()
 {
     for( ;; )
     {
-        EventCommand eventCommand = getNextEvent( 0 );
-        if( !eventCommand.isValid( ))
+        EventICommand EventICommand = getNextEvent( 0 );
+        if( !EventICommand.isValid( ))
             break;
 
-        handleEvent( eventCommand );
+        handleEvent( EventICommand );
     }
 }
 

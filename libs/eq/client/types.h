@@ -38,7 +38,7 @@ class CommandQueue;
 class ComputeContext;
 class Config;
 class ConfigParams;
-class EventCommand;
+class EventICommand;
 class Frame;
 class FrameData;
 class Image;

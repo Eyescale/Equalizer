@@ -44,7 +44,7 @@ namespace detail
 #ifndef EQ_2_0_API
         bool handleEvent( const eq::ConfigEvent* event );
 #endif
-        bool handleEvent( const eq::EventCommand& command );
+        bool handleEvent( const eq::EventICommand& command );
         bool updateData();
         //@}
 

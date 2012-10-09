@@ -168,7 +168,7 @@ bool Config::mapData( const eq::uint128_t& initDataID )
     return true;
 }
 
-bool Config::handleEvent( eq::EventCommand command )
+bool Config::handleEvent( eq::EventICommand command )
 {
     const float moveSpeed = .1f;
 

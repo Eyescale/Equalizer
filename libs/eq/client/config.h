@@ -404,7 +404,7 @@ namespace detail { class Config; }
          * @version 1.5.1
          * @sa Client::processCommand()
          */
-        EQ_API EventCommand getNextEvent( const uint32_t timeout =
+        EQ_API EventICommand getNextEvent( const uint32_t timeout =
                                               LB_TIMEOUT_INDEFINITE ) const;
 
         /**
@@ -414,7 +414,7 @@ namespace detail { class Config; }
          * @return true if the event requires a redraw, false if not.
          * @version 1.5.1
          */
-        EQ_API virtual bool handleEvent( EventCommand command );
+        EQ_API virtual bool handleEvent( EventICommand command );
 
         /** @return true if events are pending. @version 1.0 */
         EQ_API bool checkEvent() const;

@@ -55,7 +55,7 @@ namespace eqNbody
         void mapData( const eq::uint128_t& initDataID );
         void releaseData();
 
-        virtual bool handleEvent( eq::EventCommand command );
+        virtual bool handleEvent( eq::EventICommand command );
         bool needsRedraw();
 
     protected:
@@ -70,8 +70,8 @@ namespace eqNbody
         bool _handleKeyEvent( const eq::KeyEvent& event );
 
         void _updateSimulation();
-        void _registerData( eq::EventCommand& command );
-        void _updateData( eq::EventCommand& command );
+        void _registerData( eq::EventICommand& command );
+        void _updateData( eq::EventICommand& command );
         void _deregisterData();
     };
 }

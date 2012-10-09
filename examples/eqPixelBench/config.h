@@ -44,7 +44,7 @@ public:
     virtual uint32_t startFrame( const eq::uint128_t& frameID );
 
     /** @sa eq::Config::handleEvent */
-    virtual bool handleEvent( eq::EventCommand command );
+    virtual bool handleEvent( eq::EventICommand command );
 
     /** @return the clock started by startFrame, or 0 on render clients. */
     const lunchbox::Clock* getClock() const { return _clock; }

@@ -27,7 +27,7 @@
 #endif
 #include <eq/fabric/configVisitor.h>
 #include <eq/client/event.h>
-#include <eq/client/eventCommand.h>
+#include <eq/client/eventICommand.h>
 
 namespace seq
 {
@@ -103,7 +103,7 @@ bool MasterConfig::run( co::Object* frameData )
             }
             else  // no pending commands, block on user event
             {
-                const eq::EventCommand& event = getNextEvent();
+                const eq::EventICommand& event = getNextEvent();
                 if( !handleEvent( event ))
                     LBVERB << "Unhandled " << event << std::endl;
             }
@@ -209,7 +209,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
 }
 #endif
 
-bool MasterConfig::handleEvent( eq::EventCommand command )
+bool MasterConfig::handleEvent( eq::EventICommand command )
 {
     switch( command.getEventType( ))
     {

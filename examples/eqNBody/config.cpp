@@ -116,7 +116,7 @@ bool Config::needsRedraw()
     return ( _redraw );
 }
 
-bool Config::handleEvent( eq::EventCommand command )
+bool Config::handleEvent( eq::EventICommand command )
 {
     switch( command.getEventType( ))
     {
@@ -214,7 +214,7 @@ void Config::_updateSimulation()
     }
 }
 
-void Config::_registerData( eq::EventCommand& command )
+void Config::_registerData( eq::EventICommand& command )
 {
     const eq::uint128_t pid = command.get< eq::uint128_t >();
     const eq::Range range = command.get< eq::Range >();
@@ -222,7 +222,7 @@ void Config::_registerData( eq::EventCommand& command )
     _frameData.addProxyID( pid, range );
 }
 
-void Config::_updateData( eq::EventCommand& command )
+void Config::_updateData( eq::EventICommand& command )
 {
     const eq::uint128_t pid = command.get< eq::uint128_t >();
     const eq::Range range = command.get< eq::Range >();

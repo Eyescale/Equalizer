@@ -60,7 +60,7 @@ namespace eVolve
         virtual ~Config();
 
         /** @sa eq::Config::handleEvent */
-        virtual bool handleEvent( eq::EventCommand command );
+        virtual bool handleEvent( eq::EventICommand command );
 
         int        _spinX, _spinY;
 

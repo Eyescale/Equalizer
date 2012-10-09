@@ -58,7 +58,7 @@ namespace seq
          * this method and handling the appropriate events.
          * @version 1.5.1
          */
-        SEQ_API virtual bool handleEvent( eq::EventCommand command );
+        SEQ_API virtual bool handleEvent( eq::EventICommand command );
 
         /** Rotate the model matrix by the given increments. @version 1.0 */
         SEQ_API void spinModel( const float x, const float y, const float z );

@@ -126,7 +126,7 @@ void Config::_resetMessage()
     }
 }
 
-bool Config::handleEvent( eq::EventCommand command )
+bool Config::handleEvent( eq::EventICommand command )
 {
     const eq::Event& event = command.get< eq::Event >();
     switch( command.getEventType( ))

@@ -47,7 +47,7 @@ set(CLIENT_HEADERS
   defines.h
   error.h
   event.h
-  eventCommand.h
+  eventICommand.h
   eventHandler.h
   exception.h
   eye.h
@@ -99,7 +99,7 @@ set(CLIENT_SOURCES
   configStatistics.cpp
   cudaContext.cpp
   event.cpp
-  eventCommand.cpp
+  eventICommand.cpp
   eventHandler.cpp
   frame.cpp
   frameData.cpp
