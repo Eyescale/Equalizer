@@ -83,7 +83,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
-  if(GCC_COMPILER_VERSION VERSION_GREATER 4.1) // < 4.2 doesn't know -isystem
+  if(GCC_COMPILER_VERSION VERSION_GREATER 4.1) # < 4.2 doesn't know -isystem
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
