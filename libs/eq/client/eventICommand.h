@@ -50,9 +50,10 @@ namespace detail { class EventICommand; }
         /**
          * Returns the event type.
          *
-         * The library events come with a value less than Event::USER. For those
-         * events, the only data that can be extracted from this command is the
-         * eq::Event struct.
+         * The data extracted from this event has to match the data streamed to
+         * the EventOCommand by the event's sender. Equalizer events use an
+         * event type less than Event::USER. For those events, the data in this
+         * command is the eq::Event struct.
          *
          * @return the event type.
          * @version 1.5.1

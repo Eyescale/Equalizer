@@ -103,6 +103,7 @@ bool View::updateData()
         return data->update();
     return false;
 }
+
 #ifndef EQ_2_0_API
 bool View::handleEvent( const eq::ConfigEvent* event )
 {
@@ -116,6 +117,7 @@ bool View::handleEvent( const eq::ConfigEvent* event )
     return false;
 }
 #endif
+
 bool View::handleEvent( const eq::EventICommand& command )
 {
     ViewData* data = getViewData();
