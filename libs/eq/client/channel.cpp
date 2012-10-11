@@ -1765,10 +1765,12 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     int64_t drawTime = 0;
     int64_t readbackTime = 0;
 
+    const uint32_t timeout = getConfig()->getTimeout();
+  
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
-    for( co::Command* queuePacket = queue->pop(); queuePacket;
-         queuePacket = queue->pop( ))
+    for( co::Command* queuePacket = queue->pop( timeout ); queuePacket;
+         queuePacket = queue->pop( timeout ))
     {
         const TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
         context.frustum = tilePacket->frustum;

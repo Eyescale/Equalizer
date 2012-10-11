@@ -243,6 +243,8 @@ namespace co
 
         typedef std::deque< Nack > RepeatQueue;
         RepeatQueue _repeatQueue; //!< nacks to repeat
+		
+		unsigned int _writeTimeOut;
 
         void _close();
         uint16_t _buildNewID();
@@ -280,6 +282,8 @@ namespace co
         void _handleConnectedTimeout( );
         void _handleInitTimeout( );
         void _handleAcceptIDTimeout( );
+		
+		void _clearWriteQueues();
 
         /** find the connection corresponding to the identifier */
         RSPConnectionPtr _findConnection( const uint16_t id );
