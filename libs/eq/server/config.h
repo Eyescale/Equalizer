@@ -1,17 +1,16 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *
+ *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,7 +26,6 @@
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/config.h> // base class
-#include <lunchbox/monitor.h> // member
 
 #include <iostream>
 #include <vector>
@@ -58,24 +56,22 @@ namespace server
 
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
         bool isUsed() const { return _state != STATE_UNUSED; }
-        bool isAutoConfig() const
-            { return getName().find( " autoconfig" ) != std::string::npos; }
 
         co::CommandQueue* getMainThreadQueue()
             { return getServer()->getMainThreadQueue(); }
         co::CommandQueue* getCommandThreadQueue()
             { return getServer()->getCommandThreadQueue(); }
-
-        /**
+        
+        /** 
          * Adds a new compound to this config.
-         *
+         * 
          * @param compound the compound.
          */
         EQSERVER_API void addCompound( Compound* compound );
 
-        /**
+        /** 
          * Removes a compound from this config.
-         *
+         * 
          * @param compound the compound
          * @return <code>true</code> if the compound was removed,
          *         <code>false</code> otherwise.
@@ -85,18 +81,18 @@ namespace server
         /** @return the vector of compounds. */
         const Compounds& getCompounds() const { return _compounds; }
 
-        /**
+        /** 
          * Find the first channel of a given name.
-         *
+         * 
          * @param name the name of the channel to find
          * @return the first channel with the name, or <code>0</code> if no
          *         channel with the name exists.
          */
         const Channel* findChannel( const std::string& name ) const;
 
-        /**
+        /** 
          * Find the channel for the given view/segment intersection.
-         *
+         * 
          * @param segment the segment.
          * @param view the view.
          * @return the channel for updating the view/segment intersection.
@@ -113,7 +109,7 @@ namespace server
 
         /**
          * Set the network node running the application thread.
-         *
+         * 
          * @param node the application node.
          */
         void setApplicationNetNode( co::NodePtr node );
@@ -121,17 +117,9 @@ namespace server
         /** @return network node running the application thread. */
         co::NodePtr findApplicationNetNode();
 
-        /** @internal set auto-configured server connections */
-        void setServerConnections( co::Connections connections )
-            { _connections = connections; }
-
-        /** @internal @return the auto-configured server connections */
-        const co::Connections& getServerConnections() const
-            { return _connections; }
-
-        /**
-         * Set the name of the render client executable.
-         *
+        /** 
+         * Set the name of the render client executable. 
+         * 
          * @param rc the name of the render client executable.
          */
         void setRenderClient( const std::string& rc ){ _renderClient = rc; }
@@ -139,9 +127,9 @@ namespace server
         /** @return the name of the render client executable. */
         const std::string& getRenderClient() const { return _renderClient; }
 
-        /**
+        /** 
          * Set the working directory for render client.
-         *
+         * 
          * @param workDir the working directory for the  render client.
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
@@ -160,7 +148,7 @@ namespace server
 
         /** Deregister all shared objects and the config. */
         void deregister();
-
+        
         /** Commit the config for the current frame. */
         uint128_t commit();
 
@@ -195,7 +183,7 @@ namespace server
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const UUID& id );
+        virtual void removeChild( const co::base::UUID& id );
 
     private:
         Config( const Config& from );
@@ -205,9 +193,6 @@ namespace server
 
         /** The list of compounds. */
         Compounds _compounds;
-
-        /** Auto-configured server connections. */
-        co::Connections _connections;
 
         /** The name of the render client executable. */
         std::string _renderClient;
@@ -222,7 +207,7 @@ namespace server
         uint32_t _incarnation;
 
         /** The last finished frame, or 0. */
-        lunchbox::Monitor< uint32_t > _finishedFrame;
+        co::base::Monitor< uint32_t > _finishedFrame;
 
         State _state;
 
@@ -242,7 +227,7 @@ namespace server
         void _updateCanvases();
         bool _connectNodes();
         bool _connectNode( Node* node );
-        bool _syncConnectNode( Node* node, const lunchbox::Clock& clock );
+        bool _syncConnectNode( Node* node, const co::base::Clock& clock );
         void _startNodes();
         uint32_t _createConfig( Node* node );
         bool _updateNodes();
@@ -265,21 +250,21 @@ namespace server
         virtual void releaseCanvas( Canvas* canvas );
 
         /** @internal Post deletion for the given child, returns true if found*/
-        template< class T > bool _postDelete( const UUID& id );
+        template< class T > bool _postDelete( const co::base::UUID& id );
 
         /** The command functions. */
-        bool _cmdInit( co::ICommand& command );
-        bool _cmdExit( co::ICommand& command );
-        bool _cmdUpdate( co::ICommand& command );
-        bool _cmdStartFrame( co::ICommand& command );
-        bool _cmdStopFrames( co::ICommand& command );
-        bool _cmdFinishAllFrames( co::ICommand& command );
-        bool _cmdCreateReply( co::ICommand& command );
-        bool _cmdFreezeLoadBalancing( co::ICommand& command );
-        bool _cmdCheckFrame( co::ICommand& command );
+        bool _cmdInit( co::Command& command );
+        bool _cmdExit( co::Command& command );
+        bool _cmdUpdate( co::Command& command );
+        bool _cmdStartFrame( co::Command& command );
+        bool _cmdStopFrames( co::Command& command );
+        bool _cmdFinishAllFrames( co::Command& command ); 
+        bool _cmdCreateReply( co::Command& command );
+        bool _cmdFreezeLoadBalancing( co::Command& command );
+        bool _cmdCheckFrame( co::Command& command );
 
-        LB_TS_VAR( _cmdThread );
-        LB_TS_VAR( _mainThread );
+        EQ_TS_VAR( _cmdThread );
+        EQ_TS_VAR( _mainThread );
     };
 }
 }

@@ -1,17 +1,16 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *
+ *  
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,30 +19,31 @@
 #include "window.h"
 
 #include "channel.h"
+#include "channelPackets.h"
 #include "client.h"
 #include "config.h"
+#include "configEvent.h"
 #include "error.h"
 #include "event.h"
-#include "gl.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
+#include "pipePackets.h"
 #include "server.h"
 #include "systemWindow.h"
+#include "windowPackets.h"
 #include "windowStatistics.h"
 
 #include <eq/util/objectManager.h>
-#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/leafVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
-
 #include <co/barrier.h>
+#include <co/command.h>
 #include <co/exception.h>
-#include <co/objectICommand.h>
-#include <lunchbox/sleep.h>
+#include <co/base/sleep.h>
 
 namespace eq
 {
@@ -63,7 +63,6 @@ const char* _mediumFontKey = "eq_medium_font";
 Window::Window( Pipe* parent )
         : Super( parent )
         , _sharedContextWindow( 0 ) // default set below
-        , _transferWindow( 0 )
         , _systemWindow( 0 )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
@@ -80,44 +79,48 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
-    LBASSERT( getChannels().empty( ));
+    EQASSERT( getChannels().empty( ));
+
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+
+    if( pipe->isCurrent( this ))
+        pipe->setCurrent( 0 );
 
     delete _objectManager;
     _objectManager = 0;
 }
 
-void Window::attach( const UUID& id, const uint32_t instanceID )
+void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
     co::CommandQueue* queue = getPipeThreadQueue();
 
-    registerCommand( fabric::CMD_WINDOW_CREATE_CHANNEL,
+    registerCommand( fabric::CMD_WINDOW_CREATE_CHANNEL, 
                      WindowFunc( this, &Window::_cmdCreateChannel ), queue );
     registerCommand( fabric::CMD_WINDOW_DESTROY_CHANNEL,
                      WindowFunc( this, &Window::_cmdDestroyChannel ), queue );
     registerCommand( fabric::CMD_WINDOW_CONFIG_INIT,
                      WindowFunc( this, &Window::_cmdConfigInit ), queue );
-    registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT,
+    registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT, 
                      WindowFunc( this, &Window::_cmdConfigExit ), queue );
     registerCommand( fabric::CMD_WINDOW_FRAME_START,
                      WindowFunc( this, &Window::_cmdFrameStart ), queue );
     registerCommand( fabric::CMD_WINDOW_FRAME_FINISH,
                      WindowFunc( this, &Window::_cmdFrameFinish ), queue );
-    registerCommand( fabric::CMD_WINDOW_FLUSH,
-                     WindowFunc( this, &Window::_cmdFlush), queue );
-    registerCommand( fabric::CMD_WINDOW_FINISH,
+    registerCommand( fabric::CMD_WINDOW_FINISH, 
                      WindowFunc( this, &Window::_cmdFinish), queue );
-    registerCommand( fabric::CMD_WINDOW_THROTTLE_FRAMERATE,
+    registerCommand( fabric::CMD_WINDOW_THROTTLE_FRAMERATE, 
                      WindowFunc( this, &Window::_cmdThrottleFramerate ),
                      queue );
-    registerCommand( fabric::CMD_WINDOW_BARRIER,
+    registerCommand( fabric::CMD_WINDOW_BARRIER, 
                      WindowFunc( this, &Window::_cmdBarrier ), queue );
-    registerCommand( fabric::CMD_WINDOW_NV_BARRIER,
+    registerCommand( fabric::CMD_WINDOW_NV_BARRIER, 
                      WindowFunc( this, &Window::_cmdNVBarrier ), queue );
-    registerCommand( fabric::CMD_WINDOW_SWAP,
+    registerCommand( fabric::CMD_WINDOW_SWAP, 
                      WindowFunc( this, &Window::_cmdSwap), queue );
-    registerCommand( fabric::CMD_WINDOW_FRAME_DRAW_FINISH,
+    registerCommand( fabric::CMD_WINDOW_FRAME_DRAW_FINISH, 
                      WindowFunc( this, &Window::_cmdFrameDrawFinish ), queue );
 }
 
@@ -131,7 +134,10 @@ void Window::notifyViewportChanged()
     // does send the startFrame() after a resize event.
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-        send( getServer(), fabric::CMD_OBJECT_SYNC );
+    {
+        fabric::ObjectSyncPacket syncPacket;
+        send( getServer(), syncPacket );
+    }
 }
 
 void Window::_updateFPS()
@@ -168,8 +174,8 @@ void Window::_updateFPS()
     }
 
     WindowStatistics stat( Statistic::WINDOW_FPS, this );
-    stat.event.statistic.currentFPS = curFPS;
-    stat.event.statistic.averageFPS = _avgFPS;
+    stat.event.data.statistic.currentFPS = curFPS;
+    stat.event.data.statistic.averageFPS = _avgFPS;
 }
 
 
@@ -181,8 +187,6 @@ void Window::drawFPS()
     const Font* font = getSmallFont();
     const PixelViewport& pvp = getPixelViewport();
 
-    glLogicOp( GL_XOR );
-    glEnable( GL_COLOR_LOGIC_OP );
     glRasterPos3f( pvp.w - 60.f, 10.f , 0.99f );
     glColor3f( 1.f, 1.f, 1.f );
 
@@ -190,13 +194,13 @@ void Window::drawFPS()
 }
 
 co::CommandQueue* Window::getPipeThreadQueue()
-{
-    return getPipe()->getPipeThreadQueue();
+{ 
+    return getPipe()->getPipeThreadQueue(); 
 }
 
 co::CommandQueue* Window::getCommandThreadQueue()
-{
-    return getPipe()->getCommandThreadQueue();
+{ 
+    return getPipe()->getCommandThreadQueue(); 
 }
 
 uint32_t Window::getCurrentFrame() const
@@ -204,43 +208,43 @@ uint32_t Window::getCurrentFrame() const
     return getPipe()->getCurrentFrame();
 }
 
-const Node* Window::getNode() const
+const Node* Window::getNode() const 
 {
     const Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return ( pipe ? pipe->getNode() : 0 );
 }
 Node* Window::getNode()
 {
     Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return ( pipe ? pipe->getNode() : 0 );
 }
 
 const Config* Window::getConfig() const
 {
     const Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0 );
 }
-Config* Window::getConfig()
+Config* Window::getConfig() 
 {
     Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0 );
 }
 
 ClientPtr Window::getClient()
 {
     Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return ( pipe ? pipe->getClient() : 0 );
 }
 
-ServerPtr Window::getServer()
+ServerPtr Window::getServer() 
 {
     Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return ( pipe ? pipe->getServer() : 0 );
 }
 
@@ -253,14 +257,14 @@ ServerPtr Window::getServer()
 //----------------------------------------------------------------------
 void Window::_addRenderContext( const RenderContext& context )
 {
-    LB_TS_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     _renderContexts[BACK].push_back( context );
 }
 
 bool Window::getRenderContext( const int32_t x, const int32_t y,
                                RenderContext& context ) const
 {
-    LB_TS_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     if( !_systemWindow )
         return false;
 
@@ -268,12 +272,12 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     const unsigned which = drawableConfig.doublebuffered ? FRONT : BACK;
 
     std::vector< RenderContext >::const_reverse_iterator i   =
-        _renderContexts[which].rbegin();
+        _renderContexts[which].rbegin(); 
     std::vector< RenderContext >::const_reverse_iterator end =
         _renderContexts[which].rend();
 
     // invert y to follow GL convention
-    const int32_t glY = getPixelViewport().h - y;
+    const int32_t glY = getPixelViewport().h - y; 
 
     for( ; i != end; ++i )
     {
@@ -297,16 +301,6 @@ uint32_t Window::getColorFormat() const
     }
 }
 
-void Window::flush() const
-{
-    glFlush();
-}
-
-void Window::finish() const
-{
-    glFinish();
-}
-
 void Window::setSystemWindow( SystemWindow* window )
 {
     _systemWindow = window;
@@ -325,18 +319,18 @@ void Window::setSystemWindow( SystemWindow* window )
 const SystemPipe* Window::getSystemPipe() const
 {
     const Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return pipe->getSystemPipe();
 }
 
 SystemPipe* Window::getSystemPipe()
 {
     Pipe* pipe = getPipe();
-    LBASSERT( pipe );
+    EQASSERT( pipe );
     return pipe->getSystemPipe();
 }
 
-void Window::frameStart( const uint128_t&, const uint32_t frameNumber )
+void Window::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
     startFrame( frameNumber );
 }
@@ -344,10 +338,6 @@ void Window::frameStart( const uint128_t&, const uint32_t frameNumber )
 void Window::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrameLocal( frameNumber );
-
-    // https://github.com/Eyescale/Equalizer/issues/95
-    if( getNode()->getPipes().size() > 1 )
-        finish();
 }
 
 void Window::frameFinish( const uint128_t&, const uint32_t frameNumber )
@@ -372,7 +362,7 @@ bool Window::configInit( const uint128_t& initID )
         return false;
     }
 
-    LBASSERT( !_systemWindow );
+    EQASSERT( !_systemWindow );
 
     if( !configInitSystemWindow( initID )) return false;
     if( !configInitGL( initID ))       return false;
@@ -385,10 +375,10 @@ bool Window::configInitSystemWindow( const uint128_t& )
     const Pipe* pipe = getPipe();
     SystemWindow* systemWindow = pipe->getWindowSystem().createWindow( this );
 
-    LBASSERT( systemWindow );
+    EQASSERT( systemWindow );
     if( !systemWindow->configInit( ))
     {
-        LBWARN << "System window initialization failed: " << getError()
+        EQWARN << "System window initialization failed: " << getError()
                << std::endl;
         delete systemWindow;
         return false;
@@ -430,7 +420,7 @@ void Window::_releaseObjectManager()
 
 const Window::Font* Window::getSmallFont()
 {
-    LBASSERT( _objectManager );
+    EQASSERT( _objectManager );
     if( !_objectManager )
         return 0;
 
@@ -445,7 +435,7 @@ const Window::Font* Window::getSmallFont()
 
 const Window::Font* Window::getMediumFont()
 {
-    LBASSERT( _objectManager );
+    EQASSERT( _objectManager );
     if( !_objectManager )
         return 0;
 
@@ -480,74 +470,6 @@ bool Window::configInitGL( const uint128_t& )
     return true;
 }
 
-bool Window::createTransferWindow()
-{
-    LBASSERT( _systemWindow );
-
-    if( _transferWindow )
-        return true;
-
-    // create another (shared) osWindow with no drawable, restore original
-    const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE, OFF );
-
-    const Pipe* pipe = getPipe();
-    _transferWindow = pipe->getWindowSystem().createWindow( this );
-
-    if( _transferWindow )
-    {
-        if( !_transferWindow->configInit( ))
-        {
-            LBWARN << "Transfer window initialization failed: " << std::endl;
-            delete _transferWindow;
-            _transferWindow = 0;
-        }
-        else
-            makeCurrentTransfer();
-    }
-    else
-        LBERROR << "Window system " << pipe->getWindowSystem()
-                << " not implemented or supported" << std::endl;
-
-    setIAttribute( IATTR_HINT_DRAWABLE, drawable );
-    makeCurrent();
-
-    LBVERB << "Transfer window initialization finished" << std::endl;
-    return _transferWindow != 0;
-}
-
-const GLEWContext* Window::getTransferGlewContext()
-{
-    LBASSERT( _transferWindow );
-    if( _transferWindow )
-        return _transferWindow->glewGetContext();
-    return 0;
-}
-
-void Window::makeCurrentTransfer( const bool useCache ) const
-{
-    LBASSERT( _transferWindow );
-    if( _transferWindow )
-        _transferWindow->makeCurrent( useCache );
-}
-
-
-void Window::deleteTransferSystemWindow()
-{
-    if( !_transferWindow )
-        return;
-
-    const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE, OFF );
-
-    _transferWindow->configExit();
-
-    delete _transferWindow;
-    _transferWindow = 0;
-
-    setIAttribute( IATTR_HINT_DRAWABLE, drawable );
-}
-
 //----------------------------------------------------------------------
 // configExit
 //----------------------------------------------------------------------
@@ -559,10 +481,6 @@ bool Window::configExit()
 
 bool Window::configExitSystemWindow()
 {
-    // _transferWindow has to be deleted from the same thread it was
-    // initialized
-    LBASSERT( !_transferWindow );
-
     _releaseObjectManager();
 
     if( _systemWindow )
@@ -572,12 +490,20 @@ bool Window::configExitSystemWindow()
         delete _systemWindow;
         _systemWindow = 0;
     }
+    
+    Pipe* pipe = getPipe();
+    if( pipe->isCurrent( this ))
+        pipe->setCurrent( 0 );
+
     return true;
 }
 
 void Window::makeCurrent( const bool useCache ) const
 {
-    _systemWindow->makeCurrent( useCache );
+    if( useCache && getPipe()->isCurrent( this ))
+        return;
+
+    _systemWindow->makeCurrent();
     // _pipe->setCurrent done by SystemWindow::makeCurrent
 }
 
@@ -589,17 +515,17 @@ void Window::bindFrameBuffer() const
 void Window::swapBuffers()
 {
     _systemWindow->swapBuffers();
-    LBLOG( co::LOG_BARRIER ) << "Swap buffers done" << getName() << std::endl;
+    EQVERB << "----- SWAP -----" << std::endl;
 }
 
 const GLEWContext* Window::glewGetContext() const
-{
+{ 
     return _systemWindow->glewGetContext();
 }
 
 void Window::_enterBarrier( co::ObjectVersion barrier )
 {
-    LBLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName()
+    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName()
                              << std::endl;
     Node* node = getNode();
     co::Barrier* netBarrier = node->getBarrier( barrier );
@@ -613,17 +539,17 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     }
     catch( const co::Exception& e )
     {
-        LBWARN << e.what() << " for " << *netBarrier << std::endl;
-    }
+        EQWARN << e.what() << " for " << *netBarrier << std::endl;
+    } 
 }
 
 
 //======================================================================
 // event-handler methods
 //======================================================================
-
 bool Window::processEvent( const Event& event )
 {
+    ConfigEvent configEvent;
     switch( event.type )
     {
         case Event::WINDOW_HIDE:
@@ -632,39 +558,43 @@ bool Window::processEvent( const Event& event )
 
         case Event::WINDOW_SHOW:
         case Event::WINDOW_RESIZE:
-            setPixelViewport( PixelViewport( event.resize.x, event.resize.y,
+            setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
             break;
 
         case Event::KEY_PRESS:
         case Event::KEY_RELEASE:
             if( event.key.key == KC_VOID )
-                return true; // ignore
+                return true; //ignore
             // else fall through
         case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:
+        case Event::WINDOW_POINTER_WHEEL:
         case Event::STATISTIC:
-        case Event::MAGELLAN_AXIS:
-        case Event::MAGELLAN_BUTTON:
-            break;
-
-        case Event::WINDOW_POINTER_GRAB:
-            _grabbedChannels = _getEventChannels( event.pointer );
-            break;
-        case Event::WINDOW_POINTER_UNGRAB:
-            _grabbedChannels.clear();
             break;
 
         case Event::WINDOW_POINTER_MOTION:
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        case Event::WINDOW_POINTER_WHEEL:
         {
-            const Channels& channels = _getEventChannels( event.pointer );
+            // dispatch pointer events to destination channel, if any
+            const Channels& channels = getChannels();
             for( Channels::const_iterator i = channels.begin();
                  i != channels.end(); ++i )
             {
                 Channel* channel = *i;
+                if( !channel->isDestination( ))
+                    continue;
+
+                const PixelViewport& pvp = getPixelViewport();
+                const PixelViewport& channelPVP =
+                    channel->getNativePixelViewport();
+                
+                // convert y to GL notation (Channel PVP uses GL coordinates)
+                const int32_t y = pvp.h - event.pointer.y;
+                if( !channelPVP.isInside( event.pointer.x, y ))
+                    continue;
+
                 Event channelEvent = event;
                 switch( event.type )
                 {
@@ -677,21 +607,13 @@ bool Window::processEvent( const Event& event )
                   case Event::WINDOW_POINTER_BUTTON_RELEASE:
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
                     break;
-                  case Event::WINDOW_POINTER_WHEEL:
-                    channelEvent.type = Event::CHANNEL_POINTER_WHEEL;
-                    break;
                   default:
-                    LBWARN << "Unhandled window event of type " << event.type
+                    EQWARN << "Unhandled window event of type " << event.type
                            << std::endl;
-                    LBUNIMPLEMENTED;
+                    EQUNIMPLEMENTED;
                 }
 
-                // convert y to GL notation (Channel PVP uses GL coordinates)
-                const PixelViewport& pvp = getPixelViewport();
-                const int32_t y = pvp.h - event.pointer.y;
-                const PixelViewport& channelPVP =
-                    channel->getNativePixelViewport();
-
+                EQASSERT( channel->getID() != co::base::UUID::ZERO );
                 channelEvent.originator = channel->getID();
                 channelEvent.serial = channel->getSerial();
                 channelEvent.pointer.x -= channelPVP.x;
@@ -722,240 +644,199 @@ bool Window::processEvent( const Event& event )
             return false;
 
         default:
-            LBWARN << "Unhandled window event of type " << event.type
+            EQWARN << "Unhandled window event of type " << event.type
                    << std::endl;
-            LBUNIMPLEMENTED;
+            EQUNIMPLEMENTED;
     }
+
+    configEvent.data = event;
 
     Config* config = getConfig();
-    config->sendEvent( event.type ) << event;
+    config->sendEvent( configEvent );
     return true;
-}
-
-Channels Window::_getEventChannels( const PointerEvent& event )
-{
-    if( !_grabbedChannels.empty( ))
-        return _grabbedChannels;
-
-    Channels result;
-    const Channels& channels = getChannels();
-    for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
-    {
-        Channel* channel = *i;
-        if( !channel->isDestination( ))
-            continue;
-
-        const PixelViewport& pvp = getPixelViewport();
-        const PixelViewport& channelPVP = channel->getNativePixelViewport();
-
-        // convert y to GL notation (Channel PVP uses GL coordinates)
-        const int32_t y = pvp.h - event.y;
-
-        if( channelPVP.isInside( event.x, y ))
-            result.push_back( channel );
-    }
-    return result;
 }
 
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Window::_cmdCreateChannel( co::ICommand& cmd )
+bool Window::_cmdCreateChannel( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-    const UUID channelID = command.get< UUID >();
-
-    LBLOG( LOG_INIT ) << "Create channel " << command  << " id " << channelID
-                      << std::endl;
+    const WindowCreateChannelPacket* packet = 
+        command.get<WindowCreateChannelPacket>();
+    EQLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     channel->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( channel, channelID ));
-    LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
+    EQCHECK( config->mapObject( channel, packet->channelID ));
+    EQASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
 
     return true;
 }
 
-bool Window::_cmdDestroyChannel( co::ICommand& cmd )
+bool Window::_cmdDestroyChannel( co::Command& command ) 
 {
-    co::ObjectICommand command( cmd );
-    LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
+    const WindowDestroyChannelPacket* packet =
+        command.get<WindowDestroyChannelPacket>();
+    EQLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
 
-    Channel* channel = _findChannel( command.get< UUID >( ));
-    LBASSERT( channel );
+    Channel* channel = _findChannel( packet->channelID );
+    EQASSERT( channel );
 
-    const bool stopped = channel->isStopped();
+    ChannelConfigExitReplyPacket reply( packet->channelID,
+                                        channel->isStopped( ));
     Config* config = getConfig();
     config->unmapObject( channel );
-    channel->send( getServer(),
-                   fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY ) << stopped;
     Global::getNodeFactory()->releaseChannel( channel );
 
+    getServer()->send( reply ); // do not use Object::send()
     return true;
 }
 
-bool Window::_cmdConfigInit( co::ICommand& cmd )
+bool Window::_cmdConfigInit( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
+    const WindowConfigInitPacket* packet = 
+        command.get<WindowConfigInitPacket>();
+    EQLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
 
-    LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
-
+    WindowConfigInitReplyPacket reply;
     setError( ERROR_NONE );
 
-    bool result = false;
     if( getPipe()->isRunning( ))
     {
         _state = STATE_INITIALIZING;
-        result = configInit( command.get< uint128_t >( ));
-        if( result )
+        reply.result = configInit( packet->initID );
+        if( reply.result )
             _state = STATE_RUNNING;
     }
     else
+    {
         setError( ERROR_WINDOW_PIPE_NOTRUNNING );
-
-    LBLOG( LOG_INIT ) << "TASK window config init reply " << std::endl;
+        reply.result = false;
+    }
+    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
     commit();
-    send( command.getNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;
+    send( command.getNode(), reply );
     return true;
 }
 
-bool Window::_cmdConfigExit( co::ICommand& cmd )
+bool Window::_cmdConfigExit( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-
-    LBLOG( LOG_INIT ) << "TASK window config exit " << command << std::endl;
+    const WindowConfigExitPacket* packet =
+        command.get<WindowConfigExitPacket>();
+    EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
     if( _state != STATE_STOPPED )
     {
         if( getPipe()->isRunning( ) && _systemWindow )
         {
             makeCurrent();
-            getPipe()->flushFrames( _objectManager );
+            getPipe()->flushFrames();
         }
         // else emergency exit, no context available.
 
         _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     }
 
-    getPipe()->send( getLocalNode(),
-                     fabric::CMD_PIPE_DESTROY_WINDOW ) << getID();
+    PipeDestroyWindowPacket destroyPacket( getID( ));
+    getPipe()->send( getLocalNode(), destroyPacket );
     return true;
 }
 
-bool Window::_cmdFrameStart( co::ICommand& cmd )
+bool Window::_cmdFrameStart( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
+    EQ_TS_THREAD( _pipeThread );
 
-    LB_TS_THREAD( _pipeThread );
+    const WindowFrameStartPacket* packet = 
+        command.get<WindowFrameStartPacket>();
+    EQLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
+                       << std::endl;
 
-    const uint128_t version = command.get< uint128_t >();
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    //_grabFrame( packet->frameNumber ); single-threaded
+    sync( packet->version );
 
-    LBLOG( LOG_TASKS ) << "TASK frame start " << getName()
-                       << " " << command << " frame " << frameNumber
-                       << " id " << frameID << std::endl;
-
-    //_grabFrame( frameNumber ); single-threaded
-    sync( version );
-
+    EQASSERT( _systemWindow );
     const DrawableConfig& drawableConfig = getDrawableConfig();
     if( drawableConfig.doublebuffered )
         _renderContexts[FRONT].swap( _renderContexts[BACK] );
     _renderContexts[BACK].clear();
 
     makeCurrent();
-    frameStart( frameID, frameNumber );
+
+    frameStart( packet->frameID, packet->frameNumber );
     return true;
 }
 
-bool Window::_cmdFrameFinish( co::ICommand& cmd )
+bool Window::_cmdFrameFinish( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-
-    LBVERB << "handle window frame sync " << command << std::endl;
-
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const WindowFrameFinishPacket* packet =
+        command.get<WindowFrameFinishPacket>();
+    EQVERB << "handle window frame sync " << packet << std::endl;
 
     makeCurrent();
-    frameFinish( frameID, frameNumber );
+    frameFinish( packet->frameID, packet->frameNumber );
     return true;
 }
 
-bool Window::_cmdFlush( co::ICommand& )
-{
-    flush();
-    return true;
-}
-
-bool Window::_cmdFinish( co::ICommand& )
+bool Window::_cmdFinish( co::Command& ) 
 {
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     makeCurrent();
     finish();
+
     return true;
 }
 
-bool  Window::_cmdThrottleFramerate( co::ICommand& cmd )
+bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-
-    LBLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
-                       << command << std::endl;
+    const WindowThrottleFramerate* packet =
+        command.get< WindowThrottleFramerate >();
+    EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
+                       << packet << std::endl;
 
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
-    const float minFrameTime = command.get< float >();
-    const float timeLeft = minFrameTime - static_cast<float>( elapsed );
-
+    const float timeLeft = packet->minFrameTime - static_cast<float>( elapsed );
+    
     if( timeLeft >= 1.f )
     {
-        WindowStatistics stat( Statistic::WINDOW_THROTTLE_FRAMERATE, this );
-        lunchbox::sleep( static_cast< uint32_t >( timeLeft ));
+        WindowStatistics stat( Statistic::WINDOW_THROTTLE_FRAMERATE, this );   
+        co::base::sleep( static_cast< uint32_t >( timeLeft ));
     }
 
     _lastSwapTime = getConfig()->getTime();
     return true;
 }
-
-bool Window::_cmdBarrier( co::ICommand& cmd )
+        
+bool Window::_cmdBarrier( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-    const co::ObjectVersion barrier = command.get< co::ObjectVersion >();
-
-    LBVERB << "handle barrier " << command << " barrier " << barrier << std::endl;
-    LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
-
-    _enterBarrier( barrier );
+    const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
+    EQVERB << "handle barrier " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
+    
+    _enterBarrier( packet->barrier );
     return true;
 }
 
-bool Window::_cmdNVBarrier( co::ICommand& cmd )
+bool Window::_cmdNVBarrier( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-
-    LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
-    LBASSERT( _systemWindow );
-
-    const co::ObjectVersion netBarrier = command.get< co::ObjectVersion >();
-    const uint32_t group = command.get< uint32_t >();
-    const uint32_t barrier = command.get< uint32_t >();
-
+    const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
+    EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
+    
+    EQASSERT( _systemWindow );
     makeCurrent();
-    _systemWindow->joinNVSwapBarrier( group, barrier );
-    _enterBarrier( netBarrier );
+    _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );
+
+    _enterBarrier( packet->netBarrier );
     return true;
 }
 
-bool Window::_cmdSwap( co::ICommand& cmd )
+bool Window::_cmdSwap( co::Command& command ) 
 {
-    co::ObjectICommand command( cmd );
-
-    LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << command
+    const WindowSwapPacket* packet = command.get< WindowSwapPacket >();
+    EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << std::endl;
 
     if( getDrawableConfig().doublebuffered )
@@ -968,17 +849,14 @@ bool Window::_cmdSwap( co::ICommand& cmd )
     return true;
 }
 
-bool Window::_cmdFrameDrawFinish( co::ICommand& cmd )
+bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
-    co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
-
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
-                       << " frame " << frameNumber << " id " << frameID
+    const WindowFrameDrawFinishPacket* packet = 
+        command.get< WindowFrameDrawFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
-    frameDrawFinish( frameID, frameNumber );
+    frameDrawFinish( packet->frameID, packet->frameNumber );
     return true;
 }
 
