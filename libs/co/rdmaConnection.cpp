@@ -21,20 +21,27 @@
 #include "connectionType.h"
 #include "connectionDescription.h"
 #include "global.h"
+#include "eventConnection.h"
 
 #include <lunchbox/clock.h>
 #include <lunchbox/sleep.h>
 
+#ifdef _WIN32
+#pragma warning( disable : 4018 )
+#include <boost/interprocess/mapped_region.hpp>
+#pragma warning( default : 4018 )
+#else
 #include <arpa/inet.h>
+#include <sys/epoll.h>
+#include <sys/mman.h>
+#endif
+
 #include <errno.h>
 #include <fcntl.h>
 #include <limits>
 #include <sstream>
 #include <stddef.h>
 #include <unistd.h>
-#include <sys/epoll.h>
-#include <sys/eventfd.h>
-#include <sys/mman.h>
 
 #include <rdma/rdma_verbs.h>
 
@@ -103,6 +110,13 @@ namespace {
 static const uint64_t MAX_BS = (( 2 << ( 28 - 1 )) - 1 );
 // We send a max of four bits worth of fc counts per RDMA write.
 static const uint16_t MAX_FC = (( 2 << ( 4 - 1 )) - 1 );
+
+static const uint32_t MASK_BUF_EVENT = 0x00000001;
+static const uint32_t MASK_CQ_EVENT = 0x00000002;
+static const uint32_t MASK_CM_EVENT = 0x00000004;
+
+static const uint32_t RINGBUFFER_ALLOC_RETRIES = 8;
+static const uint32_t WINDOWS_CONNECTION_BACKLOG = 1024;
 }
 
 /**
@@ -160,7 +174,11 @@ static const uint16_t MAX_FC = (( 2 << ( 4 - 1 )) - 1 );
  * Send perf: 3240.95MB/s (3240.95pps)
  */
 RDMAConnection::RDMAConnection( )
+#ifdef _WIN32
+    : _event( new EventConnection )
+#else
     : _notifier( -1 )
+#endif
     , _timeout( Global::getIAttribute( Global::IATTR_RDMA_RESOLVE_TIMEOUT_MS ))
     , _rai( NULL )
     , _cm( NULL )
@@ -169,7 +187,6 @@ RDMAConnection::RDMAConnection( )
     , _cc( NULL )
     , _cq( NULL )
     , _pd( NULL )
-    , _event_fd( -1 )
     , _established( false )
     , _depth( 0L )
     , _writes( 0L )
@@ -185,7 +202,16 @@ RDMAConnection::RDMAConnection( )
     , _rptr( 0UL )
     , _rbase( 0ULL )
     , _rkey( 0ULL )
+#ifdef _WIN32
+    , _cmWaitObj( 0 )
+    , _cqWaitObj( 0 )
+#endif
 {
+//#ifndef _WIN32
+//    _pipe_fd[0] = -1;
+//    _pipe_fd[1] = -1;
+//#endif
+
     ::memset( (void *)&_addr, 0, sizeof(_addr) );
     ::memset( (void *)&_serv, 0, sizeof(_serv) );
 
@@ -409,7 +435,11 @@ bool RDMAConnection::listen( )
 
     _updateInfo( ::rdma_get_local_addr( _cm_id ));
 
+#ifdef _WIN32
+    if( !_listen( WINDOWS_CONNECTION_BACKLOG ))
+#else
     if( !_listen( SOMAXCONN ))
+#endif
     {
         LBERROR << "Failed to listen on bound address : "
             << _addr << ":" << _serv << std::endl;
@@ -419,7 +449,7 @@ bool RDMAConnection::listen( )
     if( NULL != _cm_id->verbs )
         _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
 
-    LBVERB << "Listening on " << std::dec
+    LBINFO << "Listening on " << std::dec
         << _device_name << ":" << (int)_cm_id->port_num
         << " at "
         << _addr << ":" << _serv
@@ -770,14 +800,11 @@ void RDMAConnection::_cleanup( )
 
     _rptr = 0UL;
     _rbase = _rkey = 0ULL;
-
-    if(( _event_fd >= 0 ) && TEMP_FAILURE_RETRY( ::close( _event_fd )))
-        LBWARN << "close : " << lunchbox::sysError << std::endl;
-    _event_fd = -1;
-
+#ifndef _WIN32
     if(( _notifier >= 0 ) && TEMP_FAILURE_RETRY( ::close( _notifier )))
         LBWARN << "close : " << lunchbox::sysError << std::endl;
     _notifier = -1;
+#endif
 }
 
 bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
@@ -822,7 +849,7 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         ::memcpy( (void *)&sss.storage,
             (const void *)::rdma_get_peer_addr( _cm_id ),
             sizeof(struct sockaddr_storage) );
-
+#ifndef _WIN32
         if(( AF_INET == sss.storage.ss_family ) &&
            ( sss.sin6.sin6_addr.s6_addr32[0] != 0 ||
              sss.sin6.sin6_addr.s6_addr32[1] != 0 ||
@@ -832,7 +859,9 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
             LBWARN << "IPv6 address detected but likely invalid!" << std::endl;
             sss.storage.ss_family = AF_INET6;
         }
-        else if(( AF_INET6 == sss.storage.ss_family ) &&
+        else 
+#endif
+        if(( AF_INET6 == sss.storage.ss_family ) &&
                 ( INADDR_ANY != sss.sin.sin_addr.s_addr ))
         {
             sss.storage.ss_family = AF_INET;
@@ -1010,6 +1039,8 @@ void RDMAConnection::_updateInfo( struct sockaddr *addr )
         is_unspec = ( INADDR_ANY == sin->sin_addr.s_addr );
         salen = sizeof(struct sockaddr_in);
     }
+    // TODO: IPv6 for WIndows
+#ifndef _WIN32
     else if( AF_INET6 == addr->sa_family )
     {
         struct sockaddr_in6 *sin6 =
@@ -1021,7 +1052,7 @@ void RDMAConnection::_updateInfo( struct sockaddr *addr )
                       sin6->sin6_addr.s6_addr32[3] == 0 );
         salen = sizeof(struct sockaddr_in6);
     }
-
+#endif
     int err;
     if(( err = ::getnameinfo( addr, salen, _addr, sizeof(_addr),
             _serv, sizeof(_serv), NI_NUMERICHOST | NI_NUMERICSERV )))
@@ -1038,8 +1069,6 @@ void RDMAConnection::_updateInfo( struct sockaddr *addr )
 
 bool RDMAConnection::_createEventChannel( )
 {
-    struct epoll_event evctl;
-
     LBASSERT( NULL == _cm );
 
     _cm = ::rdma_create_event_channel( );
@@ -1049,6 +1078,22 @@ bool RDMAConnection::_createEventChannel( )
             std::endl;
         goto err;
     }
+
+#ifdef _WIN32
+    if ( !RegisterWaitForSingleObject( 
+            &_cmWaitObj, 
+            _cm->channel.Event, 
+            WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
+            this, 
+            0, 
+            WT_EXECUTEINWAITTHREAD ))
+    {
+        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
+                << std::endl;
+        goto err;
+    }
+#else
+    struct epoll_event evctl;
 
     LBASSERT( _notifier >= 0 );
 
@@ -1061,6 +1106,7 @@ bool RDMAConnection::_createEventChannel( )
         LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
         goto err;
     }
+#endif
 
     return true;
 
@@ -1087,8 +1133,6 @@ err:
 
 bool RDMAConnection::_initVerbs( )
 {
-    struct epoll_event evctl;
-
     LBASSERT( NULL != _cm_id );
     LBASSERT( NULL != _cm_id->verbs );
 
@@ -1113,9 +1157,24 @@ bool RDMAConnection::_initVerbs( )
         goto err;
     }
 
+#ifdef _WIN32
+    if ( !RegisterWaitForSingleObject( 
+        &_cqWaitObj, 
+        _cc->comp_channel.Event, 
+        WAITORTIMERCALLBACK( &_triggerNotifierCQ ), 
+        this, 
+        0, 
+        WT_EXECUTEINWAITTHREAD ))
+    {
+        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
+            << std::endl;
+        goto err;
+    }
+#else
     LBASSERT( _notifier >= 0 );
 
     // Use the completion channel fd to signal Collage of RDMA writes received.
+    struct epoll_event evctl;
     ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
     evctl.events = EPOLLIN;
     evctl.data.fd = _cc->fd;
@@ -1124,6 +1183,7 @@ bool RDMAConnection::_initVerbs( )
         LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
         goto err;
     }
+#endif
 
     LBASSERT( NULL == _cq );
 
@@ -1210,8 +1270,8 @@ bool RDMAConnection::_initBuffers( )
         goto err;
     }
 
-    _sourceptr.clear( _sourcebuf.getSize( ));
-    _sinkptr.clear( _sinkbuf.getSize( ));
+    _sourceptr.clear( static_cast<uint32_t>( _sourcebuf.getSize( )));
+    _sinkptr.clear( static_cast<uint32_t>( _sinkbuf.getSize( )));
 
     // Need enough space for both sends and receives.
     if( !_msgbuf.resize( _pd, _depth * 2 ))
@@ -1252,7 +1312,11 @@ bool RDMAConnection::_resolveRoute( )
     if(( IBV_TRANSPORT_IB == _cm_id->verbs->device->transport_type ) &&
             ( _rai->ai_route_len > 0 ))
     {
+#ifdef _WIN32
+        if( ::rdma_set_option( _cm_id, RDMA_OPTION_ID, RDMA_OPTION_ID_TOS,
+#else
         if( ::rdma_set_option( _cm_id, RDMA_OPTION_IB, RDMA_OPTION_IB_PATH,
+#endif
                 _rai->ai_route, _rai->ai_route_len ))
         {
             LBERROR << "rdma_set_option : " << lunchbox::sysError << std::endl;
@@ -1409,13 +1473,13 @@ bool RDMAConnection::_accept( )
     // Magic 3-bit value.
     //accept_param.rnr_retry_count = 7;
 
-    LBINFO << "Accept on source lid : "<< std::showbase
-           << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
-           << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
-           << "from dest lid : "
-           << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
-           << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
-           << std::endl;
+    //LBINFO << "Accept on source lid : "<< std::showbase
+    //       << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
+    //       << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+    //       << "from dest lid : "
+    //       << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
+    //       << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+    //       << std::endl;
 
     if( ::rdma_accept( _cm_id, &accept_param ))
     {
@@ -1483,13 +1547,13 @@ bool RDMAConnection::_postReceives( const uint32_t count )
     LBASSERT( NULL != _cm_id->qp );
     LBASSERT( count > 0UL );
 
-    struct ibv_sge sge[count];
-    struct ibv_recv_wr wrs[count];
+    ibv_sge* sge = new ibv_sge[count];
+    ibv_recv_wr* wrs = new ibv_recv_wr[count];
 
     for( uint32_t i = 0UL; i != count; i++ )
     {
         sge[i].addr = (uint64_t)(uintptr_t)_msgbuf.getBuffer( );
-        sge[i].length = (uint64_t)_msgbuf.getBufferSize( );
+        sge[i].length = static_cast<uint32_t>( _msgbuf.getBufferSize( ));
         sge[i].lkey = _msgbuf.getMR( )->lkey;
 
         wrs[i].wr_id = sge[i].addr;
@@ -1753,9 +1817,13 @@ err:
 
 bool RDMAConnection::_createNotifier( )
 {
+#ifdef _WIN32
+    _event->connect();
+    return true;
+#else
     LBASSERT( _notifier < 0 );
 
-    _notifier = ::epoll_create1( 0 );
+    _notifier = ::epoll_create( 1 );
     if( _notifier < 0 )
     {
         LBERROR << "epoll_create1 : " << lunchbox::sysError << std::endl;
@@ -1766,11 +1834,26 @@ bool RDMAConnection::_createNotifier( )
 
 err:
     return false;
+#endif
 }
 
 bool RDMAConnection::_checkEvents( eventset &events )
 {
-    struct epoll_event evts[3];
+    events.reset( );
+
+    if (( _eventFlag & MASK_BUF_EVENT ) != 0 )
+        events.set( BUF_EVENT );
+#ifdef _WIN32
+    if (( _eventFlag & MASK_CQ_EVENT ) != 0 )
+        events.set( CQ_EVENT );
+    if (( _eventFlag & MASK_CM_EVENT ) != 0 )
+        events.set( CM_EVENT );
+    
+    _eventFlag = 0;
+
+    return true;
+#else
+    struct epoll_event evts[2];
 
     int nfds = TEMP_FAILURE_RETRY( ::epoll_wait( _notifier, evts, 3, 0 ));
     if( nfds < 0 )
@@ -1779,13 +1862,13 @@ bool RDMAConnection::_checkEvents( eventset &events )
         goto err;
     }
 
-    events.reset( );
     for( int i = 0; i < nfds; i++ )
     {
         const int fd = evts[i].data.fd;
-        if(( _event_fd >= 0 ) && ( fd == _event_fd ))
-            events.set( BUF_EVENT );
-        else if( _cc && ( fd == _cc->fd ))
+        //if(( _pipe_fd[0] >= 0 ) && ( fd == _pipe_fd[0] ))
+        //    events.set( BUF_EVENT );
+        //else 
+        if( _cc && ( fd == _cc->fd ))
             events.set( CQ_EVENT );
         else if( _cm && ( fd == _cm->fd ))
             events.set( CM_EVENT );
@@ -1797,6 +1880,7 @@ bool RDMAConnection::_checkEvents( eventset &events )
 
 err:
     return false;
+#endif
 }
 
 bool RDMAConnection::_checkDisconnected( eventset &events )
@@ -1828,66 +1912,85 @@ err:
 
 bool RDMAConnection::_createBytesAvailableFD( )
 {
-    struct epoll_event evctl;
-
-    LBASSERT( _event_fd < 0 );
-
-    _event_fd = ::eventfd( 0, 0 );
-    if( _event_fd < 0 )
-    {
-        LBERROR << "eventfd : " << lunchbox::sysError << std::endl;
-        goto err;
-    }
-
-    LBASSERT( _notifier >= 0 );
-
-    // Use the event fd to signal Collage of bytes remaining.
-    ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
-    evctl.events = EPOLLIN;
-    evctl.data.fd = _event_fd;
-    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, evctl.data.fd, &evctl ))
-    {
-        LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
-        goto err;
-    }
-
+//#ifdef _WIN32
     return true;
-
-err:
-    return false;
+//#else
+//    struct epoll_event evctl;
+//
+//    LBASSERT( _pipe_fd < 0 );
+//
+//    if ( pipe( _pipe_fd ))
+//    {
+//        LBERROR << "pipe : " << lunchbox::sysError << std::endl;
+//        goto err;
+//    }
+//
+//    LBASSERT( _notifier >= 0 );
+//
+//    // Use the event fd to signal Collage of bytes remaining.
+//    ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
+//    evctl.events = EPOLLIN;
+//    evctl.data.fd = _event_fd;
+//    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, evctl.data.fd, &evctl ))
+//    {
+//        LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
+//        goto err;
+//    }
+//
+//    return true;
+//
+//err:
+//    return false;
+//#endif
 }
 
 bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 {
-    if( ::write( _event_fd, (const void *)&b, sizeof(b) ) != sizeof(b) )
-    {
-        LBERROR << "write : " << lunchbox::sysError << std::endl;
-        goto err;
-    }
-
+//#ifdef _WIN32
+    _eventFlag = _eventFlag & MASK_BUF_EVENT;
+    _availBytes += b;
+#ifdef _WIN32
+    _event->set();
+#else
+    ::write( _notifier, (const void *)&b, sizeof(b) );
+#endif
     return true;
-
-err:
-    return false;
+//#else
+//    if( ::write( _event_fd, (const void *)&b, sizeof(b) ) != sizeof(b) )
+//    {
+//       LBERROR << "write : " << lunchbox::sysError << std::endl;
+//        goto err;
+//    }
+//
+//    return true;
+//
+//err:
+//    return false;
+//#endif
 }
 
 uint64_t RDMAConnection::_getAvailableBytes( )
 {
-    uint64_t available_bytes;
-
-    if( TEMP_FAILURE_RETRY( ::read( _event_fd, (void *)&available_bytes,
-            sizeof(available_bytes) )) != sizeof(available_bytes) )
-    {
-        LBERROR << "read : " << lunchbox::sysError << std::endl;
-        goto err;
-    }
-
-    LBASSERT( available_bytes > 0ULL );
-
-    return available_bytes;
-
-err:
-    return 0ULL;
+//#ifdef _WIN32
+    return static_cast<uint64_t>( _availBytes );
+//#else
+//
+//    uint64_t available_bytes;
+//
+//    if( TEMP_FAILURE_RETRY( ::read( _event_fd, (void *)&available_bytes,
+//        sizeof(available_bytes) )) != sizeof(available_bytes) )
+//    {
+//        LBERROR << "read : " << lunchbox::sysError << std::endl;
+//        goto err;
+//    }
+//
+//    LBASSERT( available_bytes > 0ULL );
+//
+//    return available_bytes;
+//
+//err:
+//    return 0ULL;
+//#endif
 }
 
 bool RDMAConnection::_waitForCMEvent( enum rdma_cm_event_type expected )
@@ -2042,7 +2145,7 @@ err:
 
 bool RDMAConnection::_checkCQ( bool drain )
 {
-    struct ibv_wc wcs[_depth];
+    ibv_wc* wcs = new ibv_wc[_depth];
     uint32_t num_recvs;
     int count;
 
@@ -2138,6 +2241,44 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
     return b;
 }
 
+Connection::Notifier RDMAConnection::getNotifier() const
+{ 
+#ifdef _WIN32
+    return _event->getNotifier();
+#else
+	return _notifier;
+#endif
+}
+
+#ifdef _WIN32
+void RDMAConnection::_triggerNotifierCQ( RDMAConnection* conn )
+{
+    conn->_triggerNotifierWorker( CQ_EVENT );
+}
+
+void RDMAConnection::_triggerNotifierCM( RDMAConnection* conn )
+{
+    conn->_triggerNotifierWorker( CM_EVENT );
+}
+
+void RDMAConnection::_triggerNotifierWorker( Events which )
+{
+    LBASSERT( which != BUF_EVENT );
+
+    if ( which == CM_EVENT )
+    {
+        _eventFlag = MASK_CM_EVENT | _eventFlag;
+        UnregisterWait( _cmWaitObj );
+    }
+    if ( which == CQ_EVENT )
+    {
+        _eventFlag = MASK_CQ_EVENT | _eventFlag;
+        UnregisterWait( _cqWaitObj );
+    }
+    _event->set();
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 
 void RDMAConnection::_showStats( )
@@ -2178,7 +2319,11 @@ void BufferPool::clear( )
     _mr = NULL;
 
     if( NULL != _buffer )
+#ifdef _WIN32
+        _aligned_free( _buffer );
+#else
         ::free( _buffer );
+#endif
     _buffer = NULL;
 }
 
@@ -2191,13 +2336,23 @@ bool BufferPool::resize( ibv_pd *pd, uint32_t num_bufs )
         _num_bufs = num_bufs;
         _ring.clear( _num_bufs );
 
+#ifdef _WIN32
+        _buffer = _aligned_malloc((size_t)( _num_bufs * _buffer_size ),
+            boost::interprocess::mapped_region::get_page_size());
+        if ( !_buffer )
+        {
+            LBERROR << "_aligned_malloc : Couldn't allocate aligned memory. " 
+                    << lunchbox::sysError << std::endl;
+            goto err;
+        }
+#else
         if( ::posix_memalign( &_buffer, (size_t)::getpagesize( ),
                 (size_t)( _num_bufs * _buffer_size )))
         {
             LBERROR << "posix_memalign : " << lunchbox::sysError << std::endl;
             goto err;
         }
-
+#endif
         ::memset( _buffer, 0xff, (size_t)( _num_bufs * _buffer_size ));
         _mr = ::ibv_reg_mr( pd, _buffer, (size_t)( _num_bufs * _buffer_size ),
             IBV_ACCESS_LOCAL_WRITE );
@@ -2222,8 +2377,13 @@ err:
 RingBuffer::RingBuffer( int access )
     : _access( access )
     , _size( 0 )
+#ifdef _WIN32
+    , _mapping( 0 )
+    , _map( 0 )
+#else
     , _map( MAP_FAILED )
-    , _mr( NULL )
+#endif
+    , _mr( 0 )
 {
 }
 
@@ -2238,10 +2398,22 @@ void RingBuffer::clear( )
         LBWARN << "rdma_dereg_mr : " << lunchbox::sysError << std::endl;
     _mr = NULL;
 
+#ifdef _WIN32
+    if ( _map )
+    {
+        UnmapViewOfFile( static_cast<char*>( _map ));
+        UnmapViewOfFile( static_cast<char*>( _map ) + _size );
+    }
+    if ( _mapping )
+        CloseHandle( _mapping );
+
+    _map = 0;
+    _mapping = 0;
+#else
     if(( MAP_FAILED != _map ) && ::munmap( _map, _size << 1 ))
         LBWARN << "munmap : " << lunchbox::sysError << std::endl;
     _map = MAP_FAILED;
-
+#endif
     _size = 0;
 }
 
@@ -2254,6 +2426,28 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
 
     if( size )
     {
+#ifdef _WIN32
+        uint32_t num_retries = RINGBUFFER_ALLOC_RETRIES;
+        while (!_map && num_retries-- != 0)
+        {
+            void *target_addr = determineViableAddr( size * 2 );
+            if (target_addr)
+                allocAt( size, target_addr );
+        }
+
+        if ( !_map )
+        {
+            LBERROR << "Couldn't allocate desired RingBuffer memory after " 
+                    << RINGBUFFER_ALLOC_RETRIES << " retries." << std::endl;
+        }
+        else
+        {
+            LBINFO << "Allocated Ringbuffer memory in " 
+                    << ( RINGBUFFER_ALLOC_RETRIES - num_retries ) << " tries."
+                    << std::endl;
+            ok = true;
+        }
+#else
         void *addr1, *addr2;
         char path[] = "/dev/shm/co-rdma-buffer-XXXXXX";
 
@@ -2305,15 +2499,15 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
             goto out;
         }
 
-        _mr = ::ibv_reg_mr( pd, _map, _size << 1, _access );
+        LBASSERT( addr1 == _map );
+        LBASSERT( addr2 == (void *)( (uintptr_t)_map + _size ));
+#endif
+        _mr = ::ibv_reg_mr( pd, _map, _size, _access );
         if( NULL == _mr )
         {
             LBERROR << "ibv_reg_mr : " << lunchbox::sysError << std::endl;
             goto out;
         }
-
-        LBASSERT( addr1 == _map );
-        LBASSERT( addr2 == (void *)( (uintptr_t)_map + _size ));
 
         ::memset( _map, 0, _size );
         *reinterpret_cast< uint8_t * >( _map ) = 0x45;
@@ -2324,9 +2518,80 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
     ok = true;
 
 out:
+#ifndef _WIN32
     if(( fd >= 0 ) && TEMP_FAILURE_RETRY( ::close( fd )))
         LBWARN << "close : " << lunchbox::sysError << std::endl;
-
+#endif
     return ok;
 }
+
+#ifdef _WIN32
+void* RingBuffer::determineViableAddr( size_t size )
+{
+    void *ptr = VirtualAlloc(0, size, MEM_RESERVE, PAGE_NOACCESS);
+    if (!ptr)
+        return 0;
+
+    VirtualFree(ptr, 0, MEM_RELEASE);
+    return ptr;
+}
+
+void RingBuffer::allocAt( size_t size, void* desiredAddr )
+{
+    // if we already hold one allocation, refuse to make another.
+    LBASSERT( !_map );
+    LBASSERT( !_mapping );
+    if ( _map || _mapping )
+        return;
+
+    // is ring_size a multiple of 64k? if not, this won't ever work!
+    if (( size & 0xffff ) != 0 )
+        return;
+
+    // try to allocate and map our space
+    size_t alloc_size = size * 2;
+    _mapping = CreateFileMappingA(  INVALID_HANDLE_VALUE, 
+                                    0, 
+                                    PAGE_READWRITE, 
+                                    (unsigned long long)alloc_size >> 32, 
+                                    alloc_size & 0xffffffffu, 
+                                    0 );
+
+    if ( !_mapping )
+    {
+        LBERROR << "CreateFileMappingA failed" << std::endl;
+        goto err;
+    }
+
+    _map = MapViewOfFileEx( _mapping, 
+                            FILE_MAP_ALL_ACCESS, 
+                            0, 0, 
+                            size, 
+                            desiredAddr );
+
+    if ( !_map )
+    {
+        LBERROR << "First MapViewOfFileEx failed" << std::endl;
+        goto err;
+    }
+
+    if (!MapViewOfFileEx(   _mapping, 
+                            FILE_MAP_ALL_ACCESS, 
+                            0, 0, 
+                            size, 
+                            (char *)desiredAddr + size))
+    {
+        LBERROR << "Second MapViewOfFileEx failed" << std::endl;
+        goto err;
+    }
+
+    _size = size;
+    return;
+err:
+    // something went wrong - clean up
+    clear();
+}
+#endif
+
+
 } // namespace co

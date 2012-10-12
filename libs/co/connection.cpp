@@ -30,6 +30,8 @@
 
 #include <co/exception.h>
 
+#define CO_USE_OFED
+
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"
 #endif

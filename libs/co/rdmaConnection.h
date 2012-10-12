@@ -28,7 +28,9 @@
 
 #include <rdma/rdma_cma.h>
 
+#ifndef _WIN32
 #include <netdb.h>
+#endif
 
 namespace co
 {
@@ -91,8 +93,13 @@ public:
 private:
     const int _access;
     size_t _size;
-    void *_map;
+    void* _map;
     struct ibv_mr *_mr;
+#ifdef _WIN32
+    HANDLE _mapping;
+    void* determineViableAddr( size_t size );
+    void  allocAt( size_t size, void* desiredAddr );
+#endif
 }; // RingBuffer
 
 /**
@@ -109,6 +116,8 @@ struct RDMAConnParamData
 struct RDMASetupPayload;
 struct RDMAFCPayload;
 struct RDMAMessage;
+
+class EventConnection;
 
 /**
  * An RDMA connection implementation.
@@ -165,7 +174,7 @@ protected:
     virtual int64_t write   ( const void* buffer, const uint64_t bytes );
 
 public:
-    virtual Notifier getNotifier( ) const { return _notifier; };
+    virtual Notifier getNotifier( ) const;
 
 protected:
     virtual ~RDMAConnection( );
@@ -247,8 +256,19 @@ private:
     bool _incrAvailableBytes( const uint64_t b );
     uint64_t _getAvailableBytes( );
 
+#ifdef _WIN32
+    static void _triggerNotifierCQ( RDMAConnection* conn );
+    static void _triggerNotifierCM( RDMAConnection* conn );
+    void _triggerNotifierWorker( Events which );
+#endif
+
 private:
+#ifdef _WIN32 
+    typedef lunchbox::RefPtr< EventConnection > EventConnectionPtr;
+    EventConnectionPtr _event;
+#else
     Notifier _notifier;
+#endif
 
     /* Protect RDMA/Verbs vars from multiple threads */
     lunchbox::Lock _poll_lock;
@@ -269,7 +289,11 @@ private:
     struct ibv_cq *_cq;
     struct ibv_pd *_pd;
 
-    int _event_fd;
+//#ifndef _WIN32
+//    int _pipe_fd[2];
+//#endif
+    lunchbox::a_int32_t _availBytes;
+    lunchbox::a_int32_t _eventFlag;
 
     struct RDMAConnParamData _cpd;
     bool _established;
@@ -320,6 +344,11 @@ private:
     inline uint32_t _drain( void *buffer, const uint32_t bytes );
     /* copy bytes in to the source buffer */
     inline uint32_t _fill( const void *buffer, const uint32_t bytes );
+
+#ifdef WIN32
+    HANDLE _cqWaitObj;
+    HANDLE _cmWaitObj;
+#endif
 
 private:
     struct stats
