@@ -68,7 +68,7 @@ public:
      * @return the popped command, or 0 if the queue was empty.
      * @version 1.1.6
      */
-    CO_API Command* pop();
+    CO_API Command* pop( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
 private:
     detail::QueueSlave* const _impl;

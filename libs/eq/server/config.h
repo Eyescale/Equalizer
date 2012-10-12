@@ -216,6 +216,8 @@ namespace server
 
         bool _needsFinish; //!< true after runtime changes
 
+        int64_t _lastCheck;
+
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
@@ -262,6 +264,7 @@ namespace server
         bool _cmdFinishAllFrames( co::Command& command ); 
         bool _cmdCreateReply( co::Command& command );
         bool _cmdFreezeLoadBalancing( co::Command& command );
+        bool _cmdCheckFrame( co::Command& command );
 
         LB_TS_VAR( _cmdThread );
         LB_TS_VAR( _mainThread );

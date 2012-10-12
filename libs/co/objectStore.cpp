@@ -180,31 +180,33 @@ NodeID ObjectStore::_findMasterNodeID( const UUID& identifier )
     // OPT: look up locally first?
     Nodes nodes;
     _localNode->getNodes( nodes );
+
+    NodeFindMasterNodeIDPacket packet;
+    packet.requestID = _localNode->registerRequest();
+    packet.identifier = identifier;
+
+    NodeID masterNodeID = base::UUID::ZERO;
     
     // OPT: send to multiple nodes at once?
     for( NodesIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr node = *i;
-        NodeFindMasterNodeIDPacket packet;
-        packet.requestID = _localNode->registerRequest();
-        packet.identifier = identifier;
+        EQLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
+                             << std::endl;
 
-        LBLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
-                             << " req " << packet.requestID << std::endl;
         node->send( packet );
-
-        NodeID masterNodeID = UUID::ZERO;
-        _localNode->waitRequest( packet.requestID, masterNodeID );
-
-        if( masterNodeID != UUID::ZERO )
-        {
-            LBLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
-                                 << masterNodeID << std::endl;
-            return masterNodeID;
-        }
     }
 
-    return UUID::ZERO;
+    _localNode->waitRequest( packet.requestID, masterNodeID );
+
+    if( masterNodeID != base::UUID::ZERO )
+    {
+        EQLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
+            << masterNodeID << std::endl;
+        return masterNodeID;
+    }
+
+    return base::UUID::ZERO;
 }
 
 //---------------------------------------------------------------------------
@@ -390,8 +392,8 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     if( !master || !master->isConnected( ))
     {
         LBWARN << "Mapping of object " << id << " failed, invalid master node"
-               << std::endl;
-        return LB_UNDEFINED_UINT32;
+               << (master ? master->getNodeID() : NodeID::ZERO) << std::endl;
+        return EQ_UNDEFINED_UINT32;
     }
 
     NodeMapObjectPacket packet;
@@ -655,6 +657,8 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
     LBASSERT( id.isGenerated() );
 
     NodeFindMasterNodeIDReplyPacket reply( packet );
+    reply.masterNodeID = base::UUID::ZERO;
+
     {
         lunchbox::ScopedFastRead mutex( _objects );
         ObjectsHashCIter i = _objects->find( id );
@@ -678,12 +682,14 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
                 if( reply.masterNodeID != UUID::ZERO )
                     break;
             }
+    
+            EQLOG( LOG_OBJECTS ) << "Found object " << id << " master:"
+                                 << reply.masterNodeID << std::endl;
+
+            command.getNode()->send( reply );
         }
     }
 
-    LBLOG( LOG_OBJECTS ) << "Object " << id << " master " << reply.masterNodeID
-                         << " req " << reply.requestID << std::endl;
-    command.getNode()->send( reply );
     return true;
 }
 

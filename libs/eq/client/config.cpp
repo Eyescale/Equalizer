@@ -465,17 +465,20 @@ uint32_t Config::finishFrame()
             _impl->finishedFrame.waitGE( frameToFinish );
         else
         {
-            const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
+            //const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
             const int64_t time = getTime() + timeout;
 
-            while( !_impl->finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
+            while( !_impl->finishedFrame.timedWaitGE( frameToFinish, timeout ))
             {
-                if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
+                ConfigCheckFramePacket packet;
+                packet.frameNumber = frameToFinish;
+                send( getServer(), packet );
+                /*if( !getLocalNode()->pingIdleNodes( ))
                 {
                     LBWARN << "Timeout waiting for nodes to finish frame "
                            << frameToFinish << std::endl;
                     break;
-                }
+                }*/
             }
         }
         LBLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "

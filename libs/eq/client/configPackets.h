@@ -217,7 +217,17 @@ namespace eq
         co::Object*     object;
     };
 
-    inline std::ostream& operator << ( std::ostream& os,
+    struct ConfigCheckFramePacket : public ConfigPacket
+    {
+        ConfigCheckFramePacket()
+        {
+            command       = fabric::CMD_CONFIG_CHECK_FRAME;
+            size          = sizeof( ConfigCheckFramePacket );
+        }
+        uint32_t frameNumber;
+    };
+
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const ConfigFrameFinishPacket* packet )
     {
         os << (ConfigPacket*)packet << " frame " << packet->frameNumber;

@@ -2253,9 +2253,9 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet =
         command.getModifiable< ChannelFrameTilesPacket >();
-    LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
-                       << packet << std::endl;
-
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel frame tiles "
+                                      << getName() <<  " " << packet
+                                      << std::endl;
     _frameTiles( packet );
     return true;
 }

@@ -24,6 +24,7 @@
 #include "dataIStream.h"
 #include "global.h"
 #include "queuePackets.h"
+#include "exception.h"
 
 namespace co
 {
@@ -82,7 +83,7 @@ void QueueSlave::applyInstanceData( co::DataIStream& is )
     _impl->master = localNode->connect( masterNodeID );
 }
 
-Command* QueueSlave::pop()
+Command* QueueSlave::pop( const uint32_t timeout )
 {
     static lunchbox::a_int32_t _request;
     const int32_t request = ++_request;
@@ -100,7 +101,18 @@ Command* QueueSlave::pop()
             send( _impl->master, packet );
         }
 
-        Command* cmd = _impl->queue.pop();
+        Command* cmd = 0;
+  
+        try
+        {
+            cmd = _impl->queue.pop( timeout );
+        }
+        catch( const co::Exception& e )
+        {
+            EQWARN << e.what() << std::endl;
+            return 0;
+        }
+
         if( (*cmd)->command == CMD_QUEUE_ITEM )
             return cmd;
     
