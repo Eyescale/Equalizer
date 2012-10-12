@@ -88,6 +88,7 @@ RSPConnection::RSPConnection()
         , _readBuffer( 0 )
         , _readBufferPos( 0 )
         , _sequence( 0 )
+        , _writeTimeOut( Global::IATTR_RSP_ACK_TIMEOUT*EQ_RSP_MAX_TIMEOUTS*2 )
 {
     _buildNewID();
     _description->type = CONNECTIONTYPE_RSP;
@@ -105,9 +106,6 @@ RSPConnection::RSPConnection()
     LBASSERT( sizeof( DatagramNack ) <= size_t( _mtu ));
     LBLOG( LOG_RSP ) << "New RSP connection, " << _buffers.size()
                      << " buffers of " << _mtu << " bytes" << std::endl;
-    
-    // ensure we have a handleConnectedTimeout before the write pop
-    _writeTimeOut = Global::IATTR_RSP_ACK_TIMEOUT * EQ_RSP_MAX_TIMEOUTS * 2;
 }
 
 RSPConnection::~RSPConnection()
@@ -460,7 +458,7 @@ void RSPConnection::_handleInitTimeout( )
 
 void RSPConnection::_clearWriteQueues()
 {
-    while ( !_threadBuffers.isEmpty() )
+    while ( !_threadBuffers.isEmpty( ))
     {
         Buffer* buffer;
         _threadBuffers.pop( buffer );
@@ -484,7 +482,7 @@ void RSPConnection::_handleConnectedTimeout()
 
     if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
-        EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
+        LBERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         bool all = true;
         for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i)
         {
@@ -496,24 +494,24 @@ void RSPConnection::_handleConnectedTimeout()
             }
         }
 
-        // if all connections failed we probably got disconnected -> close and exit
-        // else close all failed child connections
+        // if all connections failed we probably got disconnected -> close and
+        // exit else close all failed child connections
         if ( all )
         {
-	        _sendSimpleDatagram( ID_EXIT, _id );
-    	    _appBuffers.pushFront( 0 ); // unlock write function
+            _sendSimpleDatagram( ID_EXIT, _id );
+            _appBuffers.pushFront( 0 ); // unlock write function
 
-            RSPConnectionsCIter i =_children.begin();
-            for( ; i !=_children.end(); ++i)
-        	{
-            	RSPConnectionPtr child = *i;
+            for( RSPConnectionsCIter i = _children.begin();
+                 i !=_children.end(); ++i)
+            {
+                RSPConnectionPtr child = *i;
                 child->_state = STATE_CLOSING;
-            	child->_appBuffers.push( 0 ); // unlock read func
-        	}
+                child->_appBuffers.push( 0 ); // unlock read func
+            }
 
             _clearWriteQueues();
-	        _ioService.stop();
-    	}
+            _ioService.stop();
+        }
         else
         {
             RSPConnectionsCIter i =_children.begin();
@@ -617,7 +615,7 @@ void RSPConnection::_processOutgoing()
     _clock.reset();
     ++_timeouts;
     if ( _timeouts < EQ_RSP_MAX_TIMEOUTS )
-    	_sendAckRequest();
+        _sendAckRequest();
     _setTimeout( timeout );
 }
 
@@ -1530,7 +1528,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         {
             EQERROR << "Timeout while writing" << std::endl;
             buffer = 0;
-        }   
+        }
 
         if( !buffer )
         {

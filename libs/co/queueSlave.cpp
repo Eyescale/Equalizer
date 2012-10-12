@@ -101,30 +101,27 @@ Command* QueueSlave::pop( const uint32_t timeout )
             send( _impl->master, packet );
         }
 
-        Command* cmd = 0;
-  
         try
         {
-            cmd = _impl->queue.pop( timeout );
+            Command* cmd = _impl->queue.pop( timeout );
+            if( (*cmd)->command == CMD_QUEUE_ITEM )
+                return cmd;
+    
+            LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+            const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
+            if( packet->requestID == request )
+            {
+                cmd->release();
+                return 0;
+            }
+            // else left-over or not our empty packet, discard and retry
+            cmd->release();
         }
         catch( const co::Exception& e )
         {
             EQWARN << e.what() << std::endl;
             return 0;
         }
-
-        if( (*cmd)->command == CMD_QUEUE_ITEM )
-            return cmd;
-    
-        LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
-        const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
-        if( packet->requestID == request )
-        {
-            cmd->release();
-            return 0;
-        }
-        // else left-over or not our empty packet, discard and retry
-        cmd->release();
     }
 }
 

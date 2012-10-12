@@ -186,7 +186,7 @@ NodeID ObjectStore::_findMasterNodeID( const UUID& identifier )
     packet.identifier = identifier;
 
     NodeID masterNodeID = base::UUID::ZERO;
-    
+
     // OPT: send to multiple nodes at once?
     for( NodesIter i = nodes.begin(); i != nodes.end(); ++i )
     {
@@ -393,7 +393,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     {
         LBWARN << "Mapping of object " << id << " failed, invalid master node"
                << (master ? master->getNodeID() : NodeID::ZERO) << std::endl;
-        return EQ_UNDEFINED_UINT32;
+        return LB_UNDEFINED_UINT32;
     }
 
     NodeMapObjectPacket packet;
@@ -682,7 +682,7 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
                 if( reply.masterNodeID != UUID::ZERO )
                     break;
             }
-    
+
             EQLOG( LOG_OBJECTS ) << "Found object " << id << " master:"
                                  << reply.masterNodeID << std::endl;
 
