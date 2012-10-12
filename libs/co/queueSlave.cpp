@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -100,30 +100,27 @@ Command* QueueSlave::pop( const uint32_t timeout )
             send( _impl->master, packet );
         }
 
-        Command* cmd = 0;
-  
         try
         {
-            cmd = _impl->queue.pop( timeout );
+            Command* cmd = _impl->queue.pop( timeout );
+            if( (*cmd)->command == CMD_QUEUE_ITEM )
+                return cmd;
+
+            LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+            const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
+            if( packet->requestID == request )
+            {
+                cmd->release();
+                return 0;
+            }
+            // else left-over or not our empty packet, discard and retry
+            cmd->release();
         }
         catch( const co::Exception& e )
         {
             EQWARN << e.what() << std::endl;
             return 0;
         }
-
-        if( (*cmd)->command == CMD_QUEUE_ITEM )
-            return cmd;
-    
-        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
-        const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
-        if( packet->requestID == request )
-        {
-            cmd->release();
-            return 0;
-        }
-        // else left-over or not our empty packet, discard and retry
-        cmd->release();
     }
 }
 
