@@ -911,8 +911,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     }
     validatePixelData( buffer ); // alloc memory for pixels
 
-    uint64_t outDims[4] = { memory.pvp.x, memory.pvp.w,
-                            memory.pvp.y, memory.pvp.h };
+    uint64_t outDims[4] = { uint64_t(memory.pvp.x), uint64_t(memory.pvp.w),
+                            uint64_t(memory.pvp.y), uint64_t(memory.pvp.h) };
     const uint64_t nBlocks = pixels.compressedSize.size();
 
     LBASSERT( nBlocks == pixels.compressedData.size( ));
@@ -1043,8 +1043,10 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
-    const uint64_t inDims[4] = { memory.pvp.x, memory.pvp.w,
-                                 memory.pvp.y, memory.pvp.h };
+    const uint64_t inDims[4] = { uint64_t(memory.pvp.x),
+                                 uint64_t(memory.pvp.w),
+                                 uint64_t(memory.pvp.y),
+                                 uint64_t(memory.pvp.h) };
     attachment.compressor->compress( memory.pixels, inDims,
                                      memory.compressorFlags );
 

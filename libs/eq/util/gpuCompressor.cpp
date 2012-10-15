@@ -145,7 +145,8 @@ bool GPUCompressor::startDownload( const fabric::PixelViewport& pvpIn,
     LBASSERT( _plugin );
     LBASSERT( _glewContext );
 
-    const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
+    const uint64_t inDims[4] = { uint64_t(pvpIn.x), uint64_t(pvpIn.w),
+                                 uint64_t(pvpIn.y), uint64_t(pvpIn.h) }; 
 
     if( _info->capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD )
     {
@@ -174,7 +175,8 @@ void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
 
     if( _info->capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD )
     {
-        const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
+        const uint64_t inDims[4] = { uint64_t(pvpIn.x), uint64_t(pvpIn.w),
+                                     uint64_t(pvpIn.y), uint64_t(pvpIn.h) }; 
         uint64_t outDims[4] = { 0, 0, 0, 0 };
         _plugin->finishDownload( _instance, _name, _glewContext, inDims,
                                  flags | EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD,
@@ -195,8 +197,10 @@ void GPUCompressor::upload( const void*                  buffer,
     LBASSERT( _plugin );
     LBASSERT( _glewContext );
 
-    const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
-    uint64_t outDims[4] = { pvpOut.x, pvpOut.w, pvpOut.y, pvpOut.h };
+    const uint64_t inDims[4] = { uint64_t(pvpIn.x), uint64_t(pvpIn.w),
+                                 uint64_t(pvpIn.y), uint64_t(pvpIn.h) }; 
+    uint64_t outDims[4] = { uint64_t(pvpOut.x), uint64_t(pvpOut.w),
+                            uint64_t(pvpOut.y), uint64_t(pvpOut.h) };
     _plugin->upload( _instance, _name, _glewContext, buffer, inDims,
                      flags, outDims, destination );
 }
