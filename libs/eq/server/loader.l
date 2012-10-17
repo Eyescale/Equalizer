@@ -297,6 +297,6 @@ size                            { return EQTOKEN_SIZE; }
 [\(\){}\[\]]                    { return *yytext; }
 [\n]                            { ++yylineno; }
 [ \t]                           { ; }
-[/][/]|[#]                      { while( yyinput() != '\n' ) {;} ++yylineno; }
+[/][/]|[#]                      { while( yyinput() != '\n' ) {} ++yylineno; }
 
 %%

@@ -822,7 +822,7 @@ void Channel::declareRegion( const PixelViewport& region )
 #ifndef NDEBUG
         const PixelViewport pvpBefore = getRegion();
 #endif
-        while( _removeOverlap( regions )) { /* nop */ ; }
+        while( _removeOverlap( regions )) { /* nop */ }
 
 #ifndef NDEBUG
         LBASSERT( !_hasOverlap( regions ));
