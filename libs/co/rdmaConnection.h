@@ -288,6 +288,7 @@ private:
     struct ibv_comp_channel *_cc;
     struct ibv_cq *_cq;
     struct ibv_pd *_pd;
+    struct ibv_wc* _wcs;
 
 //#ifndef _WIN32
 //    int _pipe_fd[2];
@@ -346,7 +347,7 @@ private:
     inline uint32_t _fill( const void *buffer, const uint32_t bytes );
 
 #ifdef WIN32
-    HANDLE _cqWaitObj;
+    HANDLE _ccWaitObj;
     HANDLE _cmWaitObj;
 #endif
 

@@ -187,6 +187,7 @@ RDMAConnection::RDMAConnection( )
     , _cc( NULL )
     , _cq( NULL )
     , _pd( NULL )
+    , _wcs ( 0 )
     , _established( false )
     , _depth( 0L )
     , _writes( 0L )
@@ -204,7 +205,7 @@ RDMAConnection::RDMAConnection( )
     , _rkey( 0ULL )
 #ifdef _WIN32
     , _cmWaitObj( 0 )
-    , _cqWaitObj( 0 )
+    , _ccWaitObj( 0 )
 #endif
 {
 //#ifndef _WIN32
@@ -496,6 +497,9 @@ ConnectionPtr RDMAConnection::acceptSync( )
 
 out:
     _new_cm_id = NULL;
+#ifdef _WIN32
+    _event->reset();
+#endif
 
     return newConnection;
 }
@@ -773,6 +777,17 @@ void RDMAConnection::_cleanup( )
         _completions = 0U;
     }
 
+    delete[] _wcs;
+    _wcs = 0;
+
+    if ( _ccWaitObj )
+        UnregisterWait( _ccWaitObj );
+    _ccWaitObj = 0;
+
+    if ( _cmWaitObj )
+        UnregisterWait( _cmWaitObj );
+    _cmWaitObj = 0;
+
     if( NULL != _cm_id )
         ::rdma_destroy_ep( _cm_id );
     _cm_id = NULL;
@@ -950,15 +965,15 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
 
     LBASSERT( _established );
 
-    if( !_postSetup( ))
-    {
-        LBERROR << "Failed to post setup message." << std::endl;
-        goto err;
-    }
-
     if( !_waitRecvSetup( ))
     {
         LBERROR << "Failed to receive setup message." << std::endl;
+        goto err;
+    }
+
+    if( !_postSetup( ))
+    {
+        LBERROR << "Failed to post setup message." << std::endl;
         goto err;
     }
 
@@ -1085,8 +1100,8 @@ bool RDMAConnection::_createEventChannel( )
             _cm->channel.Event, 
             WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
             this, 
-            0, 
-            WT_EXECUTEINWAITTHREAD ))
+            INFINITE, 
+            WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
     {
         LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
                 << std::endl;
@@ -1159,12 +1174,12 @@ bool RDMAConnection::_initVerbs( )
 
 #ifdef _WIN32
     if ( !RegisterWaitForSingleObject( 
-        &_cqWaitObj, 
+        &_ccWaitObj, 
         _cc->comp_channel.Event, 
         WAITORTIMERCALLBACK( &_triggerNotifierCQ ), 
         this, 
-        0, 
-        WT_EXECUTEINWAITTHREAD ))
+        INFINITE, 
+        WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
     {
         LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
             << std::endl;
@@ -1201,6 +1216,8 @@ bool RDMAConnection::_initVerbs( )
         LBERROR << "ibv_req_notify_cq : " << lunchbox::sysError << std::endl;
         goto err;
     }
+
+    _wcs = new struct ibv_wc[ _depth ];
 
     return true;
 
@@ -1370,13 +1387,13 @@ bool RDMAConnection::_connect( )
     //conn_param.retry_count = 5;
     //conn_param.rnr_retry_count = 7;
 
-    LBINFO << "Connect on source lid : " << std::showbase
-        << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
-        << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
-        << "to dest lid : "
-        << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
-        << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
-        << std::endl;
+    //LBINFO << "Connect on source lid : " << std::showbase
+    //    << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
+    //    << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+    //    << "to dest lid : "
+    //    << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
+    //    << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+    //    << std::endl;
 
     if( ::rdma_connect( _cm_id, &conn_param ))
     {
@@ -1570,9 +1587,13 @@ bool RDMAConnection::_postReceives( const uint32_t count )
         goto err;
     }
 
+    delete[] sge;
+    delete[] wrs;
     return true;
 
 err:
+    delete[] sge;
+    delete[] wrs;
     return false;
 }
 
@@ -1853,6 +1874,7 @@ bool RDMAConnection::_checkEvents( eventset &events )
 
     return true;
 #else
+    _eventFlag = 0;
     struct epoll_event evts[2];
 
     int nfds = TEMP_FAILURE_RETRY( ::epoll_wait( _notifier, evts, 3, 0 ));
@@ -1947,8 +1969,8 @@ bool RDMAConnection::_createBytesAvailableFD( )
 bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 {
 //#ifdef _WIN32
-    _eventFlag = _eventFlag & MASK_BUF_EVENT;
-    _availBytes += b;
+    _eventFlag = _eventFlag | MASK_BUF_EVENT;
+    _availBytes = b;
 #ifdef _WIN32
     _event->set();
 #else
@@ -2104,6 +2126,32 @@ bool RDMAConnection::_doCMEvent( enum rdma_cm_event_type expected )
     if( RDMA_CM_EVENT_REJECTED == event->event )
         LBINFO << "Connection reject status : " << event->status << std::endl;
 
+#ifdef _WIN32
+    EnterCriticalSection( &_cm->channel.Lock );
+    // reset event
+    if (!_cm->channel.Head)
+    {
+        ResetEvent( _cm->channel.Event );
+        LBERROR << "RESET EC EVENT" << std::endl;
+    }
+    // rearm event callback
+    UnregisterWait( _cmWaitObj );
+    if ( !RegisterWaitForSingleObject( 
+        &_cmWaitObj, 
+        _cm->channel.Event, 
+        WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
+        this, 
+        INFINITE, 
+        WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
+    {
+        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
+            << std::endl;
+        return false;
+    }
+    _eventFlag = _eventFlag & ~MASK_CM_EVENT;
+    LeaveCriticalSection ( &_cm->channel.Lock );
+#endif
+
     if( ::rdma_ack_cm_event( event ))
         LBWARN << "rdma_ack_cm_event : "  << lunchbox::sysError << std::endl;
 
@@ -2137,6 +2185,30 @@ bool RDMAConnection::_rearmCQ( )
         goto err;
     }
 
+#ifdef _WIN32
+    EnterCriticalSection( &_cc->comp_channel.Lock );
+    //if (!_cc->comp_channel.Head)
+    {
+        ResetEvent( _cc->comp_channel.Event );
+        LBERROR << "RESET CQ EVENT" << std::endl;
+    }
+    UnregisterWait( _ccWaitObj );
+    if ( !RegisterWaitForSingleObject( 
+        &_ccWaitObj, 
+        _cc->comp_channel.Event, 
+        WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
+        this, 
+        INFINITE, 
+        WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
+    {
+        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
+            << std::endl;
+        return false;
+    }
+    _eventFlag = _eventFlag & ~MASK_CQ_EVENT;
+    LeaveCriticalSection ( &_cc->comp_channel.Lock );
+#endif
+
     return true;
 
 err:
@@ -2145,7 +2217,6 @@ err:
 
 bool RDMAConnection::_checkCQ( bool drain )
 {
-    ibv_wc* wcs = new ibv_wc[_depth];
     uint32_t num_recvs;
     int count;
 
@@ -2156,7 +2227,7 @@ bool RDMAConnection::_checkCQ( bool drain )
 
 repoll:
     /* CHECK RECEIVE COMPLETIONS */
-    count = ::ibv_poll_cq( _cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
+    count = ::ibv_poll_cq( _cq, _depth, _wcs );
     if( count < 0 )
     {
         LBERROR << "ibv_poll_cq : " << lunchbox::sysError << std::endl;
@@ -2166,7 +2237,7 @@ repoll:
     num_recvs = 0UL;
     for( int i = 0; i != count ; i++ )
     {
-        struct ibv_wc &wc = wcs[i];
+        struct ibv_wc &wc = _wcs[i];
 
         if( IBV_WC_SUCCESS != wc.status )
         {
@@ -2187,6 +2258,12 @@ repoll:
 
         LBASSERT( IBV_WC_SUCCESS == wc.status );
 
+#ifdef _WIN32 //----------------------------------------------------------------
+        // WINDOWS IBV API WORKAROUND. 
+        // TODO: remove this as soon as IBV API is fixed
+        if ( wc.opcode == IBV_WC_RECV && wc.wc_flags == IBV_WC_WITH_IMM )
+            wc.opcode = IBV_WC_RECV_RDMA_WITH_IMM;
+#endif //-----------------------------------------------------------------------
 
         if( IBV_WC_RECV_RDMA_WITH_IMM == wc.opcode )
             _recvRDMAWrite( wc.imm_data );
@@ -2233,8 +2310,11 @@ uint32_t RDMAConnection::_drain( void *buffer, const uint32_t bytes )
 /* inline */
 uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 {
-    const uint32_t b = std::min( bytes, std::min( _sourceptr.negAvailable( ),
+    uint32_t b = std::min( bytes, std::min( _sourceptr.negAvailable( ),
         _rptr.negAvailable( )));
+#ifdef _WIN32
+    b = std::min( b, (uint32_t)(_sourcebuf.getSize() - _sourceptr.ptr( _sourceptr.HEAD )));
+#endif
     ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.HEAD )), buffer, b );
     _sourceptr.incrHead( b );
@@ -2268,12 +2348,10 @@ void RDMAConnection::_triggerNotifierWorker( Events which )
     if ( which == CM_EVENT )
     {
         _eventFlag = MASK_CM_EVENT | _eventFlag;
-        UnregisterWait( _cmWaitObj );
     }
     if ( which == CQ_EVENT )
     {
         _eventFlag = MASK_CQ_EVENT | _eventFlag;
-        UnregisterWait( _cqWaitObj );
     }
     _event->set();
 }
@@ -2447,6 +2525,8 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
                     << std::endl;
             ok = true;
         }
+
+        _mr = ::ibv_reg_mr( pd, _map, _size, _access );
 #else
         void *addr1, *addr2;
         char path[] = "/dev/shm/co-rdma-buffer-XXXXXX";
@@ -2501,8 +2581,9 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
 
         LBASSERT( addr1 == _map );
         LBASSERT( addr2 == (void *)( (uintptr_t)_map + _size ));
+
+        _mr = ::ibv_reg_mr( pd, _map, _size << 1, _access );
 #endif
-        _mr = ::ibv_reg_mr( pd, _map, _size, _access );
         if( NULL == _mr )
         {
             LBERROR << "ibv_reg_mr : " << lunchbox::sysError << std::endl;
