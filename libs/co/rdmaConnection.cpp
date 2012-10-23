@@ -497,7 +497,7 @@ ConnectionPtr RDMAConnection::acceptSync( )
 
 out:
     _new_cm_id = NULL;
-#ifdef _WIN32
+#ifdef _WIN32    
     _event->reset();
 #endif
 
@@ -780,6 +780,7 @@ void RDMAConnection::_cleanup( )
     delete[] _wcs;
     _wcs = 0;
 
+#ifdef _WIN32
     if ( _ccWaitObj )
         UnregisterWait( _ccWaitObj );
     _ccWaitObj = 0;
@@ -787,6 +788,7 @@ void RDMAConnection::_cleanup( )
     if ( _cmWaitObj )
         UnregisterWait( _cmWaitObj );
     _cmWaitObj = 0;
+#endif
 
     if( NULL != _cm_id )
         ::rdma_destroy_ep( _cm_id );
@@ -2130,10 +2132,8 @@ bool RDMAConnection::_doCMEvent( enum rdma_cm_event_type expected )
     EnterCriticalSection( &_cm->channel.Lock );
     // reset event
     if (!_cm->channel.Head)
-    {
         ResetEvent( _cm->channel.Event );
-        LBERROR << "RESET EC EVENT" << std::endl;
-    }
+
     // rearm event callback
     UnregisterWait( _cmWaitObj );
     if ( !RegisterWaitForSingleObject( 
@@ -2186,12 +2186,12 @@ bool RDMAConnection::_rearmCQ( )
     }
 
 #ifdef _WIN32
+    // reset event
     EnterCriticalSection( &_cc->comp_channel.Lock );
-    //if (!_cc->comp_channel.Head)
-    {
+    if (!_cc->comp_channel.Head)
         ResetEvent( _cc->comp_channel.Event );
-        LBERROR << "RESET CQ EVENT" << std::endl;
-    }
+
+    // rearm event callback
     UnregisterWait( _ccWaitObj );
     if ( !RegisterWaitForSingleObject( 
         &_ccWaitObj, 
