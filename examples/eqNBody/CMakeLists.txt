@@ -10,6 +10,24 @@ if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:LIBC;LIBCMT;MSVCRT)
 endif()
 
+# CUDA 4.x doesn't support gcc compilers greater than 4.4
+# This code snippet looks for gcc-4.4 and creates a sym link to it in the
+# build directory so nvcc can be told to search for the compiler in that path
+if (${CUDA_VERSION} VERSION_GREATER 4 AND CMAKE_COMPILER_IS_GNUCXX)
+  # Hint provided to avoid the symbolic link by ccache to be get first
+  find_program(GCC_4_4 gcc-4.4 HINTS /usr/bin)
+  mark_as_advanced(GCC_4_4)
+  if (NOT GCC_4_4)
+    message(WARNING
+      "Only gcc 4.4 is supported by CUDA 4.x. Please install your"
+      " distribution packages for gcc 4.4.")
+  else()
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${GCC_4_4}
+                    ${CMAKE_BINARY_DIR}/tmp/gcc)
+    list(APPEND CUDA_NVCC_FLAGS --compiler-bindir ${CMAKE_BINARY_DIR}/tmp)
+  endif()
+endif()
+
 cuda_compile(NBODY_FILES nbody.cu)
 
 eq_add_example(eqNBody
