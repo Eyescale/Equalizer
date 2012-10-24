@@ -1970,7 +1970,6 @@ bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
     _availBytes = b;
     _event->set();
 #else
-    LBERROR << "WRITING BYTES TO NOTIFIER" << std::endl;
     if( ::write( _pipe_fd[1], (const void *)&b, sizeof(b) ) != sizeof(b) )
     {
         LBERROR << "write : " << lunchbox::sysError << std::endl;
