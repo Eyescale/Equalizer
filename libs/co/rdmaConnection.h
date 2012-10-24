@@ -290,9 +290,9 @@ private:
     struct ibv_pd *_pd;
     struct ibv_wc* _wcs;
 
-//#ifndef _WIN32
-//    int _pipe_fd[2];
-//#endif
+#ifndef _WIN32
+    int _pipe_fd[2];
+#endif
     lunchbox::a_int32_t _availBytes;
     lunchbox::a_int32_t _eventFlag;
 
