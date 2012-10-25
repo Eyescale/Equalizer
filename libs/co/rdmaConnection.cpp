@@ -205,6 +205,8 @@ RDMAConnection::RDMAConnection( )
     , _rbase( 0ULL )
     , _rkey( 0ULL )
 #ifdef _WIN32
+    , _availBytes( 0 )
+    , _eventFlag( 0 )
     , _cmWaitObj( 0 )
     , _ccWaitObj( 0 )
 #endif
