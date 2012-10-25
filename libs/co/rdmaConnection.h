@@ -292,9 +292,11 @@ private:
 
 #ifndef _WIN32
     int _pipe_fd[2];
+#else
+    uint64_t _availBytes;
+    uint32_t _eventFlag;
+    lunchbox::SpinLock _eventFlagLock;
 #endif
-    lunchbox::a_int32_t _availBytes;
-    lunchbox::a_int32_t _eventFlag;
 
     struct RDMAConnParamData _cpd;
     bool _established;

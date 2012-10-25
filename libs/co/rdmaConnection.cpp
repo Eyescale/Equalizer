@@ -34,6 +34,7 @@
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 #include <sys/mman.h>
+#include <poll.h>
 #endif
 
 #include <errno.h>
@@ -623,6 +624,16 @@ retry:
     // Put back what wasn't taken (ensure the master notifier stays "hot").
     if( available_bytes > bytes_taken )
         _incrAvailableBytes( available_bytes - bytes_taken );
+#ifdef _WIN32
+    else
+    {
+        HANDLE lpHandles[2];
+        lpHandles[0] = _cc->comp_channel.Event;
+        lpHandles[1] = _cm->channel.Event;
+        if ( WaitForMultipleObjects( 2, lpHandles, false, 0 ) == WAIT_TIMEOUT )
+            _event->reset();
+    }
+#endif
 
     if( _established && _needFC( ) && !_postFC( bytes_taken ))
         LBWARN << "Error while posting flow control message." << std::endl;
@@ -1845,6 +1856,7 @@ bool RDMAConnection::_createNotifier( )
 {
 #ifdef _WIN32
     _event->connect();
+    _event->reset();
     return true;
 #else
     LBASSERT( _notifier < 0 );
@@ -1868,20 +1880,18 @@ bool RDMAConnection::_checkEvents( eventset &events )
     events.reset( );
 
 #ifdef _WIN32
-    uint32_t flags = _eventFlag;
-
-    if (( flags & MASK_BUF_EVENT ) != 0 )
+    lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+    if (( _eventFlag & MASK_BUF_EVENT ) != 0 )
         events.set( BUF_EVENT );
-    if (( flags & MASK_CQ_EVENT ) != 0 )
+    if (( _eventFlag & MASK_CQ_EVENT ) != 0 )
         events.set( CQ_EVENT );
-    if (( flags & MASK_CM_EVENT ) != 0 )
+    if (( _eventFlag & MASK_CM_EVENT ) != 0 )
         events.set( CM_EVENT );
     
     _eventFlag = 0;
 
     return true;
 #else
-    _eventFlag = 0;
     struct epoll_event evts[3];
 
     int nfds = TEMP_FAILURE_RETRY( ::epoll_wait( _notifier, evts, 3, 0 ));
@@ -1966,9 +1976,10 @@ bool RDMAConnection::_createBytesAvailableFD( )
 bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 {
 #ifdef _WIN32
-    _eventFlag = _eventFlag | MASK_BUF_EVENT;
-    _availBytes = b;
+    _availBytes += b;
     _event->set();
+    lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+    _eventFlag |= MASK_BUF_EVENT;
 #else
     if( ::write( _pipe_fd[1], (const void *)&b, sizeof(b) ) != sizeof(b) )
     {
@@ -1981,21 +1992,44 @@ bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 
 uint64_t RDMAConnection::_getAvailableBytes( )
 {
+    uint64_t available_bytes = 0;
 #ifdef _WIN32
-    return static_cast<uint64_t>( _availBytes );
+    available_bytes = static_cast<uint64_t>( _availBytes );
+    _availBytes = 0;
+    lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+    _eventFlag &= ~MASK_BUF_EVENT;
+    return available_bytes;
 #else
-    uint64_t available_bytes;
+    uint64_t currBytes = 0;
+    ssize_t count;
+    pollfd pfd;
+    pfd.fd = _pipe_fd[0];
+    pfd.events = EPOLLIN;
 
-    if( TEMP_FAILURE_RETRY( ::read( _pipe_fd[0], (void *)&available_bytes,
-        sizeof(available_bytes) )) != sizeof(available_bytes) )
+    do 
+    {
+        count = ::read( _pipe_fd[0], (void *)&currBytes, sizeof( currBytes ));
+        if ( count > 0 && count < (ssize_t)sizeof( currBytes ) )
+            goto err;
+        available_bytes += currBytes;
+        pfd.revents = 0;
+        if ( ::poll( &pfd, 1, 0 ) == -1 )
+        {
+            LBERROR << "poll : " << lunchbox::sysError << std::endl;
+            goto err;
+        }
+    } while ( pfd.revents > 0 );
+    
+    if ( count == -1 )
     {
         LBERROR << "read : " << lunchbox::sysError << std::endl;
-        return 0ULL;
+        goto err;
     }
 
     LBASSERT( available_bytes > 0ULL );
-
     return available_bytes;
+err:
+    return 0ULL;
 #endif
 }
 
@@ -2130,7 +2164,10 @@ bool RDMAConnection::_doCMEvent( enum rdma_cm_event_type expected )
             << std::endl;
         return false;
     }
-    _eventFlag = _eventFlag & ~MASK_CM_EVENT;
+    {
+        lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+        _eventFlag &= ~MASK_CM_EVENT;
+    }
     LeaveCriticalSection ( &_cm->channel.Lock );
 #endif
 
@@ -2187,7 +2224,10 @@ bool RDMAConnection::_rearmCQ( )
             << std::endl;
         return false;
     }
-    _eventFlag = _eventFlag & ~MASK_CQ_EVENT;
+    {
+        lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+        _eventFlag &= ~MASK_CQ_EVENT;
+    }
     LeaveCriticalSection ( &_cc->comp_channel.Lock );
 #endif
 
@@ -2330,11 +2370,13 @@ void RDMAConnection::_triggerNotifierWorker( Events which )
 
     if ( which == CM_EVENT )
     {
-        _eventFlag = MASK_CM_EVENT | _eventFlag;
+        lunchbox::ScopedFastWrite mutex ( _eventFlagLock );
+        _eventFlag |= MASK_CM_EVENT;
     }
     if ( which == CQ_EVENT )
     {
-        _eventFlag = MASK_CQ_EVENT | _eventFlag;
+        lunchbox::ScopedFastWrite mutex ( _eventFlagLock );
+        _eventFlag |= MASK_CQ_EVENT;
     }
     _event->set();
 }
