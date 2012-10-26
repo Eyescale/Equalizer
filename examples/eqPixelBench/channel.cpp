@@ -76,7 +76,8 @@ Channel::Channel( eq::Window* parent )
         frameData->newImage( eq::Frame::TYPE_MEMORY, getDrawableConfig( ));
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     Config* config = static_cast< Config* >( getConfig( ));
     const lunchbox::Clock* clock  = config->getClock();
@@ -142,8 +143,8 @@ void Channel::_testFormats( float applyZoom )
         image->setAlphaUsage( false );
 
         const GLEWContext* glewContext = glewGetContext();
-        std::vector< uint32_t > names;
-        image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext, names );
+        const std::vector< uint32_t >& names =
+            image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext );
 
         for( std::vector< uint32_t >::const_iterator j = names.begin();
              j != names.end(); ++j )
@@ -194,8 +195,7 @@ void Channel::_testFormats( float applyZoom )
             op.offset = offset;
             op.zoom = zoom;
 
-            dataSizeCPU =
-                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            dataSizeCPU = image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
             eq::Compositor::assembleImage( image, op );
@@ -205,8 +205,7 @@ void Channel::_testFormats( float applyZoom )
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
             area.x() = pixelA.pvp.w;
             area.y() = pixelA.pvp.h;
-            dataSizeGPU =
-                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            dataSizeGPU = image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             error = glGetError();
 
@@ -267,7 +266,7 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
+            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext());
             msec += clock.getTimef();
 
         }

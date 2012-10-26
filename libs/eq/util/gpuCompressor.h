@@ -179,23 +179,21 @@ namespace util
          * @param internalFormat consider only plugins with this tokenType, if
          *                       set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
-         * @param externalFormat consider only plugins with this outputTokentype,
-                                 if set to EQ_COMPRESSOR_DATATYPE_NONE consider
-         *                       all.
+         * @param externalFormat consider only plugins with this
+         *            outputTokentype, if set to EQ_COMPRESSOR_DATATYPE_NONE
+         *            consider all.
          * @param capabilities the capabilities required by the transferer.
          * @param minQuality the minimum required quality.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
-         * @param glewContext a valid glewContext, or 0 if the check for OpenGL
-         *                       context compatibility should be omitted.
-         * @param result the output result vector.
+         * @param gl a valid glewContext, or 0 if the check for OpenGL context
+         *           compatibility should be omitted.
+         * @return the found plugin informations.
          */
-        static EQ_API void findTransferers( const uint32_t internalFormat,
-                                            const uint32_t externalFormat,
-                                            const uint64_t capabilities,
-                                            const float minQuality,
-                                            const bool ignoreAlpha,
-                                            const GLEWContext* glewContext,
-                                            co::CompressorInfos& result );
+        static EQ_API co::CompressorInfos
+        findTransferers( const uint32_t internalFormat,
+                         const uint32_t externalFormat,
+                         const uint64_t capabilities, const float minQuality,
+                         const bool ignoreAlpha, const GLEWContext* gl );
 
     private:
         /** the initialized GLEW context describing corresponding

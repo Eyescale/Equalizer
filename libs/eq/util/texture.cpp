@@ -280,9 +280,8 @@ void Texture::download( void* buffer ) const
 {
     LB_TS_THREAD( _thread );
     LBASSERT( _impl->defined );
-    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
-    EQ_GL_CALL( glGetTexImage( _impl->target, 0, _impl->format, _impl->type,
-                               buffer ));
+    glBindTexture( _impl->target, _impl->name );
+    glGetTexImage( _impl->target, 0, _impl->format, _impl->type, buffer );
 }
 
 void Texture::bind() const

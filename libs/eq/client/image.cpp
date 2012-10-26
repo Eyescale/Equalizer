@@ -365,24 +365,22 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     return names;
 }
 
-void Image::findTransferers( const Frame::Buffer buffer,
-                             const GLEWContext* glewContext,
-                             std::vector< uint32_t >& names )
+std::vector< uint32_t > Image::findTransferers( const Frame::Buffer buffer,
+                                                const GLEWContext* gl )
 {
-    co::CompressorInfos infos;
-    _findTransferers( buffer, glewContext, infos );
+    std::vector< uint32_t > result;
+    const co::CompressorInfos& infos = _findTransferers( buffer, gl );
     for( co::CompressorInfosCIter i = infos.begin(); i != infos.end(); ++i )
-        names.push_back( i->name );
+        result.push_back( i->name );
+    return result;
 }
 
-void Image::_findTransferers( const Frame::Buffer buffer,
-                              const GLEWContext* glewContext,
-                              co::CompressorInfos& result )
+co::CompressorInfos Image::_findTransferers( const Frame::Buffer buffer,
+                                             const GLEWContext* gl )
 {
-    util::GPUCompressor::findTransferers(
-        getInternalFormat( buffer ), getExternalFormat( buffer ),
-        0 /*caps*/, getQuality( buffer ), _impl->ignoreAlpha, glewContext,
-        result );
+    return util::GPUCompressor::findTransferers(
+        getInternalFormat( buffer ), getExternalFormat( buffer ), 0 /*caps*/,
+        getQuality( buffer ), _impl->ignoreAlpha, gl );
 }
 
 uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
@@ -848,8 +846,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.isCompressed = false;
     memory.hasAlpha = false;
 
-    co::CompressorInfos transferrers;
-    _findTransferers( buffer, 0 /*GLEW context*/, transferrers );
+    const co::CompressorInfos& transferrers =
+        _findTransferers( buffer, 0 /*GLEW context*/ );
 
     if( transferrers.empty( ))
         LBWARN << "No upload engines found for given pixel data" << std::endl;
