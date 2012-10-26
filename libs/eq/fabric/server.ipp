@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -59,15 +59,15 @@ void Server< CL, S, CFG, NF, N, V >::setClient( ClientPtr client )
         return;
 
     co::CommandQueue* queue = static_cast< S* >( this )->getMainThreadQueue();
-    registerCommand( CMD_SERVER_CREATE_CONFIG, 
+    this->registerCommand( CMD_SERVER_CREATE_CONFIG,
                      CmdFunc( this, &Server::_cmdCreateConfig ), queue );
-    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
+    this->registerCommand( CMD_SERVER_DESTROY_CONFIG,
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 void Server< CL, S, CFG, NF, N, V >::_addConfig( CFG* config )
-{ 
+{
     LBASSERT( config->getServer() == static_cast< S* >( this ));
     LBASSERT( stde::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
@@ -94,7 +94,7 @@ VisitorResult _accept( S* server, V& visitor )
         return result;
 
     const typename S::Configs& configs = server->getConfigs();
-    for( typename S::Configs::const_iterator i = configs.begin(); 
+    for( typename S::Configs::const_iterator i = configs.begin();
          i != configs.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -105,7 +105,7 @@ VisitorResult _accept( S* server, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -119,7 +119,7 @@ VisitorResult _accept( S* server, V& visitor )
 
         case TRAVERSE_PRUNE:
             return TRAVERSE_PRUNE;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -147,13 +147,13 @@ VisitorResult Server< CL, S, CFG, NF, N, V >::accept( V& visitor ) const
 template< class CL, class S, class CFG, class NF, class N, class V > bool
 Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 {
-    const ServerCreateConfigPacket* packet = 
+    const ServerCreateConfigPacket* packet =
         command.get<ServerCreateConfigPacket>();
     LBVERB << "Handle create config " << packet << std::endl;
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
-    co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS, 
+    co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS,
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
     if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
@@ -167,10 +167,10 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 template< class CL, class S, class CFG, class NF, class N, class V > bool
 Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
 {
-    const ServerDestroyConfigPacket* packet = 
+    const ServerDestroyConfigPacket* packet =
         command.get<ServerDestroyConfigPacket>();
     LBVERB << "Handle destroy config " << packet << std::endl;
-    
+
     co::LocalNodePtr localNode = command.getLocalNode();
 
     CFG* config = 0;
@@ -197,13 +197,13 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
-std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os,
                             const Server< CL, S, CFG, NF, N, V >& server )
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "server "
        << std::endl;
     os << "{" << std::endl << lunchbox::indent;
-    
+
     const co::ConnectionDescriptions& cds =
         server.getConnectionDescriptions();
     for( co::ConnectionDescriptions::const_iterator i = cds.begin();
@@ -221,7 +221,7 @@ std::ostream& operator << ( std::ostream& os,
         os << *config;
     }
 
-    os << lunchbox::exdent << "}"  << lunchbox::enableHeader 
+    os << lunchbox::exdent << "}"  << lunchbox::enableHeader
        << lunchbox::enableFlush << std::endl;
 
     return os;

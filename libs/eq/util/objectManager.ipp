@@ -130,7 +130,7 @@ ObjectManager<T>::SharedData::~SharedData()
                << " eq::GPUCompressor's still allocated in ObjectManager "
                << "destructor" << std::endl;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
-    LBASSERTINFO( eqUploaderAllocs.empty(), eqUploaderAllocs.begin()->second );
+    LBASSERTINFO( eqUploaders.empty(), eqUploaderAllocs.begin()->second );
 #else
     LBASSERTINFO( eqUploaders.empty(), (void*)eqUploaders.begin()->second );
 #endif
@@ -220,7 +220,7 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqFrameBufferObjects.clear();
 
-#ifdef EQ_CLIENT_SHARED
+#ifdef EQUALIZER_SHARED
     for( typename UploaderHash::const_iterator i = _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
     {

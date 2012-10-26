@@ -162,7 +162,7 @@ if(APPLE)
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
-    set(CUDA_64_BIT_DEVICE_CODE OFF) 
+    set(CUDA_64_BIT_DEVICE_CODE OFF)
   endif()
 endif(APPLE)
 
