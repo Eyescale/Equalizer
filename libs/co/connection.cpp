@@ -32,6 +32,8 @@
 #include <co/exception.h>
 #include <co/base/global.h>
 
+#define CO_USE_OFED
+
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"
 #endif
