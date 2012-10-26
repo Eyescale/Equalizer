@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -37,12 +37,12 @@ namespace fabric
 
 namespace
 {
-std::string _fAttributeStrings[] = 
+std::string _fAttributeStrings[] =
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
     MAKE_ATTR_STRING( FATTR_VERSION ),
 };
-std::string _iAttributeStrings[] = 
+std::string _iAttributeStrings[] =
 {
     MAKE_ATTR_STRING( IATTR_ROBUSTNESS ),
 };
@@ -97,7 +97,7 @@ Config< S, C, O, L, CV, N, V >::~Config()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::attach( const UUID& id, 
+void Config< S, C, O, L, CV, N, V >::attach( const UUID& id,
                                              const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -105,23 +105,23 @@ void Config< S, C, O, L, CV, N, V >::attach( const UUID& id,
     co::CommandQueue* queue = _server->getMainThreadQueue();
     LBASSERT( queue );
 
-    registerCommand( CMD_CONFIG_NEW_LAYOUT, 
+    registerCommand( CMD_CONFIG_NEW_LAYOUT,
                 CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayout ),
                      queue );
-    registerCommand( CMD_CONFIG_NEW_CANVAS, 
+    registerCommand( CMD_CONFIG_NEW_CANVAS,
                 CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvas ),
                      queue);
-    registerCommand( CMD_CONFIG_NEW_OBSERVER, 
+    registerCommand( CMD_CONFIG_NEW_OBSERVER,
               CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewObserver ),
                      queue);
-    registerCommand( CMD_CONFIG_NEW_ENTITY_REPLY, 
+    registerCommand( CMD_CONFIG_NEW_ENTITY_REPLY,
            CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply ),
                      0);
 }
 
 template< class C, class V >
-static VisitorResult _acceptImpl( C* config, V& visitor )
-{ 
+VisitorResult _acceptImpl( C* config, V& visitor )
+{
     VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
         return result;
@@ -138,7 +138,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -146,7 +146,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
     }
 
     const typename C::Observers& observers = config->getObservers();
-    for( typename C::Observers::const_iterator i = observers.begin(); 
+    for( typename C::Observers::const_iterator i = observers.begin();
          i != observers.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -157,7 +157,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -165,7 +165,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
     }
 
     const typename C::Layouts& layouts = config->getLayouts();
-    for( typename C::Layouts::const_iterator i = layouts.begin(); 
+    for( typename C::Layouts::const_iterator i = layouts.begin();
          i != layouts.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -176,7 +176,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -195,7 +195,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -210,7 +210,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
         case TRAVERSE_PRUNE:
             result = TRAVERSE_PRUNE;
             break;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -224,7 +224,7 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
         case TRAVERSE_PRUNE:
             result = TRAVERSE_PRUNE;
             break;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -252,7 +252,7 @@ lunchbox::RefPtr< S > Config< S, C, O, L, CV, N, V >::getServer()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-lunchbox::RefPtr< const S > Config< S, C, O, L, CV, N, V >::getServer() const 
+lunchbox::RefPtr< const S > Config< S, C, O, L, CV, N, V >::getServer() const
 {
     return _server;
 }
@@ -296,7 +296,7 @@ void Config< S, C, O, L, CV, N, V >::find( const uint128_t& id, T** result )
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 template< typename T >
-void Config< S, C, O, L, CV, N, V >::find( const std::string& name, 
+void Config< S, C, O, L, CV, N, V >::find( const std::string& name,
                                            const T** result ) const
 {
     NameFinder< T, V > finder( name );
@@ -470,44 +470,44 @@ void Config< S, C, O, L, CV, N, V >::_addCanvas( CV* canvas )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::create( O** observer ) 
+void Config< S, C, O, L, CV, N, V >::create( O** observer )
 {
     *observer = getServer()->getNodeFactory()->createObserver(
         static_cast< C* >( this ));
 }
-  
+
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::release( O* observer ) 
-{ 
-    getServer()->getNodeFactory()->releaseObserver( observer ); 
+void Config< S, C, O, L, CV, N, V >::release( O* observer )
+{
+    getServer()->getNodeFactory()->releaseObserver( observer );
 }
-  
+
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::create( L** layout )
 {
     *layout = getServer()->getNodeFactory()->createLayout(
         static_cast< C* >( this ));
 }
-  
+
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::release( L* layout )
-{ 
-    getServer()->getNodeFactory()->releaseLayout( layout ); 
+{
+    getServer()->getNodeFactory()->releaseLayout( layout );
 }
-  
+
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::create( CV** canvas )
 {
     *canvas = getServer()->getNodeFactory()->createCanvas(
         static_cast< C* >( this ));
 }
-  
+
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::release( CV* canvas )
 {
     getServer()->getNodeFactory()->releaseCanvas( canvas );
 }
- 
+
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::create( N** node )
 {
@@ -517,8 +517,8 @@ void Config< S, C, O, L, CV, N, V >::create( N** node )
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::release( N* node )
-{ 
-     getServer()->getNodeFactory()->releaseNode( node ); 
+{
+     getServer()->getNodeFactory()->releaseNode( node );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -594,7 +594,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
 template< class S, class C, class O, class L, class CV, class N, class V >
 N* Config< S, C, O, L, CV, N, V >::findAppNode()
 {
-    for( typename Nodes::const_iterator i = _nodes.begin(); 
+    for( typename Nodes::const_iterator i = _nodes.begin();
          i != _nodes.end(); ++i )
     {
         N* node = *i;
@@ -607,7 +607,7 @@ N* Config< S, C, O, L, CV, N, V >::findAppNode()
 template< class S, class C, class O, class L, class CV, class N, class V >
 const N* Config< S, C, O, L, CV, N, V >::findAppNode() const
 {
-    for( typename Nodes::const_iterator i = _nodes.begin(); 
+    for( typename Nodes::const_iterator i = _nodes.begin();
          i != _nodes.end(); ++i )
     {
         const N* node = *i;
@@ -620,7 +620,7 @@ const N* Config< S, C, O, L, CV, N, V >::findAppNode() const
 template< class S, class C, class O, class L, class CV, class N, class V >
 N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
 {
-    for( typename Nodes::const_iterator i = _nodes.begin(); 
+    for( typename Nodes::const_iterator i = _nodes.begin();
          i != _nodes.end(); ++i )
     {
         N* node = *i;
@@ -676,11 +676,11 @@ void Config< S, C, O, L, CV, N, V >::serialize( co::DataOStream& os,
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is, 
+void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
                                                   const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
-    
+
     if( dirtyBits & Config::DIRTY_MEMBER )
         is >> _appNodeID;
     if( dirtyBits & Config::DIRTY_ATTRIBUTES )
@@ -821,7 +821,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 {
     const ConfigNewLayoutPacket* packet =
         command.get< ConfigNewLayoutPacket >();
-    
+
     L* layout = 0;
     create( &layout );
     LBASSERT( layout );
@@ -832,7 +832,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = layout->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), reply );
     return true;
 }
 
@@ -841,7 +841,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
 {
     const ConfigNewCanvasPacket* packet =
         command.get< ConfigNewCanvasPacket >();
-    
+
     CV* canvas = 0;
     create( &canvas );
     LBASSERT( canvas );
@@ -852,7 +852,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = canvas->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), reply );
     return true;
 }
 
@@ -861,7 +861,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
 {
     const ConfigNewObserverPacket* packet =
         command.get< ConfigNewObserverPacket >();
-    
+
     O* observer = 0;
     create( &observer );
     LBASSERT( observer );
@@ -872,7 +872,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = observer->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), reply );
     return true;
 }
 
@@ -917,19 +917,19 @@ std::ostream& operator << ( std::ostream& os,
     os << std::endl;
 
     const typename C::Observers& observers = config.getObservers();
-    for( typename C::Observers::const_iterator i = observers.begin(); 
+    for( typename C::Observers::const_iterator i = observers.begin();
          i !=observers.end(); ++i )
     {
         os << **i;
     }
     const typename C::Layouts& layouts = config.getLayouts();
-    for( typename C::Layouts::const_iterator i = layouts.begin(); 
+    for( typename C::Layouts::const_iterator i = layouts.begin();
          i !=layouts.end(); ++i )
     {
         os << **i;
     }
     const typename C::Canvases& canvases = config.getCanvases();
-    for( typename C::Canvases::const_iterator i = canvases.begin(); 
+    for( typename C::Canvases::const_iterator i = canvases.begin();
          i != canvases.end(); ++i )
     {
         os << **i;
