@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -54,7 +54,7 @@ namespace util
          * Determine if the uploader is valid
          *
          * @param externalFormat the input to the uploader.
-         * @param internalFormat the output of the uploader. 
+         * @param internalFormat the output of the uploader.
          * @param capabilities the capabilities required by the uploader.
          */
         bool isValidUploader( const uint32_t externalFormat,
@@ -86,11 +86,11 @@ namespace util
 
         /**
          * Find and init an uploader which wil be compatible with the
-         * specified input and output token type. 
+         * specified input and output token type.
          *
          * If the uploader found is the same that the current uploader,
-         * no change will be make. 
-         * If no uploader found, a reset of the instance data will be 
+         * no change will be make.
+         * If no uploader found, a reset of the instance data will be
          * perform.
          *
          * @param externalFormat the input to the uploader.
@@ -128,10 +128,10 @@ namespace util
                              void**                       out );
 
         /**
-         * Upload data from cpu to the frame buffer or texture 
+         * Upload data from cpu to the frame buffer or texture
          *
          * @param buffer data source
-         * @param pvpIn the dimensions of the input data 
+         * @param pvpIn the dimensions of the input data
          * @param flags capability flags for the compression
          * @param pvpOut the dimensions of the output data
          * @param destination the destination texture name.
@@ -139,7 +139,7 @@ namespace util
         void upload( const void*                  buffer,
                      const fabric::PixelViewport& pvpIn,
                      const uint64_t               flags,
-                     const fabric::PixelViewport& pvpOut,  
+                     const fabric::PixelViewport& pvpOut,
                      const unsigned               destination = 0 );
 
         /**
@@ -149,7 +149,7 @@ namespace util
         uint32_t getExternalFormat() const;
 
         /**
-         * Get the token type accepted by a donwloader or 
+         * Get the token type accepted by a donwloader or
          * produced by the uploader.
          **/
         uint32_t getInternalFormat() const;
@@ -164,10 +164,10 @@ namespace util
         bool hasAlpha() const;
 
         /**
-         * Get the downloader/uploader internal format corresponding to 
+         * Get the downloader/uploader internal format corresponding to
          * an OpenGL token type
          *
-         * @param format the GL format 
+         * @param format the GL format
          * @param type the GL typedata source
          */
         static EQ_API uint32_t getExternalFormat( const uint32_t format,
@@ -179,23 +179,21 @@ namespace util
          * @param internalFormat consider only plugins with this tokenType, if
          *                       set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
-         * @param externalFormat consider only plugins with this outputTokentype,
-                                 if set to EQ_COMPRESSOR_DATATYPE_NONE consider
-         *                       all.
+         * @param externalFormat consider only plugins with this
+         *            outputTokentype, if set to EQ_COMPRESSOR_DATATYPE_NONE
+         *            consider all.
          * @param capabilities the capabilities required by the transferer.
          * @param minQuality the minimum required quality.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
-         * @param glewContext a valid glewContext, or 0 if the check for OpenGL
-         *                       context compatibility should be omitted.
-         * @param result the output result vector.
+         * @param gl a valid glewContext, or 0 if the check for OpenGL context
+         *           compatibility should be omitted.
+         * @return the found plugin informations.
          */
-        static EQ_API void findTransferers( const uint32_t internalFormat,
-                                            const uint32_t externalFormat,
-                                            const uint64_t capabilities,
-                                            const float minQuality,
-                                            const bool ignoreAlpha,
-                                            const GLEWContext* glewContext,
-                                            co::CompressorInfos& result );
+        static EQ_API co::CompressorInfos
+        findTransferers( const uint32_t internalFormat,
+                         const uint32_t externalFormat,
+                         const uint64_t capabilities, const float minQuality,
+                         const bool ignoreAlpha, const GLEWContext* gl );
 
     private:
         /** the initialized GLEW context describing corresponding

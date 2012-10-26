@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -75,7 +75,8 @@ Channel::Channel( eq::Window* parent )
         frameData->newImage( eq::Frame::TYPE_MEMORY, getDrawableConfig( ));
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber ) 
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     Config* config = static_cast< Config* >( getConfig( ));
     const lunchbox::Clock* clock  = config->getClock();
@@ -86,7 +87,7 @@ void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumb
         event.msec = clock->getTimef();
 
         const std::string& name  = getName();
-        if( name.empty( ))    
+        if( name.empty( ))
             snprintf( event.data.user.data, 32, "%p", this);
         else
             snprintf( event.data.user.data, 32, "%s", name.c_str( ));
@@ -135,7 +136,7 @@ ConfigEvent Channel::_createConfigEvent()
     ConfigEvent   event;
     const std::string& name = getName();
 
-    if( name.empty( ))    
+    if( name.empty( ))
         snprintf( event.data.user.data, 32, "%p", this );
     else
         snprintf( event.data.user.data, 32, "%s", name.c_str( ));
@@ -171,8 +172,8 @@ void Channel::_testFormats( float applyZoom )
         image->setAlphaUsage( false );
 
         const GLEWContext* glewContext = glewGetContext();
-        std::vector< uint32_t > names;
-        image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext, names );
+        const std::vector< uint32_t >& names =
+            image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext );
 
         for( std::vector< uint32_t >::const_iterator j = names.begin();
              j != names.end(); ++j )
@@ -186,9 +187,9 @@ void Channel::_testFormats( float applyZoom )
             image->allocDownloader( eq::Frame::BUFFER_COLOR, *j, glewContext );
             image->setPixelViewport( pvp );
 
-            const uint32_t outputToken = 
+            const uint32_t outputToken =
                 image->getExternalFormat( eq::Frame::BUFFER_COLOR );
-            snprintf( event.formatType, 32, "%s/%x/%x", 
+            snprintf( event.formatType, 32, "%s/%x/%x",
                 _enums[i].internalFormatString, outputToken, *j );
 
 
@@ -208,10 +209,10 @@ void Channel::_testFormats( float applyZoom )
 
             const eq::PixelData& pixels =
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
-            event.area.x() = pixels.pvp.w;             
+            event.area.x() = pixels.pvp.w;
             event.area.y() = pixels.pvp.h;
             event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
-            event.dataSizeCPU = 
+            event.dataSizeCPU =
             image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             GLenum error = glGetError();
@@ -227,7 +228,7 @@ void Channel::_testFormats( float applyZoom )
             op.zoom = zoom;
 
             event.data.type = ConfigEvent::ASSEMBLE;
-            event.dataSizeCPU = 
+            event.dataSizeCPU =
                 image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
@@ -236,13 +237,13 @@ void Channel::_testFormats( float applyZoom )
 
             const eq::PixelData& pixelA =
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
-            event.area.x() = pixelA.pvp.w; 
+            event.area.x() = pixelA.pvp.w;
             event.area.y() = pixelA.pvp.h;
             event.dataSizeGPU =
                 image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             error = glGetError();
-            
+
             if( error != GL_NO_ERROR )
                 event.msec = -static_cast<float>( error );
             config->sendEvent( event );
@@ -285,14 +286,14 @@ void Channel::_testTiledOperations()
 
         //---- readback of 'tiles' depth images
         event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 32, "%d depth tiles", tiles+1 ); 
+        snprintf( event.formatType, 32, "%d depth tiles", tiles+1 );
 
         event.msec = 0;
         for( unsigned j = 0; j <= tiles; ++j )
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
+            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                              glewContext ));
             image->clearPixelData( eq::Frame::BUFFER_DEPTH );
@@ -302,7 +303,7 @@ void Channel::_testTiledOperations()
                                   eq::Zoom::NONE, glObjects );
             image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
             event.msec += clock.getTimef();
-            
+
         }
 
         config->sendEvent( event );
@@ -323,7 +324,7 @@ void Channel::_testTiledOperations()
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
 
-            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
+            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR,
                                             EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
                                               glewContext ));
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
@@ -350,7 +351,7 @@ void Channel::_testTiledOperations()
 
         // fixed-function
         event.data.type = ConfigEvent::ASSEMBLE;
-        snprintf( event.formatType, 32, "tiles, GL1.1, %d images", tiles+1 ); 
+        snprintf( event.formatType, 32, "tiles, GL1.1, %d images", tiles+1 );
 
         clock.reset();
         for( unsigned j = 0; j <= tiles; ++j )
@@ -360,7 +361,7 @@ void Channel::_testTiledOperations()
         config->sendEvent( event );
 
         // CPU
-        snprintf( event.formatType, 32, "tiles, CPU,   %d images", tiles+1 ); 
+        snprintf( event.formatType, 32, "tiles, CPU,   %d images", tiles+1 );
 
         std::vector< eq::Frame* > frames;
         frames.push_back( &_frame );
@@ -407,11 +408,11 @@ void Channel::_testDepthAssemble()
         // fill depth & color image
         image = images[ i ];
 
-        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
-                                         EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA, 
+        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR,
+                                         EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
                                          glewContext ));
 
-        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
+        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                          glewContext ));
 
@@ -434,7 +435,7 @@ void Channel::_testDepthAssemble()
 
         // fixed-function
         event.data.type = ConfigEvent::ASSEMBLE;
-        snprintf( event.formatType, 32, "depth, GL1.1, %d images", i+1 ); 
+        snprintf( event.formatType, 32, "depth, GL1.1, %d images", i+1 );
 
         clock.reset();
         for( unsigned j = 0; j <= i; ++j )
@@ -446,7 +447,7 @@ void Channel::_testDepthAssemble()
         // GLSL
         if( GLEW_VERSION_2_0 )
         {
-            snprintf( event.formatType, 32, "depth, GLSL,  %d images", i+1 ); 
+            snprintf( event.formatType, 32, "depth, GLSL,  %d images", i+1 );
 
             clock.reset();
             for( unsigned j = 0; j <= i; ++j )
@@ -456,7 +457,7 @@ void Channel::_testDepthAssemble()
         }
 
         // CPU
-        snprintf( event.formatType, 32, "depth, CPU,   %d images", i+1 ); 
+        snprintf( event.formatType, 32, "depth, CPU,   %d images", i+1 );
 
         std::vector< eq::Frame* > frames;
         frames.push_back( &_frame );

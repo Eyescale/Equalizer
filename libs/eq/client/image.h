@@ -369,11 +369,10 @@ namespace detail { class Image; }
 
         /**
          * @internal
-         * Assemble a list of possible up/downloaders for the given buffer.
+         * @return a list of possible up/downloaders for the given buffer.
          */
-        EQ_API void findTransferers( const Frame::Buffer buffer,
-                                     const GLEWContext* glewContext,
-                                     std::vector< uint32_t >& names );
+        EQ_API std::vector< uint32_t >
+        findTransferers( const Frame::Buffer buffer, const GLEWContext* gl );
 
         /** @internal Re-allocate, if needed, a compressor instance. */
         EQ_API bool allocCompressor( const Frame::Buffer buffer,
@@ -394,9 +393,8 @@ namespace detail { class Image; }
         /** @return an appropriate compressor name for the given buffer.*/
         uint32_t _chooseCompressor( const Frame::Buffer buffer ) const;
 
-        void _findTransferers( const Frame::Buffer buffer,
-                               const GLEWContext* glewContext,
-                               co::CompressorInfos& result );
+        co::CompressorInfos _findTransferers( const Frame::Buffer buffer,
+                                              const GLEWContext* gl );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;
