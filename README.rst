@@ -139,6 +139,7 @@ the last release:
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
 following:
 
+-   `158`_: Non-freed GPUCompressors after application exit
 -   `157`_: Crash in Image::upload when no uploader is found
 -   `149`_: Channel::configInit initID always 0
 -   `147`_: Repeated Canvas::useLayout OFF/ON causes violation of
@@ -277,6 +278,7 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _158: https://github.com/Eyescale/Equalizer/issues/158
 .. _157: https://github.com/Eyescale/Equalizer/issues/157
 .. _149: https://github.com/Eyescale/Equalizer/issues/149
 .. _147: https://github.com/Eyescale/Equalizer/issues/147

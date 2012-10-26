@@ -161,6 +161,8 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/158">158</a>:
+    Non-freed GPUCompressors after application exit</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/157">157</a>:
     Crash in Image::upload when no uploader is found</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
@@ -221,7 +223,7 @@
 <h2>3. About</h2>
 <p>
   Equalizer is a cross-platform toolkit, designed to run on any modern operating
-  system, including all Unix variants and the Windows operating system. A 
+  system, including all Unix variants and the Windows operating system. A
   <a href="http://www.equalizergraphics.com/compatibility.html">compatibility
   matrix</a> can be found on the Equalizer website.
 </p>
@@ -253,7 +255,7 @@
 <a name="documentation"></a>
 <h3>3.3. Documentation</h3>
 <p>
-  The Programming and User Guide is available as a 
+  The Programming and User Guide is available as a
   <a href="https://www.createspace.com/3943261">hard-copy</a>
   and <a href="http://www.equalizergraphics.com/survey.html">online</a>.
   The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
@@ -271,7 +273,7 @@
 <a name="support"></a>
 <h3>3.4. Support</h3>
 <p>
-  Technical questions can be posted to the 
+  Technical questions can be posted to the
   <a href="http://www.equalizergraphics.com/cgi-bin/mailman/listinfo/eq-dev">
     Developer Mailing List</a>, or directly to
   <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20question">
