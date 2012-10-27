@@ -155,7 +155,7 @@ endif(OPENMP_FOUND)
 find_package(OFED)
 if(OFED_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} RDMA")
-  include_directories(SYSTEM ${OFED_INCLUDE_DIR})
+  include_directories(SYSTEM ${OFED_INCLUDE_DIRS})
 endif()
 
 if(APPLE)
