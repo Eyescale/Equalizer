@@ -243,8 +243,6 @@ else()
 
     try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
       CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
-                  "-DLINK_LIBRARIES:STRING=${_eq_LIBRARY}"
-      OUTPUT_VARIABLE out
     )
     if(_glew_mx_internal)
       set(GLEW_MX_INCLUDE_DIRS)
