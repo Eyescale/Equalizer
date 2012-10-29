@@ -93,6 +93,7 @@
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
 #include <eq/client/global.h>
+#include <eq/client/glException.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
 #include <eq/client/layout.h>

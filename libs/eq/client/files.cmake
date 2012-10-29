@@ -54,6 +54,7 @@ set(CLIENT_HEADERS
   frame.h
   frameData.h
   gl.h
+  glException.h
   glWindow.h
   glXTypes.h
   global.h
@@ -104,6 +105,7 @@ set(CLIENT_SOURCES
   frame.cpp
   frameData.cpp
   gl.cpp
+  glException.cpp
   glWindow.cpp
   global.cpp
   image.cpp
