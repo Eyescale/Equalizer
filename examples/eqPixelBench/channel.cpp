@@ -173,30 +173,28 @@ void Channel::_testFormats( float applyZoom )
                     ++nLoops;
                 }
                 glFinish();
-                event.msec = clock.getTimef() / float( nLoops );
+                const float msec = clock.getTimef() / float( nLoops );
+                const GLenum error = glGetError(); // release mode
+                if( error != GL_NO_ERROR )
+                    throw eq::Exception( error );
 
                 const eq::PixelData& pixels =
                     image->getPixelData( eq::Frame::BUFFER_COLOR );
-                event.area.x() = pixels.pvp.w;
-                event.area.y() = pixels.pvp.h;
-                event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
-                event.dataSizeCPU =
+                const eq::Vector2i area( pixels.pvp.w, pixels.pvp.h );
+                const uint64_t dataSizeGPU = area.x() * area.y() *
+                                             _enums[i].pixelSize;
+                const uint64_t dataSizeCPU =
                     image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+
+                _sendEvent( READBACK, msec, area, formatType.str(), dataSizeGPU,
+                            dataSizeCPU );
             }
-            catch( const eq::GLException& e ) // debug mode
+            catch( const eq::GLException& e )
             {
-                event.msec = -static_cast<float>( e.glError );
-            }
-
-            GLenum error = glGetError(); // release mode
-            if( error != GL_NO_ERROR )
-                msec = -static_cast<float>( error );
-
-            _sendEvent( READBACK, msec, area, formatType.str(), dataSizeGPU,
-                        dataSizeCPU );
-
-            if( event.msec < 0 )  // error, don't write back data
+                _sendEvent( READBACK, -static_cast<float>( e.glError ),
+                            eq::Vector2i(), formatType.str(), 0, 0 );
                 continue;
+            }
 
             // write
             eq::Compositor::ImageOp op;
@@ -205,31 +203,31 @@ void Channel::_testFormats( float applyZoom )
             op.offset = offset;
             op.zoom = zoom;
 
-            dataSizeCPU = image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
-
+            const uint64_t dataSizeCPU =
+                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
             try
             {
                 clock.reset();
                 eq::Compositor::assembleImage( image, op );
-                event.msec = clock.getTimef();
+                glFinish();
+                const float msec = clock.getTimef() / float( nLoops );
+                const GLenum error = glGetError(); // release mode
+                if( error != GL_NO_ERROR )
+                    throw eq::Exception( error );
 
                 const eq::PixelData& pixels =
                     image->getPixelData( eq::Frame::BUFFER_COLOR );
-                event.area.x() = pixels.pvp.w;
-                event.area.y() = pixels.pvp.h;
-                event.dataSizeGPU =
+                const eq::Vector2i area( pixels.pvp.w, pixels.pvp.h );
+                const uint64_t dataSizeGPU =
                     image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+                _sendEvent( ASSEMBLE, msec, area, formatType.str(), dataSizeGPU,
+                            dataSizeCPU );
             }
             catch( const eq::GLException& e ) // debug mode
             {
-                event.msec = -static_cast<float>( e.glError );
+                _sendEvent( ASSEMBLE, -static_cast<float>( e.glError ),
+                            eq::Vector2i(), formatType.str(), 0, 0 );
             }
-
-            error = glGetError(); // release mode
-            if( error != GL_NO_ERROR )
-                msec = -static_cast<float>( error );
-            _sendEvent( ASSEMBLE, msec, area, formatType.str(), dataSizeGPU,
-                        dataSizeCPU );
         }
     }
 }
