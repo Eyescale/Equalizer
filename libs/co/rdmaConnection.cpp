@@ -1845,7 +1845,7 @@ retry:
         lunchbox::Thread::yield( );
         goto retry;
     }
-
+    
     return true;
 
 err:
@@ -1913,7 +1913,7 @@ bool RDMAConnection::_checkEvents( eventset &events )
         else if( _cm && ( fd == _cm->fd ))
             events.set( CM_EVENT );
         else
-            LBUNREACHABLE;
+            EQUNREACHABLE;
     }
 
     return true;
