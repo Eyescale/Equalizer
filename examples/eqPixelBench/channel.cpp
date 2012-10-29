@@ -162,7 +162,7 @@ void Channel::_testFormats( float applyZoom )
 
     //----- test all default format/type combinations
     ConfigEvent event = _createConfigEvent();
-    glGetError();
+    glGetError(); // reset
     for( uint32_t i=0; _enums[i].internalFormatString; ++i )
     {
         const uint32_t internalFormat = _enums[i].internalFormat;
@@ -192,33 +192,43 @@ void Channel::_testFormats( float applyZoom )
             snprintf( event.formatType, 32, "%s/%x/%x",
                 _enums[i].internalFormatString, outputToken, *j );
 
-
             // read
             glFinish();
             size_t nLoops = 0;
-            clock.reset();
-            while( clock.getTime64() < 100 /*ms*/ )
+            try
             {
-                image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom,
-                                      glObjects );
-                image->finishReadback( zoom, glObjects->glewGetContext( ));
-                ++nLoops;
+                clock.reset();
+                while( clock.getTime64() < 100 /*ms*/ )
+                {
+                    image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom,
+                                          glObjects );
+                    image->finishReadback( zoom, glObjects->glewGetContext( ));
+                    ++nLoops;
+                }
+                glFinish();
+                event.msec = clock.getTimef() / float( nLoops );
+
+                const eq::PixelData& pixels =
+                    image->getPixelData( eq::Frame::BUFFER_COLOR );
+                event.area.x() = pixels.pvp.w;
+                event.area.y() = pixels.pvp.h;
+                event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
+                event.dataSizeCPU =
+                    image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
             }
-            glFinish();
-            event.msec = clock.getTimef() / float( nLoops );
+            catch( const eq::GLException& e ) // debug mode
+            {
+                event.msec = -static_cast<float>( e.glError );
+            }
 
-            const eq::PixelData& pixels =
-                image->getPixelData( eq::Frame::BUFFER_COLOR );
-            event.area.x() = pixels.pvp.w;
-            event.area.y() = pixels.pvp.h;
-            event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
-            event.dataSizeCPU =
-            image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
-
-            GLenum error = glGetError();
+            GLenum error = glGetError(); // release mode
             if( error != GL_NO_ERROR )
                 event.msec = -static_cast<float>( error );
+
             config->sendEvent( event );
+
+            if( event.msec < 0 )  // error, don't write back data
+                continue;
 
             // write
             eq::Compositor::ImageOp op;
@@ -231,21 +241,28 @@ void Channel::_testFormats( float applyZoom )
             event.dataSizeCPU =
                 image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
-            clock.reset();
-            eq::Compositor::assembleImage( image, op );
-            event.msec = clock.getTimef();
+            try
+            {
+                clock.reset();
+                eq::Compositor::assembleImage( image, op );
+                event.msec = clock.getTimef();
 
-            const eq::PixelData& pixelA =
-                image->getPixelData( eq::Frame::BUFFER_COLOR );
-            event.area.x() = pixelA.pvp.w;
-            event.area.y() = pixelA.pvp.h;
-            event.dataSizeGPU =
-                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+                const eq::PixelData& pixels =
+                    image->getPixelData( eq::Frame::BUFFER_COLOR );
+                event.area.x() = pixels.pvp.w;
+                event.area.y() = pixels.pvp.h;
+                event.dataSizeGPU =
+                    image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            }
+            catch( const eq::GLException& e ) // debug mode
+            {
+                event.msec = -static_cast<float>( e.glError );
+            }
 
-            error = glGetError();
-
+            error = glGetError(); // release mode
             if( error != GL_NO_ERROR )
                 event.msec = -static_cast<float>( error );
+
             config->sendEvent( event );
         }
     }

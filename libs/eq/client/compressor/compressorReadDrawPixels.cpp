@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -368,10 +368,10 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], 
+        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                       _format, _type, _buffer.getData() ) );
     }
-    else 
+    else
     {
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
@@ -383,11 +383,11 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     *out = _buffer.getData();
 }
 
-void CompressorReadDrawPixels::upload( const GLEWContext* glewContext, 
+void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
                                        const void*        buffer,
                                        const eq_uint64_t  inDims[4],
                                        const eq_uint64_t  flags,
-                                       const eq_uint64_t  outDims[4],  
+                                       const eq_uint64_t  outDims[4],
                                        const unsigned     destination )
 {
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
@@ -446,7 +446,7 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
             glFlush(); // Fixes https://github.com/Eyescale/Equalizer/issues/118
             return;
         }
-#else  // async RB through texture
+#else  // else async RB through texture
         const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
         _initAsyncTexture( glewContext, pvp.w, pvp.h );
         _asyncTexture->setExternalFormat( _format, _type );

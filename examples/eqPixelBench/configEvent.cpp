@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,47 +35,30 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
     switch( event->data.type )
     {
         case ConfigEvent::READBACK:
-            os  << "readback";
+            os << "readback";
             break;
-
         case ConfigEvent::ASSEMBLE:
-            os  << "assemble";
+            os << "assemble";
             break;
         case ConfigEvent::START_LATENCY:
-            os  << "        ";
+            os << "        ";
             break;
         default:
             os << static_cast< const eq::ConfigEvent* >( event );
             return os;
     }
-    
 
     os << " \"" << event->data.user.data << "\" " << event->formatType
-       << std::string( 32-strlen( event->formatType ), ' ' ) << event->area.x()
-       << "x" << event->area.y() << ": ";
+       << std::string( 32-strlen( event->formatType ), ' ' );
 
     if( event->msec < 0.0f )
-        os << "error 0x" << std::hex << static_cast< int >( -event->msec )
-           << std::dec;
-    else
-        os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
-                                       event->msec  / 1048.576f )
-           << "MPix/sec (" << event->msec << "ms, " << 
-            unsigned(1000.0f / event->msec) << "FPS)";
+        return os << "Got " << eq::glError( uint32_t( -event->msec ))
+                  << std::dec;
 
-#if 0
-    if ( event->data.type == ConfigEvent::READBACK )
-    {
-        os << event->area << "( size GPU : " << event->dataSizeGPU << " bytes ";
-        os << "/ size CPU : " << event->dataSizeCPU << " bytes ";
-        os << "/ time : " <<  event->msec << "ms )";
-    }
-    else if ( event->data.type == ConfigEvent::ASSEMBLE )
-    {
-        os << event->area << "( size CPU : " << event->dataSizeCPU << " bytes ";
-        os << "/ time : " <<  event->msec << "ms )";
-    }
-#endif
-    return os;
+    return os << event->area.x() << "x" << event->area.y() << ": "
+              << static_cast< uint32_t >( event->area.x() * event->area.y() /
+                                          event->msec  / 1048.576f )
+              << "MPix/sec (" << event->msec << "ms, "
+              << unsigned(1000.0f / event->msec) << "FPS)";
 }
 }
