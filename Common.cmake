@@ -1,4 +1,6 @@
 
+include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
+
 # Common settings
 enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
