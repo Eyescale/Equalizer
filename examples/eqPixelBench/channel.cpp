@@ -147,6 +147,8 @@ ConfigEvent Channel::_createConfigEvent()
 
 void Channel::_testFormats( float applyZoom )
 {
+    glGetError(); // reset
+
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
     eq::Image*        image  = images[ 0 ];
@@ -162,7 +164,6 @@ void Channel::_testFormats( float applyZoom )
 
     //----- test all default format/type combinations
     ConfigEvent event = _createConfigEvent();
-    glGetError(); // reset
     for( uint32_t i=0; _enums[i].internalFormatString; ++i )
     {
         const uint32_t internalFormat = _enums[i].internalFormat;
@@ -270,6 +271,8 @@ void Channel::_testFormats( float applyZoom )
 
 void Channel::_testTiledOperations()
 {
+    glGetError(); // reset
+
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
     LBASSERT( images[0] );
@@ -297,8 +300,7 @@ void Channel::_testTiledOperations()
 
     for( unsigned tiles = 0; tiles < NUM_IMAGES; ++tiles )
     {
-        _draw( 0 );
-
+        EQ_GL_CALL( _draw( 0 ));
         event.area.y() = subPVP.h * (tiles+1);
 
         //---- readback of 'tiles' depth images
@@ -318,9 +320,8 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
+            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext());
             event.msec += clock.getTimef();
-
         }
 
         config->sendEvent( event );
@@ -349,7 +350,7 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
+            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext());
             event.msec += clock.getTimef();
         }
         config->sendEvent( event );
@@ -392,6 +393,8 @@ void Channel::_testTiledOperations()
 
 void Channel::_testDepthAssemble()
 {
+    glGetError(); // reset
+
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
     eq::Image* image  = images[ 0 ];
@@ -501,48 +504,13 @@ void Channel::_saveImage( const eq::Image* image,
 
 void Channel::_draw( const eq::uint128_t& spin )
 {
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    EQ_GL_CALL( glPushAttrib( GL_ALL_ATTRIB_BITS ));
 
+    bindFrameBuffer();
     eq::Channel::frameDraw( spin );
 
-    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-    glEnable( GL_DEPTH_TEST );
-
-#if 0
-    setNearFar( 0.5f, 5.0f );
-    const GLfloat lightPosition[]    = {5.0f, 0.0f, 5.0f, 0.0f};
-    const GLfloat lightDiffuse[]     = {0.8f, 0.8f, 0.8f, 1.0f};
-
-    const GLfloat materialDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
-
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
-
-    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
-
-    eq::Matrix4f rotation;
-    eq::Vector3f translation;
-
-    translation   = eq::Vector3f::ZERO;
-    translation.z = -2.f;
-    rotation = eq::Matrix4f::IDENTITY;
-    rotation.rotate_x( static_cast<float>( -M_PI_2 ));
-    rotation.rotate_y( static_cast<float>( -M_PI_2 ));
-
-    glTranslatef( translation.x, translation.y, translation.z );
-    glMultMatrixf( rotation.ml );
-
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    glColor3f( 1.f, 1.f, 0.f );
-    glNormal3f( 1.f, -1.f, 0.f );
-    glBegin( GL_TRIANGLE_STRIP );
-        glVertex3f(  1.f, 10.f,  2.5f );
-        glVertex3f( -1.f, 10.f,  2.5f );
-        glVertex3f(  1.f,-10.f, -2.5f );
-        glVertex3f( -1.f,-10.f, -2.5f );
-    glEnd();
-
-#else
+    EQ_GL_CALL( glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT ));
+    EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
 
     const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
     glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
@@ -614,9 +582,7 @@ void Channel::_draw( const eq::uint128_t& spin )
     glVertex3f( -1.0f, -.7f, -.7f );
     glEnd();
 
-#endif
-
-    glPopAttrib( );
+    EQ_GL_CALL( glPopAttrib( ));
 }
 
 
