@@ -31,6 +31,9 @@ scalable OpenGL applications. This release introduces major new features,
 most notably asynchronous readbacks, region of interest and thread affinity
 for increased performance during scalable rendering.
 
+Equalizer 1.4.1 is a bugfix release for Equalizer 1.4, containing the fixes
+`listed below`_.
+
 Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
 seven years of development and decades of experience into a feature-rich,
 high-performance and mature parallel rendering framework and an object-
@@ -136,10 +139,15 @@ the last release:
 2.7. Bug Fixes
 ~~~~~~~~~~~~~~
 
+Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
+
+-   `162`_: WGL window compile error
+-   `160`_: Memleak with pipe thread affinity
+-   `158`_: Non-freed GPUCompressors after application exit
+
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
 following:
 
--   `158`_: Non-freed GPUCompressors after application exit
 -   `157`_: Crash in Image::upload when no uploader is found
 -   `149`_: Channel::configInit initID always 0
 -   `147`_: Repeated Canvas::useLayout OFF/ON causes violation of
@@ -246,6 +254,7 @@ information.
 .. _3.3. Documentation: #documentation
 .. _3.4. Support: #support
 .. _4. Errata: #errata
+.. _listed below: #bugfixes
 .. _source     code:
     http://www.equalizergraphics.com/downloads/Equalizer-1.3.6.tar.gz
 .. _precompiled packages:
@@ -278,6 +287,8 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _162: https://github.com/Eyescale/Equalizer/issues/162
+.. _160: https://github.com/Eyescale/Equalizer/issues/160
 .. _158: https://github.com/Eyescale/Equalizer/issues/158
 .. _157: https://github.com/Eyescale/Equalizer/issues/157
 .. _149: https://github.com/Eyescale/Equalizer/issues/149

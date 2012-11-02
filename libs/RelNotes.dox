@@ -34,6 +34,10 @@
   increased performance during scalable rendering.
 </p>
 <p>
+  Equalizer 1.4.1 is a bugfix release for Equalizer 1.4, containing the fixes
+  <a href="#bugfixes">listed below</a>.
+</p>
+<p>
   Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
   seven years of development and decades of experience into a feature-rich,
   high-performance and mature parallel rendering framework and an
@@ -157,12 +161,21 @@
 <a name="bugfixes"></a>
 <h3>2.7. Bug Fixes</h3>
 <p>
+  Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
+</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/162">162</a>:
+    WGL window compile error</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/160">160</a>:
+    Memleak with pipe thread affinity</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/158">158</a>:
+    Non-freed GPUCompressors after application exit</li>
+</ul>
+<p>
   Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
   following:
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/158">158</a>:
-    Non-freed GPUCompressors after application exit</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/157">157</a>:
     Crash in Image::upload when no uploader is found</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
