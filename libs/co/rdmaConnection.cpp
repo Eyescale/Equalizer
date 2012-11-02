@@ -175,8 +175,8 @@ static const uint32_t WINDOWS_CONNECTION_BACKLOG = 1024;
  * Send perf: 3240.95MB/s (3240.95pps)
  */
 RDMAConnection::RDMAConnection( )
-#ifdef _WIN32
-    : _event( new EventConnection )
+#ifdef _WIN32    
+    : _notifier()
 #else
     : _notifier( -1 )
 #endif
@@ -365,7 +365,7 @@ bool RDMAConnection::connect( )
         << std::endl;
 
     setState( STATE_CONNECTED );
-
+    _updateNotifier();
     return true;
 
 err:
@@ -460,6 +460,16 @@ bool RDMAConnection::listen( )
         << " (" << _description->toString( ) << ")"
         << std::endl;
 
+#ifdef _WIN32
+    // for some reason in windows rdma_bind_addr triggers a cm event handle
+    // without rdma_get_cm_event being able to get this event
+    // we just ignore this and reset the notifier to not confuse collage
+    {
+        co::base::ScopedFastWrite mutex( _eventFlagLock );
+        _eventFlag &= ~MASK_CM_EVENT;
+    }
+    _updateNotifier();
+#endif
     setState( STATE_LISTENING );
 
     return true;
@@ -500,12 +510,8 @@ ConnectionPtr RDMAConnection::acceptSync( )
 
 out:
     _new_cm_id = NULL;
-#ifdef _WIN32    
-    _event->reset();
-#else
-    eventset events;
-    _checkEvents( events );
-#endif
+
+    _updateNotifier();
 
     return newConnection;
 }
@@ -580,7 +586,10 @@ retry:
         // Special case: If LocalNode is reading the length part of a message
         // it will ignore this zero return and restart the select.
         if( extra_event && !block )
+        {
+            _updateNotifier();
             return 0LL;
+        }
 
         extra_event = true;
         goto retry;
@@ -628,13 +637,7 @@ retry:
         _incrAvailableBytes( available_bytes - bytes_taken );
 #ifdef _WIN32
     else
-    {
-        HANDLE lpHandles[2];
-        lpHandles[0] = _cc->comp_channel.Event;
-        lpHandles[1] = _cm->channel.Event;
-        if ( WaitForMultipleObjects( 2, lpHandles, false, 0 ) == WAIT_TIMEOUT )
-            _event->reset();
-    }
+        _updateNotifier();
 #endif
 
     if( _established && _needFC( ) && !_postFC( bytes_taken ))
@@ -1003,7 +1006,7 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         << std::endl;
 
     setState( STATE_CONNECTED );
-
+    _updateNotifier();
     return true;
 
 err_reject:
@@ -1119,7 +1122,7 @@ bool RDMAConnection::_createEventChannel( )
             WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
             this, 
             INFINITE, 
-            WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
+            WT_EXECUTEINWAITTHREAD ))
     {
         EQERROR << "RegisterWaitForSingleObject : " << co::base::sysError 
                 << std::endl;
@@ -1197,7 +1200,7 @@ bool RDMAConnection::_initVerbs( )
         WAITORTIMERCALLBACK( &_triggerNotifierCQ ), 
         this, 
         INFINITE, 
-        WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
+        WT_EXECUTEINWAITTHREAD ))
     {
         EQERROR << "RegisterWaitForSingleObject : " << co::base::sysError 
             << std::endl;
@@ -1856,13 +1859,11 @@ err:
 
 bool RDMAConnection::_createNotifier( )
 {
+    EQASSERT( _notifier < 0 );
 #ifdef _WIN32
-    _event->connect();
-    _event->reset();
+    _notifier = CreateEvent( 0, TRUE, FALSE, 0 );
     return true;
 #else
-    EQASSERT( _notifier < 0 );
-
     _notifier = ::epoll_create( 1 );
     if( _notifier < 0 )
     {
@@ -1874,6 +1875,16 @@ bool RDMAConnection::_createNotifier( )
 
 err:
     return false;
+#endif
+}
+
+void RDMAConnection::_updateNotifier()
+{
+    eventset events;
+    _checkEvents( events );
+#ifdef _WIN32
+    if ( !events.any() )
+        ResetEvent( _notifier );
 #endif
 }
 
@@ -1890,8 +1901,6 @@ bool RDMAConnection::_checkEvents( eventset &events )
     if (( _eventFlag & MASK_CM_EVENT ) != 0 )
         events.set( CM_EVENT );
     
-    _eventFlag = 0;
-
     return true;
 #else
     struct epoll_event evts[3];
@@ -1979,7 +1988,7 @@ bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 {
 #ifdef _WIN32
     _availBytes += b;
-    _event->set();
+    SetEvent( _notifier );
     co::base::ScopedFastWrite mutex( _eventFlagLock );
     _eventFlag |= MASK_BUF_EVENT;
 #else
@@ -2146,35 +2155,28 @@ bool RDMAConnection::_doCMEvent( enum rdma_cm_event_type expected )
     if( RDMA_CM_EVENT_REJECTED == event->event )
         EQINFO << "Connection reject status : " << event->status << std::endl;
 
+    if( ::rdma_ack_cm_event( event ))
+        EQWARN << "rdma_ack_cm_event : "  << co::base::sysError << std::endl;
+
+
 #ifdef _WIN32
     EnterCriticalSection( &_cm->channel.Lock );
     // reset event
-    if (!_cm->channel.Head)
-        ResetEvent( _cm->channel.Event );
+    //if (!_cm->channel.Head)
+    ResetEvent( _cm->channel.Event );
+    LeaveCriticalSection( &_cm->channel.Lock );
 
-    // rearm event callback
-    UnregisterWait( _cmWaitObj );
-    if ( !RegisterWaitForSingleObject( 
-        &_cmWaitObj, 
-        _cm->channel.Event, 
-        WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
-        this, 
-        INFINITE, 
-        WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
-    {
-        EQERROR << "RegisterWaitForSingleObject : " << co::base::sysError 
-            << std::endl;
-        return false;
-    }
+    // apparently for some time after resetting the CM event, the event
+    // callback is still triggered, which ultimately leads to a session lock
+    // so I just wait here for a bit before resetting the CM flag...
+    // someone has a better idea?
+    co::base::sleep( 30 );
+
     {
         co::base::ScopedFastWrite mutex( _eventFlagLock );
         _eventFlag &= ~MASK_CM_EVENT;
     }
-    LeaveCriticalSection ( &_cm->channel.Lock );
 #endif
-
-    if( ::rdma_ack_cm_event( event ))
-        EQWARN << "rdma_ack_cm_event : "  << co::base::sysError << std::endl;
 
 out:
     return ok;
@@ -2207,30 +2209,10 @@ bool RDMAConnection::_rearmCQ( )
     }
 
 #ifdef _WIN32
-    // reset event
-    EnterCriticalSection( &_cc->comp_channel.Lock );
-    if (!_cc->comp_channel.Head)
-        ResetEvent( _cc->comp_channel.Event );
-
-    // rearm event callback
-    UnregisterWait( _ccWaitObj );
-    if ( !RegisterWaitForSingleObject( 
-        &_ccWaitObj, 
-        _cc->comp_channel.Event, 
-        WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
-        this, 
-        INFINITE, 
-        WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE ))
-    {
-        EQERROR << "RegisterWaitForSingleObject : " << co::base::sysError 
-            << std::endl;
-        return false;
-    }
     {
         co::base::ScopedFastWrite mutex( _eventFlagLock );
         _eventFlag &= ~MASK_CQ_EVENT;
     }
-    LeaveCriticalSection ( &_cc->comp_channel.Lock );
 #endif
 
     return true;
@@ -2348,39 +2330,45 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 
 Connection::Notifier RDMAConnection::getNotifier() const
 { 
-#ifdef _WIN32
-    return _event->getNotifier();
-#else
-	return _notifier;
-#endif
+    return _notifier;
 }
 
 #ifdef _WIN32
 void RDMAConnection::_triggerNotifierCQ( RDMAConnection* conn )
 {
-    conn->_triggerNotifierWorker( CQ_EVENT );
+    conn->_triggerNotifierWorker( MASK_CQ_EVENT );
 }
 
 void RDMAConnection::_triggerNotifierCM( RDMAConnection* conn )
 {
-    conn->_triggerNotifierWorker( CM_EVENT );
+    conn->_triggerNotifierWorker( MASK_CM_EVENT );
 }
 
-void RDMAConnection::_triggerNotifierWorker( Events which )
+void RDMAConnection::_triggerNotifierWorker( uint32_t event_mask )
 {
-    EQASSERT( which != BUF_EVENT );
+    EQASSERT( event_mask == MASK_CM_EVENT ||
+              event_mask == MASK_CQ_EVENT );
 
-    if ( which == CM_EVENT )
+    co::base::ScopedFastWrite mutex( _eventFlagLock );    
+    if ( event_mask == MASK_CM_EVENT )
     {
-        co::base::ScopedFastWrite mutex ( _eventFlagLock );
-        _eventFlag |= MASK_CM_EVENT;
+        EnterCriticalSection( &_cm->channel.Lock );
+        // reset event
+        //if (!_cm->channel.Head)
+            ResetEvent( _cm->channel.Event );
+        LeaveCriticalSection( &_cm->channel.Lock );
     }
-    if ( which == CQ_EVENT )
+    if ( event_mask == MASK_CQ_EVENT )
     {
-        co::base::ScopedFastWrite mutex ( _eventFlagLock );
-        _eventFlag |= MASK_CQ_EVENT;
+        EnterCriticalSection( &_cc->comp_channel.Lock );
+        // reset event
+        //if (!_cc->comp_channel.Head)
+            ResetEvent( _cc->comp_channel.Event );
+        LeaveCriticalSection( &_cc->comp_channel.Lock );
     }
-    _event->set();
+
+    _eventFlag |= event_mask;
+    SetEvent( _notifier );
 }
 #endif
 
@@ -2547,7 +2535,7 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
         }
         else
         {
-            EQINFO << "Allocated Ringbuffer memory in " 
+            EQVERB << "Allocated RDMA Ringbuffer memory in " 
                     << ( RINGBUFFER_ALLOC_RETRIES - num_retries ) << " tries."
                     << std::endl;
             ok = true;

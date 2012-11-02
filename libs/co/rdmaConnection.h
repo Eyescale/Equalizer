@@ -241,6 +241,7 @@ private:
     typedef std::bitset<3> eventset;
 
     bool _createNotifier( );
+    void _updateNotifier();
     bool _checkEvents( eventset &events );
 
     /* Connection manager events */
@@ -260,16 +261,11 @@ private:
 #ifdef _WIN32
     static void _triggerNotifierCQ( RDMAConnection* conn );
     static void _triggerNotifierCM( RDMAConnection* conn );
-    void _triggerNotifierWorker( Events which );
+    void _triggerNotifierWorker( uint32_t event_mask );
 #endif
 
 private:
-#ifdef _WIN32 
-    typedef co::base::RefPtr< EventConnection > EventConnectionPtr;
-    EventConnectionPtr _event;
-#else
     Notifier _notifier;
-#endif
 
     /* Protect RDMA/Verbs vars from multiple threads */
     co::base::Lock _poll_lock;
