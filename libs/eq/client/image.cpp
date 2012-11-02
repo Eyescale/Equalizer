@@ -366,7 +366,7 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
 }
 
 std::vector< uint32_t > Image::findTransferers( const Frame::Buffer buffer,
-                                                const GLEWContext* gl )
+                                                const GLEWContext* gl ) const
 {
     std::vector< uint32_t > result;
     const co::CompressorInfos& infos = _findTransferers( buffer, gl );
@@ -376,7 +376,7 @@ std::vector< uint32_t > Image::findTransferers( const Frame::Buffer buffer,
 }
 
 co::CompressorInfos Image::_findTransferers( const Frame::Buffer buffer,
-                                             const GLEWContext* gl )
+                                             const GLEWContext* gl ) const
 {
     return util::GPUCompressor::findTransferers(
         getInternalFormat( buffer ), getExternalFormat( buffer ), 0 /*caps*/,

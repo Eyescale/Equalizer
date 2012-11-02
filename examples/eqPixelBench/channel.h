@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ protected:
     virtual void frameStart( const eq::uint128_t& frameID,
                              const uint32_t frameNumber );
     virtual void frameDraw( const eq::uint128_t& frameID );
+    virtual bool configExit();
 
 private:
     void _draw( const eq::uint128_t& spin );
