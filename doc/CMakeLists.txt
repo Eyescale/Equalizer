@@ -1,7 +1,9 @@
 
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
+find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
+  message(STATUS "Doxygen missing, API documentation targets unavailable")
   return()
 endif()
 
