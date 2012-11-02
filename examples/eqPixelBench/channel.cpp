@@ -75,6 +75,12 @@ Channel::Channel( eq::Window* parent )
         frameData->newImage( eq::Frame::TYPE_MEMORY, getDrawableConfig( ));
 }
 
+bool Channel::configExit()
+{
+    _frame.getData()->resetPlugins();
+    return eq::Channel::configExit();
+}
+
 void Channel::frameStart( const eq::uint128_t& frameID,
                           const uint32_t frameNumber )
 {
