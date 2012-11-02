@@ -7,7 +7,7 @@ if(NOT CPACK_PROJECT_NAME)
 endif()
 string(TOUPPER ${CPACK_PROJECT_NAME} UPPER_PROJECT_NAME)
 
-set(CMAKE_PACKAGE_VERSION "" CACHE 
+set(CMAKE_PACKAGE_VERSION "" CACHE
   STRING "Additional build version for packages")
 mark_as_advanced(CMAKE_PACKAGE_VERSION)
 
@@ -37,7 +37,7 @@ if(NOT CPACK_COMPONENTS_ALL)
   if(RELEASE_VERSION)
     set(CPACK_COMPONENTS_ALL lib dev apps)
   else()
-    set(CPACK_COMPONENTS_ALL unspecified lib dev app)
+    set(CPACK_COMPONENTS_ALL unspecified lib dev apps)
   endif()
 
   set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
