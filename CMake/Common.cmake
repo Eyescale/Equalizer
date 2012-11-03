@@ -1,13 +1,17 @@
 
+include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
+
 # Common settings
 enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
-if(CMAKE_VERSION VERSION_LESS 2.8)
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/2.8)
-endif()
+
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/2.8.3)
+  get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH) # WAR bug
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8.3)
+endif()
+if(CMAKE_VERSION VERSION_LESS 2.8)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -74,15 +78,20 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_COMPILER_IS_CLANG ON)
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
-  include(CompilerVersion)
+  include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
+  if(GCC_COMPILER_VERSION VERSION_GREATER 4.1) # < 4.2 doesn't know -isystem
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
+  endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
@@ -112,7 +121,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
   endif()
 elseif(EXISTS ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec)
-  configure_file(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec 
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec
     ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.spec @ONLY)
 endif()
 
@@ -131,7 +140,7 @@ endif()
 set(LIBRARY_DIR lib${LIB_SUFFIX})
 
 if(APPLE)
-  list(APPEND CMAKE_PREFIX_PATH "/opt/local/")
+  list(APPEND CMAKE_PREFIX_PATH "/opt/local/") # Macports
   if(NOT CMAKE_OSX_ARCHITECTURES OR CMAKE_OSX_ARCHITECTURES STREQUAL "")
     if(_CMAKE_OSX_MACHINE MATCHES "ppc")
       set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64" CACHE
