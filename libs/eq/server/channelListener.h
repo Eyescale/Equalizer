@@ -37,7 +37,6 @@ namespace server
          *
          * @param channel the channel
          * @param frameNumber the frame number.
-         * @param nStatistics the statistic's length.
          * @param statistics the frame's statistic.
          * @param region the draw area wrt the channels viewport
          */
