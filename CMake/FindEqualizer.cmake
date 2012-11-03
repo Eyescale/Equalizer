@@ -178,7 +178,11 @@ find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
 
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
-if(_eq_version_not_high_enough)
+if(NOT EQUALIZER_VERSION)
+  set(_eq_EPIC_FAIL TRUE)
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
+                                    _eq_LIBRARY _eq_INCLUDE_DIR)
+elseif(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
     "Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
@@ -228,7 +232,7 @@ else()
   find_package(Collage "${_eq_coVersion_${EQUALIZER_VERSION}}" EXACT
                ${_eq_required} ${_eq_quiet})
   if(NOT COLLAGE_FOUND)
-    set(_eq_EPIC_FAIL 1)
+    set(_eq_EPIC_FAIL TRUE)
   endif()
   if(NOT _eq_EPIC_FAIL)
     # GLEW_MX
@@ -243,8 +247,6 @@ else()
 
     try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
       CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
-                  "-DLINK_LIBRARIES:STRING=${_eq_LIBRARY}"
-      OUTPUT_VARIABLE out
     )
     if(_glew_mx_internal)
       set(GLEW_MX_INCLUDE_DIRS)
@@ -252,7 +254,7 @@ else()
     else()
       find_package(GLEW_MX ${_eq_required} ${_eq_quiet})
       if(NOT GLEW_MX_FOUND)
-        set(_eq_EPIC_FAIL 1)
+        set(_eq_EPIC_FAIL TRUE)
       endif()
     endif()
   endif()
