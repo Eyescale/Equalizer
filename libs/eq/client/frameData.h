@@ -212,7 +212,7 @@ namespace server { class FrameData; }
         void deleteGLObjects( ObjectManager* om );
 
         /** Deallocate all transfer and compression plugins on all images. */
-        void resetPlugins();
+        EQ_API void resetPlugins();
 
 #ifndef EQ_2_0_API
         /**
