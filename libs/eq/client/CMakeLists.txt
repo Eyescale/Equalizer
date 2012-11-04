@@ -65,6 +65,7 @@ purple_add_library(Equalizer SHARED
   HEADERS ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
   SOURCES ${CLIENT_SOURCES} ${EQ_UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES shared EqualizerFabric ${GLEW_LIBRARY} ${EQ_LIBRARIES}
+  LINK_FLAGS ${OpenMP_CXX_FLAGS}
   )
 
 option(EQUALIZER_OLD_CLIENT_LAYOUT "Install header files as in v1.0 directory layout" OFF)
