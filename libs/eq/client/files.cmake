@@ -135,10 +135,6 @@ set(CLIENT_SOURCES
   worker.cpp
   )
 
-set_source_files_properties(
-  compositor.cpp image.cpp
-  PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
-
 if(NOT EQUALIZER_BUILD_2_0_API)
   list(APPEND CLIENT_HEADERS configEvent.h)
   list(APPEND CLIENT_SOURCES configEvent.cpp)

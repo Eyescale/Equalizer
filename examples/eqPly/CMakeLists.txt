@@ -30,9 +30,6 @@ set(KD_SOURCES
 )
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
 
-set_source_files_properties(
-  vertexData.cpp PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
-
 eq_add_example(eqPly
   HEADERS
     cameraAnimation.h
