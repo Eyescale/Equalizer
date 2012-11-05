@@ -30,9 +30,6 @@ set(KD_SOURCES
 )
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
 
-set_source_files_properties(
-  vertexData.cpp PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS})
-
 eq_add_example(eqPly
   HEADERS
     cameraAnimation.h
@@ -74,6 +71,8 @@ eq_add_example(eqPly
     fragmentShader.glsl
   LINK_LIBRARIES
     ${EQUALIZER_ADMIN_LIBRARY}
+  LINK_FLAGS
+    "${OpenMP_CXX_FLAGS}"
   )
 
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
