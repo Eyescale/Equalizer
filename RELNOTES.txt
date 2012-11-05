@@ -23,6 +23,9 @@
    features, most notably asynchronous readbacks, region of interest and
    thread affinity for increased performance during scalable rendering.
 
+   Equalizer 1.4.1 is a bugfix release for Equalizer 1.4, containing the
+   fixes listed below.
+
    Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
    seven years of development and decades of experience into a feature-rich,
    high-performance and mature parallel rendering framework and an
@@ -107,6 +110,12 @@
        rendering and interactive raytracing
 
   2.7. Bug Fixes
+
+   Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
+
+     * 162: WGL window compile error
+     * 160: Memleak with pipe thread affinity
+     * 158: Non-freed GPUCompressors after application exit
 
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
    the following:
