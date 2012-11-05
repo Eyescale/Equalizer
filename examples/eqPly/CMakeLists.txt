@@ -71,8 +71,6 @@ eq_add_example(eqPly
     fragmentShader.glsl
   LINK_LIBRARIES
     ${EQUALIZER_ADMIN_LIBRARY}
-  LINK_FLAGS
-    "${OpenMP_CXX_FLAGS}"
   )
 
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
