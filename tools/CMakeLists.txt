@@ -5,13 +5,16 @@ include(PurpleInstallPDB)
 include(PurpleExpandLibraries)
 
 macro(EQ_ADD_TOOL NAME)
-  parse_arguments(THIS "SOURCES;HEADERS;LINK_LIBRARIES" "" ${ARGN})
+  parse_arguments(THIS "SOURCES;HEADERS;LINK_LIBRARIES;LINK_FLAGS" "" ${ARGN})
   set(THIS_TARGET ${NAME})
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS})
   add_executable(${THIS_TARGET} ${THIS_SOURCES} ${THIS_HEADERS})
   purple_expand_libraries(LINK_LIBRARIES ${THIS_LINK_LIBRARIES})
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
-  set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Tools")
+  set_target_properties(${THIS_TARGET} PROPERTIES
+    OUTPUT_NAME ${NAME} FOLDER "Tools"
+    LINK_FLAGS "${THIS_LINK_FLAGS}"
+  )
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT tools)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
 endmacro(EQ_ADD_TOOL NAME)
@@ -64,6 +67,7 @@ eq_add_tool(eqPlyConverter
     ../examples/eqPly/vertexBufferState.cpp
     ../examples/eqPly/vertexData.cpp
   LINK_LIBRARIES shared Equalizer
+  LINK_FLAGS ${OpenMP_CXX_FLAGS}
   )
 
 eq_add_tool(eVolveConverter
