@@ -24,9 +24,9 @@ add_custom_target(doxygen
 add_dependencies(doxygen doxygen_install)
 
 add_custom_target(github
-  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION}
-  COMMENT "Copying API documentation to ${GIT_ORIGIN_org}.github.com/${PROJECT_NAME}-${VERSION}"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}
+  COMMENT "Copying API documentation to ${GIT_ORIGIN_org}.github.com/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}"
   VERBATIM)
 add_dependencies(github doxygen)
 
