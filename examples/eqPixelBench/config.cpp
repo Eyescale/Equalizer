@@ -107,6 +107,8 @@ bool Config::handleEvent( eq::EventICommand command )
             std::cout << area << "( size CPU : " << dataSizeCPU << " bytes ";
             std::cout << "/ time : " <<  msec << "ms )";
         }
+
+        std::cout << std::endl;
         return true;
     }
 
