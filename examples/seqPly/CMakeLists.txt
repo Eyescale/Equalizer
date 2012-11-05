@@ -42,6 +42,8 @@ eq_add_example(seqPly
     ${KD_SOURCES}
   LINK_LIBRARIES
     ${EQUALIZER_SEQUEL_LIBRARY}
+  LINK_FLAGS
+    "${OpenMP_CXX_FLAGS}"
   )
 
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
