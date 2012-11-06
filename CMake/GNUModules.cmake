@@ -69,7 +69,7 @@ endif()
 # get the used compiler + its version
 get_filename_component(MODULE_COMPILER_NAME ${CMAKE_C_COMPILER} NAME CACHE)
 include(CompilerVersion)
-COMPILER_DUMPVERSION(MODULE_COMPILER_VERSION)
+compiler_dumpversion(MODULE_COMPILER_VERSION)
 
 # setup the module file content
 set(MODULE_PACKAGE_NAME ${CPACK_PROJECT_NAME})
@@ -113,15 +113,14 @@ file(WRITE ${CMAKE_BINARY_DIR}/${MODULE_FILENAME}
   "\n"
   "module-whatis   \"Loads the environment for $package_name\"\n"
   "\n"
-  "proc ModulesHelp { }\n"
-  "{\n"
+  "proc ModulesHelp { } {\n"
   "    global package_name version architecture\n"
   "\n"
-  "    puts stderr \"This module prepares your environment to run $package_name $version\n"
-  "                 for the architecture: $architecture\n"
+  "    puts stderr \"This module prepares your environment to run $package_name $version "
+  "for the architecture: $architecture\n"
   "\n"
-  "                 Type 'module list' to list all the loaded modules.\n"
-  "                 Type 'module avail' to list all the availables ones.\"\n"
+  "Type 'module list' to list all the loaded modules.\n"
+  "Type 'module avail' to list all the availables ones.\"\n"
   "}\n"
   "\n"
   "# Update PATH environment:\n"
