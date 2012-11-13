@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -139,13 +139,13 @@ void _parseArguments( const int argc, char** argv )
     // - reordering of arguments
     // - different behaviour of GNU and BSD implementations
     // - incomplete man pages
-    for( int i=1; i<argc; ++i )
+    for( int i = 1; i < argc; ++i )
     {
         if( strcmp( "--eq-logfile", argv[i] ) == 0 )
         {
-            ++i;
-            if( i<argc )
+            if( i + 1 < argc && strncmp("--", argv[i + 1], 2) != 0)
             {
+                ++i;
                 std::ofstream* oldLog = _logFile;
                 std::ofstream* newLog = new std::ofstream( argv[i] );
 
@@ -169,39 +169,64 @@ void _parseArguments( const int argc, char** argv )
                     newLog = 0;
                 }
             }
+            else
+            {
+                LBWARN << "Missing argument cfor --eq-logfile" << std::endl;
+            }
         }
         else if( strcmp( "--eq-server", argv[i] ) == 0 )
         {
-            ++i;
-            if( i<argc )
+            if( i + 1 < argc && strncmp("--", argv[i + 1], 2) != 0)
+            {
+                ++i;
                 Global::setServer( argv[i] );
+            }
+            else
+            {
+                LBWARN << "Missing argument for --eq-server" << std::endl;
+            }
         }
         else if( strcmp( "--eq-config", argv[i] ) == 0 )
         {
-            ++i;
-            if( i<argc )
+            if( i + 1 < argc && strncmp("--", argv[i + 1], 2) != 0)
+            {
+                ++i;
                 Global::setConfigFile( argv[i] );
+            }
+            else
+            {
+                LBWARN << "Missing argument for --eq-config" << std::endl;
+            }
         }
         else if( strcmp( "--eq-config-flags", argv[i] ) == 0 )
         {
-            ++i;
-            if( i >= argc )
-                break;
-
-            uint32_t flags = Global::getFlags();
-            if( strcmp( "multiprocess", argv[i] ))
-                flags |= ConfigParams::FLAG_MULTIPROCESS;
-            else if( strcmp( "multiprocess_db", argv[i] ))
-                flags |= ConfigParams::FLAG_MULTIPROCESS_DB;
-            Global::setFlags( flags );
+            if( i + 1 < argc && strncmp("--", argv[i + 1], 2) != 0)
+            {
+                uint32_t flags = Global::getFlags();
+                if( strcmp( "multiprocess", argv[i] ))
+                    flags |= ConfigParams::FLAG_MULTIPROCESS;
+                else if( strcmp( "multiprocess_db", argv[i] ))
+                    flags |= ConfigParams::FLAG_MULTIPROCESS_DB;
+                Global::setFlags( flags );
+            }
+            else
+            {
+                LBWARN << "Missing argument for --eq-config-flags"
+                       << std::endl;
+            }
         }
         else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
         {
-            ++i;
-            if( i<argc )
+            if( i + 1 < argc && strncmp("--", argv[i + 1], 2) != 0)
             {
+                ++i;
                 co::Global::setProgramName( argv[i] );
                 co::Global::setWorkDir( lunchbox::getDirname( argv[i] ));
+            }
+            else
+            {
+                LBWARN << "Missing argument for --eq-render-client"
+                       << std::endl;
             }
         }
     }
@@ -216,7 +241,7 @@ void _initPlugins()
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.addDirectory( "../share/Equalizer/plugins" );
 #else
-    plugins.addDirectory( std::string( EQ_INSTALL_DIR ) + 
+    plugins.addDirectory( std::string( EQ_INSTALL_DIR ) +
                           std::string( "share/Equalizer/plugins" ));
 #endif
 
@@ -232,7 +257,7 @@ void _initPlugins()
         return;
 
     // Hard-coded compile locations as backup:
-    std::string absDSO = std::string( EQ_BUILD_DIR ) + "lib/" + 
+    std::string absDSO = std::string( EQ_BUILD_DIR ) + "lib/" +
                          EQUALIZER_DSO_NAME;
     if( plugins.addPlugin( absDSO ))
         return;
@@ -265,7 +290,7 @@ void _exitPlugins()
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.removeDirectory( "../share/Equalizer/plugins" );
 #else
-    plugins.removeDirectory( std::string( EQ_INSTALL_DIR ) + 
+    plugins.removeDirectory( std::string( EQ_INSTALL_DIR ) +
                              std::string( "share/Equalizer/plugins" ));
 #endif
     plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
@@ -299,7 +324,7 @@ Config* getConfig( const int argc, char** argv )
         }
         else
             LBERROR << "Can't open server" << std::endl;
-        
+
         // -1. exit local client node
         client->exitLocal();
     }
