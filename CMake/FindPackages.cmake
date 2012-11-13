@@ -99,6 +99,18 @@ if(GLStats_name)
   include_directories(${${GLStats_name}_INCLUDE_DIRS})
 endif()
 
+find_package(HWLOC 1.4.0)
+if(HWLOC_FOUND)
+  set(HWLOC_name HWLOC)
+elseif(HWLOC_FOUND)
+  set(HWLOC_name HWLOC)
+endif()
+if(HWLOC_name)
+  list(APPEND FIND_PACKAGES_FOUND EQUALIZER_USE_HWLOC)
+  link_directories(${${HWLOC_name}_LIBRARY_DIRS})
+  include_directories(${${HWLOC_name}_INCLUDE_DIRS})
+endif()
+
 
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)
