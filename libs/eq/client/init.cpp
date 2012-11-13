@@ -170,7 +170,7 @@ void _parseArguments( const int argc, char** argv )
                 }
             }
         }
-        if( strcmp( "--eq-server", argv[i] ) == 0 )
+        else if( strcmp( "--eq-server", argv[i] ) == 0 )
         {
             ++i;
             if( i<argc )
