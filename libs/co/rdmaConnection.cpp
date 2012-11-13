@@ -465,7 +465,7 @@ bool RDMAConnection::listen( )
     // without rdma_get_cm_event being able to get this event
     // we just ignore this and reset the notifier to not confuse collage
     {
-        co::base::ScopedFastWrite mutex( _eventFlagLock );
+        co::base::ScopedFastWrite mutex( _eventLock );
         _eventFlag &= ~MASK_CM_EVENT;
     }
     _updateNotifier();
@@ -997,6 +997,12 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         LBERROR << "Failed to post setup message." << std::endl;
         goto err;
     }
+
+    // another sleep. if we just bomb the other side with messages/rdma writes
+    // right after posting the setup message, it will get confused and stuck.
+    // unfortunately, right now I don't know of a way to block this side until
+    // the other side is finished connecting.
+    base::sleep( 2 );
 
     LBVERB << "Connection accepted on " << std::dec
         << _device_name << ":" << (int)_cm_id->port_num
@@ -1881,10 +1887,21 @@ err:
 void RDMAConnection::_updateNotifier()
 {
     eventset events;
-    _checkEvents( events );
 #ifdef _WIN32
+    events.reset( );
+
+    co::base::ScopedFastWrite mutex( _eventLock );
+    if (( _eventFlag & MASK_BUF_EVENT ) != 0 )
+        events.set( BUF_EVENT );
+    if (( _eventFlag & MASK_CQ_EVENT ) != 0 )
+        events.set( CQ_EVENT );
+    if (( _eventFlag & MASK_CM_EVENT ) != 0 )
+        events.set( CM_EVENT );
+
     if ( !events.any() )
         ResetEvent( _notifier );
+#else
+	_checkEvents( events );
 #endif
 }
 
@@ -1893,7 +1910,7 @@ bool RDMAConnection::_checkEvents( eventset &events )
     events.reset( );
 
 #ifdef _WIN32
-    lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+    lunchbox::ScopedFastWrite mutex( _eventLock );
     if (( _eventFlag & MASK_BUF_EVENT ) != 0 )
         events.set( BUF_EVENT );
     if (( _eventFlag & MASK_CQ_EVENT ) != 0 )
@@ -1988,9 +2005,9 @@ bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 {
 #ifdef _WIN32
     _availBytes += b;
-    SetEvent( _notifier );
-    co::base::ScopedFastWrite mutex( _eventFlagLock );
+    co::base::ScopedFastWrite mutex( _eventLock );
     _eventFlag |= MASK_BUF_EVENT;
+    SetEvent( _notifier );
 #else
     if( ::write( _pipe_fd[1], (const void *)&b, sizeof(b) ) != sizeof(b) )
     {
@@ -2007,7 +2024,7 @@ uint64_t RDMAConnection::_getAvailableBytes( )
 #ifdef _WIN32
     available_bytes = static_cast<uint64_t>( _availBytes );
     _availBytes = 0;
-    lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+    lunchbox::ScopedFastWrite mutex( _eventLock );
     _eventFlag &= ~MASK_BUF_EVENT;
     return available_bytes;
 #else
@@ -2160,11 +2177,7 @@ bool RDMAConnection::_doCMEvent( enum rdma_cm_event_type expected )
 
 
 #ifdef _WIN32
-    EnterCriticalSection( &_cm->channel.Lock );
-    // reset event
-    //if (!_cm->channel.Head)
     ResetEvent( _cm->channel.Event );
-    LeaveCriticalSection( &_cm->channel.Lock );
 
     // apparently for some time after resetting the CM event, the event
     // callback is still triggered, which ultimately leads to a session lock
@@ -2173,7 +2186,7 @@ bool RDMAConnection::_doCMEvent( enum rdma_cm_event_type expected )
     co::base::sleep( 30 );
 
     {
-        lunchbox::ScopedFastWrite mutex( _eventFlagLock );
+        lunchbox::ScopedFastWrite mutex( _eventLock );
         _eventFlag &= ~MASK_CM_EVENT;
     }
 #endif
@@ -2187,10 +2200,13 @@ bool RDMAConnection::_rearmCQ( )
     struct ibv_cq *ev_cq;
     void *ev_ctx;
 
+#ifdef _WIN32
+    co::base::ScopedFastWrite mutex( _eventLock );
+#endif
     if( ::ibv_get_cq_event( _cc, &ev_cq, &ev_ctx ))
     {
         LBERROR << "ibv_get_cq_event : " << lunchbox::sysError << std::endl;
-        goto err;
+        return false;
     }
 
     // http://lists.openfabrics.org/pipermail/general/2008-November/055237.html
@@ -2201,24 +2217,18 @@ bool RDMAConnection::_rearmCQ( )
         _completions = 0U;
     }
 
+#ifdef _WIN32
+    _eventFlag &= ~MASK_CQ_EVENT;
+#endif
+
     // Solicited only!
     if( ::rdma_seterrno( ::ibv_req_notify_cq( _cq, 1 )))
     {
         LBERROR << "ibv_req_notify_cq : " << lunchbox::sysError << std::endl;
-        goto err;
+        return false;
     }
-
-#ifdef _WIN32
-    {
-        lunchbox::ScopedFastWrite mutex( _eventFlagLock );
-        _eventFlag &= ~MASK_CQ_EVENT;
-    }
-#endif
 
     return true;
-
-err:
-    return false;
 }
 
 bool RDMAConnection::_checkCQ( bool drain )
@@ -2349,22 +2359,14 @@ void RDMAConnection::_triggerNotifierWorker( uint32_t event_mask )
     LBASSERT( event_mask == MASK_CM_EVENT ||
               event_mask == MASK_CQ_EVENT );
 
-    co::base::ScopedFastWrite mutex( _eventFlagLock );    
+    co::base::ScopedFastWrite mutex( _eventLock );    
     if ( event_mask == MASK_CM_EVENT )
     {
-        EnterCriticalSection( &_cm->channel.Lock );
-        // reset event
-        //if (!_cm->channel.Head)
-            ResetEvent( _cm->channel.Event );
-        LeaveCriticalSection( &_cm->channel.Lock );
+        ResetEvent( _cm->channel.Event );
     }
     if ( event_mask == MASK_CQ_EVENT )
     {
-        EnterCriticalSection( &_cc->comp_channel.Lock );
-        // reset event
-        //if (!_cc->comp_channel.Head)
-            ResetEvent( _cc->comp_channel.Event );
-        LeaveCriticalSection( &_cc->comp_channel.Lock );
+        ResetEvent( _cc->comp_channel.Event );
     }
 
     _eventFlag |= event_mask;

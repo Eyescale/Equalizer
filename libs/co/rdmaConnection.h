@@ -291,7 +291,7 @@ private:
 #else
     uint64_t _availBytes;
     uint32_t _eventFlag;
-    lunchbox::SpinLock _eventFlagLock;
+    lunchbox::SpinLock _eventLock;
 #endif
 
     struct RDMAConnParamData _cpd;
