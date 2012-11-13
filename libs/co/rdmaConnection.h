@@ -292,7 +292,7 @@ private:
 #else
     uint64_t _availBytes;
     uint32_t _eventFlag;
-    co::base::SpinLock _eventFlagLock;
+    co::base::SpinLock _eventLock;
 #endif
 
     struct RDMAConnParamData _cpd;
