@@ -25,12 +25,6 @@
 #define glewGetContext() glewContext
 #define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
 
-#ifdef _MSC_VER
-#  define ASYNC_FLAG // temporary WAR for #138
-#else
-#  define ASYNC_FLAG EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |
-#endif
-
 namespace eq
 {
 namespace plugin
@@ -49,7 +43,7 @@ static stde::hash_map< unsigned, unsigned > _depths;
                              EQ_COMPRESSOR_DATA_2D |                    \
                              EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
                              EQ_COMPRESSOR_USE_TEXTURE_2D |             \
-                             ASYNC_FLAG                                 \
+                             EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |         \
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
         if( alpha )                                                     \
             info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
