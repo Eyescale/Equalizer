@@ -29,7 +29,7 @@ namespace fabric
 /** @cond IGNORE */
     enum ServerCommand
     {
-        CMD_SERVER_CHOOSE_CONFIG        = co::CMD_NODE_CUSTOM,
+        CMD_SERVER_CHOOSE_CONFIG        = co::CMD_NODE_CUSTOM, // 50
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_CREATE_CONFIG,
         CMD_SERVER_CREATE_CONFIG_REPLY,
@@ -45,29 +45,19 @@ namespace fabric
         CMD_SERVER_MAP_REPLY,
         CMD_SERVER_UNMAP,
         CMD_SERVER_UNMAP_REPLY,
-        CMD_SERVER_FILL1, // some buffer for binary-compatible patches
-        CMD_SERVER_FILL2,
-        CMD_SERVER_FILL3,
-        CMD_SERVER_FILL4,
-        CMD_SERVER_FILL5,
-        CMD_SERVER_CUSTOM
+        CMD_SERVER_CUSTOM = co::CMD_NODE_CUSTOM + 20 // 70, buffer for changes
     };
 
     enum ClientCommand
     {
-        CMD_CLIENT_EXIT = CMD_SERVER_CUSTOM,
-        CMD_CLIENT_FILL1, // some buffer for binary-compatible patches
-        CMD_CLIENT_FILL2,
-        CMD_CLIENT_FILL3,
-        CMD_CLIENT_FILL4,
-        CMD_CLIENT_FILL5,
-        CMD_CLIENT_CUSTOM
+        CMD_CLIENT_EXIT = CMD_SERVER_CUSTOM, // 70
+        CMD_CLIENT_CUSTOM = CMD_SERVER_CUSTOM + 5
     };
 
     enum ObjectICommand
     {
         CMD_OBJECT_SYNC = co::CMD_OBJECT_CUSTOM, // 10
-        CMD_OBJECT_CUSTOM = 15
+        CMD_OBJECT_CUSTOM = co::CMD_OBJECT_CUSTOM + 5
     };
 
     enum ConfigCommand
@@ -99,7 +89,7 @@ namespace fabric
 #endif
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_SWAP_OBJECT,
-        CMD_CONFIG_CUSTOM = 45 // some buffer for binary-compatible patches
+        CMD_CONFIG_CUSTOM = CMD_OBJECT_CUSTOM + 30
     };
 
     enum NodeCommand
@@ -118,7 +108,7 @@ namespace fabric
         CMD_NODE_FRAME_TASKS_FINISH,
         CMD_NODE_FRAMEDATA_TRANSMIT,
         CMD_NODE_FRAMEDATA_READY,
-        CMD_NODE_CUSTOM = 35  // some buffer for binary-compatible patches
+        CMD_NODE_CUSTOM = CMD_OBJECT_CUSTOM + 20
     };
 
     enum PipeCommand
@@ -138,7 +128,7 @@ namespace fabric
         CMD_PIPE_EXIT_THREAD,
         CMD_PIPE_EXIT_TRANSFER_THREAD,
         CMD_PIPE_DETACH_VIEW,
-        CMD_PIPE_CUSTOM = 35 // some buffer for binary-compatible patches
+        CMD_PIPE_CUSTOM = CMD_OBJECT_CUSTOM + 20
     };
 
     enum WindowCommand
@@ -160,7 +150,7 @@ namespace fabric
         CMD_WINDOW_NV_BARRIER,
         CMD_WINDOW_SWAP,
         CMD_WINDOW_FRAME_DRAW_FINISH,
-        CMD_WINDOW_CUSTOM = 40 // some buffer for binary-compatible patches
+        CMD_WINDOW_CUSTOM = CMD_OBJECT_CUSTOM + 20
     };
 
     enum ChannelCommand
@@ -186,27 +176,27 @@ namespace fabric
         CMD_CHANNEL_FRAME_TILES,
         CMD_CHANNEL_FINISH_READBACK,
         CMD_CHANNEL_DELETE_TRANSFER_CONTEXT,
-        CMD_CHANNEL_CUSTOM = 45 // some buffer for binary-compatible patches
+        CMD_CHANNEL_CUSTOM = CMD_OBJECT_CUSTOM + 30
     };
 
     enum CanvasCommand
     {
         CMD_CANVAS_NEW_SEGMENT = CMD_OBJECT_CUSTOM, // 15
         CMD_CANVAS_NEW_SEGMENT_REPLY,
-        CMD_CANVAS_CUSTOM = 20 // some buffer for binary-compatible patches
+        CMD_CANVAS_CUSTOM = CMD_OBJECT_CUSTOM + 5
     };
 
     enum LayoutCommand
     {
         CMD_LAYOUT_NEW_VIEW = CMD_OBJECT_CUSTOM, // 15
         CMD_LAYOUT_NEW_VIEW_REPLY,
-        CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
+        CMD_LAYOUT_CUSTOM = CMD_OBJECT_CUSTOM + 5
     };
 
     enum ViewCommand
     {
         CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 15
-        CMD_VIEW_CUSTOM = 20 // some buffer for binary-compatible patches
+        CMD_VIEW_CUSTOM = CMD_OBJECT_CUSTOM + 5
     };
 /** @endcond */
 }

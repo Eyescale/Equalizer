@@ -42,11 +42,11 @@ if(CUDA_FOUND)
   list(APPEND EQ_LIBRARIES "${CUDA_LIBRARIES}")
 endif(CUDA_FOUND)
 
-if(EQ_AGL_USED) 
-  list(APPEND EQ_LIBRARIES ${CARBON_LIBRARY}) 
+if(EQ_AGL_USED)
+  list(APPEND EQ_LIBRARIES ${CARBON_LIBRARY})
 endif()
-if(EQ_GLX_USED) 
-  list(APPEND EQ_LIBRARIES ${X11_LIBRARIES}) 
+if(EQ_GLX_USED)
+  list(APPEND EQ_LIBRARIES ${X11_LIBRARIES})
 endif()
 
 source_group(fabric REGULAR_EXPRESSION .*)
@@ -59,6 +59,8 @@ source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 source_group(agl FILES ${AGL_HEADERS} ${AGL_SOURCES})
 source_group(glx FILES ${GLX_HEADERS} ${GLX_SOURCES})
 source_group(wgl FILES ${WGL_HEADERS} ${WGL_SOURCES})
+set_source_files_properties(${AGL_SOURCES}
+  PROPERTIES COMPILE_FLAGS "-Wno-multichar")
 
 purple_add_library(Equalizer SHARED
   HEADERS_PREFIX "eq/client"

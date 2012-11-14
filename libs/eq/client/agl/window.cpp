@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -65,7 +65,7 @@ void Window::configExit()
 
     AGLPbuffer pbuffer = getAGLPBuffer();
     setAGLPBuffer( 0 );
-    
+
     AGLContext context = getAGLContext();
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
@@ -85,7 +85,7 @@ void Window::configExit()
 
     configExitFBO();
     exitGLEW();
-    
+
     if( context )
     {
         Global::enterCarbon();
@@ -94,7 +94,7 @@ void Window::configExit()
         Global::leaveCarbon();
         setAGLContext( 0 );
     }
-    
+
     LBVERB << "Destroyed AGL window and context" << std::endl;
 }
 
@@ -105,7 +105,7 @@ void Window::makeCurrent( const bool cache ) const
 
     aglSetCurrentContext( _aglContext );
     WindowIF::makeCurrent();
-    
+
     if( _aglContext )
     {
         EQ_GL_ERROR( "After aglSetCurrentContext" );
@@ -148,7 +148,7 @@ bool Window::configInit()
     AGLContext context = createAGLContext( pixelFormat );
     destroyAGLPixelFormat ( pixelFormat );
     setAGLContext( context );
-    
+
     if( !context )
         return false;
 
@@ -172,7 +172,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     attributes.push_back( AGL_ACCELERATED );
     attributes.push_back( GL_TRUE );
 
-    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON && 
+    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON &&
         getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER )
     {
         attributes.push_back( AGL_FULLSCREEN );
@@ -218,7 +218,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
 
     const int depthSize = getIAttribute( eq::Window::IATTR_PLANES_DEPTH );
     if( depthSize > 0 || depthSize == AUTO )
-    { 
+    {
         attributes.push_back( AGL_DEPTH_SIZE );
         attributes.push_back( depthSize>0 ? depthSize : 24 );
     }
@@ -257,7 +257,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     }
 
     if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
+        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
           getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
     {
         attributes.push_back( AGL_DOUBLEBUFFER );
@@ -296,7 +296,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
         const GLint attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
-        std::vector<GLint>::iterator iter = find( attributes.begin(), 
+        std::vector<GLint>::iterator iter = find( attributes.begin(),
                                              attributes.end(), attribute );
         LBASSERT( iter != attributes.end( ));
 
@@ -337,11 +337,11 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         const WindowIF* aglShareWindow = LBSAFECAST(const WindowIF*, sysWindow);
         shareCtx = aglShareWindow->getAGLContext();
     }
- 
+
     Global::enterCarbon();
     AGLContext context = aglCreateContext( pixelFormat, shareCtx );
 
-    if( !context ) 
+    if( !context )
     {
         setError( ERROR_AGLWINDOW_CREATECONTEXT_FAILED );
         LBWARN << getError() << ": " << AGLERROR << std::endl;
@@ -464,18 +464,19 @@ bool Window::configInitAGLWindow()
     // window
     const bool decoration =
         getIAttribute(eq::Window::IATTR_HINT_DECORATION) != OFF;
-    WindowAttributes winAttributes = ( decoration ? 
+    WindowAttributes winAttributes = ( decoration ?
                                        kWindowStandardDocumentAttributes :
-                                       kWindowNoTitleBarAttribute | 
+                                       kWindowNoTitleBarAttribute |
                                        kWindowNoShadowAttribute   |
-                                       kWindowResizableAttribute  ) | 
+                                       kWindowResizableAttribute  ) |
         kWindowStandardHandlerAttribute | kWindowInWindowMenuAttribute;
 
     // top, left, bottom, right
     const PixelViewport pvp = getWindow()->getPixelViewport();
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
-    Rect windowRect = { pvp.y + menuHeight, pvp.x,
-                        pvp.y + pvp.h + menuHeight, pvp.x + pvp.w };
+    Rect windowRect = { short( pvp.y + menuHeight ), short( pvp.x ),
+                        short( pvp.getYEnd() + menuHeight ),
+                               short( pvp.getXEnd( )) };
     WindowRef windowRef;
 
     Global::enterCarbon();
@@ -509,7 +510,7 @@ bool Window::configInitAGLWindow()
                                                    kCFStringEncodingMacRoman );
     SetWindowTitleWithCFString( windowRef, title );
     CFRelease( title );
-        
+
     if( !aglSetWindowRef( context, windowRef ))
     {
         setError( ERROR_AGLWINDOW_SETWINDOW_FAILED );

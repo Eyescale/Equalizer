@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -55,7 +55,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
         , _lastDX( 0 )
         , _lastDY( 0 )
 {
-    const bool fullscreen = 
+    const bool fullscreen =
         window->getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON;
     const WindowRef carbonWindow = window->getCarbonWindow();
 
@@ -65,7 +65,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
                << std::endl;
         return;
     }
-    
+
     const EventTypeSpec events[] = {
         { kEventClassWindow,   kEventWindowBoundsChanged },
         { kEventClassWindow,   kEventWindowZoomed },
@@ -146,13 +146,13 @@ OSStatus _dispatchEventUPP(EventHandlerCallRef nextHandler, EventRef event,
                            void* userData )
 {
     EventQueueRef target = static_cast< EventQueueRef >( userData );
-    
+
     if( GetCurrentEventQueue() != target )
     {
 #if 0 // some events pop up on pipe thread queues...
         LBASSERTINFO( GetCurrentEventQueue() == GetMainEventQueue(),
-                      "target " << target << " current " << 
-                      GetCurrentEventQueue() << " main " << 
+                      "target " << target << " current " <<
+                      GetCurrentEventQueue() << " main " <<
                       GetMainEventQueue( ));
 #endif
         PostEventToQueue( target, event, kEventPriorityStandard );
@@ -253,7 +253,7 @@ void EventHandler::_processWindowEvent( WindowEvent& event )
         case kEventWindowCollapsed:
             event.type = Event::WINDOW_HIDE;
             break;
-            
+
         case kEventWindowShown:
         case kEventWindowExpanded:
             event.type = Event::WINDOW_SHOW;
@@ -292,7 +292,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             {   // Only left button pressed: implement apple-style middle/right
                 // button if modifier keys are used.
                 uint32_t keys = 0;
-                GetEventParameter( eventRef, kEventParamKeyModifiers, 
+                GetEventParameter( eventRef, kEventParamKeyModifiers,
                                    typeUInt32, 0, sizeof( keys ), 0, &keys );
                 if( keys & controlKey )
                     event.pointerMotion.buttons = PTR_BUTTON3;
@@ -300,8 +300,8 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
                     event.pointerMotion.buttons = PTR_BUTTON2;
             }
 
-            GetEventParameter( eventRef, kEventParamWindowMouseLocation, 
-                               typeHIPoint, 0, sizeof( pos ), 0, 
+            GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                               typeHIPoint, 0, sizeof( pos ), 0,
                                &pos );
             if( pos.y < menuHeight )
                 return false; // ignore pointer events on the menu bar
@@ -309,8 +309,8 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             event.pointerMotion.x = static_cast< int32_t >( pos.x );
             event.pointerMotion.y = static_cast< int32_t >( pos.y ) -menuHeight;
 
-            GetEventParameter( eventRef, kEventParamMouseDelta, 
-                               typeHIPoint, 0, sizeof( pos ), 0, 
+            GetEventParameter( eventRef, kEventParamMouseDelta,
+                               typeHIPoint, 0, sizeof( pos ), 0,
                                &pos );
             event.pointerMotion.dx = static_cast< int32_t >( pos.x );
             event.pointerMotion.dy = static_cast< int32_t >( pos.y );
@@ -330,7 +330,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             {   // Only left button pressed: implement apple-style middle/right
                 // button if modifier keys are used.
                 uint32_t keys = 0;
-                GetEventParameter( eventRef, kEventParamKeyModifiers, 
+                GetEventParameter( eventRef, kEventParamKeyModifiers,
                                    typeUInt32, 0, sizeof( keys ), 0, &keys );
                 if( keys & controlKey )
                     event.pointerMotion.buttons = PTR_BUTTON3;
@@ -338,8 +338,8 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
                     event.pointerMotion.buttons = PTR_BUTTON2;
             }
 
-            GetEventParameter( eventRef, kEventParamWindowMouseLocation, 
-                               typeHIPoint, 0, sizeof( pos ), 0, 
+            GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                               typeHIPoint, 0, sizeof( pos ), 0,
                                &pos );
             if( pos.y < menuHeight )
                 return false; // ignore pointer events on the menu bar
@@ -363,7 +363,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             {   // Only left button pressed: implement apple-style middle/right
                 // button if modifier keys are used.
                 uint32_t keys = 0;
-                GetEventParameter( eventRef, kEventParamKeyModifiers, 
+                GetEventParameter( eventRef, kEventParamKeyModifiers,
                                    typeUInt32, 0, sizeof( keys ), 0, &keys );
                 if( keys & controlKey )
                     event.pointerMotion.buttons = PTR_BUTTON3;
@@ -371,8 +371,8 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
                     event.pointerMotion.buttons = PTR_BUTTON2;
             }
 
-            GetEventParameter( eventRef, kEventParamWindowMouseLocation, 
-                               typeHIPoint, 0, sizeof( pos ), 0, 
+            GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                               typeHIPoint, 0, sizeof( pos ), 0,
                                &pos );
             if( pos.y < menuHeight )
                 return false; // ignore pointer events on the menu bar
@@ -401,7 +401,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
                                typeMouseWheelAxis, 0, sizeof( axis ), 0, &axis);
             GetEventParameter( eventRef, kEventParamMouseWheelDelta,
                                typeLongInteger, 0, sizeof( delta ), 0, &delta );
-            
+
             switch( axis )
             {
                 case kEventMouseWheelAxisY: // NO typo - y is the primary axis
@@ -450,7 +450,7 @@ void EventHandler::_processKeyEvent( WindowEvent& event )
 uint32_t EventHandler::_getButtonState()
 {
     const uint32 buttons = GetCurrentEventButtonState();
-    
+
     // swap button 2&3
     return ( (buttons & 0xfffffff9u) +
              ((buttons & LB_BIT3) >> 1) +
@@ -465,7 +465,7 @@ uint32_t EventHandler::_getButtonAction( EventRef event )
                        sizeof( button ), 0, &button );
 
     switch( button )
-    {    
+    {
         case kEventMouseButtonPrimary:   return PTR_BUTTON1;
         case kEventMouseButtonSecondary: return PTR_BUTTON3;
         case kEventMouseButtonTertiary:  return PTR_BUTTON2;
@@ -480,17 +480,17 @@ uint32_t EventHandler::_getKey( EventRef eventRef )
                        sizeof( char ), 0, &key );
     switch( key )
     {
-        case kEscapeCharCode:     return KC_ESCAPE;    
-        case kBackspaceCharCode:  return KC_BACKSPACE; 
-        case kReturnCharCode:     return KC_RETURN;    
-        case kTabCharCode:        return KC_TAB;       
-        case kHomeCharCode:       return KC_HOME;       
-        case kLeftArrowCharCode:  return KC_LEFT;       
-        case kUpArrowCharCode:    return KC_UP;         
-        case kRightArrowCharCode: return KC_RIGHT;      
-        case kDownArrowCharCode:  return KC_DOWN;       
-        case kPageUpCharCode:     return KC_PAGE_UP;    
-        case kPageDownCharCode:   return KC_PAGE_DOWN;  
+        case kEscapeCharCode:     return KC_ESCAPE;
+        case kBackspaceCharCode:  return KC_BACKSPACE;
+        case kReturnCharCode:     return KC_RETURN;
+        case kTabCharCode:        return KC_TAB;
+        case kHomeCharCode:       return KC_HOME;
+        case kLeftArrowCharCode:  return KC_LEFT;
+        case kUpArrowCharCode:    return KC_UP;
+        case kRightArrowCharCode: return KC_RIGHT;
+        case kDownArrowCharCode:  return KC_DOWN;
+        case kPageUpCharCode:     return KC_PAGE_UP;
+        case kPageDownCharCode:   return KC_PAGE_DOWN;
         case kEndCharCode:        return KC_END;
         case kFunctionKeyCharCode:
         {
@@ -500,38 +500,38 @@ uint32_t EventHandler::_getKey( EventRef eventRef )
 
             switch( keyCode )
             {
-                case kVK_F1:        return KC_F1;         
-                case kVK_F2:        return KC_F2;         
-                case kVK_F3:        return KC_F3;         
-                case kVK_F4:        return KC_F4;         
-                case kVK_F5:        return KC_F5;         
-                case kVK_F6:        return KC_F6;         
-                case kVK_F7:        return KC_F7;         
-                case kVK_F8:        return KC_F8;         
-                case kVK_F9:        return KC_F9;         
-                case kVK_F10:       return KC_F10;        
-                case kVK_F11:       return KC_F11;        
-                case kVK_F12:       return KC_F12;        
-                case kVK_F13:       return KC_F13;        
-                case kVK_F14:       return KC_F14;        
-                case kVK_F15:       return KC_F15;        
-                case kVK_F16:       return KC_F16;        
-                case kVK_F17:       return KC_F17;        
-                case kVK_F18:       return KC_F18;        
-                case kVK_F19:       return KC_F19;        
-                case kVK_F20:       return KC_F20;        
+                case kVK_F1:        return KC_F1;
+                case kVK_F2:        return KC_F2;
+                case kVK_F3:        return KC_F3;
+                case kVK_F4:        return KC_F4;
+                case kVK_F5:        return KC_F5;
+                case kVK_F6:        return KC_F6;
+                case kVK_F7:        return KC_F7;
+                case kVK_F8:        return KC_F8;
+                case kVK_F9:        return KC_F9;
+                case kVK_F10:       return KC_F10;
+                case kVK_F11:       return KC_F11;
+                case kVK_F12:       return KC_F12;
+                case kVK_F13:       return KC_F13;
+                case kVK_F14:       return KC_F14;
+                case kVK_F15:       return KC_F15;
+                case kVK_F16:       return KC_F16;
+                case kVK_F17:       return KC_F17;
+                case kVK_F18:       return KC_F18;
+                case kVK_F19:       return KC_F19;
+                case kVK_F20:       return KC_F20;
 #if 0
-                case XK_Shift_L:   return KC_SHIFT_L;    
-                case XK_Shift_R:   return KC_SHIFT_R;    
-                case XK_Control_L: return KC_CONTROL_L;  
-                case XK_Control_R: return KC_CONTROL_R;  
-                case XK_Alt_L:     return KC_ALT_L;      
+                case XK_Shift_L:   return KC_SHIFT_L;
+                case XK_Shift_R:   return KC_SHIFT_R;
+                case XK_Control_L: return KC_CONTROL_L;
+                case XK_Control_R: return KC_CONTROL_R;
+                case XK_Alt_L:     return KC_ALT_L;
                 case XK_Alt_R:     return KC_ALT_R;
 #endif
             }
         }
-            
-        default: 
+
+        default:
             // 'Useful' Latin1 characters
             if(( key >= ' ' && key <= '~' ) ||
                ( key >= 0xa0 /*XK_nobreakspace && key <= XK_ydiaeresis*/ ))
@@ -545,9 +545,9 @@ uint32_t EventHandler::_getKey( EventRef eventRef )
 
 
 #ifdef EQ_USE_MAGELLAN
-extern "C" OSErr InstallConnexionHandlers( ConnexionMessageHandlerProc, 
-                                           ConnexionAddedHandlerProc, 
-                                           ConnexionRemovedHandlerProc ) 
+extern "C" OSErr InstallConnexionHandlers( ConnexionMessageHandlerProc,
+                                           ConnexionAddedHandlerProc,
+                                           ConnexionRemovedHandlerProc )
     __attribute__((weak_import));
 
 namespace
@@ -555,17 +555,17 @@ namespace
 static uint16_t _magellanID = 0;
 static Node*    _magellanNode = 0;
 
-void _magellanEventHandler( io_connect_t connection, natural_t messageType, 
-                            void *messageArgument ) 
+void _magellanEventHandler( io_connect_t connection, natural_t messageType,
+                            void *messageArgument )
 {
-    switch (messageType)
+    switch( messageType )
     {
         case kConnexionMsgDeviceState:
         {
             ConnexionDeviceState *state = static_cast< ConnexionDeviceState* >(
                                                               messageArgument );
-            if( state->client == _magellanID ) 
-            { 
+            if( state->client == _magellanID )
+            {
                 ConfigEvent event;
                 event.data.originator = _magellanNode->getID();
                 event.data.serial = _magellanNode->getSerial();
@@ -577,32 +577,32 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                 event.data.magellan.yRotation =  state->axis[4];
                 event.data.magellan.zRotation =  state->axis[5];
 
-                // decipher what command/event is being reported by the driver 
-                switch( state->command ) 
-                { 
-                    case kConnexionCmdHandleAxis: 
+                // decipher what command/event is being reported by the driver
+                switch( state->command )
+                {
+                    case kConnexionCmdHandleAxis:
                         event.data.type = Event::MAGELLAN_AXIS;
                         event.data.magellan.button = 0;
-                        break; 
+                        break;
 
                     case kConnexionCmdHandleButtons:
                         event.data.type = Event::MAGELLAN_BUTTON;
                         event.data.magellan.button = state->value;
-                        break; 
-                        
+                        break;
+
                     default:
                         LBASSERTINFO( 0, "Unimplemented space mouse command " <<
                                       state->command );
-                }                 
-                        
+                }
+
                 _magellanNode->getConfig()->sendEvent( event );
-            } 
-            break; 
+            }
+            break;
         }
-        default: 
-            // other messageTypes can happen and should be ignored 
-            break; 
-    } 
+        default:
+            // other messageTypes can happen and should be ignored
+            break;
+    }
 }
 
 }

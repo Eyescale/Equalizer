@@ -10,6 +10,14 @@ set(AGL_HEADERS
   agl/types.h
 )
 
+set(AGL_SOURCES
+  agl/eventHandler.cpp
+  agl/messagePump.cpp
+  agl/window.cpp
+  agl/pipe.cpp
+  agl/windowSystem.cpp
+)
+
 set(GLX_HEADERS
   glx/eventHandler.h
   glx/messagePump.h
@@ -19,6 +27,15 @@ set(GLX_HEADERS
   glx/types.h
 )
 
+set(GLX_SOURCES
+  glx/eventHandler.cpp
+  glx/messagePump.cpp
+  glx/pipe.cpp
+  glx/window.cpp
+  glx/windowSystem.cpp
+  glXTypes.cpp
+)
+
 set(WGL_HEADERS
   wgl/eventHandler.h
   wgl/messagePump.h
@@ -26,6 +43,14 @@ set(WGL_HEADERS
   wgl/window.h
   wgl/windowEvent.h
   wgl/types.h
+)
+
+set(WGL_SOURCES
+  wgl/eventHandler.cpp
+  wgl/messagePump.cpp
+  wgl/window.cpp
+  wgl/pipe.cpp
+  wgl/windowSystem.cpp
 )
 
 set(CLIENT_HEADERS
@@ -141,36 +166,11 @@ if(NOT EQUALIZER_BUILD_2_0_API)
 endif()
 
 if(EQ_AGL_USED)
-  set(AGL_SOURCES
-    agl/eventHandler.cpp
-    agl/messagePump.cpp
-    agl/window.cpp
-    agl/pipe.cpp
-    agl/windowSystem.cpp
-  )
   list(APPEND CLIENT_SOURCES ${AGL_SOURCES})
 endif()
-
 if(EQ_GLX_USED)
-  set(GLX_SOURCES
-    glx/eventHandler.cpp
-    glx/messagePump.cpp
-    glx/pipe.cpp
-    glx/window.cpp
-    glx/windowSystem.cpp
-    glXTypes.cpp
-  )
   list(APPEND CLIENT_SOURCES ${GLX_SOURCES})
 endif()
-
 if(WIN32)
-  set(WGL_SOURCES
-    wgl/eventHandler.cpp
-    wgl/messagePump.cpp
-    wgl/window.cpp
-    wgl/pipe.cpp
-    wgl/windowSystem.cpp
-  )
   list(APPEND CLIENT_SOURCES ${WGL_SOURCES})
 endif()
-
