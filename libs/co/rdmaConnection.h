@@ -29,7 +29,7 @@
 #include <rdma/rdma_cma.h>
 
 #ifndef _WIN32
-#include <netdb.h>
+#  include <netdb.h>
 #endif
 
 namespace co

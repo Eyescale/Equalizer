@@ -27,14 +27,14 @@
 #include <lunchbox/sleep.h>
 
 #ifdef _WIN32
-#pragma warning( disable : 4018 )
-#include <boost/interprocess/mapped_region.hpp>
-#pragma warning( default : 4018 )
+#  pragma warning( disable : 4018 )
+#  include <boost/interprocess/mapped_region.hpp>
+#  pragma warning( default : 4018 )
 #else
-#include <arpa/inet.h>
-#include <sys/epoll.h>
-#include <sys/mman.h>
-#include <poll.h>
+#  include <arpa/inet.h>
+#  include <sys/epoll.h>
+#  include <sys/mman.h>
+#  include <poll.h>
 #endif
 
 #include <errno.h>
@@ -175,7 +175,7 @@ static const uint32_t WINDOWS_CONNECTION_BACKLOG = 1024;
  * Send perf: 3240.95MB/s (3240.95pps)
  */
 RDMAConnection::RDMAConnection( )
-#ifdef _WIN32    
+#ifdef _WIN32
     : _notifier()
 #else
     : _notifier( -1 )
@@ -215,7 +215,7 @@ RDMAConnection::RDMAConnection( )
     _pipe_fd[0] = -1;
     _pipe_fd[1] = -1;
 #endif
-    
+
     ::memset( (void *)&_addr, 0, sizeof(_addr) );
     ::memset( (void *)&_serv, 0, sizeof(_serv) );
 
@@ -895,7 +895,7 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
             LBWARN << "IPv6 address detected but likely invalid!" << std::endl;
             sss.storage.ss_family = AF_INET6;
         }
-        else 
+        else
 #endif
         if(( AF_INET6 == sss.storage.ss_family ) &&
                 ( INADDR_ANY != sss.sin.sin_addr.s_addr ))
@@ -1122,15 +1122,15 @@ bool RDMAConnection::_createEventChannel( )
     }
 
 #ifdef _WIN32
-    if ( !RegisterWaitForSingleObject( 
-            &_cmWaitObj, 
-            _cm->channel.Event, 
-            WAITORTIMERCALLBACK( &_triggerNotifierCM ), 
-            this, 
-            INFINITE, 
+    if ( !RegisterWaitForSingleObject(
+            &_cmWaitObj,
+            _cm->channel.Event,
+            WAITORTIMERCALLBACK( &_triggerNotifierCM ),
+            this,
+            INFINITE,
             WT_EXECUTEINWAITTHREAD ))
     {
-        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
+        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError
                 << std::endl;
         goto err;
     }
@@ -1200,15 +1200,15 @@ bool RDMAConnection::_initVerbs( )
     }
 
 #ifdef _WIN32
-    if ( !RegisterWaitForSingleObject( 
-        &_ccWaitObj, 
-        _cc->comp_channel.Event, 
-        WAITORTIMERCALLBACK( &_triggerNotifierCQ ), 
-        this, 
-        INFINITE, 
+    if ( !RegisterWaitForSingleObject(
+        &_ccWaitObj,
+        _cc->comp_channel.Event,
+        WAITORTIMERCALLBACK( &_triggerNotifierCQ ),
+        this,
+        INFINITE,
         WT_EXECUTEINWAITTHREAD ))
     {
-        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError 
+        LBERROR << "RegisterWaitForSingleObject : " << lunchbox::sysError
             << std::endl;
         goto err;
     }
@@ -1854,7 +1854,7 @@ retry:
         lunchbox::Thread::yield( );
         goto retry;
     }
-    
+
     return true;
 
 err:
@@ -1917,7 +1917,7 @@ bool RDMAConnection::_checkEvents( eventset &events )
         events.set( CQ_EVENT );
     if (( _eventFlag & MASK_CM_EVENT ) != 0 )
         events.set( CM_EVENT );
-    
+
     return true;
 #else
     struct epoll_event evts[3];
@@ -2034,7 +2034,7 @@ uint64_t RDMAConnection::_getAvailableBytes( )
     pfd.fd = _pipe_fd[0];
     pfd.events = EPOLLIN;
 
-    do 
+    do
     {
         count = ::read( _pipe_fd[0], (void *)&currBytes, sizeof( currBytes ));
         if ( count > 0 && count < (ssize_t)sizeof( currBytes ) )
@@ -2047,7 +2047,7 @@ uint64_t RDMAConnection::_getAvailableBytes( )
             goto err;
         }
     } while ( pfd.revents > 0 );
-    
+
     if ( count == -1 )
     {
         LBERROR << "read : " << lunchbox::sysError << std::endl;
@@ -2275,7 +2275,7 @@ repoll:
         LBASSERT( IBV_WC_SUCCESS == wc.status );
 
 #ifdef _WIN32 //----------------------------------------------------------------
-        // WINDOWS IBV API WORKAROUND. 
+        // WINDOWS IBV API WORKAROUND.
         // TODO: remove this as soon as IBV API is fixed
         if ( wc.opcode == IBV_WC_RECV && wc.wc_flags == IBV_WC_WITH_IMM )
             wc.opcode = IBV_WC_RECV_RDMA_WITH_IMM;
@@ -2329,7 +2329,7 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
     uint32_t b = std::min( bytes, std::min( _sourceptr.negAvailable( ),
         _rptr.negAvailable( )));
 #ifndef WRAP
-    b = std::min( b, (uint32_t)(_sourcebuf.getSize() - 
+    b = std::min( b, (uint32_t)(_sourcebuf.getSize() -
                                             _sourceptr.ptr( _sourceptr.HEAD )));
 #endif
     ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase( ) +
@@ -2339,7 +2339,7 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 }
 
 Connection::Notifier RDMAConnection::getNotifier() const
-{ 
+{
     return _notifier;
 }
 
@@ -2359,7 +2359,7 @@ void RDMAConnection::_triggerNotifierWorker( uint32_t event_mask )
     LBASSERT( event_mask == MASK_CM_EVENT ||
               event_mask == MASK_CQ_EVENT );
 
-    co::base::ScopedFastWrite mutex( _eventLock );    
+    co::base::ScopedFastWrite mutex( _eventLock );
     if ( event_mask == MASK_CM_EVENT )
     {
         ResetEvent( _cm->channel.Event );
@@ -2436,7 +2436,7 @@ bool BufferPool::resize( ibv_pd *pd, uint32_t num_bufs )
             boost::interprocess::mapped_region::get_page_size());
         if ( !_buffer )
         {
-            LBERROR << "_aligned_malloc : Couldn't allocate aligned memory. " 
+            LBERROR << "_aligned_malloc : Couldn't allocate aligned memory. "
                     << lunchbox::sysError << std::endl;
             goto err;
         }
@@ -2532,12 +2532,12 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
 
         if ( !_map )
         {
-            LBERROR << "Couldn't allocate desired RingBuffer memory after " 
+            LBERROR << "Couldn't allocate desired RingBuffer memory after "
                     << RINGBUFFER_ALLOC_RETRIES << " retries." << std::endl;
         }
         else
         {
-            LBVERB << "Allocated RDMA Ringbuffer memory in " 
+            LBVERB << "Allocated RDMA Ringbuffer memory in "
                     << ( RINGBUFFER_ALLOC_RETRIES - num_retries ) << " tries."
                     << std::endl;
             ok = true;
@@ -2652,11 +2652,11 @@ void RingBuffer::allocAt( size_t size, void* desiredAddr )
 
     // try to allocate and map our space
     size_t alloc_size = size * 2;
-    _mapping = CreateFileMappingA(  INVALID_HANDLE_VALUE, 
-                                    0, 
-                                    PAGE_READWRITE, 
-                                    (unsigned long long)alloc_size >> 32, 
-                                    alloc_size & 0xffffffffu, 
+    _mapping = CreateFileMappingA(  INVALID_HANDLE_VALUE,
+                                    0,
+                                    PAGE_READWRITE,
+                                    (unsigned long long)alloc_size >> 32,
+                                    alloc_size & 0xffffffffu,
                                     0 );
 
     if ( !_mapping )
@@ -2665,10 +2665,10 @@ void RingBuffer::allocAt( size_t size, void* desiredAddr )
         goto err;
     }
 
-    _map = MapViewOfFileEx( _mapping, 
-                            FILE_MAP_ALL_ACCESS, 
-                            0, 0, 
-                            size, 
+    _map = MapViewOfFileEx( _mapping,
+                            FILE_MAP_ALL_ACCESS,
+                            0, 0,
+                            size,
                             desiredAddr );
 
     if ( !_map )
@@ -2677,10 +2677,10 @@ void RingBuffer::allocAt( size_t size, void* desiredAddr )
         goto err;
     }
 
-    if (!MapViewOfFileEx(   _mapping, 
-                            FILE_MAP_ALL_ACCESS, 
-                            0, 0, 
-                            size, 
+    if (!MapViewOfFileEx(   _mapping,
+                            FILE_MAP_ALL_ACCESS,
+                            0, 0,
+                            size,
                             (char *)desiredAddr + size))
     {
         LBERROR << "Second MapViewOfFileEx failed" << std::endl;
