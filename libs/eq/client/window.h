@@ -277,21 +277,10 @@ namespace eq
         /** @return the OS-specific pipe implementation. @version 1.0 */
         SystemPipe* getSystemPipe(); 
 
-        /** @internal
-         * Creates shared context window for asynchronuous context usage.
-         *
-         * Should be called from separate thread.
-         *
-         * @return the OS-specific transfer window implementation.
-         */
-        const eq::SystemWindow* getTransferSystemWindow();
+        /** @internal Create shared context window for asynchronuous usage. */
+        void createTransferWindow();
 
-        /** @internal
-         * Creates shared context window for asynchronious context usage.
-         *
-         * Should be called from the same thread getAsyncSystemWindow 
-         * was called.
-         */
+        /** @internal delete the shared context window. */
         void deleteTransferSystemWindow();
         //@}
 

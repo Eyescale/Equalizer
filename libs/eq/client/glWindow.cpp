@@ -31,7 +31,8 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-template void lunchbox::perThreadNoDelete< const eq::GLWindow >( const eq::GLWindow* );
+template 
+void lunchbox::perThreadNoDelete< const eq::GLWindow >( const eq::GLWindow* );
 
 namespace eq
 {
