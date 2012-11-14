@@ -81,7 +81,7 @@ purple_add_library(Collage SHARED
 
 if(OFED_FOUND)
   if(WIN32)
-    set_target_properties(Collage PROPERTIES LINK_FLAGS "/DELAYLOAD:librdmacm.dll /DELAYLOAD:libibverbs.dll")
+    set_target_properties(lib_Collage_shared PROPERTIES LINK_FLAGS "/DELAYLOAD:librdmacm.dll /DELAYLOAD:libibverbs.dll")
   endif(WIN32)
 endif()
   
