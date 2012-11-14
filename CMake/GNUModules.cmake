@@ -57,11 +57,6 @@ if(NOT MODULE_MODULEFILES)
   set(MODULE_MODULEFILES "modulefiles")
 endif()
 
-# optional: list of required modules that need to be loaded before this module
-if(NOT MODULE_PREREQ)
-  set(MODULE_PREREQ "none")
-endif()
-
 
 ###############################################################################
 
@@ -95,8 +90,6 @@ file(WRITE ${CMAKE_BINARY_DIR}/${MODULE_FILENAME}
   "#\n"
   "# Module:      ${MODULE_FILENAME}\n"
   "#\n"
-  "# Prereq:\n"
-  "#   ${MODULE_PREREQ}\n"
   "#\n"
   "\n"
   "# Set internal variables\n"
