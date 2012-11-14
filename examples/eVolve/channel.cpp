@@ -67,6 +67,14 @@ bool Channel::configInit( const eq::uint128_t& initID )
     return true;
 }
 
+bool Channel::configExit()
+{
+    eq::FrameDataPtr frameData = _frame.getFrameData();
+    frameData->resetPlugins();
+
+    return eq::Channel::configExit();
+}
+
 void Channel::frameStart( const eq::uint128_t& frameID,
                           const uint32_t frameNumber )
 {
