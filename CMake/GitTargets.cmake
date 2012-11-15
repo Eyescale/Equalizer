@@ -1,6 +1,10 @@
 # Copyright (c) 2012 Stefan.Eilemann@epfl.ch
 # See doc/GitTargets.md for documentation
 
+# Options:
+#  GITTARGETS_RELEASE_BRANCH current | even_minor
+#      create tags on the current or the next even minor version (e.g. 1.6)
+
 if(GITTARGETS_FOUND)
   return()
 endif()
@@ -37,22 +41,28 @@ add_custom_target(cut
 
 # tag on branch
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
-  "# Create branch:
-   execute_process(COMMAND ${GIT_EXECUTABLE} branch ${BRANCH_VERSION}
-     RESULT_VARIABLE hadbranch ERROR_VARIABLE error
-     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-   if(NOT hadbranch)
-     execute_process(COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  "# Branch:
+   if(\"${GITTARGETS_RELEASE_BRANCH}\" STREQUAL current)
+     set(TAG_BRANCH)
+   else()
+     execute_process(COMMAND ${GIT_EXECUTABLE} branch ${BRANCH_VERSION}
+       RESULT_VARIABLE hadbranch ERROR_VARIABLE error
+       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+     if(NOT hadbranch)
+       execute_process(COMMAND ${GIT_EXECUTABLE} push origin ${BRANCH_VERSION}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+     endif()
+     set(TAG_BRANCH ${BRANCH_VERSION})
    endif()
+
    # Create or move tag
    execute_process(
-     COMMAND ${GIT_EXECUTABLE} tag -f release-${VERSION} ${BRANCH_VERSION}
+     COMMAND ${GIT_EXECUTABLE} tag -f release-${VERSION} ${TAG_BRANCH}
      COMMAND ${GIT_EXECUTABLE} push --tags
      RESULT_VARIABLE notdone WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
    if(notdone)
      message(FATAL_ERROR
-        \"Error creating tag release-${VERSION} on branch ${BRANCH_VERSION}\")
+        \"Error creating tag release-${VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
 add_custom_target(tag
