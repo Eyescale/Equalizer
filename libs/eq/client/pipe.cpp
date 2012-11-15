@@ -949,7 +949,6 @@ void Pipe::_stopTransferThread()
         return;
 
     send( getLocalNode(), fabric::CMD_PIPE_EXIT_TRANSFER_THREAD );
-
     _impl->transferThread.join();
 }
 
