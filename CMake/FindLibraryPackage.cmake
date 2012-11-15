@@ -296,9 +296,9 @@ macro(FIND_LIBRARY_PACKAGE name)
 
     set(${_flp_${name}_UC}_FOUND TRUE)
     set(${_flp_${name}_UC}_DEB_DEPENDENCIES
-      "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-lib")
+      "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-lib (>= ${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR})")
     set(${_flp_${name}_UC}_DEB_BUILD_DEPENDENCIES
-      "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-dev")
+      "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-dev (>= ${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR})")
     get_filename_component(${_flp_${name}_UC}_LIBRARY_DIRS
       ${${_flp_${name}_UC}_LIBRARY} PATH)
 
