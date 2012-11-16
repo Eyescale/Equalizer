@@ -141,8 +141,11 @@ the last release:
 
 Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
 
+-   `179`_: Readback of non-modulo-4 images broken
+-   `175`_: "--eq-logfile" followed by no other argument segfaults
 -   `162`_: WGL window compile error
 -   `160`_: Memleak with pipe thread affinity
+-   `159`_: exPixelBench crashes
 -   `158`_: Non-freed GPUCompressors after application exit
 
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
@@ -287,8 +290,11 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _179: https://github.com/Eyescale/Equalizer/issues/179
+.. _175: https://github.com/Eyescale/Equalizer/issues/175
 .. _162: https://github.com/Eyescale/Equalizer/issues/162
 .. _160: https://github.com/Eyescale/Equalizer/issues/160
+.. _159: https://github.com/Eyescale/Equalizer/issues/159
 .. _158: https://github.com/Eyescale/Equalizer/issues/158
 .. _157: https://github.com/Eyescale/Equalizer/issues/157
 .. _149: https://github.com/Eyescale/Equalizer/issues/149
