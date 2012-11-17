@@ -193,7 +193,7 @@ namespace wgl
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
-        EQ_API virtual bool configInitWGLDrawable( int pixelFormat );
+        EQ_API virtual bool configInitWGLDrawable( const int pixelFormat );
 
         /** 
          * Initialize the window with an on-screen Win32 window.
@@ -204,7 +204,7 @@ namespace wgl
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
-        EQ_API virtual bool configInitWGLWindow( int pixelFormat );
+        EQ_API virtual bool configInitWGLWindow( const int pixelFormat );
 
         /** 
          * Initialize the window with an off-screen WGL PBuffer.
@@ -215,10 +215,10 @@ namespace wgl
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
-        EQ_API virtual bool configInitWGLPBuffer( int pixelFormat );
+        EQ_API virtual bool configInitWGLPBuffer( const int pixelFormat );
 
         /** Initialize the window for an off-screen FBO */
-        EQ_API virtual bool configInitWGLFBO( int pixelFormat );
+        EQ_API virtual bool configInitWGLFBO( const int pixelFormat );
 
         /** 
          * Create a WGL context.
@@ -310,7 +310,7 @@ namespace wgl
         Private* _private; // placeholder for binary-compatible changes
 
         /** Create an unmapped WGL window. */
-        HWND _createWGLWindow( int pixelFormat, const PixelViewport& pvp );
+        HWND _createWGLWindow( const PixelViewport& pvp );
 
         /** Use wglChoosePixelFormatARB */
         int _chooseWGLPixelFormatARB( HDC pfDC );
