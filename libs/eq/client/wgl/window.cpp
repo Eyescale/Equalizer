@@ -228,7 +228,7 @@ bool Window::configInit()
     return true;
 }
 
-bool Window::configInitWGLDrawable( const int pixelFormat )
+bool Window::configInitWGLDrawable( int pixelFormat )
 {
     switch( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ))
     {
@@ -250,7 +250,7 @@ bool Window::configInitWGLDrawable( const int pixelFormat )
     }
 }
 
-bool Window::configInitWGLFBO( const int pixelFormat )
+bool Window::configInitWGLFBO( int pixelFormat )
 {
     if( _wglAffinityDC )
     {
@@ -288,7 +288,7 @@ bool Window::configInitWGLFBO( const int pixelFormat )
     return true;
 }
 
-bool Window::configInitWGLWindow( const int pixelFormat )
+bool Window::configInitWGLWindow( int pixelFormat )
 {
     // adjust window size (adds border pixels)
     const PixelViewport& pvp = getWindow()->getPixelViewport();
