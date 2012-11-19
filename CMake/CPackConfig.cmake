@@ -62,6 +62,7 @@ set(CPACK_COMPONENT_DATA_DESCRIPTION "Example configuration files and data sets"
 set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
   libboost-date-time-dev libboost-regex-dev libboost-serialization-dev
+<<<<<<< HEAD
   libx11-dev libgl1-mesa-dev libglewmx1.5-dev libspnav0
   librdmacm-dev libibverbs-dev librdmacm-dev
   ${GPUSD_DEB_BUILD_DEPENDENCIES} ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}
@@ -70,6 +71,13 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date
 
 set(CPACK_MACPORTS_CATEGORY graphics)
 set(CPACK_MACPORTS_DEPENDS boost gpusd Lunchbox VMMLIB)
+=======
+  libx11-dev libgl1-mesa-dev libglewmx1.6-dev
+  librdmacm-dev libibverbs-dev librdmacm-dev
+  ${GPUSD_DEB_BUILD_DEPENDENCIES} ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}
+  ${VMMLIB_DEB_BUILD_DEPENDENCIES})
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.6-dev, ${EQ_IB_PACKAGES}, ${GPUSD_DEB_DEPENDENCIES}, ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}, ${VMMLIB_DEB_BUILD_DEPENDENCIES}")
+>>>>>>> origin/1.4
 
 set(UBUNTU_LP_BUG 300472)
 include(CommonCPack)
