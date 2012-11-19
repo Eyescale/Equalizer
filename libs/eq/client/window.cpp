@@ -589,7 +589,7 @@ void Window::bindFrameBuffer() const
 void Window::swapBuffers()
 {
     _systemWindow->swapBuffers();
-    LBVERB << "----- SWAP -----" << std::endl;
+    LBLOG( co::LOG_BARRIER ) << "Swap buffers done" << getName() << std::endl;
 }
 
 const GLEWContext* Window::glewGetContext() const
