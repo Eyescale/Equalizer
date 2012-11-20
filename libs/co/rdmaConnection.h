@@ -261,7 +261,7 @@ private:
 #ifdef _WIN32
     static void _triggerNotifierCQ( RDMAConnection* conn );
     static void _triggerNotifierCM( RDMAConnection* conn );
-    void _triggerNotifierWorker( uint32_t event_mask );
+    void _triggerNotifierWorker( Events event );
 #endif
 
 private:
