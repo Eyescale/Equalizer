@@ -14,7 +14,7 @@ else (WIIUSE_PATH)
     find_path(WIIUSE_PATH include/wiiuse.h
 	HINTS ${WIIUSE_ROOT} $ENV{WIIUSE_ROOT}
         /usr/local/
-	/usr/
+        /usr/
     )
 endif (WIIUSE_PATH)
 
@@ -32,17 +32,17 @@ endif (WIIUSE_FOUND)
 # STATIC LIBRARY ______________________________________________________________
 
 if (WIIUSE_FOUND)
-    find_library(WIIUSE_LIB NAMES wiiuse
+    find_library(WIIUSE_LIBRARIES NAMES wiiuse
 	HINTS ${WIIUSE_ROOT} $ENV{WIIUSE_ROOT}
         PATHS ${WIIUSE_PATH}/lib
     )
-    mark_as_advanced(WIIUSE_LIB)
+    mark_as_advanced(WIIUSE_LIBRARIES)
 endif (WIIUSE_FOUND)
 
 # FOUND _______________________________________________________________________
 if(WIIUSE_FOUND)
     message(STATUS
-      "Found WiiUse in ${WIIUSE_INCLUDE_DIR};${WIIUSE_LIB}")
+      "Found WiiUse in ${WIIUSE_INCLUDE_DIR};${WIIUSE_LIBRARIES}")
 endif()
 
 if (NOT WIIUSE_FOUND)
