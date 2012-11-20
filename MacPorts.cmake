@@ -12,6 +12,9 @@ include(UpdateFile)
 include(GithubOrganization)
 
 # Configurables
+if(NOT CMAKE_MACPORTS_NAME)
+  set(CMAKE_MACPORTS_NAME ${CMAKE_PROJECT_NAME})
+endif()
 if(NOT CPACK_MACPORTS_VERSION)
   set(CPACK_MACPORTS_VERSION ${LAST_RELEASE})
 endif()

@@ -5,7 +5,7 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           cmake 1.0
 
-name                @CMAKE_PROJECT_NAME@
+name                @CMAKE_MACPORTS_NAME@
 categories          @CPACK_MACPORTS_CATEGORY@
 maintainers         @CPACK_PACKAGE_CONTACT@
 license             @CPACK_PACKAGE_LICENSE@
