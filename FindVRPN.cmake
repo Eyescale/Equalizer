@@ -34,17 +34,17 @@ endif (VRPN_FOUND)
 # STATIC LIBRARY ______________________________________________________________
 
 if (VRPN_FOUND)
-    find_library(VRPN_LIB NAMES vrpn
+    find_library(VRPN_LIBRARIES NAMES vrpn
 	HINTS ${VRPN_ROOT}/lib $ENV{VRPN_ROOT}/lib
         PATHS ${VRPN_PATH}/lib
     )
-    mark_as_advanced(VRPN_LIB)
+    mark_as_advanced(VRPN_LIBRARIES)
 endif (VRPN_FOUND)
 
 # FOUND _______________________________________________________________________
 if(VRPN_FOUND)
     message(STATUS
-      "Found VRPN in ${VRPN_INCLUDE_DIRS};${VRPN_LIB}")
+      "Found VRPN in ${VRPN_INCLUDE_DIRS};${VRPN_LIBRARIES}")
 endif()
 
 if (NOT VRPN_FOUND)
