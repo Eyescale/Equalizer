@@ -2,9 +2,9 @@
 # See doc/GitTargets.md for documentation
 
 # Options:
-#  GITTARGETS_RELEASE_BRANCH current | even_minor | every_minor
-#      create tags on the current, the next even minor version (e.g. 1.6) or on
-#      every minor version
+#  GITTARGETS_RELEASE_BRANCH current | even_minor | minor
+#      create tags on the current, the next even minor version (e.g. 1.6) or for
+#      each minor version
 
 if(GITTARGETS_FOUND)
   return()
