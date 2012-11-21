@@ -113,8 +113,11 @@
 
    Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
 
+     * 179: Readback of non-modulo-4 images broken
+     * 175: "--eq-logfile" followed by no other argument segfaults
      * 162: WGL window compile error
      * 160: Memleak with pipe thread affinity
+     * 159: exPixelBench crashes
      * 158: Non-freed GPUCompressors after application exit
 
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including

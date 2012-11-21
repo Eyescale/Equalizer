@@ -164,10 +164,16 @@
   Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/179">179</a>:
+    Readback of non-modulo-4 images broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/175">175</a>:
+    "--eq-logfile" followed by no other argument segfaults</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/162">162</a>:
     WGL window compile error</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/160">160</a>:
     Memleak with pipe thread affinity</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/159">159</a>:
+    exPixelBench crashes</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/158">158</a>:
     Non-freed GPUCompressors after application exit</li>
 </ul>

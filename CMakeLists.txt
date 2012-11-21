@@ -18,7 +18,7 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 include(revision)
 
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
-set(LAST_RELEASE 1.4.0)
+set(LAST_RELEASE 1.4.1)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "5")
 set(VERSION_PATCH "1")

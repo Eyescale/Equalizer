@@ -480,12 +480,12 @@ bool Window::configInitGL( const uint128_t& )
     return true;
 }
 
-void Window::createTransferWindow()
+bool Window::createTransferWindow()
 {
     LBASSERT( _systemWindow );
 
     if( _transferWindow )
-        return;
+        return true;
 
     // create another (shared) osWindow with no drawable, restore original
     const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
@@ -502,6 +502,8 @@ void Window::createTransferWindow()
             delete _transferWindow;
             _transferWindow = 0;
         }
+        else
+            makeCurrentTransfer();
     }
     else
         LBERROR << "Window system " << pipe->getWindowSystem()
@@ -511,6 +513,7 @@ void Window::createTransferWindow()
     makeCurrent();
 
     LBVERB << "Transfer window initialization finished" << std::endl;
+    return _transferWindow != 0;
 }
 
 const GLEWContext* Window::getTransferGlewContext()
@@ -586,7 +589,7 @@ void Window::bindFrameBuffer() const
 void Window::swapBuffers()
 {
     _systemWindow->swapBuffers();
-    LBVERB << "----- SWAP -----" << std::endl;
+    LBLOG( co::LOG_BARRIER ) << "Swap buffers done" << getName() << std::endl;
 }
 
 const GLEWContext* Window::glewGetContext() const

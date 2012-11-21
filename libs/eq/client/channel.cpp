@@ -1599,7 +1599,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
             if( images[j]->hasAsyncReadback( )) // finish async readback
             {
                 LBCHECK( getPipe()->startTransferThread( ));
-                getWindow()->createTransferWindow();
+                LBCHECK( getWindow()->createTransferWindow( ));
 
                 hasAsyncReadback = true;
                 _refFrame( frameNumber );
@@ -2134,7 +2134,6 @@ bool Channel::_cmdFrameReadback( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
-
     LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
                                       << command << " " << context<< " nFrames "
                                       << frames.size() << std::endl;

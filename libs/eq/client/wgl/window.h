@@ -310,7 +310,7 @@ namespace wgl
         Private* _private; // placeholder for binary-compatible changes
 
         /** Create an unmapped WGL window. */
-        HWND _createWGLWindow( int pixelFormat, const PixelViewport& pvp );
+        HWND _createWGLWindow( const PixelViewport& pvp );
 
         /** Use wglChoosePixelFormatARB */
         int _chooseWGLPixelFormatARB( HDC pfDC );
