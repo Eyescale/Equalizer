@@ -2,8 +2,9 @@
 # See doc/GitTargets.md for documentation
 
 # Options:
-#  GITTARGETS_RELEASE_BRANCH current | even_minor
-#      create tags on the current or the next even minor version (e.g. 1.6)
+#  GITTARGETS_RELEASE_BRANCH current | even_minor | every_minor
+#      create tags on the current, the next even minor version (e.g. 1.6) or on
+#      every minor version
 
 if(GITTARGETS_FOUND)
   return()
@@ -13,11 +14,15 @@ if(NOT GIT_EXECUTABLE)
   return()
 endif()
 
+if(NOT GITTARGETS_RELEASE_BRANCH)
+  set(GITTARGETS_RELEASE_BRANCH "even_minor")
+endif()
+
 find_program(GZIP_EXECUTABLE gzip)
 
 # branch
 math(EXPR _gittargets_ODD_MINOR "${VERSION_MINOR} % 2")
-if(_gittargets_ODD_MINOR)
+if(_gittargets_ODD_MINOR AND ${GITTARGETS_RELEASE_BRANCH} STREQUAL even_minor)
   math(EXPR BRANCH_VERSION "${VERSION_MINOR} + 1")
   set(BRANCH_VERSION ${VERSION_MAJOR}.${BRANCH_VERSION})
 else()
