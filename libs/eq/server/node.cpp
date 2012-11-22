@@ -251,6 +251,14 @@ bool Node::connect()
 
 bool Node::launch()
 {
+    for( co::ConnectionDescriptionsCIter i = _connectionDescriptions.begin();
+         _host.empty() && i != _connectionDescriptions.end(); ++i )
+    {
+        _host = (*i)->getHostname();
+        EQWARN << "No host specified, guessing " << _host << " from " << *i
+               << std::endl;
+    }
+
     if( _launch( _host ))
         return true;
 
