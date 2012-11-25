@@ -91,6 +91,12 @@ documentation changes:
 2.2. Enhancements
 ~~~~~~~~~~~~~~~~~
 
+Equalizer 1.4.1:
+
+-   `RDMA Windows implementation`_
+
+Equalizer 1.4.0:
+
 -   `System window without drawable buffer`_
 -   `Mac OS X: Build universal libraries even when AGL is enabled`_
 -   auto-config: add direct send configuration
@@ -279,6 +285,8 @@ information.
     https://github.com/Eyescale/Equalizer/issues/116
 .. _Extensible       packet dispatch:
     https://github.com/Eyescale/Equalizer/issues/111
+.. _RDMA Windows   implementation:
+    https://github.com/Eyescale/Equalizer/issues/178
 .. _System window       without drawable buffer:
     https://github.com/Eyescale/Equalizer/issues/70
 .. _Mac OS X: Build       universal libraries even when AGL is enabled:

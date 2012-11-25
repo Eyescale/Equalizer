@@ -106,6 +106,12 @@
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
+<p>Equalizer 1.4.1:</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/178">RDMA Windows
+  implementation</a></li>
+</ul>
+<p>Equalizer 1.4.0:</p>
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/70">System window
       without drawable buffer</a></li>
