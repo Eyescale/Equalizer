@@ -74,6 +74,12 @@
 
   2.2. Enhancements
 
+   Equalizer 1.4.1:
+
+     * RDMA Windows implementation
+
+   Equalizer 1.4.0:
+
      * System window without drawable buffer
      * Mac OS X: Build universal libraries even when AGL is enabled
      * auto-config: add direct send configuration
