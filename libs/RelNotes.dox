@@ -44,8 +44,8 @@
   object-oriented high-level network library. It is intended for all application
   developers creating parallel, interactive OpenGL applications. Equalizer 1.4
   can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.3.6.tar.gz">source
-    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/developer.html">precompiled packages</a>.
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.4.1.tar.gz">source
+    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/major.html">precompiled packages</a>.
 </p>
 
 <a name="features"></a>
@@ -297,7 +297,7 @@
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="https://github.com/Eyescale/Equalizer/tree/1.3.5/examples">examples</a>
+  <a href="https://github.com/Eyescale/Equalizer/tree/1.4.1/examples">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features.
