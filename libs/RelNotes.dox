@@ -44,8 +44,8 @@
   object-oriented high-level network library. It is intended for all application
   developers creating parallel, interactive OpenGL applications. Equalizer 1.4
   can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.3.6.tar.gz">source
-    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/developer.html">precompiled packages</a>.
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.4.1.tar.gz">source
+    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/major.html">precompiled packages</a>.
 </p>
 
 <a name="features"></a>
@@ -170,18 +170,24 @@
   Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/180">180</a>:
+    Launch error with empty host for a node bug</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/179">179</a>:
     Readback of non-modulo-4 images broken</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/175">175</a>:
     "--eq-logfile" followed by no other argument segfaults</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/162">162</a>:
     WGL window compile error</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/161">161</a>:
+    eqPly crash on model load on Win32</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/160">160</a>:
     Memleak with pipe thread affinity</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/159">159</a>:
     exPixelBench crashes</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/158">158</a>:
     Non-freed GPUCompressors after application exit</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/138">138</a>:
+    Windows: PBO error when rendering</li>
 </ul>
 <p>
   Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
@@ -226,8 +232,10 @@
   find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/138">138</a>:
-    Windows: PBO error when rendering</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/177">177</a>:
+    Occasional async readback deadlocks on GLX</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/167">167</a>:
+    HWLOC: Segmentation Fault with empty auto thread affinity</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
     assertion on interaction with multiple GPUs</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/77">77</a>:
@@ -289,7 +297,7 @@
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="https://github.com/Eyescale/Equalizer/tree/1.3.5/examples">examples</a>
+  <a href="https://github.com/Eyescale/Equalizer/tree/1.4.1/examples">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features.

@@ -116,7 +116,7 @@ if(_eq_Version_file)
       NOT EXISTS "${_eq_Version_file}")
     set(_eq_Version_file "${_eq_INCLUDE_DIR}/Headers/version.h")
   endif()
-    
+
   file(READ "${_eq_Version_file}" _eq_Version_contents)
   string(REGEX REPLACE ".*define EQ_VERSION_MAJOR[ \t]+([0-9]+).*"
     "\\1" EQUALIZER_VERSION_MAJOR ${_eq_Version_contents})
@@ -148,7 +148,7 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
     endif()
   else()
     # version is too low
-    if(NOT EQUALIZER_VERSION VERSION_EQUAL ${Equalizer_FIND_VERSION} AND 
+    if(NOT EQUALIZER_VERSION VERSION_EQUAL ${Equalizer_FIND_VERSION} AND
         NOT EQUALIZER_VERSION VERSION_GREATER ${Equalizer_FIND_VERSION})
       set(_eq_version_not_high_enough TRUE)
     endif()
@@ -205,6 +205,7 @@ else()
   # Matching Collage versions
   set(_eq_coVersion_1.5.1 "0.8.0")
   set(_eq_coVersion_1.5.0 "0.7.0")
+  set(_eq_coVersion_1.4.1 "0.6.1")
   set(_eq_coVersion_1.4.0 "0.6.0")
   set(_eq_coVersion_1.3.7 "0.5.7")
   set(_eq_coVersion_1.3.6 "0.5.6")
