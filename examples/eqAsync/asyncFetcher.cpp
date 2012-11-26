@@ -55,9 +55,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
 
     if( sharedWindow )
     {
-        if( sharedWindow->configInit( ))
-            sharedWindow->makeCurrent();
-        else
+        if( !sharedWindow->configInit( ))
         {
             LBWARN << "OS Window initialization failed: " << std::endl;
             delete sharedWindow;
@@ -71,6 +69,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
     }
 
     window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
+    window->makeCurrent();
 
     LBINFO << "Async fetcher initialization finished" << std::endl;
     return sharedWindow;
@@ -123,6 +122,12 @@ const GLEWContext* AsyncFetcher::glewGetContext() const
     return _sharedWindow->glewGetContext();
 }
 
+void AsyncFetcher::setup( Window* window )
+{
+    _window = window;
+    _sharedWindow = initSharedContextWindow( _window );    
+}
+
 
 /**
  *  Function for creating and holding of shared context.
@@ -130,12 +135,13 @@ const GLEWContext* AsyncFetcher::glewGetContext() const
  */
 void AsyncFetcher::run()
 {
-    LBASSERT( !_sharedWindow );
-    _sharedWindow = initSharedContextWindow( _window );
-    _outQueue.push( TextureId( )); // unlock pipe thread
+    LBASSERT( _sharedWindow );
     if( !_sharedWindow )
         return;
-
+        
+    _sharedWindow->makeCurrent();
+    _outQueue.push( TextureId( )); // unlock pipe thread    
+      
     _objectManager = new eq::ObjectManager( glewGetContext( ));
     LBINFO << "async fetcher initialized: " << _window << std::endl;
 

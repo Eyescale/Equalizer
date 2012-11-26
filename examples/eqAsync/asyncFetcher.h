@@ -61,7 +61,7 @@ public:
     ~AsyncFetcher();
 
     virtual void run();
-    void setup( Window* window ) { _window = window; }
+    void setup( Window* window );
 
     TextureId getTextureId()               { return _outQueue.pop().id;      }
     bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
