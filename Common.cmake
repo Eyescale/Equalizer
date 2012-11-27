@@ -1,10 +1,4 @@
-
-include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
-
 # Common settings
-enable_testing()
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
   get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH) # WAR bug
@@ -13,6 +7,13 @@ endif()
 if(CMAKE_VERSION VERSION_LESS 2.8)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8)
 endif()
+
+
+include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
+
+enable_testing()
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 if(NOT CMAKE_BUILD_TYPE)
   if(RELEASE_VERSION)
