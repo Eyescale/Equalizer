@@ -55,7 +55,9 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
 
     if( sharedWindow )
     {
-        if( !sharedWindow->configInit( ))
+        if( sharedWindow->configInit( ))
+            sharedWindow->makeCurrent();
+        else
         {
             LBWARN << "OS Window initialization failed: " << std::endl;
             delete sharedWindow;
@@ -138,10 +140,10 @@ void AsyncFetcher::run()
     LBASSERT( _sharedWindow );
     if( !_sharedWindow )
         return;
-        
+
     _sharedWindow->makeCurrent();
     _outQueue.push( TextureId( )); // unlock pipe thread    
-      
+
     _objectManager = new eq::ObjectManager( glewGetContext( ));
     LBINFO << "async fetcher initialized: " << _window << std::endl;
 
