@@ -627,7 +627,10 @@ void Channel::_drawModel( const Model* scene )
 
     const InitData& initData =
         static_cast<Config*>( getConfig( ))->getInitData();
-    if( !initData.useROI( ))
+    if( initData.useROI( ))
+        // declare empty region in case nothing is in frustum
+        declareRegion( eq::PixelViewport( ));
+    else
     {
         declareRegion( getPixelViewport( ));
         return;

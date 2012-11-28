@@ -50,8 +50,6 @@ void Pipe::startAsyncFetcher( Window* wnd )
     _initialized = true;
     LBINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
     _asyncFetcher.setup( wnd );
-    _asyncFetcher.start();
-    _asyncFetcher.getTextureId(); // wait for initialization to finish
 }
 
 
@@ -69,16 +67,11 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
     }
 }
 
-
 bool Pipe::configExit()
 {
-    LBINFO << "exit async fetcher: " << this << std::endl;
-    _asyncFetcher.deleteTexture( 0 ); //exit async fetcher
-    _asyncFetcher.join();
-
+    _asyncFetcher.stop();
     return eq::Pipe::configExit();
 }
-
 
 void Channel::frameDraw( const eq::uint128_t& spin )
 {

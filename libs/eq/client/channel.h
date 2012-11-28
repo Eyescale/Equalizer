@@ -302,7 +302,12 @@ namespace detail { class Channel; struct RBStat; }
          * The region is relative to the current pixel viewport. It is clipped
          * against the current pixel viewport of the channel. Called with the
          * full pixel viewport after frameDraw if no region has been declared.
+         *
+         * Declaring a single, empty region causes this channel to not read
+         * back any pixel data, i.e., if it did not draw anything.
+         *
          * The implementation might merge or split the declared regions.
+         *
          * @version 1.3
          */
         EQ_API virtual void declareRegion( const eq::PixelViewport& region );
@@ -651,4 +656,3 @@ namespace detail { class Channel; struct RBStat; }
 }
 
 #endif // EQ_CHANNEL_H
-

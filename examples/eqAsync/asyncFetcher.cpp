@@ -36,6 +36,23 @@
 
 namespace eqAsync
 {
+typedef eq::util::ObjectManager< int > ObjectManager;
+
+AsyncFetcher::AsyncFetcher()
+    : lunchbox::Thread()
+    , _sharedWindow( 0 )
+{
+}
+
+AsyncFetcher::~AsyncFetcher()
+{
+    stop();
+}
+
+const GLEWContext* AsyncFetcher::glewGetContext() const
+{
+    return _sharedWindow->glewGetContext();
+}
 
 static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
 {
@@ -71,58 +88,29 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
     }
 
     window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
+    window->makeCurrent();
 
     LBINFO << "Async fetcher initialization finished" << std::endl;
     return sharedWindow;
 }
 
-
-static void deleteSharedContextWindow( eq::Window* window,
-                                       eq::SystemWindow** sharedWindow,
-                                       eq::ObjectManager** objectManager )
+void AsyncFetcher::setup( Window* window )
 {
-    LBWARN << "Deleting shared context" << std::endl;
-    if( !sharedWindow || !*sharedWindow )
+    _sharedWindow = initSharedContextWindow( window );
+    start();
+}
+
+void AsyncFetcher::stop()
+{
+    if( !_sharedWindow )
         return;
 
-    if( *objectManager )
-    {
-        (*objectManager)->deleteAll();
-        delete *objectManager;
-        *objectManager = 0;
-    }
+    deleteTexture( 0 ); // exit async thread
+    join();
 
-    (*sharedWindow)->configExit(); // mb set window to 0 before that?
-
-    delete *sharedWindow;
-    *sharedWindow = 0;
+    _sharedWindow->configExit();
+    delete _sharedWindow;
 }
-
-
-AsyncFetcher::AsyncFetcher()
-    : lunchbox::Thread()
-    , _window( 0 )
-    , _objectManager( 0 )
-    , _sharedWindow( 0 )
-{
-    _tmpTexture = new GLbyte[ 64*64*4 ];
-}
-
-
-AsyncFetcher::~AsyncFetcher()
-{
-    if( _window && _sharedWindow )
-        deleteSharedContextWindow( _window, &_sharedWindow, &_objectManager );
-
-    delete [] _tmpTexture;
-}
-
-
-const GLEWContext* AsyncFetcher::glewGetContext() const
-{
-    return _sharedWindow->glewGetContext();
-}
-
 
 /**
  *  Function for creating and holding of shared context.
@@ -130,23 +118,21 @@ const GLEWContext* AsyncFetcher::glewGetContext() const
  */
 void AsyncFetcher::run()
 {
-    LBASSERT( !_sharedWindow );
-    _sharedWindow = initSharedContextWindow( _window );
-    _outQueue.push( TextureId( )); // unlock pipe thread
+    LBASSERT( _sharedWindow );
     if( !_sharedWindow )
         return;
 
-    _objectManager = new eq::ObjectManager( glewGetContext( ));
-    LBINFO << "async fetcher initialized: " << _window << std::endl;
+    _sharedWindow->makeCurrent();
+    eq::ObjectManager objects( glewGetContext( ));
+    lunchbox::Bufferb textureData( 64*64*4 );
+    LBINFO << "async fetcher initialized" << std::endl;
 
-    uint8_t* i = 0;
     bool running = true;
     lunchbox::sleep( 1000 ); // imitate loading of the first texture
-    while( running )
+    for( uint8_t* i = 0; running; ++i )
     {
         // generate new texture
-        eq::util::Texture* tx = _objectManager->newEqTexture( ++i,
-                                                              GL_TEXTURE_2D );
+        eq::util::Texture* tx = objects.newEqTexture( i, GL_TEXTURE_2D );
         tx->init( GL_RGBA8, 64, 64 );
 
         int j = 0;
@@ -157,13 +143,13 @@ void AsyncFetcher::run()
             {
                 const GLbyte rnd = rng.get< uint8_t >() % 127;
                 const GLbyte val = (x / 8) % 2 == (y / 8) % 2 ? rnd : 0;
-                _tmpTexture[ j++ ] = val;
-                _tmpTexture[ j++ ] = val;
-                _tmpTexture[ j++ ] = val;
-                _tmpTexture[ j++ ] = val;
+                textureData[ j++ ] = val;
+                textureData[ j++ ] = val;
+                textureData[ j++ ] = val;
+                textureData[ j++ ] = val;
             }
         }
-        tx->upload( 64, 64, _tmpTexture );
+        tx->upload( 64, 64, textureData.getData( ));
         EQ_GL_CALL( glFinish( ));
 
         // add new texture to the pool
@@ -179,13 +165,13 @@ void AsyncFetcher::run()
             if( keyToDelete )
             {
                 LBWARN << "Deleting eq texture " << keyToDelete << std::endl;
-                _objectManager->deleteEqTexture( keyToDelete );
+                objects.deleteEqTexture( keyToDelete );
             }
             else
                 running = false;
         }
     }
-    deleteSharedContextWindow( _window, &_sharedWindow, &_objectManager );
+    objects.deleteAll();
 }
 
 } //namespace eqAsync

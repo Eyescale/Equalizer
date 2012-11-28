@@ -91,6 +91,12 @@ documentation changes:
 2.2. Enhancements
 ~~~~~~~~~~~~~~~~~
 
+Equalizer 1.4.1:
+
+-   `RDMA Windows implementation`_
+
+Equalizer 1.4.0:
+
 -   `System window without drawable buffer`_
 -   `Mac OS X: Build universal libraries even when AGL is enabled`_
 -   auto-config: add direct send configuration
@@ -141,12 +147,15 @@ the last release:
 
 Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
 
+-   `180`_: Launch error with empty host for a node bug
 -   `179`_: Readback of non-modulo-4 images broken
 -   `175`_: "--eq-logfile" followed by no other argument segfaults
 -   `162`_: WGL window compile error
+-   `161`_: eqPly crash on model load on Win32
 -   `160`_: Memleak with pipe thread affinity
 -   `159`_: exPixelBench crashes
 -   `158`_: Non-freed GPUCompressors after application exit
+-   `138`_: Windows: PBO error when rendering
 
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
 following:
@@ -174,7 +183,8 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
--   `138`_: Windows: PBO error when rendering
+-   `177`_: Occasional async readback deadlocks on GLX
+-   `167`_: HWLOC: Segmentation Fault with empty auto thread affinity
 -   `78`_: AGL: assertion on interaction with multiple GPUs
 -   `77`_: 7-window.DB.PIXEL.eqc broken
 -   `76`_: 7-window.DPLEX.2D.lb.eqc does not load-balance
@@ -279,6 +289,8 @@ information.
     https://github.com/Eyescale/Equalizer/issues/116
 .. _Extensible       packet dispatch:
     https://github.com/Eyescale/Equalizer/issues/111
+.. _RDMA Windows   implementation:
+    https://github.com/Eyescale/Equalizer/issues/178
 .. _System window       without drawable buffer:
     https://github.com/Eyescale/Equalizer/issues/70
 .. _Mac OS X: Build       universal libraries even when AGL is enabled:
@@ -290,12 +302,15 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _180: https://github.com/Eyescale/Equalizer/issues/180
 .. _179: https://github.com/Eyescale/Equalizer/issues/179
 .. _175: https://github.com/Eyescale/Equalizer/issues/175
 .. _162: https://github.com/Eyescale/Equalizer/issues/162
+.. _161: https://github.com/Eyescale/Equalizer/issues/161
 .. _160: https://github.com/Eyescale/Equalizer/issues/160
 .. _159: https://github.com/Eyescale/Equalizer/issues/159
 .. _158: https://github.com/Eyescale/Equalizer/issues/158
+.. _138: https://github.com/Eyescale/Equalizer/issues/138
 .. _157: https://github.com/Eyescale/Equalizer/issues/157
 .. _149: https://github.com/Eyescale/Equalizer/issues/149
 .. _147: https://github.com/Eyescale/Equalizer/issues/147
@@ -311,7 +326,8 @@ information.
 .. _121: https://github.com/Eyescale/Equalizer/issues/121
 .. _117: https://github.com/Eyescale/Equalizer/issues/117
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
-.. _138: https://github.com/Eyescale/Equalizer/issues/138
+.. _177: https://github.com/Eyescale/Equalizer/issues/177
+.. _167: https://github.com/Eyescale/Equalizer/issues/167
 .. _78: https://github.com/Eyescale/Equalizer/issues/78
 .. _77: https://github.com/Eyescale/Equalizer/issues/77
 .. _76: https://github.com/Eyescale/Equalizer/issues/76
