@@ -40,6 +40,8 @@ TreeEqualizer::TreeEqualizer()
         , _damping( .5f )
         , _boundary2i( 1, 1 )
         , _boundaryf( std::numeric_limits<float>::epsilon() )
+        , _resistance2i( 0, 0 )
+        , _resistancef( .0f )
         , _tree( 0 )
 
 {
@@ -53,6 +55,8 @@ TreeEqualizer::TreeEqualizer( const TreeEqualizer& from )
         , _damping( from._damping )
         , _boundary2i( from._boundary2i )
         , _boundaryf( from._boundaryf )
+        , _resistance2i( from._resistance2i )
+        , _resistancef( from._resistancef )
         , _tree( 0 )
 {}
 
@@ -254,6 +258,8 @@ void TreeEqualizer::_update( Node* node )
         node->maxSize.y() = pvp.h;
         node->boundaryf = _boundaryf;
         node->boundary2i = _boundary2i;
+        node->resistancef = _resistancef;
+        node->resistance2i = _resistance2i;
         return;
     }
     // else
@@ -271,6 +277,8 @@ void TreeEqualizer::_update( Node* node )
         node->maxSize = node->right->maxSize;
         node->boundary2i = node->right->boundary2i;
         node->boundaryf = node->right->boundaryf;
+        node->resistance2i = node->right->resistance2i;
+        node->resistancef = node->right->resistancef;
         node->time = node->right->time;
     }
     else if( node->right->resources == 0.f )
@@ -278,6 +286,8 @@ void TreeEqualizer::_update( Node* node )
         node->maxSize = node->left->maxSize;
         node->boundary2i = node->left->boundary2i;
         node->boundaryf = node->left->boundaryf;
+        node->resistance2i = node->left->resistance2i;
+        node->resistancef = node->left->resistancef;
         node->time = node->left->time;
     }
     else
@@ -295,6 +305,12 @@ void TreeEqualizer::_update( Node* node )
                                            node->right->boundary2i.y());
             node->boundaryf = LB_MAX( node->left->boundaryf,
                                       node->right->boundaryf );
+            node->resistance2i.x() = node->left->resistance2i.x() +
+                                     node->right->resistance2i.x();
+            node->resistance2i.y() = LB_MAX( node->left->resistance2i.y(),
+                                             node->right->resistance2i.y());
+            node->resistancef = LB_MAX( node->left->resistancef,
+                                        node->right->resistancef );
             break;
         case MODE_HORIZONTAL:
             node->maxSize.x() = LB_MIN( node->left->maxSize.x(),
@@ -307,13 +323,25 @@ void TreeEqualizer::_update( Node* node )
                                    node->right->boundary2i.y();
             node->boundaryf = LB_MAX( node->left->boundaryf,
                                       node->right->boundaryf );
+            node->resistance2i.x() = LB_MAX( node->left->resistance2i.x(),
+                                             node->right->resistance2i.x() );
+            node->resistance2i.y() = node->left->resistance2i.y() +
+                                     node->right->resistance2i.y();
+            node->resistancef = LB_MAX( node->left->resistancef,
+                                      node->right->resistancef );
             break;
         case MODE_DB:
             node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(),
                                            node->right->boundary2i.x() );
             node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(),
                                            node->right->boundary2i.y() );
-            node->boundaryf = node->left->boundaryf +node->right->boundaryf;
+            node->boundaryf = node->left->boundaryf + node->right->boundaryf;
+            node->resistance2i.x() = LB_MAX( node->left->resistance2i.x(),
+                                           node->right->resistance2i.x() );
+            node->resistance2i.y() = LB_MAX( node->left->resistance2i.y(),
+                                           node->right->resistance2i.y() );
+            node->resistancef = LB_MAX( node->left->resistancef,
+                                        node->right->resistancef );
             break;
         default:
             LBUNIMPLEMENTED;
@@ -430,7 +458,19 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
         absoluteSplit = LB_MAX( absoluteSplit, vp.x );
         absoluteSplit = LB_MIN( absoluteSplit, end);
 
-        node->split = (absoluteSplit - vp.x ) / vp.w;
+        const float newPixelW = pvpW * node->split;
+        const float oldPixelW = pvpW * node->oldsplit;
+        if( int( fabs(newPixelW - oldPixelW) ) < node->resistance2i.x( ))
+        {
+            absoluteSplit = vp.x + vp.w * node->oldsplit;
+            node->split = node->oldsplit;
+        }
+        else
+        {
+            node->split = (absoluteSplit - vp.x ) / vp.w;
+            node->oldsplit = node->split;
+        }
+
         LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                          << node->split << std::endl;
 
@@ -489,7 +529,19 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
         absoluteSplit = LB_MAX( absoluteSplit, vp.y );
         absoluteSplit = LB_MIN( absoluteSplit, end);
 
-        node->split = (absoluteSplit - vp.y ) / vp.h;
+        const float newPixelH = pvpH * node->split;
+        const float oldPixelH = pvpH * node->oldsplit;
+        if( int( fabs(newPixelH - oldPixelH) ) < node->resistance2i.y( ))
+        {
+            absoluteSplit = vp.x + vp.w * node->oldsplit;
+            node->split = node->oldsplit;
+        }
+        else
+        {
+            node->split = (absoluteSplit - vp.y ) / vp.h;
+            node->oldsplit = node->split;
+        }
+
         LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                          << node->split << std::endl;
 
@@ -530,7 +582,19 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
         if( (end - absoluteSplit) < boundary )
             absoluteSplit = end;
 
-        node->split = (absoluteSplit-range.start) / (range.end-range.start);
+        const float oldSplit = range.start +
+                               (range.end-range.start)*node->oldsplit;
+        if( fabs( absoluteSplit - oldSplit ) < node->resistancef )
+        {
+            absoluteSplit = oldSplit;
+            node->split = node->oldsplit;
+        }
+        else
+        {
+            node->split = (absoluteSplit-range.start) / (range.end-range.start);
+            node->oldsplit = node->split;
+        }
+
         LBLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
                          << node->split << std::endl;
 
@@ -597,6 +661,13 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer* lb )
 
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
         os << "    boundary " << lb->getBoundaryf() << std::endl;
+
+    if( lb->getResistance2i() != Vector2i( 0, 0 ) )
+        os << "    resistance [ " << lb->getResistance2i().x() << " "
+           << lb->getResistance2i().y() << " ]" << std::endl;
+
+    if( lb->getResistancef() != .0f )
+        os << "    resistance " << lb->getResistancef() << std::endl;
 
     os << '}' << std::endl << lunchbox::enableFlush;
     return os;
