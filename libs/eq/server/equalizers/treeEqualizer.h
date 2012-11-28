@@ -95,6 +95,24 @@ namespace server
         /** @return the boundary for DB ranges. */
         float getBoundaryf() const { return _boundaryf; }
 
+        /** Set a resistance for 2D tiles. */
+        void setResistance( const Vector2i& resistance )
+        {
+            _resistance2i = resistance;
+        }
+
+        /** Set a resistance for DB ranges. */
+        void setResistance( const float resistance )
+        {
+            _resistancef = resistance;
+        }
+
+        /** @return the resistance for 2D tiles. */
+        const Vector2i& getResistance2i() const { return _resistance2i; }
+
+        /** @return the resistance for DB ranges. */
+        float getResistancef() const { return _resistancef; }
+
         virtual uint32_t getType() const { return fabric::TREE_EQUALIZER; }
 
     protected:
@@ -108,12 +126,14 @@ namespace server
         float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
         Vector2i _boundary2i;  // default: 1 1
         float    _boundaryf;   // default: numeric_limits<float>::epsilon
+        Vector2i _resistance2i;  // default: 0 0
+        float    _resistancef;   // default: 0
 
         struct Node
         {
             Node() : left(0), right(0), compound(0), mode( MODE_VERTICAL )
-                   , resources( 0.0f ), split( 0.5f ), boundaryf( 0.0f )
-                   , time( 1 ) {}
+                   , resources( 0.0f ), split( 0.5f ), oldsplit( 0.0f ), boundaryf( 0.0f )
+                   , resistancef( 0.0f ), time( 1 ) {}
             ~Node() { delete left; delete right; }
 
             Node*     left;      //<! Left child (only on non-leafs)
@@ -122,8 +142,11 @@ namespace server
             TreeEqualizer::Mode mode; //<! What to adapt
             float     resources; //<! total amount of resources of subtree
             float     split;     //<! 0..1 local (vp, range) split
+            float     oldsplit;
             float     boundaryf;
             Vector2i  boundary2i;
+            float     resistancef;
+            Vector2i  resistance2i;
             Vector2i  maxSize;
             int64_t   time;
         };

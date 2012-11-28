@@ -95,6 +95,24 @@ namespace server
         /** @return the boundary for DB ranges. */
         float getBoundaryf() const { return _boundaryf; }
 
+        /** Set a resistance for 2D tiles. */
+        void setResistance( const Vector2i& resistance )
+        {
+            _resistance2i = resistance;
+        }
+
+        /** Set a resistance for DB ranges. */
+        void setResistance( const float resistance )
+        {
+            _resistancef = resistance;
+        }
+
+        /** @return the resistance for 2D tiles. */
+        const Vector2i& getResistance2i() const { return _resistance2i; }
+
+        /** @return the resistance for DB ranges. */
+        float getResistancef() const { return _resistancef; }
+
         void setAssembleOnlyLimit( const float limit )
             { _assembleOnlyLimit = limit; }
 
@@ -113,7 +131,8 @@ namespace server
         struct Node
         {
             Node() : left(0), right(0), compound(0), mode( MODE_VERTICAL )
-                   , resources( 0.0f ), split( 0.5f ), boundaryf( 0.0f ) {}
+                   , resources( 0.0f ), split( 0.5f ), boundaryf( 0.0f )
+                   , resistancef( 0.0f ) {}
             ~Node() { delete left; delete right; }
 
             Node*     left;      //<! Left child (only on non-leafs)
@@ -124,6 +143,8 @@ namespace server
             float     split;     //<! 0..1 global (vp, range) split
             float     boundaryf;
             Vector2i  boundary2i;
+            float     resistancef;
+            Vector2i  resistance2i;
             Vector2i  maxSize;
         };
         friend std::ostream& operator << ( std::ostream& os, const Node* node );
@@ -151,6 +172,8 @@ namespace server
 
         Vector2i _boundary2i;  // default: 1 1
         float    _boundaryf;   // default: numeric_limits<float>::epsilon
+        Vector2i _resistance2i;  // default: 0 0
+        float    _resistancef;   // default: 0
         float    _assembleOnlyLimit; // default: numeric_limits<float>::max
 
         //-------------------- Methods --------------------

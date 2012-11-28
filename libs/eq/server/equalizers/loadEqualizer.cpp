@@ -41,6 +41,8 @@ LoadEqualizer::LoadEqualizer( const Mode mode )
         , _tree( 0 )
         , _boundary2i( 1, 1 )
         , _boundaryf( std::numeric_limits<float>::epsilon() )
+        , _resistance2i( 0, 0 )
+        , _resistancef( .0f )
         , _assembleOnlyLimit( std::numeric_limits< float >::max( ) )
 {
     LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
@@ -54,6 +56,8 @@ LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
         , _tree( 0 )
         , _boundary2i( from._boundary2i )
         , _boundaryf( from._boundaryf )
+        , _resistance2i( from._resistance2i )
+        , _resistancef( from._resistancef )
         , _assembleOnlyLimit( from._assembleOnlyLimit )
 {}
 
@@ -401,6 +405,8 @@ void LoadEqualizer::_updateLeaf( Node* node )
     node->maxSize.y() = pvp.h;
     node->boundaryf = _boundaryf;
     node->boundary2i = _boundary2i;
+    node->resistancef = _resistancef;
+    node->resistance2i = _resistance2i;
     if( !compound->hasDestinationChannel( ))
         return;
 
@@ -444,12 +450,16 @@ void LoadEqualizer::_updateNode( Node* node )
         node->maxSize    = right->maxSize;
         node->boundary2i = right->boundary2i;
         node->boundaryf  = right->boundaryf;
+        node->resistance2i = right->resistance2i;
+        node->resistancef = right->resistancef;
     }
     else if( right->resources == 0.f )
     {
         node->maxSize = left->maxSize;
         node->boundary2i = left->boundary2i;
         node->boundaryf = left->boundaryf;
+        node->resistance2i = left->resistance2i;
+        node->resistancef = left->resistancef;
     }
     else
     {
@@ -462,6 +472,11 @@ void LoadEqualizer::_updateNode( Node* node )
             node->boundary2i.y() = LB_MAX( left->boundary2i.y(),
                                            right->boundary2i.y());
             node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
+            node->resistance2i.x() = left->resistance2i.x() +
+                                     right->resistance2i.x();
+            node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
+                                             right->resistance2i.y());
+            node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         case MODE_HORIZONTAL:
             node->maxSize.x() = LB_MIN( left->maxSize.x(), right->maxSize.x());
@@ -470,6 +485,11 @@ void LoadEqualizer::_updateNode( Node* node )
                                            right->boundary2i.x() );
             node->boundary2i.y() = left->boundary2i.y()+ right->boundary2i.y();
             node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
+            node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
+                                             right->resistance2i.x() );
+            node->resistance2i.y() = left->resistance2i.y() +
+                                     right->resistance2i.y();
+            node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         case MODE_DB:
             node->boundary2i.x() = LB_MAX( left->boundary2i.x(),
@@ -477,6 +497,11 @@ void LoadEqualizer::_updateNode( Node* node )
             node->boundary2i.y() = LB_MAX( left->boundary2i.y(),
                                            right->boundary2i.y() );
             node->boundaryf = left->boundaryf + right->boundaryf;
+            node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
+                                             right->resistance2i.x() );
+            node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
+                                             right->resistance2i.y() );
+            node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         default:
             LBUNIMPLEMENTED;
@@ -745,9 +770,15 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             splitPos = LB_MAX( splitPos, vp.x );
             splitPos = LB_MIN( splitPos, end);
 
+            const float newPixelW = pvpW * splitPos;
+            const float oldPixelW = pvpW * node->split;
+            if( int( fabs(newPixelW - oldPixelW) ) < node->resistance2i.x( ))
+                splitPos = node->split;
+            else
+                node->split = splitPos;
+
             LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                              << splitPos << std::endl;
-            node->split = splitPos;
 
             // balance children
             Viewport childVP = vp;
@@ -904,9 +935,15 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             splitPos = LB_MAX( splitPos, vp.y );
             splitPos = LB_MIN( splitPos, end );
 
+            const float newPixelH = pvpH * splitPos;
+            const float oldPixelH = pvpH * node->split;
+            if( int( fabs(newPixelH - oldPixelH) ) < node->resistance2i.y( ))
+                splitPos = node->split;
+            else
+                node->split = splitPos;
+
             LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at Y "
                              << splitPos << std::endl;
-            node->split = splitPos;
 
             Viewport childVP = vp;
             childVP.h = (splitPos - vp.y);
@@ -1014,9 +1051,13 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             if( (end - splitPos) < boundary )
                 splitPos = end;
 
+            if( fabs( splitPos - node->split ) < node->resistancef )
+                splitPos = node->split;
+            else
+                node->split = splitPos;
+
             LBLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
                              << splitPos << std::endl;
-            node->split = splitPos;
 
             Range childRange = range;
             childRange.end = splitPos;
@@ -1117,6 +1158,13 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
 
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
         os << "    boundary " << lb->getBoundaryf() << std::endl;
+
+    if( lb->getResistance2i() != Vector2i( 0, 0 ) )
+        os << "    resistance [ " << lb->getResistance2i().x() << " "
+           << lb->getResistance2i().y() << " ]" << std::endl;
+
+    if( lb->getResistancef() != .0f )
+        os << "    resistance " << lb->getResistancef() << std::endl;
 
     os << '}' << std::endl << lunchbox::enableFlush;
     return os;
