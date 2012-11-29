@@ -472,8 +472,8 @@ void LoadEqualizer::_updateNode( Node* node )
             node->boundary2i.y() = LB_MAX( left->boundary2i.y(),
                                            right->boundary2i.y());
             node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
-            node->resistance2i.x() = left->resistance2i.x() +
-                                     right->resistance2i.x();
+            node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
+                                             right->resistance2i.x( ));
             node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
                                              right->resistance2i.y());
             node->resistancef = LB_MAX( left->resistancef, right->resistancef );
@@ -487,8 +487,8 @@ void LoadEqualizer::_updateNode( Node* node )
             node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
             node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
                                              right->resistance2i.x() );
-            node->resistance2i.y() = left->resistance2i.y() +
-                                     right->resistance2i.y();
+            node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
+                                             right->resistance2i.y( ));
             node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         case MODE_DB:

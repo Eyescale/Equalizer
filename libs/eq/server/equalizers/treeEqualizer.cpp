@@ -305,8 +305,8 @@ void TreeEqualizer::_update( Node* node )
                                            node->right->boundary2i.y());
             node->boundaryf = LB_MAX( node->left->boundaryf,
                                       node->right->boundaryf );
-            node->resistance2i.x() = node->left->resistance2i.x() +
-                                     node->right->resistance2i.x();
+            node->resistance2i.x() = LB_MAX( node->left->resistance2i.x(),
+                                             node->right->resistance2i.x( ));
             node->resistance2i.y() = LB_MAX( node->left->resistance2i.y(),
                                              node->right->resistance2i.y());
             node->resistancef = LB_MAX( node->left->resistancef,
@@ -325,8 +325,8 @@ void TreeEqualizer::_update( Node* node )
                                       node->right->boundaryf );
             node->resistance2i.x() = LB_MAX( node->left->resistance2i.x(),
                                              node->right->resistance2i.x() );
-            node->resistance2i.y() = node->left->resistance2i.y() +
-                                     node->right->resistance2i.y();
+            node->resistance2i.y() = LB_MAX( node->left->resistance2i.y(),
+                                             node->right->resistance2i.y( ));
             node->resistancef = LB_MAX( node->left->resistancef,
                                       node->right->resistancef );
             break;
