@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -32,7 +32,7 @@ MessagePump::MessagePump()
         : _receiverQueue( 0 )
         , _needGlobalLock( true )
 {
-    const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone, 
+    const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone,
                                          &_wakeupEvent );
     if( status != noErr )
     {
@@ -65,19 +65,20 @@ void MessagePump::_initReceiverQueue()
                   "MessagePump::dispatch() called from two different threads" );
 }
 
-void MessagePump::dispatchOne()
+void MessagePump::dispatchOne( const uint32_t timeout )
 {
     _initReceiverQueue();
+    _clock.reset();
 
-    while( true )
+    for( int64_t timeLeft = timeout; timeleft >= 0;
+         timeleft = timeout - _clock.getTime64( ))
     {
-        EventRef event;
-
         if( _needGlobalLock )
             Global::enterCarbon();
-            
-        const OSStatus status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
-                                                  true, &event );
+
+        EventRef event;
+        const float wait = EQ_MIN( float( timeLeft ) * .001f, .05f /* 50ms */ );
+        const OSStatus status = ReceiveNextEvent( 0, 0, wait, true, &event );
         if( status == noErr )
         {
             LBVERB << "Dispatch Carbon event " << event << std::endl;
@@ -91,7 +92,7 @@ void MessagePump::dispatchOne()
             ReleaseEvent( event );
             return;
         }
-        
+
         if( _needGlobalLock )
             Global::leaveCarbon();
 
@@ -112,7 +113,7 @@ void MessagePump::dispatchAll()
         EventRef       event;
 
         if( _needGlobalLock )
-            Global::enterCarbon(); 
+            Global::enterCarbon();
         const OSStatus status = ReceiveNextEvent( 0, 0, 0.0, true, &event );
 
         if( status == eventLoopTimedOutErr )
