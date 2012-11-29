@@ -97,15 +97,11 @@ namespace server
 
         /** Set a resistance for 2D tiles. */
         void setResistance( const Vector2i& resistance )
-        {
-            _resistance2i = resistance;
-        }
+            { _resistance2i = resistance; }
 
         /** Set a resistance for DB ranges. */
         void setResistance( const float resistance )
-        {
-            _resistancef = resistance;
-        }
+            { _resistancef = resistance; }
 
         /** @return the resistance for 2D tiles. */
         const Vector2i& getResistance2i() const { return _resistance2i; }
