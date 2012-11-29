@@ -135,13 +135,18 @@ void FrameBufferObject::exit()
 
 bool FrameBufferObject::_checkStatus()
 {
-    switch( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ))
+    const GLenum status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
+    switch( status )
     {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
             LBVERB << "FBO supported and complete" << std::endl;
             _valid = true;
             return true;
 
+        case 0: // error?!
+            EQ_GL_ERROR( "glCheckFramebufferStatusEXT" );
+            _setError( ERROR_FRAMEBUFFER_STATUS );
+            break;
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
             _setError( ERROR_FRAMEBUFFER_UNSUPPORTED );
             break;
@@ -163,7 +168,10 @@ bool FrameBufferObject::_checkStatus()
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
             _setError( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
             break;
+
         default:
+            LBWARN << "Unhandled frame buffer status 0x" << std::hex
+                   << status << std::dec << std::endl;
             break;
     }
 

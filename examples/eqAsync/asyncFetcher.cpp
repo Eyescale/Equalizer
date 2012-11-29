@@ -110,6 +110,7 @@ void AsyncFetcher::stop()
 
     _sharedWindow->configExit();
     delete _sharedWindow;
+    _sharedWindow = 0;
 }
 
 /**
