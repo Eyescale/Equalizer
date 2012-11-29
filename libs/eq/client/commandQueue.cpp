@@ -78,10 +78,7 @@ co::ICommand CommandQueue::pop( const uint32_t timeout )
         {
             if( start == -1 )
                 start = _clock.getTime64();
-
-            LBASSERTINFO( timeout == LB_TIMEOUT_INDEFINITE,
-                          "Timeout implementation missing in code path" );
-            _messagePump->dispatchOne(); // blocking - push will send wakeup
+            _messagePump->dispatchOne( timeout ); // blocks - push send swakeup
         }
         else
         {

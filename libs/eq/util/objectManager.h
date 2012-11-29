@@ -207,4 +207,3 @@ namespace util
 }
 
 #endif // EQUTIL_OBJECTMANAGER_H
-
