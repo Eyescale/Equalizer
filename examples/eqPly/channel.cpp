@@ -631,10 +631,7 @@ void Channel::_drawModel( const Model* scene )
         // declare empty region in case nothing is in frustum
         declareRegion( eq::PixelViewport( ));
     else
-    {
         declareRegion( getPixelViewport( ));
-        return;
-    }
 
 #ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();
