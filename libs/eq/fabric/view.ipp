@@ -6,12 +6,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@ namespace eq
 {
 namespace fabric
 {
-template< class L, class V, class O > 
+template< class L, class V, class O >
 View< L, V, O >::View( L* layout )
         : _layout( layout )
         , _observer( 0 )
@@ -43,7 +43,7 @@ View< L, V, O >::View( L* layout )
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 View< L, V, O >::~View()
 {
     LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
@@ -51,10 +51,9 @@ View< L, V, O >::~View()
         _layout->_removeChild( static_cast< V* >( this ));
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 View< L, V, O >::BackupData::BackupData()
         : overdraw( Vector2i::ZERO )
-        , tileSize( Vector2i::ZERO )
         , minimumCapabilities( LB_BIT_NONE )
         , maximumCapabilities( LB_BIT_ALL_64 )
         , capabilities( LB_BIT_ALL_64 )
@@ -63,8 +62,8 @@ View< L, V, O >::BackupData::BackupData()
         , modelUnit( EQ_M )
 {}
 
-template< class L, class V, class O > 
-void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
+template< class L, class V, class O >
+void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_OBSERVER )
@@ -75,8 +74,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
         os << _data.viewport;
     if( dirtyBits & DIRTY_OVERDRAW )
         os << _data.overdraw;
-    if( dirtyBits & DIRTY_TILESIZE )
-        os << _data.tileSize;
+    if( dirtyBits & DIRTY_EQUALIZER )
+        _data.equalizer.serialize( os );
     if( dirtyBits & DIRTY_MINCAPS )
         os << _data.minimumCapabilities;
     if( dirtyBits & DIRTY_MAXCAPS )
@@ -91,8 +90,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
         os << _data.modelUnit;
 }
 
-template< class L, class V, class O > 
-void View< L, V, O >::deserialize( co::DataIStream& is, 
+template< class L, class V, class O >
+void View< L, V, O >::deserialize( co::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -135,8 +134,8 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _data.viewport;
     if( dirtyBits & DIRTY_OVERDRAW )
         is >> _data.overdraw;
-    if( dirtyBits & DIRTY_TILESIZE )
-        is >> _data.tileSize;
+    if( dirtyBits & DIRTY_EQUALIZER )
+        _data.equalizer.deserialize( is );
     if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
     {
         if( dirtyBits & DIRTY_MINCAPS )
@@ -159,7 +158,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _data.modelUnit;
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
@@ -167,8 +166,8 @@ void View< L, V, O >::setDirty( const uint64_t dirtyBits )
         _layout->setDirty( L::DIRTY_VIEWS );
 }
 
-template< class L, class V, class O > 
-void View< L, V, O >::changeMode( const Mode mode ) 
+template< class L, class V, class O >
+void View< L, V, O >::changeMode( const Mode mode )
 {
     if ( _data.mode == mode )
         return;
@@ -177,7 +176,7 @@ void View< L, V, O >::changeMode( const Mode mode )
     setDirty( DIRTY_MODE );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 bool View< L, V, O >::isActive() const
 {
     return getLayout()->isActive();
@@ -203,7 +202,7 @@ float View< L, V, O >::getModelUnit() const
     return _data.modelUnit;
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setViewport( const Viewport& viewport )
 {
     _data.viewport = viewport;
@@ -226,7 +225,7 @@ template< class L, class V, class O > void View< L, V, O >::restore()
               DIRTY_MINCAPS | DIRTY_MAXCAPS | DIRTY_CAPABILITIES ); // TODO: add new bits?
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setObserver( O* observer )
 {
     if( _observer == observer )
@@ -240,13 +239,13 @@ void View< L, V, O >::setObserver( O* observer )
     setDirty( DIRTY_OBSERVER );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 const Viewport& View< L, V, O >::getViewport() const
 {
     return _data.viewport;
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setOverdraw( const Vector2i& pixels )
 {
     if( _data.overdraw == pixels )
@@ -256,8 +255,7 @@ void View< L, V, O >::setOverdraw( const Vector2i& pixels )
     setDirty( DIRTY_OVERDRAW );
 }
 
-
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::useEqualizer( uint32_t bitmask )
 {
     if( _data.equalizers == bitmask )
@@ -266,30 +264,32 @@ void View< L, V, O >::useEqualizer( uint32_t bitmask )
     setDirty( DIRTY_EQUALIZERS );
 }
 
-template< class L, class V, class O > 
-void View< L, V, O >::setTileSize( const Vector2i& size )
+template< class L, class V, class O >
+const Equalizer& View< L, V, O >::getEqualizer() const
 {
-    if( _data.tileSize == size || size.x() < 1 || size.y() < 1 )
-        return;
-    
-    _data.tileSize = size;
-    setDirty( DIRTY_TILESIZE );
+    return _data.equalizer;
 }
 
+template< class L, class V, class O >
+Equalizer& View< L, V, O >::getEqualizer()
+{
+    setDirty( DIRTY_EQUALIZER );
+    return _data.equalizer;
+}
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 VisitorResult View< L, V, O >::accept( LeafVisitor< V >& visitor )
 {
     return visitor.visit( static_cast< V* >( this ));
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 VisitorResult View< L, V, O >::accept( LeafVisitor< V >& visitor ) const
 {
     return visitor.visit( static_cast< const V* >( this ));
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setWall( const Wall& wall )
 {
     if( getWall() == wall && getCurrentType() == TYPE_WALL )
@@ -299,7 +299,7 @@ void View< L, V, O >::setWall( const Wall& wall )
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setProjection( const Projection& projection )
 {
     if( getProjection() == projection && getCurrentType() == TYPE_PROJECTION )
@@ -309,7 +309,7 @@ void View< L, V, O >::setProjection( const Projection& projection )
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::unsetFrustum()
 {
     if( getCurrentType() == TYPE_NONE )
@@ -319,13 +319,13 @@ void View< L, V, O >::unsetFrustum()
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 uint32_t View< L, V, O >::getUserDataLatency() const
 {
     return static_cast< const V* >( this )->getConfig()->getLatency();
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
 {
     if( bitmask == _data.minimumCapabilities )
@@ -335,13 +335,13 @@ void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
     setDirty( DIRTY_MINCAPS );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 uint64_t View< L, V, O >::getMinimumCapabilities() const
 {
     return _data.minimumCapabilities;
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
 {
     if( bitmask == _data.maximumCapabilities )
@@ -351,13 +351,13 @@ void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
     setDirty( DIRTY_MAXCAPS );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 uint64_t View< L, V, O >::getMaximumCapabilities() const
 {
     return _data.maximumCapabilities;
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 void View< L, V, O >::setCapabilities( uint64_t bitmask )
 {
     if( bitmask == _data.capabilities )
@@ -367,7 +367,7 @@ void View< L, V, O >::setCapabilities( uint64_t bitmask )
     setDirty( DIRTY_CAPABILITIES );
 }
 
-template< class L, class V, class O > 
+template< class L, class V, class O >
 uint64_t View< L, V, O >::getCapabilities() const
 {
     return _data.capabilities;
@@ -379,7 +379,7 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     os << lunchbox::disableFlush << lunchbox::disableHeader
        << "view" << std::endl;
     os << "{" << std::endl << lunchbox::indent;
-    
+
     const std::string& name = view.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
@@ -405,7 +405,7 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
         }
         else
             os << observer->getPath() << std::endl;
-    } 
+    }
 
     return os << static_cast< const Frustum& >( view )
               << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader

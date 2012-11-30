@@ -208,11 +208,11 @@ private:
     const View* const _view;
 };
 
-class SetTileSizeVisitor : public ConfigVisitor
+class UpdateEqualizersVisitor : public ConfigVisitor
 {
 public:
 
-    SetTileSizeVisitor( const View* view ) : _view( view ) {}
+    UpdateEqualizersVisitor( const View* view ) : _view( view ) {}
 
     // No need to go down on nodes.
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
@@ -230,18 +230,12 @@ public:
         for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
         {
             TileQueue* queue = *i;
-            queue->setTileSize( _view->getTileSize( ));
+            queue->setTileSize( _view->getEqualizer().getTileSize( ));
         }
 
-        const Equalizers equalizers = compound->getEqualizers();
-        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
-        {
-            if ( (*i)->getType() == fabric::TILE_EQUALIZER )
-            {
-                TileEqualizer* tileEq = static_cast< TileEqualizer* >( *i );
-                tileEq->setTileSize( _view->getTileSize( ));
-            }
-        }
+        Equalizers equalizers = compound->getEqualizers();
+        for( EqualizersIter i = equalizers.begin(); i != equalizers.end(); ++i)
+            *(*i) = _view->getEqualizer();
 
         return TRAVERSE_CONTINUE;
     }
@@ -283,9 +277,9 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW | DIRTY_MODELUNIT ))
         updateFrusta();
-    if( dirtyBits & DIRTY_TILESIZE )
+    if( dirtyBits & DIRTY_EQUALIZER )
     {
-        SetTileSizeVisitor visitor ( this );
+        UpdateEqualizersVisitor visitor ( this );
         getConfig()->accept( visitor );
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
@@ -314,7 +308,7 @@ ServerPtr View::getServer()
 {
     Config* config = getConfig();
     LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    return config ? config->getServer() : 0;
 }
 
 void View::addChannel( Channel* channel )

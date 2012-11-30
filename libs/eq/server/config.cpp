@@ -144,6 +144,34 @@ private:
     const View* const    _view;
     Channel*             _result;
 };
+
+class UpdateEqualizersVisitor : public ConfigVisitor
+{
+public:
+    UpdateEqualizersVisitor( View* view ) : _view( view ) {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        const Equalizers& equalizers = compound->getEqualizers();
+        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
+            _view->getEqualizer() = *(*i);
+
+        return TRAVERSE_CONTINUE;
+    }
+
+private:
+    View* const _view;
+};
 }
 
 const Channel* Config::findChannel( const std::string& name ) const
@@ -481,7 +509,6 @@ VisitorResult Config::_acceptCompounds( ConfigVisitor& visitor ) const
 
 void Config::register_()
 {
-    ServerPtr server = getServer();
     ConfigRegistrator registrator;
     accept( registrator );
 }
@@ -780,6 +807,21 @@ bool Config::_init( const uint128_t& initID )
     // Needed to set up active state for first LB update
     for( CompoundsCIter i = _compounds.begin(); i != _compounds.end(); ++i )
         (*i)->update( 0 );
+
+    // Update equalizer properties in views
+    for( CanvasesCIter i = canvases.begin(); i != canvases.end(); ++i )
+    {
+        const Layouts& layouts = (*i)->getLayouts();
+        for( LayoutsCIter l = layouts.begin(); l != layouts.end(); ++l )
+        {
+            const Views& views = (*l)->getViews();
+            for( ViewsCIter v = views.begin(); v != views.end(); ++v )
+            {
+                UpdateEqualizersVisitor visitor( *v );
+                accept( visitor );
+            }
+        }
+    }
 
     _needsFinish = false;
     _state = STATE_RUNNING;

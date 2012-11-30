@@ -36,14 +36,7 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer::Node* );
 // against the right subtree.
 
 TreeEqualizer::TreeEqualizer()
-        : _mode( MODE_2D )
-        , _damping( .5f )
-        , _boundary2i( 1, 1 )
-        , _boundaryf( std::numeric_limits<float>::epsilon() )
-        , _resistance2i( 0, 0 )
-        , _resistancef( .0f )
-        , _tree( 0 )
-
+        : _tree( 0 )
 {
     LBINFO << "New TreeEqualizer @" << (void*)this << std::endl;
 }
@@ -51,12 +44,6 @@ TreeEqualizer::TreeEqualizer()
 TreeEqualizer::TreeEqualizer( const TreeEqualizer& from )
         : Equalizer( from )
         , ChannelListener( from )
-        , _mode( from._mode )
-        , _damping( from._damping )
-        , _boundary2i( from._boundary2i )
-        , _boundaryf( from._boundaryf )
-        , _resistance2i( from._resistance2i )
-        , _resistancef( from._resistancef )
         , _tree( 0 )
 {}
 
@@ -81,7 +68,7 @@ void TreeEqualizer::notifyUpdatePre( Compound* compound,
         {
           case 0: return; // no leaf compound, can't do anything.
           case 1: // one child, 'balance' it:
-              if( _mode == MODE_DB )
+              if( getMode() == MODE_DB )
                   children.front()->setRange( Range( ));
               else
                   children.front()->setViewport( Viewport( ));
@@ -109,7 +96,7 @@ TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
         Compound* compound = compounds.front();
 
         node->compound  = compound;
-        node->mode = _mode;
+        node->mode = getMode();
 
         Channel* channel = compound->getChannel();
         LBASSERT( channel );
@@ -129,7 +116,7 @@ TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
 
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
-    node->mode = _mode;
+    node->mode = getMode();
 
     return node;
 }
@@ -256,10 +243,10 @@ void TreeEqualizer::_update( Node* node )
         node->resources = compound->isActive() ? compound->getUsage() : 0.f;
         node->maxSize.x() = pvp.w;
         node->maxSize.y() = pvp.h;
-        node->boundaryf = _boundaryf;
-        node->boundary2i = _boundary2i;
-        node->resistancef = _resistancef;
-        node->resistance2i = _resistance2i;
+        node->boundaryf = getBoundaryf();
+        node->boundary2i = getBoundary2i();
+        node->resistancef = getResistancef();
+        node->resistance2i = getResistance2i();
         return;
     }
     // else
@@ -389,7 +376,7 @@ void TreeEqualizer::_split( Node* node )
         << "Should split at " << split << " (" << target << ": " << leftTime
         << " by " << left->resources << "/" << rightTime << " by "
         << right->resources << ")" << std::endl;
-    node->split = (1.f - _damping) * split + _damping * node->split;
+    node->split = (1.f - getDamping( )) * split + getDamping() * node->split;
     LBLOG( LOG_LB2 ) << "Dampened split at " << node->split << std::endl;
 
     _split( left );
@@ -629,16 +616,6 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer::Node* node )
            << lunchbox::indent << node->left << node->right << lunchbox::exdent;
 
     os << lunchbox::enableFlush;
-    return os;
-}
-
-std::ostream& operator << ( std::ostream& os,
-                            const TreeEqualizer::Mode mode )
-{
-    os << ( mode == TreeEqualizer::MODE_2D         ? "2D" :
-            mode == TreeEqualizer::MODE_VERTICAL   ? "VERTICAL" :
-            mode == TreeEqualizer::MODE_HORIZONTAL ? "HORIZONTAL" :
-            mode == TreeEqualizer::MODE_DB         ? "DB" : "ERROR" );
     return os;
 }
 

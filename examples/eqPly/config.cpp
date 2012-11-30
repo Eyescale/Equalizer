@@ -798,6 +798,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _setFocusMode( eq::FOCUSMODE_RELATIVE_TO_OBSERVER );
             return true;
 
+        case '4':
+            _adjustResistance( 1 );
+            return true;
+
+        case '5':
+            _adjustResistance( -1 );
+            return true;
+
         case 'j':
             stopFrames();
             return true;
@@ -957,11 +965,27 @@ void Config::_adjustTileSize( const int delta )
     if( !view )
         return;
 
-    eq::Vector2i tileSize = view->getTileSize();
+    eq::Vector2i tileSize = view->getEqualizer().getTileSize();
     if( tileSize == eq::Vector2i( -1, -1 ) )
         tileSize = eq::Vector2i( 64, 64 );
     tileSize += delta;
-    view->setTileSize( tileSize );
+    view->getEqualizer().setTileSize( tileSize );
+}
+
+void Config::_adjustResistance( const int delta )
+{
+    View* view = _getCurrentView();
+    if( !view )
+        return;
+
+    eq::Vector2i size = view->getEqualizer().getResistance2i();
+    size += delta;
+    size.x() = LB_MAX( size.x(), 0 );
+    size.y() = LB_MAX( size.y(), 0 );
+    std::ostringstream stream;
+    stream << "Set Load_equalizer resistance to " << size;
+    _setMessage( stream.str( ));
+    view->getEqualizer().setResistance( size );
 }
 
 void Config::_adjustModelScale( const float factor )

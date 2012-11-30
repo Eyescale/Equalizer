@@ -40,30 +40,10 @@ namespace server
     class LoadEqualizer : public Equalizer, protected ChannelListener
     {
     public:
-        enum Mode
-        {
-            MODE_DB = 0,     //!< Adapt for a sort-last decomposition
-            MODE_HORIZONTAL, //!< Adapt for sort-first using horizontal stripes
-            MODE_VERTICAL,   //!< Adapt for sort-first using vertical stripes
-            MODE_2D          //!< Adapt for a sort-first decomposition
-        };
-
         EQSERVER_API LoadEqualizer( const Mode mode = MODE_2D );
         LoadEqualizer( const LoadEqualizer& from );
         virtual ~LoadEqualizer();
         virtual void toStream( std::ostream& os ) const { os << this; }
-
-        /** Set the load balancer adaptation mode. */
-        void setMode( const Mode mode ) { _mode = mode; }
-
-        /** @return the load balancer adaptation mode. */
-        Mode getMode() const { return _mode; }
-
-        /** Set the damping factor for the viewport or range adjustment.  */
-        void setDamping( const float damping ) { _damping = damping; }
-
-        /** @return the damping factor. */
-        float getDamping() const { return _damping; }
 
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound,
@@ -75,47 +55,6 @@ namespace server
                                      const Statistics& statistics,
                                      const Viewport& region );
 
-        /** Set a boundary for 2D tiles. */
-        void setBoundary( const Vector2i& boundary )
-        {
-            LBASSERT( boundary.x() > 0 && boundary.y() > 0 );
-            _boundary2i = boundary;
-        }
-
-        /** Set a boundary for DB ranges. */
-        void setBoundary( const float boundary )
-        {
-            LBASSERT( boundary > 0.0f );
-            _boundaryf = boundary;
-        }
-
-        /** @return the boundary for 2D tiles. */
-        const Vector2i& getBoundary2i() const { return _boundary2i; }
-
-        /** @return the boundary for DB ranges. */
-        float getBoundaryf() const { return _boundaryf; }
-
-        /** Set a resistance for 2D tiles. */
-        void setResistance( const Vector2i& resistance )
-        {
-            _resistance2i = resistance;
-        }
-
-        /** Set a resistance for DB ranges. */
-        void setResistance( const float resistance )
-        {
-            _resistancef = resistance;
-        }
-
-        /** @return the resistance for 2D tiles. */
-        const Vector2i& getResistance2i() const { return _resistance2i; }
-
-        /** @return the resistance for DB ranges. */
-        float getResistancef() const { return _resistancef; }
-
-        void setAssembleOnlyLimit( const float limit )
-            { _assembleOnlyLimit = limit; }
-
         virtual uint32_t getType() const { return fabric::LOAD_EQUALIZER; }
 
     protected:
@@ -125,9 +64,6 @@ namespace server
             { LBASSERT( !_tree ); }
 
     private:
-        Mode  _mode;    //!< The current adaptation mode
-        float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
-
         struct Node
         {
             Node() : left(0), right(0), compound(0), mode( MODE_VERTICAL )
@@ -169,12 +105,6 @@ namespace server
         typedef std::pair< uint32_t,  LBDatas > LBFrameData;
 
         std::deque< LBFrameData > _history;
-
-        Vector2i _boundary2i;  // default: 1 1
-        float    _boundaryf;   // default: numeric_limits<float>::epsilon
-        Vector2i _resistance2i;  // default: 0 0
-        float    _resistancef;   // default: 0
-        float    _assembleOnlyLimit; // default: numeric_limits<float>::max
 
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
@@ -221,8 +151,6 @@ namespace server
         static bool _compareRange( const Data& data1, const Data& data2 )
             { return data1.range.start < data2.range.start; }
     };
-
-    std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Mode );
 }
 }
 

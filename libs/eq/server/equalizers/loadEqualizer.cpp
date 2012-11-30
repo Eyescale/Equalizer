@@ -36,29 +36,16 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 // against the right subtree.
 
 LoadEqualizer::LoadEqualizer( const Mode mode )
-        : _mode( mode )
-        , _damping( .5f )
-        , _tree( 0 )
-        , _boundary2i( 1, 1 )
-        , _boundaryf( std::numeric_limits<float>::epsilon() )
-        , _resistance2i( 0, 0 )
-        , _resistancef( .0f )
-        , _assembleOnlyLimit( std::numeric_limits< float >::max( ) )
+        : _tree( 0 )
 {
+    setMode( mode );
     LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 
 LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
         : Equalizer( from )
         , ChannelListener( from )
-        , _mode( from._mode )
-        , _damping( from._damping )
         , _tree( 0 )
-        , _boundary2i( from._boundary2i )
-        , _boundaryf( from._boundaryf )
-        , _resistance2i( from._resistance2i )
-        , _resistancef( from._resistancef )
-        , _assembleOnlyLimit( from._assembleOnlyLimit )
 {}
 
 LoadEqualizer::~LoadEqualizer()
@@ -85,7 +72,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         {
           case 0: return; // no child compounds, can't do anything.
           case 1: // one child, 'balance' it:
-              if( _mode == MODE_DB )
+              if( getMode() == MODE_DB )
                   children.front()->setRange( Range( ));
               else
                   children.front()->setViewport( Viewport( ));
@@ -99,7 +86,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     }
 
     // compute new data
-    if( _damping < 1.f )
+    if( getDamping() < 1.f )
     {
         _history.push_back( LBFrameData( ));
         _history.back().first = frameNumber;
@@ -119,7 +106,7 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
         Compound* compound = compounds.front();
 
         node->compound = compound;
-        node->mode = _mode;
+        node->mode = getMode();
 
         Channel* channel = compound->getChannel();
         LBASSERT( channel );
@@ -139,7 +126,7 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
 
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
-    node->mode = _mode;
+    node->mode = getMode();
 
     return node;
 }
@@ -403,15 +390,15 @@ void LoadEqualizer::_updateLeaf( Node* node )
 
     node->maxSize.x() = pvp.w;
     node->maxSize.y() = pvp.h;
-    node->boundaryf = _boundaryf;
-    node->boundary2i = _boundary2i;
-    node->resistancef = _resistancef;
-    node->resistance2i = _resistance2i;
+    node->boundaryf = getBoundaryf();
+    node->boundary2i = getBoundary2i();
+    node->resistancef = getResistancef();
+    node->resistance2i = getResistance2i();
     if( !compound->hasDestinationChannel( ))
         return;
 
     const float nResources = _getTotalResources();
-    if( _assembleOnlyLimit <= nResources - node->resources )
+    if( getAssembleOnlyLimit() <= nResources - node->resources )
     {
         node->resources = 0.f;
         return; // OPT
@@ -526,7 +513,7 @@ int64_t LoadEqualizer::_getTotalTime()
 
 int64_t LoadEqualizer::_getAssembleTime( )
 {
-    if( _damping >= 1.f )
+    if( getDamping() >= 1.f )
         return 0;
 
     const LBFrameData& frameData = _history.front();
@@ -558,7 +545,7 @@ void LoadEqualizer::_computeSplit()
 
     LBDatas sortedData[3] = { items, items, items };
 
-    if( _mode == MODE_DB )
+    if( getMode() == MODE_DB )
     {
         LBDatas& rangeData = sortedData[ MODE_DB ];
         sort( rangeData.begin(), rangeData.end(), _compareRange );
@@ -727,8 +714,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             }
 
             LBLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
-            if( _damping < 1.f )
-                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( getDamping() < 1.f )
+                splitPos = (1.f - getDamping()) * splitPos +
+                            getDamping() * node->split;
             LBLOG( LOG_LB2 ) << "Dampened split at X " << splitPos << std::endl;
 
             // There might be more time left due to MIN_PIXEL rounding by parent
@@ -894,8 +882,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             }
 
             LBLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
-            if( _damping < 1.f )
-                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( getDamping() < 1.f )
+                splitPos = (1.f - getDamping( )) * splitPos +
+                            getDamping() * node->split;
             LBLOG( LOG_LB2 ) << "Dampened split at Y " << splitPos << std::endl;
 
             const Compound* root = getCompound();
@@ -1033,8 +1022,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 }
             }
             LBLOG( LOG_LB2 ) << "Should split at " << splitPos << std::endl;
-            if( _damping < 1.f )
-                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( getDamping() < 1.f )
+                splitPos = (1.f - getDamping( )) * splitPos +
+                            getDamping() * node->split;
             LBLOG( LOG_LB2 ) << "Dampened split at " << splitPos << std::endl;
 
             const float boundary( node->boundaryf );
@@ -1085,7 +1075,7 @@ void LoadEqualizer::_assign( Compound* compound, const Viewport& vp,
     LBLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
                      << ", " << range << std::endl;
 
-    if( _damping >= 1.f )
+    if( getDamping() >= 1.f )
         return;
 
     // save data for later use
@@ -1126,16 +1116,6 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
            << lunchbox::indent << node->left << node->right << lunchbox::exdent;
 
     os << lunchbox::enableFlush;
-    return os;
-}
-
-std::ostream& operator << ( std::ostream& os,
-                            const LoadEqualizer::Mode mode )
-{
-    os << ( mode == LoadEqualizer::MODE_2D         ? "2D" :
-            mode == LoadEqualizer::MODE_VERTICAL   ? "VERTICAL" :
-            mode == LoadEqualizer::MODE_HORIZONTAL ? "HORIZONTAL" :
-            mode == LoadEqualizer::MODE_DB         ? "DB" : "ERROR" );
     return os;
 }
 

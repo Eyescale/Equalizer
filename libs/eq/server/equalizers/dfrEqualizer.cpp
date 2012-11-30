@@ -32,9 +32,7 @@ namespace server
 {
 
 DFREqualizer::DFREqualizer()
-        : _target( 10.f )
-        , _damping( .5f )
-        , _current ( _target )
+        : _current ( getFrameRate( ))
         , _lastTime( 0 )
 {
     LBINFO << "New DFREqualizer @" << (void*)this << std::endl;
@@ -82,10 +80,11 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
         return;
     }
 
-    LBASSERT( _damping >= 0.f );
-    LBASSERT( _damping <= 1.f );
+    LBASSERT( getDamping() >= 0.f );
+    LBASSERT( getDamping() <= 1.f );
 
-    const float factor = ( sqrtf( _current / _target ) - 1.f ) * _damping + 1.f;
+    const float factor = ( sqrtf( _current / getFrameRate( )) - 1.f ) *
+                         getDamping() + 1.f;
 
     Zoom newZoom( compound->getZoom( ));
     newZoom *= factor;
