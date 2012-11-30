@@ -70,8 +70,8 @@ void MessagePump::dispatchOne( const uint32_t timeout )
     _initReceiverQueue();
     _clock.reset();
 
-    for( int64_t timeLeft = timeout; timeleft >= 0;
-         timeleft = timeout - _clock.getTime64( ))
+    for( int64_t timeLeft = timeout; timeLeft >= 0;
+         timeLeft = timeout - _clock.getTime64( ))
     {
         if( _needGlobalLock )
             Global::enterCarbon();
