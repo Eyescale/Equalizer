@@ -39,16 +39,16 @@ namespace detail { class Equalizer; }
     {
     public:
         /** @internal */
-        Equalizer();
+        EQFABRIC_API Equalizer();
 
         /** @internal */
-        Equalizer( const Equalizer& rhs );
+        EQFABRIC_API Equalizer( const Equalizer& rhs );
 
         /** @internal */
-        Equalizer& operator=( const Equalizer& rhs );
+        EQFABRIC_API Equalizer& operator=( const Equalizer& rhs );
 
         /** @internal */
-        virtual ~Equalizer();
+        EQFABRIC_API virtual ~Equalizer();
 
         enum Mode
         {
@@ -61,74 +61,75 @@ namespace detail { class Equalizer; }
         /** @name Data Access. */
         //@{
         /** Set the equalizer to freeze the current state. */
-        void setFrozen( const bool onOff );
+        EQFABRIC_API void setFrozen( const bool onOff );
 
         /** @return the equalizer frozen state. */
-        bool isFrozen() const;
+        EQFABRIC_API bool isFrozen() const;
 
         /** Set the load balancer adaptation mode. */
-        void setMode( const Mode mode );
+        EQFABRIC_API void setMode( const Mode mode );
 
         /** @return the load balancer adaptation mode. */
-        Mode getMode() const;
+        EQFABRIC_API Mode getMode() const;
 
         /** Set the damping factor for the viewport, range or zoom adjustment.*/
-        void setDamping( const float damping );
+        EQFABRIC_API void setDamping( const float damping );
 
         /** @return the damping factor. */
-        float getDamping() const;
+        EQFABRIC_API float getDamping() const;
 
         /** Set the average frame rate for the DFREqualizer. */
-        void setFrameRate( const float frameRate );
+        EQFABRIC_API void setFrameRate( const float frameRate );
 
         /** @return the average frame rate for the DFREqualizer. */
-        float getFrameRate() const;
+        EQFABRIC_API float getFrameRate() const;
 
         /** Set a boundary for 2D tiles. */
-        void setBoundary( const Vector2i& boundary );
+        EQFABRIC_API void setBoundary( const Vector2i& boundary );
 
         /** Set a boundary for DB ranges. */
-        void setBoundary( const float boundary );
+        EQFABRIC_API void setBoundary( const float boundary );
 
         /** @return the boundary for 2D tiles. */
-        const Vector2i& getBoundary2i() const;
+        EQFABRIC_API const Vector2i& getBoundary2i() const;
 
         /** @return the boundary for DB ranges. */
-        float getBoundaryf() const;
+        EQFABRIC_API float getBoundaryf() const;
 
         /** Set a resistance for 2D tiles. */
-        void setResistance( const Vector2i& resistance );
+        EQFABRIC_API void setResistance( const Vector2i& resistance );
 
         /** Set a resistance for DB ranges. */
-        void setResistance( const float resistance );
+        EQFABRIC_API void setResistance( const float resistance );
 
         /** @return the resistance for 2D tiles. */
-        const Vector2i& getResistance2i() const;
+        EQFABRIC_API const Vector2i& getResistance2i() const;
 
         /** @return the resistance for DB ranges. */
-        float getResistancef() const;
+        EQFABRIC_API float getResistancef() const;
 
         /** Set the limit when to assign assemble tasks only. */
-        void setAssembleOnlyLimit( const float limit );
+        EQFABRIC_API void setAssembleOnlyLimit( const float limit );
 
         /** @return the limit when to assign assemble tasks only. */
-        float getAssembleOnlyLimit() const;
+        EQFABRIC_API float getAssembleOnlyLimit() const;
 
         /** Set the tile size for the TileEqualizer. */
-        void setTileSize( const Vector2i& size );
+        EQFABRIC_API void setTileSize( const Vector2i& size );
 
         /** @return the tile size for the TileEqualizer. */
-        const Vector2i& getTileSize() const;
+        EQFABRIC_API const Vector2i& getTileSize() const;
         //@}
 
-        void serialize( co::DataOStream& os ); //!< @internal
-        void deserialize( co::DataIStream& is ); //!< @internal
+        EQFABRIC_API void serialize( co::DataOStream& os ); //!< @internal
+        EQFABRIC_API void deserialize( co::DataIStream& is ); //!< @internal
 
     private:
         detail::Equalizer* const _impl;
     };
 
-    std::ostream& operator << ( std::ostream& os, const Equalizer::Mode );
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os,
+                                             const Equalizer::Mode );
 }
 }
 

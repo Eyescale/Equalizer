@@ -102,10 +102,10 @@ namespace fabric
         uint32_t getEqualizers() const { return _data.equalizers; }
 
         /** @return read-access to Equalizer properties. @version 1.5.1 */
-        const Equalizer& getEqualizer() const;
+        EQFABRIC_INL const Equalizer& getEqualizer() const;
 
         /** @return write-access to Equalizer properties. @version 1.5.1 */
-        Equalizer& getEqualizer();
+        EQFABRIC_INL Equalizer& getEqualizer();
 
         /** @internal Set the 2D viewport wrt Layout and Canvas. */
         EQFABRIC_INL void setViewport( const Viewport& viewport );
