@@ -75,11 +75,11 @@ void TreeEqualizer::notifyUpdatePre( Compound* compound,
               return;
           default:
               _tree = _buildTree( children );
-              _init( _tree );
         }
     }
 
     // compute new data
+    _init( _tree );
     _update( _tree );
     _split( _tree );
     _assign( _tree, Viewport(), Range( ));
@@ -96,7 +96,6 @@ TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
         Compound* compound = compounds.front();
 
         node->compound  = compound;
-        node->mode = getMode();
 
         Channel* channel = compound->getChannel();
         LBASSERT( channel );
@@ -116,8 +115,6 @@ TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
 
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
-    node->mode = getMode();
-
     return node;
 }
 
@@ -129,6 +126,8 @@ void TreeEqualizer::_init( Node* node )
         return;
     }
     // else
+
+    node->left->mode = node->right->mode = node->mode = getMode();
 
     if( node->mode == MODE_2D )
         node->mode = MODE_VERTICAL;
