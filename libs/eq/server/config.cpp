@@ -155,7 +155,7 @@ public:
 
     virtual VisitorResult visit( Compound* compound )
     {
-        const Channel* dest = compound->getInheritChannel();
+        Channel* dest = compound->getInheritChannel();
         if( !dest )
             return TRAVERSE_CONTINUE;
 
@@ -807,7 +807,8 @@ bool Config::_init( const uint128_t& initID )
         (*i)->update( 0 );
 
     // Update equalizer properties in views
-    accept( UpdateEqualizersVisitor( ));
+    UpdateEqualizersVisitor updater;
+    accept( updater );
 
     _needsFinish = false;
     _state = STATE_RUNNING;

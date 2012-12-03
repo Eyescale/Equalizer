@@ -75,7 +75,7 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_OVERDRAW )
         os << _overdraw;
     if( dirtyBits & DIRTY_EQUALIZER )
-        _data.equalizer.serialize( os );
+        _equalizer.serialize( os );
     if( dirtyBits & DIRTY_MINCAPS )
         os << _minimumCapabilities;
     if( dirtyBits & DIRTY_MAXCAPS )
@@ -135,7 +135,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     if( dirtyBits & DIRTY_OVERDRAW )
         is >> _overdraw;
     if( dirtyBits & DIRTY_EQUALIZER )
-        _data.equalizer.deserialize( is );
+        _equalizer.deserialize( is );
     if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
     {
         if( dirtyBits & DIRTY_MINCAPS )
@@ -273,14 +273,14 @@ void View< L, V, O >::useEqualizer( uint32_t bitmask )
 template< class L, class V, class O >
 const Equalizer& View< L, V, O >::getEqualizer() const
 {
-    return _data.equalizer;
+    return _equalizer;
 }
 
 template< class L, class V, class O >
 Equalizer& View< L, V, O >::getEqualizer()
 {
     setDirty( DIRTY_EQUALIZER );
-    return _data.equalizer;
+    return _equalizer;
 }
 
 template< class L, class V, class O >
