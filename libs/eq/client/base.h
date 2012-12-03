@@ -85,7 +85,6 @@
 #include <eq/client/client.h>
 #include <eq/client/compositor.h>
 #include <eq/client/config.h>
-#include <eq/client/configParams.h>
 #include <eq/client/event.h>
 #include <eq/client/eventICommand.h>
 #include <eq/client/error.h>
@@ -114,6 +113,7 @@
 
 #ifndef EQ_2_0_API
 #  include <eq/client/configEvent.h>
+#  include <eq/client/configParams.h>
 #endif
 
 #ifdef EQ_SYSTEM_INCLUDES

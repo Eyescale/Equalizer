@@ -20,12 +20,12 @@
 
 #include "client.h"
 #include "config.h"
-#include "configParams.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "types.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/configParams.h>
 
 #include <co/iCommand.h>
 #include <co/connection.h>
@@ -74,14 +74,12 @@ co::CommandQueue* Server::getCommandThreadQueue()
     return getClient()->getCommandThreadQueue();
 }
 
-Config* Server::chooseConfig( const ConfigParams& parameters )
+Config* Server::chooseConfig( const fabric::ConfigParams& parameters )
 {
     if( !isConnected( ))
         return 0;
 
-    std::string renderClient = parameters.getRenderClient();
-    std::string workDir = parameters.getWorkDir();
-    if( renderClient.empty( ))
+    if( parameters.getRenderClient().empty( ))
     {
         LBWARN << "No render client in ConfigParams specified" << std::endl;
         return 0;
@@ -90,14 +88,8 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     ClientPtr client = getClient();
     const uint32_t requestID =  client->registerRequest();
 
-#ifdef _WIN32 // replace dir delimiters since '\' is often used as escape char
-    std::replace( renderClient.begin(), renderClient.end(), '\\', '/' );
-    std::replace( workDir.begin(), workDir.end(), '\\', '/' );
-#endif
-
     send( fabric::CMD_SERVER_CHOOSE_CONFIG )
-        << requestID << parameters.getFlags() << workDir << renderClient
-        << eq::Global::getConfigFile();
+        << requestID << parameters << eq::Global::getConfigFile();
 
     while( !client->isRequestServed( requestID ))
         getClient()->processCommand();

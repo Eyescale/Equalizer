@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -56,7 +57,7 @@ namespace eq
          * @sa ConfigParams
          * @version 1.0
          */
-        EQ_API Config* chooseConfig( const ConfigParams& parameters );
+        EQ_API Config* chooseConfig( const fabric::ConfigParams& parameters );
 
         /**
          * Release a configuration.

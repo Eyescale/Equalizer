@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,13 +21,13 @@
 
 #include "client.h"
 #include "config.h"
-#include "configParams.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "os.h"
 #include "server.h"
 
 #include <eq/client/version.h>
+#include <eq/fabric/configParams.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
 #include <co/pluginRegistry.h>
@@ -190,9 +191,9 @@ void _parseArguments( const int argc, char** argv )
 
             uint32_t flags = Global::getFlags();
             if( strcmp( "multiprocess", argv[i] ))
-                flags |= ConfigParams::FLAG_MULTIPROCESS;
+                flags |= fabric::ConfigParams::FLAG_MULTIPROCESS;
             else if( strcmp( "multiprocess_db", argv[i] ))
-                flags |= ConfigParams::FLAG_MULTIPROCESS_DB;
+                flags |= fabric::ConfigParams::FLAG_MULTIPROCESS_DB;
             Global::setFlags( flags );
         }
         else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
@@ -216,7 +217,7 @@ void _initPlugins()
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.addDirectory( "../share/Equalizer/plugins" );
 #else
-    plugins.addDirectory( std::string( EQ_INSTALL_DIR ) + 
+    plugins.addDirectory( std::string( EQ_INSTALL_DIR ) +
                           std::string( "share/Equalizer/plugins" ));
 #endif
 
@@ -232,7 +233,7 @@ void _initPlugins()
         return;
 
     // Hard-coded compile locations as backup:
-    std::string absDSO = std::string( EQ_BUILD_DIR ) + "lib/" + 
+    std::string absDSO = std::string( EQ_BUILD_DIR ) + "lib/" +
                          EQUALIZER_DSO_NAME;
     if( plugins.addPlugin( absDSO ))
         return;
@@ -265,7 +266,7 @@ void _exitPlugins()
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.removeDirectory( "../share/Equalizer/plugins" );
 #else
-    plugins.removeDirectory( std::string( EQ_INSTALL_DIR ) + 
+    plugins.removeDirectory( std::string( EQ_INSTALL_DIR ) +
                              std::string( "share/Equalizer/plugins" ));
 #endif
     plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
@@ -287,7 +288,7 @@ Config* getConfig( const int argc, char** argv )
         if( client->connectServer( server ))
         {
             // 3. choose configuration
-            ConfigParams configParams;
+            fabric::ConfigParams configParams;
             Config* config = server->chooseConfig( configParams );
             if( config )
                 return config;
@@ -299,7 +300,7 @@ Config* getConfig( const int argc, char** argv )
         }
         else
             LBERROR << "Can't open server" << std::endl;
-        
+
         // -1. exit local client node
         client->exitLocal();
     }
