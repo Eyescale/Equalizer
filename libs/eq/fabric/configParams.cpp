@@ -18,6 +18,7 @@
 
 #include "configParams.h"
 
+#include "equalizer.h"
 #include "global.h"
 
 #include <co/dataOStream.h>
@@ -42,6 +43,7 @@ public:
     std::string renderClient;
     std::string workDir;
     uint32_t flags;
+    fabric::Equalizer equalizer;
 };
 }
 
@@ -92,14 +94,26 @@ uint32_t ConfigParams::getFlags() const
     return _impl->flags;
 }
 
+const Equalizer& ConfigParams::getEqualizer() const
+{
+    return _impl->equalizer;
+}
+
+Equalizer& ConfigParams::getEqualizer()
+{
+    return _impl->equalizer;
+}
+
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
-    os << _impl->renderClient << _impl->workDir << _impl->flags;
+    os << _impl->renderClient << _impl->workDir << _impl->flags
+       << _impl->equalizer;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
-    is >> _impl->renderClient >> _impl->workDir >> _impl->flags;
+    is >> _impl->renderClient >> _impl->workDir >> _impl->flags
+       >> _impl->equalizer;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )

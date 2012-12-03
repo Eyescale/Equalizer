@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,6 +39,7 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 LoadEqualizer::LoadEqualizer( const Mode mode )
         : _tree( 0 )
 {
+    setMode( mode );
     LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 

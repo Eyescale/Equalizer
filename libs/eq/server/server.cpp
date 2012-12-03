@@ -180,8 +180,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
     if( !config )
     {
         const std::string& configFile = command.get< std::string >();
-        config = config::Server::configure( this, configFile,
-                                            params.getFlags( ));
+        config = config::Server::configure( this, configFile, params );
         if( config )
         {
             config->register_();

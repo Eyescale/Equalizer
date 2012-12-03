@@ -33,6 +33,7 @@ namespace fabric
 {
 class ColorMask;
 class ConfigParams;
+class Equalizer;
 class ErrorRegistry;
 class Frustum;
 class Pixel;

@@ -20,6 +20,7 @@
 #define EQFABRIC_CONFIG_PARAMS_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/types.h>
 #include <lunchbox/types.h>
 #include <string>
 
@@ -99,6 +100,12 @@ namespace detail { class ConfigParams; }
          * @return the configuration flags. @version 1.3
          */
         EQFABRIC_API uint32_t getFlags() const;
+
+        /** @return read-access to Equalizer properties. @version 1.5.1 */
+        EQFABRIC_API const Equalizer& getEqualizer() const;
+
+        /** @return write-access to Equalizer properties. @version 1.5.1 */
+        EQFABRIC_API Equalizer& getEqualizer();
         //@}
 
         EQFABRIC_API void serialize( co::DataOStream& os ) const; //!< @internal
