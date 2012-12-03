@@ -70,11 +70,13 @@ public:
 }
 
 Equalizer::Equalizer()
-    : _impl( new detail::Equalizer )
+    : _data( new detail::Equalizer )
+    , _backup( 0 )
 {}
 
 Equalizer::Equalizer( const Equalizer& rhs )
-    : _impl( new detail::Equalizer( *rhs._impl ))
+    : _data( new detail::Equalizer( *rhs._data ))
+    , _backup( 0 )
 {}
 
 Equalizer& Equalizer::operator=( const Equalizer& rhs )
@@ -82,141 +84,153 @@ Equalizer& Equalizer::operator=( const Equalizer& rhs )
     if( this == &rhs )
         return *this;
 
-    _impl->_damping = rhs._impl->_damping;
-    _impl->_boundaryf = rhs._impl->_boundaryf;
-    _impl->_resistancef = rhs._impl->_resistancef;
-    _impl->_assembleOnlyLimit = rhs._impl->_assembleOnlyLimit;
-    _impl->_target = rhs._impl->_target;
-    _impl->_boundary2i = rhs._impl->_boundary2i;
-    _impl->_resistance2i = rhs._impl->_resistance2i;
-    _impl->_tilesize = rhs._impl->_tilesize;
-    _impl->_mode = rhs._impl->_mode;
-    _impl->_frozen = rhs._impl->_frozen;
+    _data->_damping = rhs._data->_damping;
+    _data->_boundaryf = rhs._data->_boundaryf;
+    _data->_resistancef = rhs._data->_resistancef;
+    _data->_assembleOnlyLimit = rhs._data->_assembleOnlyLimit;
+    _data->_target = rhs._data->_target;
+    _data->_boundary2i = rhs._data->_boundary2i;
+    _data->_resistance2i = rhs._data->_resistance2i;
+    _data->_tilesize = rhs._data->_tilesize;
+    _data->_mode = rhs._data->_mode;
+    _data->_frozen = rhs._data->_frozen;
 
     return *this;
 }
 
 Equalizer::~Equalizer()
 {
-    delete _impl;
+    delete _data;
 }
 
 void Equalizer::setFrozen( const bool onOff )
 {
-    _impl->_frozen = onOff;
+    _data->_frozen = onOff;
 }
 
 bool Equalizer::isFrozen() const
 {
-    return _impl->_frozen;
+    return _data->_frozen;
 }
 
 void Equalizer::setMode( const Mode mode )
 {
-    _impl->_mode = mode;
+    _data->_mode = mode;
 }
 
 Equalizer::Mode Equalizer::getMode() const
 {
-    return _impl->_mode;
+    return _data->_mode;
 }
 
 void Equalizer::setDamping( const float damping )
 {
-    _impl->_damping = damping;
+    _data->_damping = damping;
 }
 
 float Equalizer::getDamping() const
 {
-    return _impl->_damping;
+    return _data->_damping;
 }
 
 void Equalizer::setFrameRate( const float frameRate )
 {
-    _impl->_target = frameRate;
+    _data->_target = frameRate;
 }
 
 float Equalizer::getFrameRate() const
 {
-    return _impl->_target;
+    return _data->_target;
 }
 
 void Equalizer::setBoundary( const Vector2i& boundary )
 {
     LBASSERT( boundary.x() > 0 && boundary.y() > 0 );
-    _impl->_boundary2i = boundary;
+    _data->_boundary2i = boundary;
 }
 
 void Equalizer::setBoundary( const float boundary )
 {
     LBASSERT( boundary > 0.0f );
-    _impl->_boundaryf = boundary;
+    _data->_boundaryf = boundary;
 }
 
 const Vector2i& Equalizer::getBoundary2i() const
 {
-    return _impl->_boundary2i;
+    return _data->_boundary2i;
 }
 
 float Equalizer::getBoundaryf() const
 {
-    return _impl->_boundaryf;
+    return _data->_boundaryf;
 }
 
 void Equalizer::setResistance( const Vector2i& resistance )
 {
-    _impl->_resistance2i = resistance;
+    _data->_resistance2i = resistance;
 }
 
 void Equalizer::setResistance( const float resistance )
 {
-    _impl->_resistancef = resistance;
+    _data->_resistancef = resistance;
 }
 
 const Vector2i& Equalizer::getResistance2i() const
 {
-    return _impl->_resistance2i;
+    return _data->_resistance2i;
 }
 
 float Equalizer::getResistancef() const
 {
-    return _impl->_resistancef;
+    return _data->_resistancef;
 }
 
 void Equalizer::setAssembleOnlyLimit( const float limit )
 {
-    _impl->_assembleOnlyLimit = limit;
+    _data->_assembleOnlyLimit = limit;
 }
 
 float Equalizer::getAssembleOnlyLimit() const
 {
-    return _impl->_assembleOnlyLimit;
+    return _data->_assembleOnlyLimit;
 }
 
 void Equalizer::setTileSize( const Vector2i& size )
 {
-    _impl->_tilesize = size;
+    _data->_tilesize = size;
 }
 
 const Vector2i& Equalizer::getTileSize() const
 {
-    return _impl->_tilesize;
+    return _data->_tilesize;
 }
 
 void Equalizer::serialize( co::DataOStream& os )
 {
-    os << _impl->_damping << _impl->_boundaryf << _impl->_resistancef
-       << _impl->_assembleOnlyLimit << _impl->_target << _impl->_boundary2i
-       << _impl->_resistance2i << _impl->_tilesize << _impl->_mode
-       << _impl->_frozen;
+    os << _data->_damping << _data->_boundaryf << _data->_resistancef
+       << _data->_assembleOnlyLimit << _data->_target << _data->_boundary2i
+       << _data->_resistance2i << _data->_tilesize << _data->_mode
+       << _data->_frozen;
 }
 
 void Equalizer::deserialize( co::DataIStream& is )
 {
-    is >>_impl->_damping >>_impl->_boundaryf >>_impl->_resistancef
-       >>_impl->_assembleOnlyLimit >>_impl->_target >>_impl->_boundary2i
-       >>_impl->_resistance2i >>_impl->_tilesize >> _impl->_mode
-       >>_impl->_frozen;
+    is >>_data->_damping >>_data->_boundaryf >>_data->_resistancef
+       >>_data->_assembleOnlyLimit >>_data->_target >>_data->_boundary2i
+       >>_data->_resistance2i >>_data->_tilesize >> _data->_mode
+       >>_data->_frozen;
+}
+
+void Equalizer::backup()
+{
+    _backup = new detail::Equalizer( *_data );
+}
+
+void Equalizer::restore()
+{
+    delete _data;
+    _data = _backup;
+    _backup = 0;
 }
 
 std::ostream& operator << ( std::ostream& os, const Equalizer::Mode mode )
