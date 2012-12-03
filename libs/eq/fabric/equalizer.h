@@ -121,12 +121,22 @@ namespace detail { class Equalizer; }
         EQFABRIC_API const Vector2i& getTileSize() const;
         //@}
 
-        EQFABRIC_API void serialize( co::DataOStream& os ); //!< @internal
+        EQFABRIC_API void serialize( co::DataOStream& os ) const; //!< @internal
         EQFABRIC_API void deserialize( co::DataIStream& is ); //!< @internal
 
+        EQFABRIC_API void backup(); //!< @internal
+        EQFABRIC_API void restore(); //!< @internal
+
     private:
-        detail::Equalizer* const _impl;
+        detail::Equalizer* _data;
+        detail::Equalizer* _backup;
     };
+
+    EQFABRIC_API co::DataOStream& operator << ( co::DataOStream& os,
+                                                const Equalizer& );
+
+    EQFABRIC_API co::DataIStream& operator >> ( co::DataIStream& is,
+                                                Equalizer& );
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os,
                                              const Equalizer::Mode );

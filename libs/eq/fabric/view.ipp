@@ -33,8 +33,14 @@ namespace fabric
 {
 template< class L, class V, class O >
 View< L, V, O >::View( L* layout )
-        : _layout( layout )
-        , _observer( 0 )
+    : _layout( layout )
+    , _observer( 0 )
+    , _overdraw( Vector2i::ZERO )
+    , _minimumCapabilities( LB_BIT_NONE )
+    , _maximumCapabilities( LB_BIT_ALL_64 )
+    , _capabilities( LB_BIT_ALL_64 )
+    , _equalizers( EQUALIZER_ALL )
+    , _modelUnit( EQ_M )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
@@ -53,13 +59,7 @@ View< L, V, O >::~View()
 
 template< class L, class V, class O >
 View< L, V, O >::BackupData::BackupData()
-        : overdraw( Vector2i::ZERO )
-        , minimumCapabilities( LB_BIT_NONE )
-        , maximumCapabilities( LB_BIT_ALL_64 )
-        , capabilities( LB_BIT_ALL_64 )
-        , mode( MODE_MONO )
-        , equalizers( EQUALIZER_ALL )
-        , modelUnit( EQ_M )
+    : mode( MODE_MONO )
 {}
 
 template< class L, class V, class O >
@@ -73,21 +73,21 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.viewport;
     if( dirtyBits & DIRTY_OVERDRAW )
-        os << _data.overdraw;
+        os << _overdraw;
     if( dirtyBits & DIRTY_EQUALIZER )
-        _data.equalizer.serialize( os );
+        os << _equalizer;
     if( dirtyBits & DIRTY_MINCAPS )
-        os << _data.minimumCapabilities;
+        os << _minimumCapabilities;
     if( dirtyBits & DIRTY_MAXCAPS )
-        os << _data.maximumCapabilities;
+        os << _maximumCapabilities;
     if( dirtyBits & DIRTY_CAPABILITIES )
-        os << _data.capabilities;
+        os << _capabilities;
     if( dirtyBits & DIRTY_MODE )
         os << _data.mode;
     if( dirtyBits & DIRTY_EQUALIZERS )
-        os << _data.equalizers;
+        os << _equalizers;
     if( dirtyBits & DIRTY_MODELUNIT )
-        os << _data.modelUnit;
+        os << _modelUnit;
 }
 
 template< class L, class V, class O >
@@ -133,19 +133,19 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _data.viewport;
     if( dirtyBits & DIRTY_OVERDRAW )
-        is >> _data.overdraw;
+        is >> _overdraw;
     if( dirtyBits & DIRTY_EQUALIZER )
-        _data.equalizer.deserialize( is );
+        is >> _equalizer;
     if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
     {
         if( dirtyBits & DIRTY_MINCAPS )
-            is >> _data.minimumCapabilities;
+            is >> _minimumCapabilities;
         if( dirtyBits & DIRTY_MAXCAPS )
-            is >> _data.maximumCapabilities;
+            is >> _maximumCapabilities;
         updateCapabilities();
     }
     if( dirtyBits & DIRTY_CAPABILITIES )
-        is >> _data.capabilities;
+        is >> _capabilities;
     if( dirtyBits & DIRTY_MODE )
     {
         uint32_t mode;
@@ -153,9 +153,9 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         activateMode( Mode( mode ));
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
-        is >> _data.equalizers;
+        is >> _equalizers;
     if( dirtyBits & DIRTY_MODELUNIT )
-        is >> _data.modelUnit;
+        is >> _modelUnit;
 }
 
 template< class L, class V, class O >
@@ -186,11 +186,11 @@ template< class L, class V, class O >
 bool View< L, V, O >::setModelUnit( const float modelUnit )
 {
     if( modelUnit < std::numeric_limits< float >::epsilon() ||
-        _data.modelUnit == modelUnit )
+        _modelUnit == modelUnit )
     {
         return false;
     }
-    _data.modelUnit = modelUnit;
+    _modelUnit = modelUnit;
     setDirty( DIRTY_MODELUNIT );
     return true;
 }
@@ -198,8 +198,8 @@ bool View< L, V, O >::setModelUnit( const float modelUnit )
 template< class L, class V, class O >
 float View< L, V, O >::getModelUnit() const
 {
-    LBASSERT( _data.modelUnit > 0.f );
-    return _data.modelUnit;
+    LBASSERT( _modelUnit > 0.f );
+    return _modelUnit;
 }
 
 template< class L, class V, class O >
@@ -221,8 +221,14 @@ template< class L, class V, class O > void View< L, V, O >::restore()
     Object::restore();
     Frustum::restore();
     _data = _backup;
-    setDirty( DIRTY_VIEWPORT | DIRTY_OVERDRAW | DIRTY_FRUSTUM | DIRTY_MODE |
-              DIRTY_MINCAPS | DIRTY_MAXCAPS | DIRTY_CAPABILITIES ); // TODO: add new bits?
+    _overdraw = Vector2i::ZERO;
+    _minimumCapabilities = LB_BIT_NONE;
+    _maximumCapabilities = LB_BIT_ALL_64;
+    _capabilities = LB_BIT_ALL_64;
+    _equalizers = EQUALIZER_ALL;
+    _modelUnit = EQ_M;
+
+    setDirty( DIRTY_VIEW_BITS );
 }
 
 template< class L, class V, class O >
@@ -248,33 +254,33 @@ const Viewport& View< L, V, O >::getViewport() const
 template< class L, class V, class O >
 void View< L, V, O >::setOverdraw( const Vector2i& pixels )
 {
-    if( _data.overdraw == pixels )
+    if( _overdraw == pixels )
         return;
 
-    _data.overdraw = pixels;
+    _overdraw = pixels;
     setDirty( DIRTY_OVERDRAW );
 }
 
 template< class L, class V, class O >
 void View< L, V, O >::useEqualizer( uint32_t bitmask )
 {
-    if( _data.equalizers == bitmask )
+    if( _equalizers == bitmask )
         return;
-    _data.equalizers = bitmask;
+    _equalizers = bitmask;
     setDirty( DIRTY_EQUALIZERS );
 }
 
 template< class L, class V, class O >
 const Equalizer& View< L, V, O >::getEqualizer() const
 {
-    return _data.equalizer;
+    return _equalizer;
 }
 
 template< class L, class V, class O >
 Equalizer& View< L, V, O >::getEqualizer()
 {
     setDirty( DIRTY_EQUALIZER );
-    return _data.equalizer;
+    return _equalizer;
 }
 
 template< class L, class V, class O >
@@ -328,49 +334,49 @@ uint32_t View< L, V, O >::getUserDataLatency() const
 template< class L, class V, class O >
 void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
 {
-    if( bitmask == _data.minimumCapabilities )
+    if( bitmask == _minimumCapabilities )
         return;
 
-    _data.minimumCapabilities = bitmask;
+    _minimumCapabilities = bitmask;
     setDirty( DIRTY_MINCAPS );
 }
 
 template< class L, class V, class O >
 uint64_t View< L, V, O >::getMinimumCapabilities() const
 {
-    return _data.minimumCapabilities;
+    return _minimumCapabilities;
 }
 
 template< class L, class V, class O >
 void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
 {
-    if( bitmask == _data.maximumCapabilities )
+    if( bitmask == _maximumCapabilities )
         return;
 
-    _data.maximumCapabilities = bitmask;
+    _maximumCapabilities = bitmask;
     setDirty( DIRTY_MAXCAPS );
 }
 
 template< class L, class V, class O >
 uint64_t View< L, V, O >::getMaximumCapabilities() const
 {
-    return _data.maximumCapabilities;
+    return _maximumCapabilities;
 }
 
 template< class L, class V, class O >
 void View< L, V, O >::setCapabilities( uint64_t bitmask )
 {
-    if( bitmask == _data.capabilities )
+    if( bitmask == _capabilities )
         return;
 
-    _data.capabilities = bitmask;
+    _capabilities = bitmask;
     setDirty( DIRTY_CAPABILITIES );
 }
 
 template< class L, class V, class O >
 uint64_t View< L, V, O >::getCapabilities() const
 {
-    return _data.capabilities;
+    return _capabilities;
 }
 
 template< class L, class V, class O >

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -148,29 +148,27 @@ private:
 class UpdateEqualizersVisitor : public ConfigVisitor
 {
 public:
-    UpdateEqualizersVisitor( View* view ) : _view( view ) {}
+    UpdateEqualizersVisitor() {}
 
     // No need to go down on nodes.
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual VisitorResult visit( Compound* compound )
     {
-        const Channel* dest = compound->getInheritChannel();
+        Channel* dest = compound->getInheritChannel();
         if( !dest )
             return TRAVERSE_CONTINUE;
 
-        if( dest->getView() != _view )
-            return TRAVERSE_PRUNE;
+        View* view = dest->getView();
+        if( !view )
+            return TRAVERSE_CONTINUE;
 
         const Equalizers& equalizers = compound->getEqualizers();
         for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
-            _view->getEqualizer() = *(*i);
+            view->getEqualizer() = *(*i);
 
         return TRAVERSE_CONTINUE;
     }
-
-private:
-    View* const _view;
 };
 }
 
@@ -809,19 +807,8 @@ bool Config::_init( const uint128_t& initID )
         (*i)->update( 0 );
 
     // Update equalizer properties in views
-    for( CanvasesCIter i = canvases.begin(); i != canvases.end(); ++i )
-    {
-        const Layouts& layouts = (*i)->getLayouts();
-        for( LayoutsCIter l = layouts.begin(); l != layouts.end(); ++l )
-        {
-            const Views& views = (*l)->getViews();
-            for( ViewsCIter v = views.begin(); v != views.end(); ++v )
-            {
-                UpdateEqualizersVisitor visitor( *v );
-                accept( visitor );
-            }
-        }
-    }
+    UpdateEqualizersVisitor updater;
+    accept( updater );
 
     _needsFinish = false;
     _state = STATE_RUNNING;

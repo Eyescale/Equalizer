@@ -1153,6 +1153,22 @@ void Compound::deregister()
     }
 }
 
+void Compound::backup()
+{
+    _backup = _data;
+
+    for( EqualizersCIter i = _equalizers.begin(); i != _equalizers.end(); ++i )
+        (*i)->backup();
+}
+
+void Compound::restore()
+{
+    _data = _backup;
+
+    for( EqualizersCIter i = _equalizers.begin(); i != _equalizers.end(); ++i )
+        (*i)->restore();
+}
+
 //---------------------------------------------------------------------------
 // pre-render compound state update
 //---------------------------------------------------------------------------

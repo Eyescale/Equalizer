@@ -11,6 +11,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   colorMask.h
   commands.h
   config.h
+  configParams.h
   configVisitor.h
   defines.h
   drawableConfig.h
@@ -75,6 +76,7 @@ set(EQ_FABRIC_HEADERS
 set(EQ_FABRIC_SOURCES
   client.cpp
   colorMask.cpp
+  configParams.cpp
   equalizer.cpp
   error.cpp
   errorRegistry.cpp

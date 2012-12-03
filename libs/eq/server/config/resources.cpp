@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -29,9 +29,9 @@
 #include "../window.h"
 #include "../equalizers/loadEqualizer.h"
 
-#include <eq/client/configParams.h>
 #include <eq/client/frame.h>
 #include <eq/client/windowSystem.h>
+#include <eq/fabric/configParams.h>
 #include <eq/fabric/gpuInfo.h>
 
 #include <gpusd/gpuInfo.h>
@@ -92,7 +92,7 @@ bool Resources::discover( Config* config, const std::string& session,
 
     if( infos.empty( ))
     {
-        LBINFO << "No resources found for session " << session 
+        LBINFO << "No resources found for session " << session
                << ", using default config" << std::endl;
         infos.push_back( gpusd::GPUInfo( ));
     }
@@ -100,8 +100,8 @@ bool Resources::discover( Config* config, const std::string& session,
     typedef stde::hash_map< std::string, Node* > NodeMap;
     NodeMap nodes;
 
-    const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS |
-                                        ConfigParams::FLAG_MULTIPROCESS_DB );
+    const bool multiProcess = flags & (fabric::ConfigParams::FLAG_MULTIPROCESS |
+                                   fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
     const bool multiNode = session != "local" ||
                            ( multiProcess && infos.size() > 1 );
     size_t gpuCounter = 0;
@@ -143,7 +143,7 @@ bool Resources::discover( Config* config, const std::string& session,
         }
 
         std::stringstream name;
-        if( info.device == LB_UNDEFINED_UINT32 &&    
+        if( info.device == LB_UNDEFINED_UINT32 &&
             // VirtualGL display redirects to local GPU (see continue above)
             !(info.flags & gpusd::GPUInfo::FLAG_VIRTUALGL) )
         {
@@ -254,7 +254,7 @@ Channels Resources::configureSourceChannels( Config* config )
 #  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 void Resources::configure( const Compounds& compounds, const Channels& channels,
-                           const uint32_t flags )
+                           const fabric::ConfigParams& params )
 {
     LBASSERT( !compounds.empty( ));
     if( compounds.empty() || channels.empty()) // No additional resources
@@ -278,8 +278,8 @@ void Resources::configure( const Compounds& compounds, const Channels& channels,
         canvas = channel->getCanvas();
 #endif
 
-        _addMonoCompound( segmentCompound, channels, flags );
-        _addStereoCompound( segmentCompound, channels, flags );
+        _addMonoCompound( segmentCompound, channels, params );
+        _addStereoCompound( segmentCompound, channels, params );
     }
 }
 
@@ -294,16 +294,17 @@ static Channels _filter( const Channels& input, const std::string& filter )
 }
 
 Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
-                                       const uint32_t flags )
+                                       const fabric::ConfigParams& params )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
     const std::string& name = layout->getName();
 
     Compound* compound = 0;
-    const bool multiProcess = flags & ConfigParams::FLAG_MULTIPROCESS;
-    const bool multiProcessDB = multiProcess || 
-                               ( flags & ConfigParams::FLAG_MULTIPROCESS_DB );
+    const bool multiProcess =
+                    params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS;
+    const bool multiProcessDB = multiProcess ||
+             ( params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
     const Channels& activeMT = _filter( channels, " mt " );
     const Channels& activeMP = _filter( channels, " mp " );
 
@@ -312,7 +313,8 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     else if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
     {
-        compound = _add2DCompound( root, multiProcess ? activeMP : activeMT );
+        compound = _add2DCompound( root, multiProcess ? activeMP : activeMT,
+                                   params );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
@@ -325,7 +327,7 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     {
         LBASSERT( !multiProcess );
         LBASSERT( multiProcessDB );
-        compound = _addDB2DCompound( root, channels );
+        compound = _addDB2DCompound( root, channels, params );
     }
     else
     {
@@ -341,7 +343,7 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
 
 Compound* Resources::_addStereoCompound( Compound* root,
                                          const Channels& channels,
-                                         const uint32_t flags )
+                                         const fabric::ConfigParams& params )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
@@ -353,8 +355,9 @@ Compound* Resources::_addStereoCompound( Compound* root,
     compound->setName( "Stereo" );
     compound->setEyes( EYE_LEFT | EYE_RIGHT );
 
-    const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS | 
-                                        ConfigParams::FLAG_MULTIPROCESS_DB );
+    const bool multiProcess = params.getFlags() &
+                                  (fabric::ConfigParams::FLAG_MULTIPROCESS |
+                                   fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
     const Channels& active = name == EQ_SERVER_CONFIG_LAYOUT_DB_2D ? channels :
                             _filter( channels, multiProcess ? " mp " : " mt " );
 
@@ -374,7 +377,7 @@ Compound* Resources::_addStereoCompound( Compound* root,
         left = new Compound( compound );
     }
     else
-        left = _addMonoCompound( compound, leftChannels, flags );
+        left = _addMonoCompound( compound, leftChannels, params );
 
     left->setEyes( EYE_LEFT );
 
@@ -385,14 +388,15 @@ Compound* Resources::_addStereoCompound( Compound* root,
         right = new Compound( compound );
     }
     else
-        right = _addMonoCompound( compound, rightChannels, flags );
+        right = _addMonoCompound( compound, rightChannels, params );
 
     right->setEyes( EYE_RIGHT );
 
     return compound;
 }
 
-Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
+Compound* Resources::_add2DCompound( Compound* root, const Channels& channels,
+                                     const fabric::ConfigParams& params )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
@@ -401,7 +405,8 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
     Compound* compound = new Compound( root );
     compound->setName( name );
     if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
-        compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+        compound->addEqualizer(
+                          new LoadEqualizer( params.getEqualizer().getMode( )));
 
     _fill2DCompound( compound, channels );
     return compound;
@@ -484,7 +489,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
             drawChild->setRange(
                 eq::Range( static_cast< float >( start )/100000.f,
                            static_cast< float >( start + step )/100000.f ));
-        
+
         size_t y = 0;
         for( CompoundsCIter j = children.begin(); j != children.end(); ++j )
         {
@@ -523,7 +528,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
 
             y += step;
         }
- 
+
         // assembled color tile output, if not already in place
         if( child->getChannel() != compound->getChannel( ))
         {
@@ -562,8 +567,8 @@ static Channels _filterLocalChannels( const Channels& input,
     return result;
 }
 
-Compound* Resources::_addDB2DCompound( Compound* root,
-                                       const Channels& channels )
+Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
+                                       const fabric::ConfigParams& params )
 {
     // TODO: Optimized compositing?
     root->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
@@ -575,7 +580,8 @@ Compound* Resources::_addDB2DCompound( Compound* root,
     {
         Compound* child = *i;
         Compound* drawChild = child->getChildren().front();
-        drawChild->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+        drawChild->addEqualizer(
+                          new LoadEqualizer( params.getEqualizer().getMode( )));
         drawChild->setName( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
 
         const Channels& localChannels = _filterLocalChannels( channels, child );

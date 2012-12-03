@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -17,10 +18,16 @@
 
 #include "configParams.h"
 
+#include "equalizer.h"
 #include "global.h"
+
+#include <co/dataOStream.h>
+#include <co/dataIStream.h>
 #include <co/global.h>
 
 namespace eq
+{
+namespace fabric
 {
 namespace detail
 {
@@ -30,12 +37,13 @@ public:
     ConfigParams()
             : renderClient( co::Global::getProgramName( ))
             , workDir( co::Global::getWorkDir( ))
-            , flags( eq::Global::getFlags( ))
+            , flags( eq::fabric::Global::getFlags( ))
         {}
 
     std::string renderClient;
     std::string workDir;
     uint32_t flags;
+    fabric::Equalizer equalizer;
 };
 }
 
@@ -52,6 +60,10 @@ ConfigParams::~ConfigParams()
 void ConfigParams::setRenderClient( const std::string& renderClient )
 {
     _impl->renderClient = renderClient;
+#ifdef _WIN32 // replace dir delimiters since '\' is often used as escape char
+    std::replace( _impl->renderClient.begin(),
+                  _impl->renderClient.end(), '\\', '/' );
+#endif
 }
 
 const std::string& ConfigParams::getRenderClient() const
@@ -62,6 +74,9 @@ const std::string& ConfigParams::getRenderClient() const
 void ConfigParams::setWorkDir( const std::string& workDir )
 {
     _impl->workDir = workDir;
+#ifdef _WIN32 // replace dir delimiters since '\' is often used as escape char
+    std::replace( _impl->workDir.begin(), _impl->workDir.end(), '\\', '/' );
+#endif
 }
 
 const std::string& ConfigParams::getWorkDir() const
@@ -79,4 +94,39 @@ uint32_t ConfigParams::getFlags() const
     return _impl->flags;
 }
 
+const Equalizer& ConfigParams::getEqualizer() const
+{
+    return _impl->equalizer;
+}
+
+Equalizer& ConfigParams::getEqualizer()
+{
+    return _impl->equalizer;
+}
+
+void ConfigParams::serialize( co::DataOStream& os ) const
+{
+    os << _impl->renderClient << _impl->workDir << _impl->flags
+       << _impl->equalizer;
+}
+
+void ConfigParams::deserialize( co::DataIStream& is )
+{
+    is >> _impl->renderClient >> _impl->workDir >> _impl->flags
+       >> _impl->equalizer;
+}
+
+co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )
+{
+    params.serialize( os );
+    return os;
+}
+
+co::DataIStream& operator >> ( co::DataIStream& is, ConfigParams& params )
+{
+    params.deserialize( is );
+    return is;
+}
+
+}
 }

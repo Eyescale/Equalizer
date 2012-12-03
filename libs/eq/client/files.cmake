@@ -1,5 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 set(AGL_HEADERS
   agl/eventHandler.h
@@ -66,7 +67,6 @@ set(CLIENT_HEADERS
   compositor.h
   computeContext.h
   config.h
-  configParams.h
   configStatistics.h
   cudaContext.h
   defines.h
@@ -121,7 +121,6 @@ set(CLIENT_SOURCES
   compositor.cpp
   computeContext.cpp
   config.cpp
-  configParams.cpp
   configStatistics.cpp
   cudaContext.cpp
   event.cpp
@@ -161,7 +160,7 @@ set(CLIENT_SOURCES
   )
 
 if(NOT EQUALIZER_BUILD_2_0_API)
-  list(APPEND CLIENT_HEADERS configEvent.h)
+  list(APPEND CLIENT_HEADERS configEvent.h configParams.h)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
 endif()
 

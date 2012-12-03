@@ -6,12 +6,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -46,7 +46,7 @@ namespace server
 {
     class CompoundListener;
     class CompoundVisitor;
-    
+
     /**
      * The compound.
      */
@@ -102,7 +102,7 @@ namespace server
 
         /** @return if the compound has the destination channel. */
         bool hasDestinationChannel() const;
-        
+
         /** @return the children of this compound. */
         const Compounds& getChildren() const { return _children; }
 
@@ -130,21 +130,21 @@ namespace server
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
-        /** 
+        /**
          * Set the channel of this compound.
          *
          * The compound uses the channel for all rendering operations executed
          * by this compound. The compound's swap barrier will be updated with
          * the segment's swap barrier if this compound becomes a destination
          * compound.
-         * 
+         *
          * @param channel the channel.
          */
         EQSERVER_API void setChannel( Channel* channel );
 
-        /** 
+        /**
          * Return the channel of this compound.
-         * 
+         *
          * Note that the channel is inherited, that is, if this compound has no
          * channel, the parent's channel is returned.
          *
@@ -168,21 +168,21 @@ namespace server
         /** Get the attached load balancers. */
         const Equalizers& getEqualizers() const { return _equalizers; }
 
-        /** 
+        /**
          * Set the tasks to be executed by the compound, overwriting previous
          * tasks.
          *
          * Tasks define which actions are executed by the compound, and provide
          * a flexible way of configuring the decomposition and recomposition. A
          * separate html design document describes them in depth.
-         * 
+         *
          * @param tasks the compound tasks.
          */
         void setTasks( const uint32_t tasks ) { _data.tasks = tasks; }
 
-        /** 
+        /**
          * Add a task to be executed by the compound, preserving previous tasks.
-         * 
+         *
          * @param task the compound task to add.
          */
         void enableTask( const fabric::Task task ) { _data.tasks |= task; }
@@ -190,7 +190,7 @@ namespace server
         /** @return the tasks executed by this compound. */
         uint32_t getTasks() const { return _data.tasks; }
 
-        /** 
+        /**
          * Set the image buffers to be used by the compound during
          * recomposition, overwriting previous buffers.
          *
@@ -198,10 +198,10 @@ namespace server
          */
         void setBuffers( const uint32_t buffers ) { _data.buffers = buffers; }
 
-        /** 
+        /**
          * Add a image buffer to be used by the compound, preserving previous
          * buffers.
-         * 
+         *
          * @param buffer the compound image buffer to add.
          */
         void enableBuffer( const eq::Frame::Buffer buffer )
@@ -235,7 +235,7 @@ namespace server
         void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
         float getMaxFPS() const                    { return _data.maxFPS; }
 
-        void setUsage( const float usage )         
+        void setUsage( const float usage )
             { LBASSERT( usage >= 0.f ); _usage = usage; }
         float getUsage() const                     { return _usage; }
 
@@ -251,15 +251,15 @@ namespace server
          * Windows of compounds with the same swap barrier name will enter a
          * barrier before executing Window::swap. Setting an empty string
          * disables the swap barrier.
-         * 
+         *
          * @param barrier the swap barrier.
          */
         void setSwapBarrier( SwapBarrierPtr barrier );
-        
+
         /** @return the current swap barrier. */
         SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
 
-        /** 
+        /**
          * Add a new input frame for this compound.
          *
          * @param frame the input frame.
@@ -269,7 +269,7 @@ namespace server
         /** @return the vector of input frames. */
         const Frames& getInputFrames() const {return _inputFrames; }
 
-        /** 
+        /**
          * Add a new output frame for this compound.
          *
          * @param frame the output frame.
@@ -279,14 +279,14 @@ namespace server
         /** @return the vector of output frames. */
         const Frames& getOutputFrames() const { return _outputFrames; }
 
-        /** 
+        /**
          * Add a new input tile queue for this compound.
          *
          * @param tileQueue the input tile queue.
          */
         EQSERVER_API void addInputTileQueue( TileQueue* tileQueue );
 
-        /** 
+        /**
          * Remove an input tile queue from this compound.
          *
          * @param tileQueue the input tile queue.
@@ -296,14 +296,14 @@ namespace server
         /** @return the vector of input tile queues. */
         const TileQueues& getInputTileQueues() const { return _inputTileQueues;}
 
-        /** 
+        /**
          * Add a new output tile queue for this compound.
          *
          * @param queue the output tile queue.
          */
         EQSERVER_API void addOutputTileQueue( TileQueue* queue );
 
-        /** 
+        /**
          * Remove an output tile queue from this compound.
          *
          * @param tileQueue the output tile queue.
@@ -319,23 +319,23 @@ namespace server
             { return !_outputTileQueues.empty() || !_inputTileQueues.empty(); }
         //@}
 
-        /** 
+        /**
          * @name Inherit data access needed during channel update.
-         * 
+         *
          * Inherit data are the actual, as opposed to configured, attributes and
          * data used by the compound. The inherit data is updated at the
          * beginning of each update().
          */
         //@{
         uint32_t getInheritBuffers() const { return _inherit.buffers; }
-        const PixelViewport& getInheritPixelViewport() const 
+        const PixelViewport& getInheritPixelViewport() const
             { return _inherit.pvp; }
         const Vector4i& getInheritOverdraw() const
             { return _inherit.overdraw; }
         const Viewport& getInheritViewport() const { return _inherit.vp; }
         const Range& getInheritRange()   const { return _inherit.range; }
         const Pixel& getInheritPixel()   const { return _inherit.pixel; }
-        const SubPixel& getInheritSubPixel() const 
+        const SubPixel& getInheritSubPixel() const
             { return _inherit.subpixel; }
         const Zoom& getInheritZoom()     const { return _inherit.zoom; }
         uint32_t getInheritPeriod()          const { return _inherit.period; }
@@ -343,13 +343,13 @@ namespace server
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
         int32_t getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
-        const FrustumData& getInheritFrustumData() const 
+        const FrustumData& getInheritFrustumData() const
             { return _inherit.frustumData; }
         uint32_t getInheritTasks()           const { return _inherit.tasks; }
         uint32_t getInheritEyes()            const { return _inherit.eyes; }
         Channel* getInheritChannel()               { return _inherit.channel; }
         const Channel* getInheritChannel()   const { return _inherit.channel; }
-        
+
         /** @return true if the task is set, false if not. */
         bool testInheritTask( const fabric::Task task ) const
             { return (_inherit.tasks & task); }
@@ -365,25 +365,25 @@ namespace server
 
         /** @name Frustum Operations */
         //@{
-        /** 
+        /**
          * Set the compound's frustum using a wall description.
-         * 
+         *
          * @param wall the wall description.
          */
         EQSERVER_API void setWall( const Wall& wall );
-        
+
         /** @return the last specified wall description. */
         const Wall& getWall() const { return _frustum.getWall(); }
 
-        /** 
+        /**
          * Set the compound's frustum using a projection description
-         * 
+         *
          * @param projection the projection description.
          */
         EQSERVER_API void setProjection( const Projection& projection );
 
         /** @return the last specified projection description. */
-        const Projection& getProjection() const 
+        const Projection& getProjection() const
             { return _frustum.getProjection(); }
 
         /** @return the type of the latest specified frustum. */
@@ -397,9 +397,9 @@ namespace server
         void updateFrustum( const Vector3f& eye, const float ratio );
 
         /** compute the frustum of the given context */
-        void computeFrustum( RenderContext& context, 
+        void computeFrustum( RenderContext& context,
                              const fabric::Eye eye ) const;
-        
+
         /** compute the frustum for a given viewport */
         void computeTileFrustum( Frustumf& frustum, const fabric::Eye eye,
                                  Viewport vp, bool ortho ) const;
@@ -407,20 +407,20 @@ namespace server
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
 
-         /** 
+         /**
          * Set the eyes to be used by the compound.
-         * 
+         *
          * Previously set eyes are overwritten.
          *
          * @param eyes the compound eyes.
          */
         void setEyes( const uint32_t eyes ) { _data.eyes = eyes; }
 
-        /** 
+        /**
          * Add eyes to be used by the compound.
          *
          * Previously set eyes are preserved.
-         * 
+         *
          * @param eyes the compound eyes.
          */
         void enableEye( const uint32_t eyes ) { _data.eyes |= eyes; }
@@ -428,9 +428,9 @@ namespace server
 
         /** @name Compound Operations. */
         //@{
-        /** 
+        /**
          * Traverse the compound and all children using a compound visitor.
-         * 
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
@@ -440,15 +440,15 @@ namespace server
 
         /** @internal Activate the given eyes for the the compound tree. */
         void activate( const uint32_t eyes );
-        
+
         /** @internal Deactivate the given eyes for the the compound tree. */
         void deactivate( const uint32_t eyes );
 
         /**
-         * @return if the compound is activated for selected eye 
+         * @return if the compound is activated for selected eye
                     and current (DPlex).
          *
-         * @param eye eye which will be tested. 
+         * @param eye eye which will be tested.
          */
         bool isInheritActive( const Eye eye ) const;
 
@@ -477,14 +477,14 @@ namespace server
         void deregister();
 
         /** Back up all relevant compound data. */
-        void backup() { _backup = _data; }
+        void backup();
 
         /** Restore all relevant compound data. */
-        void restore() { _data = _backup; } 
+        void restore();
 
-        /** 
+        /**
          * Updates this compound.
-         * 
+         *
          * The compound's parameters for the next frame are computed.
          */
         void update( const uint32_t frameNumber );
@@ -503,7 +503,7 @@ namespace server
         /** Notify all listeners that the compound is about to be updated. */
         void fireUpdatePre( const uint32_t frameNumber );
         //@}
-        
+
         /**
          * @name Attributes
          */
@@ -527,9 +527,9 @@ namespace server
     private:
         //-------------------- Members --------------------
         std::string _name;
-        
-        /** 
-         * The config the compound is attached to, only set on root 
+
+        /**
+         * The config the compound is attached to, only set on root
          * compounds.
          */
         friend class Config;
@@ -620,13 +620,13 @@ namespace server
         void _fireChildAdded( Compound* child );
         void _fireChildRemove( Compound* child );
 
-        void _computePerspective( RenderContext& context, 
+        void _computePerspective( RenderContext& context,
                                   const Vector3f& eye ) const;
         void _computeOrtho( RenderContext& context, const Vector3f& eye ) const;
         Vector3f _getEyePosition( const fabric::Eye eye ) const;
         const Matrix4f& _getInverseHeadMatrix() const;
-        void _computeFrustumCorners( Frustumf& frustum, 
-            const FrustumData& frustumData, const Vector3f& eye, 
+        void _computeFrustumCorners( Frustumf& frustum,
+            const FrustumData& frustumData, const Vector3f& eye,
             const bool ortho, Viewport* invp = 0 ) const;
     };
 

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -80,7 +81,6 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
 
           default:
               _tree = _buildTree( children );
-              _init( _tree, Viewport(), Range( ));
               break;
         }
     }
@@ -92,6 +92,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         _history.back().first = frameNumber;
     }
 
+    _init( _tree, Viewport(), Range( ));
     _update( _tree );
     _computeSplit();
 }
@@ -106,7 +107,6 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
         Compound* compound = compounds.front();
 
         node->compound = compound;
-        node->mode = getMode();
 
         Channel* channel = compound->getChannel();
         LBASSERT( channel );
@@ -126,13 +126,13 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
 
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
-    node->mode = getMode();
 
     return node;
 }
 
 void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
 {
+    node->mode = getMode();
     if( node->mode == MODE_2D )
     {
         PixelViewport pvp = getCompound()->getChannel()->getPixelViewport();
