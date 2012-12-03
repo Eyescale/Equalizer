@@ -219,6 +219,7 @@ void Equalizer::backup()
 
 void Equalizer::restore()
 {
+    LBASSERT( _backup );
     delete _data;
     _data = _backup;
     _backup = 0;

@@ -48,8 +48,22 @@ public:
 }
 
 ConfigParams::ConfigParams()
-        : _impl( new detail::ConfigParams )
+    : _impl( new detail::ConfigParams )
 {
+}
+
+ConfigParams::ConfigParams( const ConfigParams& rhs )
+    : _impl( new detail::ConfigParams( *rhs._impl ))
+{
+}
+
+ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
+{
+    if( this == &rhs )
+        return *this;
+
+    *_impl = *rhs._impl;
+    return *this;
 }
 
 ConfigParams::~ConfigParams()

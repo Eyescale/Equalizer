@@ -59,6 +59,12 @@ namespace detail { class ConfigParams; }
         /** Destruct this configuration parameters. @version 1.0 */
         EQFABRIC_API ~ConfigParams();
 
+        /** @internal */
+        EQFABRIC_API ConfigParams( const ConfigParams& rhs );
+
+        /** @internal */
+        EQFABRIC_API ConfigParams& operator = ( const ConfigParams& rhs );
+
         /** @name Data Access. */
         //@{
         /**
