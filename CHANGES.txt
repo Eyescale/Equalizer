@@ -1,13 +1,16 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+03/Dec/2012
+  Remove ...,     fabric::View::getEqualizer()(::getTileSize( ))
+
 07/Sep/2012
   Removed COMMANDTYPE_EQ_CUSTOM. Use co::COMMANDTYPE_CUSTOM instead.
 
 06/Sep/2012
   New API in eq::Config & seq::ViewData for event handling. sendEvent() &
   handleEvent() have changed signatures, getNextEvent() supersedes
-  tryNextEvent() & nextEvent().  
+  tryNextEvent() & nextEvent().
 
   eq::ConfigEvent is replaced by EventOCommand for sending and by
   eq::EventCommand for receiving events.
@@ -85,19 +88,19 @@ This file lists all changes in the public Equalizer API, latest on top:
 7/Jan/2011
   Rename EVENT_POINTER_* to differantiate channel and window pointer events.
   Old values can be used when EQ_USE_DEPRECATED is defined.
-  
+
      CHANNEL_POINTER_MOTION         // = POINTER_MOTION
      CHANNEL_POINTER_BUTTON_PRESS   // = POINTER_BUTTON_PRESS
      CHANNEL_POINTER_BUTTON_RELEASE // = POINTER_BUTTON_RELEASE
      WINDOW_POINTER_WHEEL           // = POINTER_WHEEL
-     WINDOW_POINTER_MOTION  
+     WINDOW_POINTER_MOTION
      WINDOW_POINTER_BUTTON_PRESS
      WINDOW_POINTER_BUTTON_RELEASE
   replaces
      POINTER_MOTION
      POINTER_BUTTON_PRESS
      POINTER_BUTTON_RELEASE
-     POINTER_WHEEL  
+     POINTER_WHEEL
 
 20/Dec/2010
   Renamed the eq::net namespace to co(llage). Change all prefixes from
@@ -128,7 +131,7 @@ This file lists all changes in the public Equalizer API, latest on top:
   Image::upload( buffer, texture, objectManager )
 
   Image::hasData is removed
-  
+
 
 22/Nov/2010
   Replace object identifiers with UUIDs
@@ -137,21 +140,21 @@ This file lists all changes in the public Equalizer API, latest on top:
   Replace object versions with uint128_t
     Master versions have always 0 for the 64bit high value
 
-  change frameID type to uint128_t for methods: frameReadback, frameAssemble, 
-   frameDraw, frameClear, frameStart, startFrame, frameViewStart, 
-   frameViewFinish, frameFinish, frameDrawFinish, frameTasksFinish 
-   in the classes window, channel, pipe, node and config.  
-    
+  change frameID type to uint128_t for methods: frameReadback, frameAssemble,
+   frameDraw, frameClear, frameStart, startFrame, frameViewStart,
+   frameViewFinish, frameFinish, frameDrawFinish, frameTasksFinish
+   in the classes window, channel, pipe, node and config.
+
   change initID type to uint128_t for configInit in pipe, window,
   channel and config
 
   bool Pipe::configInitSystemPipe( const uint128_t& initID );
   bool Window::configInitSystemWindow( const eq::uint128_t& initID );
   bool Window::configInitGL( const eq::uint128_t& initID );
-  bool Session::mapObject( Object* object, const base::UUID& id, 
-                           const uint128_t& version = VERSION_OLDEST ); 
-  uint32_t Session::mapObjectNB( Object* object, const base::UUID& id, 
-                                 const uint128_t& version = VERSION_OLDEST ); 
+  bool Session::mapObject( Object* object, const base::UUID& id,
+                           const uint128_t& version = VERSION_OLDEST );
+  uint32_t Session::mapObjectNB( Object* object, const base::UUID& id,
+                                 const uint128_t& version = VERSION_OLDEST );
   void Object::notifyNewHeadVersion( const uint128_t& version );
   uint128_t Object::getOldestVersion() const;
   uint128_t Object::getVersion() const;
@@ -164,7 +167,7 @@ This file lists all changes in the public Equalizer API, latest on top:
   bool Pipe::configInitSystemPipe( const uint32_t initID );
   bool Window::configInitSystemWindow( const uint32_t initID );
   bool Window::configInitGL( const uint32_t initID );
-  bool Session::mapObject( Object* object, const uint32_t id, 
+  bool Session::mapObject( Object* object, const uint32_t id,
                            const uint128_t& version = VERSION_OLDEST );
   uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
                                  const uint128_t& version = VERSION_OLDEST );
@@ -181,7 +184,7 @@ This file lists all changes in the public Equalizer API, latest on top:
   The GLXEventHandler is new per-window. Event handler init/exit has
   been moved from GLXPipe to GLXWindow and the GLXEventHandler API has
   changed accordingly.
-  
+
 15/Nov/2010
   Statistic::CHANNEL_FRAME_WAIT_READY replaces Statistic::CHANNEL_WAIT_FRAME
 
@@ -230,7 +233,7 @@ This file lists all changes in the public Equalizer API, latest on top:
   removed eq::net::Object::makeThreadSafe and isThreadSafe
     application has to lock sync(), if needed
   eq::net::Object::getAutoObsolete replaces getAutoObsoleteCount
-  
+
 06/Oct/2010
   void eq::Client::clientLoop
   void eq::Client::exitClient

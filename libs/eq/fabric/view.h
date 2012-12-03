@@ -286,6 +286,16 @@ namespace fabric
         /** The observer for tracking. */
         O* _observer;
 
+        Equalizer _equalizer; //!< Equalizer settings
+        /** Enlarge size of dest channels and adjust frustum accordingly. */
+        Vector2i _overdraw;
+
+        uint64_t _minimumCapabilities; //!< caps required from channels
+        uint64_t _maximumCapabilities; //!< caps used from channels
+        uint64_t _capabilities; //!< intersection of all active channel caps
+        uint32_t _equalizers; //!< Active Equalizers
+        float _modelUnit; //!< Scaling of scene in this view
+
         struct BackupData
         {
             BackupData();
@@ -293,19 +303,7 @@ namespace fabric
             /** Logical 2D area of Canvas covered. */
             Viewport viewport;
 
-            /** Enlarge size of dest channels and adjust frustum accordingly. */
-            Vector2i overdraw;
-
-            Equalizer equalizer;
-
-            uint64_t minimumCapabilities; //!< caps required from channels
-            uint64_t maximumCapabilities; //!< caps used from channels
-            uint64_t capabilities; //!< intersection of all active channel caps
-
             Mode mode; //!< Stereo mode
-            uint32_t equalizers; //!< Active Equalizers
-
-            float modelUnit;
         }
             _data, _backup;
 

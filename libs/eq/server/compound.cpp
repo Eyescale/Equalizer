@@ -1157,22 +1157,16 @@ void Compound::backup()
 {
     _backup = _data;
 
-    for( Equalizers::const_iterator i = _equalizers.begin();
-         i != _equalizers.end(); ++i )
-    {
+    for( EqualizersCIter i = _equalizers.begin(); i != _equalizers.end(); ++i )
         (*i)->backup();
-    }
 }
 
 void Compound::restore()
 {
     _data = _backup;
 
-    for( Equalizers::const_iterator i = _equalizers.begin();
-         i != _equalizers.end(); ++i )
-    {
+    for( EqualizersCIter i = _equalizers.begin(); i != _equalizers.end(); ++i )
         (*i)->restore();
-    }
 }
 
 //---------------------------------------------------------------------------

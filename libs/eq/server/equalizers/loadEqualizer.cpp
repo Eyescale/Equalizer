@@ -38,7 +38,6 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 LoadEqualizer::LoadEqualizer( const Mode mode )
         : _tree( 0 )
 {
-    setMode( mode );
     LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 

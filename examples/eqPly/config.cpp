@@ -983,7 +983,7 @@ void Config::_adjustResistance( const int delta )
     size.x() = LB_MAX( size.x(), 0 );
     size.y() = LB_MAX( size.y(), 0 );
     std::ostringstream stream;
-    stream << "Set Load_equalizer resistance to " << size;
+    stream << "Set load equalizer resistance to " << size;
     _setMessage( stream.str( ));
     view->getEqualizer().setResistance( size );
 }
