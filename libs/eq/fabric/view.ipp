@@ -75,7 +75,7 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_OVERDRAW )
         os << _overdraw;
     if( dirtyBits & DIRTY_EQUALIZER )
-        _equalizer.serialize( os );
+        os << _equalizer;
     if( dirtyBits & DIRTY_MINCAPS )
         os << _minimumCapabilities;
     if( dirtyBits & DIRTY_MAXCAPS )
@@ -135,7 +135,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     if( dirtyBits & DIRTY_OVERDRAW )
         is >> _overdraw;
     if( dirtyBits & DIRTY_EQUALIZER )
-        _equalizer.deserialize( is );
+        is >> _equalizer;
     if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
     {
         if( dirtyBits & DIRTY_MINCAPS )

@@ -196,7 +196,7 @@ const Vector2i& Equalizer::getTileSize() const
     return _data->tilesize;
 }
 
-void Equalizer::serialize( co::DataOStream& os )
+void Equalizer::serialize( co::DataOStream& os ) const
 {
     os << _data->damping << _data->boundaryf << _data->resistancef
        << _data->assembleOnlyLimit << _data->frameRate << _data->boundary2i
@@ -222,6 +222,18 @@ void Equalizer::restore()
     delete _data;
     _data = _backup;
     _backup = 0;
+}
+
+co::DataOStream& operator << ( co::DataOStream& os, const Equalizer& eq )
+{
+    eq.serialize( os );
+    return os;
+}
+
+co::DataIStream& operator >> ( co::DataIStream& is, Equalizer& eq )
+{
+    eq.deserialize( is );
+    return is;
 }
 
 std::ostream& operator << ( std::ostream& os, const Equalizer::Mode mode )
