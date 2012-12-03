@@ -183,7 +183,7 @@ void Channel::_testFormats( float applyZoom )
                 const float msec = clock.getTimef() / float( nLoops );
                 const GLenum error = glGetError(); // release mode
                 if( error != GL_NO_ERROR )
-                    throw eq::Exception( error );
+                    throw eq::GLException( error );
 
                 const eq::PixelData& pixels =
                     image->getPixelData( eq::Frame::BUFFER_COLOR );
