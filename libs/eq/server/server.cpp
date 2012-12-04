@@ -166,8 +166,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
 
     Config* config = 0;
     const Configs& configs = getConfigs();
-    for( Configs::const_iterator i = configs.begin();
-         i != configs.end() && !config; ++i )
+    for( ConfigsCIter i = configs.begin(); i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
         const float version = candidate->getFAttribute( Config::FATTR_VERSION );

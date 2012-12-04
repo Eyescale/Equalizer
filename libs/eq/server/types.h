@@ -71,6 +71,8 @@ using lunchbox::UUID;
 using lunchbox::Strings;
 using lunchbox::StringsCIter;
 
+typedef Configs::const_iterator ConfigsCIter;
+typedef Configs::iterator ConfigsIter;
 typedef Canvases::const_iterator CanvasesCIter;
 typedef Canvases::iterator CanvasesIter;
 typedef Channels::const_iterator ChannelsCIter;
