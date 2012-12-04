@@ -158,7 +158,7 @@ void Server::handleCommands()
 bool Server::_cmdChooseConfig( co::ICommand& command )
 {
     const uint32_t requestID = command.get< uint32_t >();
-    const fabric::ConfigParams params = command.get< fabric::ConfigParams >();
+    const fabric::ConfigParams& params = command.get< fabric::ConfigParams >();
 
     LBVERB << "Handle choose config " << command << " req " << requestID
            << " renderer " << params.getWorkDir() << '/'
@@ -166,7 +166,8 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
 
     Config* config = 0;
     const Configs& configs = getConfigs();
-    for( ConfigsCIter i = configs.begin(); i != configs.end() && !config; ++i )
+    for( Configs::const_iterator i = configs.begin();
+         i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
         const float version = candidate->getFAttribute( Config::FATTR_VERSION );

@@ -40,6 +40,7 @@ namespace server
     {
     public:
         Equalizer();
+        Equalizer( const fabric::Equalizer& from );
         Equalizer( const Equalizer& from );
         Equalizer& operator=( const fabric::Equalizer& from );
         virtual ~Equalizer();

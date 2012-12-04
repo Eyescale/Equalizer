@@ -38,6 +38,12 @@ Equalizer::Equalizer()
     LBVERB << "New Equalizer @" << (void*)this << std::endl;
 }
 
+Equalizer::Equalizer( const fabric::Equalizer& from )
+        : fabric::Equalizer( from )
+        , _compound( 0 )
+        , _active( true )
+{}
+
 Equalizer::Equalizer( const Equalizer& from )
         : fabric::Equalizer( from )
         , CompoundListener( from )

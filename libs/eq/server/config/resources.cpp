@@ -319,7 +319,8 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
     {
-        compound = _addDBCompound( root, multiProcessDB ? activeMP : activeMT );
+        compound = _addDBCompound( root, multiProcessDB ? activeMP : activeMT,
+                                   params );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
         compound = _addDSCompound( root, multiProcessDB ? activeMP : activeMT );
@@ -396,7 +397,7 @@ Compound* Resources::_addStereoCompound( Compound* root,
 }
 
 Compound* Resources::_add2DCompound( Compound* root, const Channels& channels,
-                                     const fabric::ConfigParams& params )
+                                     fabric::ConfigParams params )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
@@ -405,8 +406,11 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels,
     Compound* compound = new Compound( root );
     compound->setName( name );
     if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
-        compound->addEqualizer(
-                          new LoadEqualizer( params.getEqualizer().getMode( )));
+    {
+        if( params.getEqualizer().getMode() == LoadEqualizer::MODE_DB )
+            params.getEqualizer().setMode( LoadEqualizer::MODE_2D );
+        compound->addEqualizer( new LoadEqualizer( params.getEqualizer( )));
+    }
 
     _fill2DCompound( compound, channels );
     return compound;
@@ -432,7 +436,8 @@ void Resources::_fill2DCompound( Compound* compound, const Channels& channels )
     }
 }
 
-Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
+Compound* Resources::_addDBCompound( Compound* root, const Channels& channels,
+                                     fabric::ConfigParams params )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
@@ -442,7 +447,11 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
     compound->setName( name );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
     if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
-        compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
+    {
+        if( params.getEqualizer().getMode() != LoadEqualizer::MODE_DB )
+            params.getEqualizer().setMode( LoadEqualizer::MODE_DB );
+        compound->addEqualizer( new LoadEqualizer( params.getEqualizer( )));
+    }
 
     const Compounds& children = _addSources( compound, channels );
     const size_t step = size_t( 100000.0f / float( children.size( )));
@@ -568,7 +577,7 @@ static Channels _filterLocalChannels( const Channels& input,
 }
 
 Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
-                                       const fabric::ConfigParams& params )
+                                       fabric::ConfigParams params )
 {
     // TODO: Optimized compositing?
     root->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
@@ -580,8 +589,9 @@ Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
     {
         Compound* child = *i;
         Compound* drawChild = child->getChildren().front();
-        drawChild->addEqualizer(
-                          new LoadEqualizer( params.getEqualizer().getMode( )));
+        if( params.getEqualizer().getMode() == LoadEqualizer::MODE_DB )
+            params.getEqualizer().setMode( LoadEqualizer::MODE_2D );
+        drawChild->addEqualizer( new LoadEqualizer( params.getEqualizer( )));
         drawChild->setName( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
 
         const Channels& localChannels = _filterLocalChannels( channels, child );

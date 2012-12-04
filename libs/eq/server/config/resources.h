@@ -52,11 +52,12 @@ private:
                                          const Channels& channels,
                                          const fabric::ConfigParams& params );
     static Compound* _add2DCompound( Compound* root, const Channels& channels,
-                                     const fabric::ConfigParams& params );
-    static Compound* _addDBCompound( Compound* root, const Channels& channels );
+                                     fabric::ConfigParams params );
+    static Compound* _addDBCompound( Compound* root, const Channels& channels,
+                                     fabric::ConfigParams params );
     static Compound* _addDSCompound( Compound* root, const Channels& channels );
     static Compound* _addDB2DCompound( Compound* root, const Channels& channels,
-                                       const fabric::ConfigParams& params );
+                                       fabric::ConfigParams params );
     static const Compounds& _addSources( Compound* compound, const Channels& );
     static void _fill2DCompound( Compound* compound, const Channels& channels );
 };
