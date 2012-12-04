@@ -494,9 +494,9 @@ void Channel::_saveImage( const eq::Image* image,
 void Channel::_draw( const eq::uint128_t& spin )
 {
     bindFrameBuffer();
-    eq::Channel::frameDraw( spin );
-
     EQ_GL_CALL( glPushAttrib( GL_ALL_ATTRIB_BITS ));
+
+    eq::Channel::frameDraw( spin );
     EQ_GL_CALL( glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT ));
     EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
 
