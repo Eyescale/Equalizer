@@ -40,8 +40,8 @@ namespace server
     class LoadEqualizer : public Equalizer, protected ChannelListener
     {
     public:
-        EQSERVER_API LoadEqualizer( const Mode mode = MODE_2D );
-        LoadEqualizer( const LoadEqualizer& from );
+        EQSERVER_API LoadEqualizer();
+        LoadEqualizer( const fabric::Equalizer& from );
         virtual ~LoadEqualizer();
         virtual void toStream( std::ostream& os ) const { os << this; }
 
@@ -109,7 +109,6 @@ namespace server
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
         Node* _buildTree( const Compounds& children );
-        void _init( Node* node, const Viewport& vp, const Range& range );
 
         /** Setup assembly with the compound dest value */
         void _updateAssembleTime( Data& data, const Statistic& stat );
@@ -128,9 +127,9 @@ namespace server
         void _checkHistory();
 
         /** Update all node fields influencing the split */
-        void _update( Node* node );
-        void   _updateLeaf( Node* node );
-        void   _updateNode( Node* node );
+        void _update( Node* node, const Viewport& vp, const Range& range );
+        void _updateLeaf( Node* node );
+        void _updateNode( Node* node, const Viewport& vp, const Range& range );
 
         /** Adjust the split of each node based on the front-most _history. */
         void _computeSplit();

@@ -79,7 +79,6 @@ void TreeEqualizer::notifyUpdatePre( Compound* compound,
     }
 
     // compute new data
-    _init( _tree );
     _update( _tree );
     _split( _tree );
     _assign( _tree, Viewport(), Range( ));
@@ -117,33 +116,6 @@ TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
     node->right = _buildTree( right );
     return node;
 }
-
-void TreeEqualizer::_init( Node* node )
-{
-    if( node->compound )
-    {
-        LBASSERT( node->mode != MODE_2D );
-        return;
-    }
-    // else
-
-    node->left->mode = node->right->mode = node->mode = getMode();
-
-    if( node->mode == MODE_2D )
-        node->mode = MODE_VERTICAL;
-
-    if( node->left->mode == MODE_2D )
-    {
-        LBASSERT( node->right->mode == MODE_2D );
-
-        node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL :
-                                                           MODE_VERTICAL;
-        node->right->mode = node->left->mode;
-    }
-    _init( node->left );
-    _init( node->right );
-}
-
 
 void TreeEqualizer::_clearTree( Node* node )
 {
@@ -239,6 +211,7 @@ void TreeEqualizer::_update( Node* node )
         const PixelViewport& pvp = channel->getPixelViewport();
         LBASSERT( channel );
 
+        LBASSERT( node->mode != MODE_2D );
         node->resources = compound->isActive() ? compound->getUsage() : 0.f;
         node->maxSize.x() = pvp.w;
         node->maxSize.y() = pvp.h;
@@ -252,6 +225,20 @@ void TreeEqualizer::_update( Node* node )
 
     LBASSERT( node->left );
     LBASSERT( node->right );
+
+    node->left->mode = node->right->mode = node->mode = getMode();
+
+    if( node->mode == MODE_2D )
+        node->mode = MODE_VERTICAL;
+
+    if( node->left->mode == MODE_2D )
+    {
+        LBASSERT( node->right->mode == MODE_2D );
+
+        node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL :
+                                                           MODE_VERTICAL;
+        node->right->mode = node->left->mode;
+    }
 
     _update( node->left );
     _update( node->right );

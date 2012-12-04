@@ -36,16 +36,14 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 // level, a relative split position is determined by balancing the left subtree
 // against the right subtree.
 
-LoadEqualizer::LoadEqualizer( const Mode mode )
+LoadEqualizer::LoadEqualizer()
         : _tree( 0 )
 {
-    setMode( mode );
     LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 
-LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
+LoadEqualizer::LoadEqualizer( const fabric::Equalizer& from )
         : Equalizer( from )
-        , ChannelListener( from )
         , _tree( 0 )
 {}
 
@@ -92,8 +90,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         _history.back().first = frameNumber;
     }
 
-    _init( _tree, Viewport(), Range( ));
-    _update( _tree );
+    _update( _tree, Viewport(), Range( ));
     _computeSplit();
 }
 
@@ -129,60 +126,6 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
 
     return node;
 }
-
-void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
-{
-    node->mode = getMode();
-    if( node->mode == MODE_2D )
-    {
-        PixelViewport pvp = getCompound()->getChannel()->getPixelViewport();
-        pvp.apply( vp );
-
-        if( pvp.w > pvp.h ) // split along longest axis
-            node->mode = MODE_VERTICAL;
-        else
-            node->mode = MODE_HORIZONTAL;
-    }
-
-    if( node->compound )
-        return;
-    // else
-
-    Viewport leftVP = vp;
-    Viewport rightVP = vp;
-    Range leftRange = range;
-    Range rightRange = range;
-
-    switch( node->mode )
-    {
-      default:
-        LBUNIMPLEMENTED;
-
-      case MODE_VERTICAL:
-        leftVP.w = vp.w * .5f;
-        rightVP.x = leftVP.getXEnd();
-        rightVP.w = vp.getXEnd() - rightVP.x;
-        node->split = leftVP.getXEnd();
-        break;
-
-      case MODE_HORIZONTAL:
-        leftVP.h = vp.h * .5f;
-        rightVP.y = leftVP.getYEnd();
-        rightVP.h = vp.getYEnd() - rightVP.y;
-        node->split = leftVP.getYEnd();
-        break;
-
-      case MODE_DB:
-        leftRange.end = range.start + ( range.end - range.start ) * .5f;
-        rightRange.start = leftRange.end;
-        node->split = leftRange.end;
-        break;
-    }
-
-    _init( node->left, leftVP, leftRange );
-    _init( node->right, rightVP, rightRange );
-}
-
 
 void LoadEqualizer::_clearTree( Node* node )
 {
@@ -368,15 +311,28 @@ float LoadEqualizer::_getTotalResources( ) const
     return resources;
 }
 
-void LoadEqualizer::_update( Node* node )
+void LoadEqualizer::_update( Node* node, const Viewport& vp,
+                             const Range& range )
 {
     if( !node )
         return;
 
+    node->mode = getMode();
+    if( node->mode == MODE_2D )
+    {
+        PixelViewport pvp = getCompound()->getChannel()->getPixelViewport();
+        pvp.apply( vp );
+
+        if( pvp.w > pvp.h ) // split along longest axis
+            node->mode = MODE_VERTICAL;
+        else
+            node->mode = MODE_HORIZONTAL;
+    }
+
     if( node->compound )
         _updateLeaf( node );
     else
-        _updateNode( node );
+        _updateNode( node, vp, range );
 }
 
 void LoadEqualizer::_updateLeaf( Node* node )
@@ -419,7 +375,8 @@ void LoadEqualizer::_updateLeaf( Node* node )
         node->resources = 0.f;
 }
 
-void LoadEqualizer::_updateNode( Node* node )
+void LoadEqualizer::_updateNode( Node* node, const Viewport& vp,
+                                 const Range& range )
 {
     Node* left = node->left;
     Node* right = node->right;
@@ -427,8 +384,39 @@ void LoadEqualizer::_updateNode( Node* node )
     LBASSERT( left );
     LBASSERT( right );
 
-    _update( left );
-    _update( right );
+    Viewport leftVP = vp;
+    Viewport rightVP = vp;
+    Range leftRange = range;
+    Range rightRange = range;
+
+    switch( node->mode )
+    {
+      default:
+        LBUNIMPLEMENTED;
+
+      case MODE_VERTICAL:
+        leftVP.w = vp.w * .5f;
+        rightVP.x = leftVP.getXEnd();
+        rightVP.w = vp.getXEnd() - rightVP.x;
+        node->split = leftVP.getXEnd();
+        break;
+
+      case MODE_HORIZONTAL:
+        leftVP.h = vp.h * .5f;
+        rightVP.y = leftVP.getYEnd();
+        rightVP.h = vp.getYEnd() - rightVP.y;
+        node->split = leftVP.getYEnd();
+        break;
+
+      case MODE_DB:
+        leftRange.end = range.start + ( range.end - range.start ) * .5f;
+        rightRange.start = leftRange.end;
+        node->split = leftRange.end;
+        break;
+    }
+
+    _update( left, leftVP, leftRange );
+    _update( right, rightVP, rightRange );
 
     node->resources = left->resources + right->resources;
 

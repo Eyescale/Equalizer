@@ -93,7 +93,6 @@ namespace server
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
         Node* _buildTree( const Compounds& children );
-        void _init( Node* node );
 
         /** Clear the tree, does not delete the nodes. */
         void _clearTree( Node* node );
