@@ -29,7 +29,7 @@
 #
 # Module to find a standard library and includes. Intended to be used by
 # FindFoo.cmake scripts. Assumes the following layout:
-#   (root)/include/(name)/version.h
+#   (root)/include/(name)/version.h(pp)
 #      parsed for defines: NAME_VERSION_MAJOR, -_MINOR, -_PATCH, -_ABI
 #
 #
@@ -105,11 +105,21 @@ macro(FIND_LIBRARY_PACKAGE name)
   string(TOUPPER ${_flp_${name}_INCLUDE} _flp_${name}_INCLUDE_UC)
 
   # might already be set from a previous run with a different/wrong version
-  unset(${_flp_NAME}_INCLUDE_DIR CACHE)
+  unset(${_flp_${name}_UC}_INCLUDE_DIR CACHE)
 
   find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.h
     HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
+  set(_flp_Version_file
+    "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.h")
+
+  if(NOT ${_flp_${name}_UC}_INCLUDE_DIR)
+    find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.hpp
+      HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
+      PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
+    set(_flp_Version_file
+      "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.hpp")
+  endif()
 
   if(${name}_FIND_REQUIRED)
     set(_flp_version_output_type FATAL_ERROR)
@@ -127,7 +137,6 @@ macro(FIND_LIBRARY_PACKAGE name)
 
   # Try to ascertain the version...
   if(${_flp_${name}_UC}_INCLUDE_DIR)
-    set(_flp_Version_file "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.h")
     if("${${_flp_${name}_UC}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
         NOT EXISTS "${_flp_Version_file}")
       set(_flp_Version_file "${${_flp_${name}_UC}_INCLUDE_DIR}/Headers/version.h")
@@ -234,14 +243,14 @@ macro(FIND_LIBRARY_PACKAGE name)
           "Can't figure out ${_flp_trans} version for "
           "${name} ${${_flp_${name}_UC}_VERSION}, use "
           "${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION in "
-          "${_flp_${name}_INCLUDE}/version.h.")
+          "${_flp_Version_file}.")
       endif()
     endforeach()
   else()
     set(_flp_${name}_FAIL TRUE)
     if(_flp_${name}_out)
       message(${_flp_version_output_type}
-        "Can't find ${_flp_${name}_INCLUDE}/version.h.")
+        "Can't find ${_flp_${name}_INCLUDE}/version.h(pp).")
     endif()
   endif()
 
