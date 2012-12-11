@@ -194,6 +194,10 @@ void _parseArguments( const int argc, char** argv )
                 flags |= fabric::ConfigParams::FLAG_MULTIPROCESS;
             else if( strcmp( "multiprocess_db", argv[i] ))
                 flags |= fabric::ConfigParams::FLAG_MULTIPROCESS_DB;
+            else if( strcmp( "ethernet", argv[i] ))
+                flags |= fabric::ConfigParams::FLAG_NETWORK_ETHERNET;
+            else if( strcmp( "infiniband", argv[i] ))
+                flags |= fabric::ConfigParams::FLAG_NETWORK_INFINIBAND;
             Global::setFlags( flags );
         }
         else if( strcmp( "--eq-render-client", argv[i] ) == 0 )

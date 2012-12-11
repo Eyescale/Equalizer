@@ -64,8 +64,9 @@ namespace config
 {
 namespace
 {
-void _addConnections( Node* node, const lunchbox::UUID& id,
-                      const uint32_t flags, const hwsd::NetInfos& netInfos )
+template< class N >
+void _addConnections( N* node, const lunchbox::UUID& id, const uint32_t flags,
+                      const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
 {
     for( hwsd::NetInfosCIter j = netInfos.begin();
          j != netInfos.end(); ++j )
@@ -77,32 +78,67 @@ void _addConnections( Node* node, const lunchbox::UUID& id,
             continue;
         }
 
-        co::ConnectionDescriptionPtr desc = new ConnectionDescription;
         if( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
-            netInfo.type == hwsd::NetInfo::TYPE_ETHERNET )
+            netInfo.type != hwsd::NetInfo::TYPE_ETHERNET )
         {
-            desc->type = co::CONNECTIONTYPE_TCPIP;
-        }
-        else if( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
-            netInfo.type == hwsd::NetInfo::TYPE_INFINIBAND )
-        {
-            desc->type = co::CONNECTIONTYPE_RDMA;
-        }
-        else
             continue;
+        }
 
+        if( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
+            netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND )
+        {
+            continue;
+        }
+
+        co::ConnectionDescriptionPtr desc = new ConnectionDescription;
+        switch( netInfo.type )
+        {
+            case hwsd::NetInfo::TYPE_ETHERNET:
+                desc->type = co::CONNECTIONTYPE_TCPIP;
+                break;
+
+            case hwsd::NetInfo::TYPE_INFINIBAND:
+                desc->type = co::CONNECTIONTYPE_RDMA;
+                break;
+
+            default:
+                desc->type = co::CONNECTIONTYPE_NONE;
+        }
         if( netInfo.linkspeed != hwsd::NetInfo::defaultValue )
             desc->bandwidth = netInfo.linkspeed * 125; // MBit -> Kbyte
         desc->hostname = netInfo.inetAddress;
         desc->interfacename = netInfo.name;
+        desc->port = port;
         node->addConnectionDescription( desc );
+    }
+}
+
+void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
+                            const uint32_t flags,
+                            const hwsd::NetInfos& netInfos )
+{
+    if( id == lunchbox::UUID::ZERO )
+    {
+        co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
+        desc->port = EQ_DEFAULT_PORT;
+        server->addListener( desc );
+        return;
+    }
+
+    _addConnections( server.get(), id, flags, netInfos, EQ_DEFAULT_PORT );
+    const co::ConnectionDescriptions& descs =
+                                            server->getConnectionDescriptions();
+    for( co::ConnectionDescriptionsCIter i = descs.begin(); i != descs.end();
+         ++i )
+    {
+        server->addListener( *i );
     }
 }
 }
 static lunchbox::a_int32_t _frameCounter;
 
-bool Resources::discover( Config* config, const std::string& session,
-                          const uint32_t flags )
+bool Resources::discover( ServerPtr server, Config* config,
+                          const std::string& session, const uint32_t flags )
 {
 #ifdef EQ_USE_HWSD_gpu_cgl
     hwsd::gpu::cgl::Module::use();
@@ -162,6 +198,7 @@ bool Resources::discover( Config* config, const std::string& session,
     const bool multiNode = session != "local" ||
                            ( multiProcess && gpuInfos.size() > 1 );
     size_t gpuCounter = 0;
+    lunchbox::UUID appNodeID;
 
     for( hwsd::GPUInfosCIter i = gpuInfos.begin(); i != gpuInfos.end(); ++i )
     {
@@ -174,6 +211,8 @@ bool Resources::discover( Config* config, const std::string& session,
         if( !mtNode )
         {
             const bool isApplicationNode = info.nodeName.empty();
+            if( isApplicationNode )
+                appNodeID = info.id;
             mtNode = new Node( config );
             mtNode->setName( info.nodeName );
             mtNode->setHost( info.nodeName );
@@ -235,6 +274,9 @@ bool Resources::discover( Config* config, const std::string& session,
         Pipe* pipe = new Pipe( node );
         pipe->setName( "display" );
     }
+
+    if( config->getNodes().size() > 1 ) // add server connection for clusters
+        _addServerConnections( server, appNodeID, flags, netInfos );
 
     return true;
 }
