@@ -34,19 +34,26 @@
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/gpuInfo.h>
 
-#include <gpusd/gpuInfo.h>
-#include <gpusd/module.h>
-#ifdef EQ_USE_GPUSD_cgl
-#  include <gpusd/cgl/module.h>
+#include <hwsd/gpuInfo.h>
+#include <hwsd/netInfo.h>
+#include <hwsd/hwsd.h>
+#ifdef EQ_USE_HWSD_gpu_cgl
+#  include <hwsd/gpu/cgl/module.h>
 #endif
-#ifdef EQ_USE_GPUSD_glx
-#  include <gpusd/glx/module.h>
+#ifdef EQ_USE_HWSD_gpu_glx
+#  include <hwsd/gpu/glx/module.h>
 #endif
-#ifdef EQ_USE_GPUSD_wgl
-#  include <gpusd/wgl/module.h>
+#ifdef EQ_USE_HWSD_gpu_wgl
+#  include <hwsd/gpu/wgl/module.h>
 #endif
-#ifdef EQ_USE_GPUSD_dns_sd
-#  include <gpusd/dns_sd/module.h>
+#ifdef EQ_USE_HWSD_gpu_dns_sd
+#  include <hwsd/gpu/dns_sd/module.h>
+#endif
+#ifdef EQ_USE_HWSD_net_sys
+#  include <hwsd/net/sys/module.h>
+#endif
+#ifdef EQ_USE_HWSD_net_dns_sd
+#  include <hwsd/net/dns_sd/module.h>
 #endif
 
 namespace eq
@@ -55,97 +62,142 @@ namespace server
 {
 namespace config
 {
+namespace
+{
+void _addConnections( Node* node, const lunchbox::UUID& id,
+                      const uint32_t flags, const hwsd::NetInfos& netInfos )
+{
+    for( hwsd::NetInfosCIter j = netInfos.begin();
+         j != netInfos.end(); ++j )
+    {
+        const hwsd::NetInfo& netInfo = *j;
+        if( netInfo.id != id || !netInfo.up ||
+            netInfo.type == hwsd::NetInfo::TYPE_LOOPBACK )
+        {
+            continue;
+        }
+
+        co::ConnectionDescriptionPtr desc = new ConnectionDescription;
+        if( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
+            netInfo.type == hwsd::NetInfo::TYPE_ETHERNET )
+        {
+            desc->type = co::CONNECTIONTYPE_TCPIP;
+        }
+        else if( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
+            netInfo.type == hwsd::NetInfo::TYPE_INFINIBAND )
+        {
+            desc->type = co::CONNECTIONTYPE_RDMA;
+        }
+        else
+            continue;
+
+        if( netInfo.linkspeed != hwsd::NetInfo::defaultValue )
+            desc->bandwidth = netInfo.linkspeed * 125; // MBit -> Kbyte
+        desc->hostname = netInfo.inetAddress;
+        desc->interfacename = netInfo.name;
+        node->addConnectionDescription( desc );
+    }
+}
+}
 static lunchbox::a_int32_t _frameCounter;
 
 bool Resources::discover( Config* config, const std::string& session,
                           const uint32_t flags )
 {
-#ifdef EQ_USE_GPUSD_cgl
-    gpusd::cgl::Module::use();
-#elif defined(EQ_USE_GPUSD_glx)
-    gpusd::glx::Module::use();
+#ifdef EQ_USE_HWSD_gpu_cgl
+    hwsd::gpu::cgl::Module::use();
+#elif defined(EQ_USE_HWSD_gpu_glx)
+    hwsd::gpu::glx::Module::use();
 #endif
-#ifdef EQ_USE_GPUSD_wgl
-    gpusd::wgl::Module::use();
+#ifdef EQ_USE_HWSD_gpu_wgl
+    hwsd::gpu::wgl::Module::use();
 #endif
-#ifdef EQ_USE_GPUSD_dns_sd
-    gpusd::dns_sd::Module::use();
+#ifdef EQ_USE_HWSD_gpu_dns_sd
+    hwsd::gpu::dns_sd::Module::use();
+#endif
+#ifdef EQ_USE_HWSD_net_sys
+    hwsd::net::sys::Module::use();
+#endif
+#ifdef EQ_USE_HWSD_net_dns_sd
+    hwsd::net::dns_sd::Module::use();
 #endif
 
-    gpusd::FilterPtr filter = *gpusd::FilterPtr( new gpusd::MirrorFilter ) |
-                               gpusd::FilterPtr( new gpusd::DuplicateFilter );
+    hwsd::FilterPtr filter = *hwsd::FilterPtr( new hwsd::MirrorFilter ) |
+                               hwsd::FilterPtr( new hwsd::DuplicateFilter );
     if( !session.empty( ))
-        *filter |= gpusd::FilterPtr( new gpusd::SessionFilter( session ));
-    gpusd::GPUInfos infos = gpusd::Module::discoverGPUs( filter );
+        *filter |= hwsd::FilterPtr( new hwsd::SessionFilter( session ));
+    hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( filter );
+    const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( filter );
 
-#ifdef EQ_USE_GPUSD_cgl
-    gpusd::cgl::Module::dispose();
-#elif defined(EQ_USE_GPUSD_glx)
-    gpusd::glx::Module::dispose();
+#ifdef EQ_USE_HWSD_gpu_cgl
+    hwsd::gpu::cgl::Module::dispose();
+#elif defined(EQ_USE_HWSD_gpu_glx)
+    hwsd::gpu::glx::Module::dispose();
 #endif
-#ifdef EQ_USE_GPUSD_wgl
-    gpusd::wgl::Module::dispose();
+#ifdef EQ_USE_HWSD_gpu_wgl
+    hwsd::gpu::wgl::Module::dispose();
 #endif
-#ifdef EQ_USE_GPUSD_dns_sd
-    gpusd::dns_sd::Module::dispose();
+#ifdef EQ_USE_HWSD_gpu_dns_sd
+    hwsd::gpu::dns_sd::Module::dispose();
+#endif
+#ifdef EQ_USE_HWSD_net_sys
+    hwsd::net::sys::Module::dispose();
+#endif
+#ifdef EQ_USE_HWSD_net_dns_sd
+    hwsd::net::dns_sd::Module::dispose();
 #endif
 
-    if( infos.empty( ))
+    if( gpuInfos.empty( ))
     {
         LBINFO << "No resources found for session " << session
                << ", using default config" << std::endl;
-        infos.push_back( gpusd::GPUInfo( ));
+        gpuInfos.push_back( hwsd::GPUInfo( ));
     }
 
-    typedef stde::hash_map< std::string, Node* > NodeMap;
+    typedef stde::hash_map< lunchbox::UUID, Node* > NodeMap;
     NodeMap nodes;
 
     const bool multiProcess = flags & (fabric::ConfigParams::FLAG_MULTIPROCESS |
                                    fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
     const bool multiNode = session != "local" ||
-                           ( multiProcess && infos.size() > 1 );
+                           ( multiProcess && gpuInfos.size() > 1 );
     size_t gpuCounter = 0;
 
-    for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
+    for( hwsd::GPUInfosCIter i = gpuInfos.begin(); i != gpuInfos.end(); ++i )
     {
-        const gpusd::GPUInfo& info = *i;
-        if( info.flags & gpusd::GPUInfo::FLAG_VIRTUALGL_DISPLAY )
+        const hwsd::GPUInfo& info = *i;
+        if( info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL_DISPLAY )
             continue; // ignore, default $DISPLAY gpu uses this one
 
-        Node* mtNode = nodes[ info.hostname ];
+        Node* mtNode = nodes[ info.id ];
         Node* mpNode = 0;
         if( !mtNode )
         {
-            const bool isApplicationNode = info.hostname.empty();
+            const bool isApplicationNode = info.nodeName.empty();
             mtNode = new Node( config );
-            mtNode->setName( info.hostname );
-            mtNode->setHost( info.hostname );
+            mtNode->setName( info.nodeName );
+            mtNode->setHost( info.nodeName );
             mtNode->setApplicationNode( isApplicationNode );
 
             if( multiNode )
-            {
-                co::ConnectionDescriptionPtr desc = new ConnectionDescription;
-                desc->setHostname( info.hostname );
-                mtNode->addConnectionDescription( desc );
-            }
-            nodes[ info.hostname ] = mtNode;
+                _addConnections( mtNode, info.id, flags, netInfos );
+
+            nodes[ info.id ] = mtNode;
         }
         else if( multiProcess )
         {
             mpNode = new Node( config );
-            mpNode->setName( info.hostname );
-            mpNode->setHost( info.hostname );
+            mpNode->setName( info.nodeName );
+            mpNode->setHost( info.nodeName );
 
             LBASSERT( multiNode );
-            co::ConnectionDescriptionPtr desc = new ConnectionDescription;
-            desc->setHostname( info.hostname );
-            mpNode->addConnectionDescription( desc );
+            _addConnections( mpNode, info.id, flags, netInfos );
         }
 
         std::stringstream name;
         if( info.device == LB_UNDEFINED_UINT32 &&
             // VirtualGL display redirects to local GPU (see continue above)
-            !(info.flags & gpusd::GPUInfo::FLAG_VIRTUALGL) )
+            !(info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL) )
         {
             name << "display";
         }

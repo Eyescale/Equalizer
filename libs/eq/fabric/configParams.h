@@ -50,7 +50,9 @@ namespace detail { class ConfigParams; }
         {
             FLAG_NONE = LB_BIT_NONE, //!< Unset all flags
             FLAG_MULTIPROCESS = LB_BIT1, //!< Auto-config: one node per pipe
-            FLAG_MULTIPROCESS_DB = LB_BIT2 //!< one node per DB decomposition
+            FLAG_MULTIPROCESS_DB = LB_BIT2, //!< one node per DB decomposition
+            FLAG_NETWORK_ETHERNET = LB_BIT3, //!< Auto-config: use ethernet only
+            FLAG_NETWORK_INFINIBAND = LB_BIT4 //!< Auto-config: use IB only
         };
 
         /** Construct new configuration parameters. @version 1.0 */

@@ -4,9 +4,9 @@
 include(PurpleAddLibrary)
 
 find_package(BISON REQUIRED)
-find_package(FLEX  REQUIRED) 
+find_package(FLEX  REQUIRED)
 
-bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp 
+bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   COMPILE_FLAGS "-l -p eqLoader_")
 
 flex_target(LEXER loader.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
@@ -126,14 +126,14 @@ set(AUTOCONFIG
 )
 
 set(SERVER_LIBRARIES shared Equalizer)
-if(GPUSD_FOUND)
+if(HWSD_FOUND)
   list(APPEND SOURCES ${AUTOCONFIG})
-  list(APPEND SERVER_LIBRARIES ${GPUSD_LIBRARIES})
-  include_directories(${GPUSD_INCLUDE_DIRS})
-  add_definitions(-DEQ_USE_GPUSD)
-  foreach(GPUSD_COMPONENT ${GPUSD_COMPONENTS})
-    if(GPUSD_${GPUSD_COMPONENT}_FOUND)
-      add_definitions(-DEQ_USE_GPUSD_${GPUSD_COMPONENT})
+  list(APPEND SERVER_LIBRARIES ${HWSD_LIBRARIES})
+  include_directories(${HWSD_INCLUDE_DIRS})
+  add_definitions(-DEQ_USE_HWSD)
+  foreach(HWSD_COMPONENT ${HWSD_COMPONENTS})
+    if(HWSD_${HWSD_COMPONENT}_FOUND)
+      add_definitions(-DEQ_USE_HWSD_${HWSD_COMPONENT})
     endif()
   endforeach()
 endif()
