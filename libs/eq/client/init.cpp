@@ -150,12 +150,12 @@ void _parseArguments( const int argc, char** argv )
 
     arg::options_description options( "Equalizer library options" );
     options.add_options()
-        ( "help,h", "Displays usage information and exits" )
+        ( "eq-help", "Displays usage information and exits" )
         ( "eq-logfile", arg::value< std::string >(),
           "Redirect log output to given file" )
         ( "eq-server", arg::value< std::string >(), "The server address" )
         ( "eq-config", arg::value< std::string >(),
-          "The config file name or autoconfig session" )
+          "The config file name or autoconfig session name" )
         ( "eq-config-flags", arg::value< Strings >()->multitoken(),
           "The autoconfig flags" )
         ( "eq-render-client", arg::value< std::string >(),
@@ -175,7 +175,7 @@ void _parseArguments( const int argc, char** argv )
         return;
     }
 
-    if( vm.count( "help" ))
+    if( vm.count( "eq-help" ))
     {
         std::cout << options << std::endl;
         return;
