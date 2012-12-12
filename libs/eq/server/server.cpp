@@ -146,20 +146,20 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::ICommands commands = _mainThreadQueue.popAll();
+        const co::ICommands& commands = _mainThreadQueue.popAll();
         LBASSERT( !commands.empty( ));
 
-        for( co::ICommandsIter i = commands.begin(); i != commands.end(); ++i )
+        for( co::ICommandsCIter i = commands.begin(); i != commands.end(); ++i )
         {
-            co::ICommand& command = *i;
+            // We want to avoid a non-const copy of commands, hence the cast...
+            co::ICommand& command = const_cast< co::ICommand& >( *i );
+
             if( !command( ))
             {
                 LBABORT( "Error handling " << command );
             }
-            if( !_running)
+            if( !_running )
                 break;
-
-            _mainThreadQueue.pump();
         }
     }
     _mainThreadQueue.flush();

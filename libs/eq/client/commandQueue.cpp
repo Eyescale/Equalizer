@@ -98,9 +98,8 @@ co::ICommands CommandQueue::popAll( const uint32_t timeout )
         _messagePump->dispatchAll(); // non-blocking
 
         // Poll for commands
-        const co::ICommands& commands = co::CommandQueue::popAll( 0 );
-        if( !commands.empty() || timeout == 0 )
-            return commands;
+        if( !isEmpty() || timeout == 0 )
+            return co::CommandQueue::popAll( 0 );
 
         _messagePump->dispatchOne( timeout ); // blocks - push send swakeup
     }
