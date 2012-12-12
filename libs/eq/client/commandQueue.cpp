@@ -65,14 +65,12 @@ co::ICommand CommandQueue::pop( const uint32_t timeout )
             _messagePump->dispatchAll(); // non-blocking
 
         // Poll for a command
-        if( !isEmpty( ))
+        if( !isEmpty() || timeout == 0 )
         {
             if( start > -1 )
                 _waitTime += ( _clock.getTime64() - start );
             return co::CommandQueue::pop( timeout );
         }
-        else if( timeout == 0 )
-            return co::ICommand();
 
         if( _messagePump )
         {
@@ -91,12 +89,51 @@ co::ICommand CommandQueue::pop( const uint32_t timeout )
     }
 }
 
+co::ICommands CommandQueue::popAll( const uint32_t timeout )
+{
+    int64_t start = -1;
+    while( true )
+    {
+        if( _messagePump )
+            _messagePump->dispatchAll(); // non-blocking
+
+        // Poll for commands
+        if( !isEmpty() || timeout == 0 )
+        {
+            if( start > -1 )
+                _waitTime += ( _clock.getTime64() - start );
+            return co::CommandQueue::popAll( 0 );
+        }
+
+        if( _messagePump )
+        {
+            if( start == -1 )
+                start = _clock.getTime64();
+            _messagePump->dispatchOne( timeout ); // blocks - push send swakeup
+        }
+        else
+        {
+            start = _clock.getTime64();
+            // blocking
+            const co::ICommands& commands = co::CommandQueue::popAll( timeout );
+            _waitTime += ( _clock.getTime64() - start );
+            return commands;
+        }
+    }
+}
+
 co::ICommand CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking
 
     return co::CommandQueue::tryPop();
+}
+
+void CommandQueue::pump()
+{
+    if( _messagePump )
+        _messagePump->dispatchAll(); // non-blocking
 }
 
 }

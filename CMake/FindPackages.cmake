@@ -3,7 +3,7 @@
 include(System)
 set(FIND_PACKAGES_FOUND ${SYSTEM} ${FIND_PACKAGES_FOUND_EXTRA})
 
-find_package(VMMLIB 1.5.0 REQUIRED)
+find_package(VMMLIB 1.5.1 REQUIRED)
 if(VMMLIB_FOUND)
   set(VMMLIB_name VMMLIB)
 elseif(VMMLIB_FOUND)
@@ -51,7 +51,7 @@ if(OpenGL_name)
   include_directories(${${OpenGL_name}_INCLUDE_DIRS})
 endif()
 
-find_package(Boost 1.41.0 REQUIRED system regex date_time serialization)
+find_package(Boost 1.41.0 REQUIRED program_options)
 if(Boost_FOUND)
   set(Boost_name Boost)
 elseif(BOOST_FOUND)
