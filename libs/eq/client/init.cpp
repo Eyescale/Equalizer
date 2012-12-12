@@ -56,7 +56,7 @@ static std::ofstream* _logFile = 0;
 static lunchbox::a_int32_t _initialized;
 }
 
-static void _parseArguments( const int argc, char** argv );
+static bool _parseArguments( const int argc, char** argv );
 static void _initPlugins();
 static void _exitPlugins();
 //extern void _initErrors();
@@ -73,7 +73,8 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
         lunchbox::Log::topics |= atoll( env );
 
     lunchbox::Log::instance().setThreadName( "Main" );
-    _parseArguments( argc, argv );
+    if( !_parseArguments( argc, argv ))
+        return false;
     LBINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 
@@ -139,7 +140,7 @@ bool exit()
     return ret;
 }
 
-void _parseArguments( const int argc, char** argv )
+bool _parseArguments( const int argc, char** argv )
 {
     typedef stde::hash_map< std::string, uint32_t > Flags;
     Flags configFlags;
@@ -159,7 +160,7 @@ void _parseArguments( const int argc, char** argv )
         ( "eq-config-flags", arg::value< Strings >()->multitoken(),
           "The autoconfig flags" )
         ( "eq-config-prefixes", arg::value< Strings >()->multitoken(),
-          "The network prefix(es) to filter in autoconfig in CIDR notation" )
+          "The network prefix(es) in CIDR notation to filter in autoconfig" )
         ( "eq-render-client", arg::value< std::string >(),
           "The render client program" )
     ;
@@ -174,13 +175,13 @@ void _parseArguments( const int argc, char** argv )
     catch( const std::exception& e )
     {
         LBERROR << "Error in argument parsing: " << e.what() << std::endl;
-        return;
+        return false;
     }
 
     if( vm.count( "eq-help" ))
     {
         std::cout << options << std::endl;
-        return;
+        return false;
     }
 
     if( vm.count( "eq-logfile" ))
@@ -246,6 +247,8 @@ void _parseArguments( const int argc, char** argv )
         co::Global::setProgramName( renderClient );
         co::Global::setWorkDir( lunchbox::getDirname( renderClient ));
     }
+
+    return true;
 }
 
 void _initPlugins()
