@@ -515,7 +515,7 @@ bool Node::_cmdConfigExit( co::ICommand& cmd )
     LBLOG( LOG_INIT ) << "Node exit " << command << std::endl;
 
     const Pipes& pipes = getPipes();
-    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    for( PipesCIter i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         pipe->waitExited();
