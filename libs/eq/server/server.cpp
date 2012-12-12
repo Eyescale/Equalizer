@@ -146,10 +146,20 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::ICommand command = _mainThreadQueue.pop();
-        if( !command( ))
+        co::ICommands commands = _mainThreadQueue.popAll();
+        LBASSERT( !commands.empty( ));
+
+        for( co::ICommandsIter i = commands.begin(); i != commands.end(); ++i )
         {
-            LBABORT( "Error handling command " << command );
+            co::ICommand& command = *i;
+            if( !command( ))
+            {
+                LBABORT( "Error handling " << command );
+            }
+            if( !_running)
+                break;
+
+            _mainThreadQueue.pump();
         }
     }
     _mainThreadQueue.flush();
