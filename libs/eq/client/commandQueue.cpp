@@ -91,12 +91,35 @@ co::ICommand CommandQueue::pop( const uint32_t timeout )
     }
 }
 
+co::ICommands CommandQueue::popAll( const uint32_t timeout )
+{
+    if( _messagePump )
+    {
+        _messagePump->dispatchAll(); // non-blocking
+
+        // Poll for commands
+        const co::ICommands& commands = co::CommandQueue::popAll( 0 );
+        if( !commands.empty() || timeout == 0 )
+            return commands;
+
+        _messagePump->dispatchOne( timeout ); // blocks - push send swakeup
+    }
+
+    return co::CommandQueue::popAll( timeout );
+}
+
 co::ICommand CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking
 
     return co::CommandQueue::tryPop();
+}
+
+void CommandQueue::pump()
+{
+    if( _messagePump )
+        _messagePump->dispatchAll(); // non-blocking
 }
 
 }

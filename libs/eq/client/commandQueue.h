@@ -44,7 +44,11 @@ namespace eq
 
         /** @sa co::CommandQueue::pop(). */
         virtual co::ICommand pop( const uint32_t timeout =
-                                    LB_TIMEOUT_INDEFINITE );
+                                      LB_TIMEOUT_INDEFINITE );
+
+        /** @sa co::CommandQueue::popAll(). */
+        virtual co::ICommands popAll( const uint32_t timeout =
+                                          LB_TIMEOUT_INDEFINITE );
 
         /** @sa co::CommandQueue::tryPop(). */
         virtual co::ICommand tryPop();
@@ -55,6 +59,7 @@ namespace eq
 
         void setMessagePump( MessagePump* pump ) { _messagePump = pump; }
         MessagePump* getMessagePump() { return _messagePump; }
+        virtual void pump(); //!< @sa co::CommandQueue::pump()
 
     private:
         MessagePump* _messagePump;
