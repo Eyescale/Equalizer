@@ -114,6 +114,17 @@ namespace detail { class ConfigParams; }
 
         /** @return write-access to Equalizer properties. @version 1.5.1 */
         EQFABRIC_API Equalizer& getEqualizer();
+
+        /**
+         * Set a list of network prefixes in CIDR notation for autoconfig
+         * network interface filtering.
+         *
+         * @version 1.5.1
+         */
+        EQFABRIC_API void setPrefixes( const Strings& prefixes );
+
+        /** @return network prefixes in CIDR notation. @version 1.5.1 */
+        EQFABRIC_API const Strings& getPrefixes() const;
         //@}
 
         EQFABRIC_API void serialize( co::DataOStream& os ) const; //!< @internal

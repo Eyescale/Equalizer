@@ -56,6 +56,13 @@
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
+#ifdef EQ_USE_QTNETWORK
+#  include <QtNetwork/QHostAddress>
+#endif
+
+#define USE_IPv4
+
+
 namespace eq
 {
 namespace server
@@ -65,30 +72,58 @@ namespace config
 namespace
 {
 template< class N >
-void _addConnections( N* node, const lunchbox::UUID& id, const uint32_t flags,
+void _addConnections( N* node, const lunchbox::UUID& id,
+                      const fabric::ConfigParams& params,
                       const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
 {
-    for( hwsd::NetInfosCIter j = netInfos.begin();
-         j != netInfos.end(); ++j )
+    for( hwsd::NetInfosCIter i = netInfos.begin();
+         i != netInfos.end(); ++i )
     {
-        const hwsd::NetInfo& netInfo = *j;
+        const hwsd::NetInfo& netInfo = *i;
         if( netInfo.id != id || !netInfo.up ||
             netInfo.type == hwsd::NetInfo::TYPE_LOOPBACK )
         {
             continue;
         }
 
-        if( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
             netInfo.type != hwsd::NetInfo::TYPE_ETHERNET )
         {
             continue;
         }
 
-        if( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
             netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND )
         {
             continue;
         }
+
+
+#ifdef EQ_USE_QTNETWORK
+#  ifdef USE_IPv4
+        QHostAddress thisAddress( QString::fromStdString( netInfo.inetAddress));
+#  else
+        QHostAddress thisAddress( QString::fromStdString(netInfo.inet6Address));
+#  endif
+        bool isInSubnet = false;
+        const Strings& prefixes = params.getPrefixes();
+        for( StringsCIter j = prefixes.begin(); j != prefixes.end(); ++j )
+        {
+            QString prefixStr = QString::fromStdString( *j );
+            QPair< QHostAddress, int > subnet =
+                                         QHostAddress::parseSubnet( prefixStr );
+            if( thisAddress.isInSubnet( subnet ))
+            {
+                isInSubnet = true;
+                break;
+            }
+        }
+#else
+        bool isInSubnet = true;
+#endif
+
+        if( !isInSubnet )
+            continue;
 
         co::ConnectionDescriptionPtr desc = new ConnectionDescription;
         switch( netInfo.type )
@@ -106,7 +141,11 @@ void _addConnections( N* node, const lunchbox::UUID& id, const uint32_t flags,
         }
         if( netInfo.linkspeed != hwsd::NetInfo::defaultValue )
             desc->bandwidth = netInfo.linkspeed * 125; // MBit -> Kbyte
+#ifdef USE_IPv4
         desc->hostname = netInfo.inetAddress;
+#else
+        desc->hostname = netInfo.inet6Address;
+#endif
         desc->interfacename = netInfo.name;
         desc->port = port;
         node->addConnectionDescription( desc );
@@ -114,7 +153,7 @@ void _addConnections( N* node, const lunchbox::UUID& id, const uint32_t flags,
 }
 
 void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
-                            const uint32_t flags,
+                            const fabric::ConfigParams& params,
                             const hwsd::NetInfos& netInfos )
 {
     if( id == lunchbox::UUID::ZERO )
@@ -125,7 +164,7 @@ void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
         return;
     }
 
-    _addConnections( server.get(), id, flags, netInfos, EQ_DEFAULT_PORT );
+    _addConnections( server.get(), id, params, netInfos, EQ_DEFAULT_PORT );
     const co::ConnectionDescriptions& descs =
                                             server->getConnectionDescriptions();
     for( co::ConnectionDescriptionsCIter i = descs.begin(); i != descs.end();
@@ -138,7 +177,8 @@ void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
 static lunchbox::a_int32_t _frameCounter;
 
 bool Resources::discover( ServerPtr server, Config* config,
-                          const std::string& session, const uint32_t flags )
+                          const std::string& session,
+                          const fabric::ConfigParams& params )
 {
 #ifdef EQ_USE_HWSD_gpu_cgl
     hwsd::gpu::cgl::Module::use();
@@ -193,6 +233,8 @@ bool Resources::discover( ServerPtr server, Config* config,
     typedef stde::hash_map< lunchbox::UUID, Node* > NodeMap;
     NodeMap nodes;
 
+    const uint32_t flags = params.getFlags();
+
     const bool multiProcess = flags & (fabric::ConfigParams::FLAG_MULTIPROCESS |
                                    fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
     const bool multiNode = session != "local" ||
@@ -219,7 +261,7 @@ bool Resources::discover( ServerPtr server, Config* config,
             mtNode->setApplicationNode( isApplicationNode );
 
             if( multiNode )
-                _addConnections( mtNode, info.id, flags, netInfos );
+                _addConnections( mtNode, info.id, params, netInfos );
 
             nodes[ info.id ] = mtNode;
         }
@@ -230,7 +272,7 @@ bool Resources::discover( ServerPtr server, Config* config,
             mpNode->setHost( info.nodeName );
 
             LBASSERT( multiNode );
-            _addConnections( mpNode, info.id, flags, netInfos );
+            _addConnections( mpNode, info.id, params, netInfos );
         }
 
         std::stringstream name;
@@ -276,7 +318,7 @@ bool Resources::discover( ServerPtr server, Config* config,
     }
 
     if( config->getNodes().size() > 1 ) // add server connection for clusters
-        _addServerConnections( server, appNodeID, flags, netInfos );
+        _addServerConnections( server, appNodeID, params, netInfos );
 
     return true;
 }

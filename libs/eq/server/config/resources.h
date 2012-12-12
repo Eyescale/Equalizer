@@ -40,7 +40,8 @@ class Resources
 {
 public:
     static bool discover( ServerPtr server, Config* config,
-                          const std::string& session, const uint32_t flags );
+                          const std::string& session,
+                          const fabric::ConfigParams& params );
     static Channels configureSourceChannels( Config* config );
     static void configure( const Compounds& compounds, const Channels& channels,
                            const fabric::ConfigParams& params );

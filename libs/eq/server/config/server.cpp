@@ -48,7 +48,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    if( !Resources::discover( server, config, session, params.getFlags( )))
+    if( !Resources::discover( server, config, session, params ))
     {
         delete config;
         return 0;

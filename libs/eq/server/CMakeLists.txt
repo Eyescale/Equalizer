@@ -1,5 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 include(PurpleAddLibrary)
 
@@ -136,6 +137,12 @@ if(HWSD_FOUND)
       add_definitions(-DEQ_USE_HWSD_${HWSD_COMPONENT})
     endif()
   endforeach()
+endif()
+
+if(QT_QTNETWORK_FOUND)
+  include(${QT_USE_FILE})
+  add_definitions(-DEQ_USE_QTNETWORK)
+  list(APPEND SERVER_LIBRARIES ${QT_LIBRARIES})
 endif()
 
 if(EQUALIZER_INSTALL_SERVER_HEADERS)

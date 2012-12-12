@@ -111,6 +111,18 @@ if(HWLOC_name)
   include_directories(${${HWLOC_name}_INCLUDE_DIRS})
 endif()
 
+find_package(Qt4 4.6 COMPONENTS QtNetwork)
+if(Qt4_FOUND)
+  set(Qt4_name Qt4)
+elseif(QT4_FOUND)
+  set(Qt4_name QT4)
+endif()
+if(Qt4_name)
+  list(APPEND FIND_PACKAGES_FOUND EQUALIZER_USE_QT4)
+  link_directories(${${Qt4_name}_LIBRARY_DIRS})
+  include_directories(${${Qt4_name}_INCLUDE_DIRS})
+endif()
+
 
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)

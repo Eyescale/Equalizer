@@ -30,6 +30,7 @@ namespace
 static std::string _server;
 static ErrorRegistry _errorRegistry;
 static uint32_t _flags = ConfigParams::FLAG_NONE;
+static Strings _prefixes;
 }
 
 void Global::setServer( const std::string& server )
@@ -56,6 +57,17 @@ uint32_t Global::getFlags()
 {
     return _flags;
 }
+
+void Global::setPrefixes( const Strings& prefixes )
+{
+    _prefixes = prefixes;
+}
+
+const Strings& Global::getPrefixes()
+{
+    return _prefixes;
+}
+
 
 }
 }

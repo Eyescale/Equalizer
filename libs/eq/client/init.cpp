@@ -158,6 +158,8 @@ void _parseArguments( const int argc, char** argv )
           "The config file name or autoconfig session name" )
         ( "eq-config-flags", arg::value< Strings >()->multitoken(),
           "The autoconfig flags" )
+        ( "eq-config-prefixes", arg::value< Strings >()->multitoken(),
+          "The network prefix(es) to filter in autoconfig in CIDR notation" )
         ( "eq-render-client", arg::value< std::string >(),
           "The render client program" )
     ;
@@ -230,6 +232,12 @@ void _parseArguments( const int argc, char** argv )
                        << std::endl;
         }
         Global::setFlags( flags );
+    }
+
+    if( vm.count( "eq-config-prefixes" ))
+    {
+        const Strings& prefixes = vm["eq-config-prefixes"].as< Strings >( );
+        Global::setPrefixes( prefixes );
     }
 
     if( vm.count( "eq-client" ))
