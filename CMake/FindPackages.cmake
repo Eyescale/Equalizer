@@ -51,7 +51,7 @@ if(OpenGL_name)
   include_directories(${${OpenGL_name}_INCLUDE_DIRS})
 endif()
 
-find_package(Boost 1.41.0 REQUIRED system regex date_time serialization)
+find_package(Boost 1.41.0 REQUIRED program_options)
 if(Boost_FOUND)
   set(Boost_name Boost)
 elseif(BOOST_FOUND)
