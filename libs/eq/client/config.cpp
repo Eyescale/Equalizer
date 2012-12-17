@@ -852,7 +852,6 @@ bool Config::_handleEvent( const Event& event )
             _impl->statistics->addType( stat.type, type );
             _impl->statistics->addItem( item );
             _impl->statistics->addEntity( originator, entity );
-#endif
             return false;
         }
 
