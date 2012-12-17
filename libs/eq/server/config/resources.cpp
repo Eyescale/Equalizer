@@ -56,7 +56,7 @@
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQ_USE_QTNETWORK
 #  include <QtNetwork/QHostAddress>
 #endif
 
@@ -90,22 +90,22 @@ void _addConnections( N* node, const lunchbox::UUID& id,
             (flags & fabric::ConfigParams::FLAG_NETWORK_ALL ) == 0;
 
         if( !allNetworks ||
-            flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
-            netInfo.type != hwsd::NetInfo::TYPE_ETHERNET )
+            ( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
+              netInfo.type != hwsd::NetInfo::TYPE_ETHERNET ))
         {
             continue;
         }
 
         if( !allNetworks ||
-            flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
-            netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND )
+            ( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
+              netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND ))
         {
             continue;
         }
 
 
         const Strings& prefixes = params.getPrefixes();
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQ_USE_QTNETWORK
 #  ifdef USE_IPv4
         QHostAddress address( QString::fromStdString( netInfo.inetAddress ));
 #  else
