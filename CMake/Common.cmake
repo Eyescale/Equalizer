@@ -1,18 +1,19 @@
-
-include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
-
 # Common settings
-enable_testing()
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 if(CMAKE_VERSION VERSION_LESS 2.8.3)
-  get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH) # WAR bug
+  # WAR bug
+  get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8.3)
 endif()
 if(CMAKE_VERSION VERSION_LESS 2.8)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/2.8)
 endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
+
+enable_testing()
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 if(NOT CMAKE_BUILD_TYPE)
   if(RELEASE_VERSION)
@@ -88,7 +89,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
+  set(COMMON_GCC_FLAGS "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS} ")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo")
   if(GCC_COMPILER_VERSION VERSION_GREATER 4.1) # < 4.2 doesn't know -isystem
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
   endif()
@@ -100,9 +103,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
   endif()
-elseif(CMAKE_COMPILER_IS_XLCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -q64")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -q64")
 endif()
 
 if(MSVC)
@@ -114,6 +114,12 @@ if(MSVC)
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
     
+  # By default, do not warn when built on machines using only VS Express
+  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
+  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+  endif()
+
   # By default, do not warn when built on machines using only VS Express
   # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
   if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
