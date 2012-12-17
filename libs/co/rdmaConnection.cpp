@@ -1564,8 +1564,24 @@ err:
 /* inline */
 bool RDMAConnection::_needFC( )
 {
+    bool bytesAvail;
+#ifdef _WIN32
     co::base::ScopedFastRead mutex( _eventLock );
-    return ( _writes >= FC_MESSAGE_FREQUENCY || _availBytes == 0 );
+    bytesAvail = ( _availBytes != 0 );
+#else
+    pollfd pfd;
+    pfd.fd = _pipe_fd[0];
+    pfd.events = EPOLLIN;
+    pfd.revents = 0;
+    int ret = poll( &pfd, 1, 0 );
+    if ( ret = -1 )
+    {
+        EQERROR << "poll: " << base::sysError << std::endl;
+        return true;
+    }
+    bytesAvail = ret != 0;
+#endif
+    return ( !bytesAvail || _writes >= FC_MESSAGE_FREQUENCY );
 }
 
 bool RDMAConnection::_postReceives( const uint32_t count )
