@@ -35,7 +35,7 @@ namespace eq
 #   define EQ_VERSION_PATCH @VERSION_PATCH@
 
     /** The git wc hash revision, may be 0. @version 1.0 */
-#   define EQ_VERSION_REVISION @EQ_REVISION@
+#   define EQ_VERSION_REVISION @GIT_REVISION@
 
     /** The current DSO binary revision. @version 1.0 */
 #   define EQ_VERSION_ABI @VERSION_ABI@

@@ -75,7 +75,7 @@ namespace admin
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** @sa co::Node::createNode */
+        /** @sa co::LocalNode::createNode */
         EQADMIN_API virtual co::NodePtr createNode( const uint32_t type );
     };
 }

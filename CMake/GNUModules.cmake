@@ -57,11 +57,6 @@ if(NOT MODULE_MODULEFILES)
   set(MODULE_MODULEFILES "modulefiles")
 endif()
 
-# optional: list of required modules that need to be loaded before this module
-if(NOT MODULE_PREREQ)
-  set(MODULE_PREREQ "none")
-endif()
-
 
 ###############################################################################
 
@@ -69,11 +64,11 @@ endif()
 # get the used compiler + its version
 get_filename_component(MODULE_COMPILER_NAME ${CMAKE_C_COMPILER} NAME CACHE)
 include(CompilerVersion)
-COMPILER_DUMPVERSION(MODULE_COMPILER_VERSION)
+compiler_dumpversion(MODULE_COMPILER_VERSION)
 
 # setup the module file content
 set(MODULE_PACKAGE_NAME ${CPACK_PROJECT_NAME})
-set(MODULE_VERSION ${VERSION})
+set(MODULE_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 if(LSB_DISTRIBUTOR_ID MATCHES "RedHatEnterpriseServer")
   set(MODULE_PLATFORM "rhel${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
 elseif(LSB_DISTRIBUTOR_ID MATCHES "Ubuntu")
@@ -95,8 +90,6 @@ file(WRITE ${CMAKE_BINARY_DIR}/${MODULE_FILENAME}
   "#\n"
   "# Module:      ${MODULE_FILENAME}\n"
   "#\n"
-  "# Prereq:\n"
-  "#   ${MODULE_PREREQ}\n"
   "#\n"
   "\n"
   "# Set internal variables\n"
@@ -113,15 +106,14 @@ file(WRITE ${CMAKE_BINARY_DIR}/${MODULE_FILENAME}
   "\n"
   "module-whatis   \"Loads the environment for $package_name\"\n"
   "\n"
-  "proc ModulesHelp { }\n"
-  "{\n"
+  "proc ModulesHelp { } {\n"
   "    global package_name version architecture\n"
   "\n"
-  "    puts stderr \"This module prepares your environment to run $package_name $version\n"
-  "                 for the architecture: $architecture\n"
+  "    puts stderr \"This module prepares your environment to run $package_name $version "
+  "for the architecture: $architecture\n"
   "\n"
-  "                 Type 'module list' to list all the loaded modules.\n"
-  "                 Type 'module avail' to list all the availables ones.\"\n"
+  "Type 'module list' to list all the loaded modules.\n"
+  "Type 'module avail' to list all the availables ones.\"\n"
   "}\n"
   "\n"
   "# Update PATH environment:\n"

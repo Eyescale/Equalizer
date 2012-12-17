@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -123,7 +124,7 @@ int EqPly::run()
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
     int lastFrame = 0;
-    
+
     clock.reset();
     while( config->isRunning( ) && maxFrames-- )
     {
@@ -153,7 +154,7 @@ int EqPly::run()
             }
             else  // no pending commands, block on user event
             {
-                const eq::ConfigEvent* event = config->nextEvent();
+                const eq::EventICommand& event = config->getNextEvent();
                 if( !config->handleEvent( event ))
                     LBVERB << "Unhandled " << event << std::endl;
             }
@@ -186,6 +187,6 @@ void EqPly::clientLoop()
          eq::Client::clientLoop();
          LBINFO << "Configuration run successfully executed" << std::endl;
     }
-    while( _initData.isResident( )); // execute at lease one config run
+    while( _initData.isResident( )); // execute at least one config run
 }
 }

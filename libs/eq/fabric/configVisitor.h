@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,13 @@
 #define EQFABRIC_CONFIGVISITOR_H
 
 #include <eq/fabric/types.h>
-#include <eq/fabric/elementVisitor.h>       // base class
+
+#include <eq/fabric/leafVisitor.h>
+#include <eq/fabric/elementVisitor.h>
+
+// visit methods hide visit methods of base classes
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Woverloaded-virtual"
 
 namespace eq
 {
@@ -54,4 +60,6 @@ namespace fabric
     };
 }
 }
+
+#  pragma clang diagnostic pop
 #endif // EQFABRIC_CONFIGVISITOR_H

@@ -31,11 +31,6 @@
 #include "window.h"
 
 
-#ifdef _WIN32
-#  define setenv( name, value, overwrite ) \
-    SetEnvironmentVariable( name, value )
-#endif
-
 class NodeFactory : public eq::NodeFactory
 {
 public:

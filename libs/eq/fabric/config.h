@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+ *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -316,10 +317,10 @@ namespace fabric
         EQFABRIC_INL bool _removeNode( N* node );
 
         typedef co::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
-        bool _cmdNewLayout( co::Command& command );
-        bool _cmdNewCanvas( co::Command& command );
-        bool _cmdNewObserver( co::Command& command );
-        bool _cmdNewEntityReply( co::Command& command );
+        bool _cmdNewLayout( co::ICommand& command );
+        bool _cmdNewCanvas( co::ICommand& command );
+        bool _cmdNewObserver( co::ICommand& command );
+        bool _cmdNewEntityReply( co::ICommand& command );
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >

@@ -16,6 +16,7 @@
  */
 
 #include "renderContext.h"
+#include "tile.h"
 
 namespace eq
 {
@@ -36,6 +37,14 @@ RenderContext::RenderContext()
         , phase( 0 )
         , eye( EYE_CYCLOP )
 {
+}
+
+void RenderContext::apply( const Tile& tile )
+{
+    frustum = tile.frustum;
+    ortho = tile.ortho;
+    pvp = tile.pvp;
+    vp = tile.vp;
 }
 
 std::ostream& operator << ( std::ostream& os, const RenderContext& ctx )

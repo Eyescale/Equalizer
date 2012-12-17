@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +26,8 @@
 #include "../loader.h"
 #include "../server.h"
 
+#include <eq/fabric/configParams.h>
+
 #include <fstream>
 
 namespace eq
@@ -35,7 +38,7 @@ namespace config
 {
 
 Config* Server::configure( ServerPtr server, const std::string& session,
-                           const uint32_t flags )
+                           const fabric::ConfigParams& params )
 {
     if( !server->getConfigs().empty( )) // don't do more than one auto config
         return 0;
@@ -45,7 +48,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    if( !Resources::discover( config, session, flags ))
+    if( !Resources::discover( config, session, params.getFlags( )))
     {
         delete config;
         return 0;
@@ -58,7 +61,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
         server->addListener( desc );
     }
 
-    Display::discoverLocal( config, flags );
+    Display::discoverLocal( config, params.getFlags( ));
     const Compounds compounds = Loader::addOutputCompounds( server );
     if( compounds.empty( ))
     {
@@ -67,7 +70,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     }
 
     const Channels channels = Resources::configureSourceChannels( config );
-    Resources::configure( compounds, channels, flags );
+    Resources::configure( compounds, channels, params );
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";

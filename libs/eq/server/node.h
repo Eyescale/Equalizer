@@ -1,16 +1,17 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -122,7 +123,7 @@ namespace server
         /** Sync exit of this entity. */
         bool syncConfigExit();
 
-        /** 
+        /**
          * Trigger the rendering of a new frame for this node.
          *
          * @param frameID a per-frame identifier passed to all rendering
@@ -131,7 +132,7 @@ namespace server
          */
         void update( const uint128_t& frameID, const uint32_t frameNumber );
 
-        /** 
+        /**
          * Flush the processing of frames, including frameNumber.
          *
          * @param frameNumber the number of the frame.
@@ -149,16 +150,16 @@ namespace server
          * Caches barriers for which this node is the master.
          */
         //@{
-        /** 
+        /**
          * Get a new barrier of height 0.
-         * 
+         *
          * @return the barrier.
          */
         co::Barrier* getBarrier();
 
-        /** 
+        /**
          * Release a barrier server by this node.
-         * 
+         *
          * @param barrier the barrier.
          */
         void releaseBarrier( co::Barrier* barrier );
@@ -167,27 +168,22 @@ namespace server
         void changeLatency( const uint32_t latency );
         //@}
 
-        void send( co::NodePacket& packet ) 
-            { _bufferedTasks.send( packet ); }
-        void send( co::NodePacket& packet, const std::string& string ) 
-            { _bufferedTasks.send( packet, string ); }
-        template< typename T >
-        void send( co::NodePacket &packet, const std::vector<T>& data )
-            { _bufferedTasks.send( packet, data ); }
+        co::ObjectOCommand send( const uint32_t cmd );
+        co::ObjectOCommand send( const uint32_t cmd, const UUID& id );
 
         void flushSendBuffer();
 
-        /** 
+        /**
          * Add a new description how this node can be reached.
-         * 
+         *
          * @param desc the connection description.
          */
         void addConnectionDescription( co::ConnectionDescriptionPtr desc )
             { _connectionDescriptions.push_back( desc ); }
-        
-        /** 
+
+        /**
          * Remove a connection description.
-         * 
+         *
          * @param cd the connection description.
          * @return true if the connection description was removed, false
          *         otherwise.
@@ -242,7 +238,7 @@ namespace server
 
         /** @sa co::Object::attach. */
         virtual void attach( const UUID& id, const uint32_t instanceID );
-        
+
     private:
         /** String attributes. */
         std::string _sAttributes[SATTR_ALL];
@@ -268,17 +264,17 @@ namespace server
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
 
-        /** The number of the last flushed frame (frame finish packet sent). */
+        /** The number of the last flushed frame (frame finish command sent). */
         uint32_t _flushedFrame;
 
         /** The current state for state change synchronization. */
         lunchbox::Monitor< State > _state;
-            
+
         /** The cached barriers. */
         std::vector<co::Barrier*> _barriers;
 
-        /** Task packets for the current operation. */
-        co::BufferConnection _bufferedTasks;
+        /** Task commands for the current operation. */
+        co::BufferConnectionPtr _bufferedTasks;
 
         /** The last draw pipe for this entity */
         const Pipe* _lastDrawPipe;
@@ -286,7 +282,7 @@ namespace server
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** 
+        /**
          * Compose and execute the launch command by expanding the variables in
          * the launch command string.
          *
@@ -302,18 +298,13 @@ namespace server
         /** flush cached barriers. */
         void _flushBarriers();
 
-        void _send( co::ObjectPacket& packet ) 
-            { packet.objectID = getID(); send( packet ); }
-        void _send( co::ObjectPacket& packet, const std::string& string ) 
-            { packet.objectID = getID(); send( packet, string ); }
-
-        /** Send the frame finish packet for the given frame number. */
+        /** Send the frame finish command for the given frame number. */
         void _sendFrameFinish( const uint32_t frameNumber );
 
-        /* Command handler functions. */
-        bool _cmdConfigInitReply( co::Command& command );
-        bool _cmdConfigExitReply( co::Command& command );
-        bool _cmdFrameFinishReply( co::Command& command );
+        /* ICommand handler functions. */
+        bool _cmdConfigInitReply( co::ICommand& command );
+        bool _cmdConfigExitReply( co::ICommand& command );
+        bool _cmdFrameFinishReply( co::ICommand& command );
     };
 }
 }

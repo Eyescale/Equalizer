@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -66,8 +67,8 @@ static ServerThread _serverThread;
 }
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
-                                                      const std::string& config )
+extern "C" EQSERVER_API 
+co::Connection* eqsStartLocalServer( const std::string& config )
 {
 #pragma warning(pop)
     if( _serverThread.isRunning( ))
@@ -124,7 +125,8 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
-    return connection;
+    connection->ref(); // WAR "C" linkage
+    return connection.get();
 }
 
 extern "C" EQSERVER_API void eqsJoinLocalServer()

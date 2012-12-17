@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,12 +22,13 @@
 #include <eq/client/types.h>          // type definitions
 
 #include <eq/fabric/pixel.h>          // member
+#include <eq/fabric/zoom.h>           // member
 
 #include <vector>
 
 namespace eq
 {
-    /** 
+    /**
      * A set of functions performing compositing for a set of input frames.
      *
      * The following diagram depicts the call flow within the
@@ -35,7 +36,7 @@ namespace eq
      * assembleFrames() or assembleFramesUnsorted(), but the various lower-level
      * functions are still useful for advanced tasks, e.g., mergeFramesCPU() to
      * perform compositing on the CPU into a main memory buffer.
-     * 
+     *
      * <img src="http://www.equalizergraphics.com/documents/design/images/compositor.png">
      */
     class EQ_API Compositor
@@ -52,13 +53,13 @@ namespace eq
             uint32_t buffers;      //!< The Frame buffer attachments to use
             Vector2i offset;       //!< The offset wrt destination window
             ZoomFilter zoomFilter; //!< The zoom Filter from Frame
-            Pixel    pixel;        //!< The pixel decomposition parameters
+            Pixel pixel;           //!< The pixel decomposition parameters
             Zoom zoom;             //!< The zoom factor
         };
 
         /** @name Frame-based operations. */
         //@{
-        /** 
+        /**
          * Assemble all frames in an arbitrary order using the fastest
          * implemented algorithm on the given channel.
          *
@@ -71,7 +72,7 @@ namespace eq
         static uint32_t assembleFrames( const Frames& frames,
                                         Channel* channel, util::Accum* accum );
 
-        /** 
+        /**
          * Assemble all frames in the given order using the fastest implemented
          * algorithm on the given channel.
          *
@@ -86,11 +87,11 @@ namespace eq
          * @version 1.0
          */
         static uint32_t assembleFramesSorted( const Frames& frames,
-                                              Channel* channel, 
+                                              Channel* channel,
                                               util::Accum* accum,
                                               const bool blendAlpha = false );
 
-        /** 
+        /**
          * Assemble all frames in the order they become available directly on
          * the given channel.
          *
@@ -104,7 +105,7 @@ namespace eq
                                                 Channel* channel,
                                                 util::Accum* accum );
 
-        /** 
+        /**
          * Assemble all frames in the given order in a memory buffer using the
          * CPU before assembling the result on the given channel.
          *
@@ -140,7 +141,7 @@ namespace eq
                                             const bool blendAlpha = false,
                                const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
 
-        /** 
+        /**
          * Merge the provided frames into one main memory buffer.
          *
          * The callee has to allocate and clear (if needed) the output buffers
@@ -160,7 +161,7 @@ namespace eq
                                     const bool blendAlpha,
                                     void* colorBuffer,
                                     const uint32_t colorBufferSize,
-                                    void* depthBuffer, 
+                                    void* depthBuffer,
                                     const uint32_t depthBufferSize,
                                     PixelViewport& outPVP,
                                const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
@@ -172,30 +173,30 @@ namespace eq
         static void assembleFrame( const Frame* frame, Channel* channel );
         //@}
 
-        
+
         /** @name Image-based operations. */
         //@{
-        /** 
+        /**
          * Assemble an image into the frame buffer.
-         * 
+         *
          * @param image the input image.
          * @param operation an ImageOp struct describing the operation.
          */
         static void assembleImage( const Image* image,
                                    const ImageOp& operation );
 
-        /** 
+        /**
          * Setup the stencil buffer for a pixel compound recomposition.
-         * 
+         *
          * @param image the image to be assembled.
          * @param operation the assembly parameters.
          */
-        static void setupStencilBuffer( const Image* image, 
+        static void setupStencilBuffer( const Image* image,
                                         const ImageOp& operation );
 
-        /** 
+        /**
          * Clear the stencil buffer after a pixel compound recomposition.
-         * 
+         *
          * @param operation the assembly parameters.
          */
         static void clearStencilBuffer( const ImageOp& operation );
@@ -207,7 +208,7 @@ namespace eq
          */
         static void setupAssemblyState( const PixelViewport& pvp,
                                         const GLEWContext* gl );
-        
+
         /**
          * Reset the OpenGL state.
          */
@@ -218,17 +219,17 @@ namespace eq
         /** Start a Z-based assembly of the image color and depth attachment. */
         static void assembleImageDB( const Image* image, const ImageOp& op );
 
-        /** 
+        /**
          * Start a Z-based assembly of the image color and depth attachment,
          * based on OpenGL 1.1 functionality.
          */
         static void assembleImageDB_FF( const Image* image, const ImageOp& op );
 
-        /** 
+        /**
          * Start a Z-based assembly of the image color and depth attachment,
          * using GLSL.
          */
-        static void assembleImageDB_GLSL( const Image* image, 
+        static void assembleImageDB_GLSL( const Image* image,
                                           const ImageOp& op );
         //@}
 
@@ -252,9 +253,9 @@ namespace eq
         static WaitHandle* startWaitFrames( const Frames& frames,
                                             Channel* channel );
 
-        /** 
+        /**
          * Wait for one input frame from a set of pending frames.
-         * 
+         *
          * Before the first call, a wait handle is acquired using
          * startWaitFrames(). When all frames have been processed, 0 is returned
          * and the wait handle is invalidated. If the wait times out, an
@@ -273,44 +274,44 @@ namespace eq
         static bool _isSubPixelDecomposition( const Frames& frames );
         static const Frames _extractOneSubPixel( Frames& frames );
 
-        static bool _collectOutputData( 
-                             const Frames& frames, 
-                             PixelViewport& destPVP, 
-                             uint32_t& colorInternalFormat, 
+        static bool _collectOutputData(
+                             const Frames& frames,
+                             PixelViewport& destPVP,
+                             uint32_t& colorInternalFormat,
                              uint32_t& colorPixelSize,
                              uint32_t& colorExternalFormat,
                              uint32_t& depthInternalFormat,
                              uint32_t& depthPixelSize,
                              uint32_t& depthExternalFormat,
                              const uint32_t timeout );
-                              
-        static void _collectOutputData( const PixelData& pixelData, 
-                                        uint32_t& internalFormat, 
-                                        uint32_t& pixelSize, 
+
+        static void _collectOutputData( const PixelData& pixelData,
+                                        uint32_t& internalFormat,
+                                        uint32_t& pixelSize,
                                         uint32_t& externalFormat );
 
         static void _mergeFrames( const Frames& frames,
-                                  const bool blendAlpha, 
+                                  const bool blendAlpha,
                                   void* colorBuffer, void* depthBuffer,
                                   const PixelViewport& destPVP );
-                                  
+
         static void _mergeDBImage( void* destColor, void* destDepth,
-                                   const PixelViewport& destPVP, 
-                                   const Image* image, 
+                                   const PixelViewport& destPVP,
+                                   const Image* image,
                                    const Vector2i& offset );
-                                     
+
         static void _merge2DImage( void* destColor, void* destDepth,
                                    const PixelViewport& destPVP,
                                    const Image* input,
                                    const Vector2i& offset );
-                                     
-        static void _mergeBlendImage( void* dest, 
-                                      const PixelViewport& destPVP, 
+
+        static void _mergeBlendImage( void* dest,
+                                      const PixelViewport& destPVP,
                                       const Image* input,
                                       const Vector2i& offset );
-        static bool _mergeImage_PC( int operation, void* destColor, 
+        static bool _mergeImage_PC( int operation, void* destColor,
                                     void* destDepth, const Image* source );
-        /** 
+        /**
          * draw an image to the frame buffer using a texture quad or drawPixels.
          */
         static void _drawPixels( const Image* image, const ImageOp& op,

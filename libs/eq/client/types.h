@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,7 +23,6 @@
 #include <eq/client/defines.h>
 #include <eq/util/types.h>
 #include <eq/fabric/focusMode.h>
-#include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/atomic.h>
 
@@ -37,7 +37,7 @@ class Client;
 class CommandQueue;
 class ComputeContext;
 class Config;
-class ConfigParams;
+class EventICommand;
 class Frame;
 class FrameData;
 class Image;
@@ -54,7 +54,6 @@ class SystemWindow;
 class View;
 class Window;
 class WindowSystem;
-struct ConfigEvent;
 struct Event;
 struct PixelData;
 struct PointerEvent;
@@ -91,7 +90,7 @@ using fabric::Projection;
 using fabric::Range;
 using fabric::RenderContext;
 using fabric::SubPixel;
-using fabric::TileTaskPacket;
+using fabric::Tile;
 using fabric::Viewport;
 using fabric::Wall;
 using fabric::Zoom;
@@ -112,8 +111,8 @@ typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
-    
+typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+
 /** A visitor to traverse pipes and children. */
 typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
 
@@ -261,6 +260,13 @@ using lunchbox::uint128_t;
 using lunchbox::UUID;
 
 /** @cond IGNORE */
+#ifndef EQ_2_0_API
+struct ConfigEvent;
+#define COMMANDTYPE_EQ_CUSTOM co::COMMANDTYPE_CUSTOM
+#endif
+
+typedef co::ObjectOCommand EventOCommand;
+
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
 /** @endcond */
 }

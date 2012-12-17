@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,6 +21,7 @@
 #define EQFABRIC_VIEW_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/equalizer.h>      // member
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/types.h>
@@ -68,7 +70,7 @@ namespace fabric
 
         /** Set the entity tracking this view. @version 1.0 */
         EQFABRIC_INL void setObserver( O* observer );
-        
+
         /**
          * @return the observer tracking this view, or 0 for untracked views.
          * @version 1.0
@@ -80,7 +82,7 @@ namespace fabric
 
         /** @sa Frustum::setWall() @version 1.0 */
         EQFABRIC_INL virtual void setWall( const Wall& wall );
-        
+
         /** @sa Frustum::setProjection() @version 1.0 */
         EQFABRIC_INL virtual void setProjection( const Projection& );
 
@@ -91,26 +93,26 @@ namespace fabric
         EQFABRIC_INL void setOverdraw( const Vector2i& pixels );
 
         /** @warning  Undocumented - may not be supported in the future */
-        const Vector2i& getOverdraw() const { return _data.overdraw; }
+        const Vector2i& getOverdraw() const { return _overdraw; }
 
         /** @warning  Undocumented - may not be supported in the future */
         EQFABRIC_INL void useEqualizer( uint32_t equalizerMask );
 
         /** @warning  Undocumented - may not be supported in the future */
-        uint32_t getEqualizers() const { return _data.equalizers; }
+        uint32_t getEqualizers() const { return _equalizers; }
 
-        /** @warning  Undocumented - may not be supported in the future */
-        EQFABRIC_INL void setTileSize( const Vector2i& size );
+        /** @return read-access to Equalizer properties. @version 1.5.1 */
+        EQFABRIC_INL const Equalizer& getEqualizer() const;
 
-        /** @warning  Undocumented - may not be supported in the future */
-        const Vector2i& getTileSize() const { return _data.tileSize; }
+        /** @return write-access to Equalizer properties. @version 1.5.1 */
+        EQFABRIC_INL Equalizer& getEqualizer();
 
         /** @internal Set the 2D viewport wrt Layout and Canvas. */
         EQFABRIC_INL void setViewport( const Viewport& viewport );
 
         /** @return the stereo mode of this view. @version 1.0 */
         Mode getMode() const { return _data.mode; }
-        
+
         /**
          * Set the mode of this view.
          *
@@ -118,12 +120,12 @@ namespace fabric
          * @version 1.0
          */
         EQFABRIC_INL virtual void changeMode( const Mode mode );
-        
+
         /**
          * @internal
          * Activate the given mode on this view.
          *
-         * @param mode the new rendering mode 
+         * @param mode the new rendering mode
          */
         virtual void activateMode( const Mode mode ){ _data.mode = mode; }
 
@@ -155,9 +157,9 @@ namespace fabric
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Traverse this view using a view visitor.
-         * 
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -175,7 +177,7 @@ namespace fabric
          *
          * Any channel which does not support all of the bits in this mask does
          * not execute any tasks. By default no bit is set.
-         * 
+         *
          * @param bitmask the capabilities as bitmask
          * @version 1.0
          */
@@ -199,7 +201,7 @@ namespace fabric
          * channel queries the capabilities to be used using getCapabilities().
          *
          * @param bitmask the capabilities as bitmask
-         * @version 1.0 
+         * @version 1.0
          */
         EQFABRIC_INL void setMaximumCapabilities(const uint64_t bitmask);
 
@@ -231,13 +233,13 @@ namespace fabric
             DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
             DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
-            DIRTY_TILESIZE      = Object::DIRTY_CUSTOM << 8,
+            DIRTY_EQUALIZER     = Object::DIRTY_CUSTOM << 8,
             DIRTY_EQUALIZERS    = Object::DIRTY_CUSTOM << 9,
             DIRTY_MODELUNIT     = Object::DIRTY_CUSTOM << 10,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
-                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_TILESIZE |
+                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_EQUALIZER |
                 DIRTY_EQUALIZERS | DIRTY_MODELUNIT
         };
 
@@ -267,7 +269,7 @@ namespace fabric
                                              const uint64_t dirtyBits );
 
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                const uint64_t dirtyBits );
 
         /** @internal */
@@ -284,6 +286,16 @@ namespace fabric
         /** The observer for tracking. */
         O* _observer;
 
+        Equalizer _equalizer; //!< Equalizer settings
+        /** Enlarge size of dest channels and adjust frustum accordingly. */
+        Vector2i _overdraw;
+
+        uint64_t _minimumCapabilities; //!< caps required from channels
+        uint64_t _maximumCapabilities; //!< caps used from channels
+        uint64_t _capabilities; //!< intersection of all active channel caps
+        uint32_t _equalizers; //!< Active Equalizers
+        float _modelUnit; //!< Scaling of scene in this view
+
         struct BackupData
         {
             BackupData();
@@ -291,19 +303,7 @@ namespace fabric
             /** Logical 2D area of Canvas covered. */
             Viewport viewport;
 
-            /** Enlarge size of dest channels and adjust frustum accordingly. */
-            Vector2i overdraw;
-
-            Vector2i tileSize; //!< Tile Equalizer size
-
-            uint64_t minimumCapabilities; //!< caps required from channels
-            uint64_t maximumCapabilities; //!< caps used from channels
-            uint64_t capabilities; //!< intersection of all active channel caps
-        
             Mode mode; //!< Stereo mode
-            uint32_t equalizers; //!< Active Equalizers
-
-            float modelUnit;
         }
             _data, _backup;
 

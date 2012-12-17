@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,6 @@
 #include "client.h"
 
 #include "server.h"
-#include <co/command.h>
 
 namespace eq
 {
@@ -60,7 +59,7 @@ co::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
     {
-        case fabric::NODETYPE_EQ_SERVER:
+        case fabric::NODETYPE_SERVER:
         {
             Server* server = new Server;
             server->setClient( this );
@@ -68,7 +67,7 @@ co::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return co::Node::createNode( type );
+            return Super::createNode( type );
     }
 }
 

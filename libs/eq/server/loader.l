@@ -1,16 +1,16 @@
 
 %{
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -47,7 +47,7 @@ void yyerror( const char *errmsg )
     YY_FLUSH_BUFFER;
 }
 
-/* Override YY_INPUT to read from a char* if specified. YY_INPUT_FILE is C&P 
+/* Override YY_INPUT to read from a char* if specified. YY_INPUT_FILE is C&P
  * from the generated YY_INPUT */
 #define YY_INPUT_FILE( buf, result, max_size )              \
     if ( ((result = fread( buf, 1, max_size, yyin )) == 0)  \
@@ -122,7 +122,7 @@ EQ_WINDOW_IATTR_PLANES_ACCUM_ALPHA { return EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_AL
 EQ_WINDOW_IATTR_PLANES_SAMPLES   { return EQTOKEN_WINDOW_IATTR_PLANES_SAMPLES; }
 EQ_CHANNEL_IATTR_HINT_STATISTICS { return EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS; }
 EQ_CHANNEL_IATTR_HINT_SENDTOKEN  { return EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN; }
-EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; } 
+EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; }
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK  { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK; }
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK; }
 EQ_COMPOUND_IATTR_UPDATE_FOV    { return EQTOKEN_COMPOUND_IATTR_UPDATE_FOV; }
@@ -199,7 +199,7 @@ PIPE                            { return EQTOKEN_PIPE; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }
 UDT                             { return EQTOKEN_UDT; }
-texture                         { return EQTOKEN_TEXTURE; } 
+texture                         { return EQTOKEN_TEXTURE; }
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
 relative_to_observer            { return EQTOKEN_RELATIVE_TO_OBSERVER; }
@@ -234,10 +234,10 @@ READBACK                        { return EQTOKEN_READBACK; }
 COLOR                           { return EQTOKEN_COLOR; }
 DEPTH                           { return EQTOKEN_DEPTH; }
 viewport                        { return EQTOKEN_VIEWPORT; }
-drawable                        { return EQTOKEN_DRAWABLE; } 
+drawable                        { return EQTOKEN_DRAWABLE; }
 FBO_COLOR                       { return EQTOKEN_FBO_COLOR; }
 FBO_DEPTH                       { return EQTOKEN_FBO_DEPTH; }
-FBO_STENCIL                     { return EQTOKEN_FBO_STENCIL; }   
+FBO_STENCIL                     { return EQTOKEN_FBO_STENCIL; }
 range                           { return EQTOKEN_RANGE; }
 period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }
@@ -279,6 +279,7 @@ LOCAL_SYNC                      { return EQTOKEN_LOCAL_SYNC; }
 local_sync                      { return EQTOKEN_LOCAL_SYNC; }
 mode                            { return EQTOKEN_MODE; }
 boundary                        { return EQTOKEN_BOUNDARY; }
+resistance                      { return EQTOKEN_RESISTANCE; }
 2D                              { return EQTOKEN_2D; }
 assemble_only_limit             { return EQTOKEN_ASSEMBLE_ONLY_LIMIT; }
 DB                              { return EQTOKEN_DB; }
@@ -297,6 +298,6 @@ size                            { return EQTOKEN_SIZE; }
 [\(\){}\[\]]                    { return *yytext; }
 [\n]                            { ++yylineno; }
 [ \t]                           { ; }
-[/][/]|[#]                      { while( yyinput() != '\n' ) ; ++yylineno; }
+[/][/]|[#]                      { while( yyinput() != '\n' ) {} ++yylineno; }
 
 %%

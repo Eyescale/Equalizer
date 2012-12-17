@@ -27,7 +27,7 @@ namespace fabric
     /** Node types to identify connecting nodes. */
     enum NodeType
     {
-        NODETYPE_EQ_SERVER = co::NODETYPE_CO_USER  //!< A server node
+        NODETYPE_SERVER = co::NODETYPE_USER  //!< A server node
     };
 }
 }

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,27 +22,29 @@
 #include "canvas.h"
 #include "channel.h"
 #include "client.h"
-#include "configEvent.h"
+#ifndef EQ_2_0_API
+#  include "configEvent.h"
+#endif
 #include "configStatistics.h"
-#include "configPackets.h"
+#include "eventICommand.h"
 #include "global.h"
 #include "layout.h"
 #include "log.h"
 #include "messagePump.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "nodePackets.h"
 #include "observer.h"
 #include "pipe.h"
 #include "server.h"
 #include "view.h"
 #include "window.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
+
 #include <co/exception.h>
 #include <co/object.h>
-#include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
 #include <co/plugins/compressorTypes.h>
@@ -110,7 +113,6 @@ public:
 
     ~Config()
     {
-        lastEvent = 0;
         appNode = 0;
         lunchbox::Log::setClock( 0 );
     }
@@ -121,8 +123,10 @@ public:
     /** The receiver->app thread event queue. */
     CommandQueue eventQueue;
 
+#ifndef EQ_2_0_API
     /** The last received event to be released. */
-    co::CommandPtr lastEvent;
+    co::ICommand lastEvent;
+#endif
 
     /** The connections configured by the server for this config. */
     co::Connections connections;
@@ -172,7 +176,6 @@ Config::~Config()
     LBASSERT( getNodes().empty( ));
     LBASSERT( _impl->latencyObjects->empty() );
 
-    _impl->lastEvent = 0;
     _impl->eventQueue.flush();
     delete _impl;
 }
@@ -181,7 +184,6 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    ServerPtr server = getServer();
     co::CommandQueue* queue = getMainThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
@@ -200,6 +202,10 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH,
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
+#ifndef EQ_2_0_API
+    registerCommand( fabric::CMD_CONFIG_EVENT_OLD, ConfigFunc( 0, 0 ),
+                     &_impl->eventQueue );
+#endif
     registerCommand( fabric::CMD_CONFIG_EVENT, ConfigFunc( 0, 0 ),
                      &_impl->eventQueue );
     registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK,
@@ -327,14 +333,12 @@ bool Config::init( const uint128_t& initID )
         update();
 
     co::LocalNodePtr localNode = getLocalNode();
-    ConfigInitPacket packet;
-    packet.requestID = localNode->registerRequest();
-    packet.initID = initID;
-    send( getServer(), packet );
+    const uint32_t requestID = localNode->registerRequest();
+    send( getServer(), fabric::CMD_CONFIG_INIT ) << initID << requestID;
 
-    while( !localNode->isRequestServed( packet.requestID ))
+    while( !localNode->isRequestServed( requestID ))
         client->processCommand();
-    localNode->waitRequest( packet.requestID, _impl->running );
+    localNode->waitRequest( requestID, _impl->running );
     localNode->enableSendOnRegister();
 
     if( _impl->running )
@@ -353,18 +357,19 @@ bool Config::exit()
     co::LocalNodePtr localNode = getLocalNode();
     localNode->disableSendOnRegister();
 
-    ConfigExitPacket packet;
-    packet.requestID = localNode->registerRequest();
-    send( getServer(), packet );
+    const uint32_t requestID = localNode->registerRequest();
+    send( getServer(), fabric::CMD_CONFIG_EXIT ) << requestID;
 
     ClientPtr client = getClient();
-    while( !localNode->isRequestServed( packet.requestID ))
+    while( !localNode->isRequestServed( requestID ))
         client->processCommand();
 
     bool ret = false;
-    localNode->waitRequest( packet.requestID, ret );
+    localNode->waitRequest( requestID, ret );
 
-    _impl->lastEvent = 0;
+#ifndef EQ_2_0_API
+    _impl->lastEvent.clear();
+#endif
     _impl->eventQueue.flush();
     _impl->running = false;
     return ret;
@@ -377,22 +382,22 @@ bool Config::update()
     // send update req to server
     ClientPtr client = getClient();
 
-    ConfigUpdatePacket packet;
-    packet.versionID = client->registerRequest();
-    packet.finishID = client->registerRequest();
-    packet.requestID = client->registerRequest();
-    send( getServer(), packet );
+    const uint32_t reqVersionID = client->registerRequest();
+    const uint32_t reqFinishID = client->registerRequest();
+    const uint32_t requestID = client->registerRequest();
+    send( getServer(), fabric::CMD_CONFIG_UPDATE )
+            << reqVersionID << reqFinishID << requestID;
 
     // wait for new version
     uint128_t version = co::VERSION_INVALID;
-    client->waitRequest( packet.versionID, version );
+    client->waitRequest( reqVersionID, version );
     uint32_t finishID = 0;
-    client->waitRequest( packet.finishID, finishID );
+    client->waitRequest( reqFinishID, finishID );
 
     if( finishID == LB_UNDEFINED_UINT32 )
     {
         sync( version );
-        client->unregisterRequest( packet.requestID );
+        client->unregisterRequest( requestID );
         return true;
     }
 
@@ -403,11 +408,11 @@ bool Config::update()
     sync( version );
     client->ackRequest( getServer(), finishID );
 
-    while( !client->isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( requestID ))
         client->processCommand();
 
     bool result = false;
-    client->waitRequest( packet.requestID, result );
+    client->waitRequest( requestID, result );
     client->enableSendOnRegister();
     return result;
 }
@@ -418,14 +423,12 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     update();
 
     // Request new frame
-    ClientPtr client = getClient();
-    ConfigStartFramePacket packet( frameID );
-    send( getServer(), packet );
+    send( getServer(), fabric::CMD_CONFIG_START_FRAME ) << frameID;
 
     ++_impl->currentFrame;
     LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- "
                                << _impl->currentFrame << std::endl;
-    stat.event.data.statistic.frameNumber = _impl->currentFrame;
+    stat.event.statistic.frameNumber = _impl->currentFrame;
     return _impl->currentFrame;
 }
 
@@ -448,10 +451,10 @@ uint32_t Config::finishFrame()
                                        _impl->currentFrame - latency : 0;
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
-    stat.event.data.statistic.frameNumber = frameToFinish;
+    stat.event.statistic.frameNumber = frameToFinish;
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
-        waitStat.event.data.statistic.frameNumber = frameToFinish;
+        waitStat.event.statistic.frameNumber = frameToFinish;
 
         // local draw sync
         if( _needsLocalSync( ))
@@ -515,8 +518,7 @@ uint32_t Config::finishAllFrames()
         return _impl->currentFrame;
 
     LBLOG( lunchbox::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
-    ConfigFinishAllFramesPacket packet;
-    send( getServer(), packet );
+    send( getServer(), fabric::CMD_CONFIG_FINISH_ALL_FRAMES );
 
     ClientPtr client = getClient();
     const uint32_t timeout = getTimeout();
@@ -546,8 +548,7 @@ void Config::releaseFrameLocal( const uint32_t frameNumber )
 
 void Config::stopFrames()
 {
-    ConfigStopFramesPacket packet;
-    send( getServer(), packet );
+    send( getServer(), fabric::CMD_CONFIG_STOP_FRAMES );
 }
 
 namespace
@@ -596,6 +597,7 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
+#ifndef EQ_2_0_API
 void Config::sendEvent( ConfigEvent& event )
 {
     LBASSERT( event.data.type != Event::STATISTIC ||
@@ -603,24 +605,74 @@ void Config::sendEvent( ConfigEvent& event )
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    if( _impl->appNode )
-        send( _impl->appNode, event );
+    send( _impl->appNode, fabric::CMD_CONFIG_EVENT_OLD )
+        << event.size << co::Array< void >( &event, event.size );
 }
 
 const ConfigEvent* Config::nextEvent()
 {
-    _impl->lastEvent = _impl->eventQueue.pop();
-    return _impl->lastEvent->get< ConfigEvent >();
+    EventICommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
+    return _convertEvent( command );
 }
 
 const ConfigEvent* Config::tryNextEvent()
 {
-    co::CommandPtr command = _impl->eventQueue.tryPop();
-    if( !command )
+    EventICommand command = getNextEvent( 0 );
+    if( !command.isValid( ))
         return 0;
+    return _convertEvent( command );
+}
+
+const ConfigEvent* Config::_convertEvent( co::ObjectICommand command )
+{
+    LBASSERT( command.isValid( ));
+
+    if( command.getCommand() != fabric::CMD_CONFIG_EVENT_OLD )
+    {
+        _impl->lastEvent.clear();
+        return 0;
+    }
 
     _impl->lastEvent = command;
-    return command->get< ConfigEvent >();
+    const uint64_t size = command.get< uint64_t >();
+    return reinterpret_cast< const ConfigEvent* >
+                                          ( command.getRemainingBuffer( size ));
+}
+
+bool Config::handleEvent( const ConfigEvent* event )
+{
+    return _handleEvent( event->data );
+}
+#endif
+
+EventOCommand Config::sendEvent( const uint32_t type )
+{
+    LBASSERT( getAppNodeID() != co::NodeID::ZERO );
+    LBASSERT( _impl->appNode );
+
+    EventOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
+    cmd << type;
+    return cmd;
+}
+
+EventICommand Config::getNextEvent( const uint32_t timeout ) const
+{
+    if( timeout == 0 )
+        return _impl->eventQueue.tryPop();
+    return _impl->eventQueue.pop( timeout );
+}
+
+bool Config::handleEvent( EventICommand command )
+{
+#ifndef EQ_2_0_API
+    const ConfigEvent* configEvent = _convertEvent( command );
+    if( configEvent )
+        return handleEvent( configEvent );
+#endif
+
+    LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
+    const Event& event = command.get< Event >();
+    return _handleEvent( event );
 }
 
 bool Config::checkEvent() const
@@ -630,13 +682,19 @@ bool Config::checkEvent() const
 
 void Config::handleEvents()
 {
-    for( const ConfigEvent* event = tryNextEvent(); event; event=tryNextEvent())
-        handleEvent( event );
+    for( ;; )
+    {
+        EventICommand EventICommand = getNextEvent( 0 );
+        if( !EventICommand.isValid( ))
+            break;
+
+        handleEvent( EventICommand );
+    }
 }
 
-bool Config::handleEvent( const ConfigEvent* event )
+bool Config::_handleEvent( const Event& event )
 {
-    switch( event->data.type )
+    switch( event.type )
     {
         case Event::EXIT:
         case Event::WINDOW_CLOSE:
@@ -644,7 +702,7 @@ bool Config::handleEvent( const ConfigEvent* event )
             return true;
 
         case Event::KEY_PRESS:
-            if( event->data.keyPress.key == KC_ESCAPE )
+            if( event.keyPress.key == KC_ESCAPE )
             {
                 _impl->running = false;
                 return true;
@@ -653,7 +711,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::CHANNEL_POINTER_BUTTON_PRESS:
-            if( event->data.pointerButtonPress.buttons ==
+            if( event.pointerButtonPress.buttons ==
                 ( PTR_BUTTON1 | PTR_BUTTON2 | PTR_BUTTON3 ))
             {
                 _impl->running = false;
@@ -663,14 +721,13 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::STATISTIC:
         {
-            LBLOG( LOG_STATS ) << event->data << std::endl;
-#ifdef EQ_USE_GLSTATS
-            const uint32_t originator = event->data.serial;
-            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
+            LBLOG( LOG_STATS ) << event << std::endl;
+            const uint32_t originator = event.serial;
+            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event );
             if( originator == 0 )
                 return false;
 
-            const Statistic& stat = event->data.statistic;
+            const Statistic& stat = event.statistic;
             const uint32_t frame = stat.frameNumber;
             LBASSERT( stat.type != Statistic::NONE )
 
@@ -801,10 +858,10 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            LBASSERT( event->data.originator != UUID::ZERO );
-            View* view = find< View >( event->data.originator );
+            LBASSERT( event.originator != UUID::ZERO );
+            View* view = find< View >( event.originator );
             if( view )
-                return view->handleEvent( event->data );
+                return view->handleEvent( event );
             break;
         }
     }
@@ -946,7 +1003,7 @@ MessagePump* Config::getMessagePump()
     return 0;
 }
 
-void Config::setupServerConnections( const char* connectionData )
+void Config::setupServerConnections( const std::string& connectionData )
 {
     std::string data = connectionData;
     co::ConnectionDescriptions descriptions;
@@ -989,12 +1046,9 @@ void Config::deregisterObject( co::Object* object )
     // Keep a distributed object latency frames.
     // Replaces the object with a dummy proxy object using the
     // existing master change manager.
-    ConfigSwapObjectPacket packet;
-    packet.requestID = getLocalNode()->registerRequest();
-    packet.object = object;
-
-    send( client, packet );
-    client->waitRequest( packet.requestID );
+    const uint32_t requestID = getLocalNode()->registerRequest();
+    send( client, fabric::CMD_CONFIG_SWAP_OBJECT ) << requestID << object;
+    client->waitRequest( requestID );
 }
 
 bool Config::mapObject( co::Object* object, const UUID& id,
@@ -1056,97 +1110,109 @@ void Config::_releaseObjects()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdCreateNode( co::Command& command )
+bool Config::_cmdCreateNode( co::ICommand& cmd )
 {
-    const ConfigCreateNodePacket* packet =
-        command.get<ConfigCreateNodePacket>();
-    LBVERB << "Handle create node " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBVERB << "Handle create node " << command << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    LBCHECK( mapObject( node, packet->nodeID ));
+    LBCHECK( mapObject( node, command.get< UUID >( )));
     return true;
 }
 
-bool Config::_cmdDestroyNode( co::Command& command )
+bool Config::_cmdDestroyNode( co::ICommand& cmd )
 {
-    const ConfigDestroyNodePacket* packet =
-        command.get<ConfigDestroyNodePacket>();
-    LBVERB << "Handle destroy node " << packet << std::endl;
+    co::ObjectICommand command( cmd );
 
-    Node* node = _findNode( packet->nodeID );
+    LBVERB << "Handle destroy node " << command << std::endl;
+
+    Node* node = _findNode( command.get< UUID >( ));
     LBASSERT( node );
     if( !node )
         return true;
 
-    NodeConfigExitReplyPacket reply( packet->nodeID, node->isStopped( ));
+    const bool isStopped = node->isStopped();
 
     LBASSERT( node->getPipes().empty( ));
     unmapObject( node );
+    node->send( getServer(), fabric::CMD_NODE_CONFIG_EXIT_REPLY ) << isStopped;
     Global::getNodeFactory()->releaseNode( node );
 
-    getServer()->send( reply );
     return true;
 }
 
-bool Config::_cmdInitReply( co::Command& command )
+bool Config::_cmdInitReply( co::ICommand& cmd )
 {
-    const ConfigInitReplyPacket* packet =
-        command.get<ConfigInitReplyPacket>();
-    LBVERB << "handle init reply " << packet << std::endl;
+    co::ObjectICommand command( cmd );
 
-    sync( packet->version );
-    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
+    LBVERB << "handle init reply " << command << std::endl;
+
+    const uint128_t version = command.get< uint128_t >();
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
+
+    sync( version );
+    getLocalNode()->serveRequest( requestID, result );
     return true;
 }
 
-bool Config::_cmdExitReply( co::Command& command )
+bool Config::_cmdExitReply( co::ICommand& cmd )
 {
-    const ConfigExitReplyPacket* packet =
-        command.get<ConfigExitReplyPacket>();
-    LBVERB << "handle exit reply " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBVERB << "handle exit reply " << command << std::endl;
+
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
 
     _exitMessagePump();
-    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
+    getLocalNode()->serveRequest( requestID, result );
     return true;
 }
 
-bool Config::_cmdUpdateVersion( co::Command& command )
+bool Config::_cmdUpdateVersion( co::ICommand& cmd )
 {
-    const ConfigUpdateVersionPacket* packet =
-        command.get<ConfigUpdateVersionPacket>();
+    co::ObjectICommand command( cmd );
+    const uint128_t version = command.get< uint128_t >();
+    const uint32_t versionID = command.get< uint32_t >();
+    const uint32_t finishID = command.get< uint32_t >();
+    const uint32_t requestID = command.get< uint32_t >();
 
-    getClient()->serveRequest( packet->versionID, packet->version );
-    getClient()->serveRequest( packet->finishID, packet->requestID );
+    getClient()->serveRequest( versionID, version );
+    getClient()->serveRequest( finishID, requestID );
     return true;
 }
 
-bool Config::_cmdUpdateReply( co::Command& command )
+bool Config::_cmdUpdateReply( co::ICommand& cmd )
 {
-    const ConfigUpdateReplyPacket* packet =
-        command.get<ConfigUpdateReplyPacket>();
+    co::ObjectICommand command( cmd );
+    const uint128_t version = command.get< uint128_t >();
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
 
-    sync( packet->version );
-    getClient()->serveRequest( packet->requestID, packet->result );
+    sync( version );
+    getClient()->serveRequest( requestID, result );
     return true;
 }
 
-bool Config::_cmdReleaseFrameLocal( co::Command& command )
+bool Config::_cmdReleaseFrameLocal( co::ICommand& cmd )
 {
-    const ConfigReleaseFrameLocalPacket* packet =
-        command.get< ConfigReleaseFrameLocalPacket >();
+    co::ObjectICommand command( cmd );
 
     _frameStart(); // never happened from node
-    releaseFrameLocal( packet->frameNumber );
+    releaseFrameLocal( command.get< uint32_t >( ));
     return true;
 }
 
-bool Config::_cmdFrameFinish( co::Command& command )
+bool Config::_cmdFrameFinish( co::ICommand& cmd )
 {
-    const ConfigFrameFinishPacket* packet =
-        command.get<ConfigFrameFinishPacket>();
-    LBLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
+    co::ObjectICommand command( cmd );
 
-    _impl->finishedFrame = packet->frameNumber;
+    _impl->finishedFrame = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "frame finish " << command
+                       << " frame " << _impl->finishedFrame << std::endl;
 
     if( _impl->unlockedFrame < _impl->finishedFrame.get( ))
     {
@@ -1155,29 +1221,32 @@ bool Config::_cmdFrameFinish( co::Command& command )
         _impl->unlockedFrame = _impl->finishedFrame.get();
     }
 
-    getMainThreadQueue()->push( 0 ); // wakeup signal
+    co::ICommand empty;
+    getMainThreadQueue()->push( empty ); // wakeup signal
     return true;
 }
 
-bool Config::_cmdSyncClock( co::Command& command )
+bool Config::_cmdSyncClock( co::ICommand& cmd )
 {
-    const ConfigSyncClockPacket* packet =
-        command.get< ConfigSyncClockPacket >();
+    co::ObjectICommand command( cmd );
+    const int64_t time = command.get< int64_t >();
 
-    LBVERB << "sync global clock to " << packet->time << ", drift "
-           << packet->time - _impl->clock.getTime64() << std::endl;
+    LBVERB << "sync global clock to " << time << ", drift "
+           << time - _impl->clock.getTime64() << std::endl;
 
-    _impl->clock.set( packet->time );
+    _impl->clock.set( time );
     return true;
 }
 
-bool Config::_cmdSwapObject( co::Command& command )
+bool Config::_cmdSwapObject( co::ICommand& cmd )
 {
-    const ConfigSwapObjectPacket* packet =
-        command.get<ConfigSwapObjectPacket>();
-    LBVERB << "Cmd swap object " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+    LBVERB << "Cmd swap object " << command << std::endl;
 
-    co::Object* object = packet->object;
+    const uint32_t requestID = command.get< uint32_t >();
+    co::Object* object =
+            reinterpret_cast< co::Object* >( command.get< void* >( ));
+
     LatencyObject* latencyObject = new LatencyObject( object->getChangeType(),
                                                      object->chooseCompressor(),
                                        _impl->currentFrame + getLatency() + 1 );
@@ -1186,8 +1255,8 @@ bool Config::_cmdSwapObject( co::Command& command )
         lunchbox::ScopedFastWrite mutex( _impl->latencyObjects );
         _impl->latencyObjects->push_back( latencyObject );
     }
-    LBASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
-    getLocalNode()->serveRequest( packet->requestID );
+    LBASSERT( requestID != LB_UNDEFINED_UINT32 );
+    getLocalNode()->serveRequest( requestID );
     return true;
 }
 }

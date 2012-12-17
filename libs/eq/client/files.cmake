@@ -1,5 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 set(AGL_HEADERS
   agl/eventHandler.h
@@ -8,6 +9,14 @@ set(AGL_HEADERS
   agl/window.h
   agl/windowEvent.h
   agl/types.h
+)
+
+set(AGL_SOURCES
+  agl/eventHandler.cpp
+  agl/messagePump.cpp
+  agl/window.cpp
+  agl/pipe.cpp
+  agl/windowSystem.cpp
 )
 
 set(GLX_HEADERS
@@ -19,6 +28,15 @@ set(GLX_HEADERS
   glx/types.h
 )
 
+set(GLX_SOURCES
+  glx/eventHandler.cpp
+  glx/messagePump.cpp
+  glx/pipe.cpp
+  glx/window.cpp
+  glx/windowSystem.cpp
+  glXTypes.cpp
+)
+
 set(WGL_HEADERS
   wgl/eventHandler.h
   wgl/messagePump.h
@@ -28,6 +46,14 @@ set(WGL_HEADERS
   wgl/types.h
 )
 
+set(WGL_SOURCES
+  wgl/eventHandler.cpp
+  wgl/messagePump.cpp
+  wgl/window.cpp
+  wgl/pipe.cpp
+  wgl/windowSystem.cpp
+)
+
 set(CLIENT_HEADERS
   ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
   aglTypes.h
@@ -35,28 +61,25 @@ set(CLIENT_HEADERS
   base.h
   canvas.h
   channel.h
-  channelPackets.h
   channelStatistics.h
   client.h
-  clientPackets.h
   commandQueue.h
   compositor.h
   computeContext.h
   config.h
-  configEvent.h
-  configPackets.h
-  configParams.h
   configStatistics.h
   cudaContext.h
   defines.h
   error.h
   event.h
+  eventICommand.h
   eventHandler.h
   exception.h
   eye.h
   frame.h
   frameData.h
   gl.h
+  glException.h
   glWindow.h
   glXTypes.h
   global.h
@@ -66,17 +89,13 @@ set(CLIENT_HEADERS
   log.h
   messagePump.h
   node.h
-  nodePackets.h
   nodeFactory.h
   observer.h
   os.h
-  packets.h
   pipe.h
-  pipePackets.h
   pixelData.h
   segment.h
   server.h
-  serverPackets.h
   statistic.h
   statisticSampler.h
   system.h
@@ -84,11 +103,9 @@ set(CLIENT_HEADERS
   systemWindow.h
   types.h
   view.h
-  viewPackets.h
   visitorResult.h
   wglTypes.h
   window.h
-  windowPackets.h
   windowStatistics.h
   windowSystem.h
   zoomFilter.h
@@ -104,15 +121,15 @@ set(CLIENT_SOURCES
   compositor.cpp
   computeContext.cpp
   config.cpp
-  configEvent.cpp
-  configParams.cpp
   configStatistics.cpp
   cudaContext.cpp
   event.cpp
+  eventICommand.cpp
   eventHandler.cpp
   frame.cpp
   frameData.cpp
   gl.cpp
+  glException.cpp
   glWindow.cpp
   global.cpp
   image.cpp
@@ -142,37 +159,17 @@ set(CLIENT_SOURCES
   worker.cpp
   )
 
+if(NOT EQUALIZER_BUILD_2_0_API)
+  list(APPEND CLIENT_HEADERS configEvent.h configParams.h)
+  list(APPEND CLIENT_SOURCES configEvent.cpp)
+endif()
+
 if(EQ_AGL_USED)
-  set(AGL_SOURCES
-    agl/eventHandler.cpp
-    agl/messagePump.cpp
-    agl/window.cpp
-    agl/pipe.cpp
-    agl/windowSystem.cpp
-  )
   list(APPEND CLIENT_SOURCES ${AGL_SOURCES})
-endif(EQ_AGL_USED)
-
+endif()
 if(EQ_GLX_USED)
-  set(GLX_SOURCES
-    glx/eventHandler.cpp
-    glx/messagePump.cpp
-    glx/pipe.cpp
-    glx/window.cpp
-    glx/windowSystem.cpp
-    glXTypes.cpp
-  )
   list(APPEND CLIENT_SOURCES ${GLX_SOURCES})
-endif(EQ_GLX_USED)
-
+endif()
 if(WIN32)
-  set(WGL_SOURCES
-    wgl/eventHandler.cpp
-    wgl/messagePump.cpp
-    wgl/window.cpp
-    wgl/pipe.cpp
-    wgl/windowSystem.cpp
-  )
   list(APPEND CLIENT_SOURCES ${WGL_SOURCES})
-endif(WIN32)
-
+endif()

@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
+ *               2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -112,7 +113,6 @@ private:
 TileEqualizer::TileEqualizer()
     : Equalizer()
     , _created( false )
-    , _size( 64, 64 )
     , _name( "TileEqualizer" )
 {
 }
@@ -120,7 +120,6 @@ TileEqualizer::TileEqualizer()
 TileEqualizer::TileEqualizer( const TileEqualizer& from )
     : Equalizer( from )
     , _created( from._created )
-    , _size( from._size )
     , _name( from._name )
 {
 }
@@ -134,14 +133,14 @@ void TileEqualizer::_createQueues( Compound* compound )
         TileQueue* output = new TileQueue;
         ServerPtr server = compound->getServer();
         server->registerObject( output );
-        output->setTileSize( _size );
+        output->setTileSize( getTileSize( ));
         output->setName( name );
         output->setAutoObsolete( compound->getConfig()->getLatency( ));
 
         compound->addOutputTileQueue( output );
     }
 
-    InputQueueCreator creator( _size, name );
+    InputQueueCreator creator( getTileSize(), name );
     compound->accept( creator );
 }
 
@@ -163,12 +162,12 @@ void TileEqualizer::_destroyQueues( Compound* compound )
     _created = false;
 }
 
-void TileEqualizer::notifyUpdatePre( Compound* compound, 
+void TileEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
     if( isActive() && !_created )
         _createQueues( compound );
-    
+
     if( !isActive() && _created )
         _destroyQueues( compound );
 }

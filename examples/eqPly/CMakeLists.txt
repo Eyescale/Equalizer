@@ -54,7 +54,6 @@ eq_add_example(eqPly
     cameraAnimation.cpp
     channel.cpp
     config.cpp
-    configEvent.cpp
     eqPly.cpp
     error.cpp
     frameData.cpp

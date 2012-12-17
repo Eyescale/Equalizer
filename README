@@ -2,8 +2,8 @@
                                Quickstart
 
  This directory is the top-level directory for the Equalizer sources.
- The recommended way to 'make Equalizer' using the meta-package from
-  https://github.com/Eyescale/CMakeProjects
+ The recommended way to 'make Equalizer' using the meta-builder from
+ https://github.com/Eyescale/Buildyard
 
  For more information, see doc/FAQ. Platform-specific READMEs are in
  doc/. End-User and developer documentation can be found on the

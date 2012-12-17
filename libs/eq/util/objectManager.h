@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,6 +27,8 @@
 #include <lunchbox/nonCopyable.h>      // base class
 #include <lunchbox/referenced.h>       // base class
 
+//#define EQ_OM_TRACE_ALLOCATIONS
+
 namespace eq
 {
 namespace util
@@ -42,7 +44,7 @@ namespace util
      * ensure an OpenGL context is still current during destruction.
      *
      * For each type of OpenGL object supported the following methods are
-     * available: 
+     * available:
      * - supportsObject: Check if the necessary OpenGL version or extension
      *   is present
      * - getObject: Lookup an existing object, may return 0
@@ -72,6 +74,10 @@ namespace util
         /** @return true if more than one OM is using the same data. */
         bool isShared() const { return _data->getRefCount() > 1; }
 
+        /**
+         * Delete all managed objects and associated GL objects.
+         * Requires current GL context.
+         */
         EQ_API void deleteAll();
 
         EQ_API unsigned getList( const T& key ) const;
@@ -159,6 +165,9 @@ namespace util
         typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
         typedef stde::hash_map< T, Accum* > AccumHash;
         typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
+#   ifdef EQ_OM_TRACE_ALLOCATIONS
+        typedef stde::hash_map< T, std::string > UploaderAllocs;
+#   endif
 
         struct SharedData : public lunchbox::Referenced
         {
@@ -178,6 +187,9 @@ namespace util
             PBOHash eqPixelBufferObjects;
             FontHash eqFonts;
             UploaderHash eqUploaders;
+#   ifdef EQ_OM_TRACE_ALLOCATIONS
+            UploaderAllocs eqUploaderAllocs;
+#   endif
 
             union // placeholder for binary-compatible changes
             {
@@ -195,4 +207,3 @@ namespace util
 }
 
 #endif // EQUTIL_OBJECTMANAGER_H
-

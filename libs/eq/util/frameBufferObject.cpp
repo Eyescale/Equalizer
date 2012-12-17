@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@ namespace eq
 namespace util
 {
 
-FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext, 
+FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
                                       const GLenum textureTarget )
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
@@ -100,7 +100,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
     if( stencilSize > 0 && GLEW_EXT_packed_depth_stencil )
     {
         _depth.init( GL_DEPTH24_STENCIL8, width, height );
-        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height ); 
+        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height );
     }
     else if( depthSize > 0 )
     {
@@ -135,13 +135,18 @@ void FrameBufferObject::exit()
 
 bool FrameBufferObject::_checkStatus()
 {
-    switch( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ))
+    const GLenum status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
+    switch( status )
     {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
             LBVERB << "FBO supported and complete" << std::endl;
             _valid = true;
             return true;
 
+        case 0: // error?!
+            EQ_GL_ERROR( "glCheckFramebufferStatusEXT" );
+            _setError( ERROR_FRAMEBUFFER_STATUS );
+            break;
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
             _setError( ERROR_FRAMEBUFFER_UNSUPPORTED );
             break;
@@ -163,7 +168,10 @@ bool FrameBufferObject::_checkStatus()
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
             _setError( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
             break;
+
         default:
+            LBWARN << "Unhandled frame buffer status 0x" << std::hex
+                   << status << std::dec << std::endl;
             break;
     }
 

@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -35,26 +36,15 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 // level, a relative split position is determined by balancing the left subtree
 // against the right subtree.
 
-LoadEqualizer::LoadEqualizer( const Mode mode )
-        : _mode( mode )
-        , _damping( .5f )
-        , _tree( 0 )
-        , _boundary2i( 1, 1 )
-        , _boundaryf( std::numeric_limits<float>::epsilon() )
-        , _assembleOnlyLimit( std::numeric_limits< float >::max( ) )
+LoadEqualizer::LoadEqualizer()
+        : _tree( 0 )
 {
     LBVERB << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 
-LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
+LoadEqualizer::LoadEqualizer( const fabric::Equalizer& from )
         : Equalizer( from )
-        , ChannelListener( from )
-        , _mode( from._mode )
-        , _damping( from._damping )
         , _tree( 0 )
-        , _boundary2i( from._boundary2i )
-        , _boundaryf( from._boundaryf )
-        , _assembleOnlyLimit( from._assembleOnlyLimit )
 {}
 
 LoadEqualizer::~LoadEqualizer()
@@ -81,7 +71,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         {
           case 0: return; // no child compounds, can't do anything.
           case 1: // one child, 'balance' it:
-              if( _mode == MODE_DB )
+              if( getMode() == MODE_DB )
                   children.front()->setRange( Range( ));
               else
                   children.front()->setViewport( Viewport( ));
@@ -89,19 +79,18 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
 
           default:
               _tree = _buildTree( children );
-              _init( _tree, Viewport(), Range( ));
               break;
         }
     }
 
     // compute new data
-    if( _damping < 1.f )
+    if( getDamping() < 1.f )
     {
         _history.push_back( LBFrameData( ));
         _history.back().first = frameNumber;
     }
 
-    _update( _tree );
+    _update( _tree, Viewport(), Range( ));
     _computeSplit();
 }
 
@@ -115,7 +104,6 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
         Compound* compound = compounds.front();
 
         node->compound = compound;
-        node->mode = _mode;
 
         Channel* channel = compound->getChannel();
         LBASSERT( channel );
@@ -135,63 +123,9 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
 
     node->left  = _buildTree( left );
     node->right = _buildTree( right );
-    node->mode = _mode;
 
     return node;
 }
-
-void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
-{
-    if( node->mode == MODE_2D )
-    {
-        PixelViewport pvp = getCompound()->getChannel()->getPixelViewport();
-        pvp.apply( vp );
-
-        if( pvp.w > pvp.h ) // split along longest axis
-            node->mode = MODE_VERTICAL;
-        else
-            node->mode = MODE_HORIZONTAL;
-    }
-
-    if( node->compound )
-        return;
-    // else
-
-    Viewport leftVP = vp;
-    Viewport rightVP = vp;
-    Range leftRange = range;
-    Range rightRange = range;
-
-    switch( node->mode )
-    {
-      default:
-        LBUNIMPLEMENTED;
-
-      case MODE_VERTICAL:
-        leftVP.w = vp.w * .5f;
-        rightVP.x = leftVP.getXEnd();
-        rightVP.w = vp.getXEnd() - rightVP.x;
-        node->split = leftVP.getXEnd();
-        break;
-
-      case MODE_HORIZONTAL:
-        leftVP.h = vp.h * .5f;
-        rightVP.y = leftVP.getYEnd();
-        rightVP.h = vp.getYEnd() - rightVP.y;
-        node->split = leftVP.getYEnd();
-        break;
-
-      case MODE_DB:
-        leftRange.end = range.start + ( range.end - range.start ) * .5f;
-        rightRange.start = leftRange.end;
-        node->split = leftRange.end;
-        break;
-    }
-
-    _init( node->left, leftVP, leftRange );
-    _init( node->right, rightVP, rightRange );
-}
-
 
 void LoadEqualizer::_clearTree( Node* node )
 {
@@ -213,11 +147,11 @@ void LoadEqualizer::_clearTree( Node* node )
 
 void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t frameNumber,
-                                    const uint32_t nStatistics,
-                                    const Statistic* statistics,
+                                    const Statistics& statistics,
                                     const Viewport& region )
 {
-    LBLOG( LOG_LB2 ) << nStatistics << " samples from "<< channel->getName()
+    LBLOG( LOG_LB2 ) << statistics.size()
+                     << " samples from "<< channel->getName()
                      << " @ " << frameNumber << std::endl;
     for( std::deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
@@ -243,14 +177,14 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             int64_t endTime   = 0;
             bool    loadSet   = false;
             int64_t transmitTime = 0;
-            for( uint32_t k = 0; k < nStatistics; ++k )
+            for( size_t k = 0; k < statistics.size(); ++k )
             {
                 const Statistic& stat = statistics[k];
                 if( stat.task == data.destTaskID )
                     _updateAssembleTime( data, stat );
 
                 // from different compound
-                if( stat.task != taskID || loadSet ) 
+                if( stat.task != taskID || loadSet )
                     continue;
 
                 switch( stat.type )
@@ -294,7 +228,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                              << data.range << " @ " << frameNumber << std::endl;
             return;
 
-            // Note: if the same channel is used twice as a child, the 
+            // Note: if the same channel is used twice as a child, the
             // load-compound association does not work.
         }
     }
@@ -344,7 +278,7 @@ void LoadEqualizer::_checkHistory()
     // 2. delete old, unneeded data sets
     while( !_history.empty() && _history.front().first < useFrame )
         _history.pop_front();
-    
+
     if( _history.empty( )) // insert fake set
     {
         _history.resize( 1 );
@@ -354,7 +288,7 @@ void LoadEqualizer::_checkHistory()
 
         frameData.first = 0; // frameNumber
         items.resize( 1 );
-        
+
         Data& data = items.front();
         data.time = 1;
         LBASSERT( data.taskID == 0 );
@@ -377,17 +311,30 @@ float LoadEqualizer::_getTotalResources( ) const
     return resources;
 }
 
-void LoadEqualizer::_update( Node* node )
+void LoadEqualizer::_update( Node* node, const Viewport& vp,
+                             const Range& range )
 {
     if( !node )
         return;
 
+    node->mode = getMode();
+    if( node->mode == MODE_2D )
+    {
+        PixelViewport pvp = getCompound()->getChannel()->getPixelViewport();
+        pvp.apply( vp );
+
+        if( pvp.w > pvp.h ) // split along longest axis
+            node->mode = MODE_VERTICAL;
+        else
+            node->mode = MODE_HORIZONTAL;
+    }
+
     if( node->compound )
         _updateLeaf( node );
     else
-        _updateNode( node );
+        _updateNode( node, vp, range );
 }
-    
+
 void LoadEqualizer::_updateLeaf( Node* node )
 {
     const Compound* compound = node->compound;
@@ -397,15 +344,17 @@ void LoadEqualizer::_updateLeaf( Node* node )
     node->resources = compound->isActive() ? compound->getUsage() : 0.f;
     LBASSERT( node->resources >= 0.f );
 
-    node->maxSize.x() = pvp.w; 
-    node->maxSize.y() = pvp.h; 
-    node->boundaryf = _boundaryf;
-    node->boundary2i = _boundary2i;
+    node->maxSize.x() = pvp.w;
+    node->maxSize.y() = pvp.h;
+    node->boundaryf = getBoundaryf();
+    node->boundary2i = getBoundary2i();
+    node->resistancef = getResistancef();
+    node->resistance2i = getResistance2i();
     if( !compound->hasDestinationChannel( ))
         return;
 
     const float nResources = _getTotalResources();
-    if( _assembleOnlyLimit <= nResources - node->resources )
+    if( getAssembleOnlyLimit() <= nResources - node->resources )
     {
         node->resources = 0.f;
         return; // OPT
@@ -414,7 +363,7 @@ void LoadEqualizer::_updateLeaf( Node* node )
     const float time = float( _getTotalTime( ));
     const float assembleTime = float( _getAssembleTime( ));
     if( assembleTime == 0.f || node->resources == 0.f )
-        return; 
+        return;
 
     const float timePerResource = time / ( nResources - node->resources );
     const float renderTime = timePerResource * node->resources ;
@@ -426,16 +375,48 @@ void LoadEqualizer::_updateLeaf( Node* node )
         node->resources = 0.f;
 }
 
-void LoadEqualizer::_updateNode( Node* node )
+void LoadEqualizer::_updateNode( Node* node, const Viewport& vp,
+                                 const Range& range )
 {
     Node* left = node->left;
     Node* right = node->right;
-    
+
     LBASSERT( left );
     LBASSERT( right );
 
-    _update( left );
-    _update( right );
+    Viewport leftVP = vp;
+    Viewport rightVP = vp;
+    Range leftRange = range;
+    Range rightRange = range;
+
+    switch( node->mode )
+    {
+      default:
+        LBUNIMPLEMENTED;
+
+      case MODE_VERTICAL:
+        leftVP.w = vp.w * .5f;
+        rightVP.x = leftVP.getXEnd();
+        rightVP.w = vp.getXEnd() - rightVP.x;
+        node->split = leftVP.getXEnd();
+        break;
+
+      case MODE_HORIZONTAL:
+        leftVP.h = vp.h * .5f;
+        rightVP.y = leftVP.getYEnd();
+        rightVP.h = vp.getYEnd() - rightVP.y;
+        node->split = leftVP.getYEnd();
+        break;
+
+      case MODE_DB:
+        leftRange.end = range.start + ( range.end - range.start ) * .5f;
+        rightRange.start = leftRange.end;
+        node->split = leftRange.end;
+        break;
+    }
+
+    _update( left, leftVP, leftRange );
+    _update( right, rightVP, rightRange );
 
     node->resources = left->resources + right->resources;
 
@@ -444,39 +425,58 @@ void LoadEqualizer::_updateNode( Node* node )
         node->maxSize    = right->maxSize;
         node->boundary2i = right->boundary2i;
         node->boundaryf  = right->boundaryf;
+        node->resistance2i = right->resistance2i;
+        node->resistancef = right->resistancef;
     }
     else if( right->resources == 0.f )
     {
         node->maxSize = left->maxSize;
         node->boundary2i = left->boundary2i;
         node->boundaryf = left->boundaryf;
+        node->resistance2i = left->resistance2i;
+        node->resistancef = left->resistancef;
     }
     else
     {
         switch( node->mode )
         {
         case MODE_VERTICAL:
-            node->maxSize.x() = left->maxSize.x() + right->maxSize.x();  
+            node->maxSize.x() = left->maxSize.x() + right->maxSize.x();
             node->maxSize.y() = LB_MIN( left->maxSize.y(), right->maxSize.y());
             node->boundary2i.x() = left->boundary2i.x()+ right->boundary2i.x();
-            node->boundary2i.y() = LB_MAX( left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( left->boundary2i.y(),
                                            right->boundary2i.y());
             node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
+            node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
+                                             right->resistance2i.x( ));
+            node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
+                                             right->resistance2i.y());
+            node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         case MODE_HORIZONTAL:
             node->maxSize.x() = LB_MIN( left->maxSize.x(), right->maxSize.x());
-            node->maxSize.y() = left->maxSize.y() + right->maxSize.y(); 
-            node->boundary2i.x() = LB_MAX( left->boundary2i.x(), 
+            node->maxSize.y() = left->maxSize.y() + right->maxSize.y();
+            node->boundary2i.x() = LB_MAX( left->boundary2i.x(),
                                            right->boundary2i.x() );
             node->boundary2i.y() = left->boundary2i.y()+ right->boundary2i.y();
             node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
+            node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
+                                             right->resistance2i.x() );
+            node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
+                                             right->resistance2i.y( ));
+            node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         case MODE_DB:
-            node->boundary2i.x() = LB_MAX( left->boundary2i.x(), 
+            node->boundary2i.x() = LB_MAX( left->boundary2i.x(),
                                            right->boundary2i.x() );
-            node->boundary2i.y() = LB_MAX( left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( left->boundary2i.y(),
                                            right->boundary2i.y() );
             node->boundaryf = left->boundaryf + right->boundaryf;
+            node->resistance2i.x() = LB_MAX( left->resistance2i.x(),
+                                             right->resistance2i.x() );
+            node->resistance2i.y() = LB_MAX( left->resistance2i.y(),
+                                             right->resistance2i.y() );
+            node->resistancef = LB_MAX( left->resistancef, right->resistancef );
             break;
         default:
             LBUNIMPLEMENTED;
@@ -484,7 +484,7 @@ void LoadEqualizer::_updateNode( Node* node )
     }
 }
 
-int64_t LoadEqualizer::_getTotalTime() 
+int64_t LoadEqualizer::_getTotalTime()
 {
     const LBFrameData& frameData = _history.front();
     LBDatas items = frameData.second;
@@ -492,7 +492,7 @@ int64_t LoadEqualizer::_getTotalTime()
 
     int64_t totalTime = 0;
     for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
-    {  
+    {
         const Data& data = *i;
         totalTime += data.time;
     }
@@ -501,7 +501,7 @@ int64_t LoadEqualizer::_getTotalTime()
 
 int64_t LoadEqualizer::_getAssembleTime( )
 {
-    if( _damping >= 1.f )
+    if( getDamping() >= 1.f )
         return 0;
 
     const LBFrameData& frameData = _history.front();
@@ -509,7 +509,7 @@ int64_t LoadEqualizer::_getAssembleTime( )
 
     int64_t assembleTime = 0;
     for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
-    {  
+    {
         const Data& data = *i;
         LBASSERT( assembleTime == 0 || data.assembleTime == 0 );
         assembleTime += data.assembleTime;
@@ -520,7 +520,7 @@ int64_t LoadEqualizer::_getAssembleTime( )
 void LoadEqualizer::_computeSplit()
 {
     LBASSERT( !_history.empty( ));
-    
+
     const LBFrameData& frameData = _history.front();
     const Compound* compound = getCompound();
     LBLOG( LOG_LB2 ) << "----- balance " << compound->getChannel()->getName()
@@ -533,7 +533,7 @@ void LoadEqualizer::_computeSplit()
 
     LBDatas sortedData[3] = { items, items, items };
 
-    if( _mode == MODE_DB )
+    if( getMode() == MODE_DB )
     {
         LBDatas& rangeData = sortedData[ MODE_DB ];
         sort( rangeData.begin(), rangeData.end(), _compareRange );
@@ -549,7 +549,7 @@ void LoadEqualizer::_computeSplit()
 #ifndef NDEBUG
         for( LBDatas::const_iterator i = xData.begin(); i != xData.end();
              ++i )
-        {  
+        {
             const Data& data = *i;
             LBLOG( LOG_LB2 ) << "  " << data.vp << ", time " << data.time
                              << " (+" << data.assembleTime << ")" << std::endl;
@@ -566,7 +566,7 @@ void LoadEqualizer::_computeSplit()
 void LoadEqualizer::_removeEmpty( LBDatas& items )
 {
     for( LBDatas::iterator i = items.begin(); i != items.end(); )
-    {  
+    {
         Data& data = *i;
 
         if( !data.vp.hasArea() || !data.range.hasData( ))
@@ -655,14 +655,14 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
-                        
+
                     if( data.vp.x >= currentPos ) // not yet needed data sets
                         break;
 
                     float yContrib = data.vp.h;
                     if( data.vp.y < vp.y )
                         yContrib -= (vp.y - data.vp.y);
-                    
+
                     const float dataEnd = data.vp.getYEnd();
                     const float vpEnd   = vp.getYEnd();
                     if( dataEnd > vpEnd )
@@ -678,7 +678,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                                          << yContrib << " in " << vp.h << " ("
                                          << percentage << ") with " << data.time
                                          << ": " << ( data.time * percentage )
-                                         << " vp.y " << vp.y << " dataEnd " 
+                                         << " vp.y " << vp.y << " dataEnd "
                                          << dataEnd << " vpEnd " << vpEnd
                                          << std::endl;
                         LBASSERT( percentage < 1.01f )
@@ -702,8 +702,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             }
 
             LBLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
-            if( _damping < 1.f )
-                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( getDamping() < 1.f )
+                splitPos = (1.f - getDamping()) * splitPos +
+                            getDamping() * node->split;
             LBLOG( LOG_LB2 ) << "Dampened split at X " << splitPos << std::endl;
 
             // There might be more time left due to MIN_PIXEL rounding by parent
@@ -731,13 +732,13 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     splitPos = end - maxRight;
                 else if( lengthLeft > maxLeft )
                     splitPos = vp.x + maxLeft;
-            
+
                 if( (splitPos - vp.x) < boundary )
                     splitPos = vp.x + boundary;
                 if( (end - splitPos) < boundary )
                     splitPos = end - boundary;
-                
-                const uint32_t ratio = 
+
+                const uint32_t ratio =
                            static_cast< uint32_t >( splitPos / boundary + .5f );
                 splitPos = ratio * boundary;
             }
@@ -745,9 +746,15 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             splitPos = LB_MAX( splitPos, vp.x );
             splitPos = LB_MIN( splitPos, end);
 
+            const float newPixelW = pvpW * splitPos;
+            const float oldPixelW = pvpW * node->split;
+            if( int( fabs(newPixelW - oldPixelW) ) < node->resistance2i.x( ))
+                splitPos = node->split;
+            else
+                node->split = splitPos;
+
             LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                              << splitPos << std::endl;
-            node->split = splitPos;
 
             // balance children
             Viewport childVP = vp;
@@ -815,7 +822,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
-                        
+
                     if( data.vp.y >= currentPos ) // not yet needed data sets
                         break;
 
@@ -823,12 +830,12 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
                     if( data.vp.x < vp.x )
                         xContrib -= (vp.x - data.vp.x);
-                    
+
                     const float dataEnd = data.vp.getXEnd();
                     const float vpEnd   = vp.getXEnd();
                     if( dataEnd > vpEnd )
                         xContrib -= (dataEnd - vpEnd);
-                    
+
                     if( xContrib > 0.f )
                     {
                         const float percentage = ( height / data.vp.h ) *
@@ -863,12 +870,13 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             }
 
             LBLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
-            if( _damping < 1.f )
-                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( getDamping() < 1.f )
+                splitPos = (1.f - getDamping( )) * splitPos +
+                            getDamping() * node->split;
             LBLOG( LOG_LB2 ) << "Dampened split at Y " << splitPos << std::endl;
 
             const Compound* root = getCompound();
-            
+
             const float pvpH = static_cast< float >(
                 root->getInheritPixelViewport().h );
             const float boundary = static_cast< float >(node->boundary2i.y( )) /
@@ -890,13 +898,13 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     splitPos = end - maxRight;
                 else if( lengthLeft > maxLeft )
                     splitPos = vp.y + maxLeft;
-                
+
                 if( (splitPos - vp.y) < boundary )
                     splitPos = vp.y + boundary;
                 if( (end - splitPos) < boundary )
                     splitPos = end - boundary;
-                
-                const uint32_t ratio = 
+
+                const uint32_t ratio =
                            static_cast< uint32_t >( splitPos / boundary + .5f );
                 splitPos = ratio * boundary;
             }
@@ -904,9 +912,15 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             splitPos = LB_MAX( splitPos, vp.y );
             splitPos = LB_MIN( splitPos, end );
 
+            const float newPixelH = pvpH * splitPos;
+            const float oldPixelH = pvpH * node->split;
+            if( int( fabs(newPixelH - oldPixelH) ) < node->resistance2i.y( ))
+                splitPos = node->split;
+            else
+                node->split = splitPos;
+
             LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at Y "
                              << splitPos << std::endl;
-            node->split = splitPos;
 
             Viewport childVP = vp;
             childVP.h = (splitPos - vp.y);
@@ -926,7 +940,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             float splitPos = range.start;
             const float end = range.end;
 
-            while( timeLeft > std::numeric_limits< float >::epsilon() && 
+            while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end )
             {
                 LBLOG( LOG_LB2 ) << timeLeft << "ms left using "
@@ -950,7 +964,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
-                    const Data& data = *i;                        
+                    const Data& data = *i;
                     currentPos = LB_MIN( currentPos, data.range.end );
                 }
 
@@ -966,14 +980,14 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
-                        
+
                     if( data.range.start >= currentPos ) // not yet needed data
                         break;
 #if 0
                     // make sure we cover full area
-                    LBASSERTINFO(  data.range.start <= splitPos, 
+                    LBASSERTINFO(  data.range.start <= splitPos,
                                    data.range.start << " > " << splitPos );
-                    LBASSERTINFO( data.range.end >= currentPos, 
+                    LBASSERTINFO( data.range.end >= currentPos,
                                   data.range.end << " < " << currentPos);
 #endif
                     currentTime += data.time * size / data.range.getSize();
@@ -996,8 +1010,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 }
             }
             LBLOG( LOG_LB2 ) << "Should split at " << splitPos << std::endl;
-            if( _damping < 1.f )
-                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( getDamping() < 1.f )
+                splitPos = (1.f - getDamping( )) * splitPos +
+                            getDamping() * node->split;
             LBLOG( LOG_LB2 ) << "Dampened split at " << splitPos << std::endl;
 
             const float boundary( node->boundaryf );
@@ -1014,9 +1029,13 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             if( (end - splitPos) < boundary )
                 splitPos = end;
 
+            if( fabs( splitPos - node->split ) < node->resistancef )
+                splitPos = node->split;
+            else
+                node->split = splitPos;
+
             LBLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
                              << splitPos << std::endl;
-            node->split = splitPos;
 
             Range childRange = range;
             childRange.end = splitPos;
@@ -1044,7 +1063,7 @@ void LoadEqualizer::_assign( Compound* compound, const Viewport& vp,
     LBLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
                      << ", " << range << std::endl;
 
-    if( _damping >= 1.f )
+    if( getDamping() >= 1.f )
         return;
 
     // save data for later use
@@ -1077,7 +1096,7 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
     os << lunchbox::disableFlush;
 
     if( node->compound )
-        os << node->compound->getChannel()->getName() << " resources " 
+        os << node->compound->getChannel()->getName() << " resources "
            << node->resources << " max size " << node->maxSize << std::endl;
     else
         os << "split " << node->mode << " @ " << node->split << " resources "
@@ -1085,16 +1104,6 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
            << lunchbox::indent << node->left << node->right << lunchbox::exdent;
 
     os << lunchbox::enableFlush;
-    return os;
-}
-
-std::ostream& operator << ( std::ostream& os, 
-                            const LoadEqualizer::Mode mode )
-{
-    os << ( mode == LoadEqualizer::MODE_2D         ? "2D" :
-            mode == LoadEqualizer::MODE_VERTICAL   ? "VERTICAL" :
-            mode == LoadEqualizer::MODE_HORIZONTAL ? "HORIZONTAL" :
-            mode == LoadEqualizer::MODE_DB         ? "DB" : "ERROR" );
     return os;
 }
 
@@ -1107,16 +1116,23 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
        << "load_equalizer" << std::endl
        << '{' << std::endl
        << "    mode    " << lb->getMode() << std::endl;
-  
+
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << std::endl;
 
     if( lb->getBoundary2i() != Vector2i( 1, 1 ) )
-        os << "    boundary [ " << lb->getBoundary2i().x() << " " 
+        os << "    boundary [ " << lb->getBoundary2i().x() << " "
            << lb->getBoundary2i().y() << " ]" << std::endl;
 
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
         os << "    boundary " << lb->getBoundaryf() << std::endl;
+
+    if( lb->getResistance2i() != Vector2i( 0, 0 ) )
+        os << "    resistance [ " << lb->getResistance2i().x() << " "
+           << lb->getResistance2i().y() << " ]" << std::endl;
+
+    if( lb->getResistancef() != .0f )
+        os << "    resistance " << lb->getResistancef() << std::endl;
 
     os << '}' << std::endl << lunchbox::enableFlush;
     return os;

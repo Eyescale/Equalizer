@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -254,14 +255,14 @@ namespace server
         template< class T > bool _postDelete( const UUID& id );
 
         /** The command functions. */
-        bool _cmdInit( co::Command& command );
-        bool _cmdExit( co::Command& command );
-        bool _cmdUpdate( co::Command& command );
-        bool _cmdStartFrame( co::Command& command );
-        bool _cmdStopFrames( co::Command& command );
-        bool _cmdFinishAllFrames( co::Command& command ); 
-        bool _cmdCreateReply( co::Command& command );
-        bool _cmdFreezeLoadBalancing( co::Command& command );
+        bool _cmdInit( co::ICommand& command );
+        bool _cmdExit( co::ICommand& command );
+        bool _cmdUpdate( co::ICommand& command );
+        bool _cmdStartFrame( co::ICommand& command );
+        bool _cmdStopFrames( co::ICommand& command );
+        bool _cmdFinishAllFrames( co::ICommand& command ); 
+        bool _cmdCreateReply( co::ICommand& command );
+        bool _cmdFreezeLoadBalancing( co::ICommand& command );
 
         LB_TS_VAR( _cmdThread );
         LB_TS_VAR( _mainThread );

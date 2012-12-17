@@ -40,10 +40,7 @@ using __gnu_parallel::sort;
 using std::sort;
 #endif
 
-
-using namespace std;
 using namespace mesh;
-
 
 /*  Contructor.  */
 VertexData::VertexData()
@@ -55,7 +52,7 @@ VertexData::VertexData()
 
 
 /*  Read the vertex and (if available/wanted) color data from the open file.  */
-void VertexData::readVertices( PlyFile* file, const int nVertices, 
+void VertexData::readVertices( PlyFile* file, const int nVertices,
                                const bool readColors )
 {
     // temporary vertex structure for ply loading
@@ -69,7 +66,7 @@ void VertexData::readVertices( PlyFile* file, const int nVertices,
         unsigned char   b;
     } vertex;
 
-    PlyProperty vertexProps[] = 
+    PlyProperty vertexProps[] =
     {
         { "x", PLY_FLOAT, PLY_FLOAT, offsetof( _Vertex, x ), 0, 0, 0, 0 },
         { "y", PLY_FLOAT, PLY_FLOAT, offsetof( _Vertex, y ), 0, 0, 0, 0 },
@@ -78,21 +75,21 @@ void VertexData::readVertices( PlyFile* file, const int nVertices,
         { "green", PLY_UCHAR, PLY_UCHAR, offsetof( _Vertex, g ), 0, 0, 0, 0 },
         { "blue", PLY_UCHAR, PLY_UCHAR, offsetof( _Vertex, b ), 0, 0, 0, 0 }
     };
-    
+
     // use all 6 properties when reading colors, only the first 3 otherwise
     int limit = readColors ? 6 : 3;
-    for( int i = 0; i < limit; ++i ) 
+    for( int i = 0; i < limit; ++i )
         ply_get_property( file, "vertex", &vertexProps[i] );
-    
+
     vertices.clear();
     vertices.reserve( nVertices );
-    
+
     if( readColors )
     {
         colors.clear();
         colors.reserve( nVertices );
     }
-    
+
     // read in the vertices
     for( int i = 0; i < nVertices; ++i )
     {
@@ -114,17 +111,17 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
         int*            vertices;
     } face;
 
-    PlyProperty faceProps[] = 
+    PlyProperty faceProps[] =
     {
-        { "vertex_indices", PLY_INT, PLY_INT, offsetof( _Face, vertices ), 
+        { "vertex_indices", PLY_INT, PLY_INT, offsetof( _Face, vertices ),
           1, PLY_UCHAR, PLY_UCHAR, offsetof( _Face, nVertices ) }
     };
-    
+
     ply_get_property( file, "face", &faceProps[0] );
-    
+
     triangles.clear();
     triangles.reserve( nFaces );
-    
+
     // read in the faces, asserting that they are only triangles
     uint8_t ind1 = _invertFaces ? 2 : 0;
     uint8_t ind3 = _invertFaces ? 0 : 2;
@@ -138,10 +135,10 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
             throw MeshException( "Error reading PLY file. Encountered a "
                                  "face which does not have three vertices." );
         }
-        triangles.push_back( Triangle( face.vertices[ind1], 
+        triangles.push_back( Triangle( face.vertices[ind1],
                                        face.vertices[1],
                                        face.vertices[ind3] ) );
-        
+
         // free the memory that was allocated by ply_get_element
         free( face.vertices );
     }
@@ -156,42 +153,43 @@ bool VertexData::readPlyFile( const std::string& filename )
     int     fileType;
     float   version;
     bool    result = false;
-    
+
     PlyFile* file = ply_open_for_reading( const_cast<char*>( filename.c_str( )),
-                                          &nPlyElems, &elemNames, 
+                                          &nPlyElems, &elemNames,
                                           &fileType, &version );
     if( !file )
     {
-        MESHERROR << "Unable to open PLY file " << filename 
-                  << " for reading." << endl;
+        MESHERROR << "Unable to open PLY file " << filename
+                  << " for reading." << std::endl;
         return result;
     }
     MESHASSERT( elemNames != 0 );
-    
+
     #ifndef NDEBUG
-    MESHINFO << filename << ": " << nPlyElems << " elements, file type = " 
-             << fileType << ", version = " << version << endl;
+    MESHINFO << filename << ": " << nPlyElems << " elements, file type = "
+             << fileType << ", version = " << version << std::endl;
     #endif
-    
+
     for( int i = 0; i < nPlyElems; ++i )
     {
         int nElems;
         int nProps;
-        
-        PlyProperty** props = ply_get_element_description( file, elemNames[i], 
+
+        PlyProperty** props = ply_get_element_description( file, elemNames[i],
                                                            &nElems, &nProps );
         MESHASSERT( props != 0 );
-        
+
         #ifndef NDEBUG
         MESHINFO << "element " << i << ": name = " << elemNames[i] << ", "
-                 << nProps << " properties, " << nElems << " elements" << endl;
+                 << nProps << " properties, " << nElems << " elements"
+                 << std::endl;
         for( int j = 0; j < nProps; ++j )
         {
             MESHINFO << "element " << i << ", property " << j << ": "
-                     << "name = " << props[j]->name << endl;
+                     << "name = " << props[j]->name << std::endl;
         }
         #endif
-        
+
         if( equal_strings( elemNames[i], "vertex" ) )
         {
             bool hasColors = false;
@@ -199,7 +197,7 @@ bool VertexData::readPlyFile( const std::string& filename )
             for( int j = 0; j < nProps; ++j )
                 if( equal_strings( props[j]->name, "red" ) )
                     hasColors = true;
-            
+
             readVertices( file, nElems, hasColors );
             MESHASSERT( vertices.size() == static_cast< size_t >( nElems ) );
             if( hasColors )
@@ -214,28 +212,28 @@ bool VertexData::readPlyFile( const std::string& filename )
             MESHASSERT( triangles.size() == static_cast< size_t >( nElems ) );
             result = true;
         }
-        catch( const exception& e )
+        catch( const std::exception& e )
         {
-            MESHERROR << "Unable to read PLY file, an exception occured:  " 
-                      << e.what() << endl;
+            MESHERROR << "Unable to read PLY file, an exception occured:  "
+                      << e.what() << std::endl;
             // stop for loop by setting the loop variable to break condition
             // this way resources still get released even on error cases
             i = nPlyElems;
         }
-        
+
         // free the memory that was allocated by ply_get_element_description
         for( int j = 0; j < nProps; ++j )
             free( props[j] );
         free( props );
     }
-    
+
     ply_close( file );
-    
+
     // free the memory that was allocated by ply_open_for_reading
     for( int i = 0; i < nPlyElems; ++i )
         free( elemNames[i] );
     free( elemNames );
-    
+
     return result;
 }
 
@@ -246,14 +244,14 @@ void VertexData::calculateNormals()
 #ifndef NDEBUG
     int wrongNormals = 0;
 #endif
-    
+
     normals.clear();
     normals.reserve( vertices.size() );
-        
+
     // initialize all normals to zero
     for( size_t i = 0; i < vertices.size(); ++i )
         normals.push_back( Normal( 0, 0, 0 ) );
-    
+
     // iterate over all triangles and add their normals to adjacent vertices
 #pragma omp parallel for
     for( ssize_t i = 0; i < ssize_t( triangles.size( )); ++i )
@@ -268,21 +266,21 @@ void VertexData::calculateNormals()
         if( normal.length() == 0.0f )
             ++wrongNormals; // racy with OpenMP, but not critical
 #endif
-         
-        normals[i0] += normal; 
-        normals[i1] += normal; 
+
+        normals[i0] += normal;
+        normals[i1] += normal;
         normals[i2] += normal;
     }
-    
+
     // normalize all the normals
 #pragma omp parallel for
     for( ssize_t i = 0; i < ssize_t( vertices.size( )); ++i )
         normals[i].normalize();
-    
+
 #ifndef NDEBUG
     if( wrongNormals > 0 )
-        MESHINFO << wrongNormals << " faces have no valid normal." << endl;
-#endif 
+        MESHINFO << wrongNormals << " faces have no valid normal." << std::endl;
+#endif
 }
 
 
@@ -294,8 +292,8 @@ void VertexData::calculateBoundingBox()
     for( size_t v = 1; v < vertices.size(); ++v )
         for( size_t i = 0; i < 3; ++i )
         {
-            _boundingBox[0][i] = min( _boundingBox[0][i], vertices[v][i] );
-            _boundingBox[1][i] = max( _boundingBox[1][i], vertices[v][i] );
+            _boundingBox[0][i] = std::min( _boundingBox[0][i], vertices[v][i] );
+            _boundingBox[1][i] = std::max( _boundingBox[1][i], vertices[v][i] );
         }
 }
 
@@ -306,11 +304,11 @@ Axis VertexData::getLongestAxis( const size_t start,
 {
     if( start + elements > triangles.size() )
     {
-        LBERROR << "incorrect request to getLongestAxis" << endl
-                << "start:     " << start                << endl
-                << "elements:  " << elements             << endl
-                << "sum:       " << start+elements       << endl
-                << "data size: " << triangles.size()     << endl;
+        LBERROR << "incorrect request to getLongestAxis" << std::endl
+                << "start:     " << start                << std::endl
+                << "elements:  " << elements             << std::endl
+                << "sum:       " << start+elements       << std::endl
+                << "data size: " << triangles.size()     << std::endl;
         return AXIS_X;
     }
 
@@ -322,8 +320,8 @@ Axis VertexData::getLongestAxis( const size_t start,
         for( size_t v = 0; v < 3; ++v )
             for( size_t i = 0; i < 3; ++i )
             {
-                bb[0][i] = min( bb[0][i], vertices[ triangles[t][v] ][i] );
-                bb[1][i] = max( bb[1][i], vertices[ triangles[t][v] ][i] );
+                bb[0][i] = std::min( bb[0][i], vertices[ triangles[t][v] ][i] );
+                bb[1][i] = std::max( bb[1][i], vertices[ triangles[t][v] ][i] );
             }
 
     const GLfloat bbX = bb[1][0] - bb[0][0];
@@ -346,18 +344,18 @@ void VertexData::scale( const float baseSize )
     // calculate bounding box if not yet done
     if( _boundingBox[0].length() == 0.0f && _boundingBox[1].length() == 0.0f )
         calculateBoundingBox();
-    
+
     // find largest dimension and determine scale factor
     float factor = 0.0f;
     for( size_t i = 0; i < 3; ++i )
-        factor = max( factor, _boundingBox[1][i] - _boundingBox[0][i] );
+        factor = std::max( factor, _boundingBox[1][i] - _boundingBox[0][i] );
     factor = baseSize / factor;
-    
+
     // determine scale offset
     Vertex offset;
     for( size_t i = 0; i < 3; ++i )
         offset[i] = ( _boundingBox[0][i] + _boundingBox[1][i] ) * 0.5f;
-    
+
     // scale the data
 #pragma omp parallel for
     for( ssize_t v = 0; v < ssize_t( vertices.size( )); ++v )
@@ -366,7 +364,7 @@ void VertexData::scale( const float baseSize )
             vertices[v][i] -= offset[i];
             vertices[v][i] *= factor;
         }
-    
+
     // scale the bounding box
     for( size_t v = 0; v < 2; ++v )
         for( size_t i = 0; i < 3; ++i )
@@ -383,7 +381,7 @@ struct _TriangleSort
 {
     _TriangleSort( const VertexData& data, const Axis axis ) : _data( data ),
                                                                _axis( axis ) {}
-    
+
     bool operator() ( const Triangle& t1, const Triangle& t2 )
     {
         // references to both triangles' three vertices
@@ -393,7 +391,7 @@ struct _TriangleSort
         const Vertex& v21 = _data.vertices[ t2[0] ];
         const Vertex& v22 = _data.vertices[ t2[1] ];
         const Vertex& v23 = _data.vertices[ t2[2] ];
-        
+
         // compare first by given axis
         int axis = _axis;
         do
@@ -403,15 +401,15 @@ struct _TriangleSort
             const float median2 = (v21[axis] + v22[axis] + v23[axis] ) / 3.0f;
             if( median1 != median2 )
                 return ( median1 < median2 );
-            
+
             // if still equal, move on to the next axis
             axis = ( axis + 1 ) % 3;
         }
         while( axis != _axis );
-        
+
         return false;
     }
-    
+
     const VertexData&   _data;
     const Axis          _axis;
 };
@@ -422,7 +420,7 @@ void VertexData::sort( const Index start, const Index length, const Axis axis )
 {
     MESHASSERT( length > 0 );
     MESHASSERT( start + length <= triangles.size() );
-    
+
     ::sort( triangles.begin() + start, triangles.begin() + start + length,
             _TriangleSort( *this, axis ) );
 }

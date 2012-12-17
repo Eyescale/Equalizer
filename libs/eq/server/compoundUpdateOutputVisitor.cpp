@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,6 +32,7 @@
 
 #include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
+#include <eq/fabric/tile.h>
 
 #define TILE_STRATEGY ZigzagStrategy
 
@@ -38,7 +40,7 @@ namespace eq
 {
 namespace server
 {
-CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(  
+CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(
     const uint32_t frameNumber )
         : _frameNumber( frameNumber )
 {}
@@ -46,13 +48,13 @@ CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(
 VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
 {
     if( !compound->isActive( ))
-        return TRAVERSE_PRUNE;    
+        return TRAVERSE_PRUNE;
 
     _updateQueues( compound );
     _updateFrames( compound );
     _updateSwapBarriers( compound );
 
-    return TRAVERSE_CONTINUE;    
+    return TRAVERSE_CONTINUE;
 }
 
 void CompoundUpdateOutputVisitor::_updateQueues( Compound* compound )
@@ -74,7 +76,7 @@ void CompoundUpdateOutputVisitor::_updateQueues( Compound* compound )
 
         queue->cycleData( _frameNumber, compound );
 
-        //----- Generate tile task packets
+        //----- Generate tile task commands
         _generateTiles( queue, compound );
         _outputTileQueues[name] = queue;
     }
@@ -109,7 +111,7 @@ void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
         const PixelViewport& inheritPVP = compound->getInheritPixelViewport();
         PixelViewport framePVP( inheritPVP );
         framePVP.apply( frameVP );
-        
+
         if( !framePVP.hasArea( )) // output frame has no pixels
         {
             LBINFO << "Skipping output frame " << name << ", no pixels"
@@ -126,11 +128,11 @@ void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
         LBASSERT( frameData );
 
         LBLOG( LOG_ASSEMBLY )
-            << lunchbox::disableFlush << "Output frame \"" << name << "\" id " 
+            << lunchbox::disableFlush << "Output frame \"" << name << "\" id "
             << frame->getID() << " v" << frame->getVersion()+1
-            << " data id " << frameData->getID() << " v" 
+            << " data id " << frameData->getID() << " v"
             << frameData->getVersion() + 1 << " on channel \""
-            << channel->getName() << "\" tile pos " << framePVP.x << ", " 
+            << channel->getName() << "\" tile pos " << framePVP.x << ", "
             << framePVP.y;
 
         //----- Set frame data parameters:
@@ -148,7 +150,7 @@ void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
         uint32_t buffers = frame->getBuffers();
 
         frameData->setType( frame->getType() );
-        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
+        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ?
                                    compound->getInheritBuffers() : buffers );
 
         // 4) (source) render context
@@ -173,9 +175,9 @@ void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
 
         //----- Commit
         frame->commitData();
-        
+
         _outputFrames[name] = frame;
-        LBLOG( LOG_ASSEMBLY ) 
+        LBLOG( LOG_ASSEMBLY )
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getZoom() << " assemble "
             << frameData->getZoom()<< lunchbox::enableFlush << std::endl ;
@@ -201,8 +203,8 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
     _addTilesToQueue( queue, compound, tiles );
 }
 
-void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue, 
-                                                    Compound* compound, 
+void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
+                                                    Compound* compound,
                                          const std::vector< Vector2i >& tiles )
 {
 
@@ -236,14 +238,12 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
                 continue;
             }
 
-            TileTaskPacket packet;
-            packet.pvp = tilePVP;
-            packet.vp = tileVP;
-
-            compound->computeTileFrustum( packet.frustum, eye, packet.vp,
+            Tile tileItem( tilePVP, tileVP );
+            compound->computeTileFrustum( tileItem.frustum, eye, tileItem.vp,
                                           false );
-            compound->computeTileFrustum( packet.ortho, eye, packet.vp, true );
-            queue->addTile( packet, eye );
+            compound->computeTileFrustum( tileItem.ortho, eye, tileItem.vp,
+                                          true );
+            queue->addTile( tileItem, eye );
         }
     }
 }
@@ -291,7 +291,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
 
         FrameData* frameData = frame->getMasterData();
         frameData->setZoom( inputZoom );
-        frame->setZoom( zoom );                
+        frame->setZoom( zoom );
     }
 }
 
@@ -311,7 +311,7 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
         if( !window->hasNVSwapBarrier( ))
         {
             const std::string name( "__NV_swap_group_protection_barrier__" );
-            _swapBarriers[name] = 
+            _swapBarriers[name] =
                 window->joinNVSwapBarrier( swapBarrier, _swapBarriers[name] );
         }
     }

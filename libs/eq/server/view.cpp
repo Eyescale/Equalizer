@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,10 +32,12 @@
 #include "equalizers/tileEqualizer.h"
 #include "tileQueue.h"
 
-#include <eq/client/viewPackets.h>
+#include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
+
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/iCommand.h>
 
 namespace eq
 {
@@ -68,7 +71,7 @@ void View::attach( const UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
 
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
-    registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
+    registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING,
                      ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
 }
 
@@ -165,7 +168,7 @@ public:
         {
             (*i)->setFrozen( _freeze );
         }
-        return TRAVERSE_CONTINUE; 
+        return TRAVERSE_CONTINUE;
     }
 
 private:
@@ -197,7 +200,7 @@ public:
             const uint32_t bitmask = _view->getEqualizers();
             equalizer->setActive( ( equalizer->getType() & bitmask ) != 0 );
         }
-        return TRAVERSE_CONTINUE; 
+        return TRAVERSE_CONTINUE;
     }
 
 
@@ -205,11 +208,11 @@ private:
     const View* const _view;
 };
 
-class SetTileSizeVisitor : public ConfigVisitor
+class UpdateEqualizersVisitor : public ConfigVisitor
 {
 public:
 
-    SetTileSizeVisitor( const View* view ) : _view( view ) {}
+    UpdateEqualizersVisitor( const View* view ) : _view( view ) {}
 
     // No need to go down on nodes.
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
@@ -227,18 +230,12 @@ public:
         for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
         {
             TileQueue* queue = *i;
-            queue->setTileSize( _view->getTileSize( ));
+            queue->setTileSize( _view->getEqualizer().getTileSize( ));
         }
 
-        const Equalizers equalizers = compound->getEqualizers();
-        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
-        {
-            if ( (*i)->getType() == fabric::TILE_EQUALIZER )
-            {
-                TileEqualizer* tileEq = static_cast< TileEqualizer* >( *i );
-                tileEq->setTileSize( _view->getTileSize( ));
-            }
-        }
+        Equalizers equalizers = compound->getEqualizers();
+        for( EqualizersIter i = equalizers.begin(); i != equalizers.end(); ++i)
+            *(*i) = _view->getEqualizer();
 
         return TRAVERSE_CONTINUE;
     }
@@ -264,7 +261,7 @@ void View::_updateChannels() const
     co::ObjectVersion version( this );
     if( isDirty( ))
         ++version.version;
-        
+
     for( Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
     {
@@ -280,9 +277,9 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW | DIRTY_MODELUNIT ))
         updateFrusta();
-    if( dirtyBits & DIRTY_TILESIZE )
+    if( dirtyBits & DIRTY_EQUALIZER )
     {
-        SetTileSizeVisitor visitor ( this );
+        UpdateEqualizersVisitor visitor ( this );
         getConfig()->accept( visitor );
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
@@ -311,7 +308,7 @@ ServerPtr View::getServer()
 {
     Config* config = getConfig();
     LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    return config ? config->getServer() : 0;
 }
 
 void View::addChannel( Channel* channel )
@@ -336,7 +333,7 @@ ViewPath View::getPath() const
     const Layout* layout = getLayout();
     LBASSERT( layout );
     ViewPath path( layout->getPath( ));
-    
+
     const Views& views = layout->getViews();
     Views::const_iterator i = std::find( views.begin(), views.end(), this );
     LBASSERT( i != views.end( ));
@@ -350,7 +347,7 @@ void View::trigger( const Canvas* canvas, const bool active )
     Config* config = getConfig();
 
     // (De)activate destination compounds for canvas/eye(s)
-    for( Channels::const_iterator i = _channels.begin(); 
+    for( Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -371,10 +368,10 @@ void View::trigger( const Canvas* canvas, const bool active )
             continue;
 
         ConfigDestCompoundVisitor visitor( channel, true /*activeOnly*/ );
-        config->accept( visitor );     
+        config->accept( visitor );
 
         const Compounds& compounds = visitor.getResult();
-        for( Compounds::const_iterator j = compounds.begin(); 
+        for( Compounds::const_iterator j = compounds.begin();
              j != compounds.end(); ++j )
         {
             Compound* compound = *j;
@@ -514,12 +511,9 @@ float View::_computeFocusRatio( Vector3f& eye )
     return focusDistance / distance;
 }
 
-bool View::_cmdFreezeLoadBalancing( co::Command& command ) 
+bool View::_cmdFreezeLoadBalancing( co::ICommand& command )
 {
-    const ViewFreezeLoadBalancingPacket* packet = 
-        command.get<ViewFreezeLoadBalancingPacket>();
-
-    FreezeVisitor visitor( this, packet->freeze );
+    FreezeVisitor visitor( this, command.get< bool >( ));
     getConfig()->accept( visitor );
 
     return true;

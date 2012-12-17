@@ -2,7 +2,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
-cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
 option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
@@ -18,16 +18,17 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 include(revision)
 
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
-set(LAST_RELEASE 1.4.0)
+set(LAST_RELEASE 1.4.1)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "5")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 
 if(CMAKE_OSX_DEPLOYMENT_TARGET)
   set(EQ_OSX_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
 else()
   set(EQ_OSX_VERSION 10.6)
 endif()
+
 if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX${EQ_OSX_VERSION}.sdk
@@ -46,6 +47,10 @@ include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
+
+if(CMAKE_COMPILER_IS_CLANG)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual")
+endif()
 
 set(EQ_FEATURES)
 if(MSVC)
@@ -67,10 +72,6 @@ endif()
 
 if(X11_FOUND)
   set(EQ_GLX_USED 1)
-  if(APPLE)
-    link_directories(/usr/X11R6/lib)
-    include_directories(SYSTEM /usr/X11R6/include)
-  endif()
 endif(X11_FOUND)
 
 if(APPLE)
@@ -95,7 +96,7 @@ if(APPLE)
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
-    set(CUDA_64_BIT_DEVICE_CODE OFF) 
+    set(CUDA_64_BIT_DEVICE_CODE OFF)
   endif()
 endif(APPLE)
 

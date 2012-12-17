@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -129,7 +130,7 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** @sa co::Node::createNode */
+        /** @sa co::LocalNode::createNode */
         EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
         /** @internal */
@@ -138,7 +139,7 @@ namespace eq
         bool _setupClient( const std::string& clientArgs );
 
         /** The command functions. */
-        bool _cmdExit( co::Command& command );
+        bool _cmdExit( co::ICommand& command );
     };
 }
 

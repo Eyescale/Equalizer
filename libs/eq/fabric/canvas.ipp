@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -17,16 +18,17 @@
 
 #include "canvas.h"
 
-#include "canvasPackets.h"
+#include "commands.h"
 #include "elementVisitor.h"
+#include "leafVisitor.h"
 #include "log.h"
 #include "nameFinder.h"
 #include "paths.h"
 #include "segment.h"
 
-#include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectICommand.h>
 
 namespace eq
 {
@@ -85,10 +87,10 @@ void Canvas< CFG, C, S, L >::attach( const UUID& id,
     co::CommandQueue* queue = _config->getMainThreadQueue();
     LBASSERT( queue );
 
-    registerCommand( CMD_CANVAS_NEW_SEGMENT, 
+    registerCommand( CMD_CANVAS_NEW_SEGMENT,
                      CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegment ),
                      queue );
-    registerCommand( CMD_CANVAS_NEW_SEGMENT_REPLY, 
+    registerCommand( CMD_CANVAS_NEW_SEGMENT_REPLY,
                   CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegmentReply ),
                      0 );
 }
@@ -97,7 +99,7 @@ template< class CFG, class C, class S, class L >
 uint128_t Canvas< CFG, C, S, L >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_SEGMENTS ))
-        commitChildren< S, CanvasNewSegmentPacket >( _segments, incarnation );
+        commitChildren< S >( _segments, CMD_CANVAS_NEW_SEGMENT, incarnation );
     return Object::commit( incarnation );
 }
 
@@ -180,7 +182,7 @@ void Canvas< CFG, C, S, L >::setDirty( const uint64_t dirtyBits )
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::create( S** segment )
 {
-    *segment = _config->getServer()->getNodeFactory()->createSegment( 
+    *segment = _config->getServer()->getNodeFactory()->createSegment(
         static_cast< C* >( this ));
 }
 
@@ -327,7 +329,7 @@ void Canvas< CFG, C, S, L >::setSwapBarrier( SwapBarrierPtr barrier )
         barrier->setName( out.str( ));
     }
 
-    _swapBarrier = barrier; 
+    _swapBarrier = barrier;
 }
 
 namespace
@@ -340,7 +342,7 @@ VisitorResult _accept( C* canvas, V& visitor )
         return result;
 
     const typename C::Segments& segments = canvas->getSegments();
-    for( typename C::Segments::const_iterator i = segments.begin(); 
+    for( typename C::Segments::const_iterator i = segments.begin();
          i != segments.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -351,7 +353,7 @@ VisitorResult _accept( C* canvas, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -365,7 +367,7 @@ VisitorResult _accept( C* canvas, V& visitor )
 
         case TRAVERSE_PRUNE:
             return TRAVERSE_PRUNE;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -428,14 +430,13 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 }
 
 //----------------------------------------------------------------------
-// Command handlers
+// ICommand handlers
 //----------------------------------------------------------------------
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
+Canvas< CFG, C, S, L >::_cmdNewSegment( co::ICommand& cmd )
 {
-    const CanvasNewSegmentPacket* packet =
-        command.get< CanvasNewSegmentPacket >();
-    
+    co::ObjectICommand command( cmd );
+
     S* segment = 0;
     create( &segment );
     LBASSERT( segment );
@@ -444,37 +445,39 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
     segment->setAutoObsolete( _config->getLatency() + 1 );
     LBASSERT( segment->isAttached() );
 
-    CanvasNewSegmentReplyPacket reply( packet );
-    reply.segmentID = segment->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), CMD_CANVAS_NEW_SEGMENT_REPLY )
+            << command.get< uint32_t >() << segment->getID();
 
     return true;
 }
 
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& command )
+Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::ICommand& cmd )
 {
-    const CanvasNewSegmentReplyPacket* packet =
-        command.get< CanvasNewSegmentReplyPacket >();
-    getLocalNode()->serveRequest( packet->requestID, packet->segmentID );
+    co::ObjectICommand command( cmd );
+
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }
 
 template< class CFG, class C, class S, class L >
-std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os,
                             const Canvas< CFG, C, S, L >& canvas )
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "canvas"
        << std::endl;
-    os << "{" << std::endl << lunchbox::indent; 
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = canvas.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
     const std::vector< L* >& layouts = canvas.getLayouts();
-    for( typename std::vector< L* >::const_iterator i = layouts.begin(); 
+    for( typename std::vector< L* >::const_iterator i = layouts.begin();
          i != layouts.end(); ++i )
     {
         L* layout = *i;
@@ -498,7 +501,7 @@ std::ostream& operator << ( std::ostream& os,
     os << static_cast< const Frustum& >( canvas );
 
     const std::vector< S* >& segments = canvas.getSegments();
-    for( typename std::vector< S* >::const_iterator i = segments.begin(); 
+    for( typename std::vector< S* >::const_iterator i = segments.begin();
          i != segments.end(); ++i )
     {
         os << **i;

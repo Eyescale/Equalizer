@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,7 +21,6 @@
 
 #include <eq/fabric/eye.h>
 #include <eq/fabric/focusMode.h>
-#include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/uuid.h>
@@ -71,6 +71,8 @@ using lunchbox::UUID;
 using lunchbox::Strings;
 using lunchbox::StringsCIter;
 
+typedef Configs::const_iterator ConfigsCIter;
+typedef Configs::iterator ConfigsIter;
 typedef Canvases::const_iterator CanvasesCIter;
 typedef Canvases::iterator CanvasesIter;
 typedef Channels::const_iterator ChannelsCIter;
@@ -104,7 +106,6 @@ using fabric::Matrix4f;
 using fabric::PixelViewport;
 using fabric::Projection;
 using fabric::RenderContext;
-using fabric::TileTaskPacket;
 using fabric::SwapBarrier;
 using fabric::SwapBarrierPtr;
 using fabric::SwapBarrierConstPtr;
@@ -148,8 +149,8 @@ typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
-    
+typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+
 /** A visitor to traverse pipes and children. */
 typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
 

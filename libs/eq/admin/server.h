@@ -62,8 +62,8 @@ namespace admin
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        bool _cmdMapReply( co::Command& command );
-        bool _cmdUnmapReply( co::Command& command );
+        bool _cmdMapReply( co::ICommand& command );
+        bool _cmdUnmapReply( co::ICommand& command );
     };
 }
 }

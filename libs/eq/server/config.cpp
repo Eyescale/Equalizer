@@ -1,16 +1,17 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+ *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -34,15 +35,15 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/clientPackets.h>
-#include <eq/client/configEvent.h>
-#include <eq/client/configPackets.h>
 #include <eq/client/error.h>
-#include <eq/fabric/configPackets.h>
+#include <eq/client/event.h>
+
+#include <eq/fabric/commands.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
-#include <eq/fabric/serverPackets.h>
-#include <co/command.h>
+
+#include <co/objectICommand.h>
+
 #include <lunchbox/sleep.h>
 
 #include "channelStopFrameVisitor.h"
@@ -59,7 +60,6 @@ namespace server
 typedef co::CommandFunc<Config> ConfigFunc;
 using fabric::ON;
 using fabric::OFF;
-using fabric::ServerCreateConfigPacket;
 
 Config::Config( ServerPtr parent )
         : Super( parent )
@@ -95,7 +95,7 @@ Config::~Config()
 void Config::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    
+
     co::CommandQueue* mainQ = getMainThreadQueue();
     co::CommandQueue* cmdQ = getCommandThreadQueue();
 
@@ -107,11 +107,11 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdUpdate ), mainQ );
     registerCommand( fabric::CMD_CONFIG_CREATE_REPLY,
                      ConfigFunc( this, &Config::_cmdCreateReply ), cmdQ );
-    registerCommand( fabric::CMD_CONFIG_START_FRAME, 
+    registerCommand( fabric::CMD_CONFIG_START_FRAME,
                      ConfigFunc( this, &Config::_cmdStartFrame ), mainQ );
-    registerCommand( fabric::CMD_CONFIG_STOP_FRAMES, 
+    registerCommand( fabric::CMD_CONFIG_STOP_FRAMES,
                      ConfigFunc( this, &Config::_cmdStopFrames ), mainQ );
-    registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
+    registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES,
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
 }
 
@@ -120,7 +120,7 @@ namespace
 class ChannelViewFinder : public ConfigVisitor
 {
 public:
-    ChannelViewFinder( const Segment* const segment, const View* const view ) 
+    ChannelViewFinder( const Segment* const segment, const View* const view )
             : _segment( segment ), _view( view ), _result( 0 ) {}
 
     virtual ~ChannelViewFinder(){}
@@ -143,6 +143,32 @@ private:
     const Segment* const _segment;
     const View* const    _view;
     Channel*             _result;
+};
+
+class UpdateEqualizersVisitor : public ConfigVisitor
+{
+public:
+    UpdateEqualizersVisitor() {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        View* view = dest->getView();
+        if( !view )
+            return TRAVERSE_CONTINUE;
+
+        const Equalizers& equalizers = compound->getEqualizers();
+        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
+            view->getEqualizer() = *(*i);
+
+        return TRAVERSE_CONTINUE;
+    }
 };
 }
 
@@ -193,7 +219,7 @@ void Config::activateCanvas( Canvas* canvas )
             continue;
 
         const Views& views = layout->getViews();
-        for( Views::const_iterator j = views.begin(); 
+        for( Views::const_iterator j = views.begin();
              j != views.end(); ++j )
         {
             View* view = *j;
@@ -211,10 +237,10 @@ void Config::activateCanvas( Canvas* canvas )
                         << "View " << view->getName() << view->getViewport()
                         << " doesn't intersect " << segment->getName()
                         << segment->getViewport() << std::endl;
-                
+
                     continue;
                 }
-                      
+
                 Channel* segmentChannel = segment->getChannel();
                 if( !segmentChannel )
                 {
@@ -234,7 +260,7 @@ void Config::activateCanvas( Canvas* canvas )
                 Viewport contribution = viewport;
                 // ... in segment space...
                 contribution.transform( segment->getViewport( ));
-            
+
                 // segment output area
                 if( segmentChannel->hasFixedViewport( ))
                 {
@@ -246,7 +272,7 @@ void Config::activateCanvas( Canvas* canvas )
                     // ...our part of it
                     subViewport.apply( contribution );
                     channel->setViewport( subViewport );
-                    LBLOG( LOG_VIEW ) 
+                    LBLOG( LOG_VIEW )
                         << "View @" << (void*)view << ' ' << view->getViewport()
                         << " intersects " << segment->getName()
                         << segment->getViewport() << " at " << subViewport
@@ -258,7 +284,7 @@ void Config::activateCanvas( Canvas* canvas )
                     LBASSERT( pvp.isValid( ));
                     pvp.apply( contribution );
                     channel->setPixelViewport( pvp );
-                    LBLOG( LOG_VIEW ) 
+                    LBLOG( LOG_VIEW )
                         << "View @" << (void*)view << ' ' << view->getViewport()
                         << " intersects " << segment->getName()
                         << segment->getViewport() << " at " << pvp
@@ -294,7 +320,7 @@ void Config::updateCanvas( Canvas* canvas )
             if( channels.empty( ))
                 LBWARN << "New view without destination channels will be ignored"
                        << std::endl;
-        
+
             for( ChannelsCIter k = channels.begin(); k != channels.end(); ++k )
             {
                 Channel* channel = *k;
@@ -441,7 +467,7 @@ namespace
 {
 template< class C >
 static VisitorResult _accept( C* config, ConfigVisitor& visitor )
-{ 
+{
     VisitorResult result = TRAVERSE_CONTINUE;
     const Compounds& compounds = config->getCompounds();
     for( Compounds::const_iterator i = compounds.begin();
@@ -455,7 +481,7 @@ static VisitorResult _accept( C* config, ConfigVisitor& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -481,7 +507,6 @@ VisitorResult Config::_acceptCompounds( ConfigVisitor& visitor ) const
 
 void Config::register_()
 {
-    ServerPtr server = getServer();
     ConfigRegistrator registrator;
     accept( registrator );
 }
@@ -647,12 +672,9 @@ void Config::_stopNodes()
         stoppingNodes.push_back( node );
         LBASSERT( netNode.isValid( ));
 
-        fabric::ServerDestroyConfigPacket destroyConfigPacket;
-        destroyConfigPacket.configID = getID();
-        netNode->send( destroyConfigPacket );
-
-        ClientExitPacket clientExitPacket;
-        netNode->send( clientExitPacket );
+        netNode->send( fabric::CMD_SERVER_DESTROY_CONFIG )
+                << getID() << LB_UNDEFINED_UINT32;
+        netNode->send( fabric::CMD_CLIENT_EXIT );
     }
 
     // now wait that the render clients disconnect
@@ -686,7 +708,7 @@ bool Config::_updateNodes()
 {
     ConfigUpdateVisitor update( _initID, _currentFrame );
     accept( update );
-    
+
     ConfigUpdateSyncVisitor syncUpdate;
     accept( syncUpdate );
 
@@ -730,20 +752,15 @@ uint32_t Config::_createConfig( Node* node )
 
     // create config on each non-app node
     //   app-node already has config from chooseConfig
-    ServerCreateConfigPacket createConfigPacket( this,
-                                            getLocalNode()->registerRequest( ));
+    const uint32_t requestID = getLocalNode()->registerRequest();
+    node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG )
+            << co::ObjectVersion( this ) << requestID;
 
-    co::NodePtr netNode = node->getNode();
-    netNode->send( createConfigPacket );
-
-    return createConfigPacket.requestID;
+    return requestID;
 }
 
 void Config::_syncClock()
 {
-    ConfigSyncClockPacket packet;
-    packet.time = getServer()->getTime();
-
     const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
@@ -754,7 +771,8 @@ void Config::_syncClock()
             co::NodePtr netNode = node->getNode();
             LBASSERT( netNode->isConnected( ));
 
-            send( netNode, packet );
+            send( netNode,
+                  fabric::CMD_CONFIG_SYNC_CLOCK ) << getServer()->getTime();
         }
     }
 }
@@ -787,6 +805,10 @@ bool Config::_init( const uint128_t& initID )
     // Needed to set up active state for first LB update
     for( CompoundsCIter i = _compounds.begin(); i != _compounds.end(); ++i )
         (*i)->update( 0 );
+
+    // Update equalizer properties in views
+    UpdateEqualizersVisitor updater;
+    accept( updater );
 
     _needsFinish = false;
     _state = STATE_RUNNING;
@@ -821,10 +843,13 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-    ConfigEvent exitEvent;
-    exitEvent.data.type = Event::EXIT;
-    send( findApplicationNetNode(), exitEvent );
-    
+    // TODO: is this needed? sender of CMD_CONFIG_EXIT is the appNode itself
+    // which sets the running state to false anyway. Besides, this event is
+    // not handled by the appNode because it is already in exiting procedure
+    // and does not call handleEvents anymore
+    // eile: May be needed for reliability?
+    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
+
     _needsFinish = false;
     _state = STATE_STOPPED;
     return success;
@@ -844,13 +869,13 @@ void Config::_startFrame( const uint128_t& frameID )
     LBLOG( lunchbox::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                                << std::endl;
 
-    for( Compounds::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
         compound->update( _currentFrame );
     }
-    
+
     ConfigUpdateDataVisitor configDataVisitor;
     accept( configDataVisitor );
 
@@ -865,11 +890,8 @@ void Config::_startFrame( const uint128_t& frameID )
     }
 
     if( appNode.isValid( )) // release appNode local sync
-    {
-        ConfigReleaseFrameLocalPacket packet;
-        packet.frameNumber = _currentFrame;
-        send( appNode, packet );
-    }
+        send( appNode,
+              fabric::CMD_CONFIG_RELEASE_FRAME_LOCAL ) << _currentFrame;
 
     // Fix 2976899: Config::finishFrame deadlocks when no nodes are active
     notifyNodeFrameFinished( _currentFrame );
@@ -881,7 +903,7 @@ void Config::_verifyFrameFinished( const uint32_t frameNumber )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isRunning() && 
+        if( node->isRunning() &&
             node->getFinishedFrame() + getLatency() < frameNumber )
         {
             NodeFailedVisitor nodeFailedVisitor;
@@ -910,13 +932,12 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
 
     // All nodes have finished the frame. Notify the application's config that
     // the frame is finished
-    ConfigFrameFinishPacket packet;
-    packet.frameNumber = frameNumber;
 
     // do not use send/_bufferedTasks, not thread-safe!
-    send( findApplicationNetNode(), packet );
-    LBLOG( LOG_TASKS ) << "TASK config frame finished  " << &packet
-                           << std::endl;
+    send( findApplicationNetNode(),
+          fabric::CMD_CONFIG_FRAME_FINISH ) << frameNumber;
+    LBLOG( LOG_TASKS ) << "TASK config frame finished  " << " frame "
+                       << frameNumber << std::endl;
 }
 
 void Config::_flushAllFrames()
@@ -951,56 +972,62 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdInit( co::Command& command )
+bool Config::_cmdInit( co::ICommand& cmd )
 {
+    co::ObjectICommand command( cmd );
+
     LB_TS_THREAD( _mainThread );
-    const ConfigInitPacket* packet =
-        command.get<ConfigInitPacket>();
-    LBVERB << "handle config start init " << packet << std::endl;
+    LBVERB << "handle config start init " << command << std::endl;
 
     sync();
     setError( ERROR_NONE );
     commit();
 
-    ConfigInitReplyPacket reply( packet );
-    reply.result = _init( packet->initID );
-    if( !reply.result )
+    const uint128_t initID = command.get< uint128_t >();
+    const uint32_t requestID = command.get< uint32_t >();
+
+    const bool result = _init( initID );
+    if( !result )
         exit();
 
     sync();
-    LBINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
+    LBINFO << "Config init " << (result ? "successful: ": "failed: ")
            << getError() << std::endl;
 
-    reply.version = commit();
-    send( command.getNode(), reply );
+    const uint128_t version = commit();
+    send( command.getNode(),
+          fabric::CMD_CONFIG_INIT_REPLY ) << version << requestID << result;
     setError( ERROR_NONE );
     return true;
 }
 
-bool Config::_cmdExit( co::Command& command ) 
+bool Config::_cmdExit( co::ICommand& cmd )
 {
-    const ConfigExitPacket* packet = 
-        command.get<ConfigExitPacket>();
-    ConfigExitReplyPacket   reply( packet );
-    LBVERB << "handle config exit " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBVERB << "handle config exit " << command << std::endl;
     setError( ERROR_NONE );
 
+    bool result;
     if( _state == STATE_RUNNING )
-        reply.result = exit();
+        result = exit();
     else
-        reply.result = false;
+        result = false;
 
-    LBINFO << "config exit result: " << reply.result << std::endl;
-    send( command.getNode(), reply );
+    LBINFO << "config exit result: " << result << std::endl;
+    send( command.getNode(), fabric::CMD_CONFIG_EXIT_REPLY )
+            << command.get< uint32_t >() << result;
     return true;
 }
 
-bool Config::_cmdUpdate( co::Command& command )
+bool Config::_cmdUpdate( co::ICommand& cmd )
 {
-    const ConfigUpdatePacket* packet = 
-        command.get<ConfigUpdatePacket>();
+    co::ObjectICommand command( cmd );
 
-    LBVERB << "handle config update " << packet << std::endl;
+    LBVERB << "handle config update " << command << std::endl;
+
+    const uint32_t versionID = command.get< uint32_t >();
+    const uint32_t finishID = command.get< uint32_t >();
 
     sync();
     setError( ERROR_NONE );
@@ -1009,69 +1036,68 @@ bool Config::_cmdUpdate( co::Command& command )
     co::NodePtr node = command.getNode();
     if( !_needsFinish )
     {
-        ConfigUpdateVersionPacket reply( packet, getVersion(),
-                                         LB_UNDEFINED_UINT32 );
-        send( node, reply );
+        send( node, fabric::CMD_CONFIG_UPDATE_VERSION )
+                << getVersion() << versionID << finishID << LB_UNDEFINED_UINT32;
         return true;
     }
 
     co::LocalNodePtr localNode = getLocalNode();
-    ConfigUpdateVersionPacket replyVersion( packet, getVersion(),
-                                            localNode->registerRequest( ));
-    send( node, replyVersion );
-    
+    const uint32_t requestID = localNode->registerRequest();
+
+    send( node, fabric::CMD_CONFIG_UPDATE_VERSION )
+            << getVersion() << versionID << finishID << requestID;
+
     _flushAllFrames();
     _finishedFrame.waitEQ( _currentFrame ); // wait for render clients idle
-    localNode->waitRequest( replyVersion.requestID ); // wait for app sync
+    localNode->waitRequest( requestID ); // wait for app sync
     _needsFinish = false;
 
-    ConfigUpdateReplyPacket reply( packet );
-    reply.result = _updateRunning();
-    if( !reply.result && getIAttribute( IATTR_ROBUSTNESS ) == OFF )
+    const bool result = _updateRunning();
+    if( !result && getIAttribute( IATTR_ROBUSTNESS ) == OFF )
     {
         LBWARN << "Config update failed, exiting config: " << getError()
                << std::endl;
         exit();
     }
 
-    reply.version = commit();
-    send( command.getNode(), reply );
+    const uint128_t version = commit();
+    send( command.getNode(), fabric::CMD_CONFIG_UPDATE_REPLY )
+            << version << command.get< uint32_t >() << result;
     return true;
 }
 
-bool Config::_cmdStartFrame( co::Command& command ) 
+bool Config::_cmdStartFrame( co::ICommand& cmd )
 {
-    const ConfigStartFramePacket* packet = 
-        command.get<ConfigStartFramePacket>();
-    LBVERB << "handle config frame start " << packet << std::endl;
+    co::ObjectICommand command( cmd );
 
-    _startFrame( packet->frameID );
+    LBVERB << "handle config frame start " << command << std::endl;
+
+    _startFrame( command.get< uint128_t >( ));
 
     if( _state == STATE_STOPPED )
     {
         // unlock app
-        ConfigFrameFinishPacket frameFinishPacket;
-        frameFinishPacket.frameNumber = _currentFrame;
-        send( command.getNode(), frameFinishPacket );
+        send( command.getNode(),
+              fabric::CMD_CONFIG_FRAME_FINISH ) << _currentFrame;
     }
     return true;
 }
 
-bool Config::_cmdFinishAllFrames( co::Command& command ) 
+bool Config::_cmdFinishAllFrames( co::ICommand& cmd )
 {
-    const ConfigFinishAllFramesPacket* packet = 
-        command.get<ConfigFinishAllFramesPacket>();
-    LBVERB << "handle config all frames finish " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBVERB << "handle config all frames finish " << command << std::endl;
 
     _flushAllFrames();
     return true;
 }
 
-bool Config::_cmdStopFrames( co::Command& command )
+bool Config::_cmdStopFrames( co::ICommand& cmd )
 {
-    const ConfigStopFramesPacket* packet = 
-        command.get<ConfigStopFramesPacket>();
-    LBVERB << "handle config stop frames " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBVERB << "handle config stop frames " << command << std::endl;
 
     ChannelStopFrameVisitor visitor( _currentFrame );
     accept( visitor );
@@ -1079,14 +1105,14 @@ bool Config::_cmdStopFrames( co::Command& command )
     return true;
 }
 
-bool Config::_cmdCreateReply( co::Command& command ) 
+bool Config::_cmdCreateReply( co::ICommand& cmd )
 {
+    co::ObjectICommand command( cmd );
+
     LB_TS_THREAD( _cmdThread );
     LB_TS_NOT_THREAD( _mainThread );
-    const fabric::ConfigCreateReplyPacket* packet = 
-        command.get< fabric::ConfigCreateReplyPacket >();
 
-    getLocalNode()->serveRequest( packet->requestID );
+    getLocalNode()->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
@@ -1094,7 +1120,7 @@ void Config::output( std::ostream& os ) const
 {
     os << std::endl << lunchbox::disableFlush << lunchbox::disableHeader;
 
-    for( Compounds::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         os << **i;

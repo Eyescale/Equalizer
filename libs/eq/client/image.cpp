@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -364,24 +365,22 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     return names;
 }
 
-void Image::findTransferers( const Frame::Buffer buffer,
-                             const GLEWContext* glewContext,
-                             std::vector< uint32_t >& names )
+std::vector< uint32_t > Image::findTransferers( const Frame::Buffer buffer,
+                                                const GLEWContext* gl ) const
 {
-    co::CompressorInfos infos;
-    _findTransferers( buffer, glewContext, infos );
+    std::vector< uint32_t > result;
+    const co::CompressorInfos& infos = _findTransferers( buffer, gl );
     for( co::CompressorInfosCIter i = infos.begin(); i != infos.end(); ++i )
-        names.push_back( i->name );
+        result.push_back( i->name );
+    return result;
 }
 
-void Image::_findTransferers( const Frame::Buffer buffer,
-                              const GLEWContext* glewContext,
-                              co::CompressorInfos& result )
+co::CompressorInfos Image::_findTransferers( const Frame::Buffer buffer,
+                                             const GLEWContext* gl ) const
 {
-    util::GPUCompressor::findTransferers(
-        getInternalFormat( buffer ), getExternalFormat( buffer ),
-        0 /*caps*/, getQuality( buffer ), _impl->ignoreAlpha, glewContext,
-        result );
+    return util::GPUCompressor::findTransferers(
+        getInternalFormat( buffer ), getExternalFormat( buffer ), 0 /*caps*/,
+        getQuality( buffer ), _impl->ignoreAlpha, gl );
 }
 
 uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
@@ -847,8 +846,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.isCompressed = false;
     memory.hasAlpha = false;
 
-    co::CompressorInfos transferrers;
-    _findTransferers( buffer, 0 /*GLEW context*/, transferrers );
+    const co::CompressorInfos& transferrers =
+        _findTransferers( buffer, 0 /*GLEW context*/ );
 
     if( transferrers.empty( ))
         LBWARN << "No upload engines found for given pixel data" << std::endl;
@@ -910,8 +909,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     }
     validatePixelData( buffer ); // alloc memory for pixels
 
-    uint64_t outDims[4] = { memory.pvp.x, memory.pvp.w,
-                            memory.pvp.y, memory.pvp.h };
+    uint64_t outDims[4] = { uint64_t(memory.pvp.x), uint64_t(memory.pvp.w),
+                            uint64_t(memory.pvp.y), uint64_t(memory.pvp.h) };
     const uint64_t nBlocks = pixels.compressedSize.size();
 
     LBASSERT( nBlocks == pixels.compressedData.size( ));
@@ -1042,8 +1041,10 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
-    const uint64_t inDims[4] = { memory.pvp.x, memory.pvp.w,
-                                 memory.pvp.y, memory.pvp.h };
+    const uint64_t inDims[4] = { uint64_t(memory.pvp.x),
+                                 uint64_t(memory.pvp.w),
+                                 uint64_t(memory.pvp.y),
+                                 uint64_t(memory.pvp.h) };
     attachment.compressor->compress( memory.pixels, inDims,
                                      memory.compressorFlags );
 

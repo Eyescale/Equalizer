@@ -4,12 +4,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -32,17 +32,18 @@ namespace eq
         enum Type
         {
             TIMEOUT_INPUTFRAME  = co::Exception::CUSTOM,
+            GL_ERROR,
             CUSTOM              = co::Exception::CUSTOM + 20 // leave some room
         };
 
         /** Construct a new Exception. */
         Exception( const uint32_t type ) : co::Exception( type ) {}
 
-        virtual const char* what() const throw() 
-        { 
+        virtual const char* what() const throw()
+        {
             std::stringstream os;
             os << *this;
-            return os.str().c_str(); 
+            return os.str().c_str();
         }
     };
 
@@ -52,6 +53,9 @@ namespace eq
         {
           case Exception::TIMEOUT_INPUTFRAME:
               os << " Timeout waiting on input frame";
+              break;
+          case Exception::GL_ERROR:
+              os << " OpenGL Error";
               break;
           default:
               os << static_cast< const co::Exception& >( e );

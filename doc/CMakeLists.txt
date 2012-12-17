@@ -1,7 +1,9 @@
 
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
+find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
+  message(STATUS "Doxygen missing, API documentation targets unavailable")
   return()
 endif()
 
@@ -44,9 +46,9 @@ foreach(DOC ${PUBLIC_DOCS})
   add_dependencies(doxygen_${DOC} ${PREVIOUS})
 
   if(DOC STREQUAL Collage)
-    set(PROJECT_VERSION ${CO_VERSION})
+    set(PROJECT_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR})
   else()
-    set(PROJECT_VERSION ${VERSION})
+    set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
   endif()
 
   add_custom_target(github_${DOC}

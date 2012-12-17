@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@ int main( const int argc, char** argv )
     {
         const std::string filename = filenames.back();
         filenames.pop_back();
-     
+
         if( _isPlyfile( filename ))
         {
             mesh::VertexBufferRoot* model = new mesh::VertexBufferRoot;
@@ -79,4 +79,5 @@ int main( const int argc, char** argv )
                 filenames.push_back( filename + '/' + *i );
         }
     }
+    return EXIT_SUCCESS;
 }

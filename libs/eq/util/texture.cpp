@@ -5,18 +5,20 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "texture.h"
+
+#include <eq/fabric/pixelViewport.h>
 
 #include <eq/client/image.h>
 #include <eq/client/gl.h>
@@ -39,7 +41,7 @@ public:
             , type( 0 )
             , width( 0 )
             , height( 0 )
-            , defined( false ) 
+            , defined( false )
             , glewContext( gl )
         {}
 
@@ -74,7 +76,7 @@ Texture::~Texture()
     delete _impl;
 }
 bool Texture::isValid() const
-{ 
+{
     return ( _impl->name != 0 && _impl->defined );
 }
 
@@ -170,7 +172,7 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
 void Texture::setExternalFormat( const uint32_t format, const uint32_t type )
 {
      _impl->format = format;
-     _impl->type   = type;    
+     _impl->type   = type;
 }
 
 void Texture::_generate()
@@ -278,9 +280,8 @@ void Texture::download( void* buffer ) const
 {
     LB_TS_THREAD( _thread );
     LBASSERT( _impl->defined );
-    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
-    EQ_GL_CALL( glGetTexImage( _impl->target, 0, _impl->format, _impl->type,
-                               buffer ));
+    glBindTexture( _impl->target, _impl->name );
+    glGetTexImage( _impl->target, 0, _impl->format, _impl->type, buffer );
 }
 
 void Texture::bind() const
@@ -289,7 +290,7 @@ void Texture::bind() const
     glBindTexture( _impl->target, _impl->name );
 }
 
-void Texture::bindToFBO( const GLenum target, const int32_t width, 
+void Texture::bindToFBO( const GLenum target, const int32_t width,
                          const int32_t height )
 {
     LB_TS_THREAD( _thread );
@@ -386,7 +387,7 @@ void Texture::writeRGB( const std::string& filename ) const
                                    _impl->glewContext );
             break;
         case GL_DEPTH24_STENCIL8:
-            image.allocDownloader( Frame::BUFFER_COLOR, 
+            image.allocDownloader( Frame::BUFFER_COLOR,
                       EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                    _impl->glewContext );
             break;

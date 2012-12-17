@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -72,7 +72,7 @@ namespace eq
         uint32_t task; //!< @internal
         uint32_t plugins[2]; //!< color,depth plugins (readback, compression)
         float ratio; //!< compression ratio (transfer, compression)
-        
+
         union
         {
             int64_t  startTime; //!< Absolute start time of the operation
@@ -99,6 +99,25 @@ namespace eq
 
     /** Output the statistic to an std::ostream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Statistic& );
+}
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::Statistic::Type& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+
+template<> inline void byteswap( eq::Statistic& value )
+{
+    byteswap( value.type );
+    byteswap( value.frameNumber );
+    byteswap( value.task );
+    byteswap( value.plugins[0] );
+    byteswap( value.plugins[1] );
+    byteswap( value.ratio );
+
+    byteswap( value.startTime );
+    byteswap( value.endTime );
+}
 }
 
 #endif // EQ_STATISTIC_H

@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,14 +20,15 @@
 #include "window.h"
 
 #include "channel.h"
+#include "commands.h"
 #include "elementVisitor.h"
+#include "leafVisitor.h"
 #include "log.h"
-#include "windowPackets.h"
 #include "task.h"
 
-#include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectICommand.h>
 
 namespace eq
 {
@@ -74,7 +76,7 @@ Window< P, W, C >::BackupData::BackupData()
 
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
-{    
+{
     LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_channels.empty( ))
     {
@@ -102,10 +104,10 @@ void Window< P, W, C >::attach( const UUID& id,
     co::CommandQueue* queue = _pipe->getMainThreadQueue();
     LBASSERT( queue );
 
-    registerCommand( CMD_WINDOW_NEW_CHANNEL, 
+    registerCommand( CMD_WINDOW_NEW_CHANNEL,
                      CmdFunc( this, &Window< P, W, C >::_cmdNewChannel ),
                      queue );
-    registerCommand( CMD_WINDOW_NEW_CHANNEL_REPLY, 
+    registerCommand( CMD_WINDOW_NEW_CHANNEL_REPLY,
                      CmdFunc( this, &Window< P, W, C >::_cmdNewChannelReply ),
                      0 );
 }
@@ -132,7 +134,7 @@ template< class P, class W, class C >
 uint128_t Window< P, W, C >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNELS ))
-        commitChildren< C, WindowNewChannelPacket >( _channels, incarnation );
+        commitChildren< C >( _channels, CMD_WINDOW_NEW_CHANNEL, incarnation );
     return Object::commit( incarnation );
 }
 
@@ -238,7 +240,7 @@ void Window< P, W, C >::notifyDetach()
 template< class P, class W, class C >
 void Window< P, W, C >::create( C** channel )
 {
-    *channel = _pipe->getServer()->getNodeFactory()->createChannel( 
+    *channel = _pipe->getServer()->getNodeFactory()->createChannel(
         static_cast< W* >( this ));
     (*channel)->init(); // not in ctor, virtual method
 }
@@ -274,7 +276,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 template< class P, class W, class C >
 C* Window< P, W, C >::_findChannel( const UUID& id )
 {
-    for( typename Channels::const_iterator i = _channels.begin(); 
+    for( typename Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
     {
         C* channel = *i;
@@ -296,7 +298,7 @@ WindowPath Window< P, W, C >::getPath() const
     const P* pipe = getPipe();
     LBASSERT( pipe );
     WindowPath path( pipe->getPath( ));
-    
+
     const typename std::vector< W* >& windows = pipe->getWindows();
     typename std::vector< W* >::const_iterator i = std::find( windows.begin(),
                                                               windows.end(),
@@ -310,13 +312,13 @@ namespace
 {
 template< class W, class V >
 VisitorResult _accept( W* window, V& visitor )
-{ 
+{
     VisitorResult result = visitor.visitPre( window );
     if( result != TRAVERSE_CONTINUE )
         return result;
 
     const typename W::Channels& channels = window->getChannels();
-    for( typename W::Channels::const_iterator i = channels.begin(); 
+    for( typename W::Channels::const_iterator i = channels.begin();
          i != channels.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -327,7 +329,7 @@ VisitorResult _accept( W* window, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -341,7 +343,7 @@ VisitorResult _accept( W* window, V& visitor )
 
         case TRAVERSE_PRUNE:
             return TRAVERSE_PRUNE;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -420,7 +422,7 @@ void Window< P, W, C >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    for( typename Channels::const_iterator i = _channels.begin(); 
+    for( typename Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
     {
         (*i)->notifyViewportChanged();
@@ -431,20 +433,19 @@ void Window< P, W, C >::notifyViewportChanged()
 
 template< class P, class W, class C >
 void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
-{ 
+{
     _data.drawableConfig = drawableConfig;
     setDirty( DIRTY_DRAWABLECONFIG );
 }
 
 //----------------------------------------------------------------------
-// Command handlers
+// ICommand handlers
 //----------------------------------------------------------------------
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
+bool Window< P, W, C >::_cmdNewChannel( co::ICommand& cmd )
 {
-    const WindowNewChannelPacket* packet =
-        command.get< WindowNewChannelPacket >();
-    
+    co::ObjectICommand command( cmd );
+
     C* channel = 0;
     create( &channel );
     LBASSERT( channel );
@@ -452,20 +453,22 @@ bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
     getLocalNode()->registerObject( channel );
     LBASSERT( channel->isAttached() );
 
-    WindowNewChannelReplyPacket reply( packet );
-    reply.channelID = channel->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), CMD_WINDOW_NEW_CHANNEL_REPLY )
+            << command.get< uint32_t >() << channel->getID();
     LBASSERT( channel->isAttached( ));
 
     return true;
 }
 
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
+bool Window< P, W, C >::_cmdNewChannelReply( co::ICommand& cmd )
 {
-    const WindowNewChannelReplyPacket* packet =
-        command.get< WindowNewChannelReplyPacket >();
-    getLocalNode()->serveRequest( packet->requestID, packet->channelID );
+    co::ObjectICommand command( cmd );
+
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }
@@ -499,7 +502,7 @@ std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
     window.output( os );
 
     const typename W::Channels& channels = window.getChannels();
-    for( typename W::Channels::const_iterator i = channels.begin(); 
+    for( typename W::Channels::const_iterator i = channels.begin();
          i != channels.end(); ++i )
     {
         os << **i;

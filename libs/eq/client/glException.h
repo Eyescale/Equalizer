@@ -1,39 +1,48 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@googlemail.com>
+/* Copyright (c) 2012, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_VIEWPACKETS_H
-#define EQ_VIEWPACKETS_H
+#ifndef EQ_GLEXCEPTION_H
+#define EQ_GLEXCEPTION_H
 
-#include <eq/client/packets.h> // base structs
+#include <eq/client/api.h>
+#include <eq/client/exception.h> // base class
 
-/** @cond IGNORE */
 namespace eq
 {
-    struct ViewFreezeLoadBalancingPacket : public co::ObjectPacket
+    class GLException;
+    EQ_API std::ostream& operator << ( std::ostream& os, const GLException& e );
+
+    /** OpenGL Exception. */
+    class GLException : public Exception
     {
-        ViewFreezeLoadBalancingPacket()
+    public:
+        /** Construct a new OpenGL Exception. */
+        GLException( const uint32_t glError_ )
+                : Exception( GL_ERROR ), glError( glError_ ) {}
+
+        virtual const char* what() const throw()
         {
-            command = fabric::CMD_VIEW_FREEZE_LOAD_BALANCING;
-            size    = sizeof( ViewFreezeLoadBalancingPacket );
+            std::stringstream os;
+            os << *this;
+            return os.str().c_str();
         }
-        bool freeze;
+
+        const uint32_t glError;
     };
 }
-/** @endcond */
 
-#endif //EQ_VIEWPACKETS_H
+#endif // EQ_GLEXCEPTION_H

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+ *                    2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,7 +40,6 @@ bool Window::configInitGL( const eq::uint128_t& initID )
 
     Pipe* pipe = static_cast<Pipe*>( getPipe( ));
     pipe->startAsyncFetcher( this );
-
     return true;
 }
 
@@ -50,8 +50,6 @@ void Pipe::startAsyncFetcher( Window* wnd )
     _initialized = true;
     LBINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
     _asyncFetcher.setup( wnd );
-    _asyncFetcher.start();
-    _asyncFetcher.getTextureId(); // wait for initialization to finish
 }
 
 
@@ -69,16 +67,11 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
     }
 }
 
-
 bool Pipe::configExit()
 {
-    LBINFO << "exit async fetcher: " << this << std::endl;
-    _asyncFetcher.deleteTexture( 0 ); //exit async fetcher
-    _asyncFetcher.join();
-
+    _asyncFetcher.stop();
     return eq::Pipe::configExit();
 }
-
 
 void Channel::frameDraw( const eq::uint128_t& spin )
 {

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -121,7 +122,7 @@ namespace detail { class Pipe; class RenderThread; }
                          const Eye eye, const bool output );
 
         /** @internal @return the queue for the given identifier and version. */
-        co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
+        co::QueueSlave* getQueue( const UUID& queueID );
 
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames( ObjectManager* om );
@@ -388,17 +389,17 @@ namespace detail { class Pipe; class RenderThread; }
         void _flushQueues();
 
         /* The command functions. */
-        bool _cmdCreateWindow( co::Command& command );
-        bool _cmdDestroyWindow( co::Command& command );
-        bool _cmdConfigInit( co::Command& command );
-        bool _cmdConfigExit( co::Command& command );
-        bool _cmdFrameStartClock( co::Command& command );
-        bool _cmdFrameStart( co::Command& command );
-        bool _cmdFrameFinish( co::Command& command );
-        bool _cmdFrameDrawFinish( co::Command& command );
-        bool _cmdExitThread( co::Command& command );
-        bool _cmdDetachView( co::Command& command );
-        bool _cmdExitTransferThread( co::Command& command );
+        bool _cmdCreateWindow( co::ICommand& command );
+        bool _cmdDestroyWindow( co::ICommand& command );
+        bool _cmdConfigInit( co::ICommand& command );
+        bool _cmdConfigExit( co::ICommand& command );
+        bool _cmdFrameStartClock( co::ICommand& command );
+        bool _cmdFrameStart( co::ICommand& command );
+        bool _cmdFrameFinish( co::ICommand& command );
+        bool _cmdFrameDrawFinish( co::ICommand& command );
+        bool _cmdExitThread( co::ICommand& command );
+        bool _cmdDetachView( co::ICommand& command );
+        bool _cmdExitTransferThread( co::ICommand& command );
 
         LB_TS_VAR( _pipeThread );
     };

@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,7 +20,6 @@
 
 #include "commandQueue.h"
 #include "config.h"
-#include "clientPackets.h"
 #include "node.h"
 #include "global.h"
 #include "init.h"
@@ -32,7 +32,8 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
 #include <eq/fabric/view.h>
-#include <co/command.h>
+
+#include <co/iCommand.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -57,7 +58,7 @@ typedef co::CommandFunc<Client> ClientFunc;
 static co::ConnectionPtr _startLocalServer();
 static void _joinLocalServer();
 
-typedef co::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
+typedef co::Connection* (*eqsStartLocalServer_t)( const std::string& file );
 typedef void (*eqsJoinLocalServer_t)();
 
 typedef fabric::Client Super;
@@ -67,7 +68,7 @@ Client::Client()
         : Super()
         , _running( false )
 {
-    registerCommand( fabric::CMD_CLIENT_EXIT, 
+    registerCommand( fabric::CMD_CLIENT_EXIT,
                      ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
 
     LBVERB << "New client at " << (void*)this << std::endl;
@@ -161,7 +162,10 @@ co::ConnectionPtr _startLocalServer()
         return 0;
     }
 
-    return eqsStartLocalServer( Global::getConfigFile( ));
+    co::ConnectionPtr conn = eqsStartLocalServer( Global::getConfigFile( ));
+    if( conn )
+        conn->unref(); // WAR "C" linkage
+    return conn;
 }
 
 static void _joinLocalServer()
@@ -229,7 +233,7 @@ bool Client::initLocal( const int argc, char** argv )
                  i < argc-1 && // more args
                  argv[i+1][0] != '-' ) // next arg not an option
         {
-            _activeLayouts.push_back( argv[++i] ); 
+            _activeLayouts.push_back( argv[++i] );
         }
         else if( std::string( "--eq-modelunit" ) == argv[i] &&
                  i < argc-1 && // more args
@@ -246,7 +250,7 @@ bool Client::initLocal( const int argc, char** argv )
 
     if( isClient )
     {
-        LBVERB << "Client node started from command line with option " 
+        LBVERB << "Client node started from command line with option "
                << clientOpts << std::endl;
 
         if( !_setupClient( clientOpts ))
@@ -283,7 +287,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
         LBWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << std::endl;
-    
+
     nextPos = description.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )
     {
@@ -292,7 +296,7 @@ bool Client::_setupClient( const std::string& clientArgs )
         return false;
     }
 
-    co::NodePtr server = createNode( fabric::NODETYPE_EQ_SERVER );
+    co::NodePtr server = createNode( fabric::NODETYPE_SERVER );
     if( !server->deserialize( description ))
         LBWARN << "Can't parse server data" << std::endl;
 
@@ -351,10 +355,10 @@ float Client::getModelUnit() const
 }
 
 co::NodePtr Client::createNode( const uint32_t type )
-{ 
+{
     switch( type )
     {
-        case fabric::NODETYPE_EQ_SERVER:
+        case fabric::NODETYPE_SERVER:
         {
             Server* server = new Server;
             server->setClient( this );
@@ -362,14 +366,14 @@ co::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return co::Node::createNode( type );
+            return Super::createNode( type );
     }
 }
 
-bool Client::_cmdExit( co::Command& command )
+bool Client::_cmdExit( co::ICommand& command )
 {
     _running = false;
-    // Close connection here, this is the last packet we'll get on it
+    // Close connection here, this is the last command we'll get on it
     command.getLocalNode()->disconnect( command.getNode( ));
     return true;
 }
@@ -390,13 +394,10 @@ public:
 
 void Client::notifyDisconnect( co::NodePtr node )
 {
-    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    if( node->getType() == fabric::NODETYPE_SERVER )
     {
-        co::CommandPtr command = allocCommand( sizeof( eq::ClientExitPacket ));
-        eq::ClientExitPacket* packet = 
-            command->getModifiable< eq::ClientExitPacket >();
-        *packet = eq::ClientExitPacket();
-        dispatchCommand( command );
+        // local command dispatching
+        co::OCommand( this, this, fabric::CMD_CLIENT_EXIT );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;
@@ -406,4 +407,3 @@ void Client::notifyDisconnect( co::NodePtr node )
 }
 
 }
-

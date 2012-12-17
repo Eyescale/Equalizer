@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,6 +22,7 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/error.h>        // enum
 #include <eq/fabric/types.h>
+#include <co/objectOCommand.h>      // used inline send()
 #include <co/objectVersion.h>       // member
 #include <co/serializable.h>        // base class
 
@@ -65,9 +67,9 @@ namespace fabric
 
         /** @name Error Information. */
         //@{
-        /** 
+        /**
          * Set an error code why the last operation failed.
-         * 
+         *
          * The error will be transmitted to the originator of the request, for
          * example to Config::init when set from within configInit().
          *
@@ -82,12 +84,12 @@ namespace fabric
 
         /** @name Data Access */
         //@{
-        /** 
+        /**
          * Return the set of tasks this channel might execute in the worst case.
-         * 
+         *
          * It is not guaranteed that all the tasks will be actually executed
          * during rendering.
-         * 
+         *
          * @return the tasks.
          * @warning Experimental - may not be supported in the future
          */
@@ -130,7 +132,7 @@ namespace fabric
     protected:
         /** Construct a new Object. */
         EQFABRIC_API Object();
-        
+
         /** Destruct the object. */
         EQFABRIC_API virtual ~Object();
 
@@ -168,11 +170,12 @@ namespace fabric
         virtual void removeChild( const UUID& ) { LBUNIMPLEMENTED; }
 
         /** @internal commit, register child slave instance with the server. */
-        template< class C, class PKG, class S >
-        void commitChild( C* child, S* sender, const uint32_t incarnation );
+        template< class C, class S >
+        void commitChild( C* child, S* sender, uint32_t cmd,
+                          const uint32_t incarnation );
 
         /** @internal commit slave instance to the server. */
-        template< class C > inline 
+        template< class C > inline
         void commitChild( C* child, const uint32_t incarnation )
             {
                 LBASSERT( child->isAttached( ));
@@ -180,15 +183,15 @@ namespace fabric
             }
 
         /** @internal commit, register child slave instances with the server. */
-        template< class C, class PKG, class S >
+        template< class C, class S >
         void commitChildren( const std::vector< C* >& children, S* sender,
-                             const uint32_t incarnation );
+                             uint32_t cmd, const uint32_t incarnation );
 
         /** @internal commit, register child slave instances with the server. */
-        template< class C, class PKG >
-        void commitChildren( const std::vector< C* >& children,
+        template< class C >
+        void commitChildren( const std::vector< C* >& children, uint32_t cmd,
                              const uint32_t incarnation )
-            { commitChildren< C, PKG, Object >( children, this, incarnation ); }
+            { commitChildren< C, Object >( children, this, cmd, incarnation ); }
 
         /** @internal commit all children. */
         template< class C >
@@ -204,7 +207,7 @@ namespace fabric
         inline void releaseChildren( const std::vector< C* >& children );
 
         /** @internal sync master object to the given slave commit. */
-        EQFABRIC_API bool _cmdSync( co::Command& command );
+        EQFABRIC_API bool _cmdSync( co::ICommand& command );
 
     private:
         struct BackupData
@@ -237,35 +240,36 @@ namespace fabric
     };
 
     // Template Implementation
-    template< class C, class PKG, class S > inline void
-    Object::commitChild( C* child, S* sender, const uint32_t incarnation )
+    template< class C, class S > inline void
+    Object::commitChild( C* child, S* sender, uint32_t cmd,
+                         const uint32_t incarnation )
     {
         if( !child->isAttached( ))
         {
             LBASSERT( !isMaster( ));
             co::LocalNodePtr localNode = child->getConfig()->getLocalNode();
-            PKG packet( localNode->registerRequest( ));
+            const uint32_t requestID = localNode->registerRequest();
 
             co::NodePtr node = child->getServer().get();
-            sender->send( node, packet );
+            sender->send( node, cmd ) << requestID;
 
             uint128_t identifier;
-            localNode->waitRequest( packet.requestID, identifier );
+            localNode->waitRequest( requestID, identifier );
             LBCHECK( localNode->mapObject( child,identifier,co::VERSION_NONE ));
         }
         child->commit( incarnation );
     }
 
-    template< class C, class PKG, class S > inline void
+    template< class C, class S > inline void
     Object::commitChildren( const std::vector< C* >& children, S* sender,
-                            const uint32_t incarnation )
+                            uint32_t cmd, const uint32_t incarnation )
     {
         // TODO Opt: async register and commit
         for( typename std::vector< C* >::const_iterator i = children.begin();
              i != children.end(); ++i )
         {
             C* child = *i;
-            commitChild< C, PKG, S >( child, sender, incarnation );
+            commitChild< C, S >( child, sender, cmd, incarnation );
         }
     }
 
@@ -294,7 +298,7 @@ namespace fabric
             child->sync();
         }
     }
- 
+
     template< class P, class C >
     inline void Object::releaseChildren( const std::vector< C* >& children )
     {

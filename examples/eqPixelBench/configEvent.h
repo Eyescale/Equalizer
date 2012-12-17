@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,30 +34,14 @@
 
 namespace eqPixelBench
 {
-struct ConfigEvent : public eq::ConfigEvent
+
+enum ConfigEventType
 {
-public:
-    enum Type
-    {
-        READBACK = eq::Event::USER,
-        ASSEMBLE,
-        START_LATENCY,
-    };
-
-    ConfigEvent()
-    {
-        size = sizeof( ConfigEvent );
-    }
-
-    // channel name is in user event data
-    char           formatType[32];
-    eq::Vector2i   area;
-    uint64_t       dataSizeGPU;
-    uint64_t       dataSizeCPU;
-    float          msec;
+    READBACK = eq::Event::USER,
+    ASSEMBLE,
+    START_LATENCY
 };
 
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
 }
 
 #endif // EQ_PIXELBENCH_CONFIGEVENT_H

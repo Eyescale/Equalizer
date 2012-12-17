@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,10 +20,8 @@
 #include "window.h"
 
 #include "channel.h"
-#include "channelPackets.h"
 #include "client.h"
 #include "config.h"
-#include "configEvent.h"
 #include "error.h"
 #include "event.h"
 #include "gl.h"
@@ -31,19 +30,19 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "pipePackets.h"
 #include "server.h"
 #include "systemWindow.h"
-#include "windowPackets.h"
 #include "windowStatistics.h"
 
 #include <eq/util/objectManager.h>
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/packets.h>
+#include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/task.h>
+
 #include <co/barrier.h>
-#include <co/command.h>
 #include <co/exception.h>
+#include <co/objectICommand.h>
 #include <lunchbox/sleep.h>
 
 namespace eq
@@ -132,10 +131,7 @@ void Window::notifyViewportChanged()
     // does send the startFrame() after a resize event.
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-    {
-        fabric::ObjectSyncPacket syncPacket;
-        send( getServer(), syncPacket );
-    }
+        send( getServer(), fabric::CMD_OBJECT_SYNC );
 }
 
 void Window::_updateFPS()
@@ -172,8 +168,8 @@ void Window::_updateFPS()
     }
 
     WindowStatistics stat( Statistic::WINDOW_FPS, this );
-    stat.event.data.statistic.currentFPS = curFPS;
-    stat.event.data.statistic.averageFPS = _avgFPS;
+    stat.event.statistic.currentFPS = curFPS;
+    stat.event.statistic.averageFPS = _avgFPS;
 }
 
 
@@ -484,12 +480,12 @@ bool Window::configInitGL( const uint128_t& )
     return true;
 }
 
-const SystemWindow* Window::getTransferSystemWindow()
+bool Window::createTransferWindow()
 {
-    if( _transferWindow )
-        return _transferWindow;
-
     LBASSERT( _systemWindow );
+
+    if( _transferWindow )
+        return true;
 
     // create another (shared) osWindow with no drawable, restore original
     const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
@@ -506,33 +502,33 @@ const SystemWindow* Window::getTransferSystemWindow()
             delete _transferWindow;
             _transferWindow = 0;
         }
+        else
+            makeCurrentTransfer();
     }
     else
         LBERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
 
-
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
+    makeCurrent();
 
     LBVERB << "Transfer window initialization finished" << std::endl;
-    return _transferWindow;
+    return _transferWindow != 0;
 }
 
 const GLEWContext* Window::getTransferGlewContext()
 {
-    const SystemWindow* transferWindow = getTransferSystemWindow();
-    if( transferWindow )
-        return transferWindow->glewGetContext();
+    LBASSERT( _transferWindow );
+    if( _transferWindow )
+        return _transferWindow->glewGetContext();
     return 0;
 }
 
 void Window::makeCurrentTransfer( const bool useCache )
 {
-    const SystemWindow* window = getTransferSystemWindow();
-    LBASSERT( window );
-
-    if( window )
-        window->makeCurrent( useCache );
+    LBASSERT( _transferWindow );
+    if( _transferWindow )
+        _transferWindow->makeCurrent( useCache );
 }
 
 
@@ -593,7 +589,7 @@ void Window::bindFrameBuffer() const
 void Window::swapBuffers()
 {
     _systemWindow->swapBuffers();
-    LBVERB << "----- SWAP -----" << std::endl;
+    LBLOG( co::LOG_BARRIER ) << "Swap buffers done" << getName() << std::endl;
 }
 
 const GLEWContext* Window::glewGetContext() const
@@ -628,7 +624,6 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 
 bool Window::processEvent( const Event& event )
 {
-    ConfigEvent configEvent;
     switch( event.type )
     {
         case Event::WINDOW_HIDE:
@@ -691,7 +686,7 @@ bool Window::processEvent( const Event& event )
                 // convert y to GL notation (Channel PVP uses GL coordinates)
                 const PixelViewport& pvp = getPixelViewport();
                 const int32_t y = pvp.h - event.pointer.y;
-                const PixelViewport& channelPVP = 
+                const PixelViewport& channelPVP =
                     channel->getNativePixelViewport();
 
                 channelEvent.originator = channel->getID();
@@ -729,10 +724,8 @@ bool Window::processEvent( const Event& event )
             LBUNIMPLEMENTED;
     }
 
-    configEvent.data = event;
-
     Config* config = getConfig();
-    config->sendEvent( configEvent );
+    config->sendEvent( event.type ) << event;
     return true;
 }
 
@@ -764,74 +757,73 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Window::_cmdCreateChannel( co::Command& command )
+bool Window::_cmdCreateChannel( co::ICommand& cmd )
 {
-    const WindowCreateChannelPacket* packet =
-        command.get<WindowCreateChannelPacket>();
-    LBLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+    const UUID channelID = command.get< UUID >();
+
+    LBLOG( LOG_INIT ) << "Create channel " << command  << " id " << channelID
+                      << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     channel->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( channel, packet->channelID ));
+    LBCHECK( config->mapObject( channel, channelID ));
     LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
 
     return true;
 }
 
-bool Window::_cmdDestroyChannel( co::Command& command )
+bool Window::_cmdDestroyChannel( co::ICommand& cmd )
 {
-    const WindowDestroyChannelPacket* packet =
-        command.get<WindowDestroyChannelPacket>();
-    LBLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+    LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
 
-    Channel* channel = _findChannel( packet->channelID );
+    Channel* channel = _findChannel( command.get< UUID >( ));
     LBASSERT( channel );
 
-    ChannelConfigExitReplyPacket reply( packet->channelID,
-                                        channel->isStopped( ));
+    const bool stopped = channel->isStopped();
     Config* config = getConfig();
     config->unmapObject( channel );
+    channel->send( getServer(),
+                   fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY ) << stopped;
     Global::getNodeFactory()->releaseChannel( channel );
 
-    getServer()->send( reply ); // do not use Object::send()
     return true;
 }
 
-bool Window::_cmdConfigInit( co::Command& command )
+bool Window::_cmdConfigInit( co::ICommand& cmd )
 {
-    const WindowConfigInitPacket* packet =
-        command.get<WindowConfigInitPacket>();
-    LBLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
+    co::ObjectICommand command( cmd );
 
-    WindowConfigInitReplyPacket reply;
+    LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
+
     setError( ERROR_NONE );
 
+    bool result = false;
     if( getPipe()->isRunning( ))
     {
         _state = STATE_INITIALIZING;
-        reply.result = configInit( packet->initID );
-        if( reply.result )
+        result = configInit( command.get< uint128_t >( ));
+        if( result )
             _state = STATE_RUNNING;
     }
     else
-    {
         setError( ERROR_WINDOW_PIPE_NOTRUNNING );
-        reply.result = false;
-    }
-    LBLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
+
+    LBLOG( LOG_INIT ) << "TASK window config init reply " << std::endl;
 
     commit();
-    send( command.getNode(), reply );
+    send( command.getNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;
     return true;
 }
 
-bool Window::_cmdConfigExit( co::Command& command )
+bool Window::_cmdConfigExit( co::ICommand& cmd )
 {
-    const WindowConfigExitPacket* packet =
-        command.get<WindowConfigExitPacket>();
-    LBLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBLOG( LOG_INIT ) << "TASK window config exit " << command << std::endl;
 
     if( _state != STATE_STOPPED )
     {
@@ -845,22 +837,27 @@ bool Window::_cmdConfigExit( co::Command& command )
         _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     }
 
-    PipeDestroyWindowPacket destroyPacket( getID( ));
-    getPipe()->send( getLocalNode(), destroyPacket );
+    getPipe()->send( getLocalNode(),
+                     fabric::CMD_PIPE_DESTROY_WINDOW ) << getID();
     return true;
 }
 
-bool Window::_cmdFrameStart( co::Command& command )
+bool Window::_cmdFrameStart( co::ICommand& cmd )
 {
+    co::ObjectICommand command( cmd );
+
     LB_TS_THREAD( _pipeThread );
 
-    const WindowFrameStartPacket* packet =
-        command.get<WindowFrameStartPacket>();
-    LBLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
-                       << std::endl;
+    const uint128_t version = command.get< uint128_t >();
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
-    //_grabFrame( packet->frameNumber ); single-threaded
-    sync( packet->version );
+    LBLOG( LOG_TASKS ) << "TASK frame start " << getName()
+                       << " " << command << " frame " << frameNumber
+                       << " id " << frameID << std::endl;
+
+    //_grabFrame( frameNumber ); single-threaded
+    sync( version );
 
     const DrawableConfig& drawableConfig = getDrawableConfig();
     if( drawableConfig.doublebuffered )
@@ -868,28 +865,31 @@ bool Window::_cmdFrameStart( co::Command& command )
     _renderContexts[BACK].clear();
 
     makeCurrent();
-    frameStart( packet->frameID, packet->frameNumber );
+    frameStart( frameID, frameNumber );
     return true;
 }
 
-bool Window::_cmdFrameFinish( co::Command& command )
+bool Window::_cmdFrameFinish( co::ICommand& cmd )
 {
-    const WindowFrameFinishPacket* packet =
-        command.get<WindowFrameFinishPacket>();
-    LBVERB << "handle window frame sync " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+
+    LBVERB << "handle window frame sync " << command << std::endl;
+
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     makeCurrent();
-    frameFinish( packet->frameID, packet->frameNumber );
+    frameFinish( frameID, frameNumber );
     return true;
 }
 
-bool Window::_cmdFlush( co::Command& )
+bool Window::_cmdFlush( co::ICommand& )
 {
     flush();
     return true;
 }
 
-bool Window::_cmdFinish( co::Command& )
+bool Window::_cmdFinish( co::ICommand& )
 {
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     makeCurrent();
@@ -897,16 +897,17 @@ bool Window::_cmdFinish( co::Command& )
     return true;
 }
 
-bool  Window::_cmdThrottleFramerate( co::Command& command )
+bool  Window::_cmdThrottleFramerate( co::ICommand& cmd )
 {
-    const WindowThrottleFramerate* packet =
-        command.get< WindowThrottleFramerate >();
+    co::ObjectICommand command( cmd );
+
     LBLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
-                       << packet << std::endl;
+                       << command << std::endl;
 
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
-    const float timeLeft = packet->minFrameTime - static_cast<float>( elapsed );
+    const float minFrameTime = command.get< float >();
+    const float timeLeft = minFrameTime - static_cast<float>( elapsed );
 
     if( timeLeft >= 1.f )
     {
@@ -918,32 +919,40 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
     return true;
 }
 
-bool Window::_cmdBarrier( co::Command& command )
+bool Window::_cmdBarrier( co::ICommand& cmd )
 {
-    const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
-    LBVERB << "handle barrier " << packet << std::endl;
+    co::ObjectICommand command( cmd );
+    const co::ObjectVersion barrier = command.get< co::ObjectVersion >();
+
+    LBVERB << "handle barrier " << command << " barrier " << barrier << std::endl;
     LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
 
-    _enterBarrier( packet->barrier );
+    _enterBarrier( barrier );
     return true;
 }
 
-bool Window::_cmdNVBarrier( co::Command& command )
+bool Window::_cmdNVBarrier( co::ICommand& cmd )
 {
-    const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
+    co::ObjectICommand command( cmd );
+
     LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     LBASSERT( _systemWindow );
 
+    const co::ObjectVersion netBarrier = command.get< co::ObjectVersion >();
+    const uint32_t group = command.get< uint32_t >();
+    const uint32_t barrier = command.get< uint32_t >();
+
     makeCurrent();
-    _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );
-    _enterBarrier( packet->netBarrier );
+    _systemWindow->joinNVSwapBarrier( group, barrier );
+    _enterBarrier( netBarrier );
     return true;
 }
 
-bool Window::_cmdSwap( co::Command& command )
+bool Window::_cmdSwap( co::ICommand& cmd )
 {
-    const WindowSwapPacket* packet = command.get< WindowSwapPacket >();
-    LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
+    co::ObjectICommand command( cmd );
+
+    LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << command
                        << std::endl;
 
     if( getDrawableConfig().doublebuffered )
@@ -956,14 +965,17 @@ bool Window::_cmdSwap( co::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameDrawFinish( co::Command& command )
+bool Window::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
-    const WindowFrameDrawFinishPacket* packet =
-        command.get< WindowFrameDrawFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    co::ObjectICommand command( cmd );
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
+                       << " frame " << frameNumber << " id " << frameID
                        << std::endl;
 
-    frameDrawFinish( packet->frameID, packet->frameNumber );
+    frameDrawFinish( frameID, frameNumber );
     return true;
 }
 

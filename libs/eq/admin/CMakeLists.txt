@@ -14,7 +14,6 @@ set(ADMIN_HEADERS
     layout.h
     node.h
     observer.h
-    packets.h
     pipe.h
     segment.h
     server.h

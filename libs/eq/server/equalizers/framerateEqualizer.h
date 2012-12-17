@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,9 +31,9 @@ namespace server
     class FramerateEqualizer;
     std::ostream& operator << ( std::ostream& os, const FramerateEqualizer* );
 
-    /** 
-     * Adapts the frame rate of a compound to smoothen its output. 
-     * 
+    /**
+     * Adapts the frame rate of a compound to smoothen its output.
+     *
      * Does not support period settings underneath a child. One channel should
      * not be used in compounds with a different inherit period.
      */
@@ -49,7 +49,7 @@ namespace server
         virtual void attach( Compound* compound );
 
         /** @sa CompoundListener::notifyUpdatePre */
-        virtual void notifyUpdatePre( Compound* compound, 
+        virtual void notifyUpdatePre( Compound* compound,
                                       const uint32_t frameNumber );
 
         virtual uint32_t getType() const { return fabric::FRAMERATE_EQUALIZER; }
@@ -59,11 +59,11 @@ namespace server
             { LBASSERT( _nSamples == 0 ); }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
             { LBASSERT( _nSamples == 0 ); }
-        
+
     private:
         /** Frame number with max time. */
         typedef std::pair< uint32_t, float > FrameTime;
-        
+
         /** Historical data to compute new frame rate. */
         std::deque< FrameTime > _times;
 
@@ -72,10 +72,9 @@ namespace server
         {
         public:
             /** @sa ChannelListener::notifyLoadData */
-            virtual void notifyLoadData( Channel* channel, 
+            virtual void notifyLoadData( Channel* channel,
                                          const uint32_t frameNumber,
-                                         const uint32_t nStatistics,
-                                         const eq::Statistic* statistics,
+                                         const Statistics& statistics,
                                          const Viewport& region );
 
             FramerateEqualizer* parent;

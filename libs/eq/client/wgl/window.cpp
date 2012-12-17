@@ -190,7 +190,7 @@ bool Window::configInit()
         return false;
     }
 
-    int pixelFormat = chooseWGLPixelFormat();
+    const int pixelFormat = chooseWGLPixelFormat();
     if( pixelFormat == 0 )
     {
         exitWGLAffinityDC();
@@ -262,7 +262,7 @@ bool Window::configInitWGLFBO( int pixelFormat )
     else // no affinity, use window DC
     {
         const PixelViewport pvp( 0, 0, 1, 1 );
-        _wglWindow = _createWGLWindow( pixelFormat, pvp );
+        _wglWindow = _createWGLWindow( pvp );
         if( !_wglWindow )
             return false;
 
@@ -292,7 +292,7 @@ bool Window::configInitWGLWindow( int pixelFormat )
 {
     // adjust window size (adds border pixels)
     const PixelViewport& pvp = getWindow()->getPixelViewport();
-    HWND hWnd = _createWGLWindow( pixelFormat, pvp );
+    HWND hWnd = _createWGLWindow( pvp );
     if( !hWnd )
         return false;
         
@@ -331,7 +331,7 @@ bool Window::configInitWGLWindow( int pixelFormat )
     return true;
 }
 
-HWND Window::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
+HWND Window::_createWGLWindow( const PixelViewport& pvp  )
 {
     // window class
     const std::string& name = getWindow()->getName();
@@ -542,7 +542,7 @@ int Window::chooseWGLPixelFormat()
     HDC screenDC = GetDC( 0 );
     HDC pfDC = _wglAffinityDC ? _wglAffinityDC : screenDC;
 
-    int pixelFormat = (WGLEW_ARB_pixel_format) ? 
+    const int pixelFormat = (WGLEW_ARB_pixel_format) ? 
         _chooseWGLPixelFormatARB( pfDC ) : _chooseWGLPixelFormat( pfDC );
 
     ReleaseDC( 0, screenDC );

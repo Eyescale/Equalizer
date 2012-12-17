@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
-                      2009, Makhinya Maxim
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,7 +32,8 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-template void lunchbox::perThreadNoDelete< const eq::GLWindow >( const eq::GLWindow* );
+template 
+void lunchbox::perThreadNoDelete< const eq::GLWindow >( const eq::GLWindow* );
 
 namespace eq
 {

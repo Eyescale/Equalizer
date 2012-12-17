@@ -204,8 +204,8 @@ namespace fabric
         bool _mapViewObjects();
 
         typedef co::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;
-        bool _cmdNewSegment( co::Command& command );
-        bool _cmdNewSegmentReply( co::Command& command );
+        bool _cmdNewSegment( co::ICommand& command );
+        bool _cmdNewSegmentReply( co::ICommand& command );
     };
 
     template< class CFG, class C, class S, class L >
