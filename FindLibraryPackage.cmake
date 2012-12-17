@@ -95,10 +95,11 @@ macro(FIND_LIBRARY_PACKAGE name)
   string(TOUPPER ${name} _flp_${name}_UC)
 
   # options
+  set(switchArgs NO_LIBRARY)
   set(oneValueArgs INCLUDE)
   set(multiValueArgs TRANSIENT)
-  cmake_parse_arguments(_flp_${name} "" "${oneValueArgs}" "${multiValueArgs}"
-    ${ARGN})
+  cmake_parse_arguments(_flp_${name} "${switchArgs}" "${oneValueArgs}"
+    "${multiValueArgs}" ${ARGN})
   if(NOT _flp_${name}_INCLUDE)
     set(_flp_${name}_INCLUDE ${name})
   endif()
@@ -281,12 +282,13 @@ macro(FIND_LIBRARY_PACKAGE name)
   set(${_flp_${name}_UC}_INCLUDE_DIRS ${${_flp_${name}_UC}_INCLUDE_DIR})
 
   # library
-  find_library(${_flp_${name}_UC}_LIBRARY ${name}
-    PATHS ${${_flp_${name}_UC}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
-  set(${_flp_${name}_UC}_LIBRARIES ${${_flp_${name}_UC}_LIBRARY})
+  if(NOT _flp_${name}_NO_LIBRARY)
+    find_library(${_flp_${name}_UC}_LIBRARY ${name}
+      PATHS ${${_flp_${name}_UC}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
+    set(${_flp_${name}_UC}_LIBRARIES ${${_flp_${name}_UC}_LIBRARY})
 
-  if(${name}_FIND_REQUIRED)
-    if(${_flp_${name}_UC}_LIBRARY MATCHES "${_flp_${name}_UC}_LIBRARY-NOTFOUND")
+    if(${name}_FIND_REQUIRED AND
+        ${_flp_${name}_UC}_LIBRARY MATCHES "${_flp_${name}_UC}_LIBRARY-NOTFOUND")
       set(_flp_${name}_FAIL TRUE)
       if(_flp_${name}_out)
         message(${_flp_version_output_type}
@@ -308,8 +310,10 @@ macro(FIND_LIBRARY_PACKAGE name)
       "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-lib (>= ${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR})")
     set(${_flp_${name}_UC}_DEB_BUILD_DEPENDENCIES
       "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-dev (>= ${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR})")
-    get_filename_component(${_flp_${name}_UC}_LIBRARY_DIRS
-      ${${_flp_${name}_UC}_LIBRARY} PATH)
+    if(NOT _flp_${name}_NO_LIBRARY)
+      get_filename_component(${_flp_${name}_UC}_LIBRARY_DIRS
+        ${${_flp_${name}_UC}_LIBRARY} PATH)
+    endif()
 
     # Add transient package information to self
     foreach(_flp_trans ${_flp_${name}_TRANSIENT})
