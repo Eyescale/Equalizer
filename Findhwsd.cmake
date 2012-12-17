@@ -102,8 +102,8 @@ find_package_handle_standard_args(hwsd DEFAULT_MSG
                                   HWSD_LIBRARIES HWSD_INCLUDE_DIRS)
 
 if(HWSD_FOUND)
-  set(HWSD_DEB_DEPENDENCIES "net-sd${HWSD_VERSION_MAJOR}-runtime")
-  set(HWSD_DEB_BUILD_DEPENDENCIES "net-sd${HWSD_VERSION_MAJOR}-dev")
+  set(HWSD_DEB_DEPENDENCIES "hwsd-sd${HWSD_VERSION_MAJOR}-runtime")
+  set(HWSD_DEB_BUILD_DEPENDENCIES "hwsd-sd${HWSD_VERSION_MAJOR}-dev")
   if(_flp_output)
     message(STATUS "Found hwsd modules ${HWSD_COMPONENTS}")
   endif()
