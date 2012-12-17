@@ -45,6 +45,10 @@ namespace fabric
 
         EQFABRIC_API static void setFlags( const uint32_t flags );//!< @internal
         EQFABRIC_API static uint32_t getFlags(); //!< @internal
+
+        /** @internal */
+        EQFABRIC_API static void setPrefixes( const Strings& prefixes );
+        EQFABRIC_API static const Strings& getPrefixes(); //!< @internal
     };
 }
 }

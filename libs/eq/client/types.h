@@ -241,18 +241,16 @@ using fabric::FOCUSMODE_FIXED;
 using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
 using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
 
+using fabric::Strings;      //!< A vector of std::strings
+using fabric::StringsCIter; //!< A const_iterator over a std::string vector
+
 /** Frustum culling helper */
 typedef vmml::frustum_culler< float >  FrustumCullerf;
 
-/** A vector of std::strings */
-typedef std::vector< std::string > Strings;
 /** A vector of bytes */
 typedef std::vector< uint8_t >    Vectorub;
 /** A vector of unsigned shorts */
 typedef std::vector< uint16_t >   Vectorus;
-
-/** A const_iterator over a std::string vector */
-typedef Strings::const_iterator StringsCIter;
 
 using lunchbox::a_int32_t;
 using lunchbox::backtrace;
