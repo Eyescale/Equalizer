@@ -133,13 +133,13 @@ const Strings& ConfigParams::getPrefixes() const
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
     os << _impl->renderClient << _impl->workDir << _impl->flags
-       << _impl->equalizer;
+       << _impl->equalizer << _impl->prefixes;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
     is >> _impl->renderClient >> _impl->workDir >> _impl->flags
-       >> _impl->equalizer;
+       >> _impl->equalizer >> _impl->prefixes;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )

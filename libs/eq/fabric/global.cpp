@@ -68,6 +68,5 @@ const Strings& Global::getPrefixes()
     return _prefixes;
 }
 
-
 }
 }

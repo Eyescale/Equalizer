@@ -84,8 +84,8 @@ struct SegmentPath;
 struct ViewPath;
 struct WindowPath;
 
-typedef std::vector< std::string > Strings;
-typedef Strings::const_iterator StringsCIter;
+using co::Strings;
+using co::StringsCIter;
 
 #ifndef EQ_2_0_API
 using co::Serializable;

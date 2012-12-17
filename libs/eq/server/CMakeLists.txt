@@ -141,7 +141,6 @@ endif()
 
 if(QT_QTNETWORK_FOUND)
   include(${QT_USE_FILE})
-  add_definitions(-DEQ_USE_QTNETWORK)
   list(APPEND SERVER_LIBRARIES ${QT_LIBRARIES})
 endif()
 

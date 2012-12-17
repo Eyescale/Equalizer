@@ -156,13 +156,13 @@ bool _parseArguments( const int argc, char** argv )
           "Redirect log output to given file" )
         ( "eq-server", arg::value< std::string >(), "The server address" )
         ( "eq-config", arg::value< std::string >(),
-          "The config file name or autoconfig session name" )
+          "The config filename or autoconfig session name" )
         ( "eq-config-flags", arg::value< Strings >()->multitoken(),
           "The autoconfig flags" )
         ( "eq-config-prefixes", arg::value< Strings >()->multitoken(),
-          "The network prefix(es) in CIDR notation to filter in autoconfig" )
+          "The network prefix filter(s) in CIDR notation for autoconfig (white-space separated)" )
         ( "eq-render-client", arg::value< std::string >(),
-          "The render client program" )
+          "The render client executable filename" )
     ;
 
     arg::variables_map vm;

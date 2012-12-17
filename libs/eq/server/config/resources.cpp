@@ -56,7 +56,7 @@
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
-#ifdef EQ_USE_QTNETWORK
+#ifdef EQUALIZER_USE_QT4
 #  include <QtNetwork/QHostAddress>
 #endif
 
@@ -76,8 +76,7 @@ void _addConnections( N* node, const lunchbox::UUID& id,
                       const fabric::ConfigParams& params,
                       const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
 {
-    for( hwsd::NetInfosCIter i = netInfos.begin();
-         i != netInfos.end(); ++i )
+    for( hwsd::NetInfosCIter i = netInfos.begin(); i != netInfos.end(); ++i )
     {
         const hwsd::NetInfo& netInfo = *i;
         if( netInfo.id != id || !netInfo.up ||
@@ -86,40 +85,49 @@ void _addConnections( N* node, const lunchbox::UUID& id,
             continue;
         }
 
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
+        const uint32_t flags = params.getFlags();
+        const bool allNetworks =
+            (flags & fabric::ConfigParams::FLAG_NETWORK_ALL ) == 0;
+
+        if( !allNetworks ||
+            flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
             netInfo.type != hwsd::NetInfo::TYPE_ETHERNET )
         {
             continue;
         }
 
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
+        if( !allNetworks ||
+            flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
             netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND )
         {
             continue;
         }
 
 
-#ifdef EQ_USE_QTNETWORK
+        const Strings& prefixes = params.getPrefixes();
+#ifdef EQUALIZER_USE_QT4
 #  ifdef USE_IPv4
-        QHostAddress thisAddress( QString::fromStdString( netInfo.inetAddress));
+        QHostAddress address( QString::fromStdString( netInfo.inetAddress ));
 #  else
-        QHostAddress thisAddress( QString::fromStdString(netInfo.inet6Address));
+        QHostAddress address( QString::fromStdString( netInfo.inet6Address ));
 #  endif
         bool isInSubnet = false;
-        const Strings& prefixes = params.getPrefixes();
         for( StringsCIter j = prefixes.begin(); j != prefixes.end(); ++j )
         {
-            QString prefixStr = QString::fromStdString( *j );
-            QPair< QHostAddress, int > subnet =
+            const QString prefixStr = QString::fromStdString( *j );
+            const QPair< QHostAddress, int > subnet =
                                          QHostAddress::parseSubnet( prefixStr );
-            if( thisAddress.isInSubnet( subnet ))
+            if( address.isInSubnet( subnet ))
             {
                 isInSubnet = true;
                 break;
             }
         }
 #else
-        bool isInSubnet = true;
+        if( !prefixes.empty( ))
+            LBWARN << "Ignoring prefix filter, QtNetwork not available"
+                   << std::endl;
+        const bool isInSubnet = true;
 #endif
 
         if( !isInSubnet )
@@ -146,7 +154,6 @@ void _addConnections( N* node, const lunchbox::UUID& id,
 #else
         desc->hostname = netInfo.inet6Address;
 #endif
-        desc->interfacename = netInfo.name;
         desc->port = port;
         node->addConnectionDescription( desc );
     }
