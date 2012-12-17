@@ -225,7 +225,7 @@ private:
     bool _postMessage( const RDMAMessage &message );
     void _recvMessage( const RDMAMessage &message );
     inline void _recvFC( const RDMAFCPayload &fc );
-    bool _postFC( const uint32_t bytes_taken );
+    bool _postFC( );
     void _recvSetup( const RDMASetupPayload &setup );
     bool _postSetup( );
 
@@ -294,6 +294,8 @@ private:
     uint32_t _eventFlag;
     co::base::SpinLock _eventLock;
 #endif
+
+    uint64_t _readBytes;
 
     struct RDMAConnParamData _cpd;
     bool _established;
