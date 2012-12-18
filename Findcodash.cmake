@@ -72,5 +72,5 @@ include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
 find_library_package(codash TRANSIENT Collage dash)
-find_package_handle_standard_args(CODASH DEFAULT_MSG
+find_package_handle_standard_args(codash DEFAULT_MSG
                                   CODASH_LIBRARIES CODASH_INCLUDE_DIRS)

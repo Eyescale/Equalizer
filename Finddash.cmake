@@ -72,5 +72,5 @@ include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
 find_library_package(dash TRANSIENT Lunchbox)
-find_package_handle_standard_args(DASH DEFAULT_MSG
+find_package_handle_standard_args(dash DEFAULT_MSG
                                   DASH_LIBRARIES DASH_INCLUDE_DIRS)
