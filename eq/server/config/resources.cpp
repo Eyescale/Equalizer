@@ -103,7 +103,6 @@ void _addConnections( N* node, const lunchbox::UUID& id,
             continue;
         }
 
-
         const Strings& prefixes = params.getPrefixes();
 #ifdef EQ_USE_QTNETWORK
 #  ifdef USE_IPv4

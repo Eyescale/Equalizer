@@ -160,7 +160,8 @@ bool _parseArguments( const int argc, char** argv )
         ( "eq-config-flags", arg::value< Strings >()->multitoken(),
           "The autoconfig flags" )
         ( "eq-config-prefixes", arg::value< Strings >()->multitoken(),
-          "The network prefix filter(s) in CIDR notation for autoconfig (white-space separated)" )
+          "The network prefix filter(s) in CIDR notation for autoconfig"
+          "(white-space separated)" )
         ( "eq-render-client", arg::value< std::string >(),
           "The render client executable filename" )
     ;
