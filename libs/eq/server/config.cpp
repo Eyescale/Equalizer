@@ -890,6 +890,10 @@ void Config::_verifyFrameFinished( const uint32_t frameNumber )
         {
             NodeFailedVisitor nodeFailedVisitor;
             node->accept( nodeFailedVisitor );
+            ConfigEvent configEvent;
+            configEvent.data.type = Event::NODE_TIMEOUT;
+            configEvent.data.originator = node->getID();
+            send( findApplicationNetNode(), configEvent );
         }
     }
 }
