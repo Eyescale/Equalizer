@@ -114,6 +114,7 @@ static const uint16_t MAX_FC = (( 2 << ( 4 - 1 )) - 1 );
 
 static const uint32_t RINGBUFFER_ALLOC_RETRIES = 8;
 static const uint32_t WINDOWS_CONNECTION_BACKLOG = 1024;
+static const uint32_t FC_MESSAGE_FREQUENCY = 8;
 }
 
 /**
@@ -206,6 +207,7 @@ RDMAConnection::RDMAConnection( )
     , _cmWaitObj( 0 )
     , _ccWaitObj( 0 )
 #endif
+    , _readBytes( 0 )
 {
 #ifndef _WIN32
     _pipe_fd[0] = -1;
@@ -626,7 +628,9 @@ retry:
         _updateNotifier();
 #endif
 
-    if( _established && _needFC( ) && !_postFC( bytes_taken ))
+    _readBytes += bytes_taken;
+
+    if( _established && _needFC( ) && !_postFC( ))
         EQWARN << "Error while posting flow control message." << std::endl;
 
 //    EQWARN << (void *)this << std::dec << ".read(" << bytes << ")"
@@ -1547,6 +1551,7 @@ bool RDMAConnection::_initProtocol( int32_t depth )
     _depth = depth;
     _writes = 0L;
     _fcs = 0L;
+    _readBytes = 0u;
     _wcredits = _depth / 2 - 2;
     _fcredits = _depth / 2 + 2;
 
@@ -1559,11 +1564,24 @@ err:
 /* inline */
 bool RDMAConnection::_needFC( )
 {
-    // TODO : TODO : TODO : TODO : TODO : TODO : TODO : TODO : TODO
-    // This isn't sufficient to guarantee deadlock-free operation and
-    // RNR avoidance.  The credit-based flow control protocol needs
-    // work for higher latency conditions and/or smaller queue depths.
-    return true;//( _writes > 0 );
+    bool bytesAvail;
+#ifdef _WIN32
+    co::base::ScopedFastRead mutex( _eventLock );
+    bytesAvail = ( _availBytes != 0 );
+#else
+    pollfd pfd;
+    pfd.fd = _pipe_fd[0];
+    pfd.events = EPOLLIN;
+    pfd.revents = 0;
+    int ret = poll( &pfd, 1, 0 );
+    if ( ret = -1 )
+    {
+        EQERROR << "poll: " << base::sysError << std::endl;
+        return true;
+    }
+    bytesAvail = ret != 0;
+#endif
+    return ( !bytesAvail || _writes >= FC_MESSAGE_FREQUENCY );
 }
 
 bool RDMAConnection::_postReceives( const uint32_t count )
@@ -1748,7 +1766,7 @@ void RDMAConnection::_recvFC( const RDMAFCPayload &fc )
     _fcs++;
 }
 
-bool RDMAConnection::_postFC( const uint32_t bytes_taken )
+bool RDMAConnection::_postFC( )
 {
     RDMAMessage &message =
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
@@ -1756,10 +1774,11 @@ bool RDMAConnection::_postFC( const uint32_t bytes_taken )
     message.opcode = FC;
     message.length = (uint8_t)sizeof(struct RDMAFCPayload);
 
-    message.payload.fc.bytes_received = bytes_taken;
+    message.payload.fc.bytes_received = _readBytes;
     message.payload.fc.writes_received = _writes;
     _writes -= message.payload.fc.writes_received;
     EQASSERT( _writes >= 0 );
+    _readBytes = 0;
 
     return _postMessage( message );
 }
@@ -1882,10 +1901,10 @@ bool RDMAConnection::_checkEvents( eventset &events )
     events.reset( );
 
 #ifdef _WIN32
-    co::base::ScopedFastWrite mutex( _eventLock );
+    co::base::ScopedFastRead mutex( _eventLock );
     if ( _availBytes != 0 )
         events.set( BUF_EVENT );
-    if ( _cc  && ( _cc->comp_channel.Head ) != 0 )
+    if ( _cc  && ( _cc->comp_channel.Head != 0 ))
         events.set( CQ_EVENT );
     if ( _cm->channel.Head )
         events.set( CM_EVENT );
@@ -1993,8 +2012,8 @@ uint64_t RDMAConnection::_getAvailableBytes( )
 {
     uint64_t available_bytes = 0;
 #ifdef _WIN32
-    available_bytes = static_cast<uint64_t>( _availBytes );
     co::base::ScopedFastWrite mutex( _eventLock );
+    available_bytes = static_cast<uint64_t>( _availBytes );
     _availBytes = 0;
     return available_bytes;
 #else
