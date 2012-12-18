@@ -72,7 +72,8 @@ namespace config
 namespace
 {
 template< class N >
-void _addConnections( N* node, const lunchbox::UUID& id,
+bool _addConnections( N* node, const lunchbox::UUID& id,
+                      const std::string& name,
                       const fabric::ConfigParams& params,
                       const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
 {
@@ -87,7 +88,7 @@ void _addConnections( N* node, const lunchbox::UUID& id,
 
         const uint32_t flags = params.getFlags();
         const bool allNetworks =
-            (flags & fabric::ConfigParams::FLAG_NETWORK_ALL ) == 0;
+                          (flags & fabric::ConfigParams::FLAG_NETWORK_ALL) != 0;
 
         if( !allNetworks ||
             ( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
@@ -110,7 +111,7 @@ void _addConnections( N* node, const lunchbox::UUID& id,
 #  else
         QHostAddress address( QString::fromStdString( netInfo.inet6Address ));
 #  endif
-        bool isInSubnet = false;
+        bool isInSubnet = prefixes.empty();
         for( StringsCIter j = prefixes.begin(); j != prefixes.end(); ++j )
         {
             const QString prefixStr = QString::fromStdString( *j );
@@ -156,6 +157,14 @@ void _addConnections( N* node, const lunchbox::UUID& id,
         desc->port = port;
         node->addConnectionDescription( desc );
     }
+
+    if( node->getConnectionDescriptions().empty() && !name.empty())
+    {
+        LBINFO << "No suitable connection found for node " << name
+               << "; node will not be added to configuration." << std::endl;
+        return false;
+    }
+    return true;
 }
 
 void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
@@ -170,7 +179,7 @@ void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
         return;
     }
 
-    _addConnections( server.get(), id, params, netInfos, EQ_DEFAULT_PORT );
+    _addConnections( server.get(), id, "", params, netInfos, EQ_DEFAULT_PORT );
     const co::ConnectionDescriptions& descs =
                                             server->getConnectionDescriptions();
     for( co::ConnectionDescriptionsCIter i = descs.begin(); i != descs.end();
@@ -267,9 +276,18 @@ bool Resources::discover( ServerPtr server, Config* config,
             mtNode->setApplicationNode( isApplicationNode );
 
             if( multiNode )
-                _addConnections( mtNode, info.id, params, netInfos );
-
-            nodes[ info.id ] = mtNode;
+            {
+                if( _addConnections( mtNode, info.id, info.nodeName, params,
+                                     netInfos ))
+                {
+                    nodes[ info.id ] = mtNode;
+                }
+                else
+                {
+                    delete mtNode;
+                    continue;
+                }
+            }
         }
         else if( multiProcess )
         {
@@ -278,7 +296,12 @@ bool Resources::discover( ServerPtr server, Config* config,
             mpNode->setHost( info.nodeName );
 
             LBASSERT( multiNode );
-            _addConnections( mpNode, info.id, params, netInfos );
+            if( !_addConnections( mpNode, info.id, info.nodeName, params,
+                                  netInfos ))
+            {
+                delete mpNode;
+                continue;
+            }
         }
 
         std::stringstream name;
