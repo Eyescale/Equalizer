@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- 
+
  *
  * The init data manages static, per-instance application data. In this example,
  * it holds the model file name, and manages the instantiation of the frame
@@ -47,11 +47,7 @@ InitData::InitData()
 #else
         , _windowSystem()
 #endif
-#ifdef Darwin
-        , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
-#else
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
-#endif
         , _useGLSL( false )
         , _invFaces( false )
         , _logo( true )

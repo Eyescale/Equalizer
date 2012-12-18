@@ -57,7 +57,7 @@ namespace eq
         int64_t resetWaitTime()
             { const int64_t time = _waitTime; _waitTime = 0; return time; }
 
-        void setMessagePump( MessagePump* pump ) { _messagePump = pump; }
+        void setMessagePump( MessagePump* p ) { _messagePump = p; }
         MessagePump* getMessagePump() { return _messagePump; }
         virtual void pump(); //!< @sa co::CommandQueue::pump()
 
