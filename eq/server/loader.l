@@ -35,6 +35,7 @@
 #  define isatty _isatty
 #endif
 #pragma warning(disable: 4267)
+#pragma clang diagnostic ignored "-Wsign-compare"
 
 int yylineno = 0;
 const char* yyinString = 0;
