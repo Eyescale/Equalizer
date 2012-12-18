@@ -87,17 +87,17 @@ bool _addConnections( N* node, const lunchbox::UUID& id,
         }
 
         const uint32_t flags = params.getFlags();
-        const bool allNetworks =
-                          (flags & fabric::ConfigParams::FLAG_NETWORK_ALL) != 0;
+        const bool filterNetworks =
+                          (flags & fabric::ConfigParams::FLAG_NETWORK_ALL);
 
-        if( !allNetworks ||
+        if( filterNetworks &&
             ( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
               netInfo.type != hwsd::NetInfo::TYPE_ETHERNET ))
         {
             continue;
         }
 
-        if( !allNetworks ||
+        if( filterNetworks &&
             ( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
               netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND ))
         {
