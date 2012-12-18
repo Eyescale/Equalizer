@@ -28,8 +28,8 @@ else()
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
 endif()
 
-if(GPUSD_FOUND)
-  add_definitions(-DEQ_USE_GPUSD)
+if(HWSD_FOUND)
+  add_definitions(-DEQ_USE_HWSD)
 endif()
 
 if(WIN32)
@@ -46,7 +46,7 @@ eq_add_tool(eqConfigTool
   )
 
 eq_add_tool(eqPlyConverter
-  HEADERS 
+  HEADERS
     ../examples/eqPly/ply.h
     ../examples/eqPly/vertexBufferBase.h
     ../examples/eqPly/vertexBufferData.h

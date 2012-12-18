@@ -38,12 +38,14 @@ public:
             : renderClient( co::Global::getProgramName( ))
             , workDir( co::Global::getWorkDir( ))
             , flags( eq::fabric::Global::getFlags( ))
+            , prefixes( eq::fabric::Global::getPrefixes( ))
         {}
 
     std::string renderClient;
     std::string workDir;
     uint32_t flags;
     fabric::Equalizer equalizer;
+    Strings prefixes;
 };
 }
 
@@ -118,16 +120,26 @@ Equalizer& ConfigParams::getEqualizer()
     return _impl->equalizer;
 }
 
+void ConfigParams::setPrefixes( const Strings& prefixes )
+{
+    _impl->prefixes = prefixes;
+}
+
+const Strings& ConfigParams::getPrefixes() const
+{
+    return _impl->prefixes;
+}
+
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
     os << _impl->renderClient << _impl->workDir << _impl->flags
-       << _impl->equalizer;
+       << _impl->equalizer << _impl->prefixes;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
     is >> _impl->renderClient >> _impl->workDir >> _impl->flags
-       >> _impl->equalizer;
+       >> _impl->equalizer >> _impl->prefixes;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )

@@ -64,12 +64,12 @@ set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
   libboost-date-time-dev libboost-regex-dev libboost-serialization-dev
   libx11-dev libgl1-mesa-dev libglewmx1.6-dev libspnav0
   librdmacm-dev libibverbs-dev librdmacm-dev
-  ${GPUSD_DEB_BUILD_DEPENDENCIES} ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}
+  ${HWSD_DEB_BUILD_DEPENDENCIES} ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}
   ${VMMLIB_DEB_BUILD_DEPENDENCIES})
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.6-dev, libspnav-dev, ${EQ_IB_PACKAGES}, ${GPUSD_DEB_DEPENDENCIES}, ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}, ${VMMLIB_DEB_BUILD_DEPENDENCIES}")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.6-dev, libspnav-dev, ${EQ_IB_PACKAGES}, ${HWSD_DEB_DEPENDENCIES}, ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}, ${VMMLIB_DEB_BUILD_DEPENDENCIES}")
 
 set(CPACK_MACPORTS_CATEGORY graphics)
-set(CPACK_MACPORTS_DEPENDS boost gpusd Lunchbox VMMLIB)
+set(CPACK_MACPORTS_DEPENDS boost hwsd Lunchbox VMMLIB)
 
 set(UBUNTU_LP_BUG 300472)
 include(CommonCPack)

@@ -39,8 +39,9 @@ namespace config
 class Resources
 {
 public:
-    static bool discover( Config* config, const std::string& session,
-                          const uint32_t flags );
+    static bool discover( ServerPtr server, Config* config,
+                          const std::string& session,
+                          const fabric::ConfigParams& params );
     static Channels configureSourceChannels( Config* config );
     static void configure( const Compounds& compounds, const Channels& channels,
                            const fabric::ConfigParams& params );

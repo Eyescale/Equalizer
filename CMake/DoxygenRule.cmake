@@ -8,8 +8,6 @@ endif()
 find_package(Git)
 include(GithubOrganization)
 
-configure_file(doc/DoxygenLayout.xml ${CMAKE_BINARY_DIR}/doc/DoxygenLayout.xml
-  @ONLY)
 configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)

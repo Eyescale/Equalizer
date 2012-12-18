@@ -25,15 +25,15 @@ endif()
 #   set(MODULE_ENV "
 #   setenv         FOO_INCLUDE_DIR  $root/include
 #   setenv         FOO_ROOT         $root
-#   append-path    PATH             $root/bin
-#   append-path    LD_LIBRARY_PATH  $root/lib")
+#   prepend-path   PATH             $root/bin
+#   prepend-path   LD_LIBRARY_PATH  $root/lib")
 if(NOT MODULE_ENV)
   string(TOUPPER ${CMAKE_PROJECT_NAME} UPPER_PROJECT_NAME)
   set(MODULE_ENV "
   setenv         ${UPPER_PROJECT_NAME}_INCLUDE_DIR  $root/include
   setenv         ${UPPER_PROJECT_NAME}_ROOT         $root
-  append-path    PATH             $root/bin
-  append-path    LD_LIBRARY_PATH  $root/lib")
+  prepend-path    PATH             $root/bin
+  prepend-path    LD_LIBRARY_PATH  $root/lib")
 endif()
 
 # the base directory containing all modules on a machine
