@@ -1574,7 +1574,7 @@ bool RDMAConnection::_needFC( )
     pfd.events = EPOLLIN;
     pfd.revents = 0;
     int ret = poll( &pfd, 1, 0 );
-    if ( ret = -1 )
+    if ( ret == -1 )
     {
         EQERROR << "poll: " << base::sysError << std::endl;
         return true;
