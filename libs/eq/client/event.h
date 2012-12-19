@@ -222,6 +222,7 @@ namespace eq
             EXIT,                 //!< Exit request due to runtime error
             MAGELLAN_AXIS,        //!< SpaceMouse movement data in magellan
             MAGELLAN_BUTTON,      //!< SpaceMouse button data in magellan
+            NODE_TIMEOUT,         //!< Node has timed out
             UNKNOWN,              //!< Event type not known by the event handler
             /** User-defined events have to be of this type or higher */
             USER = UNKNOWN + 5, // some buffer for binary-compatible patches
