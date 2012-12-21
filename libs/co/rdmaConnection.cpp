@@ -114,7 +114,7 @@ static const uint16_t MAX_FC = (( 2 << ( 4 - 1 )) - 1 );
 
 static const uint32_t RINGBUFFER_ALLOC_RETRIES = 8;
 static const uint32_t WINDOWS_CONNECTION_BACKLOG = 1024;
-static const uint32_t FC_MESSAGE_FREQUENCY = 8;
+static const uint32_t FC_MESSAGE_FREQUENCY = 12;
 }
 
 /**
@@ -186,6 +186,7 @@ RDMAConnection::RDMAConnection( )
     , _cq( NULL )
     , _pd( NULL )
     , _wcs ( 0 )
+    , _readBytes( 0 )
     , _established( false )
     , _depth( 0L )
     , _writes( 0L )
@@ -207,7 +208,6 @@ RDMAConnection::RDMAConnection( )
     , _cmWaitObj( 0 )
     , _ccWaitObj( 0 )
 #endif
-    , _readBytes( 0 )
 {
 #ifndef _WIN32
     _pipe_fd[0] = -1;
@@ -1581,7 +1581,7 @@ bool RDMAConnection::_needFC( )
     }
     bytesAvail = ret != 0;
 #endif
-    return ( !bytesAvail || _writes >= FC_MESSAGE_FREQUENCY );
+    return ( !bytesAvail || (uint32_t)_writes >= FC_MESSAGE_FREQUENCY );
 }
 
 bool RDMAConnection::_postReceives( const uint32_t count )
