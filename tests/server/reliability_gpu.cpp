@@ -152,7 +152,7 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     eq::Global::setConfigFile( filename );
     TEST( client->connectServer( server ));
 
-    eq::ConfigParams configParams;
+    eq::fabric::ConfigParams configParams;
     eq::Config* config = server->chooseConfig( configParams );
     TEST( config );
 

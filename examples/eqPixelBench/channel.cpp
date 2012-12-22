@@ -78,7 +78,7 @@ Channel::Channel( eq::Window* parent )
 
 bool Channel::configExit()
 {
-    _frame.getData()->resetPlugins();
+    _frame.getFrameData()->resetPlugins();
     return eq::Channel::configExit();
 }
 

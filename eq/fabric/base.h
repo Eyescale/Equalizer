@@ -30,6 +30,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/commands.h>
+#include <eq/fabric/configParams.h>
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/drawableConfig.h>
 #include <eq/fabric/errorRegistry.h>
