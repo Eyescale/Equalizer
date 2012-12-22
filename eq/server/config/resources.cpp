@@ -77,6 +77,10 @@ bool _addConnections( N* node, const lunchbox::UUID& id,
                       const fabric::ConfigParams& params,
                       const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
 {
+    // sort connections by bandwidth
+    typedef std::multimap< int32_t, co::ConnectionDescriptionPtr > Connections;
+    Connections connections;
+
     for( hwsd::NetInfosCIter i = netInfos.begin(); i != netInfos.end(); ++i )
     {
         const hwsd::NetInfo& netInfo = *i;
@@ -88,7 +92,7 @@ bool _addConnections( N* node, const lunchbox::UUID& id,
 
         const uint32_t flags = params.getFlags();
         const bool filterNetworks =
-                          (flags & fabric::ConfigParams::FLAG_NETWORK_ALL);
+                                 flags & fabric::ConfigParams::FLAG_NETWORK_ALL;
 
         if( filterNetworks &&
             ( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
@@ -138,10 +142,12 @@ bool _addConnections( N* node, const lunchbox::UUID& id,
         {
             case hwsd::NetInfo::TYPE_ETHERNET:
                 desc->type = co::CONNECTIONTYPE_TCPIP;
+                desc->bandwidth = 125000;   // 1Gbit
                 break;
 
             case hwsd::NetInfo::TYPE_INFINIBAND:
                 desc->type = co::CONNECTIONTYPE_RDMA;
+                desc->bandwidth = 2500000;   // 20Gbit
                 break;
 
             default:
@@ -155,7 +161,13 @@ bool _addConnections( N* node, const lunchbox::UUID& id,
         desc->hostname = netInfo.inet6Address;
 #endif
         desc->port = port;
-        node->addConnectionDescription( desc );
+        connections.insert( std::make_pair( desc->bandwidth, desc ));
+    }
+
+    for( Connections::const_reverse_iterator i = connections.rbegin();
+         i != connections.rend(); ++i )
+    {
+        node->addConnectionDescription( i->second );
     }
 
     if( node->getConnectionDescriptions().empty() && !name.empty())
