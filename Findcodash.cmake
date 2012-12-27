@@ -71,6 +71,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindCODASH)
 include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
-find_library_package(codash TRANSIENT Collage DASH)
-find_package_handle_standard_args(CODASH DEFAULT_MSG
+find_library_package(codash TRANSIENT Collage dash)
+find_package_handle_standard_args(codash DEFAULT_MSG
                                   CODASH_LIBRARIES CODASH_INCLUDE_DIRS)
