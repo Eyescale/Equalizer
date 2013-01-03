@@ -87,7 +87,7 @@ if(hwsd_name)
   include_directories(${${hwsd_name}_INCLUDE_DIRS})
 endif()
 
-find_package(GLStats 0.9.0)
+find_package(GLStats 0.1.0)
 if(GLStats_FOUND)
   set(GLStats_name GLStats)
 elseif(GLSTATS_FOUND)
