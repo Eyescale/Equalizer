@@ -148,6 +148,14 @@ bool _parseArguments( const int argc, char** argv )
     configFlags["multiprocess_db"] = fabric::ConfigParams::FLAG_MULTIPROCESS_DB;
     configFlags["ethernet"] = fabric::ConfigParams::FLAG_NETWORK_ETHERNET;
     configFlags["infiniband"] = fabric::ConfigParams::FLAG_NETWORK_INFINIBAND;
+    configFlags["eq_horizontal"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL;
+    configFlags["eq_vertical"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL;
+    configFlags["eq_2D"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_2D;
+    configFlags["eq_DB"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_DB;
 
     arg::options_description options( "Equalizer library options" );
     options.add_options()

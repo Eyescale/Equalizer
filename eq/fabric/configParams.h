@@ -53,7 +53,16 @@ namespace detail { class ConfigParams; }
             FLAG_MULTIPROCESS_DB = LB_BIT2, //!< one node per DB decomposition
             FLAG_NETWORK_ETHERNET = LB_BIT3, //!< Auto-config: use ethernet only
             FLAG_NETWORK_INFINIBAND = LB_BIT4, //!< Auto-config: use IB only
+            /** Auto-config: horizontal partition for load equalizer */
+            FLAG_LOAD_EQ_HORIZONTAL = LB_BIT5,
+            /** Auto-config: vertical partition for load equalizer */
+            FLAG_LOAD_EQ_VERTICAL = LB_BIT6,
+            /** Auto-config: 2D partition for load equalizer */
+            FLAG_LOAD_EQ_2D = FLAG_LOAD_EQ_HORIZONTAL | FLAG_LOAD_EQ_VERTICAL,
+            /** Auto-config: DB partition for load equalizer */
+            FLAG_LOAD_EQ_DB = LB_BIT7,
             /** @internal */
+            FLAG_LOAD_EQ_ALL = FLAG_LOAD_EQ_2D | FLAG_LOAD_EQ_DB,
             FLAG_NETWORK_ALL = FLAG_NETWORK_ETHERNET | FLAG_NETWORK_INFINIBAND
         };
 
