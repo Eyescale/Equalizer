@@ -35,11 +35,32 @@ class ConfigParams
 {
 public:
     ConfigParams()
-            : renderClient( co::Global::getProgramName( ))
-            , workDir( co::Global::getWorkDir( ))
-            , flags( eq::fabric::Global::getFlags( ))
-            , prefixes( eq::fabric::Global::getPrefixes( ))
-        {}
+        : renderClient( co::Global::getProgramName( ))
+        , workDir( co::Global::getWorkDir( ))
+        , flags( eq::fabric::Global::getFlags( ))
+        , prefixes( eq::fabric::Global::getPrefixes( ))
+    {
+        if( ( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL ) == 0 )
+            return;
+
+        switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )
+        {
+            case fabric::ConfigParams::FLAG_LOAD_EQ_2D :
+                equalizer.setMode( fabric::Equalizer::MODE_2D );
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL :
+                equalizer.setMode( fabric::Equalizer::MODE_HORIZONTAL );
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL :
+                equalizer.setMode( fabric::Equalizer::MODE_VERTICAL );
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_DB :
+                equalizer.setMode( fabric::Equalizer::MODE_DB );
+                break;
+            default:
+                LBUNIMPLEMENTED;
+        }
+    }
 
     std::string renderClient;
     std::string workDir;

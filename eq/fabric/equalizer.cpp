@@ -18,6 +18,9 @@
 
 #include "equalizer.h"
 
+#include "configParams.h"
+#include "global.h"
+
 #include <co/dataOStream.h>
 #include <co/dataIStream.h>
 
@@ -42,7 +45,30 @@ public:
         , tilesize( 64, 64 )
         , mode( fabric::Equalizer::MODE_2D )
         , frozen( false )
-    {}
+    {
+        uint32_t flags = eq::fabric::Global::getFlags( );
+
+        if( ( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL ) == 0 )
+            return;
+
+        switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )
+        {
+            case fabric::ConfigParams::FLAG_LOAD_EQ_2D :
+                mode = fabric::Equalizer::MODE_2D;
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL :
+                mode = fabric::Equalizer::MODE_HORIZONTAL;
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL :
+                mode = fabric::Equalizer::MODE_VERTICAL;
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_DB :
+                mode = fabric::Equalizer::MODE_DB;
+                break;
+            default:
+                LBUNIMPLEMENTED;
+        }
+    }
 
     Equalizer( const Equalizer& rhs )
         : damping( rhs.damping )
