@@ -204,49 +204,6 @@ macro(FIND_LIBRARY_PACKAGE name)
 
       set(${_flp_${name}_UC}_VERSION "${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR}.${${_flp_${name}_UC}_VERSION_PATCH}")
     endif()
-
-    # Find transient packages
-    foreach(_flp_trans ${_flp_${name}_TRANSIENT})
-      string(TOUPPER ${_flp_trans} _flp_${name}_TRANS)
-
-      # search 'COLLAGE_LUNCHBOX_VERSION'
-      string(REGEX MATCH
-        "define[ \t]+${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
-        ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
-        ${_flp_${name}_Version_contents})
-
-      # not found -> search 'CO_LUNCHBOX_VERSION'
-      if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
-        string(REGEX MATCH
-          "define[ \t]+${_flp_${name}_INCLUDE_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
-          ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
-          ${_flp_${name}_Version_contents})
-      endif()
-
-      # not found -> use _Collage_Lunchbox_version_${CO_VERSION}
-      if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
-        set(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
-          ${_${name}_${_flp_trans}_version_${${_flp_${name}_UC}_VERSION}})
-      endif()
-
-      if(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION)
-        string(REGEX REPLACE ".*[ \t]([0-9.]+)" "\\1"
-          ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
-          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION})
-        find_package(${_flp_trans}
-          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}
-          EXACT ${_flp_${name}_REQ} ${_flp_${name}_QUIET})
-        if(NOT ${_flp_${name}_TRANS}_FOUND)
-          set(_flp_${name}_FAIL TRUE)
-        endif()
-      else()
-        message(STATUS
-          "Can't figure out ${_flp_trans} version for "
-          "${name} ${${_flp_${name}_UC}_VERSION}, use "
-          "${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION in "
-          "${_flp_Version_file}.")
-      endif()
-    endforeach()
   else()
     set(_flp_${name}_FAIL TRUE)
     if(_flp_${name}_out)
@@ -295,6 +252,51 @@ macro(FIND_LIBRARY_PACKAGE name)
           "Missing the ${name} library in ${${_flp_${name}_UC}_INCLUDE_DIR}/../lib.")
       endif()
     endif()
+  endif()
+
+  if(NOT _flp_${name}_FAIL)
+    # Find transient packages
+    foreach(_flp_trans ${_flp_${name}_TRANSIENT})
+      string(TOUPPER ${_flp_trans} _flp_${name}_TRANS)
+
+      # search 'COLLAGE_LUNCHBOX_VERSION'
+      string(REGEX MATCH
+        "define[ \t]+${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
+        ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+        ${_flp_${name}_Version_contents})
+
+      # not found -> search 'CO_LUNCHBOX_VERSION'
+      if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
+        string(REGEX MATCH
+          "define[ \t]+${_flp_${name}_INCLUDE_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
+          ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+          ${_flp_${name}_Version_contents})
+      endif()
+
+      # not found -> use _Collage_Lunchbox_version_${CO_VERSION}
+      if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
+        set(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+          ${_${name}_${_flp_trans}_version_${${_flp_${name}_UC}_VERSION}})
+      endif()
+
+      if(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION)
+        string(REGEX REPLACE ".*[ \t]([0-9.]+)" "\\1"
+          ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION})
+        find_package(${_flp_trans}
+          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}
+          EXACT ${_flp_${name}_REQ} ${_flp_${name}_QUIET})
+        if(NOT ${_flp_${name}_TRANS}_FOUND)
+          set(_flp_${name}_FAIL TRUE)
+        endif()
+      else()
+        message(STATUS
+          "Can't figure out ${_flp_trans} version for "
+          "${name} ${${_flp_${name}_UC}_VERSION}, use "
+          "${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION in "
+          "${_flp_Version_file}.")
+      endif()
+    endforeach()
   endif()
 
   if(_flp_${name}_FAIL)
