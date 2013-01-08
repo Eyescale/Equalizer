@@ -52,8 +52,11 @@ set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 
-string(REGEX REPLACE ".*\\/(share\\/.*)" "\\1/Modules" CMAKE_MODULE_INSTALL_PATH
-  ${CMAKE_ROOT})
+if(MSVC)
+  set(CMAKE_MODULE_INSTALL_PATH CMake)
+else()
+  set(CMAKE_MODULE_INSTALL_PATH "${CMAKE_PROJECT_NAME}/share/CMake")
+endif()
 
 # Boost settings
 if(MSVC)
@@ -163,7 +166,7 @@ if(APPLE)
     "Building ${CMAKE_PROJECT_NAME} ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
-# hooks to gather all targets (libaries & executables)
+# hooks to gather all targets (libraries & executables)
 set(ALL_DEP_TARGETS "")
 macro(add_executable _target)
   _add_executable(${_target} ${ARGN})

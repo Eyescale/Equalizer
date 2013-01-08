@@ -5,7 +5,6 @@ if(NOT DOXYGEN_FOUND)
   return()
 endif()
 
-find_package(Git)
 configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
