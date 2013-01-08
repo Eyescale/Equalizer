@@ -48,17 +48,10 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    if( !Resources::discover( config, session, params.getFlags( )))
+    if( !Resources::discover( server, config, session, params ))
     {
         delete config;
         return 0;
-    }
-
-    if( config->getNodes().size() > 1 ) // add server connection for clusters
-    {
-        co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
-        desc->port = EQ_DEFAULT_PORT;
-        server->addListener( desc );
     }
 
     Display::discoverLocal( config, params.getFlags( ));

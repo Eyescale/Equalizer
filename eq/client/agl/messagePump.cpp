@@ -77,7 +77,7 @@ void MessagePump::dispatchOne( const uint32_t timeout )
             Global::enterCarbon();
 
         EventRef event;
-        const float wait = EQ_MIN( float( timeLeft ) * .001f, .05f /* 50ms */ );
+        const float wait = LB_MIN( float( timeLeft ) * .001f, .05f /* 50ms */ );
         const OSStatus status = ReceiveNextEvent( 0, 0, wait, true, &event );
         if( status == noErr )
         {

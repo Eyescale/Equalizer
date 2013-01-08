@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,15 +35,34 @@ class ConfigParams
 {
 public:
     ConfigParams()
-            : renderClient( co::Global::getProgramName( ))
-            , workDir( co::Global::getWorkDir( ))
-            , flags( eq::fabric::Global::getFlags( ))
-        {}
+        : renderClient( co::Global::getProgramName( ))
+        , workDir( co::Global::getWorkDir( ))
+        , flags( eq::fabric::Global::getFlags( ))
+        , prefixes( eq::fabric::Global::getPrefixes( ))
+    {
+        switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )
+        {
+            case fabric::ConfigParams::FLAG_LOAD_EQ_2D:
+                equalizer.setMode( fabric::Equalizer::MODE_2D );
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL:
+                equalizer.setMode( fabric::Equalizer::MODE_HORIZONTAL );
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL:
+                equalizer.setMode( fabric::Equalizer::MODE_VERTICAL );
+                break;
+            case fabric::ConfigParams::FLAG_NONE:
+                break;
+            default:
+                LBUNIMPLEMENTED;
+        }
+    }
 
     std::string renderClient;
     std::string workDir;
     uint32_t flags;
     fabric::Equalizer equalizer;
+    Strings prefixes;
 };
 }
 
@@ -118,16 +137,26 @@ Equalizer& ConfigParams::getEqualizer()
     return _impl->equalizer;
 }
 
+void ConfigParams::setPrefixes( const Strings& prefixes )
+{
+    _impl->prefixes = prefixes;
+}
+
+const Strings& ConfigParams::getPrefixes() const
+{
+    return _impl->prefixes;
+}
+
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
     os << _impl->renderClient << _impl->workDir << _impl->flags
-       << _impl->equalizer;
+       << _impl->equalizer << _impl->prefixes;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
     is >> _impl->renderClient >> _impl->workDir >> _impl->flags
-       >> _impl->equalizer;
+       >> _impl->equalizer >> _impl->prefixes;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )

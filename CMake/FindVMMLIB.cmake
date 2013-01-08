@@ -1,24 +1,13 @@
 # Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
 
-if(VMMLIB_FIND_REQUIRED)
-  set(_vmmlib_version_output_type FATAL_ERROR)
-  set(_vmmlib_output 1)
-else()
-  set(_vmmlib_version_output_type STATUS)
-  if(NOT VMMLIB_FIND_QUIETLY)
-    set(_vmmlib_output 1)
-  endif()
-endif()
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindVMMLIB)
+include(FindLibraryPackage)
+include(FindPackageHandleStandardArgs)
 
-find_path(VMMLIB_INCLUDE_DIRS vmmlib/vmmlib.hpp
-  $ENV{VMMLIB_ROOT}/include /usr/include /usr/local/include /opt/local/include)
+find_library_package(VMMLIB INCLUDE vmmlib NO_LIBRARY)
+find_package_handle_standard_args(VMMLIB DEFAULT_MSG VMMLIB_INCLUDE_DIRS)
 
-if(VMMLIB_INCLUDE_DIRS)
-  set(VMMLIB_FOUND 1)
+if(VMMLIB_FOUND)
+  set(VMMLIB_DEB_DEPENDENCIES)
   set(VMMLIB_DEB_BUILD_DEPENDENCIES "vmmlib1-dev")
-  if(_vmmlib_output)
-    message(STATUS "Found vmmlib in ${VMMLIB_INCLUDE_DIRS}")
-  endif()
-elseif(_vmmlib_output)
-  message(${_vmmlib_version_output_type} "Could not find VMMLib")
 endif()

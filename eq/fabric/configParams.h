@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -50,7 +50,20 @@ namespace detail { class ConfigParams; }
         {
             FLAG_NONE = LB_BIT_NONE, //!< Unset all flags
             FLAG_MULTIPROCESS = LB_BIT1, //!< Auto-config: one node per pipe
-            FLAG_MULTIPROCESS_DB = LB_BIT2 //!< one node per DB decomposition
+            FLAG_MULTIPROCESS_DB = LB_BIT2, //!< one node per DB decomposition
+            FLAG_NETWORK_ETHERNET = LB_BIT3, //!< Auto-config: use ethernet only
+            FLAG_NETWORK_INFINIBAND = LB_BIT4, //!< Auto-config: use IB only
+            /** Auto-config: horizontal partition for load equalizer */
+            FLAG_LOAD_EQ_HORIZONTAL = LB_BIT5,
+            /** Auto-config: vertical partition for load equalizer */
+            FLAG_LOAD_EQ_VERTICAL = LB_BIT6,
+            /** Auto-config: 2D partition for load equalizer */
+            FLAG_LOAD_EQ_2D = LB_BIT7,
+            /** @internal */
+            FLAG_LOAD_EQ_ALL = FLAG_LOAD_EQ_HORIZONTAL | FLAG_LOAD_EQ_VERTICAL |
+                               FLAG_LOAD_EQ_2D,
+            /** @internal */
+            FLAG_NETWORK_ALL = FLAG_NETWORK_ETHERNET | FLAG_NETWORK_INFINIBAND
         };
 
         /** Construct new configuration parameters. @version 1.0 */
@@ -112,6 +125,17 @@ namespace detail { class ConfigParams; }
 
         /** @return write-access to Equalizer properties. @version 1.5.1 */
         EQFABRIC_API Equalizer& getEqualizer();
+
+        /**
+         * Set a list of network prefixes in CIDR notation for autoconfig
+         * network interface filtering.
+         *
+         * @version 1.5.1
+         */
+        EQFABRIC_API void setPrefixes( const Strings& prefixes );
+
+        /** @return network prefixes in CIDR notation. @version 1.5.1 */
+        EQFABRIC_API const Strings& getPrefixes() const;
         //@}
 
         EQFABRIC_API void serialize( co::DataOStream& os ) const; //!< @internal

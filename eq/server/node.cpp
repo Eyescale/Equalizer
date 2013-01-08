@@ -255,7 +255,7 @@ bool Node::launch()
          _host.empty() && i != _connectionDescriptions.end(); ++i )
     {
         _host = (*i)->getHostname();
-        EQWARN << "No host specified, guessing " << _host << " from " << *i
+        LBWARN << "No host specified, guessing " << _host << " from " << *i
                << std::endl;
     }
 

@@ -71,7 +71,7 @@ int main( int argc, char** argv )
     }
 
     // 3. choose config
-    eq::ConfigParams configParams;
+    eq::fabric::ConfigParams configParams;
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
     

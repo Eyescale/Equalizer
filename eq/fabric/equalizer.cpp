@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2012, Stefan.Eilemann@epfl.ch
+ *               2012-2013, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +17,9 @@
  */
 
 #include "equalizer.h"
+
+#include "configParams.h"
+#include "global.h"
 
 #include <co/dataOStream.h>
 #include <co/dataIStream.h>
@@ -42,7 +45,25 @@ public:
         , tilesize( 64, 64 )
         , mode( fabric::Equalizer::MODE_2D )
         , frozen( false )
-    {}
+    {
+        const uint32_t flags = eq::fabric::Global::getFlags();
+        switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )
+        {
+            case fabric::ConfigParams::FLAG_LOAD_EQ_2D:
+                mode = fabric::Equalizer::MODE_2D;
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL:
+                mode = fabric::Equalizer::MODE_HORIZONTAL;
+                break;
+            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL:
+                mode = fabric::Equalizer::MODE_VERTICAL;
+                break;
+            case fabric::ConfigParams::FLAG_NONE:
+                break;
+            default:
+                LBUNIMPLEMENTED;
+        }
+    }
 
     Equalizer( const Equalizer& rhs )
         : damping( rhs.damping )

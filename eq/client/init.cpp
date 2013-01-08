@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -35,6 +35,11 @@
 
 #include <fstream>
 
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+namespace arg = boost::program_options;
+
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
 #endif
@@ -51,7 +56,7 @@ static std::ofstream* _logFile = 0;
 static lunchbox::a_int32_t _initialized;
 }
 
-static void _parseArguments( const int argc, char** argv );
+static bool _parseArguments( const int argc, char** argv );
 static void _initPlugins();
 static void _exitPlugins();
 //extern void _initErrors();
@@ -68,7 +73,8 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
         lunchbox::Log::topics |= atoll( env );
 
     lunchbox::Log::instance().setThreadName( "Main" );
-    _parseArguments( argc, argv );
+    if( !_parseArguments( argc, argv ))
+        return false;
     LBINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 
@@ -134,78 +140,122 @@ bool exit()
     return ret;
 }
 
-void _parseArguments( const int argc, char** argv )
+bool _parseArguments( const int argc, char** argv )
 {
-    // We do not use getopt_long baecause of:
-    // - reordering of arguments
-    // - different behaviour of GNU and BSD implementations
-    // - incomplete man pages
-    for( int i=1; i<argc; ++i )
+    typedef stde::hash_map< std::string, uint32_t > Flags;
+    Flags configFlags;
+    configFlags["multiprocess"] = fabric::ConfigParams::FLAG_MULTIPROCESS;
+    configFlags["multiprocess_db"] = fabric::ConfigParams::FLAG_MULTIPROCESS_DB;
+    configFlags["ethernet"] = fabric::ConfigParams::FLAG_NETWORK_ETHERNET;
+    configFlags["infiniband"] = fabric::ConfigParams::FLAG_NETWORK_INFINIBAND;
+    configFlags["2D_horizontal"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL;
+    configFlags["2D_vertical"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL;
+    configFlags["2D_tiles"] =
+        fabric::ConfigParams::FLAG_LOAD_EQ_2D;
+
+    arg::options_description options( "Equalizer library options" );
+    options.add_options()
+        ( "eq-help", "Displays usage information and exits" )
+        ( "eq-logfile", arg::value< std::string >(),
+          "Redirect log output to given file" )
+        ( "eq-server", arg::value< std::string >(), "The server address" )
+        ( "eq-config", arg::value< std::string >(),
+          "The config filename or autoconfig session name" )
+        ( "eq-config-flags", arg::value< Strings >()->multitoken(),
+          "The autoconfig flags" )
+        ( "eq-config-prefixes", arg::value< Strings >()->multitoken(),
+          "The network prefix filter(s) in CIDR notation for autoconfig"
+          "(white-space separated)" )
+        ( "eq-render-client", arg::value< std::string >(),
+          "The render client executable filename" )
+    ;
+
+    arg::variables_map vm;
+    try
     {
-        if( strcmp( "--eq-logfile", argv[i] ) == 0 )
+        arg::store( arg::command_line_parser( argc, argv )
+                        .options( options ).allow_unregistered().run(), vm );
+        arg::notify( vm );
+    }
+    catch( const std::exception& e )
+    {
+        LBERROR << "Error in argument parsing: " << e.what() << std::endl;
+        return false;
+    }
+
+    if( vm.count( "eq-help" ))
+    {
+        std::cout << options << std::endl;
+        return false;
+    }
+
+    if( vm.count( "eq-logfile" ))
+    {
+        const std::string& newFile = vm["eq-logfile"].as< std::string >();
+        std::ofstream* oldLog = _logFile;
+        std::ofstream* newLog = new std::ofstream( newFile.c_str( ));
+
+        if( newLog->is_open( ))
         {
-            ++i;
-            if( i<argc )
+            _logFile = newLog;
+            lunchbox::Log::setOutput( *newLog );
+
+            if( oldLog )
             {
-                std::ofstream* oldLog = _logFile;
-                std::ofstream* newLog = new std::ofstream( argv[i] );
-
-                if( newLog->is_open( ))
-                {
-                    _logFile = newLog;
-                    lunchbox::Log::setOutput( *newLog );
-
-                    if( oldLog )
-                    {
-                        *oldLog << "Redirected log to " << argv[i] << std::endl;
-                        oldLog->close();
-                        delete oldLog;
-                    }
-                }
-                else
-                {
-                    LBWARN << "Can't open log file " << argv[i] << ": "
-                           << lunchbox::sysError << std::endl;
-                    delete newLog;
-                    newLog = 0;
-                }
+                *oldLog << "Redirected log to " << newFile << std::endl;
+                oldLog->close();
+                delete oldLog;
             }
+            else
+                std::cout << "Redirected log to " << newFile << std::endl;
         }
-        if( strcmp( "--eq-server", argv[i] ) == 0 )
+        else
         {
-            ++i;
-            if( i<argc )
-                Global::setServer( argv[i] );
-        }
-        else if( strcmp( "--eq-config", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-                Global::setConfigFile( argv[i] );
-        }
-        else if( strcmp( "--eq-config-flags", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i >= argc )
-                break;
-
-            uint32_t flags = Global::getFlags();
-            if( strcmp( "multiprocess", argv[i] ))
-                flags |= fabric::ConfigParams::FLAG_MULTIPROCESS;
-            else if( strcmp( "multiprocess_db", argv[i] ))
-                flags |= fabric::ConfigParams::FLAG_MULTIPROCESS_DB;
-            Global::setFlags( flags );
-        }
-        else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-            {
-                co::Global::setProgramName( argv[i] );
-                co::Global::setWorkDir( lunchbox::getDirname( argv[i] ));
-            }
+            LBWARN << "Can't open log file " << newFile << ": "
+                   << lunchbox::sysError << std::endl;
+            delete newLog;
+            newLog = 0;
         }
     }
+
+    if( vm.count( "eq-server" ))
+        Global::setServer( vm["eq-server"].as< std::string >( ));
+
+    if( vm.count( "eq-config" ))
+        Global::setConfigFile( vm["eq-config"].as< std::string >( ));
+
+    if( vm.count( "eq-config-flags" ))
+    {
+        const Strings& flagStrings = vm["eq-config-flags"].as< Strings >( );
+        uint32_t flags = Global::getFlags();
+        for( StringsCIter i = flagStrings.begin(); i != flagStrings.end(); ++i )
+        {
+            Flags::const_iterator j = configFlags.find( *i );
+            if( j != configFlags.end( ))
+                flags |= j->second;
+            else
+                LBWARN << "Unknown argument for --eq-config-flags: " << *i
+                       << std::endl;
+        }
+        Global::setFlags( flags );
+    }
+
+    if( vm.count( "eq-config-prefixes" ))
+    {
+        const Strings& prefixes = vm["eq-config-prefixes"].as< Strings >( );
+        Global::setPrefixes( prefixes );
+    }
+
+    if( vm.count( "eq-client" ))
+    {
+        const std::string& renderClient = vm["eq-client"].as< std::string >();
+        co::Global::setProgramName( renderClient );
+        co::Global::setWorkDir( lunchbox::getDirname( renderClient ));
+    }
+
+    return true;
 }
 
 void _initPlugins()

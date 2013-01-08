@@ -5,14 +5,15 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           cmake 1.0
 
-name                @CMAKE_PROJECT_NAME@
+github.setup        @GIT_ORIGIN_ORG@ @CMAKE_PROJECT_NAME@ @CPACK_MACPORTS_VERSION@ release-
+
+name                @CMAKE_MACPORTS_NAME@
 categories          @CPACK_MACPORTS_CATEGORY@
 maintainers         @CPACK_PACKAGE_CONTACT@
 license             @CPACK_PACKAGE_LICENSE@
 description         @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
 long_description    @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
 
-github.setup        @GIT_ORIGIN_ORG@ ${name} @CPACK_MACPORTS_VERSION@ release-
 depends_lib        @CPACK_MACPORTS_DEPENDS@
 
 supported_archs     ppc ppc64 i386 x86_64

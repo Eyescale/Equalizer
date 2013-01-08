@@ -84,6 +84,9 @@ struct SegmentPath;
 struct ViewPath;
 struct WindowPath;
 
+using co::Strings;
+using co::StringsCIter;
+
 #ifndef EQ_2_0_API
 using co::Serializable;
 #endif
