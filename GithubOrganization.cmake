@@ -13,7 +13,7 @@ if(NOT GIT_ORIGIN_ORG)
 endif()
 
 if(NOT GIT_ORIGIN_ORG OR GIT_ORIGIN_ORG STREQUAL GIT_ORIGIN_URL)
-  message(WARNING "Can't determine github organization for ${GIT_ORIGIN_URL}")
+  message(STATUS "Can't determine github organization for ${GIT_ORIGIN_URL}")
   set(GIT_ORIGIN_ORG)
 else()
   string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_org)
