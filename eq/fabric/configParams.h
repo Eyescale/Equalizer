@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -58,11 +58,11 @@ namespace detail { class ConfigParams; }
             /** Auto-config: vertical partition for load equalizer */
             FLAG_LOAD_EQ_VERTICAL = LB_BIT6,
             /** Auto-config: 2D partition for load equalizer */
-            FLAG_LOAD_EQ_2D = FLAG_LOAD_EQ_HORIZONTAL | FLAG_LOAD_EQ_VERTICAL,
-            /** Auto-config: DB partition for load equalizer */
-            FLAG_LOAD_EQ_DB = LB_BIT7,
+            FLAG_LOAD_EQ_2D = LB_BIT7,
             /** @internal */
-            FLAG_LOAD_EQ_ALL = FLAG_LOAD_EQ_2D | FLAG_LOAD_EQ_DB,
+            FLAG_LOAD_EQ_ALL = FLAG_LOAD_EQ_HORIZONTAL | FLAG_LOAD_EQ_VERTICAL |
+                               FLAG_LOAD_EQ_2D,
+            /** @internal */
             FLAG_NETWORK_ALL = FLAG_NETWORK_ETHERNET | FLAG_NETWORK_INFINIBAND
         };
 

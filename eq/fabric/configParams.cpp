@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -40,22 +40,18 @@ public:
         , flags( eq::fabric::Global::getFlags( ))
         , prefixes( eq::fabric::Global::getPrefixes( ))
     {
-        if( ( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL ) == 0 )
-            return;
-
         switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )
         {
-            case fabric::ConfigParams::FLAG_LOAD_EQ_2D :
+            case fabric::ConfigParams::FLAG_LOAD_EQ_2D:
                 equalizer.setMode( fabric::Equalizer::MODE_2D );
                 break;
-            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL :
+            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL:
                 equalizer.setMode( fabric::Equalizer::MODE_HORIZONTAL );
                 break;
-            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL :
+            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL:
                 equalizer.setMode( fabric::Equalizer::MODE_VERTICAL );
                 break;
-            case fabric::ConfigParams::FLAG_LOAD_EQ_DB :
-                equalizer.setMode( fabric::Equalizer::MODE_DB );
+            case fabric::ConfigParams::FLAG_NONE:
                 break;
             default:
                 LBUNIMPLEMENTED;
