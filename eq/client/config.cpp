@@ -722,7 +722,8 @@ bool Config::_handleEvent( const Event& event )
 
         case Event::STATISTIC:
             LBLOG( LOG_STATS ) << event << std::endl;
-            return handleStatistic( event.serial, event.statistic );
+            addStatistic( event.serial, event.statistic );
+            break;
 
         case Event::VIEW_RESIZE:
         {
@@ -737,7 +738,7 @@ bool Config::_handleEvent( const Event& event )
     return false;
 }
 
-bool Config::handleStatistic( const uint32_t originator, const Statistic& stat )
+void Config::addStatistic( const uint32_t originator, const Statistic& stat )
 {
     const uint32_t frame = stat.frameNumber;
     LBASSERT( stat.type != Statistic::NONE );
@@ -745,7 +746,7 @@ bool Config::handleStatistic( const uint32_t originator, const Statistic& stat )
     if( frame == 0 ||  // Not a frame-related stat event or
         stat.type == Statistic::NONE ) // No event-type set
     {
-        return false;
+        return;
     }
 
     lunchbox::ScopedFastWrite mutex( _impl->statistics );
@@ -846,7 +847,7 @@ bool Config::handleStatistic( const uint32_t originator, const Statistic& stat )
       case Statistic::WINDOW_FPS:
       case Statistic::NONE:
       case Statistic::ALL:
-          return false;
+          return;
     }
     switch( stat.type )
     {
@@ -874,7 +875,6 @@ bool Config::handleStatistic( const uint32_t originator, const Statistic& stat )
     _impl->statistics->addType( stat.type, type );
     _impl->statistics->addItem( item );
     _impl->statistics->addEntity( originator, entity );
-    return false;
 }
 
 bool Config::_needsLocalSync() const
