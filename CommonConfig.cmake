@@ -7,8 +7,7 @@
 # supersedes the Find${CMAKE_PROJECT_NAME}.cmake file.
 #
 # TODO
-# - transient packages
-# - option.cmake
+# - components
 
 include(CMakePackageConfigHelpers)
 
@@ -24,9 +23,13 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "               PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
   "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_libraryname}_libraryname})\n"
   "endforeach()\n"
-  "\n"
+  "@TRANSIENTS@"
   "set_and_check(${UPPER_PROJECT_NAME}_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")\n"
   "set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "\n"
+  "if(EXISTS \${PACKAGE_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
+  "  include(\${PACKAGE_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
+  "endif()\n"
   "\n"
   "check_required_components(${CMAKE_PROJECT_NAME})\n"
 )
@@ -47,11 +50,18 @@ foreach(_target ${LIBRARY_TARGETS})
   list(APPEND LIBRARY_NAMES ${_libraryname})
 endforeach()
 
+set(TRANSIENTS "\n")
+foreach(_transient ${${UPPER_PROJECT_NAME}_TRANSIENT_LIBRARIES})
+  list(APPEND TRANSIENTS "find_package(${_transient} ${${${_transient}_name}_VERSION} EXACT REQUIRED)
+list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_transient}_name}_LIBRARIES})\n\n")
+endforeach()
+string(REGEX REPLACE ";" " " TRANSIENTS ${TRANSIENTS})
+
 configure_package_config_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
-  PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_NAMES)
+  PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_NAMES TRANSIENTS)
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
