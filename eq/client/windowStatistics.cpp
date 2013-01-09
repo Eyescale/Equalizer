@@ -48,9 +48,7 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
         snprintf( event.statistic.resourceName, 32, "%s", name.c_str());
     event.statistic.resourceName[31] = 0;
 
-    if( type == Statistic::WINDOW_FPS )
-        return;
-    if( hint == NICEST )
+    if( type != Statistic::WINDOW_FPS && hint == NICEST )
         window->finish();
 
     event.statistic.startTime  = window->getConfig()->getTime();
@@ -66,15 +64,12 @@ WindowStatistics::~WindowStatistics()
     if( event.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    if( event.statistic.type != Statistic::WINDOW_FPS )
-    {
-        if( hint == NICEST )
-            _owner->finish();
+    if( event.statistic.type != Statistic::WINDOW_FPS && hint == NICEST )
+        _owner->finish();
 
-        event.statistic.endTime = _owner->getConfig()->getTime();
-        if( event.statistic.endTime == event.statistic.startTime )
-            ++event.statistic.endTime;
-    }
+    event.statistic.endTime = _owner->getConfig()->getTime();
+    if( event.statistic.endTime <= event.statistic.startTime )
+        event.statistic.endTime = event.statistic.startTime + 1;
     _owner->processEvent( event );
 }
 

@@ -86,8 +86,8 @@ ChannelStatistics::~ChannelStatistics()
 
     if( event.statistic.endTime == 0 )
         event.statistic.endTime = _owner->getConfig()->getTime();
-    if( event.statistic.endTime == event.statistic.startTime )
-        ++event.statistic.endTime;
+    if( event.statistic.endTime <= event.statistic.startTime )
+        event.statistic.endTime = event.statistic.startTime + 1;
 
     _owner->addStatistic( event );
 }

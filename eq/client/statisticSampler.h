@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -43,26 +43,30 @@ namespace eq
          */
         StatisticSampler( const Statistic::Type type, Owner* owner,
                           const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
-                : _owner( owner )
-            {
-                LBASSERT( owner );
-                LBASSERT( owner->getID() != UUID::ZERO );
-                LBASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
-                event.type                  = Event::STATISTIC;
-                event.serial                = owner->getSerial();
-                event.originator            = owner->getID();
-                event.statistic.type        = type;
-                event.statistic.frameNumber = frameNumber;
-                event.statistic.resourceName[0] = '\0';
-                event.statistic.startTime   = 0;
-                event.statistic.endTime     = 0;
+            : _owner( owner )
+        {
+            LBASSERT( owner );
+            LBASSERT( owner->getID() != UUID::ZERO );
+            LBASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
+            event.type                  = Event::STATISTIC;
+            event.serial                = owner->getSerial();
+            event.originator            = owner->getID();
+            event.statistic.type        = type;
+            event.statistic.frameNumber = frameNumber;
+            event.statistic.resourceName[0] = '\0';
+            event.statistic.startTime   = 0;
+            event.statistic.endTime     = 0;
 
-                if( event.statistic.frameNumber == LB_UNDEFINED_UINT32 )
-                    event.statistic.frameNumber = owner->getCurrentFrame();
-            }
+            if( event.statistic.frameNumber == LB_UNDEFINED_UINT32 )
+                event.statistic.frameNumber = owner->getCurrentFrame();
+        }
 
         /** Destruct and finish statistics sampling. @version 1.0 */
-        virtual ~StatisticSampler() {}
+        virtual ~StatisticSampler()
+        {
+            LBASSERTINFO( event.statistic.startTime <= event.statistic.endTime,
+                          event.statistic );
+        }
 
         Event event; //!< The statistics event.
 
