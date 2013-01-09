@@ -51,7 +51,6 @@ namespace eq
             CHANNEL_FRAME_COMPRESS, //!< Sampling of frame compression
             /** Sampling of waiting for a send token from the receiver */
             CHANNEL_FRAME_WAIT_SENDTOKEN,
-            CHANNEL_FRAME_FINISH, //!< Frame done
             WINDOW_FINISH, //!< Sampling of Window::finish before a swap barrier
             /** Sampling of throttling of framerate_equalizer */
             WINDOW_THROTTLE_FRAMERATE,

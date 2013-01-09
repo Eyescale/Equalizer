@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -38,51 +38,49 @@ struct StatisticData
 
 static StatisticData _statisticData[] =
 {{ Statistic::NONE,
-   "NO EVENT",     Vector3f( 0.f, 0.f, 0.f ) }, 
+   "NO EVENT",     Vector3f( 0.f, 0.f, 0.f ) },
  { Statistic::CHANNEL_CLEAR,
-   "clear",        Vector3f( .5f, 1.0f, .5f ) }, 
+   "clear",        Vector3f( .5f, 1.0f, .5f ) },
  { Statistic::CHANNEL_DRAW,
-   "draw",         Vector3f( 0.f, .9f, 0.f ) }, 
+   "draw",         Vector3f( 0.f, .9f, 0.f ) },
  { Statistic::CHANNEL_DRAW_FINISH,
-   "finish draw",  Vector3f( 0.f, .5f, 0.f ) }, 
+   "finish draw",  Vector3f( 0.f, .5f, 0.f ) },
  { Statistic::CHANNEL_ASSEMBLE,
    "assemble",     Vector3f( 1.0f, 1.0f, 0.f ) },
  { Statistic::CHANNEL_FRAME_WAIT_READY,
-   "wait frame",   Vector3f( 1.0f, 0.f, 0.f ) }, 
+   "wait frame",   Vector3f( 1.0f, 0.f, 0.f ) },
  { Statistic::CHANNEL_READBACK,
-   "readback",     Vector3f( 1.0f, .5f, .5f ) }, 
+   "readback",     Vector3f( 1.0f, .5f, .5f ) },
  { Statistic::CHANNEL_ASYNC_READBACK,
-   "readback",     Vector3f( 1.0f, .5f, .5f ) }, 
+   "readback",     Vector3f( 1.0f, .5f, .5f ) },
  { Statistic::CHANNEL_VIEW_FINISH,
-   "view finish",  Vector3f( 1.f, 0.f, 1.0f ) }, 
+   "view finish",  Vector3f( 1.f, 0.f, 1.0f ) },
  { Statistic::CHANNEL_FRAME_TRANSMIT,
-   "transmit",     Vector3f( 0.f, 0.f, 1.0f ) }, 
+   "transmit",     Vector3f( 0.f, 0.f, 1.0f ) },
  { Statistic::CHANNEL_FRAME_COMPRESS,
-   "compress",     Vector3f( 0.f, .7f, 1.f ) }, 
+   "compress",     Vector3f( 0.f, .7f, 1.f ) },
  { Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
-   "wait send token", Vector3f( 1.f, 0.f, 0.f ) }, 
- { Statistic::CHANNEL_FRAME_FINISH,
-   "compress",     Vector3f( 1.f, 1.f, 1.f ) }, 
+   "wait send token", Vector3f( 1.f, 0.f, 0.f ) },
  { Statistic::WINDOW_FINISH,
    "finish",       Vector3f( 1.0f, 1.0f, 0.f ) },
  { Statistic::WINDOW_THROTTLE_FRAMERATE,
-   "throttle",     Vector3f( 1.0f, 0.f, 1.f ) }, 
+   "throttle",     Vector3f( 1.0f, 0.f, 1.f ) },
  { Statistic::WINDOW_SWAP_BARRIER,
-   "barrier",      Vector3f( 1.0f, 0.f, 0.f ) }, 
+   "barrier",      Vector3f( 1.0f, 0.f, 0.f ) },
  { Statistic::WINDOW_SWAP,
-   "swap",         Vector3f( 1.f, 1.f, 1.f ) }, 
+   "swap",         Vector3f( 1.f, 1.f, 1.f ) },
  { Statistic::WINDOW_FPS,
-   "FPS",          Vector3f( 1.f, 1.f, 1.f ) }, 
+   "FPS",          Vector3f( 1.f, 1.f, 1.f ) },
  { Statistic::PIPE_IDLE,
-   "pipe idle",    Vector3f( 1.f, 1.f, 1.f ) }, 
+   "pipe idle",    Vector3f( 1.f, 1.f, 1.f ) },
  { Statistic::NODE_FRAME_DECOMPRESS,
-   "decompress",   Vector3f( 0.f, .7f, 1.f ) }, 
+   "decompress",   Vector3f( 0.f, .7f, 1.f ) },
  { Statistic::CONFIG_START_FRAME,
-   "start frame",  Vector3f( .5f, 1.0f, .5f ) }, 
+   "start frame",  Vector3f( .5f, 1.0f, .5f ) },
  { Statistic::CONFIG_FINISH_FRAME,
-   "finish frame", Vector3f( .5f, .5f, .5f ) }, 
+   "finish frame", Vector3f( .5f, .5f, .5f ) },
  { Statistic::CONFIG_WAIT_FINISH_FRAME,
-   "wait finish",  Vector3f( 1.0f, 0.f, 0.f ) }, 
+   "wait finish",  Vector3f( 1.0f, 0.f, 0.f ) },
  { Statistic::ALL,
    "ALL EVENTS",   Vector3f( 0.0f, 0.f, 0.f ) }} ;
 }

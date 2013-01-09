@@ -772,7 +772,6 @@ bool Config::_handleEvent( const Event& event )
               case Statistic::CHANNEL_ASSEMBLE:
               case Statistic::CHANNEL_READBACK:
               case Statistic::CHANNEL_VIEW_FINISH:
-              case Statistic::CHANNEL_FRAME_FINISH:
                   type.group = "channel";
                   break;
               case Statistic::CHANNEL_ASYNC_READBACK:

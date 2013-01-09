@@ -1138,11 +1138,6 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     if( --stats.used != 0 ) // Frame still in use
         return;
 
-    ++stats.used; // otherwise assertion
-    { ChannelStatistics event( Statistic::CHANNEL_FRAME_FINISH, this,
-                               frameNumber ); }
-    --stats.used;
-
     send( getServer(), fabric::CMD_CHANNEL_FRAME_FINISH_REPLY )
             << stats.region << frameNumber << stats.data;
 
