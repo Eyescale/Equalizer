@@ -287,15 +287,14 @@ bool Resources::discover( ServerPtr server, Config* config,
             mtNode->setHost( info.nodeName );
             mtNode->setApplicationNode( isApplicationNode );
 
+            nodes[ info.id ] = mtNode;
+
             if( multiNode )
             {
-                if( _addConnections( mtNode, info.id, info.nodeName, params,
-                                     netInfos ))
+                if( !_addConnections( mtNode, info.id, info.nodeName, params,
+                                      netInfos ))
                 {
-                    nodes[ info.id ] = mtNode;
-                }
-                else
-                {
+                    nodes.erase( info.id );
                     delete mtNode;
                     continue;
                 }
