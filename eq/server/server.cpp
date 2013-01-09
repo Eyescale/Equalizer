@@ -193,7 +193,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
         if( config )
         {
             config->register_();
-            LBINFO << "Configured " << *this << std::endl;
+            LBINFO << "Configured\n" << *this << std::endl;
         }
     }
 #endif
