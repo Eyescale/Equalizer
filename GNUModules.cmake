@@ -29,15 +29,15 @@
 #                  default ${CMAKE_PROJECT_NAME} version ${VERSION}
 #
 # - MODULE_DEPENDENCIES: list of dependend modules with format:
-#                        ${CPACK_PROJECT_NAME}/${VERSION_MAJOR}.${VERSION_MINOR}
+#                        ${CMAKE_PROJECT_NAME}/${VERSION_MAJOR}.${VERSION_MINOR}
 
 if(MSVC)
   return()
 endif()
 
 # Need variables defined by (Common)CPackConfig
-if(NOT CPACK_PROJECT_NAME OR NOT CPACK_PACKAGE_VENDOR OR NOT VERSION OR
-   NOT CMAKE_SYSTEM_PROCESSOR OR NOT LSB_RELEASE OR NOT LSB_DISTRIBUTOR_ID)
+if(NOT CPACK_PACKAGE_VENDOR OR NOT VERSION OR NOT CMAKE_SYSTEM_PROCESSOR OR
+   NOT LSB_RELEASE OR NOT LSB_DISTRIBUTOR_ID)
   message(FATAL_ERROR "Need CommonCPack before GNUModule")
 endif()
 
@@ -86,7 +86,7 @@ include(CompilerVersion)
 compiler_dumpversion(MODULE_COMPILER_VERSION)
 
 # setup the module file content
-set(MODULE_PACKAGE_NAME ${CPACK_PROJECT_NAME})
+set(MODULE_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 set(MODULE_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 if(LSB_DISTRIBUTOR_ID MATCHES "RedHatEnterpriseServer")
   set(MODULE_PLATFORM "rhel${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
