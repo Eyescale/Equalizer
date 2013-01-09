@@ -930,7 +930,7 @@ void Channel::drawStatistics()
     const GLStats::Data& data = config->getStatistics();
     detail::StatsRenderer renderer( font );
     const Viewport& vp = getViewport();
-    const uint32_t width = uint32_t( pvp.w/vp.w );
+    const uint32_t width = uint32_t( pvp.w / vp.w );
     const uint32_t height = uint32_t( pvp.h / vp.h);
 
     renderer.setViewport( width, height );
@@ -1888,8 +1888,10 @@ bool Channel::_cmdFrameViewFinish( co::ICommand& cmd )
                        << " " << context << std::endl;
 
     _setRenderContext( context );
-    ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
-    frameViewFinish( context.frameID );
+    {
+        ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
+        frameViewFinish( context.frameID );
+    }
     resetRenderContext();
 
     return true;

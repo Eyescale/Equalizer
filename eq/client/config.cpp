@@ -836,11 +836,11 @@ bool Config::_handleEvent( const Event& event )
                 text << unsigned( 100.f * stat.ratio ) << '%';
 
                 if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                    text << " " << stat.plugins[0];
+                    text << " 0x" << std::hex << stat.plugins[0] << std::dec;
                 if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE &&
                     stat.plugins[ 0 ] != stat.plugins[ 1 ] )
                 {
-                    text << " " << stat.plugins[1];
+                    text << " 0x" << std::hex << stat.plugins[1] << std::dec;
                 }
                 item.text = text.str();
                 break;
