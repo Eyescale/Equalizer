@@ -721,151 +721,8 @@ bool Config::_handleEvent( const Event& event )
             break;
 
         case Event::STATISTIC:
-        {
             LBLOG( LOG_STATS ) << event << std::endl;
-            const uint32_t originator = event.serial;
-            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event );
-            if( originator == 0 )
-                return false;
-
-            const Statistic& stat = event.statistic;
-            const uint32_t frame = stat.frameNumber;
-            LBASSERT( stat.type != Statistic::NONE )
-
-            if( frame == 0 ||  // Not a frame-related stat event or
-                stat.type == Statistic::NONE ) // No event-type set
-            {
-                return false;
-            }
-
-            lunchbox::ScopedFastWrite mutex( _impl->statistics );
-            GLStats::Item item;
-            item.entity = originator;
-            item.type = stat.type;
-            item.frame = stat.frameNumber;
-            item.start = stat.startTime;
-            item.end = stat.endTime;
-
-            GLStats::Entity entity;
-            entity.name = stat.resourceName;
-
-            GLStats::Type type;
-            const Vector3f& color = Statistic::getColor( stat.type );
-
-            type.color[0] = color[0];
-            type.color[1] = color[1];
-            type.color[2] = color[2];
-            type.name = Statistic::getName( stat.type );
-            switch( stat.type )
-            {
-              case Statistic::CHANNEL_FRAME_COMPRESS:
-              case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                  type.subgroup = "transmit";
-                  item.thread = THREAD_ASYNC2;
-                  // no break;
-              case Statistic::CHANNEL_FRAME_WAIT_READY:
-                  type.group = "channel";
-                  item.layer = 1;
-                  break;
-              case Statistic::CHANNEL_CLEAR:
-              case Statistic::CHANNEL_DRAW:
-              case Statistic::CHANNEL_DRAW_FINISH:
-              case Statistic::CHANNEL_ASSEMBLE:
-              case Statistic::CHANNEL_READBACK:
-              case Statistic::CHANNEL_VIEW_FINISH:
-                  type.group = "channel";
-                  break;
-              case Statistic::CHANNEL_ASYNC_READBACK:
-                  type.group = "channel";
-                  type.subgroup = "transfer";
-                  item.thread = THREAD_ASYNC1;
-                  break;
-              case Statistic::CHANNEL_FRAME_TRANSMIT:
-                  type.group = "channel";
-                  type.subgroup = "transmit";
-                  item.thread = THREAD_ASYNC2;
-                  break;
-
-              case Statistic::WINDOW_FINISH:
-              case Statistic::WINDOW_THROTTLE_FRAMERATE:
-              case Statistic::WINDOW_SWAP_BARRIER:
-              case Statistic::WINDOW_SWAP:
-                  type.group = "window";
-                  break;
-              case Statistic::NODE_FRAME_DECOMPRESS:
-                  type.group = "node";
-                  break;
-
-              case Statistic::CONFIG_WAIT_FINISH_FRAME:
-                  item.layer = 1;
-                  // no break;
-              case Statistic::CONFIG_START_FRAME:
-              case Statistic::CONFIG_FINISH_FRAME:
-                  type.group = "config";
-                  break;
-
-              case Statistic::PIPE_IDLE:
-              {
-                  const Strings& strings = _impl->statistics->getText();
-                  const float idle = stat.idleTime * 100ll / stat.totalTime;
-                  std::stringstream text;
-                  if( strings.empty( ))
-                      text <<  "Idle: " << stat.resourceName << ' ' << idle
-                           << "%";
-                  else
-                  {
-                      const std::string& string = strings[0];
-                      const size_t pos = string.find( stat.resourceName );
-
-                      if( pos == std::string::npos ) // append new pipe
-                          text << string << ", " << stat.resourceName << ' '
-                               << idle << "%";
-                      else // replace existing text
-                      {
-                          const std::string& left = string.substr( pos + 1 );
-
-                          text << string.substr( 0, pos ) << stat.resourceName
-                               << ' ' << idle << left.substr( left.find( '%' ));
-                      }
-                  }
-                  _impl->statistics->clearText();
-                  _impl->statistics->addText( text.str( ));
-              }
-              // no break;
-
-              case Statistic::WINDOW_FPS:
-              case Statistic::NONE:
-              case Statistic::ALL:
-                  return false;
-            }
-            switch( stat.type )
-            {
-              case Statistic::CHANNEL_FRAME_COMPRESS:
-              case Statistic::CHANNEL_ASYNC_READBACK:
-              case Statistic::CHANNEL_READBACK:
-              {
-                std::stringstream text;
-                text << unsigned( 100.f * stat.ratio ) << '%';
-
-                if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                    text << " 0x" << std::hex << stat.plugins[0] << std::dec;
-                if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE &&
-                    stat.plugins[ 0 ] != stat.plugins[ 1 ] )
-                {
-                    text << " 0x" << std::hex << stat.plugins[1] << std::dec;
-                }
-                item.text = text.str();
-                break;
-              }
-              default:
-                break;
-            }
-
-            _impl->statistics->addType( stat.type, type );
-            _impl->statistics->addItem( item );
-            _impl->statistics->addEntity( originator, entity );
-            return false;
-        }
+            return handleStatistic( event.serial, event.statistic );
 
         case Event::VIEW_RESIZE:
         {
@@ -877,6 +734,146 @@ bool Config::_handleEvent( const Event& event )
         }
     }
 
+    return false;
+}
+
+bool Config::handleStatistic( const uint32_t originator, const Statistic& stat )
+{
+    const uint32_t frame = stat.frameNumber;
+    LBASSERT( stat.type != Statistic::NONE );
+
+    if( frame == 0 ||  // Not a frame-related stat event or
+        stat.type == Statistic::NONE ) // No event-type set
+    {
+        return false;
+    }
+
+    lunchbox::ScopedFastWrite mutex( _impl->statistics );
+    GLStats::Item item;
+    item.entity = originator;
+    item.type = stat.type;
+    item.frame = stat.frameNumber;
+    item.start = stat.startTime;
+    item.end = stat.endTime;
+
+    GLStats::Entity entity;
+    entity.name = stat.resourceName;
+
+    GLStats::Type type;
+    const Vector3f& color = Statistic::getColor( stat.type );
+
+    type.color[0] = color[0];
+    type.color[1] = color[1];
+    type.color[2] = color[2];
+    type.name = Statistic::getName( stat.type );
+
+    switch( stat.type )
+    {
+      case Statistic::CHANNEL_FRAME_COMPRESS:
+      case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+          type.subgroup = "transmit";
+          item.thread = THREAD_ASYNC2;
+          // no break;
+      case Statistic::CHANNEL_FRAME_WAIT_READY:
+          type.group = "channel";
+          item.layer = 1;
+          break;
+      case Statistic::CHANNEL_CLEAR:
+      case Statistic::CHANNEL_DRAW:
+      case Statistic::CHANNEL_DRAW_FINISH:
+      case Statistic::CHANNEL_ASSEMBLE:
+      case Statistic::CHANNEL_READBACK:
+      case Statistic::CHANNEL_VIEW_FINISH:
+          type.group = "channel";
+          break;
+      case Statistic::CHANNEL_ASYNC_READBACK:
+          type.group = "channel";
+          type.subgroup = "transfer";
+          item.thread = THREAD_ASYNC1;
+          break;
+      case Statistic::CHANNEL_FRAME_TRANSMIT:
+          type.group = "channel";
+          type.subgroup = "transmit";
+          item.thread = THREAD_ASYNC2;
+          break;
+
+      case Statistic::WINDOW_FINISH:
+      case Statistic::WINDOW_THROTTLE_FRAMERATE:
+      case Statistic::WINDOW_SWAP_BARRIER:
+      case Statistic::WINDOW_SWAP:
+          type.group = "window";
+          break;
+      case Statistic::NODE_FRAME_DECOMPRESS:
+          type.group = "node";
+          break;
+
+      case Statistic::CONFIG_WAIT_FINISH_FRAME:
+          item.layer = 1;
+          // no break;
+      case Statistic::CONFIG_START_FRAME:
+      case Statistic::CONFIG_FINISH_FRAME:
+          type.group = "config";
+          break;
+
+      case Statistic::PIPE_IDLE:
+      {
+          const Strings& strings = _impl->statistics->getText();
+          const float idle = stat.idleTime * 100ll / stat.totalTime;
+          std::stringstream text;
+          if( strings.empty( ))
+              text <<  "Idle: " << stat.resourceName << ' ' << idle << "%";
+          else
+          {
+              const std::string& string = strings[0];
+              const size_t pos = string.find( stat.resourceName );
+
+              if( pos == std::string::npos ) // append new pipe
+                  text << string << ", " << stat.resourceName << ' '
+                       << idle << "%";
+              else // replace existing text
+              {
+                  const std::string& left = string.substr( pos + 1 );
+
+                  text << string.substr( 0, pos ) << stat.resourceName << ' '
+                       << idle << left.substr( left.find( '%' ));
+              }
+          }
+          _impl->statistics->clearText();
+          _impl->statistics->addText( text.str( ));
+      }
+      // no break;
+
+      case Statistic::WINDOW_FPS:
+      case Statistic::NONE:
+      case Statistic::ALL:
+          return false;
+    }
+    switch( stat.type )
+    {
+      case Statistic::CHANNEL_FRAME_COMPRESS:
+      case Statistic::CHANNEL_ASYNC_READBACK:
+      case Statistic::CHANNEL_READBACK:
+      {
+          std::stringstream text;
+          text << unsigned( 100.f * stat.ratio ) << '%';
+
+          if( stat.plugins[ 0 ] > EQ_COMPRESSOR_NONE )
+              text << " 0x" << std::hex << stat.plugins[0] << std::dec;
+          if( stat.plugins[ 1 ] > EQ_COMPRESSOR_NONE &&
+              stat.plugins[ 0 ] != stat.plugins[ 1 ] )
+          {
+              text << " 0x" << std::hex << stat.plugins[1] << std::dec;
+          }
+          item.text = text.str();
+          break;
+      }
+      default:
+          break;
+    }
+
+    _impl->statistics->addType( stat.type, type );
+    _impl->statistics->addItem( item );
+    _impl->statistics->addEntity( originator, entity );
     return false;
 }
 

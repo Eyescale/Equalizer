@@ -430,6 +430,16 @@ namespace detail { class Config; }
          * @version 1.0
          */
         EQ_API virtual void handleEvents();
+
+        /**
+         * Handle an statistic event
+         *
+         * @param originator the originator serial id.
+         * @param stat the statistic event.
+         * @return true if the event requires a redraw, false if not.
+         * @warning experimental, may not be supported in the future
+         */
+        bool handleStatistic( const uint32_t originator, const Statistic& stat);
         //@}
 
         /**
