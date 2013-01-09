@@ -2,6 +2,9 @@
 # Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
 # Info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
+# need to be here after all targets were defined
+include(CommonConfig)
+
 if(NOT CPACK_PROJECT_NAME)
   set(CPACK_PROJECT_NAME ${CMAKE_PROJECT_NAME})
 endif()
