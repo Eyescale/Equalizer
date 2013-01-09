@@ -106,7 +106,8 @@ std::ostream& operator << ( std::ostream& os, const Statistic::Type& type )
 std::ostream& operator << ( std::ostream& os, const Statistic& event )
 {
     os << event.resourceName << ": " << event.type << ' ' << event.frameNumber
-       << ' ' << event.task << ' ' << event.startTime << " - " << event.endTime;
+       << ' ' << event.task << ' ' << event.startTime << " - " << event.endTime
+       << ' ' << event.idleTime << '/' << event.totalTime;
     return os;
 }
 

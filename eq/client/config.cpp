@@ -414,6 +414,7 @@ bool Config::update()
     bool result = false;
     client->waitRequest( requestID, result );
     client->enableSendOnRegister();
+    _impl->statistics->clearText();
     return result;
 }
 
@@ -805,18 +806,31 @@ bool Config::_handleEvent( const Event& event )
 
               case Statistic::PIPE_IDLE:
               {
-                const Strings& strings = _impl->statistics->getText();
-                std::stringstream text;
-                if( strings.empty( ))
-                    text <<  "Idle: ";
-                else
-                    text << strings[0] << ", ";
+                  const Strings& strings = _impl->statistics->getText();
+                  const float idle = stat.idleTime * 100ll / stat.totalTime;
+                  std::stringstream text;
+                  if( strings.empty( ))
+                      text <<  "Idle: " << stat.resourceName << ' ' << idle
+                           << "%";
+                  else
+                  {
+                      const std::string& string = strings[0];
+                      const size_t pos = string.find( stat.resourceName );
 
-                text << stat.resourceName << " " <<
-                    (stat.idleTime * 100ll / stat.totalTime) << "%";
+                      if( pos == std::string::npos ) // append new pipe
+                          text << string << ", " << stat.resourceName << ' '
+                               << idle << "%";
+                      else // replace existing text
+                      {
+                          const std::string& left = string.substr( pos + 1 );
 
-                _impl->statistics->clearText();
-                _impl->statistics->addText( text.str( ));
+                          text << string.substr( 0, pos ) << stat.resourceName
+                               << ' ' << idle << left.substr( left.find( '%' ));
+                      }
+                  }
+                  _impl->statistics->clearText();
+                  _impl->statistics->addText( text.str( ));
+                  LBINFO << stat << std::endl;
               }
               // no break;
 
@@ -904,7 +918,6 @@ void Config::_updateStatistics( const uint32_t finishedFrame )
     // keep statistics for three frames
     lunchbox::ScopedFastWrite mutex( _impl->statistics );
     _impl->statistics->obsolete( 3 /* frames to keep */ );
-    _impl->statistics->clearText();
 #endif
 }
 
