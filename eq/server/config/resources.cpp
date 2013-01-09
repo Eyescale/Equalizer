@@ -187,7 +187,7 @@ void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
     {
         co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
         desc->port = EQ_DEFAULT_PORT;
-        server->addListener( desc );
+        LBCHECK( server->addListener( desc ));
         return;
     }
 
@@ -197,7 +197,7 @@ void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
     for( co::ConnectionDescriptionsCIter i = descs.begin(); i != descs.end();
          ++i )
     {
-        server->addListener( *i );
+        LBCHECK( server->addListener( *i ));
     }
 }
 }
@@ -287,15 +287,14 @@ bool Resources::discover( ServerPtr server, Config* config,
             mtNode->setHost( info.nodeName );
             mtNode->setApplicationNode( isApplicationNode );
 
+            nodes[ info.id ] = mtNode;
+
             if( multiNode )
             {
-                if( _addConnections( mtNode, info.id, info.nodeName, params,
-                                     netInfos ))
+                if( !_addConnections( mtNode, info.id, info.nodeName, params,
+                                      netInfos ))
                 {
-                    nodes[ info.id ] = mtNode;
-                }
-                else
-                {
+                    nodes.erase( info.id );
                     delete mtNode;
                     continue;
                 }
@@ -372,26 +371,26 @@ public:
     AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
 
     virtual VisitorResult visitPre( Pipe* pipe )
+    {
+        const Node* node = pipe->getNode();
+        if( node->isApplicationNode() && node->getPipes().front() == pipe )
         {
-            const Node* node = pipe->getNode();
-            if( node->isApplicationNode() && node->getPipes().front() == pipe )
-            {
-                // display window has discrete 'affinity' GPU
-                if( pipe->getName() != "display mt mp" )
-                    _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
-                return TRAVERSE_CONTINUE;
-            }
-
-            Window* window = new Window( pipe );
-            if( !pipe->getPixelViewport().isValid( ))
-                window->setPixelViewport( _pvp );
-            window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
-            window->setName( pipe->getName() + " source window" );
-
-            _channels.push_back( new Channel( window ));
-            _channels.back()->setName( pipe->getName() + " source channel" );
+            // display window has discrete 'affinity' GPU
+            if( pipe->getName() != "display mt mp" )
+                _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
             return TRAVERSE_CONTINUE;
         }
+
+        Window* window = new Window( pipe );
+        if( !pipe->getPixelViewport().isValid( ))
+            window->setPixelViewport( _pvp );
+        window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
+        window->setName( pipe->getName() + " source window" );
+
+        _channels.push_back( new Channel( window ));
+        _channels.back()->setName( pipe->getName() + " source channel" );
+        return TRAVERSE_CONTINUE;
+    }
 
     const Channels& getChannels() const { return _channels; }
 private:
