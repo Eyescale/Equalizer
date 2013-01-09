@@ -18,9 +18,6 @@ server
                         name "channel2"
                     }
                 }
-            }
-            pipe
-            {
                 window
                 {
                     viewport [ .55 .3 .4 .4 ]
