@@ -830,7 +830,6 @@ bool Config::_handleEvent( const Event& event )
                   }
                   _impl->statistics->clearText();
                   _impl->statistics->addText( text.str( ));
-                  LBINFO << stat << std::endl;
               }
               // no break;
 
