@@ -70,20 +70,16 @@ namespace eq
         uint32_t frameNumber; //!< The frame during when the sampling happened
         uint32_t task; //!< @internal
         uint32_t plugins[2]; //!< color,depth plugins (readback, compression)
-        float ratio; //!< compression ratio (transfer, compression)
 
-        union
-        {
-            int64_t  startTime; //!< Absolute start time of the operation
-            int64_t  idleTime;  //!< Absolute idle time of PIPE_IDLE
-            float    currentFPS; //!< FPS of last frame (WINDOW_FPS)
-        };
-        union
-        {
-            int64_t  endTime;    //!< Absolute end time of the operation
-            int64_t  totalTime;  //!< Total time of a pipe frame (PIPE_IDLE)
-            float    averageFPS; //!< Weighted sum averaging of FPS (WINDOW_FPS)
-        };
+        int64_t  startTime; //!< Absolute start time of the operation
+        int64_t  endTime;    //!< Absolute end time of the operation
+        int64_t  idleTime;  //!< Absolute idle time of PIPE_IDLE
+        int64_t  totalTime;  //!< Total time of a pipe frame (PIPE_IDLE)
+
+        float    ratio; //!< compression ratio (transfer, compression)
+        float    currentFPS; //!< FPS of last frame (WINDOW_FPS)
+        float    averageFPS; //!< Weighted sum averaging of FPS (WINDOW_FPS)
+        float    pad; //!< @internal
 
         char resourceName[32]; //!< A non-unique name of the originator
 
@@ -112,10 +108,15 @@ template<> inline void byteswap( eq::Statistic& value )
     byteswap( value.task );
     byteswap( value.plugins[0] );
     byteswap( value.plugins[1] );
-    byteswap( value.ratio );
 
     byteswap( value.startTime );
     byteswap( value.endTime );
+    byteswap( value.idleTime );
+    byteswap( value.totalTime );
+
+    byteswap( value.ratio );
+    byteswap( value.currentFPS );
+    byteswap( value.averageFPS );
 }
 }
 

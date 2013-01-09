@@ -60,8 +60,9 @@ PipeStatistics::~PipeStatistics()
     Config* config = _owner->getConfig();
     if( event.statistic.endTime == 0 )
         event.statistic.endTime = config->getTime();
-    if( event.statistic.endTime == event.statistic.startTime )
-        ++event.statistic.endTime;
+    if( event.statistic.endTime <= event.statistic.startTime )
+        event.statistic.endTime = event.statistic.startTime + 1;
+
     config->sendEvent( event.type ) << event;
 }
 
