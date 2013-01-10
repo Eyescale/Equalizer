@@ -71,11 +71,9 @@ namespace config
 {
 namespace
 {
-template< class N >
-bool _addConnections( N* node, const lunchbox::UUID& id,
-                      const std::string& name,
-                      const fabric::ConfigParams& params,
-                      const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
+co::ConnectionDescriptions _findConnections(
+    const lunchbox::UUID& id, const fabric::ConfigParams& params,
+    const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
 {
     // sort connections by bandwidth
     typedef std::multimap< int32_t, co::ConnectionDescriptionPtr > Connections;
@@ -164,19 +162,13 @@ bool _addConnections( N* node, const lunchbox::UUID& id,
         connections.insert( std::make_pair( desc->bandwidth, desc ));
     }
 
+    co::ConnectionDescriptions result;
     for( Connections::const_reverse_iterator i = connections.rbegin();
          i != connections.rend(); ++i )
     {
-        node->addConnectionDescription( i->second );
+        result.push_back( i->second );
     }
-
-    if( node->getConnectionDescriptions().empty() && !name.empty())
-    {
-        LBINFO << "No suitable connection found for node " << name
-               << "; node will not be added to configuration." << std::endl;
-        return false;
-    }
-    return true;
+    return result;
 }
 
 void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
@@ -191,9 +183,9 @@ void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
         return;
     }
 
-    _addConnections( server.get(), id, "", params, netInfos, EQ_DEFAULT_PORT );
     const co::ConnectionDescriptions& descs =
-                                            server->getConnectionDescriptions();
+        _findConnections( id, params, netInfos, EQ_DEFAULT_PORT );
+
     for( co::ConnectionDescriptionsCIter i = descs.begin(); i != descs.end();
          ++i )
     {
@@ -291,12 +283,23 @@ bool Resources::discover( ServerPtr server, Config* config,
 
             if( multiNode )
             {
-                if( !_addConnections( mtNode, info.id, info.nodeName, params,
-                                      netInfos ))
+                const co::ConnectionDescriptions& descs =
+                    _findConnections( info.id, params, netInfos );
+
+                if( descs.empty() && !info.nodeName.empty())
                 {
+                    LBINFO << "No suitable connection found for node "
+                           << info.nodeName << "; node will not be used"
+                           << std::endl;
                     nodes.erase( info.id );
                     delete mtNode;
                     continue;
+                }
+
+                for( co::ConnectionDescriptionsCIter j = descs.begin();
+                     j != descs.end(); ++j )
+                {
+                    mtNode->addConnectionDescription( *j );
                 }
             }
         }
@@ -307,11 +310,22 @@ bool Resources::discover( ServerPtr server, Config* config,
             mpNode->setHost( info.nodeName );
 
             LBASSERT( multiNode );
-            if( !_addConnections( mpNode, info.id, info.nodeName, params,
-                                  netInfos ))
+            const co::ConnectionDescriptions& descs =
+                _findConnections( info.id, params, netInfos );
+
+            if( descs.empty() && !info.nodeName.empty())
             {
+                LBINFO << "No suitable connection found for node "
+                       << info.nodeName << "; node will not be used"
+                       << std::endl;
                 delete mpNode;
                 continue;
+            }
+
+            for( co::ConnectionDescriptionsCIter j = descs.begin();
+                 j != descs.end(); ++j )
+            {
+                mtNode->addConnectionDescription( *j );
             }
         }
 
