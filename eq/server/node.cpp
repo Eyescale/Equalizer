@@ -203,7 +203,7 @@ static co::NodePtr _createNetNode( Node* node )
     for( co::ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        netNode->addConnectionDescription( new co::ConnectionDescription( *i ));
+        netNode->addConnectionDescription( new co::ConnectionDescription( **i));
     }
 
     return netNode;
