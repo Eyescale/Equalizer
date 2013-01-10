@@ -411,7 +411,7 @@ bool Config::update()
     bool result = false;
     client->waitRequest( requestID, result );
     client->enableSendOnRegister();
-    _impl->statistics->setText("");
+    _impl->statistics->clear();
     return result;
 }
 
