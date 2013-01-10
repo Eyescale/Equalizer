@@ -411,7 +411,9 @@ bool Config::update()
     bool result = false;
     client->waitRequest( requestID, result );
     client->enableSendOnRegister();
+#ifdef EQ_USE_GLSTATS
     _impl->statistics->clear();
+#endif
     return result;
 }
 
@@ -920,7 +922,7 @@ GLStats::Data Config::getStatistics() const
     lunchbox::ScopedFastRead mutex( _impl->statistics );
     return _impl->statistics.data;
 #else
-    return _fakeStats;
+    return GLStats::_fakeStats;
 #endif
 }
 
