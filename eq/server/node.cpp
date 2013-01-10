@@ -200,10 +200,10 @@ static co::NodePtr _createNetNode( Node* node )
     co::NodePtr netNode = new co::Node;
     const co::ConnectionDescriptions& descriptions =
         node->getConnectionDescriptions();
-    for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
+    for( co::ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        netNode->addConnectionDescription( *i );
+        netNode->addConnectionDescription( new co::ConnectionDescription( *i ));
     }
 
     return netNode;
