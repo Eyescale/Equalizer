@@ -51,10 +51,7 @@
 #include <lunchbox/scopedMutex.h>
 
 #ifdef EQ_USE_GLSTATS
-#  include <GLStats/data.h>
-#  include <GLStats/entity.h>
-#  include <GLStats/item.h>
-#  include <GLStats/type.h>
+#  include <GLStats/GLStats.h>
 #else
     namespace GLStats { class Data {} _fakeStats; }
 #endif
@@ -414,7 +411,7 @@ bool Config::update()
     bool result = false;
     client->waitRequest( requestID, result );
     client->enableSendOnRegister();
-    _impl->statistics->clearText();
+    _impl->statistics->setText("");
     return result;
 }
 
@@ -740,6 +737,7 @@ bool Config::_handleEvent( const Event& event )
 
 void Config::addStatistic( const uint32_t originator, const Statistic& stat )
 {
+#ifdef EQ_USE_GLSTATS
     const uint32_t frame = stat.frameNumber;
     LBASSERT( stat.type != Statistic::NONE );
 
@@ -818,14 +816,13 @@ void Config::addStatistic( const uint32_t originator, const Statistic& stat )
 
       case Statistic::PIPE_IDLE:
       {
-          const Strings& strings = _impl->statistics->getText();
+          const std::string& string = _impl->statistics->getText();
           const float idle = stat.idleTime * 100ll / stat.totalTime;
           std::stringstream text;
-          if( strings.empty( ))
+          if( string.empty( ))
               text <<  "Idle: " << stat.resourceName << ' ' << idle << "%";
           else
           {
-              const std::string& string = strings[0];
               const size_t pos = string.find( stat.resourceName );
 
               if( pos == std::string::npos ) // append new pipe
@@ -839,8 +836,7 @@ void Config::addStatistic( const uint32_t originator, const Statistic& stat )
                        << idle << left.substr( left.find( '%' ));
               }
           }
-          _impl->statistics->clearText();
-          _impl->statistics->addText( text.str( ));
+          _impl->statistics->setText( text.str( ));
       }
       // no break;
 
@@ -872,9 +868,10 @@ void Config::addStatistic( const uint32_t originator, const Statistic& stat )
           break;
     }
 
-    _impl->statistics->addType( stat.type, type );
+    _impl->statistics->setType( stat.type, type );
+    _impl->statistics->setEntity( originator, entity );
     _impl->statistics->addItem( item );
-    _impl->statistics->addEntity( originator, entity );
+#endif
 }
 
 bool Config::_needsLocalSync() const
@@ -913,7 +910,7 @@ void Config::_updateStatistics( const uint32_t finishedFrame )
 #ifdef EQ_USE_GLSTATS
     // keep statistics for three frames
     lunchbox::ScopedFastWrite mutex( _impl->statistics );
-    _impl->statistics->obsolete( 3 /* frames to keep */ );
+    _impl->statistics->obsolete( 2 /* frames to keep */ );
 #endif
 }
 
@@ -921,7 +918,7 @@ GLStats::Data Config::getStatistics() const
 {
 #ifdef EQ_USE_GLSTATS
     lunchbox::ScopedFastRead mutex( _impl->statistics );
-    return GLStats::Data( _impl->statistics.data );
+    return _impl->statistics.data;
 #else
     return _fakeStats;
 #endif

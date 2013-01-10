@@ -57,12 +57,7 @@
 
 #ifdef EQ_USE_GLSTATS
 #  include "detail/statsRenderer.h"
-#  include <GLStats/data.h>
-#  include <GLStats/entity.h>
-#  include <GLStats/item.h>
-#  include <GLStats/renderer.h>
-#  include <GLStats/thread.h>
-#  include <GLStats/type.h>
+#  include <GLStats/GLStats.h>
 #endif
 
 #include <bitset>
