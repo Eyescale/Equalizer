@@ -202,6 +202,10 @@ else()
   endif()
   find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
+  if(EQUALIZER_FOUND)
+    include("${_eq_INCLUDE_DIR}/../share/Equalizer/CMake/options.cmake")
+  endif()
+
   # Matching Collage versions
   set(_eq_coVersion_1.5.1 "0.8.0")
   set(_eq_coVersion_1.5.0 "0.7.0")
@@ -237,19 +241,7 @@ else()
   endif()
   if(NOT _eq_EPIC_FAIL)
     # GLEW_MX
-    set(TEST_SRC ${CMAKE_BINARY_DIR}/glewmx_test.cpp)
-    file(WRITE ${TEST_SRC}
-      "#include <eq/client/defines.h>\n"
-      "#ifndef EQ_GLEW_INTERNAL\n"
-      "#  error Need external GLEW_MX\n"
-      "#endif\n"
-      "int main(int argc, char* argv[]){}\n"
-      )
-
-    try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
-      CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
-    )
-    if(_glew_mx_internal)
+    if(EQ_GLEW_INTERNAL)
       set(GLEW_MX_INCLUDE_DIRS)
       set(GLEW_MX_LIBRARIES)
     else()

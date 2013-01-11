@@ -5,9 +5,6 @@ if(NOT DOXYGEN_FOUND)
   return()
 endif()
 
-find_package(Git)
-include(GithubOrganization)
-
 configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
@@ -21,12 +18,15 @@ add_custom_target(doxygen
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
 
-add_custom_target(github
-  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}
-  COMMENT "Copying API documentation to ${GIT_ORIGIN_org}.github.com/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}"
-  VERBATIM)
-add_dependencies(github doxygen)
+include(GithubOrganization)
+if(GIT_ORIGIN_ORG)
+  add_custom_target(github
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}
+    COMMENT "Copying API documentation to ${GIT_ORIGIN_org}.github.com/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR}"
+    VERBATIM)
+  add_dependencies(github doxygen)
+endif()
 
 make_directory(${CMAKE_BINARY_DIR}/doc/man/man3)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man/man3 DESTINATION man
