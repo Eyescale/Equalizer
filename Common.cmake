@@ -179,6 +179,30 @@ macro(add_executable _target)
 endmacro()
 macro(add_library _target)
   _add_library(${_target} ${ARGN})
+
+  # add defines TARGET_DSO_NAME and TARGET_SHARED
+  get_target_property(THIS_DEFINITIONS ${_target} COMPILE_DEFINITIONS)
+  if(NOT THIS_DEFINITIONS)
+    set(THIS_DEFINITIONS) # clear THIS_DEFINITIONS-NOTFOUND
+  endif()
+  string(TOUPPER ${_target} _TARGET)
+  if(MSVC OR XCODE_VERSION)
+    list(APPEND THIS_DEFINITIONS
+      ${_TARGET}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+  else()
+    if(APPLE)
+      list(APPEND THIS_DEFINITIONS
+        ${_TARGET}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${_target}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+    else()
+      list(APPEND THIS_DEFINITIONS
+        ${_TARGET}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI}\")
+    endif()
+  endif()
+  list(APPEND THIS_DEFINITIONS ${_TARGET}_SHARED)
+
+  set_target_properties(${_target} PROPERTIES
+    COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
+
   set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
   set_property(GLOBAL APPEND PROPERTY ALL_LIB_TARGETS ${_target})
 endmacro()
