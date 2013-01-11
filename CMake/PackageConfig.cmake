@@ -37,24 +37,12 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "\n"
 # add transient library finding
   "@TRANSIENTS@"
-  "if(_fail)\n"
-  "  set(${CMAKE_PROJECT_NAME}_FOUND)\n"
-  "else()\n"
+  "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
-  "  set(${CMAKE_PROJECT_NAME}_VERSION ${VERSION})\n"
+  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
   "  set_and_check(${UPPER_PROJECT_NAME}_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "\n"
-# find the core library
-  "  find_library(${UPPER_PROJECT_NAME}_LIBRARY ${CMAKE_PROJECT_NAME} NO_DEFAULT_PATH\n"
-  "        PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
-  "  if(${UPPER_PROJECT_NAME}_LIBRARY MATCHES "${UPPER_PROJECT_NAME}_LIBRARY-NOTFOUND")\n"
-  "    set(${CMAKE_PROJECT_NAME}_FOUND)\n"
-  "    if(_out)\n"
-  "      message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
-  "        \"library in \${PACKAGE_PREFIX_DIR}/lib.\")\n"
-  "    endif()\n"
-  "  endif()\n"
 # find components if specified
   "  if(${CMAKE_PROJECT_NAME}_FIND_COMPONENTS)\n"
   "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_LIBRARY})\n"
@@ -63,13 +51,15 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "        PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
   "\n"
   "      if(\${_component}_libraryname MATCHES "\${_component}_libraryname-NOTFOUND")\n"
-  "        set(${CMAKE_PROJECT_NAME}_\${_component}_FOUND)\n"
+  "        if(${CMAKE_PROJECT_NAME}_FIND_REQUIRED_\${_component})\n"
+  "          set(_fail TRUE)\n"
+  "        endif()\n"
   "        if(_out)\n"
   "          message(\${_output_type} \"   ${CMAKE_PROJECT_NAME}_\${_component} \"\n"
   "            \"not found in \${PACKAGE_PREFIX_DIR}/lib\")\n"
   "        endif()\n"
   "      else()\n"
-  "        set(${CMAKE_PROJECT_NAME}_\${_component}_FOUND TRUE)\n"
+  "        set(${UPPER_PROJECT_NAME}_\${_component}_FOUND TRUE)\n"
   "        set(${UPPER_PROJECT_NAME}_\${_component}_LIBRARY \${\${_component}_libraryname})\n"
   "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_component}_libraryname})\n"
   "        list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
@@ -79,9 +69,18 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
 # if no component was specified, find all produced libraries
   "    set(${UPPER_PROJECT_NAME}_LIBRARY_NAMES "@LIBRARY_NAMES@")\n"
   "    foreach(_libraryname \${${UPPER_PROJECT_NAME}_LIBRARY_NAMES})\n"
-  "      find_library(\${_libraryname}_LIBRARY \${_libraryname} NO_DEFAULT_PATH\n"
+  "      string(TOUPPER \${_libraryname} _librarynameUC)\n"
+  "      find_library(\${_librarynameUC}_LIBRARY \${_libraryname} NO_DEFAULT_PATH\n"
   "                   PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
-  "      list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_libraryname}_LIBRARY})\n"
+  "      if(${UPPER_PROJECT_NAME}_LIBRARY MATCHES "${UPPER_PROJECT_NAME}_LIBRARY-NOTFOUND")\n"
+  "        set(_fail TRUE)\n"
+  "        if(_out)\n"
+  "          message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
+  "            \"library in \${PACKAGE_PREFIX_DIR}/lib.\")\n"
+  "        endif()\n"
+  "      else()\n"
+  "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_librarynameUC}_LIBRARY})\n"
+  "      endif()\n"
   "    endforeach()\n"
   "  endif()\n"
   "\n"
@@ -89,22 +88,20 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "  if(EXISTS \${PACKAGE_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
   "    include(\${PACKAGE_PREFIX_DIR}/${CMAKE_MODULE_INSTALL_PATH}/options.cmake)\n"
   "  endif()\n"
-  "\n"
-  "  set(${CMAKE_PROJECT_NAME}_FOUND TRUE)\n"
-  "  check_required_components(${CMAKE_PROJECT_NAME})\n"
   "endif()\n"
   "\n"
 # finally report about found or not found
-  "if(NOT ${CMAKE_PROJECT_NAME}_FOUND)\n"
-  "  set(${CMAKE_PROJECT_NAME}_VERSION)\n"
+  "if(_fail)\n"
+  "  set(${UPPER_PROJECT_NAME}_FOUND)\n"
+  "  set(${UPPER_PROJECT_NAME}_VERSION)\n"
   "  set(${UPPER_PROJECT_NAME}_INCLUDE_DIRS)\n"
   "  set(${UPPER_PROJECT_NAME}_LIBRARIES)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES)\n"
   "  set(${UPPER_PROJECT_NAME}_LIBRARY)\n"
   "  set(${UPPER_PROJECT_NAME}_COMPONENTS)\n"
   "else()\n"
+  "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
   "  if(_out)\n"
-  "    set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
   "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} in \"\n"
   "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
   "  endif()\n"
@@ -161,7 +158,8 @@ configure_package_config_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
-  PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_NAMES TRANSIENTS)
+  PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_NAMES TRANSIENTS
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 # create ProjectConfigVersion.cmake
 write_basic_package_version_file(
