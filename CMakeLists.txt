@@ -44,7 +44,6 @@ include(configure)
 
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
-include(PurpleAddLibrary)
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)

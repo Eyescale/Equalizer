@@ -1,16 +1,16 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
 #                    2011 Maxim Makhinya <maxmah@gmail.com>
 
-cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 if(Equalizer_BINARY_DIR) # in-repository build
   update_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt)
 
-  set(EQUALIZER_LIBRARIES lib_Equalizer_shared)
-  set(EQUALIZER_ADMIN_LIBRARY lib_EqualizerAdmin_shared)
-  set(EQUALIZER_SERVER_LIBRARY lib_EqualizerServer_shared)
-  set(EQUALIZER_SEQUEL_LIBRARY lib_Sequel_shared)
+  set(EQUALIZER_LIBRARIES Equalizer)
+  set(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin)
+  set(EQUALIZER_SERVER_LIBRARY EqualizerServer)
+  set(EQUALIZER_SEQUEL_LIBRARY Sequel)
 else() # installed examples
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../CMake)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
@@ -21,7 +21,6 @@ else() # installed examples
 
   include(configure)
   include(ParseArguments)
-  include(PurpleExpandLibraries)
   set(EQ_AGL_USED @EQ_AGL_USED@)
   set(EQ_GLX_USED @EQ_GLX_USED@)
 
@@ -64,9 +63,8 @@ function(EQ_ADD_EXAMPLE NAME)
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
                  ${SHADERS})
-  purple_expand_libraries(LINK_LIBRARIES ${EQUALIZER_LIBRARIES}
-                          ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES} ${OPENGL_gl_LIBRARY})
+  target_link_libraries(${THIS_TARGET} ${EQUALIZER_LIBRARIES}
+    ${THIS_LINK_LIBRARIES} ${OPENGL_gl_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")
@@ -98,7 +96,6 @@ install(DIRECTORY include DESTINATION share/Equalizer/examples
 install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindGLEW_MX.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/PurpleExpandLibraries.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)

@@ -1,7 +1,5 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
-include(PurpleAddLibrary)
-
 set(DETAIL_FILES
     detail/application.cpp
     detail/channel.h
@@ -42,14 +40,18 @@ set(SEQUEL_SOURCES
     renderer.cpp
     viewData.cpp
   )
-  
-purple_add_library(Sequel SHARED
-  HEADERS_PREFIX "seq/"
-  HEADERS ${SEQUEL_HEADERS}
-  SOURCES ${SEQUEL_SOURCES} ${DETAIL_FILES}
-  LINK_LIBRARIES shared Equalizer
-  )
 
 source_group(\\ REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt ${SEQUEL_HEADERS} ${SEQUEL_SOURCES})
 source_group(detail FILES ${DETAIL_FILES})
+
+add_library(Sequel SHARED ${SEQUEL_HEADERS} ${SEQUEL_SOURCES} ${DETAIL_FILES})
+target_link_libraries(Sequel Equalizer)
+set_target_properties(Sequel
+  PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
+
+install(FILES ${SEQUEL_HEADERS} DESTINATION include/seq COMPONENT dev)
+install(TARGETS Sequel
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)

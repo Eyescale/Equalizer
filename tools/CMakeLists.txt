@@ -2,15 +2,13 @@
 
 include(ParseArguments)
 include(PurpleInstallPDB)
-include(PurpleExpandLibraries)
 
 macro(EQ_ADD_TOOL NAME)
   parse_arguments(THIS "SOURCES;HEADERS;LINK_LIBRARIES" "" ${ARGN})
   set(THIS_TARGET ${NAME})
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS})
   add_executable(${THIS_TARGET} ${THIS_SOURCES} ${THIS_HEADERS})
-  purple_expand_libraries(LINK_LIBRARIES ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
+  target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES})
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Tools")
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT tools)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
@@ -42,7 +40,7 @@ endif(WIN32)
 eq_add_tool(eqConfigTool
   HEADERS configTool/configTool.h configTool/frame.h
   SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
-  LINK_LIBRARIES shared Equalizer shared EqualizerServer
+  LINK_LIBRARIES Equalizer EqualizerServer
   )
 
 eq_add_tool(eqPlyConverter
@@ -63,7 +61,7 @@ eq_add_tool(eqPlyConverter
     ../examples/eqPly/vertexBufferRoot.cpp
     ../examples/eqPly/vertexBufferState.cpp
     ../examples/eqPly/vertexData.cpp
-  LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES Equalizer
   )
 
 eq_add_tool(eVolveConverter
@@ -79,10 +77,10 @@ eq_add_tool(eVolveConverter
 
 eq_add_tool(eqWindowAdmin
   SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES shared EqualizerAdmin
+  LINK_LIBRARIES EqualizerAdmin
   )
 
 eq_add_tool(eqServer
   SOURCES server/eqServer.cpp
-  LINK_LIBRARIES shared EqualizerServer
+  LINK_LIBRARIES EqualizerServer
   )

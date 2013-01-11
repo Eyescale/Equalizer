@@ -133,6 +133,19 @@ if(Qt4_name)
   include_directories(${${Qt4_name}_INCLUDE_DIRS})
 endif()
 
+find_package(OpenSceneGraph 3.0)
+if(OpenSceneGraph_FOUND)
+  set(OpenSceneGraph_name OpenSceneGraph)
+endif()
+if(OPENSCENEGRAPH_FOUND)
+  set(OpenSceneGraph_name OPENSCENEGRAPH)
+endif()
+if(OpenSceneGraph_name)
+  list(APPEND FIND_PACKAGES_FOUND EQUALIZER_USE_OPENSCENEGRAPH)
+  link_directories(${${OpenSceneGraph_name}_LIBRARY_DIRS})
+  include_directories(${${OpenSceneGraph_name}_INCLUDE_DIRS})
+endif()
+
 
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)

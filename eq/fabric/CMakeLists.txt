@@ -1,15 +1,21 @@
 
-# Copyright (c) 2011-2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2013 Stefan Eilemann <eile@eyescale.ch>
 
 include(configure.cmake)
 include(files.cmake)
 
-purple_add_library(EqualizerFabric SHARED
-  HEADERS_PREFIX "eq/fabric/"
-  HEADERS ${EQ_FABRIC_PUBLIC_HEADERS}
-  SOURCES ${EQ_FABRIC_SOURCES} ${EQ_FABRIC_HEADERS}
-  LINK_LIBRARIES ${COLLAGE_LIBRARIES}
-  )
+add_library(EqualizerFabric SHARED
+  ${EQ_FABRIC_PUBLIC_HEADERS} ${EQ_FABRIC_SOURCES} ${EQ_FABRIC_HEADERS})
+target_link_libraries(EqualizerFabric ${COLLAGE_LIBRARIES})
+set_target_properties(EqualizerFabric
+  PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
+
+install(FILES ${EQ_FABRIC_PUBLIC_HEADERS}
+  DESTINATION include/eq/fabric COMPONENT dev)
+install(TARGETS EqualizerFabric
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
 
 source_group(\\ REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)

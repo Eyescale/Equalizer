@@ -16,7 +16,8 @@ include(compressor/files.cmake)
 
 add_definitions(-DEQ_PLUGIN_BUILD)
 
-set(EQ_LIBRARIES ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+set(EQ_LIBRARIES ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  EqualizerFabric)
 if(MAGELLAN_FOUND)
   include_directories(${MAGELLAN_INCLUDE_DIR})
   list(APPEND EQ_LIBRARIES ${MAGELLAN_LIBRARY})
@@ -27,22 +28,22 @@ endif()
 
 if(HWLOC_GL_FOUND)
   include_directories(${HWLOC_INCLUDE_DIRS})
-  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIBRARIES})
+  list(APPEND EQ_LIBRARIES ${HWLOC_LIBRARIES})
 endif()
 
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
-    list(APPEND EQ_LIBRARIES "${OPENGL_LIBRARIES}")
+    list(APPEND EQ_LIBRARIES ${OPENGL_LIBRARIES})
   endif(EQ_AGL_USED)
   if(EQ_GLX_USED)
     list(APPEND EQ_LIBRARIES GL)
   endif(EQ_GLX_USED)
 else(APPLE)
-  list(APPEND EQ_LIBRARIES "${OPENGL_gl_LIBRARY}")
+  list(APPEND EQ_LIBRARIES ${OPENGL_gl_LIBRARY})
 endif(APPLE)
 if(CUDA_FOUND)
-  list(APPEND EQ_LIBRARIES "${CUDA_LIBRARIES}")
+  list(APPEND EQ_LIBRARIES ${CUDA_LIBRARIES})
 endif(CUDA_FOUND)
 
 if(EQ_AGL_USED)
@@ -65,16 +66,22 @@ source_group(wgl FILES ${WGL_HEADERS} ${WGL_SOURCES})
 set_source_files_properties(${AGL_SOURCES}
   PROPERTIES COMPILE_FLAGS "-Wno-multichar")
 
-purple_add_library(Equalizer SHARED
-  HEADERS_PREFIX "eq/client"
-  HEADERS ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
-  SOURCES ${CLIENT_SOURCES} ${EQ_UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES}
-  LINK_LIBRARIES shared EqualizerFabric ${GLEW_LIBRARY} ${EQ_LIBRARIES}
-  )
+add_library(Equalizer SHARED ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
+  ${CLIENT_SOURCES} ${EQ_UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES})
+target_link_libraries(Equalizer ${GLEW_LIBRARY} ${EQ_LIBRARIES})
+set_target_properties(Equalizer
+  PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-option(EQUALIZER_OLD_CLIENT_LAYOUT "Install header files as in v1.0 directory layout" OFF)
+install(FILES ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
+  DESTINATION include/eq/client COMPONENT dev)
+install(TARGETS Equalizer
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
+install(FILES ${OPTIONS_CMAKE} DESTINATION share/Equalizer/CMake COMPONENT dev)
+
+option(EQUALIZER_OLD_CLIENT_LAYOUT
+  "Install header files as in v1.0 directory layout" OFF)
 if(EQUALIZER_OLD_CLIENT_LAYOUT)
   install(FILES ${CLIENT_HEADERS} DESTINATION include/eq/ COMPONENT eqdev)
 endif()
-
-install(FILES ${OPTIONS_CMAKE} DESTINATION share/Equalizer/CMake COMPONENT dev)

@@ -2,8 +2,6 @@
 #               2011 Stefan Eilemann <eile@eyescale.ch>
 #               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
-include(PurpleAddLibrary)
-
 find_package(BISON REQUIRED)
 find_package(FLEX  REQUIRED)
 
@@ -126,7 +124,7 @@ set(AUTOCONFIG
     config/server.cpp
 )
 
-set(SERVER_LIBRARIES shared Equalizer)
+set(SERVER_LIBRARIES Equalizer)
 if(HWSD_FOUND)
   list(APPEND SOURCES ${AUTOCONFIG})
   list(APPEND SERVER_LIBRARIES ${HWSD_LIBRARIES})
@@ -145,16 +143,17 @@ if(QT_QTNETWORK_FOUND)
   list(APPEND SERVER_LIBRARIES ${QT_LIBRARIES})
 endif()
 
+add_library(EqualizerServer SHARED ${HEADERS} ${SOURCES})
+target_link_libraries(EqualizerServer ${SERVER_LIBRARIES})
+set_target_properties(EqualizerServer
+  PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
+
+install(TARGETS EqualizerServer
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
 if(EQUALIZER_INSTALL_SERVER_HEADERS)
-  purple_add_library(EqualizerServer SHARED
-    HEADERS_PREFIX "eq/server/" HEADERS ${HEADERS} SOURCES ${SOURCES}
-    LINK_LIBRARIES ${SERVER_LIBRARIES}
-    )
-else()
-  purple_add_library(EqualizerServer SHARED
-    HEADERS_PREFIX "eq/server/" SOURCES ${HEADERS} ${SOURCES}
-    LINK_LIBRARIES ${SERVER_LIBRARIES}
-    )
+  install(FILES ${HEADERS} DESTINATION include/eq/server COMPONENT dev)
 endif()
 
 source_group(equalizers REGULAR_EXPRESSION equalizers.*)

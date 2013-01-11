@@ -1,6 +1,5 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-include(PurpleAddLibrary)
+# Copyright (c) 2013 Stefan.Eilemann@epfl.ch
 
 set(ADMIN_HEADERS
     admin.h
@@ -43,9 +42,13 @@ set(ADMIN_SOURCES
 source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt ${ADMIN_HEADERS} ${ADMIN_SOURCES})
 
-purple_add_library(EqualizerAdmin SHARED
-  HEADERS_PREFIX "eq/admin/"
-  HEADERS ${ADMIN_HEADERS}
-  SOURCES ${ADMIN_SOURCES}
-  LINK_LIBRARIES shared EqualizerFabric
-  )
+add_library(EqualizerAdmin SHARED ${ADMIN_HEADERS} ${ADMIN_SOURCES})
+target_link_libraries(EqualizerAdmin EqualizerFabric)
+set_target_properties(EqualizerAdmin
+  PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
+
+install(FILES ${ADMIN_HEADERS} DESTINATION include/eq/admin COMPONENT dev)
+install(TARGETS EqualizerAdmin
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
