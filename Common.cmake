@@ -186,19 +186,14 @@ macro(add_library _target)
     set(THIS_DEFINITIONS) # clear THIS_DEFINITIONS-NOTFOUND
   endif()
   string(TOUPPER ${_target} _TARGET)
-  if(MSVC OR XCODE_VERSION)
-    list(APPEND THIS_DEFINITIONS
-      ${_TARGET}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-  else()
-    if(APPLE)
-      list(APPEND THIS_DEFINITIONS
-        ${_TARGET}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${_target}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-    else()
-      list(APPEND THIS_DEFINITIONS
-        ${_TARGET}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI}\")
-    endif()
+  get_target_property(_libraryname ${_target} OUTPUT_NAME)
+  if(NOT _libraryname)
+    get_target_property(_libraryname ${_target} LOCATION)
   endif()
-  list(APPEND THIS_DEFINITIONS ${_TARGET}_SHARED)
+  get_filename_component(_libraryname ${_libraryname} NAME)
+
+  list(APPEND THIS_DEFINITIONS
+    ${_TARGET}_SHARED ${_TARGET}_DSO_NAME=\"${_libraryname}\")
 
   set_target_properties(${_target} PROPERTIES
     COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
