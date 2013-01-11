@@ -186,10 +186,7 @@ macro(add_library _target)
     set(THIS_DEFINITIONS) # clear THIS_DEFINITIONS-NOTFOUND
   endif()
   string(TOUPPER ${_target} _TARGET)
-  get_target_property(_libraryname ${_target} OUTPUT_NAME)
-  if(NOT _libraryname)
-    get_target_property(_libraryname ${_target} LOCATION)
-  endif()
+  get_target_property(_libraryname ${_target} LOCATION)
   get_filename_component(_libraryname ${_libraryname} NAME)
 
   list(APPEND THIS_DEFINITIONS
