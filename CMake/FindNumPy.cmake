@@ -1,6 +1,6 @@
 # Find the Python NumPy package
 # PYTHON_NUMPY_INCLUDE_DIR
-# NUMPY_FOUND 
+# NUMPY_FOUND
 # will be set by this script
 
 cmake_minimum_required(VERSION 2.6)
@@ -14,9 +14,9 @@ endif()
 
 if (PYTHON_EXECUTABLE)
   # write a python script that finds the numpy path
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/FindNumpyPath.py 
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/FindNumpyPath.py
       "try: import numpy; print numpy.get_include()\nexcept:pass\n")
-  
+
   # execute the find script
   exec_program("${PYTHON_EXECUTABLE}" ${CMAKE_CURRENT_BINARY_DIR}
     ARGS "FindNumpyPath.py"
@@ -38,4 +38,4 @@ if(PYTHON_NUMPY_INCLUDE_DIR)
 endif(PYTHON_NUMPY_INCLUDE_DIR)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Numpy DEFAULT_MSG PYTHON_NUMPY_INCLUDE_DIR)
+find_package_handle_standard_args(NumPy DEFAULT_MSG PYTHON_NUMPY_INCLUDE_DIR)
