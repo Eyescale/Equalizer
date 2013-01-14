@@ -85,7 +85,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
 
 void Server::release( Config* config )
 {
-    const Connections& connections = config->getServerConnections();
+    const co::Connections& connections = config->getServerConnections();
     config->getServer()->removeListeners( connections );
     delete config;
 }
