@@ -6,12 +6,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -65,17 +65,17 @@ namespace server
             { return getServer()->getMainThreadQueue(); }
         co::CommandQueue* getCommandThreadQueue()
             { return getServer()->getCommandThreadQueue(); }
-        
-        /** 
+
+        /**
          * Adds a new compound to this config.
-         * 
+         *
          * @param compound the compound.
          */
         EQSERVER_API void addCompound( Compound* compound );
 
-        /** 
+        /**
          * Removes a compound from this config.
-         * 
+         *
          * @param compound the compound
          * @return <code>true</code> if the compound was removed,
          *         <code>false</code> otherwise.
@@ -85,18 +85,18 @@ namespace server
         /** @return the vector of compounds. */
         const Compounds& getCompounds() const { return _compounds; }
 
-        /** 
+        /**
          * Find the first channel of a given name.
-         * 
+         *
          * @param name the name of the channel to find
          * @return the first channel with the name, or <code>0</code> if no
          *         channel with the name exists.
          */
         const Channel* findChannel( const std::string& name ) const;
 
-        /** 
+        /**
          * Find the channel for the given view/segment intersection.
-         * 
+         *
          * @param segment the segment.
          * @param view the view.
          * @return the channel for updating the view/segment intersection.
@@ -113,7 +113,7 @@ namespace server
 
         /**
          * Set the network node running the application thread.
-         * 
+         *
          * @param node the application node.
          */
         void setApplicationNetNode( co::NodePtr node );
@@ -131,9 +131,9 @@ namespace server
         /** @return the name of the render client executable. */
         const std::string& getRenderClient() const { return _renderClient; }
 
-        /** 
+        /**
          * Set the working directory for render client.
-         * 
+         *
          * @param workDir the working directory for the  render client.
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
@@ -152,7 +152,7 @@ namespace server
 
         /** Deregister all shared objects and the config. */
         void deregister();
-        
+
         /** Commit the config for the current frame. */
         uint128_t commit();
 

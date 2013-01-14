@@ -9,6 +9,7 @@ if(EQUALIZER_USE_MAGELLAN)
 endif()
 
 # TODO: resolve two-way dependency between client and util!
+include(InstallHeaders)
 include(configure.cmake)
 include(files.cmake)
 include(../util/files.cmake)
@@ -56,7 +57,7 @@ endif()
 source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
-source_group(util FILES ${EQ_UTIL_PUBLIC_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
+source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
 source_group(downloader FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
 source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 
@@ -66,14 +67,14 @@ source_group(wgl FILES ${WGL_HEADERS} ${WGL_SOURCES})
 set_source_files_properties(${AGL_SOURCES}
   PROPERTIES COMPILE_FLAGS "-Wno-multichar")
 
-add_library(Equalizer SHARED ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
-  ${CLIENT_SOURCES} ${EQ_UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES})
+add_library(Equalizer SHARED ${CLIENT_HEADERS} ${UTIL_HEADERS}
+  ${CLIENT_SOURCES} ${UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES})
 target_link_libraries(Equalizer ${GLEW_LIBRARY} ${EQ_LIBRARIES})
 set_target_properties(Equalizer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install(FILES ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
-  DESTINATION include/eq/client COMPONENT eqdev)
+install_headers(eq/client HEADERS ${CLIENT_HEADERS}  COMPONENT eqdev)
+install_headers(eq/util HEADERS ${UTIL_HEADERS} COMPONENT eqdev)
 install(TARGETS Equalizer
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib
