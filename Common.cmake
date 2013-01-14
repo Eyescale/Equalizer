@@ -171,7 +171,7 @@ if(APPLE)
 endif(APPLE)
 
 # hooks to gather all targets (libraries & executables)
-include(ParseArguments)
+include(CMakeParseArguments)
 set(ALL_DEP_TARGETS "")
 set(ALL_LIB_TARGETS "")
 macro(add_executable _target)
