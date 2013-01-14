@@ -9,7 +9,7 @@ else()
   set(GLEW_VERSION 1.9.0)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/glew-${GLEW_VERSION})
   set(GLEW_MX_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
-  set(GLEW_LIBRARY "GLEW_MX-Equalizer")
+  set(GLEW_LIBRARY "GLEW_MX_Equalizer")
   set(GLEW_TGZ ${CMAKE_CURRENT_SOURCE_DIR}/GLEW/glew-${GLEW_VERSION}.tgz)
 
   if(NOT EXISTS ${GLEW_DIR})
@@ -45,7 +45,7 @@ else()
   if(EQ_GLX_USED)
     add_definitions(-DGLEW_APPLE_GLX=1)
   endif(EQ_GLX_USED)
-  
+
   install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT eqdev)
   message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked statically to Equalizer.")
 endif()

@@ -22,7 +22,7 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
   set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
 else()
-  set(GLEW_LIBRARY "GLEW_MX-Equalizer")
+  set(GLEW_LIBRARY "GLEW_MX_Equalizer")
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
 endif()
 
