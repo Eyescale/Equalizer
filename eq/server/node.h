@@ -143,7 +143,6 @@ namespace server
         void finishFrame( const uint32_t frame );
         //@}
 
-
         /**
          * @name Barrier Cache
          *

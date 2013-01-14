@@ -20,7 +20,7 @@ else() # installed examples
   add_definitions(${EQ_DEFINITIONS})
 
   include(configure)
-  include(ParseArguments)
+  include(CMakeParseArguments)
   set(EQ_AGL_USED @EQ_AGL_USED@)
   set(EQ_GLX_USED @EQ_GLX_USED@)
 
@@ -54,7 +54,8 @@ endif()
 include(EqStringifyShaders)
 
 function(EQ_ADD_EXAMPLE NAME)
-  parse_arguments(THIS "SOURCES;HEADERS;SHADERS;LINK_LIBRARIES" "" ${ARGN})
+  cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;SHADERS;LINK_LIBRARIES"
+    ${ARGN})
 
   eq_stringify_shaders(SHADERS ${THIS_SHADERS})
 
@@ -97,7 +98,6 @@ install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindGLEW_MX.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
 if(CUDA_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/eqNBody")

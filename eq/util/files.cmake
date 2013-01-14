@@ -4,7 +4,7 @@
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 #               2010 Cedric Stalder <cedric.stalder@gmail.com>
 ##
-set(EQ_UTIL_PUBLIC_HEADERS
+set(UTIL_HEADERS
   ../util/accum.h
   ../util/accumBufferObject.h
   ../util/base.h
@@ -16,16 +16,13 @@ set(EQ_UTIL_PUBLIC_HEADERS
   ../util/types.h
   )
 
-set(EQ_UTIL_HEADERS
-  ../util/gpuCompressor.h
-  )
-
-set(EQ_UTIL_SOURCES
+set(UTIL_SOURCES
   ../util/accum.cpp
   ../util/accumBufferObject.cpp
   ../util/bitmapFont.cpp
   ../util/bitmapFont.ipp
   ../util/frameBufferObject.cpp
+  ../util/gpuCompressor.h
   ../util/gpuCompressor.cpp
   ../util/objectManager.cpp
   ../util/objectManager.ipp

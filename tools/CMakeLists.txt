@@ -1,10 +1,10 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-include(ParseArguments)
+include(CMakeParseArguments)
 include(PurpleInstallPDB)
 
 macro(EQ_ADD_TOOL NAME)
-  parse_arguments(THIS "SOURCES;HEADERS;LINK_LIBRARIES" "" ${ARGN})
+  cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;LINK_LIBRARIES" ${ARGN})
   set(THIS_TARGET ${NAME})
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS})
   add_executable(${THIS_TARGET} ${THIS_SOURCES} ${THIS_HEADERS})
