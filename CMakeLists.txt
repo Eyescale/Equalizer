@@ -161,10 +161,15 @@ if(PYTHON_EXECUTABLE)
   add_custom_target(README.rst ALL DEPENDS ${CMAKE_SOURCE_DIR}/README.rst)
 endif()
 
-install(FILES CMake/FindEqualizer.cmake
-  DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT eqdev)
-install(FILES CMake/FindGLEW_MX.cmake
-  DESTINATION ${CMAKE_MODULE_INSTALL_PATH}/FindEqualizer COMPONENT eqdev)
+set(EQUALIZER_TRANSIENT_LIBRARIES Lunchbox Collage)
+if(NOT EQ_GLEW_INTERNAL)
+  list(APPEND EQUALIZER_TRANSIENT_LIBRARIES GLEW_MX)
+endif()
+
+include(CPackConfig)
+include(PackageConfig)
+install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
+  COMPONENT eqdev)
 
 if(LUNCHBOX_USE_DNSSD)
   set(EQ_FEATURES "${EQ_FEATURES} zeroconf")
@@ -184,8 +189,6 @@ if(MSVC)
 else()
   message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 endif()
-
-include(CPackConfig)
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
