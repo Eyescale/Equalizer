@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -81,6 +81,13 @@ Config* Server::configure( ServerPtr server, const std::string& session,
         configFile.close();
     }
     return config;
+}
+
+void Server::release( Config* config )
+{
+    const Connections& connections = config->getServerConnections();
+    config->getServer()->removeListeners( connections );
+    delete config;
 }
 
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -169,28 +169,6 @@ co::ConnectionDescriptions _findConnections(
         result.push_back( i->second );
     }
     return result;
-}
-
-void _addServerConnections( ServerPtr server, const lunchbox::UUID& id,
-                            const fabric::ConfigParams& params,
-                            const hwsd::NetInfos& netInfos )
-{
-    if( id == lunchbox::UUID::ZERO )
-    {
-        co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
-        desc->port = EQ_DEFAULT_PORT;
-        LBCHECK( server->addListener( desc ));
-        return;
-    }
-
-    const co::ConnectionDescriptions& descs =
-        _findConnections( id, params, netInfos, EQ_DEFAULT_PORT );
-
-    for( co::ConnectionDescriptionsCIter i = descs.begin(); i != descs.end();
-         ++i )
-    {
-        LBCHECK( server->addListener( *i ));
-    }
 }
 }
 static lunchbox::a_int32_t _frameCounter;
@@ -372,7 +350,31 @@ bool Resources::discover( ServerPtr server, Config* config,
     }
 
     if( config->getNodes().size() > 1 ) // add server connection for clusters
-        _addServerConnections( server, appNodeID, params, netInfos );
+    {
+        co::Connections connections;
+
+        if( appNodeID == UUID::ZERO )
+        {
+            co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
+            desc->port = EQ_DEFAULT_PORT;
+            connections.push_back( server->addListener( desc ));
+            LBASSERT( connections.back().valid( ));
+        }
+        else
+        {
+            const co::ConnectionDescriptions& descs =
+                _findConnections( appNodeID, params, netInfos, EQ_DEFAULT_PORT);
+
+            for( co::ConnectionDescriptionsCIter i = descs.begin();
+                 i != descs.end(); ++i )
+            {
+                connections.push_back( server->addListener( *i ));
+                LBASSERT( connections.back().valid( ));
+            }
+        }
+
+        config->setServerConnections( connections );
+    }
 
     return true;
 }

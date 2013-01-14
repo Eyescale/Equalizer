@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *
@@ -121,9 +121,17 @@ namespace server
         /** @return network node running the application thread. */
         co::NodePtr findApplicationNetNode();
 
-        /** 
-         * Set the name of the render client executable. 
-         * 
+        /** @internal set auto-configured server connections */
+        void setServerConnections( co::Connections connections )
+            { _connections = connections; }
+
+        /** @internal @return the auto-configured server connections */
+        const co::Connections& getServerConnections() const
+            { return _connections; }
+
+        /**
+         * Set the name of the render client executable.
+         *
          * @param rc the name of the render client executable.
          */
         void setRenderClient( const std::string& rc ){ _renderClient = rc; }
@@ -198,6 +206,9 @@ namespace server
         /** The list of compounds. */
         Compounds _compounds;
 
+        /** Auto-configured server connections. */
+        co::Connections _connections;
+
         /** The name of the render client executable. */
         std::string _renderClient;
 
@@ -260,7 +271,7 @@ namespace server
         bool _cmdUpdate( co::ICommand& command );
         bool _cmdStartFrame( co::ICommand& command );
         bool _cmdStopFrames( co::ICommand& command );
-        bool _cmdFinishAllFrames( co::ICommand& command ); 
+        bool _cmdFinishAllFrames( co::ICommand& command );
         bool _cmdCreateReply( co::ICommand& command );
         bool _cmdFreezeLoadBalancing( co::ICommand& command );
 

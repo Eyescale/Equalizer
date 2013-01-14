@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,6 +35,7 @@ public:
     static EQSERVER_API Config* configure( ServerPtr server,
                                            const std::string& session,
                                            const fabric::ConfigParams& params );
+    static EQSERVER_API void release( Config* config );
 };
 
 }

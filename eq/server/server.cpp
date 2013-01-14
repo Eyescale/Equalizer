@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -287,7 +287,7 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
     {
         LBASSERT( _admins.empty( ));
         config->deregister();
-        delete config;
+        config::server::release( config );
     }
     else
 #endif
