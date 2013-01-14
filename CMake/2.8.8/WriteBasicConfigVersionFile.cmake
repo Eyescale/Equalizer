@@ -30,7 +30,7 @@ function(WRITE_BASIC_CONFIG_VERSION_FILE _filename)
     message(FATAL_ERROR "Unknown keywords given to WRITE_BASIC_CONFIG_VERSION_FILE(): \"${CVF_UNPARSED_ARGUMENTS}\"")
   endif(CVF_UNPARSED_ARGUMENTS)
 
-  set(versionTemplateFile "${CMAKE_ROOT}/Modules/BasicConfigVersion-${CVF_COMPATIBILITY}.cmake.in")
+  set(versionTemplateFile "${CMAKE_CURRENT_LIST_DIR}/2.8.8/BasicConfigVersion-${CVF_COMPATIBILITY}.cmake.in")
   if(NOT EXISTS "${versionTemplateFile}")
     message(FATAL_ERROR "Bad COMPATIBILITY value used for WRITE_BASIC_CONFIG_VERSION_FILE(): \"${CVF_COMPATIBILITY}\"")
   endif()
