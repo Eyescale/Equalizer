@@ -2,12 +2,12 @@
 
 # installs headers while preserving their relative directory
 # Usage: install_headers(<prefix> HEADERS <files> [COMPONENT <name>])
-include(ParseArguments)
+include(CMakeParseArguments)
 
 function(INSTALL_HEADERS PREFIX)
-  set(ARG_NAMES HEADERS COMPONENT)
-  set(OPTION_NAMES)
-  parse_arguments(THIS "${ARG_NAMES}" "${OPTION_NAMES}" ${ARGN})
+  set(ARG_NAMES COMPONENT)
+  set(ARGS_NAMES HEADERS)
+  cmake_parse_arguments(THIS "" "${ARG_NAMES}" "${ARGS_NAMES}" ${ARGN})
 
   foreach(HEADER ${THIS_HEADERS})
     string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
