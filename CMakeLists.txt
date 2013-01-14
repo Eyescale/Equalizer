@@ -186,7 +186,6 @@ else()
 endif()
 
 include(CPackConfig)
-include(copyScript)
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
