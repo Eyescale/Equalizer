@@ -9,7 +9,7 @@ if(EQUALIZER_USE_MAGELLAN)
 endif()
 
 # TODO: resolve two-way dependency between client and util!
-include(InstallHeaders)
+include(InstallFiles)
 include(configure.cmake)
 include(files.cmake)
 include(../util/files.cmake)
@@ -73,8 +73,8 @@ target_link_libraries(Equalizer ${GLEW_LIBRARY} ${EQ_LIBRARIES})
 set_target_properties(Equalizer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install_headers(eq/client HEADERS ${CLIENT_HEADERS}  COMPONENT eqdev)
-install_headers(eq/util HEADERS ${UTIL_HEADERS} COMPONENT eqdev)
+install_files(include/eq/client FILES ${CLIENT_HEADERS}  COMPONENT eqdev)
+install_files(include/eq/util FILES ${UTIL_HEADERS} COMPONENT eqdev)
 install(TARGETS Equalizer
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib
