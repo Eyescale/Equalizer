@@ -47,8 +47,8 @@ target_link_libraries(EqualizerAdmin EqualizerFabric)
 set_target_properties(EqualizerAdmin
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install(FILES ${ADMIN_HEADERS} DESTINATION include/eq/admin COMPONENT dev)
+install(FILES ${ADMIN_HEADERS} DESTINATION include/eq/admin COMPONENT eqdev)
 install(TARGETS EqualizerAdmin
-        ARCHIVE DESTINATION lib COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION lib COMPONENT lib)
+        ARCHIVE DESTINATION lib COMPONENT eqdev
+        RUNTIME DESTINATION bin COMPONENT eqlib
+        LIBRARY DESTINATION lib COMPONENT eqlib)

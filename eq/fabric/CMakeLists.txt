@@ -11,11 +11,11 @@ set_target_properties(EqualizerFabric
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
 install(FILES ${EQ_FABRIC_PUBLIC_HEADERS}
-  DESTINATION include/eq/fabric COMPONENT dev)
+  DESTINATION include/eq/fabric COMPONENT eqdev)
 install(TARGETS EqualizerFabric
-        ARCHIVE DESTINATION lib COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION lib COMPONENT lib)
+        ARCHIVE DESTINATION lib COMPONENT eqdev
+        RUNTIME DESTINATION bin COMPONENT eqlib
+        LIBRARY DESTINATION lib COMPONENT eqlib)
 
 source_group(\\ REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)

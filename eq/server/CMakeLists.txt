@@ -149,11 +149,11 @@ set_target_properties(EqualizerServer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
 install(TARGETS EqualizerServer
-        ARCHIVE DESTINATION lib COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION lib COMPONENT lib)
+        ARCHIVE DESTINATION lib COMPONENT eqdev
+        RUNTIME DESTINATION bin COMPONENT eqlib
+        LIBRARY DESTINATION lib COMPONENT eqlib)
 if(EQUALIZER_INSTALL_SERVER_HEADERS)
-  install(FILES ${HEADERS} DESTINATION include/eq/server COMPONENT dev)
+  install(FILES ${HEADERS} DESTINATION include/eq/server COMPONENT eqdev)
 endif()
 
 source_group(equalizers REGULAR_EXPRESSION equalizers.*)

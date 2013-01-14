@@ -50,8 +50,8 @@ target_link_libraries(Sequel Equalizer)
 set_target_properties(Sequel
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install(FILES ${SEQUEL_HEADERS} DESTINATION include/seq COMPONENT dev)
+install(FILES ${SEQUEL_HEADERS} DESTINATION include/seq COMPONENT seqdev)
 install(TARGETS Sequel
-        ARCHIVE DESTINATION lib COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION lib COMPONENT lib)
+        ARCHIVE DESTINATION lib COMPONENT seqdev
+        RUNTIME DESTINATION bin COMPONENT seqlib
+        LIBRARY DESTINATION lib COMPONENT seqlib)
