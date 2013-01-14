@@ -35,7 +35,7 @@ int main( const int argc, char** argv )
     TEST( client->connectServer( server ));
 
     eq::fabric::ConfigParams configParams;
-    configParams.setFlags( eq::ConfigParams::FLAG_MULTIPROCESS_DB );
+    configParams.setFlags( eq::fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
 
     for( size_t i=0; i < LOOPS; ++i )
     {

@@ -36,12 +36,12 @@
 
 namespace eqNbody
 {
-    
+
 Client::Client( const InitData& initData )
         : _initData( initData )
         , _config( 0 )
 {}
-    
+
 int Client::init()
 {
     LBASSERT( !_config );
@@ -55,7 +55,7 @@ int Client::init()
     }
 
     // 2. choose config
-    eq::ConfigParams configParams;
+    eq::fabric::ConfigParams configParams;
     _config = static_cast<Config*>(_server->chooseConfig( configParams ));
 
     if( !_config )
@@ -86,31 +86,31 @@ int Client::exit()
 
     // Exit config
     _config->exit();
-        
+
     // Cleanup
     _server->releaseConfig( _config );
     if( !disconnectServer( _server )) {
         LBERROR << "Client::disconnectServer failed" << std::endl;
         return EXIT_FAILURE;
     }
-        
+
     _server = 0;
     return EXIT_SUCCESS;
 }
 
 void Client::run()
-{       
+{
     // Run main loop
     while( _config->isRunning( ) )
     {
         _config->startFrame();
         _config->finishFrame();
-            
+
         if( !_config->needsRedraw()) {
             _config->finishAllFrames();
         }
-            
+
         _config->handleEvents(); // process all pending events
-    }               
+    }
 }
 }
