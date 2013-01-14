@@ -180,6 +180,12 @@ endmacro()
 macro(add_library _target)
   _add_library(${_target} ${ARGN})
 
+  # ignore IMPORTED add_library from finders (e.g. Qt)
+  cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
+  if(_arg_IMPORTED)
+    return()
+  endif()
+
   # add defines TARGET_DSO_NAME and TARGET_SHARED
   get_target_property(THIS_DEFINITIONS ${_target} COMPILE_DEFINITIONS)
   if(NOT THIS_DEFINITIONS)
