@@ -287,7 +287,7 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
     {
         LBASSERT( _admins.empty( ));
         config->deregister();
-        config::server::release( config );
+        config::Server::release( config );
     }
     else
 #endif

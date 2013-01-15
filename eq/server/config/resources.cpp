@@ -358,7 +358,7 @@ bool Resources::discover( ServerPtr server, Config* config,
             co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
             desc->port = EQ_DEFAULT_PORT;
             connections.push_back( server->addListener( desc ));
-            LBASSERT( connections.back().valid( ));
+            LBASSERT( connections.back().isValid( ));
         }
         else
         {
@@ -369,7 +369,7 @@ bool Resources::discover( ServerPtr server, Config* config,
                  i != descs.end(); ++i )
             {
                 connections.push_back( server->addListener( *i ));
-                LBASSERT( connections.back().valid( ));
+                LBASSERT( connections.back().isValid( ));
             }
         }
 
