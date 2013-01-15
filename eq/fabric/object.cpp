@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -196,7 +196,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
                   "Incompatible version, new " << _data.userData << " old " <<
                   co::ObjectVersion( _userData ));
 
-    if( _data.userData.identifier == UUID::ZERO )
+    if( _data.userData.identifier == 0 )
     {
         if( _userData->isAttached() && !_userData->isMaster( ))
         {
@@ -206,8 +206,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         return;
     }
 
-    if( !_userData->isAttached() &&
-        _data.userData.identifier != UUID::ZERO )
+    if( !_userData->isAttached() && _data.userData.identifier != 0 )
     {
         LBASSERT( !hasMasterUserData( ));
         //LBINFO << "Map " << _data.userData << lunchbox::backtrace
@@ -259,7 +258,7 @@ void Object::setUserData( co::Object* userData )
 
     if( hasMasterUserData( ))
         setDirty( DIRTY_USERDATA );
-    else if( _data.userData.identifier != UUID::ZERO )
+    else if( _data.userData.identifier != 0 )
     {
         co::LocalNodePtr node = getLocalNode();
         if( node.isValid() )

@@ -1,5 +1,5 @@
 #!gmake
-.PHONY: debug tests cdash release xcode debug_glx docs clean clobber
+.PHONY: debug cdash release xcode debug_glx docs clean clobber
 
 BUILD ?= debug
 CMAKE ?= cmake
@@ -71,9 +71,6 @@ XCode/Equalizer.xcodeproj: CMakeLists.txt
 
 xcode: XCode/Equalizer.xcodeproj
 	open XCode/Equalizer.xcodeproj
-
-tests: debug/Makefile
-	@$(MAKE) -C debug tests
 
 docs: ../equalizergraphics/build/documents/Developer/API
 	@$(MAKE) -C $(BUILD) doxygen

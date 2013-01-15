@@ -353,7 +353,7 @@ bool Resources::discover( ServerPtr server, Config* config,
     {
         co::Connections connections;
 
-        if( appNodeID == UUID::ZERO )
+        if( appNodeID == 0 )
         {
             co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
             desc->port = EQ_DEFAULT_PORT;

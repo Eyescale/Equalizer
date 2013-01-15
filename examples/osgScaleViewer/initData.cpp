@@ -1,7 +1,7 @@
 
 /* Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@eyescale.ch>
+ *   2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,6 @@
 
 namespace osgScaleViewer
 {
-InitData::~InitData()
-{
-    setFrameDataID( eq::UUID::ZERO );
-}
 
 void InitData::setFrameDataID( const eq::uint128_t& id )
 {

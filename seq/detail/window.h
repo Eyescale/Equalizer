@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,7 +44,7 @@ namespace detail
         virtual bool configInitGL( const uint128_t& initID );
         virtual bool configExitGL();
 
-        bool initContext() { return eq::Window::configInitGL(uint128_t::ZERO); }
+        bool initContext() { return eq::Window::configInitGL( 0 ); }
         bool exitContext() { return eq::Window::configExitGL(); }
         //@}
 
