@@ -29,7 +29,7 @@
 #ifndef OSG_SV_WINDOW_H
 #define OSG_SV_WINDOW_H
 
-#define EQ_IGNORE_GLEW
+typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 #include "sceneView.h"
 

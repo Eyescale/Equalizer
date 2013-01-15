@@ -30,9 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef WIN32
-#define EQ_IGNORE_GLEW 
-#endif
+typedef void* HPBUFFERARB;
 
 #include "osgScaleViewer.h"
 #include "initData.h"
