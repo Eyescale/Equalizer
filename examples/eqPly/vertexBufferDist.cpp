@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -161,7 +161,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
     }
     else
     {
-        os << lunchbox::UUID::ZERO << lunchbox::UUID::ZERO;
+        os << co::UUID() << co::UUID();
 
         LBASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
         const mesh::VertexBufferLeaf* leaf = 
@@ -185,7 +185,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
     lunchbox::UUID leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
 
-    if( leftID != lunchbox::UUID::ZERO && rightID != lunchbox::UUID::ZERO )
+    if( leftID != 0 && rightID != 0 )
     {
         if( _isRoot )
         {

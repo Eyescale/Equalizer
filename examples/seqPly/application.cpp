@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -180,7 +180,7 @@ void Application::_unloadModel()
 
 const Model* Application::getModel( const eq::uint128_t& modelID )
 {
-    if( modelID == eq::UUID::ZERO )
+    if( modelID == 0 )
         return 0;
     if( _model )
         return _model;

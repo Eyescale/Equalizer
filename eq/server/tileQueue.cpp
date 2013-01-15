@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -141,7 +141,7 @@ const UUID TileQueue::getQueueMasterID( const Eye eye ) const
     LatencyQueue* queue = _queueMaster[ index ];
     if ( queue )
         return queue->_queue.getID();
-    return UUID::ZERO;
+    return UUID();
 }
 
 std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )

@@ -71,7 +71,7 @@ void Config::_deregisterData()
     releaseData();
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::UUID::ZERO );
+    _initData.setFrameDataID( 0 );
 }
 
 
