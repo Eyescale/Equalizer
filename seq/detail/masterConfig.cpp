@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,7 +35,6 @@ namespace detail
 {
 MasterConfig::MasterConfig( eq::ServerPtr parent )
         : Config( parent )
-        , _currentViewID( uint128_t::ZERO )
         , _redraw( false )
 {}
 
@@ -165,7 +164,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
       case eq::Event::WINDOW_POINTER_WHEEL:
       case eq::Event::MAGELLAN_AXIS:
       {
-          if( _currentViewID == uint128_t::ZERO )
+          if( _currentViewID == 0 )
               return false;
 
           View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
@@ -233,7 +232,7 @@ bool MasterConfig::handleEvent( eq::EventICommand command )
       case eq::Event::WINDOW_POINTER_WHEEL:
       case eq::Event::MAGELLAN_AXIS:
       {
-          if( _currentViewID == uint128_t::ZERO )
+          if( _currentViewID == 0 )
               return false;
 
           View* view = static_cast<View*>( find<eq::View>( _currentViewID ));

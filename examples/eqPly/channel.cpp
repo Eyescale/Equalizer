@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2007, Tobias Wolf <twolf@access.unizh.ch>
@@ -61,7 +61,6 @@ namespace eqPly
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _model(0)
-        , _modelID( lunchbox::UUID::ZERO )
         , _frameRestart( 0 )
 {
 }
@@ -73,7 +72,7 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
     setNearFar( 0.1f, 10.0f );
     _model = 0;
-    _modelID = lunchbox::UUID::ZERO;
+    _modelID = 0;
     return true;
 }
 
@@ -576,7 +575,7 @@ const Model* Channel::_getModel()
     LBASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
-    if( id == lunchbox::UUID::ZERO )
+    if( id == 0 )
         id = frameData.getModelID();
     if( id != _modelID )
     {

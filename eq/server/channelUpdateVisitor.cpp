@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -253,7 +253,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         const TileQueue* inputQueue = *i;
         const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
         const UUID& id = outputQueue->getQueueMasterID( context.eye );
-        LBASSERT( id != UUID::ZERO );
+        LBASSERT( id != 0 );
 
         const bool isLocal = (_channel == destChannel);
         const uint32_t tasks = compound->getInheritTasks() &

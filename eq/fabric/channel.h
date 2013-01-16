@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -38,7 +38,7 @@ namespace fabric
 
         /**
          * The drawable format defines the components used as an alternate
-         * drawable for this cannel. If an alternate drawable is configured, the
+         * drawable for this channel. If an alternate drawable is configured, the
          * channel uses the appropriate targets in place of the window's frame
          * buffer.
          * @version 1.0
@@ -64,7 +64,7 @@ namespace fabric
 
         /** @internal @return the native view identifier and version. */
         bool isDestination() const
-            { return _data.nativeContext.view.identifier!=UUID::ZERO;}
+            { return _data.nativeContext.view.identifier != 0;}
 
         /** @internal Update the native view identifier and version. */
         void setViewVersion( const co::ObjectVersion& view );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -61,7 +61,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
     LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
-    _appNodeID = co::NodeID::ZERO;
+    _appNodeID = 0;
 
     while( !_canvases.empty( ))
     {
