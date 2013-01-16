@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -39,7 +39,7 @@ Observer< C, O >::Observer( C* config )
 		_data.eyes[eye] = Matrix4f::IDENTITY;
         _data.kmatrix[eye] = Matrix4f::IDENTITY;
     }
-    
+
     LBASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
@@ -89,9 +89,9 @@ void Observer< C, O >::serialize( co::DataOStream& os,
     if( dirtyBits & DIRTY_HEAD )
         os << _data.headMatrix;
     if( dirtyBits & DIRTY_KMATRIX )
-        os << _data.kmatrix;
+        os << _data.kmatrix[0] << _data.kmatrix[1] << _data.kmatrix[2];
     if( dirtyBits & DIRTY_EYES )
-        os << _data.eyes;
+        os << _data.eyes[0] << _data.eyes[1] << _data.eyes[2];
 }
 
 template< typename C, typename O >
@@ -107,9 +107,9 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
     if( dirtyBits & DIRTY_HEAD )
         is >> _data.headMatrix;
     if( dirtyBits & DIRTY_KMATRIX )
-        is >> _data.kmatrix;
+        is >> _data.kmatrix[0] >> _data.kmatrix[1] >> _data.kmatrix[2];
     if( dirtyBits & DIRTY_EYES )
-        is >> _data.eyes;
+        is >> _data.eyes[0] >> _data.eyes[1] >> _data.eyes[2];
 }
 
 template< typename C, typename O >
@@ -222,7 +222,7 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "observer"
        << std::endl;
-    os << "{" << std::endl << lunchbox::indent; 
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = observer.getName();
     if( !name.empty( ))
