@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -73,6 +73,9 @@ namespace eq
 /** Output an error OpenGL in a human-readable form to LBWARN */
 EQ_API void debugGLError( const std::string& when, const GLenum error,
                           const char* file, const int line );
+
+/** @return the given error in human-readable form. */
+EQ_API std::string glError( const GLenum error );
 }
 
 #ifdef NDEBUG

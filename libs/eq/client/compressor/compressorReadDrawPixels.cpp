@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -24,12 +24,6 @@
 
 #define glewGetContext() glewContext
 #define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
-
-#ifdef _MSC_VER
-#  define ASYNC_FLAG // temporary WAR for #138
-#else
-#  define ASYNC_FLAG EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |
-#endif
 
 namespace eq
 {
@@ -49,7 +43,7 @@ static stde::hash_map< unsigned, unsigned > _depths;
                              EQ_COMPRESSOR_DATA_2D |                    \
                              EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
                              EQ_COMPRESSOR_USE_TEXTURE_2D |             \
-                             ASYNC_FLAG                                 \
+                             EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |         \
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
         if( alpha )                                                     \
             info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
@@ -312,6 +306,28 @@ namespace
                 return false;
         return true;
     }
+
+    void _initPackAlignment( const GLEWContext* glewContext,
+                             const eq_uint64_t width )
+    {
+        if( (width % 4) == 0 )
+            glPixelStorei( GL_PACK_ALIGNMENT, 4 );
+        else if( (width % 2) == 0 )
+            glPixelStorei( GL_PACK_ALIGNMENT, 2 );
+        else
+            glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+    }
+
+    void _initUnpackAlignment( const GLEWContext* glewContext,
+                               const eq_uint64_t width )
+    {
+        if( (width % 4) == 0 )
+            glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
+        else if( (width % 2) == 0 )
+            glPixelStorei( GL_UNPACK_ALIGNMENT, 2 );
+        else
+            glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+    }
 }
 
 void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
@@ -328,12 +344,14 @@ void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
 #endif
 }
 
-void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
-                                            eq_uint64_t outDims[4] )
+void CompressorReadDrawPixels::_initDownload( const GLEWContext* glewContext,
+                                              const eq_uint64_t inDims[4],
+                                              eq_uint64_t outDims[4] )
 {
     _copy4( outDims, inDims );
     const size_t size = inDims[1] * inDims[3] * _depth;
     _resizeBuffer( size );
+    _initPackAlignment( glewContext, outDims[1] );
 }
 
 void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
@@ -364,14 +382,14 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
                                                eq_uint64_t  outDims[4],
                                          void**             out )
 {
-    _init( inDims, outDims );
+    _initDownload( glewContext, inDims, outDims );
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], 
+        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                       _format, _type, _buffer.getData() ) );
     }
-    else 
+    else
     {
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
@@ -383,13 +401,15 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     *out = _buffer.getData();
 }
 
-void CompressorReadDrawPixels::upload( const GLEWContext* glewContext, 
+void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
                                        const void*        buffer,
                                        const eq_uint64_t  inDims[4],
                                        const eq_uint64_t  flags,
-                                       const eq_uint64_t  outDims[4],  
+                                       const eq_uint64_t  outDims[4],
                                        const unsigned     destination )
 {
+    _initUnpackAlignment( glewContext, inDims[1] );
+
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         glRasterPos2i( outDims[0], outDims[2] );
@@ -435,6 +455,8 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
 {
     const eq_uint64_t size = dims[1] * dims[3] * _depth;
 
+    _initPackAlignment( glewContext, dims[1] );
+
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
 #ifdef EQ_ASYNC_PBO
@@ -446,7 +468,7 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
             glFlush(); // Fixes https://github.com/Eyescale/Equalizer/issues/118
             return;
         }
-#else  // async RB through texture
+#else  // else async RB through texture
         const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
         _initAsyncTexture( glewContext, pvp.w, pvp.h );
         _asyncTexture->setExternalFormat( _format, _type );
@@ -480,6 +502,7 @@ void CompressorReadDrawPixels::finishDownload( const GLEWContext* glewContext,
                                                void**             out )
 {
     _copy4( outDims, inDims );
+    _initPackAlignment( glewContext, outDims[1] );
 
 #ifdef EQ_ASYNC_PBO
     if( (flags&EQ_COMPRESSOR_USE_FRAMEBUFFER) && _pbo && _pbo->isInitialized( ))

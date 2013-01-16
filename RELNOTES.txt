@@ -23,6 +23,9 @@
    features, most notably asynchronous readbacks, region of interest and
    thread affinity for increased performance during scalable rendering.
 
+   Equalizer 1.4.1 is a bugfix release for Equalizer 1.4, containing the
+   fixes listed below.
+
    Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
    seven years of development and decades of experience into a feature-rich,
    high-performance and mature parallel rendering framework and an
@@ -71,6 +74,12 @@
 
   2.2. Enhancements
 
+   Equalizer 1.4.1:
+
+     * RDMA Windows implementation
+
+   Equalizer 1.4.0:
+
      * System window without drawable buffer
      * Mac OS X: Build universal libraries even when AGL is enabled
      * auto-config: add direct send configuration
@@ -108,6 +117,18 @@
 
   2.7. Bug Fixes
 
+   Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
+
+     * 180: Launch error with empty host for a node bug
+     * 179: Readback of non-modulo-4 images broken
+     * 175: "--eq-logfile" followed by no other argument segfaults
+     * 162: WGL window compile error
+     * 161: eqPly crash on model load on Win32
+     * 160: Memleak with pipe thread affinity
+     * 159: exPixelBench crashes
+     * 158: Non-freed GPUCompressors after application exit
+     * 138: Windows: PBO error when rendering
+
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
    the following:
 
@@ -132,7 +153,8 @@
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
-     * 138: Windows: PBO error when rendering
+     * 177: Occasional async readback deadlocks on GLX
+     * 167: HWLOC: Segmentation Fault with empty auto thread affinity
      * 78: AGL: assertion on interaction with multiple GPUs
      * 77: 7-window.DB.PIXEL.eqc broken
      * 76: 7-window.DPLEX.2D.lb.eqc does not load-balance

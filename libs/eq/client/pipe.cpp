@@ -291,7 +291,7 @@ void Pipe::setDirty( const uint64_t bits )
 
 #ifndef EQ_2_0_API
 bool Pipe::supportsWindowSystem( const WindowSystem ) const
-{ 
+{
     return true;
 }
 #endif
@@ -366,7 +366,7 @@ int32_t Pipe::_getAutoAffinity() const
     }
 
     // Get the cpuset for the socket connected to GPU attached to the display
-    // defined by its port and device 
+    // defined by its port and device
     hwloc_bitmap_t cpuSet;
     if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
                                      &cpuSet ) < 0 )

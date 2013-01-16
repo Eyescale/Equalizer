@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -81,7 +81,7 @@ namespace eq
         EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
         /** @return the Node of this window. @version 1.0 */
-        EQ_API const Node* getNode() const; 
+        EQ_API const Node* getNode() const;
 
         /** @return the Node of this window. @version 1.0 */
         EQ_API Node*       getNode();
@@ -100,24 +100,24 @@ namespace eq
 
         /**
          * @return true if this window is running, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         bool isRunning() const { return (_state == STATE_RUNNING); }
 
         /**
          * @return true if this window is stopped, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         bool isStopped() const { return (_state == STATE_STOPPED); }
 
-        /** 
+        /**
          * Get the last rendering context at the x, y position.
          *
          * If no render context is found on the given position, false is
          * returned and context is not modified.
          *
          * @return true if a render context was found, false otherwise.
-         * @warning experimental - may not be supported in the future.         
+         * @warning experimental - may not be supported in the future.
          */
         EQ_API bool getRenderContext( const int32_t x, const int32_t y,
                                       RenderContext& context ) const;
@@ -125,9 +125,9 @@ namespace eq
 
         /** @name OpenGL context handling and sharing */
         //@{
-        /** 
+        /**
          * Set the window with which this window shares the OpenGL context.
-         * 
+         *
          * By default it is set to the first window of the pipe in the
          * window's constructor. The shared context window is used during
          * initialization to setup the OpenGL context and util::ObjectManager.
@@ -157,26 +157,26 @@ namespace eq
 
         /**
          * @return a small bitmap font used for overlays.
-         * @warning experimental - may not be supported in the future.         
+         * @warning experimental - may not be supported in the future.
          */
         EQ_API const Font* getSmallFont();
 
         /**
          * @return a medium bitmap font used for overlays.
-         * @warning experimental - may not be supported in the future.         
+         * @warning experimental - may not be supported in the future.
          */
         EQ_API const Font* getMediumFont();
 
-        /** 
+        /**
          * Get the GLEW context for this window.
-         * 
+         *
          * The glew context is provided and initialized by the SystemWindow, and
          * provides access to OpenGL extensions. This function does not follow
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
          * points. Therefore, any OpenGL function support by the driver can be
          * directly called from any method of an initialized window.
-         * 
+         *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          * @version 1.0
@@ -185,9 +185,9 @@ namespace eq
 
         /** @internal
          * Creates second system window if necessary and returns its context.
-         * 
+         *
          * Should be called from the pipe transfer thread.
-         * 
+         *
          * @return shared context for use in the transfer thread.
          */
         EQ_API const GLEWContext* getTransferGlewContext();
@@ -202,7 +202,7 @@ namespace eq
 
         /** @name Actions */
         //@{
-        /** 
+        /**
          * Flush outstanding rendering requests.
          *
          * Called at the end of each frame from frameFinish() to ensure timely
@@ -211,7 +211,7 @@ namespace eq
          */
         EQ_API virtual void flush() const;
 
-        /** 
+        /**
          * Finish outstanding rendering requests.
          *
          * Called before a software swap barrier to ensure that the window will
@@ -256,7 +256,7 @@ namespace eq
         //@{
         /**
          * Set the OS-specific window.
-         * 
+         *
          * The SystemWindow implements the window-system-dependent part, e.g.,
          * the drawable creation. This window forwards certain calls, e.g.,
          * swapBuffers(), to the SystemWindow. The os-specific window has to be
@@ -275,23 +275,12 @@ namespace eq
         const SystemPipe* getSystemPipe() const;
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        SystemPipe* getSystemPipe(); 
+        SystemPipe* getSystemPipe();
 
-        /** @internal
-         * Creates shared context window for asynchronuous context usage.
-         *
-         * Should be called from separate thread.
-         *
-         * @return the OS-specific transfer window implementation.
-         */
-        const eq::SystemWindow* getTransferSystemWindow();
+        /** @internal Create shared context window for asynchronuous usage. */
+        bool createTransferWindow();
 
-        /** @internal
-         * Creates shared context window for asynchronious context usage.
-         *
-         * Should be called from the same thread getAsyncSystemWindow 
-         * was called.
-         */
+        /** @internal delete the shared context window. */
         void deleteTransferSystemWindow();
         //@}
 
@@ -302,13 +291,13 @@ namespace eq
          * various actions.
          */
         //@{
-        /** 
+        /**
          * Process a received event.
          *
          * The task of this method is to update the window as necessary, and
          * transform the event into an config event to be send to the
          * application using Config::sendEvent().
-         * 
+         *
          * @param event the received window system event.
          * @return true when the event was handled, false if not.
          * @version 1.0
@@ -324,25 +313,25 @@ namespace eq
 
         /** @name Actions */
         //@{
-        /** 
+        /**
          * Start a frame by unlocking all child resources.
-         * 
+         *
          * @param frameNumber the frame to start.
          * @version 1.0
          */
         EQ_API void startFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Signal the completion of a frame to the parent.
-         * 
+         *
          * @param frameNumber the frame to end.
          * @version 1.0
          */
         EQ_API void releaseFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Signal the release of the local synchronization to the parent.
-         * 
+         *
          * @param frameNumber the frame to release.
          * @version 1.0
          */
@@ -356,7 +345,7 @@ namespace eq
          * various actions.
          */
         //@{
-        /** 
+        /**
          * Initialize this window.
          *
          * @param initID the init identifier.
@@ -364,7 +353,7 @@ namespace eq
          */
          EQ_API virtual bool configInit( const uint128_t& initID );
 
-        /** 
+        /**
          * Initialize the OS-specific window.
          *
          * @sa setSystemWindow()
@@ -372,9 +361,9 @@ namespace eq
          */
         EQ_API virtual bool configInitSystemWindow( const uint128_t& initID );
 
-        /** 
+        /**
          * Initialize the OpenGL state for this window.
-         * 
+         *
          * @param initID the init identifier.
          * @return <code>true</code> if the initialization was successful,
          *         <code>false</code> if not.
@@ -401,7 +390,7 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_API virtual void frameStart( const uint128_t& frameID, 
+        EQ_API virtual void frameStart( const uint128_t& frameID,
                                         const uint32_t frameNumber );
 
         /**
@@ -417,12 +406,12 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameFinish( const uint128_t& frameID,
                                          const uint32_t frameNumber );
 
-        /** 
+        /**
          * Finish drawing.
-         * 
+         *
          * Called once per frame after the last draw operation. Typically
          * releases the local node thread synchronization for this frame.
          *
@@ -466,7 +455,7 @@ namespace eq
 
         /** The list of render context used since the last frame start. */
         std::vector< RenderContext > _renderContexts[2];
-        enum 
+        enum
         {
             FRONT = 0,
             BACK  = 1
@@ -481,7 +470,7 @@ namespace eq
         /** Add a channel's rendering context to the current frame's list */
         void _addRenderContext( const RenderContext& context );
         friend class Channel;
-        
+
         /** Set up object manager during initialization. */
         void _setupObjectManager();
         /** Release object manager. */

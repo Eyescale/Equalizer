@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -88,23 +88,23 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* tmitQ = &getNode()->transmitter.getQueue();
     co::CommandQueue* transferQ = getPipe()->getTransferThreadQueue();
 
-    registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT,
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
-    registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT, 
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT,
                      CmdFunc( this, &Channel::_cmdConfigExit ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_START,
                      CmdFunc( this, &Channel::_cmdFrameStart ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH,
                      CmdFunc( this, &Channel::_cmdFrameFinish ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_CLEAR, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_CLEAR,
                      CmdFunc( this, &Channel::_cmdFrameClear ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_DRAW, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_DRAW,
                      CmdFunc( this, &Channel::_cmdFrameDraw ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_DRAW_FINISH, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_DRAW_FINISH,
                      CmdFunc( this, &Channel::_cmdFrameDrawFinish ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_ASSEMBLE, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_ASSEMBLE,
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK,
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImage ), tmitQ );
@@ -112,11 +112,11 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameSetReady ), transferQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY_NODE,
                      CmdFunc( this, &Channel::_cmdFrameSetReadyNode ), tmitQ );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START,
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH,
                      CmdFunc( this, &Channel::_cmdFrameViewFinish ), queue );
-    registerCommand( fabric::CMD_CHANNEL_STOP_FRAME, 
+    registerCommand( fabric::CMD_CHANNEL_STOP_FRAME,
                      CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TILES,
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
@@ -128,13 +128,13 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
-{ 
-    return getWindow()->getPipeThreadQueue(); 
+{
+    return getWindow()->getPipeThreadQueue();
 }
 
 co::CommandQueue* Channel::getCommandThreadQueue()
-{ 
-    return getWindow()->getCommandThreadQueue(); 
+{
+    return getWindow()->getCommandThreadQueue();
 }
 
 uint32_t Channel::getCurrentFrame() const
@@ -220,8 +220,8 @@ bool Channel::configExit()
     return true;
 }
 bool Channel::configInit( const uint128_t& )
-{ 
-    return _configInitFBO(); 
+{
+    return _configInitFBO();
 }
 
 bool Channel::_configInitFBO()
@@ -229,7 +229,7 @@ bool Channel::_configInitFBO()
     const uint32_t drawable = getDrawable();
     if( drawable == FB_WINDOW )
         return true;
-    
+
     const Window* window = getWindow();
     if( !window->getSystemWindow()  ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
@@ -237,7 +237,7 @@ bool Channel::_configInitFBO()
         setError( ERROR_FBO_UNSUPPORTED );
         return false;
     }
-        
+
     // needs glew initialized (see above)
     _impl->fbo = new util::FrameBufferObject( glewGetContext( ));
 
@@ -371,7 +371,7 @@ void Channel::frameDraw( const uint128_t& )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
-    
+
     EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
     EQ_GL_CALL( glLoadIdentity( ));
     EQ_GL_CALL( applyFrustum( ));
@@ -425,12 +425,12 @@ void Channel::startFrame( const uint32_t ) { /* nop */ }
 void Channel::releaseFrame( const uint32_t ) { /* nop */ }
 void Channel::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
-void Channel::frameStart( const uint128_t&, const uint32_t frameNumber ) 
+void Channel::frameStart( const uint128_t&, const uint32_t frameNumber )
 {
     resetRegions();
     startFrame( frameNumber );
 }
-void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
+void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrame( frameNumber );
 }
@@ -538,7 +538,7 @@ void Channel::applyFrameBufferObject()
     {
         const PixelViewport& pvp = getNativePixelViewport();
         _impl->fbo->resize( pvp.w, pvp.h );
-        _impl->fbo->bind(); 
+        _impl->fbo->bind();
     }
     else if( GLEW_EXT_framebuffer_object )
         glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
@@ -553,7 +553,7 @@ void Channel::applyBuffer()
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
     }
-    
+
     applyColorMask();
 }
 
@@ -563,7 +563,7 @@ void Channel::bindFrameBuffer()
     const Window* window = getWindow();
     if( !window->getSystemWindow( ))
        return;
-        
+
    if( _impl->fbo )
        applyFrameBufferObject();
    else
@@ -610,7 +610,7 @@ void Channel::applyPerspective() const
     frustum.apply_jitter( jitter );
     EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),
                            frustum.bottom(), frustum.top(),
-                           frustum.near_plane(), frustum.far_plane() )); 
+                           frustum.near_plane(), frustum.far_plane() ));
 }
 
 void Channel::applyOrtho() const
@@ -622,7 +622,7 @@ void Channel::applyOrtho() const
     ortho.apply_jitter( jitter );
     EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),
                          ortho.bottom(), ortho.top(),
-                         ortho.near_plane(), ortho.far_plane() )); 
+                         ortho.near_plane(), ortho.far_plane() ));
 }
 
 void Channel::applyScreenFrustum() const
@@ -689,7 +689,7 @@ Vector2f Channel::getJitter() const
     const SubPixel& subpixel = getSubPixel();
     if( subpixel == SubPixel::ALL )
         return Vector2f::ZERO;
-        
+
     // Compute a pixel size
     const PixelViewport& pvp = getPixelViewport();
     const float pvp_w = static_cast<float>( pvp.w );
@@ -866,7 +866,7 @@ bool Channel::processEvent( const Event& event )
             if( viewID == UUID::ZERO )
                 return true;
 
-            // transform to view event, which is meaningful for the config 
+            // transform to view event, which is meaningful for the config
             configEvent.data.type       = Event::VIEW_RESIZE;
             configEvent.data.originator = viewID;
 
@@ -935,7 +935,7 @@ void Channel::drawStatistics()
     std::vector< eq::FrameStatistics > statistics;
     config->getStatistics( statistics );
 
-    if( statistics.empty( )) 
+    if( statistics.empty( ))
         return;
 
     //----- setup
@@ -973,7 +973,7 @@ void Channel::drawStatistics()
             Statistics& stats = j->second;
             std::sort( stats.begin(), stats.end(), _compare );
 
-            for( Statistics::const_iterator k = stats.begin(); 
+            for( Statistics::const_iterator k = stats.begin();
                  k != stats.end(); ++k )
             {
                 const Statistic& stat = *k;
@@ -1030,7 +1030,7 @@ void Channel::drawStatistics()
 
     //----- statistics
     float dim = 0.0f;
-    for( std::vector< eq::FrameStatistics >::reverse_iterator 
+    for( std::vector< eq::FrameStatistics >::reverse_iterator
              i = statistics.rbegin(); i != statistics.rend(); ++i )
     {
         const eq::FrameStatistics& frameStats  = *i;
@@ -1062,7 +1062,7 @@ void Channel::drawStatistics()
 
             uint32_t y = data.yPos;
 
-            for( Statistics::const_iterator k = stats.begin(); 
+            for( Statistics::const_iterator k = stats.begin();
                  k != stats.end(); ++k )
             {
                 const Statistic& stat = *k;
@@ -1101,7 +1101,7 @@ void Channel::drawStatistics()
                 const float x1 = static_cast< float >( startTime - xStart );
                 const float x2 = static_cast< float >( endTime   - xStart );
                 std::stringstream text;
-                
+
                 switch( stat.type )
                 {
                   case Statistic::CONFIG_WAIT_FINISH_FRAME:
@@ -1133,7 +1133,7 @@ void Channel::drawStatistics()
                 default:
                     break;
                 }
-                
+
                 const Vector3f color( Statistic::getColor( stat.type ) - dim );
                 glColor3fv( color.array );
 
@@ -1240,7 +1240,7 @@ void Channel::drawStatistics()
     }
 
     font->draw( text.str( ));
-    
+
     //----- Legend
     nextY -= SPACE;
     float x = 0.f;
@@ -1297,7 +1297,7 @@ void Channel::drawStatistics()
         }
 
         x += 60.f;
-        const float x2 = x + 60.f - SPACE; 
+        const float x2 = x + 60.f - SPACE;
         const float y1 = static_cast< float >( nextY );
         const float y2 = static_cast< float >( nextY - HEIGHT );
 
@@ -1313,7 +1313,7 @@ void Channel::drawStatistics()
         glRasterPos3f( x+1.f, nextY-12.f, 0.f );
         font->draw( Statistic::getName( type ));
     }
-    
+
     glColor3f( 1.f, 1.f, 1.f );
     window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
@@ -1332,7 +1332,7 @@ void Channel::outlineViewport()
         glVertex3f( pvp.getXEnd() - .5f, pvp.y + .5f,         0.f );
         glVertex3f( pvp.getXEnd() - .5f, pvp.getYEnd() - .5f, 0.f );
         glVertex3f( pvp.x + .5f,         pvp.getYEnd() - .5f, 0.f );
-    } 
+    }
     glEnd();
 
     resetAssemblyState();
@@ -1523,7 +1523,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     stats.data.clear();
     stats.region = Viewport::FULL;
 
-    _impl->finishedFrame = frameNumber; 
+    _impl->finishedFrame = frameNumber;
 }
 
 void Channel::_setOutputFrames( const uint32_t nFrames,
@@ -1600,6 +1600,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
             if( images[j]->hasAsyncReadback( )) // finish async readback
             {
                 LBCHECK( getPipe()->startTransferThread( ));
+                LBCHECK( getWindow()->createTransferWindow( ));
 
                 hasAsyncReadback = true;
                 _refFrame( frameNumber );
@@ -1682,7 +1683,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 {
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
 
-    FrameDataPtr frameData = getNode()->getFrameData( request->frameData ); 
+    FrameDataPtr frameData = getNode()->getFrameData( request->frameData );
     LBASSERT( frameData );
 
     if( frameData->getBuffers() == 0 )
@@ -1740,7 +1741,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 
     {
         uint64_t rawSize( 0 );
-        ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
+        ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS,
                                          this, request->frameNumber,
                                          useCompression ? AUTO : OFF );
         compressEvent.event.data.statistic.task = request->taskID;
@@ -1758,17 +1759,17 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
             if( image->hasPixelData( buffer ))
             {
                 // format, type, nChunks, compressor name
-                packet.size += sizeof( FrameData::ImageHeader ); 
+                packet.size += sizeof( FrameData::ImageHeader );
 
                 const PixelData& data = useCompression ?
-                    image->compressPixelData( buffer ) : 
+                    image->compressPixelData( buffer ) :
                     image->getPixelData( buffer );
                 pixelDatas.push_back( &data );
                 qualities.push_back( image->getQuality( buffer ));
 
                 if( data.isCompressed )
                 {
-                    const uint32_t nElements = 
+                    const uint32_t nElements =
                         uint32_t( data.compressedSize.size( ));
                     for( uint32_t k = 0 ; k < nElements; ++k )
                     {
@@ -1824,7 +1825,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
               { data->internalFormat, data->externalFormat,
                 data->pixelSize, data->pvp,
                 useCompression ? data->compressorName : EQ_COMPRESSOR_NONE,
-                data->compressorFlags, 
+                data->compressorFlags,
                 data->isCompressed ? uint32_t( data->compressedSize.size()) : 1,
                 qualities[ j ] };
 
@@ -1837,7 +1838,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
                 const uint64_t dataSize = data->compressedSize[k];
                 connection->send( &dataSize, sizeof( dataSize ), true );
                 if( dataSize > 0 )
-                    connection->send( data->compressedData[k], 
+                    connection->send( data->compressedData[k],
                                       dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
@@ -1846,7 +1847,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
         }
         else
         {
-            const uint64_t dataSize = data->pvp.getArea() * 
+            const uint64_t dataSize = data->pvp.getArea() *
                 data->pixelSize;
             connection->send( &dataSize, sizeof( dataSize ), true );
             connection->send( data->pixels, dataSize, true );
@@ -2023,7 +2024,7 @@ bool Channel::_cmdConfigExit( co::Command& command )
 
 bool Channel::_cmdFrameStart( co::Command& command )
 {
-    ChannelFrameStartPacket* packet = 
+    ChannelFrameStartPacket* packet =
         command.getModifiable< ChannelFrameStartPacket >();
     LBVERB << "handle channel frame start " << packet << std::endl;
 
@@ -2063,7 +2064,7 @@ bool Channel::_cmdFrameFinish( co::Command& command )
 bool Channel::_cmdFrameClear( co::Command& command )
 {
     LBASSERT( _impl->state == STATE_RUNNING );
-    ChannelFrameClearPacket* packet = 
+    ChannelFrameClearPacket* packet =
         command.getModifiable< ChannelFrameClearPacket >();
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
                        << std::endl;
@@ -2078,7 +2079,7 @@ bool Channel::_cmdFrameClear( co::Command& command )
 
 bool Channel::_cmdFrameDraw( co::Command& command )
 {
-    ChannelFrameDrawPacket* packet = 
+    ChannelFrameDrawPacket* packet =
         command.getModifiable< ChannelFrameDrawPacket >();
     LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
                        << std::endl;
@@ -2102,7 +2103,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
 
 bool Channel::_cmdFrameDrawFinish( co::Command& command )
 {
-    const ChannelFrameDrawFinishPacket* packet = 
+    const ChannelFrameDrawFinishPacket* packet =
         command.get< ChannelFrameDrawFinishPacket >();
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
@@ -2115,7 +2116,7 @@ bool Channel::_cmdFrameDrawFinish( co::Command& command )
 
 bool Channel::_cmdFrameAssemble( co::Command& command )
 {
-    ChannelFrameAssemblePacket* packet = 
+    ChannelFrameAssemblePacket* packet =
         command.getModifiable< ChannelFrameAssemblePacket >();
     LBLOG( LOG_TASKS | LOG_ASSEMBLY )
         << "TASK assemble " << getName() <<  " " << packet << std::endl;
@@ -2140,7 +2141,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 
 bool Channel::_cmdFrameReadback( co::Command& command )
 {
-    ChannelFrameReadbackPacket* packet = 
+    ChannelFrameReadbackPacket* packet =
         command.getModifiable< ChannelFrameReadbackPacket >();
     LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
                                       << packet << std::endl;
@@ -2153,7 +2154,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 
 bool Channel::_cmdFinishReadback( co::Command& command )
 {
-    const ChannelFinishReadbackPacket* packet = 
+    const ChannelFinishReadbackPacket* packet =
         command.get< ChannelFinishReadbackPacket >();
 
     getWindow()->makeCurrentTransfer();
@@ -2164,7 +2165,7 @@ bool Channel::_cmdFinishReadback( co::Command& command )
 
 bool Channel::_cmdFrameSetReady( co::Command& command )
 {
-    const ChannelFrameSetReadyPacket* packet = 
+    const ChannelFrameSetReadyPacket* packet =
         command.get<ChannelFrameSetReadyPacket>();
     LBASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
 
@@ -2211,7 +2212,7 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& command )
 
 bool Channel::_cmdFrameViewStart( co::Command& command )
 {
-    ChannelFrameViewStartPacket* packet = 
+    ChannelFrameViewStartPacket* packet =
         command.getModifiable< ChannelFrameViewStartPacket >();
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << packet
                        << std::endl;
@@ -2225,7 +2226,7 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 
 bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
-    ChannelFrameViewFinishPacket* packet = 
+    ChannelFrameViewFinishPacket* packet =
         command.getModifiable< ChannelFrameViewFinishPacket >();
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << packet
                        << std::endl;
@@ -2240,11 +2241,11 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
 
 bool Channel::_cmdStopFrame( co::Command& command )
 {
-    const ChannelStopFramePacket* packet = 
+    const ChannelStopFramePacket* packet =
         command.get<ChannelStopFramePacket>();
     LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << packet << std::endl;
-    
+
     notifyStopFrame( packet->lastFrameNumber );
     return true;
 }

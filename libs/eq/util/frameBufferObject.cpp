@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@ namespace eq
 namespace util
 {
 
-FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext, 
+FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
                                       const GLenum textureTarget )
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
@@ -100,7 +100,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
     if( stencilSize > 0 && GLEW_EXT_packed_depth_stencil )
     {
         _depth.init( GL_DEPTH24_STENCIL8, width, height );
-        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height ); 
+        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height );
     }
     else if( depthSize > 0 )
     {

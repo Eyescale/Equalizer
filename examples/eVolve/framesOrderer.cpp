@@ -79,7 +79,8 @@ void orderFrames( eq::Frames& frames, const eq::Matrix4d& modelviewM,
 
     const eq::Vector4d pS = modelviewM * eq::Vector4d( 0.0, 0.0,-1.0, 1.0 );
     eq::Vector3d pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
-    dotVals.push_back( norm.dot( pSsub.normalize() ) );
+    pSsub.normalize();
+    dotVals.push_back( norm.dot( pSsub ));
     //check if any slices need to be rendered in reverse order
     size_t minPos = std::numeric_limits< size_t >::max();
     for( size_t i=0; i<dotVals.size()-1; i++ )
