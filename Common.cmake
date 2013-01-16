@@ -71,18 +71,18 @@ if(BOOST_ROOT)
 endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
-# Compiler settings
-if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-  set(CMAKE_COMPILER_IS_XLCXX ON)
-endif()
-
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
 if(BIGENDIAN)
   add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+# Compiler settings
+if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+  set(CMAKE_COMPILER_IS_XLCXX ON)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  set(CMAKE_COMPILER_IS_INTEL ON)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_COMPILER_IS_CLANG ON)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
@@ -108,6 +108,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
   endif()
+elseif(CMAKE_COMPILER_IS_INTEL)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
 endif()
 
 if(MSVC)
