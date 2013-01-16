@@ -918,7 +918,7 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
         if( pixel.w > 1 )
         {
             const float frustumWidth = frustum.right() - frustum.left();
-            const float pixelWidth = frustumWidth / static_cast<float>( destPVP.w );
+            const float pixelWidth = frustumWidth / float( destPVP.w );
             const float jitter = pixelWidth * pixel.x - pixelWidth * .5f;
 
             frustum.left()  += jitter;
