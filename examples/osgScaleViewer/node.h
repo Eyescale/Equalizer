@@ -33,7 +33,7 @@
 #ifndef NODE_H
 #define NODE_H
 
-#define EQ_IGNORE_GLEW
+typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 #include <osg/Image>

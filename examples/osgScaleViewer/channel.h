@@ -33,7 +33,7 @@
 #ifndef OSGSV_CHANNEL_H
 #define OSGSV_CHANNEL_H
 
-#define EQ_IGNORE_GLEW
+typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 #include <osg/LightSource>
