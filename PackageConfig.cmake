@@ -1,3 +1,4 @@
+
 # Copyright (c) 2013 Daniel Nachbaur <daniel.nachbaur@epfl.ch>
 
 # This file creates package information for find_package by generating
@@ -44,6 +45,9 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "\n"
 # find components if specified
   "  if(${CMAKE_PROJECT_NAME}_FIND_COMPONENTS)\n"
+  "    find_library(\${UPPER_PROJECT_NAME}_LIBRARY ${CMAKE_PROJECT_NAME} NO_DEFAULT_PATH\n"
+  "                 PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
+  "    list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${UPPER_PROJECT_NAME}_LIBRARY})\n"
   "    foreach(_component \${${CMAKE_PROJECT_NAME}_FIND_COMPONENTS})\n"
   "      find_library(\${_component}_libraryname ${CMAKE_PROJECT_NAME}_\${_component} NO_DEFAULT_PATH\n"
   "        PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
