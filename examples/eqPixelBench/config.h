@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,7 +44,7 @@ public:
     virtual uint32_t startFrame( const eq::uint128_t& frameID );
 
     /** @sa eq::Config::handleEvent */
-    virtual bool handleEvent( const eq::ConfigEvent* event );
+    virtual bool handleEvent( eq::EventICommand command );
 
     /** @return the clock started by startFrame, or 0 on render clients. */
     const lunchbox::Clock* getClock() const { return _clock; }

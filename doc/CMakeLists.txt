@@ -1,7 +1,9 @@
 
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
+find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
+  message(STATUS "Doxygen missing, API documentation targets unavailable")
   return()
 endif()
 
@@ -19,7 +21,7 @@ configure_file(doxyfooter.html ${CMAKE_CURRENT_BINARY_DIR}/doxyfooter.html
   @ONLY)
 configure_file(Doxyfile.int ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.int @ONLY)
 
-get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_TARGETS)
+get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
 add_custom_target(doxygen_install
   ${CMAKE_COMMAND} -D CMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
                    -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
@@ -32,7 +34,7 @@ add_custom_target(doxygen_int
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Generating internal API documentation using doxygen" VERBATIM)
 
-set(PUBLIC_DOCS Collage Sequel Equalizer)
+set(PUBLIC_DOCS Sequel Equalizer)
 set(PREVIOUS doxygen_int doxygen_install)
 foreach(DOC ${PUBLIC_DOCS})
   configure_file(Doxyfile.${DOC} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.${DOC}
@@ -43,12 +45,7 @@ foreach(DOC ${PUBLIC_DOCS})
     COMMENT "Generating ${DOC} API documentation using doxygen" VERBATIM)
   add_dependencies(doxygen_${DOC} ${PREVIOUS})
 
-  if(DOC STREQUAL Collage)
-    set(PROJECT_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR})
-  else()
-    set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
-  endif()
-
+  set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
   add_custom_target(github_${DOC}
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${PROJECT_VERSION}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html/${DOC} ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${PROJECT_VERSION}
@@ -69,6 +66,7 @@ add_custom_target(github DEPENDS github_Collage github_Sequel github_Equalizer)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/man/man3)
 make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/documents/Developer/API/internal)
 
-install(DIRECTORY . DESTINATION share/Equalizer/doc COMPONENT doc)
-install(FILES ../RELNOTES.txt ../AUTHORS ../CHANGES.txt ../ACKNOWLEDGEMENTS
-        ../LGPL ../LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)
+file(GLOB READMES . README*)
+install(FILES ${READMES} FAQ PLATFORMS ../RELNOTES.txt ../AUTHORS
+  ../CHANGES.txt ../ACKNOWLEDGEMENTS ../LGPL ../LICENSE.txt
+  DESTINATION share/Equalizer/doc COMPONENT doc)

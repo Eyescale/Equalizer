@@ -28,8 +28,8 @@
 
 #include "error.h"
 
-#include <co/errorRegistry.h>
-#include <co/global.h>
+#include <eq/fabric/errorRegistry.h>
+#include <eq/fabric/global.h>
 
 namespace eVolve
 {
@@ -60,7 +60,7 @@ ErrorData _errors[] = {
 
 void initErrors()
 {
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -68,7 +68,7 @@ void initErrors()
 
 void exitErrors()
 {
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );

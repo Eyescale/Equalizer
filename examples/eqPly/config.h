@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,11 +45,11 @@ namespace eqPly
     class View;
 
     /**
-     * The configuration, run be the EqPly application. 
+     * The configuration, run be the EqPly application.
      *
      * A configuration instance manages configuration-specific data: it
      * distributes the initialization and model data, updates frame-specific
-     * data and manages frame generation based on event handling. 
+     * data and manages frame generation based on event handling.
      */
     class Config : public eq::Config
     {
@@ -73,7 +74,7 @@ namespace eqPly
         const Model* getModel( const eq::uint128_t& id );
 
         /** @sa eq::Config::handleEvent */
-        virtual bool handleEvent( const eq::ConfigEvent* event );
+        virtual bool handleEvent( eq::EventICommand command );
 
         /** @return true if the application is idling. */
         bool isIdleAA();
@@ -88,7 +89,7 @@ namespace eqPly
         virtual ~Config();
 
         /** Synchronize config and admin copy. */
-        virtual co::uint128_t sync( 
+        virtual co::uint128_t sync(
                              const co::uint128_t& version = co::VERSION_HEAD );
 
     private:
@@ -132,6 +133,7 @@ namespace eqPly
         void _freezeLoadBalancing( const bool onOff );
         void _adjustEyeBase( const float delta );
         void _adjustTileSize( const int delta );
+        void _adjustResistance( const int delta );
         void _adjustModelScale( const float factor );
         void _switchLayout( int32_t increment );
         void _toggleEqualizer();

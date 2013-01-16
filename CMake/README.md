@@ -1,6 +1,6 @@
 # CMake Modules
 
-## Howto use in other projects
+## Use in other projects
 
 First integration into another project:
 
@@ -17,6 +17,15 @@ Update:
     git pull -s subtree CMake master
     git push
 
+## Updates
+
+    [fork repository]
+    git clone https://github.com/<fork>/CMake.git
+    [change]
+    git commit ...
+    git push
+    [open pull request]
+    
 ## Documentation
 
 - [GitTargets.cmake](CMake/blob/master/doc/GitTargets.md)

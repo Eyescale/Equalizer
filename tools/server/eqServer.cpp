@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,7 +47,7 @@ int main( const int argc, char** argv )
     const std::string config( argc == 1 ? "" : argv[1] );
     if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
-#ifdef EQ_USE_GPUSD
+#ifdef EQ_USE_HWSD
     else
         server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif

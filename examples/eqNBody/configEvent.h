@@ -1,6 +1,7 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,24 +35,11 @@
 
 namespace eqNbody
 {
-    struct ConfigEvent : public eq::ConfigEvent
+    enum ConfigEventType
     {
-    public:
-        ConfigEvent();
-        
-        enum Type
-        {
-            DATA_CHANGED = eq::Event::USER,
-            PROXY_CHANGED
-        };
-                
-        eq::uint128_t   _version;
-        eq::uint128_t   _proxyID;
-        float           _range[2];
+        DATA_CHANGED = eq::Event::USER,
+        PROXY_CHANGED
     };
-    
-    std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
 }
 
 #endif // EQNBODY_CONFIGEVENT_H
-

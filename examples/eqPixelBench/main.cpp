@@ -31,11 +31,6 @@
 #include "window.h"
 
 
-#ifdef _WIN32
-#  define setenv( name, value, overwrite ) \
-    SetEnvironmentVariable( name, value )
-#endif
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -76,7 +71,7 @@ int main( int argc, char** argv )
     }
 
     // 3. choose config
-    eq::ConfigParams configParams;
+    eq::fabric::ConfigParams configParams;
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
     

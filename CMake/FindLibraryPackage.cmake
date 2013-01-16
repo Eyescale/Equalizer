@@ -29,7 +29,7 @@
 #
 # Module to find a standard library and includes. Intended to be used by
 # FindFoo.cmake scripts. Assumes the following layout:
-#   (root)/include/(name)/version.h
+#   (root)/include/(name)/version.h(pp)
 #      parsed for defines: NAME_VERSION_MAJOR, -_MINOR, -_PATCH, -_ABI
 #
 #
@@ -95,21 +95,32 @@ macro(FIND_LIBRARY_PACKAGE name)
   string(TOUPPER ${name} _flp_${name}_UC)
 
   # options
+  set(switchArgs NO_LIBRARY)
   set(oneValueArgs INCLUDE)
   set(multiValueArgs TRANSIENT)
-  cmake_parse_arguments(_flp_${name} "" "${oneValueArgs}" "${multiValueArgs}"
-    ${ARGN})
+  cmake_parse_arguments(_flp_${name} "${switchArgs}" "${oneValueArgs}"
+    "${multiValueArgs}" ${ARGN})
   if(NOT _flp_${name}_INCLUDE)
     set(_flp_${name}_INCLUDE ${name})
   endif()
   string(TOUPPER ${_flp_${name}_INCLUDE} _flp_${name}_INCLUDE_UC)
 
   # might already be set from a previous run with a different/wrong version
-  unset(${_flp_NAME}_INCLUDE_DIR CACHE)
+  unset(${_flp_${name}_UC}_INCLUDE_DIR CACHE)
 
   find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.h
     HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
+  set(_flp_Version_file
+    "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.h")
+
+  if(NOT ${_flp_${name}_UC}_INCLUDE_DIR)
+    find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.hpp
+      HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
+      PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
+    set(_flp_Version_file
+      "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.hpp")
+  endif()
 
   if(${name}_FIND_REQUIRED)
     set(_flp_version_output_type FATAL_ERROR)
@@ -127,7 +138,6 @@ macro(FIND_LIBRARY_PACKAGE name)
 
   # Try to ascertain the version...
   if(${_flp_${name}_UC}_INCLUDE_DIR)
-    set(_flp_Version_file "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.h")
     if("${${_flp_${name}_UC}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
         NOT EXISTS "${_flp_Version_file}")
       set(_flp_Version_file "${${_flp_${name}_UC}_INCLUDE_DIR}/Headers/version.h")
@@ -194,7 +204,57 @@ macro(FIND_LIBRARY_PACKAGE name)
 
       set(${_flp_${name}_UC}_VERSION "${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR}.${${_flp_${name}_UC}_VERSION_PATCH}")
     endif()
+  else()
+    set(_flp_${name}_FAIL TRUE)
+    if(_flp_${name}_out)
+      message(${_flp_version_output_type}
+        "Can't find ${_flp_${name}_INCLUDE}/version.h(pp).")
+    endif()
+  endif()
 
+  # Version checking
+  if(${_flp_${name}_UC}_VERSION AND ${name}_FIND_VERSION)
+    if(${name}_FIND_VERSION_EXACT)
+      if(NOT ${name}_FIND_VERSION VERSION_EQUAL ${_flp_${name}_UC}_VERSION)
+        set(_flp_${name}_FAIL TRUE)
+        if(_flp_${name}_out)
+          message(${_flp_version_output_type}
+            "Version ${${name}_FIND_VERSION} of ${name} is required exactly. "
+            "Version ${${_flp_${name}_UC}_VERSION} was found in ${${_flp_${name}_UC}_INCLUDE_DIR}.")
+        endif()
+      endif()
+    else()
+      if( ${name}_FIND_VERSION VERSION_GREATER ${_flp_${name}_UC}_VERSION )
+        set(_flp_${name}_FAIL TRUE)
+        if(_flp_${name}_out)
+          message(${_flp_version_output_type}
+            "Version ${${name}_FIND_VERSION} or higher of ${name} is required. "
+            "Version ${${_flp_${name}_UC}_VERSION} was found in ${${_flp_${name}_UC}_INCLUDE_DIR}.")
+        endif()
+      endif()
+    endif()
+  endif()
+
+  # include
+  set(${_flp_${name}_UC}_INCLUDE_DIRS ${${_flp_${name}_UC}_INCLUDE_DIR})
+
+  # library
+  if(NOT _flp_${name}_NO_LIBRARY)
+    find_library(${_flp_${name}_UC}_LIBRARY ${name}
+      PATHS ${${_flp_${name}_UC}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
+    set(${_flp_${name}_UC}_LIBRARIES ${${_flp_${name}_UC}_LIBRARY})
+
+    if(${name}_FIND_REQUIRED AND
+        ${_flp_${name}_UC}_LIBRARY MATCHES "${_flp_${name}_UC}_LIBRARY-NOTFOUND")
+      set(_flp_${name}_FAIL TRUE)
+      if(_flp_${name}_out)
+        message(${_flp_version_output_type}
+          "Missing the ${name} library in ${${_flp_${name}_UC}_INCLUDE_DIR}/../lib.")
+      endif()
+    endif()
+  endif()
+
+  if(NOT _flp_${name}_FAIL)
     # Find transient packages
     foreach(_flp_trans ${_flp_${name}_TRANSIENT})
       string(TOUPPER ${_flp_trans} _flp_${name}_TRANS)
@@ -230,59 +290,13 @@ macro(FIND_LIBRARY_PACKAGE name)
           set(_flp_${name}_FAIL TRUE)
         endif()
       else()
-        message(WARNING
-          "Can't figure out version of dependent package ${_flp_trans}, "
-          "add ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION to "
-          "${_flp_${name}_INCLUDE}/version.h.")
+        message(STATUS
+          "Can't figure out ${_flp_trans} version for "
+          "${name} ${${_flp_${name}_UC}_VERSION}, use "
+          "${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION in "
+          "${_flp_Version_file}.")
       endif()
     endforeach()
-  else()
-    set(_flp_${name}_FAIL TRUE)
-    if(_flp_${name}_out)
-      message(${_flp_version_output_type}
-        "Can't find ${_flp_${name}_INCLUDE}/version.h.")
-    endif()
-  endif()
-
-  # Version checking
-  if(${_flp_${name}_UC}_VERSION AND ${name}_FIND_VERSION)
-    if(${name}_FIND_VERSION_EXACT)
-      if(NOT ${name}_FIND_VERSION VERSION_EQUAL ${_flp_${name}_UC}_VERSION)
-        set(_flp_${name}_FAIL TRUE)
-        if(_flp_${name}_out)
-          message(${_flp_version_output_type}
-            "Version ${${name}_FIND_VERSION} of ${name} is required exactly. "
-            "Version ${${_flp_${name}_UC}_VERSION} was found.")
-        endif()
-      endif()
-    else()
-      if( ${name}_FIND_VERSION VERSION_GREATER ${_flp_${name}_UC}_VERSION )
-        set(_flp_${name}_FAIL TRUE)
-        if(_flp_${name}_out)
-          message(${_flp_version_output_type}
-            "Version ${${name}_FIND_VERSION} or higher of ${name} is required. "
-            "Version ${${_flp_${name}_UC}_VERSION} was found in ${${_flp_${name}_UC}_INCLUDE_DIR}.")
-        endif()
-      endif()
-    endif()
-  endif()
-
-  # include
-  set(${_flp_${name}_UC}_INCLUDE_DIRS ${${_flp_${name}_UC}_INCLUDE_DIR})
-
-  # library
-  find_library(${_flp_${name}_UC}_LIBRARY ${name}
-    PATHS ${${_flp_${name}_UC}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
-  set(${_flp_${name}_UC}_LIBRARIES ${${_flp_${name}_UC}_LIBRARY})
-
-  if(${name}_FIND_REQUIRED)
-    if(${_flp_${name}_UC}_LIBRARY MATCHES "${_flp_${name}_UC}_LIBRARY-NOTFOUND")
-      set(_flp_${name}_FAIL TRUE)
-      if(_flp_${name}_out)
-        message(${_flp_version_output_type}
-          "Missing the ${name} library in ${${_flp_${name}_UC}_INCLUDE_DIR}/../lib.")
-      endif()
-    endif()
   endif()
 
   if(_flp_${name}_FAIL)
@@ -298,8 +312,10 @@ macro(FIND_LIBRARY_PACKAGE name)
       "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-lib (>= ${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR})")
     set(${_flp_${name}_UC}_DEB_BUILD_DEPENDENCIES
       "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-dev (>= ${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR})")
-    get_filename_component(${_flp_${name}_UC}_LIBRARY_DIRS
-      ${${_flp_${name}_UC}_LIBRARY} PATH)
+    if(NOT _flp_${name}_NO_LIBRARY)
+      get_filename_component(${_flp_${name}_UC}_LIBRARY_DIRS
+        ${${_flp_${name}_UC}_LIBRARY} PATH)
+    endif()
 
     # Add transient package information to self
     foreach(_flp_trans ${_flp_${name}_TRANSIENT})

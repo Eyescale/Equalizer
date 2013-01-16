@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+ *                    2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -52,32 +53,29 @@ class Window;
 /**
  *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
  */
-class AsyncFetcher : public lunchbox::Thread
+class AsyncFetcher : protected lunchbox::Thread
 {
 public:
-    typedef eq::util::ObjectManager< int > ObjectManager;
-
     AsyncFetcher();
     ~AsyncFetcher();
 
-    virtual void run();
-    void setup( Window* window ) { _window = window; }
+    void setup( Window* window );
+    void stop();
 
-    TextureId getTextureId()               { return _outQueue.pop().id;      }
+//    TextureId getTextureId()               { return _outQueue.pop().id;      }
     bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
     void deleteTexture( const void* key )  { _inQueue.push( key );           }
 
+protected:
+    virtual void run();
     const GLEWContext* glewGetContext() const;
 
 private:
-    Window*                        _window;
     lunchbox::MTQueue<const void*> _inQueue;       // textures to delete
     lunchbox::MTQueue<TextureId>   _outQueue;      // generated textures
-    eq::ObjectManager*             _objectManager;
     eq::SystemWindow*              _sharedWindow;
-    GLbyte*                        _tmpTexture;    // temporal texture storage
 };
 
-} 
+}
 
 #endif //EQASYNC_ASYNC_FETCHER_H

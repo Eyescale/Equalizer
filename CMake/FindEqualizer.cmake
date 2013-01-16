@@ -178,7 +178,11 @@ find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
 
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
-if(_eq_version_not_high_enough)
+if(NOT EQUALIZER_VERSION)
+  set(_eq_EPIC_FAIL TRUE)
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
+                                    _eq_LIBRARY _eq_INCLUDE_DIR)
+elseif(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
     "Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
@@ -198,7 +202,12 @@ else()
   endif()
   find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
+  if(EQUALIZER_FOUND)
+    include("${_eq_INCLUDE_DIR}/../share/Equalizer/CMake/options.cmake")
+  endif()
+
   # Matching Collage versions
+  set(_eq_coVersion_1.5.1 "0.8.0")
   set(_eq_coVersion_1.5.0 "0.7.0")
   set(_eq_coVersion_1.4.1 "0.6.1")
   set(_eq_coVersion_1.4.0 "0.6.0")
@@ -228,56 +237,44 @@ else()
   find_package(Collage "${_eq_coVersion_${EQUALIZER_VERSION}}" EXACT
                ${_eq_required} ${_eq_quiet})
   if(NOT COLLAGE_FOUND)
-    set(_eq_EPIC_FAIL 1)
+    set(_eq_EPIC_FAIL TRUE)
   endif()
   if(NOT _eq_EPIC_FAIL)
     # GLEW_MX
-    set(TEST_SRC ${CMAKE_BINARY_DIR}/glewmx_test.cpp)
-    file(WRITE ${TEST_SRC}
-      "#include <eq/client/defines.h>\n"
-      "#ifndef EQ_GLEW_INTERNAL\n"
-      "#  error Need external GLEW_MX\n"
-      "#endif\n"
-      "int main(int argc, char* argv[]){}\n"
-      )
-
-    try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
-      CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
-                  "-DLINK_LIBRARIES:STRING=${_eq_LIBRARY}"
-      OUTPUT_VARIABLE out
-    )
-    if(_glew_mx_internal)
+    if(EQ_GLEW_INTERNAL)
       set(GLEW_MX_INCLUDE_DIRS)
       set(GLEW_MX_LIBRARIES)
     else()
       find_package(GLEW_MX ${_eq_required} ${_eq_quiet})
       if(NOT GLEW_MX_FOUND)
-        set(_eq_EPIC_FAIL 1)
+        set(_eq_EPIC_FAIL TRUE)
       endif()
     endif()
   endif()
 endif()
 
 if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
-    # Zero out everything, we didn't meet version requirements
-    set(EQUALIZER_FOUND FALSE)
-    set(_eq_LIBRARY)
-    set(_eq_fabric_LIBRARY)
-    set(_eq_INCLUDE_DIR)
+  # Zero out everything, we didn't meet version requirements
+  set(EQUALIZER_FOUND FALSE)
+  set(_eq_LIBRARY)
+  set(_eq_fabric_LIBRARY)
+  set(_eq_INCLUDE_DIR)
+  set(EQUALIZER_INCLUDE_DIRS)
+  set(EQUALIZER_LIBRARIES)
 else()
   if(EQUALIZER_VERSION_ABI LESS 110)
     set(EQUALIZER_DEB_DEPENDENCIES "equalizer (>=${EQUALIZER_VERSION})")
   else()
     set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}-eqlib")
   endif()
+  set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
+  set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES}
+    ${GLEW_MX_LIBRARIES})
+  if(EQUALIZER_VERSION VERSION_GREATER 1.0)
+    set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
+  endif()
+  get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 endif()
-
-set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES} ${GLEW_MX_LIBRARIES})
-if(EQUALIZER_VERSION VERSION_GREATER 1.0)
-  set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
-endif()
-get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)
   message("-- Found Equalizer ${EQUALIZER_VERSION}/${EQUALIZER_VERSION_ABI} in ${EQUALIZER_INCLUDE_DIRS}"

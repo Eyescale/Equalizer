@@ -1,16 +1,14 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-include(ParseArguments)
+include(CMakeParseArguments)
 include(PurpleInstallPDB)
-include(PurpleExpandLibraries)
 
 macro(EQ_ADD_TOOL NAME)
-  parse_arguments(THIS "SOURCES;HEADERS;LINK_LIBRARIES" "" ${ARGN})
+  cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;LINK_LIBRARIES" ${ARGN})
   set(THIS_TARGET ${NAME})
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS})
   add_executable(${THIS_TARGET} ${THIS_SOURCES} ${THIS_HEADERS})
-  purple_expand_libraries(LINK_LIBRARIES ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
+  target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES})
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Tools")
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT tools)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
@@ -24,12 +22,12 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
   set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
 else()
-  set(GLEW_LIBRARY "GLEW_MX-Equalizer")
+  set(GLEW_LIBRARY "GLEW_MX_Equalizer")
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
 endif()
 
-if(GPUSD_FOUND)
-  add_definitions(-DEQ_USE_GPUSD)
+if(HWSD_FOUND)
+  add_definitions(-DEQ_USE_HWSD)
 endif()
 
 if(WIN32)
@@ -42,11 +40,11 @@ endif(WIN32)
 eq_add_tool(eqConfigTool
   HEADERS configTool/configTool.h configTool/frame.h
   SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
-  LINK_LIBRARIES shared Equalizer shared EqualizerServer
+  LINK_LIBRARIES Equalizer EqualizerServer
   )
 
 eq_add_tool(eqPlyConverter
-  HEADERS 
+  HEADERS
     ../examples/eqPly/ply.h
     ../examples/eqPly/vertexBufferBase.h
     ../examples/eqPly/vertexBufferData.h
@@ -63,7 +61,7 @@ eq_add_tool(eqPlyConverter
     ../examples/eqPly/vertexBufferRoot.cpp
     ../examples/eqPly/vertexBufferState.cpp
     ../examples/eqPly/vertexData.cpp
-  LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES Equalizer
   )
 
 eq_add_tool(eVolveConverter
@@ -77,22 +75,12 @@ eq_add_tool(eVolveConverter
     eVolveConverter/ddsbase.cpp
   )
 
-eq_add_tool(coNetperf
-  SOURCES netperf/netperf.cpp
-  LINK_LIBRARIES shared Collage
-  )
-
-eq_add_tool(coNetproxy
-  SOURCES netproxy/netproxy.cpp
-  LINK_LIBRARIES shared Collage
-  )
-
 eq_add_tool(eqWindowAdmin
   SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES shared EqualizerAdmin
+  LINK_LIBRARIES EqualizerAdmin
   )
 
 eq_add_tool(eqServer
   SOURCES server/eqServer.cpp
-  LINK_LIBRARIES shared EqualizerServer
+  LINK_LIBRARIES EqualizerServer
   )
