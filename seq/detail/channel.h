@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -47,10 +47,10 @@ namespace detail
 
         /** @name Operations. */
         //@{
-        void applyRenderContext() { eq::Channel::frameDraw( uint128_t::ZERO ); }
+        void applyRenderContext() { eq::Channel::frameDraw( 0 ); }
         void applyModelMatrix();
 
-        void clear() { return eq::Channel::frameClear( uint128_t::ZERO ); }
+        void clear() { return eq::Channel::frameClear( 0 ); }
         //@}
 
     protected:

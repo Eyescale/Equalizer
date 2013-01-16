@@ -203,7 +203,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
     if( !config )
     {
         node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY )
-            << UUID::ZERO << requestID;
+            << UUID() << requestID;
         return true;
     }
 
@@ -287,7 +287,7 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
     {
         LBASSERT( _admins.empty( ));
         config->deregister();
-        config::server::release( config );
+        config::Server::release( config );
     }
     else
 #endif

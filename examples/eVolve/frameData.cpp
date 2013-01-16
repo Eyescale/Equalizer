@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com> 
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,6 @@ FrameData::FrameData()
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
-    , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
     LBINFO << "New FrameData " << std::endl;

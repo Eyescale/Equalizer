@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -100,7 +100,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         co::ObjectVersion observer;
         is >> observer;
 
-        if( observer.identifier == UUID::ZERO )
+        if( observer.identifier == 0 )
         {
             if( _observer )
                 _observer->removeView( static_cast< V* >( this ));

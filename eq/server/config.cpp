@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -420,7 +420,7 @@ void Config::setApplicationNetNode( co::NodePtr netNode )
     {
         LBASSERT( _state == STATE_STOPPED );
         _state = STATE_UNUSED;
-        setAppNodeID( co::NodeID::ZERO );
+        setAppNodeID( UUID( ));
     }
 
     Node* node = findApplicationNode();

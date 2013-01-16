@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -101,7 +101,7 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( lunchbox::UUID::ZERO );
+    _initData.setFrameDataID( co::UUID( ));
 }
 
 
@@ -140,7 +140,7 @@ bool Config::handleEvent( eq::EventICommand command )
         {
             const lunchbox::UUID& viewID = event.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID == lunchbox::UUID::ZERO )
+            if( viewID == 0 )
             {
                 _currentCanvas = 0;
                 return true;
@@ -271,7 +271,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( canvases.empty( ))
                 return true;
 
-            _frameData.setCurrentViewID( lunchbox::UUID::ZERO );
+            _frameData.setCurrentViewID( 0 );
 
             if( !_currentCanvas )
             {
@@ -325,7 +325,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
             ++i;
             if( i == views.end( ))
-                _frameData.setCurrentViewID( lunchbox::UUID::ZERO );
+                _frameData.setCurrentViewID( 0 );
             else
                 _frameData.setCurrentViewID( (*i)->getID( ));
             return true;
@@ -348,7 +348,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( lunchbox::UUID::ZERO );
+    _frameData.setCurrentViewID( 0 );
 
     size_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

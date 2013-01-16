@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -280,7 +280,7 @@ void Channel< W, C >::setViewVersion( const co::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
-    LBASSERTINFO( view.identifier != UUID::ZERO ||
+    LBASSERTINFO( view.identifier != 0 ||
                   _data.nativeContext.view.version <= view.version,
                   _data.nativeContext.view << " != " << view );
 
