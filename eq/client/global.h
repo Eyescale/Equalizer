@@ -63,9 +63,9 @@ namespace eq
         static void leaveCarbon();
 
     private:
-        EQ_API friend bool eq::_init( const int argc, char** argv,
-                                      NodeFactory* nodeFactory );
-        EQ_API friend bool eq::exit();
+        EQ_API friend bool _init( const int argc, char** argv,
+                                  NodeFactory* nodeFactory );
+        EQ_API friend bool exit();
 
         static NodeFactory* _nodeFactory;
         static std::string  _configFile;
