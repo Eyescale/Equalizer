@@ -244,7 +244,7 @@ namespace eq
         /** @internal
          * Make the shared transfer window's drawable and context current.
          */
-        void makeCurrentTransfer( const bool cache = true );
+        void makeCurrentTransfer( const bool cache = true ) const;
 
         /** @internal Bind the window's FBO, if it uses one. */
         EQ_API virtual void bindFrameBuffer() const;
@@ -509,4 +509,3 @@ namespace eq
 }
 
 #endif // EQ_WINDOW_H
-

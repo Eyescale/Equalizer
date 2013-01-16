@@ -524,7 +524,7 @@ const GLEWContext* Window::getTransferGlewContext()
     return 0;
 }
 
-void Window::makeCurrentTransfer( const bool useCache )
+void Window::makeCurrentTransfer( const bool useCache ) const
 {
     LBASSERT( _transferWindow );
     if( _transferWindow )
