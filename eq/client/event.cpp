@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -77,7 +77,6 @@ static EventTypeNames _eventTypeNames;
 Event::Event()
         : type( UNKNOWN )
         , serial( 0 )
-        , originator( UUID::ZERO )
 {
     bzero( &user, sizeof( user ));
 }

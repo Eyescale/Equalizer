@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -145,7 +145,7 @@ bool Server::_cmdChooseConfigReply( co::ICommand& command )
     LBVERB << "Handle choose config reply " << command << " req " << requestID
            << " id " << configID << std::endl;
 
-    if( configID == UUID::ZERO )
+    if( configID == 0 )
     {
         localNode->serveRequest( requestID, (void*)0 );
         return true;

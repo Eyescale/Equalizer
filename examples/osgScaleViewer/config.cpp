@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *   2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -92,7 +92,7 @@ bool Config::exit()
 {
     bool ret = eq::Config::exit();
 
-    _initData.setFrameDataID( eq::UUID::ZERO );
+    _initData.setFrameDataID( 0 );
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
     return ret;

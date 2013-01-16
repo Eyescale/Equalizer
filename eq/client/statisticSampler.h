@@ -46,7 +46,7 @@ namespace eq
             : _owner( owner )
         {
             LBASSERT( owner );
-            LBASSERT( owner->getID() != UUID::ZERO );
+            LBASSERT( owner->getID() != 0 );
             LBASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
             event.type                  = Event::STATISTIC;
             event.serial                = owner->getSerial();
