@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com>
  *
@@ -602,7 +602,7 @@ void Config::sendEvent( ConfigEvent& event )
 {
     LBASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
-    LBASSERT( getAppNodeID() != co::NodeID::ZERO );
+    LBASSERT( getAppNodeID() != 0 );
     LBASSERT( _impl->appNode );
 
     send( _impl->appNode, fabric::CMD_CONFIG_EVENT_OLD )
@@ -647,7 +647,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
 EventOCommand Config::sendEvent( const uint32_t type )
 {
-    LBASSERT( getAppNodeID() != co::NodeID::ZERO );
+    LBASSERT( getAppNodeID() != 0 );
     LBASSERT( _impl->appNode );
 
     EventOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
@@ -726,7 +726,7 @@ bool Config::_handleEvent( const Event& event )
 
         case Event::VIEW_RESIZE:
         {
-            LBASSERT( event.originator != UUID::ZERO );
+            LBASSERT( event.originator != 0 );
             View* view = find< View >( event.originator );
             if( view )
                 return view->handleEvent( event );

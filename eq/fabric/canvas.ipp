@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -155,7 +155,7 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
         {
             const UUID& id = (*i).identifier;
 
-            if( id == UUID::ZERO )
+            if( id == 0 )
                 _layouts.push_back( 0 );
             else
             {

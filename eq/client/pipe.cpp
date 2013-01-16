@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -558,7 +558,7 @@ void Pipe::flushFrames( ObjectManager* om )
 co::QueueSlave* Pipe::getQueue( const UUID& queueID )
 {
     LB_TS_THREAD( _pipeThread );
-    if( queueID == UUID::ZERO )
+    if( queueID == 0 )
         return 0;
 
     co::QueueSlave* queue = _impl->queues[ queueID ];
@@ -598,7 +598,7 @@ const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
     LB_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier == UUID::ZERO )
+    if( viewVersion.identifier == 0 )
         return 0;
 
     View* view = _impl->views[ viewVersion.identifier ];

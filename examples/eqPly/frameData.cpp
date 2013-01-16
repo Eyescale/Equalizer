@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ FrameData::FrameData()
         : _rotation( eq::Matrix4f::ZERO )
         , _modelRotation( eq::Matrix4f::ZERO )
         , _position( eq::Vector3f::ZERO )
-        , _modelID( lunchbox::UUID::ZERO )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
@@ -47,7 +46,6 @@ FrameData::FrameData()
         , _pilotMode( false )
         , _idle( false )
         , _compression( true )
-        , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
 }
