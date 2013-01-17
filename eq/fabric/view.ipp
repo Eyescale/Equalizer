@@ -296,36 +296,6 @@ VisitorResult View< L, V, O >::accept( LeafVisitor< V >& visitor ) const
 }
 
 template< class L, class V, class O >
-void View< L, V, O >::setWall( const Wall& wall )
-{
-    if( getWall() == wall && getCurrentType() == TYPE_WALL )
-        return;
-
-    Frustum::setWall( wall );
-    setDirty( DIRTY_FRUSTUM );
-}
-
-template< class L, class V, class O >
-void View< L, V, O >::setProjection( const Projection& projection )
-{
-    if( getProjection() == projection && getCurrentType() == TYPE_PROJECTION )
-        return;
-
-    Frustum::setProjection( projection );
-    setDirty( DIRTY_FRUSTUM );
-}
-
-template< class L, class V, class O >
-void View< L, V, O >::unsetFrustum()
-{
-    if( getCurrentType() == TYPE_NONE )
-        return;
-
-    Frustum::unsetFrustum();
-    setDirty( DIRTY_FRUSTUM );
-}
-
-template< class L, class V, class O >
 uint32_t View< L, V, O >::getUserDataLatency() const
 {
     return static_cast< const V* >( this )->getConfig()->getLatency();

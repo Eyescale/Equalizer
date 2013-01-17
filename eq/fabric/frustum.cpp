@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -44,21 +44,33 @@ void Frustum::restore()
 
 void Frustum::setWall( const Wall& wall )
 {
+    if( _data.wall == wall && _data.current == TYPE_WALL )
+        return;
+
     _data.wall       = wall;
     _data.projection = wall;
     _data.current    = TYPE_WALL;
+    notifyFrustumChanged();
 }
-        
+
 void Frustum::setProjection( const Projection& projection )
 {
+    if( _data.projection == projection && _data.current == TYPE_PROJECTION )
+        return;
+
     _data.projection = projection;
     _data.wall       = projection;
     _data.current    = TYPE_PROJECTION;
+    notifyFrustumChanged();
 }
 
 void Frustum::unsetFrustum()
 {
+    if( _data.current == TYPE_NONE )
+        return;
+
     _data.current = TYPE_NONE;
+    notifyFrustumChanged();
 }
 
 void Frustum::serialize( co::DataOStream& os )
