@@ -30,7 +30,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-typedef void* HPBUFFERARB;
 
 #include "osgScaleViewer.h"
 #include "initData.h"

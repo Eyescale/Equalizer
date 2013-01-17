@@ -29,7 +29,6 @@
 #ifndef FOB_TRACKER_H
 #define FOB_TRACKER_H
 
-typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 #include <string>
 

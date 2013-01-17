@@ -38,7 +38,6 @@
 #include "initData.h"
 #include "tracker.h"
 
-typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 namespace osgScaleViewer

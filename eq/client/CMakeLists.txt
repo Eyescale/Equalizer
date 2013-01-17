@@ -25,7 +25,6 @@ if(MAGELLAN_FOUND)
 endif()
 if(GLSTATS_FOUND)
   list(APPEND EQ_LIBRARIES ${GLSTATS_LIBRARIES})
-  add_definitions(-DGLSTATS_STATIC)
 endif()
 
 if(HWLOC_GL_FOUND)
