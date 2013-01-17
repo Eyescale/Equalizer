@@ -35,7 +35,7 @@
 
 #include "initData.h"
 
-#define EQ_IGNORE_GLEW
+typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 namespace osgScaleViewer
