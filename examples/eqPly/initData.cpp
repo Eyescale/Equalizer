@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID( lunchbox::UUID::ZERO )
+        : _frameDataID()
 #ifdef AGL
         , _windowSystem( "AGL" ) // prefer over GLX
 #else
@@ -56,7 +56,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( lunchbox::UUID::ZERO );
+    setFrameDataID( 0 );
 }
 
 void InitData::getInstanceData( co::DataOStream& os )
@@ -69,7 +69,7 @@ void InitData::applyInstanceData( co::DataIStream& is )
 {
     is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
        >> _logo >> _roi;
-    LBASSERT( _frameDataID != eq::UUID::ZERO );
+    LBASSERT( _frameDataID != 0 );
 }
 
 }

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- 
+
  *
  * The init data manages static, per-instance application data. In this example,
  * it holds the model file name, and manages the instantiation of the frame
@@ -40,7 +40,7 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID( lunchbox::UUID::ZERO )
+        : _frameDataID()
 #ifdef AGL
         , _windowSystem( "AGL" ) // prefer over GLX
 #else
@@ -57,14 +57,14 @@ InitData::InitData()
                      std::string( "share/Equalizer/data/Bucky32x32x32_d.raw" ))
 #  endif
 #else
-        , _filename( std::string( EQ_SOURCE_DIR ) + 
+        , _filename( std::string( EQ_SOURCE_DIR ) +
                      std::string( "examples/eVolve/Bucky32x32x32_d.raw" ))
 #endif
 {}
 
 InitData::~InitData()
 {
-    setFrameDataID( lunchbox::UUID::ZERO );
+    setFrameDataID( co::UUID( ));
 }
 
 void InitData::getInstanceData( co::DataOStream& os )
@@ -78,6 +78,6 @@ void InitData::applyInstanceData( co::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;
 
-    LBASSERT( _frameDataID != lunchbox::UUID::ZERO );
+    LBASSERT( _frameDataID != 0 );
 }
 }

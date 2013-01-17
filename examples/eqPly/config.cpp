@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -241,8 +241,8 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::UUID::ZERO );
-    _frameData.setModelID( eq::UUID::ZERO );
+    _initData.setFrameDataID( eq::UUID( ));
+    _frameData.setModelID( eq::UUID( ));
 }
 
 bool Config::loadData( const eq::uint128_t& initDataID )
@@ -265,7 +265,7 @@ bool Config::loadData( const eq::uint128_t& initDataID )
 
 const Model* Config::getModel( const eq::uint128_t& modelID )
 {
-    if( modelID == eq::UUID::ZERO )
+    if( modelID == 0 )
         return 0;
 
     // Protect if accessed concurrently from multiple pipe threads
@@ -394,7 +394,7 @@ bool Config::handleEvent( eq::EventICommand command )
             const eq::Event& event = command.get< eq::Event >();
             const eq::uint128_t& viewID = event.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID == eq::UUID::ZERO )
+            if( viewID == 0 )
             {
                 _currentCanvas = 0;
                 return false;
@@ -837,7 +837,7 @@ void Config::_switchCanvas()
     if( canvases.empty( ))
         return;
 
-    _frameData.setCurrentViewID( eq::UUID::ZERO );
+    _frameData.setCurrentViewID( eq::UUID( ));
 
     if( !_currentCanvas )
     {
@@ -883,7 +883,7 @@ void Config::_switchView()
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
-        _frameData.setCurrentViewID( eq::UUID::ZERO );
+        _frameData.setCurrentViewID( eq::UUID( ));
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
@@ -1039,7 +1039,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::UUID::ZERO );
+    _frameData.setCurrentViewID( eq::UUID( ));
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

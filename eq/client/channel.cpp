@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -322,7 +322,7 @@ void Channel::notifyViewportChanged()
     event.type       = Event::CHANNEL_RESIZE;
     event.originator = getID();
     event.serial     = getSerial();
-    LBASSERT( event.originator != UUID::ZERO );
+    LBASSERT( event.originator != 0 );
     event.resize.x   = newPVP.x;
     event.resize.y   = newPVP.y;
     event.resize.w   = newPVP.w;
@@ -870,7 +870,7 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_RESIZE:
         {
             const UUID& viewID = getNativeContext().view.identifier;
-            if( viewID == UUID::ZERO )
+            if( viewID == 0 )
                 return true;
 
             // transform to view event, which is meaningful for the config

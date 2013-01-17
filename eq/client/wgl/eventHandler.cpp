@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -427,7 +427,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
     
-    LBASSERT( window->getID() != UUID::ZERO );
+    LBASSERT( window->getID() != 0 );
     event.originator = window->getID();
     event.serial = window->getSerial();
 
@@ -596,7 +596,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
             Event event;
-            LBASSERT( _magellanNode->getID() != UUID::ZERO );
+            LBASSERT( _magellanNode->getID() != 0 );
             event.originator = _magellanNode->getID();
             event.serial = _magellanNode->getSerial();
             event.type = Event::MAGELLAN_BUTTON;
@@ -621,7 +621,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         if (_magellanGotTranslation && _magellanGotRotation)
         {
             Event event;
-            LBASSERT( _magellanNode->getID() != UUID::ZERO );
+            LBASSERT( _magellanNode->getID() != 0 );
             event.originator = _magellanNode->getID();
             event.serial = _magellanNode->getSerial();
             event.type = Event::MAGELLAN_AXIS;
