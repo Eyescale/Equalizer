@@ -148,7 +148,7 @@ void Segment< C, S, CH >::setViewport( const Viewport& vp )
 
     _vp = vp;
     setDirty( DIRTY_VIEWPORT );
-    notifyFrustumChanged();
+    inheritFrustum();
 }
 
 template< class C, class S, class CH >
@@ -174,12 +174,13 @@ void Segment< C, S, CH >::setSwapBarrier( SwapBarrierPtr barrier )
 }
 
 template< class C, class S, class CH >
-void Segment< C, S, CH >::notifyFrustumChanged()
+void Segment< C, S, CH >::inheritFrustum()
 {
     if( getCurrentType() != TYPE_NONE )
         return;
 
     // if segment has no frustum...
+    LBASSERT( _canvas->getCurrentType() != Frustum::TYPE_NONE );
     Wall wall( _canvas->getWall( ));
     wall.apply( _vp );
 
