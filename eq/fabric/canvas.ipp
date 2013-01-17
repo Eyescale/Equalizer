@@ -400,7 +400,7 @@ void Canvas< CFG, C, S, L >::setWall( const Wall& wall )
     for( typename Segments::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )
     {
-        (*i)->notifyFrustumChanged();
+        (*i)->inheritFrustum();
     }
 }
 
@@ -415,7 +415,7 @@ void Canvas< CFG, C, S, L >::setProjection( const Projection& projection )
     for( typename Segments::const_iterator i = _segments.begin();
          i != _segments.end(); ++i )
     {
-        (*i)->notifyFrustumChanged();
+        (*i)->inheritFrustum();
     }
 }
 

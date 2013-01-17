@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -79,15 +79,6 @@ namespace fabric
 
         /** const version of getObserver(). @version 1.0 */
         const O* getObserver() const { return _observer; }
-
-        /** @sa Frustum::setWall() @version 1.0 */
-        EQFABRIC_INL virtual void setWall( const Wall& wall );
-
-        /** @sa Frustum::setProjection() @version 1.0 */
-        EQFABRIC_INL virtual void setProjection( const Projection& );
-
-        /** @sa Frustum::unsetFrustum() @version 1.0 */
-        EQFABRIC_INL virtual void unsetFrustum();
 
         /** @warning  Undocumented - may not be supported in the future */
         EQFABRIC_INL void setOverdraw( const Vector2i& pixels );
@@ -278,6 +269,9 @@ namespace fabric
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const
             { return DIRTY_VIEW_BITS; }
+
+        /** @internal */
+        virtual void notifyFrustumChanged() { setDirty( DIRTY_FRUSTUM ); }
 
     private:
         /** Parent layout (application-side). */

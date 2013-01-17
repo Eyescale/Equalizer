@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -48,25 +48,25 @@ namespace fabric
         /** @return the segment's viewport. @version 1.0 */
         const Viewport& getViewport() const { return _vp; }
 
-        /** 
+        /**
          * @internal
          * Set the segment's viewport wrt its canvas.
          *
          * The viewport defines which 2D area of the canvas is covered by this
          * segment. Destination channels are created on the intersection of
          * segment viewports and the views of the layout used by the canvas.
-         * 
+         *
          * @param vp the fractional viewport.
          */
         EQFABRIC_INL void setViewport( const Viewport& vp );
 
-        /** 
+        /**
          * @internal
          * Set the channel of this segment.
          *
          * The channel defines the output area for this segment, typically a
          * rendering area covering a graphics card output.
-         * 
+         *
          * @param channel the channel.
          */
         void setChannel( CH* channel )
@@ -80,7 +80,7 @@ namespace fabric
 
         /** @internal @sa Frustum::setWall() */
         EQFABRIC_INL virtual void setWall( const Wall& wall );
-        
+
         /** @internal @sa Frustum::setProjection() */
         EQFABRIC_INL virtual void setProjection( const Projection& );
 
@@ -90,22 +90,22 @@ namespace fabric
         /** @return the bitwise OR of the eye values. @version 1.0 */
         uint32_t getEyes() const { return _eyes; }
 
-        /** 
+        /**
          * @internal
          * Set the eyes to be used by the segument.
-         * 
+         *
          * Previously set eyes are overwritten.
          *
          * @param eyes the segment eyes.
          */
         EQFABRIC_INL void setEyes( const uint32_t eyes );
 
-        /** 
+        /**
          * @internal
          * Add eyes to be used by the segument.
          *
          * Previously set eyes are preserved.
-         * 
+         *
          * @param eyes the segument eyes.
          */
         void enableEye( const uint32_t eyes ) { _eyes |= eyes; }
@@ -126,12 +126,12 @@ namespace fabric
         /** @internal @return the current swap barrier. */
         SwapBarrierPtr getSwapBarrier() { return _swapBarrier; }
         //@}
-        
+
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Traverse this segment using a segment visitor.
-         * 
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -141,10 +141,8 @@ namespace fabric
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
-        /**
-         * @internal Notify that a condition affecting the frustum has changed.
-         */
-        void notifyFrustumChanged();
+        /** @internal Update unset frustum from parent */
+        void inheritFrustum();
 
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
@@ -161,10 +159,10 @@ namespace fabric
         EQFABRIC_INL virtual ~Segment();
 
         /** @internal */
-        EQFABRIC_INL virtual void serialize( co::DataOStream& os, 
+        EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                   const uint64_t dirtyBits );
         virtual void setDirty( const uint64_t bits ); //!< @internal
 
@@ -182,6 +180,9 @@ namespace fabric
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const
             { return DIRTY_SEGMENT_BITS; }
+
+        /** @internal */
+        virtual void notifyFrustumChanged() { setDirty( DIRTY_FRUSTUM ); }
 
     private:
         /** The parent canvas. */
