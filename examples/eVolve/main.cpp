@@ -60,7 +60,7 @@ int main( const int argc, char** argv )
 
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         eVolve::exitErrors();
         return EXIT_FAILURE;
     }
@@ -70,10 +70,10 @@ int main( const int argc, char** argv )
     initData.parseArguments( argc, argv );
 
     // 3. initialization of local client node
-    co::base::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
+    lunchbox::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         eVolve::exitErrors();
         return EXIT_FAILURE;
@@ -85,7 +85,7 @@ int main( const int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
-    EQASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
+    LBASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
                   client->getRefCount() - 1 );
     client = 0;
 

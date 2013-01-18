@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,27 +56,28 @@ int main( const int argc, char** argv )
     {
         const std::string filename = filenames.back();
         filenames.pop_back();
-     
+
         if( _isPlyfile( filename ))
         {
             mesh::VertexBufferRoot* model = new mesh::VertexBufferRoot;
             if( !model->readFromFile( filename.c_str( )))
-                EQWARN << "Can't load model: " << filename << std::endl;
+                LBWARN << "Can't load model: " << filename << std::endl;
 
             delete model;
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
             const eq::Strings& subFiles =
-                co::base::searchDirectory( filename, "*" );
+                lunchbox::searchDirectory( filename, "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
                 filenames.push_back( filename + '/' + *i );
         }
     }
+    return EXIT_SUCCESS;
 }

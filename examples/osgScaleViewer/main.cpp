@@ -30,9 +30,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef WIN32
-#define EQ_IGNORE_GLEW 
-#endif
 
 #include "osgScaleViewer.h"
 #include "initData.h"
@@ -54,11 +51,11 @@ int main( const int argc, char** argv )
         return -1;
 
     // 3. initialization of local client node
-    co::base::RefPtr< osgScaleViewer::OSGScaleViewer > client =
+    lunchbox::RefPtr< osgScaleViewer::OSGScaleViewer > client =
         new osgScaleViewer::OSGScaleViewer( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -69,7 +66,7 @@ int main( const int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
-    EQASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
+    LBASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
                   client->getRefCount() - 1 );
     client = 0;
 

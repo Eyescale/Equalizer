@@ -59,11 +59,11 @@ int main( int argc, char** argv )
     if( !configTool.parseArguments( argc, argv ))
         ::exit( EXIT_FAILURE );
 
-    co::base::Log::setOutput( std::cout );
+    lunchbox::Log::setOutput( std::cout );
     eq::NodeFactory nodeFactory;
     if( !eq::init( 0, 0, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     configTool.writeConfig();
@@ -85,51 +85,40 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command( "configTool - Equalizer config file generator");
-
+        TCLAP::CmdLine command( "configTool - Equalizer config file generator",
+                                ' ', eq::Version::getString( ));
         TCLAP::SwitchArg fullScreenArg( "f", "fullScreen",
                                         "Full screen rendering", command, 
                                         false );
-
         TCLAP::ValueArg<std::string> modeArg( "m", "mode",
-                                         "Compound mode (default 2D)",
-                                         false, "2D",
-                                         "2D|DB|DB_ds|DB_stream|DPlex|Wall",
-                                         command );
-
+                                              "Compound mode (default 2D)",
+                                              false, "2D",
+                                             "2D|DB|DB_ds|DB_stream|DPlex|Wall",
+                                              command );
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
                                          "Number of pipes per node (default 1)",
                                            false, 1, "unsigned", command );
-
         TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
                                          "Total number of channels (default 4)",
                                               false, 4, "unsigned", command );
-
         TCLAP::ValueArg<unsigned> columnsArg( "C", "columns", 
                                           "number of columns in a display wall",
                                               false, 3, "unsigned", command );
-
         TCLAP::ValueArg<unsigned> rowsArg( "R", "rows",
                                            "number of rows in a display wall",
                                            false, 2, "unsigned", command );
-
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
-                        "Destination channel does not contribute to rendering", 
+                         "Destination channel does not contribute to rendering",
                                   command, false );
-
         TCLAP::ValueArg<std::string> nodesArg( "n", "nodes", 
-                                          "file with list of node-names",
-                                          false, "", "filename", command );
-
+                                               "file with list of node-names",
+                                               false, "", "filename", command );
         TCLAP::MultiArg<unsigned> resArg( "r", "resolution",
                                           "output window resolution", 
                                           false, "unsigned", command );
-
         TCLAP::ValueArg<std::string> descrArg( "d", "descr",
                                       "file with channels per-node description",
-                                          false, "", "filename", command );
-
-
+                                               false, "", "filename", command );
         command.parse( argc, argv );
 
         if( nodesArg.isSet( ))
@@ -244,9 +233,9 @@ void ConfigTool::writeConfig() const
     _writeResources( config, nodeNames );
     _writeCompound( config );
 
-    co::base::Log::instance( "", 0 )
-        << co::base::disableHeader << global << *server << std::endl
-        << co::base::enableHeader << co::base::disableFlush;
+    lunchbox::Log::instance( "", 0 )
+        << lunchbox::disableHeader << global << *server << std::endl
+        << lunchbox::enableHeader << lunchbox::disableFlush;
 }
 
 void ConfigTool::_writeResources( Config* config,
@@ -386,13 +375,13 @@ eq::server::Compound* ConfigTool::_addSingleSegment( Config* config ) const
     config->activateCanvas( canvas );
 
     const Compounds compounds = Loader::addOutputCompounds(config->getServer());
-    EQASSERT( compounds.size() == 1 );
+    LBASSERT( compounds.size() == 1 );
     if( compounds.empty( ))
         return 0;
 
     Compound* root = compounds.front();
     const Compounds& children = root->getChildren();
-    EQASSERT( children.size() == 1 );
+    LBASSERT( children.size() == 1 );
     return children.empty() ? 0 : children.front();
 }
 

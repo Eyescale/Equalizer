@@ -63,7 +63,7 @@ int main( const int argc, char** argv )
 
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -72,10 +72,10 @@ int main( const int argc, char** argv )
     initData.parseArguments( argc, argv );
 
     // 3. initialization of local client node
-    co::base::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
+    lunchbox::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -86,7 +86,7 @@ int main( const int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
-    EQASSERTINFO( client->getRefCount() == 1, client );
+    LBASSERTINFO( client->getRefCount() == 1, client );
     client = 0;
 
     eq::exit();

@@ -31,11 +31,6 @@
 #include "window.h"
 
 
-#ifdef _WIN32
-#  define setenv( name, value, overwrite ) \
-    SetEnvironmentVariable( name, value )
-#endif
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -53,14 +48,14 @@ int main( int argc, char** argv )
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
 
     eq::ClientPtr client = new eq::Client;
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -69,20 +64,20 @@ int main( int argc, char** argv )
     eq::ServerPtr server = new eq::Server;
     if( !client->connectServer( server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
     }
 
     // 3. choose config
-    eq::ConfigParams configParams;
+    eq::fabric::ConfigParams configParams;
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
     
     if( !config )
     {
-        EQERROR << "No matching config on server" << std::endl;
+        LBERROR << "No matching config on server" << std::endl;
         client->disconnectServer( server );
         client->exitLocal();
         eq::exit();
@@ -90,7 +85,7 @@ int main( int argc, char** argv )
     }
 
     // 4. init config
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     if( !config->init( 0 ))
     {
@@ -101,10 +96,10 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
     else if( config->getError( ))
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
-    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
+    LBLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << std::endl;
 
     // 5. render three frames
@@ -114,20 +109,20 @@ int main( int argc, char** argv )
         config->startFrame( 0 );
         config->finishAllFrames();
     }
-    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
+    LBLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
                             << ( 1.0f / clock.getTimef() * 1000.f) << " FPS)"
                             << std::endl;
 
     // 6. exit config
     clock.reset();
     config->exit();
-    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms"
+    LBLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms"
                             << std::endl;
 
     // 7. cleanup and exit
     server->releaseConfig( config );
     if( !client->disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
     server = 0;
 
     client->exitLocal();

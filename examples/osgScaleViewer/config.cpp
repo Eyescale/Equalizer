@@ -2,8 +2,9 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *   2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -64,7 +65,7 @@ bool Config::init()
     if( !trackerPort.empty( ))
     {
         if( !_tracker.init( trackerPort ))
-            EQWARN << "Failed to initialize tracker" << std::endl;
+            LBWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
@@ -76,7 +77,7 @@ bool Config::init()
             matrix = eq::Matrix4f::IDENTITY;
             matrix.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( matrix );
-            EQINFO << "Tracker initialized" << std::endl;
+            LBINFO << "Tracker initialized" << std::endl;
         }
     }
 
@@ -90,8 +91,8 @@ bool Config::init()
 bool Config::exit()
 {
     bool ret = eq::Config::exit();
-    
-    _initData.setFrameDataID( eq::UUID::ZERO );
+
+    _initData.setFrameDataID( 0 );
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
     return ret;
@@ -121,7 +122,7 @@ void Config::updateFrameData( float elapsed )
     _frameData.setCameraPosition( _frameData.getCameraPosition() +
                                   _moveDirection * elapsed );
     _frameData.setCameraLookAtPoint( _frameData.getCameraPosition() +
-				     cameraViewingDirection );
+                                     cameraViewingDirection );
     _frameData.setCameraUpVector( eq::Vector3f( 0., 1., 0. ));
 }
 
@@ -140,7 +141,7 @@ uint32_t Config::startFrame()
     updateFrameData( elapsed );
 
     const eq::uint128_t version = _frameData.commit();
-    return eq::Config::startFrame( version );	
+    return eq::Config::startFrame( version );
 }
 
 void Config::setInitData( const InitData& data )
@@ -157,33 +158,34 @@ bool Config::mapData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached( ))
     {
-        EQCHECK( mapObject( &_initData, initDataID ) );
+        LBCHECK( mapObject( &_initData, initDataID ) );
         unmapObject( &_initData );
     }
     else
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
     return true;
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( eq::EventICommand command )
 {
     const float moveSpeed = .1f;
 
-    switch( event->data.type )
+    const eq::Event& event = command.get< eq::Event >();
+    switch( command.getEventType( ))
     {
         // set mMoveDirection to a null vector after a key is released
         // so that the updating of the camera position stops
         case eq::Event::KEY_RELEASE:
-            if ( event->data.keyPress.key >= 261 &&
-                 event->data.keyPress.key <= 266 )
+            if ( event.keyPress.key >= 261 &&
+                 event.keyPress.key <= 266 )
                 _moveDirection = eq::Vector3f( 0, 0, 0 );
         break;
 
         // change mMoveDirection when the appropriate key is pressed
         case eq::Event::KEY_PRESS:
-            switch ( event->data.keyPress.key )
+            switch ( event.keyPress.key )
             {
                 case eq::KC_LEFT:
                     _moveDirection = vmml::normalize( orthographicVector(
@@ -220,14 +222,14 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         // turn left and right, up and down with mouse pointer
         case eq::Event::CHANNEL_POINTER_MOTION:
-            if ( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 &&
-                 event->data.pointerMotion.x <= event->data.context.pvp.w &&
-                 event->data.pointerMotion.x >= 0 &&
-                 event->data.pointerMotion.y <= event->data.context.pvp.h &&
-                 event->data.pointerMotion.y >= 0 )
+            if ( event.pointerMotion.buttons == eq::PTR_BUTTON1 &&
+                 event.pointerMotion.x <= event.context.pvp.w &&
+                 event.pointerMotion.x >= 0 &&
+                 event.pointerMotion.y <= event.context.pvp.h &&
+                 event.pointerMotion.y >= 0 )
             {
-                _pointerXDiff += event->data.pointerMotion.dx;
-                _pointerYDiff += event->data.pointerMotion.dy;
+                _pointerXDiff += event.pointerMotion.dx;
+                _pointerYDiff += event.pointerMotion.dy;
                 return true;
             }
             break;
@@ -235,7 +237,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
     // let Equalizer handle any events we don't handle ourselves here, like the
     // escape key for closing the application.
-    return eq::Config::handleEvent( event );
+    return eq::Config::handleEvent( command );
 }
 
 // Note: real applications would use one tracking device per observer

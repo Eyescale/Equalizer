@@ -56,14 +56,14 @@ bool Tracker::init( const std::string& port )
 #else
    if( _running )
    {
-      EQERROR << "Duplicate tracker initialisation" << std::endl;
+      LBERROR << "Duplicate tracker initialisation" << std::endl;
       return false;
    }
  
    _fd = open( port.c_str(), O_RDWR | O_EXCL );
    if( _fd < 0 )
    {
-      EQERROR << "Failed to open " << port << ": " << strerror( errno ) << std::endl;
+      LBERROR << "Failed to open " << port << ": " << strerror( errno ) << std::endl;
       return false;
    }
 
@@ -71,7 +71,7 @@ bool Tracker::init( const std::string& port )
    struct termios termio;
    if( tcgetattr( _fd, &termio ) != 0 )
    {
-      EQERROR << "tcgetattr failed: " << strerror( errno ) << std::endl;
+      LBERROR << "tcgetattr failed: " << strerror( errno ) << std::endl;
       close( _fd );
       return false;
    }
@@ -102,7 +102,7 @@ bool Tracker::init( const std::string& port )
 
    if( tcsetattr( _fd, TCSANOW, &termio ) != 0)
    {
-      EQERROR << "tcsetattr failed: " << strerror( errno ) << std::endl;
+      LBERROR << "tcsetattr failed: " << strerror( errno ) << std::endl;
       close( _fd );
       return false;
    }
@@ -110,7 +110,7 @@ bool Tracker::init( const std::string& port )
    // tell the tracker what kind of data to prepare
    int k = write( _fd, COMMAND_POS_ANG, 1 ); //take data
    if( k==-1 )
-      EQERROR << "Write error: " << strerror( errno ) << std::endl;
+      LBERROR << "Write error: " << strerror( errno ) << std::endl;
 
    usleep( 10000 ); //give enough time for initializing
    
@@ -125,7 +125,7 @@ bool Tracker::update()
 {
    if( !_running )
    {
-      EQERROR << "Update error, tracker not running" << std::endl;
+      LBERROR << "Update error, tracker not running" << std::endl;
       return false;
    }
    else
@@ -143,14 +143,14 @@ bool Tracker::_update()
     const ssize_t wrote = write( _fd, COMMAND_POINT, 1 ); // send data
    if( wrote==-1 )
    {
-      EQERROR << "Write error: " << strerror( errno ) << std::endl;
+      LBERROR << "Write error: " << strerror( errno ) << std::endl;
       return false;
    }
 
    unsigned char buffer[12];
    if( !_read( buffer, 12, 500000 ))
    {
-       EQERROR << "Read error" << std::endl;
+       LBERROR << "Read error" << std::endl;
        return false;
    }
 
@@ -191,12 +191,12 @@ bool Tracker::_update()
    _matrix.rotate_z( hpr.z() );
    _matrix.set_translation( pos );
 
-   EQINFO << "Tracker pos " << pos << " hpr " << hpr << " = " << _matrix;
+   LBINFO << "Tracker pos " << pos << " hpr " << hpr << " = " << _matrix;
 
     // M = M_world_emitter * M_emitter_sensor * M_sensor_object
    _matrix = _worldToEmitter * _matrix * _sensorToObject;
 
-   EQINFO << "Tracker matrix " << _matrix;
+   LBINFO << "Tracker matrix " << _matrix;
 
    return true;
 #endif
@@ -224,12 +224,12 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       const int errCode = select( _fd+1, &readfds, 0, 0, &tv );
       if( errCode == 0 )
       {
-         EQERROR << "Error: no data from tracker" << std::endl;
+         LBERROR << "Error: no data from tracker" << std::endl;
          return false;
       }
       if( errCode == -1 )
       {
-         EQERROR << "Select error: " << strerror( errno ) << std::endl;
+         LBERROR << "Select error: " << strerror( errno ) << std::endl;
          return false;
       }
 
@@ -237,11 +237,11 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       const ssize_t received = read( _fd, &buffer[size-remaining], remaining );
       if( received == -1 )
       {
-         EQERROR << "Read error: " << strerror( errno ) << std::endl;
+         LBERROR << "Read error: " << strerror( errno ) << std::endl;
          return false;
       }
 
-      EQASSERT( remaining >= (size_t)received );
+      LBASSERT( remaining >= (size_t)received );
       remaining -= received;
    }
    return true;

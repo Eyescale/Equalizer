@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,32 +33,29 @@
 #include "initData.h"
 #include "config.h"
 
-using namespace co::base;
-using namespace std;
-
 namespace eqNbody
 {
-    bool Node::configInit( const uint128_t& initID )
-    {
-        if( !eq::Node::configInit( initID ))
-            return false;
-            
-        // All render data is static or multi-buffered, we can run 
-            // asynchronously
-        if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED ) 
-            {
-            setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
-        }
-            
-        Config* config = static_cast< Config* >( getConfig( ));
-        config->mapData( initID );
+bool Node::configInit( const eq::uint128_t& initID )
+{
+    if( !eq::Node::configInit( initID ))
+        return false;
 
-        return true;
-    }
-    bool Node::configExit()
+    // All render data is static or multi-buffered, we can run
+    // asynchronously
+    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
     {
-        Config* config = static_cast< Config* >( getConfig( ));
-        config->releaseData();
-        return eq::Node::configExit();
+        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
     }
+
+    Config* config = static_cast< Config* >( getConfig( ));
+    config->mapData( initID );
+
+    return true;
+}
+bool Node::configExit()
+{
+    Config* config = static_cast< Config* >( getConfig( ));
+    config->releaseData();
+    return eq::Node::configExit();
+}
 }

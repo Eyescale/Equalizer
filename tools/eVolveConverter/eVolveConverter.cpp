@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2007, Maxim Makhinya 
+ * Copyright (c) 2007, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- 
+
  */
 
 #include "ddsbase.h"
@@ -32,6 +32,8 @@
 #include "eVolveConverter.h"
 #include "hlp.h"
 
+#define QUOTE( string ) STRINGIFY( string )
+#define STRINGIFY( foo ) #foo
 
 int main( int argc, char** argv )
 {
@@ -47,69 +49,51 @@ using hlpFuncs::min;
 using hlpFuncs::hFile;
 
 
-#define EQERROR cerr
-#define EQWARN  cout
+#define LBERROR cerr
+#define LBWARN  cout
 
 
-static int lFailed( const char* msg, int result=1 ) 
-{ EQERROR << msg << endl; return result; }
+static int lFailed( const char* msg, int result=1 )
+{ LBERROR << msg << endl; return result; }
 
 
 int RawConverter::parseArguments( int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command( 
-            "volConv - volume file formats converter" );
-
-        TCLAP::ValueArg<double> sclXArg( 
-            "", "sW", "scale factor for width",
-            false, 1.0  , "double", command );
-
-        TCLAP::ValueArg<double> sclYArg( 
-            "", "sH", "scale factor for height",
-            false, 1.0  , "double", command );
-
-        TCLAP::ValueArg<double> sclZArg( 
-            "", "sD", "scale factor for depth",
-            false, 1.0  , "double", command );
-
-        TCLAP::ValueArg<double> sclArg( 
-            "", "sA", "common scale factor",
-            false, 1.0  , "double", command );
-
-        TCLAP::SwitchArg recArg(
-            "e", "rec", "recalculate derivatives in raw+der",  command, false );
-
-        TCLAP::SwitchArg cmpArg(
-            "m", "cmp", "compare two raw+derivations+vhf",  command, false );
-
-        TCLAP::SwitchArg dscArg(
-            "c", "dsc", "dsc to vhf file converter",  command, false );
-
-        TCLAP::SwitchArg savArg(
-            "v", "sav", "sav to vhf transfer function converter",
-                                                          command, false );
-        TCLAP::SwitchArg derArg( 
-            "r", "der", "raw -> raw + derivatives"  , command, false );
-
-        TCLAP::SwitchArg rawArg(
-            "w", "raw", "raw + derivatives -> raw"  , command, false );
-
-        TCLAP::SwitchArg pvmArg( 
-            "p", "pvm", "pvm[+sav] -> raw+derivatives+vhf", command, false );
-
-        TCLAP::ValueArg<string> dstArg(
-            "d", "dst", "destination file",
-            true, "Bucky32x32x32_d.raw"  , "string", command );
-
-        TCLAP::ValueArg<string> srcArg( 
-            "s", "src", "source file",
-            true, "Bucky32x32x32.raw"    , "string", command );
-
-
+        TCLAP::CmdLine command( "eVolveConverter - eVolve file converter",
+                                ' ', QUOTE( EQUALIZER_VERSION ));
+        TCLAP::ValueArg<double> sclXArg( "", "sW", "scale factor for width",
+                                         false, 1.0  , "double", command );
+        TCLAP::ValueArg<double> sclYArg( "", "sH", "scale factor for height",
+                                         false, 1.0  , "double", command );
+        TCLAP::ValueArg<double> sclZArg( "", "sD", "scale factor for depth",
+                                         false, 1.0  , "double", command );
+        TCLAP::ValueArg<double> sclArg( "", "sA", "common scale factor",
+                                        false, 1.0  , "double", command );
+        TCLAP::SwitchArg recArg( "e", "rec",
+                                 "recalculate derivatives in raw+der",
+                                 command, false );
+        TCLAP::SwitchArg cmpArg( "m", "cmp", "compare two raw+derivations+vhf",
+                                 command, false );
+        TCLAP::SwitchArg dscArg( "c", "dsc", "dsc->vhf file converter",
+                                 command, false );
+        TCLAP::SwitchArg savArg( "v", "sav",
+                                 "sav->vhf transfer function converter",
+                                 command, false );
+        TCLAP::SwitchArg derArg( "r", "der", "raw->raw + derivatives",
+                                 command, false );
+        TCLAP::SwitchArg rawArg( "w", "raw", "raw + derivatives->raw",
+                                 command, false );
+        TCLAP::SwitchArg pvmArg( "p", "pvm", "pvm[+sav]->raw+derivatives+vhf",
+                                 command, false );
+        TCLAP::ValueArg<string> dstArg( "d", "dst", "destination file", true,
+                                        "Bucky32x32x32_d.raw", "string",
+                                        command );
+        TCLAP::ValueArg<string> srcArg( "s", "src", "source file", true,
+                                        "Bucky32x32x32.raw", "string",
+                                        command );
         command.parse( argc, argv );
-
 
         if( rawArg.isSet() ) // raw + derivatives -> raw
             return RawConverter::RawPlusDerivativesToRawConverter(
@@ -120,7 +104,7 @@ int RawConverter::parseArguments( int argc, char** argv )
                         srcArg.getValue( ), dstArg.getValue( ));
 
         if( savArg.isSet() ) // sav -> vhf
-            return RawConverter::SavToVhfConverter( 
+            return RawConverter::SavToVhfConverter(
                         srcArg.getValue( ), dstArg.getValue( ));
 
         if( dscArg.isSet() ) // dsc -> vhf
@@ -128,15 +112,15 @@ int RawConverter::parseArguments( int argc, char** argv )
                         srcArg.getValue( ), dstArg.getValue( ));
 
         if( pvmArg.isSet() ) // pvm -> raw
-            return RawConverter::PvmSavToRawDerVhfConverter( 
+            return RawConverter::PvmSavToRawDerVhfConverter(
                         srcArg.getValue( ), dstArg.getValue( ));
 
         if( cmpArg.isSet() ) // cmp raw+derivations+vhf
-            return RawConverter::CompareTwoRawDerVhf( 
+            return RawConverter::CompareTwoRawDerVhf(
                         srcArg.getValue( ), dstArg.getValue( ));
 
         if( recArg.isSet() ) // recalculate derivatives
-            return RawConverter::RecalculateDerivatives( 
+            return RawConverter::RecalculateDerivatives(
                         srcArg.getValue( ), dstArg.getValue( ));
 
         bool scale = false;
@@ -165,16 +149,16 @@ int RawConverter::parseArguments( int argc, char** argv )
         }
 
         if( scale )
-            return RawConverter::ScaleRawDerFile( 
+            return RawConverter::ScaleRawDerFile(
                         srcArg.getValue( ), dstArg.getValue( ),
                         scaleX, scaleY, scaleZ                  );
 
 
-        EQERROR << "Converter options were not specified completely." << endl;
+        LBERROR << "Converter options were not specified completely." << endl;
     }
     catch( TCLAP::ArgException& exception )
     {
-        EQERROR << " Command line parse error: " << exception.error()
+        LBERROR << " Command line parse error: " << exception.error()
                 << " for argument " << exception.argId() << endl;
     }
     return 1;
@@ -183,10 +167,10 @@ int RawConverter::parseArguments( int argc, char** argv )
 
 static void getPredefinedHeaderParameters
 (
-    const string& fileName, 
+    const string& fileName,
     unsigned &w, unsigned &h, unsigned &d,
     vector<unsigned char> &TF                     );
-    
+
 static void CreateTransferFunc( int t, unsigned char *transfer );
 
 
@@ -198,8 +182,8 @@ static int calculateAndSaveDerivatives( const string& dst,
 
 
 static int readDimensionsFromSav( FILE*     file,
-                                  unsigned& w, 
-                                  unsigned& h, 
+                                  unsigned& w,
+                                  unsigned& h,
                                   unsigned& d     )
 {
     if( fscanf( file, "w=%u\n", &w ) == EOF )
@@ -208,7 +192,7 @@ static int readDimensionsFromSav( FILE*     file,
         ::exit( EXIT_FAILURE );
     if( fscanf( file, "d=%u\n", &d ) != 1 )
         return 1;
-    
+
     return 0;
 }
 
@@ -228,7 +212,7 @@ static int writeDimensionsToSav(       FILE*    file,
 
 
 static int readScalesFormSav( FILE* file,
-                              float& wScale, 
+                              float& wScale,
                               float& hScale,
                               float& dScale  )
 {
@@ -244,7 +228,7 @@ static int readScalesFormSav( FILE* file,
 
 
 static int writeScalesToSav( FILE* file,
-                             const float wScale, 
+                             const float wScale,
                              const float hScale,
                              const float dScale  )
 {
@@ -252,7 +236,7 @@ static int writeScalesToSav( FILE* file,
         fprintf( file, "hScale=%g\n", hScale );
     if( fprintf( file, "dScale=%g\n", dScale ) != 1 )
         return 1;
-    
+
     return 0;
 }
 
@@ -267,8 +251,8 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
         ::exit( EXIT_FAILURE );
 
     if( TFSize!=256  )
-        EQWARN << "Wrong size of transfer function, should be 256" << endl;
-        
+        LBWARN << "Wrong size of transfer function, should be 256" << endl;
+
     TFSize = clip<int>( TFSize, 1, 256 );
 
     int tmp;
@@ -285,13 +269,13 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
         TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
-            EQERROR << "Failed to read entity #" << i 
+            LBERROR << "Failed to read entity #" << i
                     << " of TF from first header file" << endl;
             return i;
         }
         TF[4*i+3] = tmp;
     }
-    
+
     return 256;
 }
 
@@ -299,7 +283,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
 static int writeTransferFunction( FILE* file,  const vector<unsigned char>& TF )
 {
     int TFSize = int( TF.size() / 4 );
-    
+
     fprintf( file,"TF:\n" );
 
     fprintf( file, "size=%d\n", TFSize );
@@ -334,14 +318,14 @@ static int writeVHF( const string&  filename,
     writeScalesToSav( file, wScale, hScale, dScale );
 
     writeTransferFunction( file, TF );
-    
+
     return 0;
 }
 
 int RawConverter::CompareTwoRawDerVhf( const string& src1,
                                        const string& src2 )
 {
-    EQWARN << "Comparing two raw+derivatives+vhf" << endl;
+    LBWARN << "Comparing two raw+derivatives+vhf" << endl;
     unsigned  w1,  h1,  d1;
     unsigned  w2,  h2,  d2;
     float    sw1, sh1, sd1;
@@ -354,42 +338,42 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
     string configFileName = src1;
     hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
     FILE* file = info.f;
-    
+
     if( file==NULL ) return lFailed( "Can't open first header file" );
-    
+
     //reading dimensions
     readDimensionsFromSav( file,  w1,  h1,  d1 );
     if( readScalesFormSav( file, sw1, sh1, sd1 ) )
         lFailed( "Wrong format of the first header file" );
-    
+
     //reading transfer function
     const size_t tfSize1 = readTransferFunction( file, TF1 );
-    
+
     configFileName = src2;
     hFile info2( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
     file = info2.f;
-    
+
     if( file==NULL ) return lFailed( "Can't open first header file" );
-    
+
     readDimensionsFromSav( file,  w2,  h2,  d2 );
     if( readScalesFormSav( file, sw2, sh2, sd2 ) )
         lFailed( "Wrong format of the second header file" );
-    
+
     //reading transfer function
     const size_t tfSize2 = readTransferFunction( file, TF2 );
-    
+
     //comparing headers
     if( w1!=w2 ) return lFailed(" Widths are not equal ");
     if( h1!=h2 ) return lFailed(" Heights are not equal ");
     if( d1!=d2 ) return lFailed(" Depths are not equal ");
 
-    if( sw1!=sw2 ) EQWARN << " Widths'  scales are not equal " << endl;
-    if( sh1!=sh2 ) EQWARN << " Heights' scales are not equal " << endl;
-    if( sd1!=sd2 ) EQWARN << " Depths'  scales are not equal " << endl;
-    
-    if( tfSize1!=tfSize2 ) EQWARN << " TF sizes are not equal" << endl;
-    
-    EQWARN << "done" << endl;
+    if( sw1!=sw2 ) LBWARN << " Widths'  scales are not equal " << endl;
+    if( sh1!=sh2 ) LBWARN << " Heights' scales are not equal " << endl;
+    if( sd1!=sd2 ) LBWARN << " Depths'  scales are not equal " << endl;
+
+    if( tfSize1!=tfSize2 ) LBWARN << " TF sizes are not equal" << endl;
+
+    LBWARN << "done" << endl;
     return 0;
 }
 
@@ -408,13 +392,13 @@ int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    EQWARN << "Dropping derivatives from raw+derivatives model: " 
+    LBWARN << "Dropping derivatives from raw+derivatives model: "
            << src << " " << w << " x " << h << " x " << d << endl;
 
-//read model    
+//read model
     vector<unsigned char> volume( w*h*d*4, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -456,7 +440,7 @@ int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
 
         file.close();
     }
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl;
     return 0;
 }
 
@@ -475,15 +459,15 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    EQWARN << "Creating derivatives for raw model: " 
+    LBWARN << "Creating derivatives for raw model: "
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model
     vector<unsigned char> volume( w*h*d, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
-        ifstream file( src.c_str(), 
+        ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
 
         if( !file.is_open() )
@@ -498,14 +482,14 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 
         file.close();
     }
-    
+
 //calculate and save derivatives
     {
         int result = calculateAndSaveDerivatives( dst, &volume[0], w,  h, d );
 
         if( result ) return result;
     }
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl;
     return 0;
 }
 
@@ -524,13 +508,13 @@ int RawConverter::RecalculateDerivatives( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    EQWARN << "Creating derivatives for raw model: " 
+    LBWARN << "Creating derivatives for raw model: "
            << src << " " << w << " x " << h << " x " << d << endl;
 
-//read model    
+//read model
     vector<unsigned char> volume( w*h*d*4, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -566,7 +550,7 @@ int RawConverter::RecalculateDerivatives( const string& src,
 
         if( result ) return result;
     }
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl;
     return 0;
 }
 
@@ -583,28 +567,28 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
     {
         hFile info( fopen( dst.c_str(), "rb" ) );
         FILE* file = info.f;
-    
+
         if( file!=NULL )
         {
             readDimensionsFromSav( file, w, h, d );
             readScalesFormSav( file, wScale, hScale, dScale );
         }
     }
-    
+
     //read sav
     int TFSize = 256;
     vector< unsigned char > TF( 256*4, 0 );
-    
-    {    
+
+    {
         hFile info( fopen( src.c_str(), "rb" ) );
         FILE* file = info.f;
-    
-        if( file==NULL ) 
-        {   
-            EQWARN << "Can't open source sav file." << endl
-                   << "Using predefined transfer functions and parameters." 
+
+        if( file==NULL )
+        {
+            LBWARN << "Can't open source sav file." << endl
+                   << "Using predefined transfer functions and parameters."
                    << endl;
-                   
+
             getPredefinedHeaderParameters( src, w, h, d, TF );
         }else
         {
@@ -664,30 +648,30 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
                 TF[4*i+1] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
                 if( fscanf( file, "be=%f\n", &t   ) == EOF )
-                    ::exit( EXIT_FAILURE ); 
+                    ::exit( EXIT_FAILURE );
                 TF[4*i+2] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
                 if( fscanf( file, "ra=%f\n", &tra ) == EOF )
-                    ::exit( EXIT_FAILURE );    
+                    ::exit( EXIT_FAILURE );
                 if( fscanf( file, "ga=%f\n", &tba ) == EOF )
                     ::exit( EXIT_FAILURE );
                 if( fscanf( file, "ba=%f\n", &tga ) !=1 )
                 {
-                    EQERROR << "Failed to read entity #" 
+                    LBERROR << "Failed to read entity #"
                             << i << " of sav file" << endl;
                     return 1;
                 }
-                TF[4*i+3] = 
+                TF[4*i+3] =
                     clip( static_cast<int>((tra+tga+tba)*255.0/3.0 ), 0, 255 );
             }
         }
     }
-    
+
     //write vhf
     int result = writeVHF( dst, w, h, d, wScale, hScale, dScale, TF );
     if( result ) return result;
 
-    EQWARN << "file " << src.c_str() << " > " << dst.c_str() 
+    LBWARN << "file " << src.c_str() << " > " << dst.c_str()
            << " converted" << endl;
 
     return 0;
@@ -696,8 +680,8 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 
 int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 {
-    EQWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
-    
+    LBWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
+
     //Read Description file
     unsigned w=1;
     unsigned h=1;
@@ -711,13 +695,13 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 
         if( file==NULL ) return lFailed( "Can't open source Dsc file" );
 
-        if( fscanf( file, "reading PVM file\n" ) != 0 ) 
+        if( fscanf( file, "reading PVM file\n" ) != 0 )
             return lFailed( "Not a proper file format, \
                              first line should be:\nreading PVM file" );
 
         unsigned c=0;
-        if( fscanf( file, 
-            "found volume with width=%u height=%u depth=%u components=%u\n", 
+        if( fscanf( file,
+            "found volume with width=%u height=%u depth=%u components=%u\n",
             &w, &h, &d, &c ) != 4 )
             return lFailed( "Not a proper file format, second line should \
                              be:\nfound volume with width=<num> height=<num>  \
@@ -740,7 +724,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
         writeDimensionsToSav( file, w, h, d );
         writeScalesToSav( file, wScale, hScale, dScale );
     }
-    EQWARN << "succeed" << endl;
+    LBWARN << "succeed" << endl;
     return 0;
 }
 
@@ -748,7 +732,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
                                                   const string& dst  )
 {
-    EQWARN << "Converting " << src << " -> " << dst << endl;
+    LBWARN << "Converting " << src << " -> " << dst << endl;
 
     // reading pvm volume
     unsigned char*  volume = 0;
@@ -756,22 +740,22 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     float           scaleX, scaleY, scaleZ;
     char*           srcTmp = const_cast<char*>( src.c_str() );
 
-    volume = readPVMvolume( srcTmp,  &width,  &height, &depth, 
+    volume = readPVMvolume( srcTmp,  &width,  &height, &depth,
                                 &components, &scaleX, &scaleY, &scaleZ  );
-    
+
     if( volume==NULL )
         return lFailed( "Can't read vpm file" );
 
     if( components != 1 )
         return lFailed( "The only 8-bits models are supported" );
 
-    EQWARN  << "dimensions: " 
+    LBWARN  << "dimensions: "
             << width << " x " << height << " x " << depth << endl
             << "scales: " << scaleX << " x " << scaleY << " x " << scaleZ
             << endl;
-    
+
     // calculating derivatives
-    int result = 
+    int result =
         calculateAndSaveDerivatives( dst, volume, width,  height, depth );
 
     free( volume );
@@ -780,7 +764,7 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     //converting transfer function
     SavToVhfConverter( src+".sav", dst+".vhf" );
 
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl;
 
     return 0;
 }
@@ -792,15 +776,15 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                                                           double scaleY,
                                                           double scaleZ  )
 {
-    EQWARN << "scaleW: " << scaleX << endl;
-    EQWARN << "scaleH: " << scaleY << endl;
-    EQWARN << "scaleD: " << scaleZ << endl;
-    
+    LBWARN << "scaleW: " << scaleX << endl;
+    LBWARN << "scaleH: " << scaleY << endl;
+    LBWARN << "scaleD: " << scaleZ << endl;
+
     if( scaleX < 0.0001 ) lFailed( "Scale for width  is too small" );
     if( scaleY < 0.0001 ) lFailed( "Scale for height is too small" );
     if( scaleZ < 0.0001 ) lFailed( "Scale for depth  is too small" );
 
-    EQWARN << "Scaling raw+derivatives+vhf" << endl;
+    LBWARN << "Scaling raw+derivatives+vhf" << endl;
     unsigned wS, hS, dS;
     float    sw, sh, sd;
 
@@ -827,19 +811,19 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
     unsigned dD = static_cast<unsigned>( dS*scaleZ );
     {
         string vhf = dst;
-        int result = writeVHF( vhf.append( ".vhf" ), wD, hD, dD, 
+        int result = writeVHF( vhf.append( ".vhf" ), wD, hD, dD,
                                                      sw, sh, sd, TF );
         if( result ) return result;
     }
-    EQWARN << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
-    EQWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
-    
+    LBWARN << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
+    LBWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
+
     //read volume
     vector<unsigned char> sVol( wS*hS*dS*4, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
-        ifstream file( src.c_str(), 
+        ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
 
         if( !file.is_open() )
@@ -854,7 +838,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
 
         file.close();
     }
-    EQWARN << "Scaling model" << endl;
+    LBWARN << "Scaling model" << endl;
     //scale volume
     vector<unsigned char> dVol( wD*hD*dD*4, 0 );
     {
@@ -862,7 +846,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
         int wDhD4 = wD*hD*4;
         int wS4   = wS*4;
         int wShS4 = wS*hS*4;
-        
+
         int scaleIx  = static_cast<int>( scaleX );
         int scaleIy  = static_cast<int>( scaleY );
         int scaleIz  = static_cast<int>( scaleZ );
@@ -890,7 +874,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                     int fx = nx+1;
                     int fy = ny+1;
                     int fz = nz+1;
-                    
+
                     cx -= nx;
                     cy -= ny;
                     cz -= nz;
@@ -903,7 +887,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                     double v6 =    cx *   cy *(1-cz);
                     double v7 = (1-cx)*   cy *   cz ;
                     double v8 =    cx *   cy *   cz ;
-                    
+
                     int p1 = nx*4 + ny*wS4 + nz*wShS4;
                     int p2 = fx*4 + ny*wS4 + nz*wShS4;
                     int p3 = nx*4 + ny*wS4 + fz*wShS4;
@@ -928,9 +912,9 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
         }
         std::cout << endl;
     }
-    
+
     //write new volume
-    EQWARN << "Writing model" << endl;
+    LBWARN << "Writing model" << endl;
     {
         ofstream file ( dst.c_str(),
                         ifstream::out | ifstream::binary | ifstream::trunc );
@@ -942,18 +926,18 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
         file.close();
     }
 
-    EQWARN << "Done" << endl;
+    LBWARN << "Done" << endl;
     return 0;
 }
 
 
-static int calculateAndSaveDerivatives( const string& dst, 
+static int calculateAndSaveDerivatives( const string& dst,
                                         unsigned char *volume,
                                         const unsigned w,
                                         const unsigned h,
                                         const unsigned d  )
 {
-    EQWARN << "Calculating derivatives" << endl;
+    LBWARN << "Calculating derivatives" << endl;
     ofstream file ( dst.c_str(),
                     ifstream::out | ifstream::binary | ifstream::trunc );
 
@@ -981,7 +965,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                 const unsigned char * curP = curPy +  x;
                 const unsigned char * prvP = curP  - wh;
                 const unsigned char * nxtP = curP  + wh;
-                int gx = 
+                int gx =
                       nxtP[  ws+1 ]+ 3*curP[  ws+1 ]+   prvP[  ws+1 ]+
                     3*nxtP[     1 ]+ 6*curP[     1 ]+ 3*prvP[     1 ]+
                       nxtP[ -ws+1 ]+ 3*curP[ -ws+1 ]+   prvP[ -ws+1 ]-
@@ -990,7 +974,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                     3*nxtP[    -1 ]- 6*curP[    -1 ]- 3*prvP[    -1 ]-
                       nxtP[ -ws-1 ]- 3*curP[ -ws-1 ]-   prvP[ -ws-1 ];
 
-                int gy = 
+                int gy =
                       nxtP[  ws+1 ]+ 3*curP[  ws+1 ]+   prvP[  ws+1 ]+
                     3*nxtP[  ws   ]+ 6*curP[  ws   ]+ 3*prvP[  ws   ]+
                       nxtP[  ws-1 ]+ 3*curP[  ws-1 ]+   prvP[  ws-1 ]-
@@ -999,7 +983,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                     3*nxtP[ -ws   ]- 6*curP[ -ws   ]- 3*prvP[ -ws   ]-
                       nxtP[ -ws-1 ]- 3*curP[ -ws-1 ]-   prvP[ -ws-1 ];
 
-                int gz = 
+                int gz =
                       nxtP[  ws+1 ]+ 3*nxtP[    1 ]+   nxtP[ -ws+1 ]+
                     3*nxtP[  ws   ]+ 6*nxtP[    0 ]+ 3*nxtP[ -ws   ]+
                       nxtP[  ws-1 ]+ 3*nxtP[   -1 ]+   nxtP[ -ws-1 ]-
@@ -1011,7 +995,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                 int length = static_cast<int>(
                                         sqrt(double((gx*gx+gy*gy+gz*gz))+1));
 
-                gx = ( gx*255/length + 255 )/2; 
+                gx = ( gx*255/length + 255 )/2;
                 gy = ( gy*255/length + 255 )/2;
                 gz = ( gz*255/length + 255 )/2;
 
@@ -1023,7 +1007,7 @@ static int calculateAndSaveDerivatives( const string& dst,
         }
     }
 
-    EQWARN << "Writing derivatives: " 
+    LBWARN << "Writing derivatives: "
            << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
 
     file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
@@ -1042,31 +1026,31 @@ static void getPredefinedHeaderParameters( const string& fileName,
 
     if( fileName.find( "spheres128x128x128"    , 0 ) != string::npos )
         t=0, w=h=d=128;
-    
+
     if( fileName.find( "fuel"                  , 0 ) != string::npos )
         t=1, w=h=d=64;
-        
+
     if( fileName.find( "neghip"                , 0 ) != string::npos )
         t=2, w=h=d=64;
-        
+
     if( fileName.find( "Bucky32x32x32"         , 0 ) != string::npos )
         t=3, w=h=d=32;
-        
+
     if( fileName.find( "hydrogen"              , 0 ) != string::npos )
         t=4, w=h=d=128;
-        
+
     if( fileName.find( "Engine256x256x256"     , 0 ) != string::npos )
         t=5, w=h=d=256;
-        
+
     if( fileName.find( "skull"                 , 0 ) != string::npos )
         t=6, w=h=d=256;
-        
+
     if( fileName.find( "vertebra8"             , 0 ) != string::npos )
         t=7, w=h=512, d=256;
-    
+
     if( w==0 )
         w=h=d=8;
-    
+
     return CreateTransferFunc( t, &TF[0] );
 }
 
@@ -1080,7 +1064,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
     {
         case 0:  //spheres
 
-            EQWARN << "transfer: spheres" << endl;
+            LBWARN << "transfer: spheres" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]   = 115;
                 transfer[(i*4)+1] = 186;
@@ -1090,8 +1074,8 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
             break;
 
         case 1:// fuel
-            
-            EQWARN << "transfer: fuel" << endl;
+
+            LBWARN << "transfer: fuel" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 255;
@@ -1107,10 +1091,10 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
                 transfer[(i*4)+1] = 0;
                 transfer[(i*4)+2] = 255;
             }
-    
+
             for (i=2; i<80; i++) {
                 transfer[(i*4)+3] = (unsigned char)((i-2)*56/(80-2));
-            }    
+            }
             for (i=80; i<255; i++) {
                 transfer[(i*4)+3] = 128;
             }
@@ -1118,10 +1102,10 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
                 transfer[(i*4)+3] = 255;
             }
             break;
-            
+
         case 2: //neghip
 
-            EQWARN << "transfer: neghip" << endl;
+            LBWARN << "transfer: neghip" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 0;
@@ -1140,7 +1124,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
             for (i=2; i<80; i++) {
                 transfer[(i*4)+3] = (unsigned char)((i-2)*36/(80-2));
-            }    
+            }
             for (i=80; i<255; i++) {
                 transfer[(i*4)+3] = 128;
             }
@@ -1148,7 +1132,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 3: //bucky
 
-            EQWARN << "transfer: bucky" << endl;
+            LBWARN << "transfer: bucky" << endl;
             for (i=20; i<99; i++) {
                 transfer[(i*4)]  =  200;
                 transfer[(i*4)+1] = 200;
@@ -1160,7 +1144,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
             for (i=50; i<99; i++) {
                 transfer[(i*4)+3] = 20;
             }
-    
+
             for (i=100; i<255; i++) {
                 transfer[(i*4)]  =  93;
                 transfer[(i*4)+1] = 163;
@@ -1174,7 +1158,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 4: //hydrogen
 
-            EQWARN << "transfer: hydrogen" << endl;
+            LBWARN << "transfer: hydrogen" << endl;
             for (i=4; i<20; i++) {
                 transfer[(i*4)] = 137;
                 transfer[(i*4)+1] = 187;
@@ -1192,7 +1176,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 5: //engine
 
-            EQWARN << "transfer: engine" << endl;
+            LBWARN << "transfer: engine" << endl;
             for (i=100; i<200; i++) {
                 transfer[(i*4)] =     44;
                 transfer[(i*4)+1] = 44;
@@ -1215,7 +1199,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 6: //skull
 
-            EQWARN << "transfer: skull" << endl;
+            LBWARN << "transfer: skull" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]  =  128;
                 transfer[(i*4)+1] = 128;
@@ -1226,7 +1210,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 7: //vertebra
 
-            EQWARN << "transfer: vertebra" << endl;
+            LBWARN << "transfer: vertebra" << endl;
             for (i=40; i<255; i++) {
                 int k = i*2;
                 if (k > 255) k = 255;
@@ -1234,11 +1218,11 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
                 transfer[(i*4)+1] = k;
                 transfer[(i*4)+2] = k;
                 transfer[(i*4)+3] = k;
-            }    
+            }
             break;
-            
+
         default:
-        EQWARN << "transfer: linear (default)" << endl;
+        LBWARN << "transfer: linear (default)" << endl;
             for (i=0; i<255; i++) {
                 transfer[(i*4)]   = i;
                 transfer[(i*4)+1] = i;

@@ -91,5 +91,15 @@ namespace eVolve
     };
 }
 
-#endif // EVOLVE_H
+namespace lunchbox
+{
+template<> inline void byteswap( eVolve::ColorMode& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
 
+template<> inline void byteswap( eVolve::BackgroundMode& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+
+template<> inline void byteswap( eVolve::NormalsQuality& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
+#endif // EVOLVE_H

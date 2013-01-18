@@ -90,5 +90,10 @@ namespace eqPly
     };
 }
 
+namespace lunchbox
+{
+template<> inline void byteswap( eqPly::ColorMode& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
 #endif // EQ_PLY_H
 

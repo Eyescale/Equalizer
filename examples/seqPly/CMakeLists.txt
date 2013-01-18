@@ -32,11 +32,11 @@ eq_add_example(seqPly
   HEADERS
     ${KD_HEADERS}
   SOURCES
+    application.cpp
+    application.h
     main.cpp
-    renderer.h
     renderer.cpp
-    seqPly.h
-    seqPly.cpp
+    renderer.h
     ../eqPly/frameData.h
     ../eqPly/frameData.cpp
     ${KD_SOURCES}

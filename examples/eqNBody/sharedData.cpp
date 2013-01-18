@@ -1,6 +1,7 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,9 +38,9 @@ namespace eqNbody
 {
 SharedData::SharedData( Config *cfg ) : _cfg( cfg )
 {
-    EQASSERT( _cfg );
+    LBASSERT( _cfg );
 }
-    
+
 SharedData::~SharedData()
 {
     if( _cfg )
@@ -51,48 +52,48 @@ SharedData::~SharedData()
     }
     _proxies.clear();
 }
-            
+
 void SharedData::registerMemory( const eq::Range& range )
-{       
+{
     // Initialise the local proxy
     unsigned int offset = range.start * _frameData.getNumBodies() * 4;
     unsigned int numBytes = ( range.end - range.start ) *
-                            _frameData.getNumBytes(); 
+                            _frameData.getNumBytes();
     SharedDataProxy *shMem = new SharedDataProxy();
     _proxies.push_back( shMem );
 
     shMem->init( offset, numBytes, _frameData.getPos(), _frameData.getVel(),
-                 _frameData.getCol() );    
-    
+                 _frameData.getCol() );
+
     // Register the proxy object
     _cfg->registerObject( shMem );
 
-    const eq::uint128_t version = shMem->commit(); 
-        
+    const eq::uint128_t version = shMem->commit();
+
     // Let the app know which range is covered by this proxy
-    _sendEvent( ConfigEvent::DATA_CHANGED, version, shMem->getID(), range );
+    _sendEvent( DATA_CHANGED, version, shMem->getID(), range );
 }
-    
+
 void SharedData::mapMemory()
 {
     const SharedDataProxy *shMem = _proxies[0];
-        
+
     // Initialise the remote shared memory proxies
-    for( uint32_t i=0; i< _frameData.getNumDataProxies(); i++) 
+    for( uint32_t i=0; i< _frameData.getNumDataProxies(); i++)
     {
         const eq::uint128_t& pid = _frameData.getProxyID(i);
-            
-        if( pid != shMem->getID() ) 
+
+        if( pid != shMem->getID() )
         {
             SharedDataProxy *readMem = new SharedDataProxy();
-                
-            readMem->init( _frameData.getPos(), _frameData.getVel(), 
+
+            readMem->init( _frameData.getPos(), _frameData.getVel(),
                            _frameData.getCol() );
             _proxies.push_back( readMem );
-                
-            EQCHECK( _cfg->mapObject( readMem, pid ));
+
+            LBCHECK( _cfg->mapObject( readMem, pid ));
         }
-    }           
+    }
 }
 
 void SharedData::releaseMemory()
@@ -102,46 +103,36 @@ void SharedData::releaseMemory()
         _cfg->releaseObject( _proxies[i] );
     }
 }
-    
+
 void SharedData::syncMemory()
 {
     for(unsigned int i=1; i< _frameData.getNumDataProxies(); i++)
     {
         const eq::uint128_t& pid = _proxies[i]->getID();
         const eq::uint128_t version = _frameData.getVersionForProxyID(pid);
-            
+
         // ...and sync!
         _proxies[i]->sync( version );
     }
 }
-    
+
 void SharedData::updateMemory(const eq::Range& range, Controller *controller)
 {
     SharedDataProxy *local = _proxies[0];
 
     controller->getArray(BODYSYSTEM_POSITION, *local);
-    controller->getArray(BODYSYSTEM_VELOCITY, *local);          
-        
+    controller->getArray(BODYSYSTEM_VELOCITY, *local);
+
     // Commit the local changes
     const eq::uint128_t version = local->commit();
-        
-    // Tell the others what version to sync.
-    _sendEvent( ConfigEvent::PROXY_CHANGED, version, local->getID(), range) ;
-}
-    
-void SharedData::_sendEvent( ConfigEvent::Type type,
-                             const eq::uint128_t& version,
-                             const eq::uint128_t& pid,
-                             const eq::Range& range)
-{
-    ConfigEvent event;
 
-    event.data.type = type;
-    event._version = version;
-    event._range[0] = range.start;
-    event._range[1] = range.end;
-    event._proxyID = pid;
-        
-    _cfg->sendEvent( event );
-}   
+    // Tell the others what version to sync.
+    _sendEvent( PROXY_CHANGED, version, local->getID(), range) ;
+}
+
+void SharedData::_sendEvent( ConfigEventType type, const eq::uint128_t& version,
+                             const eq::uint128_t& pid, const eq::Range& range )
+{
+    _cfg->sendEvent( type ) << pid << range << version;
+}
 }

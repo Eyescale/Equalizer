@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,8 @@
 
 #include "error.h"
 
-#include <co/base/errorRegistry.h>
-#include <co/base/global.h>
+#include <eq/fabric/errorRegistry.h>
+#include <eq/fabric/global.h>
 
 namespace eVolve
 {
@@ -60,7 +60,7 @@ ErrorData _errors[] = {
 
 void initErrors()
 {
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -68,7 +68,7 @@ void initErrors()
 
 void exitErrors()
 {
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );

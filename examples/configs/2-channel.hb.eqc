@@ -44,6 +44,7 @@ server
             segment
             {
                 channel "channel-front"
+                viewport [ 0 .5 1 .5 ]
                 wall
                 {
                     bottom_left  [ -.9 -.55 -1.1 ]
@@ -54,6 +55,7 @@ server
             segment
             {
                 channel "channel-bottom"
+                viewport [ 0 0 1 .5 ]
                 wall
                 {
                     bottom_left  [ -.9 -.55  0   ]

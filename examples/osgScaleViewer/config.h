@@ -4,6 +4,7 @@
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
  *   2010, Stefan Eilemann <eile@equalizergraphics.com>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *   2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,7 +38,6 @@
 #include "initData.h"
 #include "tracker.h"
 
-#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 
 namespace osgScaleViewer
@@ -65,15 +65,15 @@ namespace osgScaleViewer
          * and mPointerYDiff, so that the new camera viewing direction can be
          * calculated in updateFrameData().
          */
-        virtual bool handleEvent( const eq::ConfigEvent* event );
+        virtual bool handleEvent( eq::EventICommand command );
 
-        /** 
+        /**
          * Sets the InitData object.
          * @param data the init data.
          */
         void setInitData( const InitData& data );
 
-        /** 
+        /**
          * Gets the InitData object.
          * @return the init data.
          */
@@ -85,39 +85,39 @@ namespace osgScaleViewer
         void updateFrameData( float elapsed );
 
     private:
-        /** 
+        /**
          * Sets the head matrix.
          * @param matrix the head matrix.
          */
         void _setHeadMatrix( const eq::Matrix4f& matrix );
 
-        /** 
+        /**
          * Gets the head matrix.
          * @return the head matrix.
          */
         const eq::Matrix4f& _getHeadMatrix() const;
 
-        /** 
+        /**
          * The vector of the camera movement in the current frame.
          * This value is computed in handleEvent() and then later in
          * updateFrameData(), the camera position is updated based on this.
          */
         eq::Vector3f _moveDirection;
 
-        /** 
+        /**
          * Same as the camera viewing direction, only that the y component
          * is always zero. Used in handleEvent() to calculate mMoveDirection.
          */
         eq::Vector3f _cameraWalkingVector;
 
-        /** 
+        /**
          * The differences of the mouse pointer position of this and
          * the last frame, in pixels. Used to calculate the new viewing direction.
          */
         int32_t _pointerXDiff;
         int32_t _pointerYDiff;
 
-        /** 
+        /**
          * The current angles of the camera.
          * The current camera viewing direction is calculated based on this.
          */
@@ -131,11 +131,11 @@ namespace osgScaleViewer
         /** Tracker. */
         Tracker _tracker;
 
-        /** 
+        /**
          * Clock used to measure the amount of time the last frame took,
          * to make it possible to have a framerate-independent rotation.
          */
-        co::base::Clock _clock;
+        lunchbox::Clock _clock;
     };
 }
 #endif

@@ -9,6 +9,7 @@
 *.ply.*.bin
 *.vcproj.*.user
 *.log
+*.auto.eqc
 Result_*.rgb*
 ___*
 tt.*
@@ -30,3 +31,4 @@ externals/vmmlib/
 tests/client/configVisitor_objc.mm
 build*
 CMakeLists.txt.user*
+Makefile

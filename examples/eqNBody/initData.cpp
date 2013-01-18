@@ -32,12 +32,12 @@
 #include "client.h"
 #include "frameData.h"
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 namespace eqNbody
 {
-    InitData::InitData() : _frameDataID( co::base::UUID::ZERO )
+    InitData::InitData() : _frameDataID()
     {
     _damping    = 0.995f;
     _p        = 256;
@@ -47,7 +47,7 @@ namespace eqNbody
     
     InitData::~InitData()
     {
-           setFrameDataID( co::base::UUID::ZERO );
+           setFrameDataID( 0 );
     }
     
     void InitData::getInstanceData( co::DataOStream& os )
@@ -58,6 +58,6 @@ namespace eqNbody
     void InitData::applyInstanceData( co::DataIStream& is )
     {
            is >> _frameDataID;
-           EQASSERT( _frameDataID != co::base::UUID::ZERO );
+           LBASSERT( _frameDataID != 0 );
     }
 }

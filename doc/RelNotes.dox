@@ -1,0 +1,323 @@
+
+<ul>
+  <li><a href="#introduction">1. Introduction</a></li>
+  <ul>
+    <li><a href="#features">1.1. Features</a></li>
+  </ul>
+  <li><a href="#new">2. New in this release</a></li>
+  <ul>
+    <li><a href="#newFeatures">2.1. New Features</a></li>
+    <li><a href="#enhancements">2.2. Enhancements</a></li>
+    <li><a href="#optimizations">2.3. Optimizations</a></li>
+    <li><a href="#examples">2.4. Examples</a></li>
+    <li><a href="#tools">2.5. Tools</a></li>
+    <li><a href="#documentation">2.6. Documentation</a></li>
+    <li><a href="#bugfixes">2.7. Bug Fixes</a></li>
+    <li><a href="#knownbugs">2.8. Known Bugs</a></li>
+  </ul>
+  <li><a href="#about">3. About</a></li>
+  <ul>
+    <li><a href="#os">3.1. Operating System Support</a></li>
+    <li><a href="#ws">3.2. Window System Support</a></li>
+    <li><a href="#documentation">3.3. Documentation</a></li>
+    <li><a href="#support">3.4. Support</a></li>
+  </ul>
+  <li><a href="#errata">4. Errata</a></li>
+</ul>
+
+<a name="introduction"></a>
+<h2>1. Introduction</h2>
+<p>
+  Welcome to Equalizer, the standard middleware to create and deploy parallel,
+  scalable OpenGL applications. This release introduces major new features, most
+  notably asynchronous readbacks, region of interest and thread affinity for
+  increased performance during scalable rendering.
+</p>
+<p>
+  Equalizer 1.4.1 is a bugfix release for Equalizer 1.4, containing the fixes
+  <a href="#bugfixes">listed below</a>.
+</p>
+<p>
+  Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
+  seven years of development and decades of experience into a feature-rich,
+  high-performance and mature parallel rendering framework and an
+  object-oriented high-level network library. It is intended for all application
+  developers creating parallel, interactive OpenGL applications. Equalizer 1.4
+  can be retrieved by downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.4.1.tar.gz">source
+    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/major.html">precompiled packages</a>.
+</p>
+
+<a name="features"></a>
+<h3>1.1. Features</h3>
+<p>
+  Equalizer provides the following major features to facilitate the development
+  and deployment of scalable OpenGL applications. A
+  <a href="/features.html">detailed feature list</a> can be found on the
+  Equalizer website.
+</p>
+<ul>
+  <li><b>Runtime Configurability:</b> An Equalizer application is configured
+    automatically or manually at runtime and can be deployed on laptops,
+    multi-GPU workstations and large-scale visualization clusters without
+    recompilation.</li>
+  <li><b>Runtime Scalability:</b> An Equalizer application can benefit from
+    multiple graphics cards, processors and computers to scale rendering
+    performance, visual quality and display size.</li>
+  <li><b>Distributed Execution:</b> Equalizer applications can be written to
+    support cluster-based execution. Equalizer furnishes and uses the Collage
+    network library, a cross-platform C++ library for building heterogenous,
+    distributed applications.</li>
+  <li><b>Support for Stereo and Immersive Environments:</b> Equalizer supports
+    stereo rendering head tracking, head-mounted displays and other advanced
+    features for immersive Virtual Reality installations.</li>
+</ul>
+
+<a name="new"></a>
+<h2>2. New in this release</h2>
+<p>
+  Equalizer 1.4 contains the following features, enhancements, bug fixes
+  and documentation changes:
+</p>
+
+<a name="newFeatures"></a>
+<h3>2.1. New Features</h3>
+<ul>
+  <li><a href="http://www.equalizergraphics.com/documents/design/asyncCompositing.html">Asynchronous
+      readback</a> support</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/roi.html">Region
+      of interest</a> for scalable rendering and load-balancing</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/57">Automatic
+      CPU-GPU affinity</a></li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/63">Application-specific
+      scaling</a> to visualize data in a scale different to 1:1 in immersive
+    environments</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/67">VirtualGL-aware
+      auto-configuration</a></li>
+</ul>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/122">Zeroconf
+      support and node discovery</a></li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/116">Blocking
+      co::Object::commit</a></li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/111">Extensible
+      packet dispatch</a></li>
+</ul>
+
+<a name="enhancements"></a>
+<h3>2.2. Enhancements</h3>
+<p>Equalizer 1.4.1:</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/178">RDMA Windows
+  implementation</a></li>
+</ul>
+<p>Equalizer 1.4.0:</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/70">System window
+      without drawable buffer</a></li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/123">Mac OS X: Build
+      universal libraries even when AGL is enabled</a></li>
+  <li>auto-config: add direct send configuration</li>
+  <li>auto-config: save generated configuration to .eqc file</li>
+  <li>auto-config: application-specific flags for multiprocess execution</li>
+</ul>
+
+<a name="optimizations"></a>
+<h3>2.3. Optimizations</h3>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/95">Multi-GPU NVidia
+      optimization</a></li>
+  <li>load_equalizer: split along longest axis in 2D mode</li>
+</ul><ul>
+  <li>InfiniBand RDMA: significant performance increase using a different
+    underlying implementation</li>
+</ul>
+
+<a name="examples"></a>
+<h3>2.4. Examples</h3>
+<ul>
+  <li>eqPly: Add command line option to disable region of interest</li>
+  <li>eqPly: Parallel kd-tree construction when using gcc 4.4 or later</li>
+  <li>eqPly: runtime-changeable model unit scaling</li>
+  <li>eqPly: Create all VBOs/display lists during the first frame</li>
+</ul>
+
+<a name="tools"></a>
+<h3>2.5. Tools</h3>
+<ul>
+  <li>eqPlyConverter: New offline tool to generate binary cache for eqPly</li>
+</ul>
+
+<a name="documentation"></a>
+<h3>2.6. Documentation</h3>
+<p>
+  The following documentation has been added or substantially improved since the
+  last release:
+</p>
+<ul>
+  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/doxies/Equalizer-1.4.0/index.html">API
+      documentation</a> for the public Equalizer API</li>
+  <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
+      User Guide</a> has been extended to 107 pages and 60 figures</li>
+  <li><a href="/documents/design/tileCompounds.html">Tile compounds</a>
+    using a pull-based task distribution for volume rendering and interactive
+    raytracing</li>
+</ul>
+
+<a name="bugfixes"></a>
+<h3>2.7. Bug Fixes</h3>
+<p>
+  Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
+</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/180">180</a>:
+    Launch error with empty host for a node bug</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/179">179</a>:
+    Readback of non-modulo-4 images broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/175">175</a>:
+    "--eq-logfile" followed by no other argument segfaults</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/162">162</a>:
+    WGL window compile error</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/161">161</a>:
+    eqPly crash on model load on Win32</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/160">160</a>:
+    Memleak with pipe thread affinity</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/159">159</a>:
+    exPixelBench crashes</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/158">158</a>:
+    Non-freed GPUCompressors after application exit</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/138">138</a>:
+    Windows: PBO error when rendering</li>
+</ul>
+<p>
+  Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
+  following:
+</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/157">157</a>:
+    Crash in Image::upload when no uploader is found</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
+    Channel::configInit initID always 0</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/147">147</a>:
+    Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC thread
+    ordering</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/139">139</a>:
+    Tile compound readback broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/120">120</a>:
+    Async readback deallocation</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/118">118</a>:
+    OS X: Async readback doesn't work</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/137">137</a>:
+    1-window.DFR broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/136">136</a>:
+    compositor assertion when using custom frames</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/135">135</a>:
+    Command line option --eq-layout broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/131">131</a>:
+    seqPly --help launches application</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/127">127</a>:
+    Problem with getdomainname() in SocketConnection::listen()</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/124">124</a>:
+    Upload plugins are not freed</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/121">121</a>:
+    Packaging: netperf conflicts with other packages</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/117">117</a>:
+    Race with async channel tasks</li>
+</ul>
+
+<a name="knownbugs"></a>
+<h3>2.8. Known Bugs</h3>
+<p>The following bugs were known at release time. Please file a
+  <a href="https://github.com/Eyescale/Equalizer/issues">Bug Report</a> if you
+  find any other issue with this release.
+</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/177">177</a>:
+    Occasional async readback deadlocks on GLX</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/167">167</a>:
+    HWLOC: Segmentation Fault with empty auto thread affinity</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
+    assertion on interaction with multiple GPUs</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/77">77</a>:
+    7-window.DB.PIXEL.eqc broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/76">76</a>:
+    7-window.DPLEX.2D.lb.eqc does not load-balance</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/49">49</a>:
+    eqPixelBench crash with double free</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/19">19</a>: zoom
+    readback with FBO</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/18">18</a>: zoom:
+    depth readback does not work</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/17">17</a>: AGL:
+    Window close does not work</li>
+</ul>
+
+<a name="about"></a>
+<h2>3. About</h2>
+<p>
+  Equalizer is a cross-platform toolkit, designed to run on any modern operating
+  system, including all Unix variants and the Windows operating system. A
+  <a href="http://www.equalizergraphics.com/compatibility.html">compatibility
+  matrix</a> can be found on the Equalizer website.
+</p>
+<p>
+  Equalizer requires at least <a href="http://www.opengl.org">OpenGL 1.1</a>,
+  but uses newer OpenGL features when available. Version 1.4 has been tested on:
+</p>
+
+<a name="os"></a>
+<h3>3.1. Operating System Support</h3>
+<p>
+  Equalizer uses CMake to create a platform-specific build environment. The
+  following platforms and build environments are tested:
+</p>
+<ul>
+  <li><b>Linux:</b> Ubuntu 11.10, 12.04, RHEL 6.1 (Makefile, i386, x64)</li>
+  <li><b>Windows:</b> 7 (Visual Studio 2008, i386, x64)</li>
+  <li><b>Mac OS X:</b> 10.7 (Makefile, XCode, i386, x64)</li>
+</ul>
+
+<a name="ws"></a>
+<h3>3.2. Window System Support</h3>
+<ul>
+  <li><b>X11:</b> Full support for all documented features</li>
+  <li><b>WGL:</b> Full support for all documented features</li>
+  <li><b>AGL:</b> Full support for all documented features</li>
+</ul>
+
+<a name="documentation"></a>
+<h3>3.3. Documentation</h3>
+<p>
+  The Programming and User Guide is available as a
+  <a href="https://www.createspace.com/3943261">hard-copy</a>
+  and <a href="http://www.equalizergraphics.com/survey.html">online</a>.
+  The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
+    documentation</a> can be found on the Equalizer website.
+</p>
+<p>
+  As with any open source project, the available source code, in particular the
+  shipped
+  <a href="https://github.com/Eyescale/Equalizer/tree/1.4.1/examples">examples</a>
+  provide a reference for developing or porting applications. The
+  <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
+  provides further design documents for specific features.
+</p>
+
+<a name="support"></a>
+<h3>3.4. Support</h3>
+<p>
+  Technical questions can be posted to the
+  <a href="http://www.equalizergraphics.com/cgi-bin/mailman/listinfo/eq-dev">
+    Developer Mailing List</a>, or directly to
+  <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20question">
+    info@equalizergraphics.com</a>.
+</p>
+<p>
+  Commercial support, custom software development and porting services are
+  available from <a href="http://www.eyescale.ch">Eyescale</a>. Please contact
+  <a href="mailto:info@eyescale.ch?subject=Equalizer%20support">info@eyescale.ch</a>
+  for further information.
+</p>
+
+<a name="errata"></a>
+<h2>4. Errata</h2>

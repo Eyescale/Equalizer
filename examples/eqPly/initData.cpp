@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- 
+
  *
  * The init data manages static, per-instance application data. In this example,
  * it holds the model file name, and manages the instantiation of the frame
@@ -41,17 +41,13 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID( co::base::UUID::ZERO )
+        : _frameDataID()
 #ifdef AGL
         , _windowSystem( "AGL" ) // prefer over GLX
 #else
         , _windowSystem()
 #endif
-#ifdef Darwin
-        , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
-#else
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
-#endif
         , _useGLSL( false )
         , _invFaces( false )
         , _logo( true )
@@ -60,7 +56,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( co::base::UUID::ZERO );
+    setFrameDataID( 0 );
 }
 
 void InitData::getInstanceData( co::DataOStream& os )
@@ -73,7 +69,7 @@ void InitData::applyInstanceData( co::DataIStream& is )
 {
     is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
        >> _logo >> _roi;
-    EQASSERT( _frameDataID != eq::UUID::ZERO );
+    LBASSERT( _frameDataID != 0 );
 }
 
 }

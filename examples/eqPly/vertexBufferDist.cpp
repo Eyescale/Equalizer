@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,25 +34,23 @@
 
 #include "vertexBufferLeaf.h"
 
-using namespace std;
-
 namespace eqPly 
 {
 
 VertexBufferDist::VertexBufferDist()
         : _root( 0 )
         , _node( 0 )
-        , _isRoot( false )
         , _left( 0 )
         , _right( 0 )
+        , _isRoot( false )
 {}
 
 VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root )
         : _root( root )
         , _node( root )
-        , _isRoot( true )
         , _left( 0 )
         , _right( 0 )
+        , _isRoot( true )
 {
     if( root->getLeft( ))
         _left = new VertexBufferDist( root, root->getLeft( ));
@@ -65,9 +63,9 @@ VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root,
                                     const mesh::VertexBufferBase* node )
         : _root( root )
         , _node( node )
-        , _isRoot( false )
         , _left( 0 )
         , _right( 0 )
+        , _isRoot( false )
 {
     if( !node )
         return;
@@ -89,8 +87,8 @@ VertexBufferDist::~VertexBufferDist()
 
 void VertexBufferDist::registerTree( co::LocalNodePtr node )
 {
-    EQASSERT( !isAttached() );
-    EQCHECK( node->registerObject( this ));
+    LBASSERT( !isAttached() );
+    LBCHECK( node->registerObject( this ));
 
     if( _left )
         _left->registerTree( node );
@@ -101,8 +99,8 @@ void VertexBufferDist::registerTree( co::LocalNodePtr node )
 
 void VertexBufferDist::deregisterTree()
 {
-    EQASSERT( isAttached() );
-    EQASSERT( isMaster( ));
+    LBASSERT( isAttached() );
+    LBASSERT( isMaster( ));
 
     getLocalNode()->deregisterObject( this );
 
@@ -112,36 +110,40 @@ void VertexBufferDist::deregisterTree()
         _right->deregisterTree();
 }
 
-mesh::VertexBufferRoot* VertexBufferDist::mapModel( co::LocalNodePtr node,
+mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
+                                                     co::LocalNodePtr localNode,
                                                   const eq::uint128_t& modelID )
 {
-    EQASSERT( !_root && !_node );
+    LBASSERT( !_root && !_node );
 
-    if( !node->mapObject( this, modelID ))
+    const uint32_t req = localNode->mapObjectNB( this, modelID,
+                                                 co::VERSION_OLDEST, master );
+    if( !localNode->mapObjectSync( req ))
     {
-        EQWARN << "Mapping of model failed" << endl;
+        LBWARN << "Mapping of model failed" << std::endl;
         return 0;
     }
 
+    _unmapTree();
     return const_cast< mesh::VertexBufferRoot* >( _root );
 }
 
-void VertexBufferDist::unmapTree()
+void VertexBufferDist::_unmapTree()
 {
-    EQASSERT( isAttached() );
-    EQASSERT( !isMaster( ));
+    LBASSERT( isAttached() );
+    LBASSERT( !isMaster( ));
 
     getLocalNode()->unmapObject( this );
 
     if( _left )
-        _left->unmapTree();
+        _left->_unmapTree();
     if( _right )
-        _right->unmapTree();
+        _right->_unmapTree();
 }
 
 void VertexBufferDist::getInstanceData( co::DataOStream& os )
 {
-    EQASSERT( _node );
+    LBASSERT( _node );
     os << _isRoot;
 
     if( _left && _right )
@@ -150,7 +152,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
 
         if( _isRoot )
         {
-            EQASSERT( _root );
+            LBASSERT( _root );
             const mesh::VertexBufferData& data = _root->_data;
             
             os << data.vertices << data.colors << data.normals << data.indices 
@@ -159,9 +161,9 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
     }
     else
     {
-        os << co::base::UUID::ZERO << co::base::UUID::ZERO;
+        os << co::UUID() << co::UUID();
 
-        EQASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
+        LBASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
         const mesh::VertexBufferLeaf* leaf = 
             static_cast< const mesh::VertexBufferLeaf* >( _node );
 
@@ -175,15 +177,15 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
 
 void VertexBufferDist::applyInstanceData( co::DataIStream& is )
 {
-    EQASSERT( !_node );
+    LBASSERT( !_node );
 
     mesh::VertexBufferNode* node = 0;
     mesh::VertexBufferBase* base = 0;
 
-    co::base::UUID leftID, rightID;
+    lunchbox::UUID leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
 
-    if( leftID != co::base::UUID::ZERO && rightID != co::base::UUID::ZERO )
+    if( leftID != 0 && rightID != 0 )
     {
         if( _isRoot )
         {
@@ -198,26 +200,29 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         }
         else
         {
-            EQASSERT( _root );
+            LBASSERT( _root );
             node = new mesh::VertexBufferNode;
         }
 
         base   = node;
         _left  = new VertexBufferDist( _root, 0 );
         _right = new VertexBufferDist( _root, 0 );
-        co::LocalNodePtr localNode = getLocalNode();
-        const uint32_t sync1 = localNode->mapObjectNB( _left, leftID );
-        const uint32_t sync2 = localNode->mapObjectNB( _right, rightID );
+        co::LocalNodePtr to = getLocalNode();
+        co::NodePtr from = is.getMaster();
+        const uint32_t sync1 = to->mapObjectNB( _left, leftID,
+                                                co::VERSION_OLDEST, from );
+        const uint32_t sync2 = to->mapObjectNB( _right, rightID,
+                                                co::VERSION_OLDEST, from );
 
-        EQCHECK( localNode->mapObjectSync( sync1 ));
-        EQCHECK( localNode->mapObjectSync( sync2 ));
+        LBCHECK( to->mapObjectSync( sync1 ));
+        LBCHECK( to->mapObjectSync( sync2 ));
 
         node->_left  = const_cast< mesh::VertexBufferBase* >( _left->_node );
         node->_right = const_cast< mesh::VertexBufferBase* >( _right->_node );
     }
     else
     {
-        EQASSERT( !_isRoot );
+        LBASSERT( !_isRoot );
         mesh::VertexBufferData& data = 
             const_cast< mesh::VertexBufferData& >( _root->_data );
         mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
@@ -232,7 +237,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         base = leaf;
     }
 
-    EQASSERT( base );
+    LBASSERT( base );
     is >> base->_boundingSphere >> base->_range;
 
     _node = base;

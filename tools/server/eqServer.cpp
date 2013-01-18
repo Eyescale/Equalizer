@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,7 +47,7 @@ int main( const int argc, char** argv )
     const std::string config( argc == 1 ? "" : argv[1] );
     if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
-#ifdef EQ_USE_GPUSD
+#ifdef EQ_USE_HWSD
     else
         server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif
@@ -55,7 +56,7 @@ int main( const int argc, char** argv )
         server = loader.parseServer( CONFIG );
     if( !server )
     {
-        EQERROR << "Failed to load configuration" << std::endl;
+        LBERROR << "Failed to load configuration" << std::endl;
         return 0;
     }
 
@@ -67,7 +68,7 @@ int main( const int argc, char** argv )
 
     if( server->getConnectionDescriptions().empty( )) // add default listener
     {
-        EQINFO << "Adding default server connection" << std::endl;
+        LBINFO << "Adding default server connection" << std::endl;
         co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
         connDesc->port = co::Global::getDefaultPort();
         server->addConnectionDescription( connDesc );
@@ -75,7 +76,7 @@ int main( const int argc, char** argv )
 
     if( !server->initLocal( argc, argv ))
     {
-        EQERROR << "Can't create listener for server, please consult log" 
+        LBERROR << "Can't create listener for server, please consult log" 
                 << std::endl;
         return EXIT_FAILURE;
     }
@@ -84,7 +85,7 @@ int main( const int argc, char** argv )
     server->exitLocal();
     server->deleteConfigs();
 
-    EQINFO << "Server ref count: " << server->getRefCount() << std::endl;
+    LBINFO << "Server ref count: " << server->getRefCount() << std::endl;
 
     return eq::server::exit() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

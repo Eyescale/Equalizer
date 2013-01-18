@@ -58,15 +58,15 @@ int main( const int argc, char** argv )
 
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     
     eqNbody::InitData id;
-    co::base::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
+    lunchbox::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -74,7 +74,7 @@ int main( const int argc, char** argv )
     // Init
     if( client->init() != EXIT_SUCCESS ) 
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -85,7 +85,7 @@ int main( const int argc, char** argv )
     // Exit
     if( client->exit() != EXIT_SUCCESS ) 
     {
-        EQERROR << "Can't exit client" << std::endl;
+        LBERROR << "Can't exit client" << std::endl;
     }
 
     client->exitLocal();

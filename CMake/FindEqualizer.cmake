@@ -1,5 +1,5 @@
 #
-# Copyright 2011 Stefan Eilemann <eile@eyescale.ch>
+# Copyright 2011-2012 Stefan Eilemann <eile@eyescale.ch>
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are met:
@@ -69,32 +69,15 @@
 #  Output variables of the form EQUALIZER_FOO
 #
 
-# Find Collage
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindEqualizer)
+include(FindPackageHandleStandardArgs)
+
 set(_eq_required)
 if(Equalizer_FIND_REQUIRED)
   set(_eq_required REQUIRED)
 endif()
-if(Equalizer_FIND_VERSION)
-  # Matching Collage versions
-  set(_eq_coVersion_ "0.5.0")
-  set(_eq_coVersion_1.3.1 "0.5.0")
-  set(_eq_coVersion_1.3.0 "0.5.0")
-  set(_eq_coVersion_1.2.0 "0.4.8")
-  set(_eq_coVersion_1.1.7 "0.4.7")
-  set(_eq_coVersion_1.1.6 "0.4.1")
-  set(_eq_coVersion_1.1.5 "0.4.1")
-  set(_eq_coVersion_1.1.4 "0.4.1")
-  set(_eq_coVersion_1.1.3 "0.4.0")
-  set(_eq_coVersion_1.1.2 "0.4.0")
-  set(_eq_coVersion_1.1.1 "0.4.0")
-  set(_eq_coVersion_1.1.0 "0.4.0")
-  set(_eq_coVersion_1.0.2 "0.3.1")
-  set(_eq_coVersion_1.0.1 "0.3.1")
-  set(_eq_coVersion_1.0.0 "0.3.0")
-  find_package(Collage "${_eq_coVersion_${Equalizer_FIND_VERSION}}"
-               ${_eq_required})
-else()
-  find_package(Collage ${_eq_required})
+if(Equalizer_FIND_QUIETLY)
+  set(_eq_quiet QUIET)
 endif()
 
 # find and parse eq/client/version.h [new location]
@@ -118,9 +101,13 @@ else() # find old one
 endif()
 
 if(Equalizer_FIND_REQUIRED)
-    set(_eq_version_output_type FATAL_ERROR)
+  set(_eq_version_output_type FATAL_ERROR)
+  set(_eq_output 1)
 else()
-    set(_eq_version_output_type STATUS)
+  set(_eq_version_output_type STATUS)
+  if(NOT Equalizer_FIND_QUIETLY)
+    set(_eq_output 1)
+  endif()
 endif()
 
 if(_eq_Version_file)
@@ -129,7 +116,7 @@ if(_eq_Version_file)
       NOT EXISTS "${_eq_Version_file}")
     set(_eq_Version_file "${_eq_INCLUDE_DIR}/Headers/version.h")
   endif()
-    
+
   file(READ "${_eq_Version_file}" _eq_Version_contents)
   string(REGEX REPLACE ".*define EQ_VERSION_MAJOR[ \t]+([0-9]+).*"
     "\\1" EQUALIZER_VERSION_MAJOR ${_eq_Version_contents})
@@ -147,13 +134,13 @@ if(_eq_Version_file)
     CACHE INTERNAL "The version of Equalizer which was detected")
 else()
   set(_eq_EPIC_FAIL TRUE)
-  message(${_eq_version_output_type}
-    "Can't find Equalizer header file version.h.")
+  if(_eq_output)
+    message(${_eq_version_output_type}
+      "Can't find Equalizer header file version.h.")
+  endif()
 endif()
 
-#
 # Version checking
-#
 if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
   if(Equalizer_FIND_VERSION_EXACT)
     if(NOT EQUALIZER_VERSION VERSION_EQUAL ${Equalizer_FIND_VERSION})
@@ -161,7 +148,7 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
     endif()
   else()
     # version is too low
-    if(NOT EQUALIZER_VERSION VERSION_EQUAL ${Equalizer_FIND_VERSION} AND 
+    if(NOT EQUALIZER_VERSION VERSION_EQUAL ${Equalizer_FIND_VERSION} AND
         NOT EQUALIZER_VERSION VERSION_GREATER ${Equalizer_FIND_VERSION})
       set(_eq_version_not_high_enough TRUE)
     endif()
@@ -191,7 +178,11 @@ find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
 
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
-if(_eq_version_not_high_enough)
+if(NOT EQUALIZER_VERSION)
+  set(_eq_EPIC_FAIL TRUE)
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
+                                    _eq_LIBRARY _eq_INCLUDE_DIR)
+elseif(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
     "Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
@@ -211,30 +202,81 @@ else()
   endif()
   find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
+  if(EQUALIZER_FOUND)
+    include("${_eq_INCLUDE_DIR}/../share/Equalizer/CMake/options.cmake")
+  endif()
+
+  # Matching Collage versions
+  set(_eq_coVersion_1.5.1 "0.8.0")
+  set(_eq_coVersion_1.5.0 "0.7.0")
+  set(_eq_coVersion_1.4.1 "0.6.1")
+  set(_eq_coVersion_1.4.0 "0.6.0")
+  set(_eq_coVersion_1.3.7 "0.5.7")
+  set(_eq_coVersion_1.3.6 "0.5.6")
+  set(_eq_coVersion_1.3.5 "0.5.5")
+  set(_eq_coVersion_1.3.2 "0.5.2")
+  set(_eq_coVersion_1.3.1 "0.5.1")
+  set(_eq_coVersion_1.3.0 "0.5.0")
+  set(_eq_coVersion_1.2.1 "0.4.8")
+  set(_eq_coVersion_1.2.0 "0.4.8")
+  set(_eq_coVersion_1.1.7 "0.4.7")
+  set(_eq_coVersion_1.1.6 "0.4.1")
+  set(_eq_coVersion_1.1.5 "0.4.1")
+  set(_eq_coVersion_1.1.4 "0.4.1")
+  set(_eq_coVersion_1.1.3 "0.4.0")
+  set(_eq_coVersion_1.1.2 "0.4.0")
+  set(_eq_coVersion_1.1.1 "0.4.0")
+  set(_eq_coVersion_1.1.0 "0.4.0")
+  set(_eq_coVersion_1.0.2 "0.3.1")
+  set(_eq_coVersion_1.0.1 "0.3.1")
+  set(_eq_coVersion_1.0.0 "0.3.0")
+  if( "${_eq_coVersion_${EQUALIZER_VERSION}}" STREQUAL "" )
+    message(WARNING
+      "Unknown Collage version for Equalizer ${EQUALIZER_VERSION}")
+  endif()
+  find_package(Collage "${_eq_coVersion_${EQUALIZER_VERSION}}" EXACT
+               ${_eq_required} ${_eq_quiet})
+  if(NOT COLLAGE_FOUND)
+    set(_eq_EPIC_FAIL TRUE)
+  endif()
+  if(NOT _eq_EPIC_FAIL)
+    # GLEW_MX
+    if(EQ_GLEW_INTERNAL)
+      set(GLEW_MX_INCLUDE_DIRS)
+      set(GLEW_MX_LIBRARIES)
+    else()
+      find_package(GLEW_MX ${_eq_required} ${_eq_quiet})
+      if(NOT GLEW_MX_FOUND)
+        set(_eq_EPIC_FAIL TRUE)
+      endif()
+    endif()
+  endif()
 endif()
 
 if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
-    # Zero out everything, we didn't meet version requirements
-    set(EQUALIZER_FOUND FALSE)
-    set(_eq_LIBRARY)
-    set(_eq_fabric_LIBRARY)
-    set(_eq_INCLUDE_DIR)
+  # Zero out everything, we didn't meet version requirements
+  set(EQUALIZER_FOUND FALSE)
+  set(_eq_LIBRARY)
+  set(_eq_fabric_LIBRARY)
+  set(_eq_INCLUDE_DIR)
+  set(EQUALIZER_INCLUDE_DIRS)
+  set(EQUALIZER_LIBRARIES)
 else()
   if(EQUALIZER_VERSION_ABI LESS 110)
     set(EQUALIZER_DEB_DEPENDENCIES "equalizer (>=${EQUALIZER_VERSION})")
   else()
     set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}-eqlib")
   endif()
+  set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
+  set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES}
+    ${GLEW_MX_LIBRARIES})
+  if(EQUALIZER_VERSION VERSION_GREATER 1.0)
+    set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
+  endif()
+  get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 endif()
-
-set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
-if(EQUALIZER_VERSION VERSION_GREATER 1.0)
-  set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
-endif()
-get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)
   message("-- Found Equalizer ${EQUALIZER_VERSION}/${EQUALIZER_VERSION_ABI} in ${EQUALIZER_INCLUDE_DIRS}"
-    ";${EQUALIZER_LIBRARIES}")
+    ":${EQUALIZER_LIBRARIES}")
 endif()

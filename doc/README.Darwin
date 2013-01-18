@@ -1,37 +1,28 @@
 
                          Darwin-Specific Notes
 
- Equalizer is developed on the new OS X versions, please refer to the
- latest release notes for specifics.. Other versions will likely work,
- but are not tested heavily. OS X 10.4 or earlier are no longer
- supported. The minimum gcc version is 4.2, version 4.0.1 is no longer
- supported.
+ Equalizer is developed on new OS X versions, please refer to the latest
+ release notes for specifics. Older versions will likely work, but are
+ not tested regularly. OS X 10.4 or earlier are no longer supported. The
+ minimum gcc version is 4.2.
 
 Prerequisites:
 
  X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS X,
    but not installed by default.
 
- boost (optional): RSP, the protocol used for multicast data
-   distribution, requires boost::asio. The preferred way is to install
-   MaxPorts[1] and to 'sudo port install boost +universal+debug'.
+ boost: RSP, the protocol used for multicast data distribution, requires
+   boost::asio. The preferred way is to install MacPorts[1] and to 'sudo
+   port install boost +universal+debug'.
 
 
 Universal Binary Notes
 
- AGL/Carbon does not support 64 bit. When compiling for AGL, the 64 bit
- targets are disabled. X11 supports 32 and 64 bit binary formats. When
- using GLX alone all these targets are enabled by default.
+ AGL/Carbon does not support 64 bit. X11 supports 32 and 64 bit binary
+ formats. All libraries and applications are compiled in universal mode,
+ but the AGL window system is not available when running Equalizer
+ applications in 64 bit mode. See examples/CMakeLists.txt on how to set
+ the preferred architecture to 32 bit to run AGL-based Equalizer
+ applications.
 
- CMake configures:
- - if EQ_PREFER_AGL is true:
-   - AGL 32 bit on 10.6
-   - AGL and GLX 32 bit on 10.5
- - GLX 32 and 64 bit if EQ_PREFER_AGL is false
-
- At least x86_64 support is buggy in 10.5.0. Resizing a window causes a
- crash. Installing the latest X11.app from
- <http://trac.macosforge.org/projects/xquartz> solves this issue
- (the version tested was 2.3.2.1).
-
-[1] http://www.macports.org/
+ [1] http://www.macports.org/

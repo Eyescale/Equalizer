@@ -1,0 +1,300 @@
+
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Maxim Makhinya
+ *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ *  
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "pipe.h"
+
+#include "eventHandler.h"
+
+#include "../global.h"
+#include "../pipe.h"
+
+namespace eq
+{
+namespace wgl
+{
+
+Pipe::Pipe( eq::Pipe* parent )
+        : SystemPipe( parent )
+        , _wglewContext( new WGLEWContext )
+{
+}
+
+Pipe::~Pipe( )
+{
+    delete _wglewContext;
+}
+
+//---------------------------------------------------------------------------
+// WGL init
+//---------------------------------------------------------------------------
+bool Pipe::configInit()
+{
+    if ( !_configInitWGLEW() )
+        return false;
+
+    PixelViewport pvp = getPipe()->getPixelViewport();
+    if( pvp.isValid( ))
+        return true;
+
+    // setup pvp
+    // ...using gpu affinity API
+    HGPUNV hGPU = 0;
+    if( !_getGPUHandle( hGPU ))
+        return false;
+
+    if( hGPU != 0 )
+    {
+        GPU_DEVICE gpuDevice;
+        gpuDevice.cb = sizeof( gpuDevice );
+        const bool found = wglEnumGpuDevicesNV( hGPU, 0, &gpuDevice );
+        LBASSERT( found );
+
+        if( gpuDevice.Flags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP )
+        {
+            const RECT& rect = gpuDevice.rcVirtualScreen;
+            pvp.x = rect.left;
+            pvp.y = rect.top;
+            pvp.w = rect.right  - rect.left;
+            pvp.h = rect.bottom - rect.top; 
+        }
+        else
+        {
+            pvp.x = 0;
+            pvp.y = 0;
+            pvp.w = 4096;
+            pvp.h = 4096;
+        }
+    }
+    else // ... using Win32 API
+    {
+        HDC dc = createWGLDisplayDC();
+
+        pvp.x = 0;
+        pvp.y = 0;
+        if( dc )
+        {
+            pvp.w = GetDeviceCaps( dc, HORZRES );
+            pvp.h = GetDeviceCaps( dc, VERTRES );
+            DeleteDC( dc );
+        }
+        else
+        {
+            LBWARN << "Can't create display dc query pipe resolution: "
+                   << lunchbox::sysError << std::endl;
+            pvp.w = 2048;
+            pvp.h = 2048;
+        }
+    }
+
+    getPipe()->setPixelViewport( pvp );
+    LBINFO << "Pipe pixel viewport " << pvp << std::endl;
+    return true;
+}
+
+
+void Pipe::configExit()
+{
+    getPipe()->setPixelViewport( eq::PixelViewport( )); // invalidate
+}
+
+
+bool Pipe::createWGLAffinityDC( HDC& affinityDC )
+{
+    affinityDC = 0;
+
+    HGPUNV hGPU[2] = { 0 };
+    if( !_getGPUHandle( hGPU[0] ))
+        return false;
+
+    if( hGPU[0] == 0 ) // no affinity DC needed
+        return true;
+
+    affinityDC = wglCreateAffinityDCNV( hGPU );
+    if( !affinityDC )
+    {
+        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+HDC Pipe::createWGLDisplayDC()
+{
+    uint32_t device = getPipe()->getDevice();
+    if( device == LB_UNDEFINED_UINT32 )
+        device = 0;
+
+    DISPLAY_DEVICE devInfo;
+    devInfo.cb = sizeof( devInfo );
+
+    if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
+    {
+        setError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        return 0;
+    }
+
+    const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
+    if( !displayDC )
+    {
+        setError( ERROR_WGLPIPE_CREATEDC_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        return 0;
+    }
+
+    return displayDC;
+}
+
+bool Pipe::_getGPUHandle( HGPUNV& handle )
+{
+    handle = 0;
+
+    const uint32_t device = getPipe()->getDevice();
+    if( device == LB_UNDEFINED_UINT32 )
+        return true;
+
+    if( !WGLEW_NV_gpu_affinity )
+    {
+        LBWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
+               << std::endl;
+        return true;
+    }
+
+    if( !wglEnumGpusNV( device, &handle ))
+    {
+        setError( ERROR_WGLPIPE_ENUMGPUS_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool Pipe::_configInitWGLEW()
+{
+    //----- Create and make current a temporary GL context to initialize WGLEW
+
+    // window class
+    std::ostringstream className;
+    className << "TMP" << (void*)this;
+    const std::string& classStr = className.str();
+                                  
+    HINSTANCE instance = GetModuleHandle( 0 );
+    WNDCLASS  wc       = { 0 };
+    wc.lpfnWndProc   = DefWindowProc;
+    wc.hInstance     = instance; 
+    wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
+    wc.hCursor       = LoadCursor( 0, IDC_ARROW );
+    wc.lpszClassName = classStr.c_str();       
+
+    if( !RegisterClass( &wc ))
+    {
+        setError( ERROR_WGLPIPE_REGISTERCLASS_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        return false;
+    }
+
+    // window
+    DWORD windowStyleEx = WS_EX_APPWINDOW;
+    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
+
+    HWND hWnd = CreateWindowEx( windowStyleEx,
+                                wc.lpszClassName, "TMP",
+                                windowStyle, 0, 0, 1, 1,
+                                0, 0, // parent, menu
+                                instance, 0 );
+
+    if( !hWnd )
+    {
+        setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        UnregisterClass( classStr.c_str(),  instance );
+        return false;
+    }
+
+    HDC                   dc  = GetDC( hWnd );
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
+                       PFD_SUPPORT_OPENGL;
+
+    int pf = ChoosePixelFormat( dc, &pfd );
+    if( pf == 0 )
+    {
+        setError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+        return false;
+    }
+ 
+    if( !SetPixelFormat( dc, pf, &pfd ))
+    {
+        setError( ERROR_WGLPIPE_SETPF_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        ReleaseDC( hWnd, dc );
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+        return false;
+    }
+
+    // context
+    HGLRC context = wglCreateContext( dc );
+    if( !context )
+    {
+        setError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        ReleaseDC( hWnd, dc );
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+        return false;
+    }
+
+    HDC   oldDC      = wglGetCurrentDC();
+    HGLRC oldContext = wglGetCurrentContext();
+
+    wglMakeCurrent( dc, context );
+
+    const GLenum result = wglewInit();
+    bool success = result == GLEW_OK;
+    if( success )
+    {
+        LBINFO << "Pipe WGLEW initialization successful" << std::endl;
+        success = configInitGL();
+    }
+    else
+    {
+        setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
+        LBWARN << getError() << ": " << result << std::endl;
+    }
+
+    wglDeleteContext( context );
+    ReleaseDC( hWnd, dc );
+    DestroyWindow( hWnd );
+    UnregisterClass( classStr.c_str(),  instance );
+    wglMakeCurrent( oldDC, oldContext );
+
+    return success;
+}
+
+}
+}

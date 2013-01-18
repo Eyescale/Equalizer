@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@
 #include <functional>
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 
@@ -48,7 +48,7 @@ LocalInitData::LocalInitData()
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
-    _maxFrames   = from._maxFrames;    
+    _maxFrames   = from._maxFrames;
     _isResident  = from._isResident;
     _ortho       = from._ortho;
 
@@ -78,30 +78,29 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
         std::string desc = EVolve::getHelp();
 
-        TCLAP::CmdLine command( desc );
-        
-        TCLAP::ValueArg<std::string> modelArg( "m", "model", 
+        TCLAP::CmdLine command( desc, ' ', eq::Version::getString( ));
+        TCLAP::ValueArg<std::string> modelArg( "m", "model",
                                                "raw model file name",
                                                false, "Bucky32x32x32.raw",
                                                "string", command );
-        TCLAP::SwitchArg residentArg( "r", "resident", 
-           "Keep client resident (see resident node documentation on website)", 
+        TCLAP::SwitchArg residentArg( "r", "resident",
+           "Keep client resident (see resident node documentation on website)",
                                       command, false );
-        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
-                                           "Maximum number of rendered frames", 
+        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames",
+                                           "Maximum number of rendered frames",
                                              false, 0xffffffffu, "unsigned",
                                              command );
-        TCLAP::ValueArg<uint32_t> precisionArg( "p", "precision", 
-                "Rendering precision (default 2, bigger is better and slower)", 
+        TCLAP::ValueArg<uint32_t> precisionArg( "p", "precision",
+                "Rendering precision (default 2, bigger is better and slower)",
                                                 false, 2, "unsigned",
                                                 command );
         TCLAP::ValueArg<float> brightnessArg( "b", "brightness",
                                               "brightness factor", false, 1.0f,
                                               "float", command );
-        TCLAP::ValueArg<float> alphaArg( "a", "alpha", "alpha attenuation", 
+        TCLAP::ValueArg<float> alphaArg( "a", "alpha", "alpha attenuation",
                                          false, 1.0f, "float", command );
-        TCLAP::SwitchArg orthoArg( "o", "ortho", 
-                                   "use orthographic projection", 
+        TCLAP::SwitchArg orthoArg( "o", "ortho",
+                                   "use orthographic projection",
                                    command, false );
         TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
                                             false, "auto", "string", command );
@@ -140,7 +139,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     }
     catch( const TCLAP::ArgException& exception )
     {
-        EQERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error()
                 << " for argument " << exception.argId() << std::endl;
         ::exit( EXIT_FAILURE );
     }

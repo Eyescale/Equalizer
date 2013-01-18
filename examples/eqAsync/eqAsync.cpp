@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+ *                    2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,7 +40,6 @@ bool Window::configInitGL( const eq::uint128_t& initID )
 
     Pipe* pipe = static_cast<Pipe*>( getPipe( ));
     pipe->startAsyncFetcher( this );
-
     return true;
 }
 
@@ -48,10 +48,8 @@ void Pipe::startAsyncFetcher( Window* wnd )
     if( _initialized )
         return;
     _initialized = true;
-    EQINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
+    LBINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
     _asyncFetcher.setup( wnd );
-    _asyncFetcher.start();
-    _asyncFetcher.getTextureId(); // wait for initialization to finish
 }
 
 
@@ -65,20 +63,15 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
         if( oldKey != 0 )
             _asyncFetcher.deleteTexture( oldKey );
 
-        EQINFO << "new texture generated " << _txId.key << std::endl;
+        LBINFO << "new texture generated " << _txId.key << std::endl;
     }
 }
 
-
 bool Pipe::configExit()
 {
-    EQINFO << "exit async fetcher: " << this << std::endl;
-    _asyncFetcher.deleteTexture( 0 ); //exit async fetcher
-    _asyncFetcher.join();
-
+    _asyncFetcher.stop();
     return eq::Pipe::configExit();
 }
-
 
 void Channel::frameDraw( const eq::uint128_t& spin )
 {

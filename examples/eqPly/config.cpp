@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,14 +56,12 @@ Config::Config( eq::ServerPtr parent )
 Config::~Config()
 {
     for( ModelsCIter i = _models.begin(); i != _models.end(); ++i )
-    {
         delete *i;
-    }
     _models.clear();
 
     for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
     {
-        EQASSERT( !(*i)->isAttached() );
+        LBASSERT( !(*i)->isAttached() );
         delete *i;
     }
     _modelDist.clear();
@@ -98,7 +97,7 @@ bool Config::init()
     if( !_initData.getTrackerPort().empty( ))
     {
         if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialize tracker" << std::endl;
+            LBWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
@@ -110,7 +109,7 @@ bool Config::init()
             m = eq::Matrix4f::IDENTITY;
             m.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialized" << std::endl;
+            LBINFO << "Tracker initialized" << std::endl;
         }
     }
 
@@ -161,17 +160,17 @@ void Config::_loadModels()
     {
         const std::string filename = filenames.back();
         filenames.pop_back();
-     
+
         if( _isPlyfile( filename ))
         {
             Model* model = new Model;
 
             if( _initData.useInvertedFaces() )
                 model->useInvertedFaces();
-        
+
             if( !model->readFromFile( filename.c_str( )))
             {
-                EQWARN << "Can't load model: " << filename << std::endl;
+                LBWARN << "Can't load model: " << filename << std::endl;
                 delete model;
             }
             else
@@ -179,12 +178,12 @@ void Config::_loadModels()
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
-            const eq::Strings subFiles = co::base::searchDirectory( filename,
+            const eq::Strings subFiles = lunchbox::searchDirectory( filename,
                                                                     "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
@@ -198,7 +197,7 @@ void Config::_registerModels()
     // Register distribution helpers on each config run
     const bool createDist = _modelDist.empty(); //first run, create distributors
     const size_t  nModels = _models.size();
-    EQASSERT( createDist || _modelDist.size() == nModels );
+    LBASSERT( createDist || _modelDist.size() == nModels );
 
     for( size_t i = 0; i < nModels; ++i )
     {
@@ -213,12 +212,12 @@ void Config::_registerModels()
             modelDist = _modelDist[i];
 
         modelDist->registerTree( getClient( ));
-        EQASSERT( modelDist->isAttached() );
+        LBASSERT( modelDist->isAttached() );
 
         _frameData.setModelID( modelDist->getID( ));
     }
 
-    EQASSERT( _modelDist.size() == nModels );
+    LBASSERT( _modelDist.size() == nModels );
 
     if( !_modelDist.empty( ))
     {
@@ -235,18 +234,18 @@ void Config::_deregisterData()
         if( !modelDist->isAttached() ) // already done
             continue;
 
-        EQASSERT( modelDist->isMaster( ));
+        LBASSERT( modelDist->isMaster( ));
         modelDist->deregisterTree();
     }
 
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::UUID::ZERO );
-    _frameData.setModelID( eq::UUID::ZERO );
+    _initData.setFrameDataID( eq::UUID( ));
+    _frameData.setModelID( eq::UUID( ));
 }
 
-bool Config::mapData( const eq::uint128_t& initDataID )
+bool Config::loadData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached( ))
     {
@@ -259,36 +258,23 @@ bool Config::mapData( const eq::uint128_t& initDataID )
     }
     else // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
     return true;
 }
 
-void Config::unmapData()
-{
-    for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
-    {
-        ModelDist* modelDist = *i;
-        if( !modelDist->isAttached( )) // already done
-            continue;
-
-        if( !modelDist->isMaster( )) // leave registered on appNode
-            modelDist->unmapTree();
-    }
-}
-
 const Model* Config::getModel( const eq::uint128_t& modelID )
 {
-    if( modelID == eq::UUID::ZERO )
+    if( modelID == 0 )
         return 0;
 
     // Protect if accessed concurrently from multiple pipe threads
     const eq::Node* node = getNodes().front();
     const bool needModelLock = (node->getPipes().size() > 1);
-    co::base::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
+    lunchbox::ScopedWrite _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
-    EQASSERT( _modelDist.size() == nModels );
+    LBASSERT( _modelDist.size() == nModels );
 
     for( size_t i = 0; i < nModels; ++i )
     {
@@ -296,10 +282,11 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
         if( dist->getID() == modelID )
             return _models[ i ];
     }
-    
+
     _modelDist.push_back( new ModelDist );
-    Model* model = _modelDist.back()->mapModel( getClient(), modelID );
-    EQASSERT( model );
+    Model* model = _modelDist.back()->loadModel( getApplicationNode(),
+                                                 getClient(), modelID );
+    LBASSERT( model );
     _models.push_back( model );
 
     return model;
@@ -324,7 +311,7 @@ void Config::_updateData()
         _setHeadMatrix( headMatrix );
     }
 
-    // update database
+    // update camera
     if( _animation.isValid( ))
     {
         const eq::Vector3f&  modelRotation = _animation.getModelRotation();
@@ -347,7 +334,7 @@ void Config::_updateData()
     // idle mode
     if( isIdleAA( ))
     {
-        EQASSERT( _numFramesAA > 0 );
+        LBASSERT( _numFramesAA > 0 );
         _frameData.setIdle( true );
     }
     else
@@ -387,28 +374,32 @@ bool Config::_needNewFrame()
              _tracker.isRunning() || _redraw );
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( eq::EventICommand command )
 {
-    switch( event->data.type )
+    switch( command.getEventType( ))
     {
         case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( event->data.keyPress ))
+        {
+            const eq::Event& event = command.get< eq::Event >();
+            if( _handleKeyEvent( event.keyPress ))
             {
                 _redraw = true;
                 return true;
             }
             break;
+        }
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
-            const eq::uint128_t& viewID = event->data.context.view.identifier;
+            const eq::Event& event = command.get< eq::Event >();
+            const eq::uint128_t& viewID = event.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID == eq::UUID::ZERO )
+            if( viewID == 0 )
             {
                 _currentCanvas = 0;
                 return false;
             }
-            
+
             const View* view = _getCurrentView();
             const eq::Layout* layout = view->getLayout();
             const eq::Canvases& canvases = getCanvases();
@@ -429,8 +420,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
         {
-            const eq::PointerEvent& releaseEvent = 
-                event->data.pointerButtonRelease;
+            const eq::Event& event = command.get< eq::Event >();
+            const eq::PointerEvent& releaseEvent =
+                event.pointerButtonRelease;
             if( releaseEvent.buttons == eq::PTR_BUTTON_NONE)
             {
                 if( releaseEvent.button == eq::PTR_BUTTON1 )
@@ -450,7 +442,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
         }
         case eq::Event::CHANNEL_POINTER_MOTION:
-            switch( event->data.pointerMotion.buttons )
+        {
+            const eq::Event& event = command.get< eq::Event >();
+            switch( event.pointerMotion.buttons )
             {
               case eq::PTR_BUTTON1:
                   _spinX = 0;
@@ -458,56 +452,66 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
                   if( _frameData.usePilotMode())
                       _frameData.spinCamera(
-                          -0.005f * event->data.pointerMotion.dy,
-                          -0.005f * event->data.pointerMotion.dx );
+                          -0.005f * event.pointerMotion.dy,
+                          -0.005f * event.pointerMotion.dx );
                   else
                       _frameData.spinModel(
-                          -0.005f * event->data.pointerMotion.dy,
-                          -0.005f * event->data.pointerMotion.dx, 0.f );
+                          -0.005f * event.pointerMotion.dy,
+                          -0.005f * event.pointerMotion.dx, 0.f );
                   _redraw = true;
                   return true;
 
               case eq::PTR_BUTTON2:
-                  _advance = -event->data.pointerMotion.dy;
+                  _advance = -event.pointerMotion.dy;
                   _frameData.moveCamera( 0.f, 0.f, .005f * _advance );
                   _redraw = true;
                   return true;
 
               case eq::PTR_BUTTON3:
-                  _frameData.moveCamera(  .0005f * event->data.pointerMotion.dx,
-                                         -.0005f * event->data.pointerMotion.dy,
+                  _frameData.moveCamera(  .0005f * event.pointerMotion.dx,
+                                         -.0005f * event.pointerMotion.dy,
                                           0.f );
                   _redraw = true;
                   return true;
             }
             break;
+        }
 
         case eq::Event::WINDOW_POINTER_WHEEL:
-            _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
+        {
+            const eq::Event& event = command.get< eq::Event >();
+            _frameData.moveCamera( -0.05f * event.pointerWheel.yAxis,
                                    0.f,
-                                   0.05f * event->data.pointerWheel.xAxis );
+                                   0.05f * event.pointerWheel.xAxis );
             _redraw = true;
             return true;
+        }
 
         case eq::Event::MAGELLAN_AXIS:
+        {
+            const eq::Event& event = command.get< eq::Event >();
             _spinX = 0;
             _spinY = 0;
             _advance = 0;
-            _frameData.spinModel(  0.0001f * event->data.magellan.zRotation,
-                                  -0.0001f * event->data.magellan.xRotation,
-                                  -0.0001f * event->data.magellan.yRotation );
-            _frameData.moveCamera(  0.0001f * event->data.magellan.xAxis,
-                                   -0.0001f * event->data.magellan.zAxis,
-                                    0.0001f * event->data.magellan.yAxis );
+            _frameData.spinModel( 0.0001f * event.magellan.xRotation,
+                                  0.0001f * event.magellan.yRotation,
+                                  0.0001f * event.magellan.zRotation );
+            _frameData.moveCamera( 0.0001f * event.magellan.xAxis,
+                                   0.0001f * event.magellan.yAxis,
+                                   0.0001f * event.magellan.zAxis );
             _redraw = true;
             return true;
+        }
 
         case eq::Event::MAGELLAN_BUTTON:
-            if( event->data.magellan.button == eq::PTR_BUTTON1 )
+        {
+            const eq::Event& event = command.get< eq::Event >();
+            if( event.magellan.button == eq::PTR_BUTTON1 )
                 _frameData.toggleColorMode();
 
             _redraw = true;
             return true;
+        }
 
         case eq::Event::WINDOW_EXPOSE:
         case eq::Event::WINDOW_RESIZE:
@@ -516,12 +520,11 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _redraw = true;
             break;
 
-        case ConfigEvent::IDLE_AA_LEFT:
+        case IDLE_AA_LEFT:
             if( _useIdleAA )
             {
-                const ConfigEvent* idleEvent = 
-                    static_cast< const ConfigEvent* >( event );
-                _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
+                const int32_t steps = command.get< int32_t >();
+                _numFramesAA = LB_MAX( _numFramesAA, steps );
             }
             else
                 _numFramesAA = 0;
@@ -535,7 +538,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
     }
 
-    _redraw |= eq::Config::handleEvent( event );
+    _redraw |= eq::Config::handleEvent( command );
     return _redraw;
 }
 
@@ -584,7 +587,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'k':
         {
-            co::base::RNG rng;
+            lunchbox::RNG rng;
             if( rng.get< bool >( ))
                 _frameData.toggleOrtho();
             if( rng.get< bool >( ))
@@ -618,7 +621,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'S':
             _frameData.toggleStatistics();
             return true;
-            
+
         case 'f':
             _freezeLoadBalancing( true );
             return true;
@@ -690,7 +693,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'x':
             eqAdmin::removeWindow( _getAdminServer( ));
             _currentCanvas = 0;
-            EQASSERT( update() );
+            LBASSERT( update() );
             return false;
 
         // Head Tracking Emulation
@@ -799,6 +802,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _setFocusMode( eq::FOCUSMODE_RELATIVE_TO_OBSERVER );
             return true;
 
+        case '4':
+            _adjustResistance( 1 );
+            return true;
+
+        case '5':
+            _adjustResistance( -1 );
+            return true;
+
         case 'j':
             stopFrames();
             return true;
@@ -826,7 +837,7 @@ void Config::_switchCanvas()
     if( canvases.empty( ))
         return;
 
-    _frameData.setCurrentViewID( eq::UUID::ZERO );
+    _frameData.setCurrentViewID( eq::UUID( ));
 
     if( !_currentCanvas )
     {
@@ -835,7 +846,7 @@ void Config::_switchCanvas()
     }
 
     eq::CanvasesCIter i = stde::find( canvases, _currentCanvas );
-    EQASSERT( i != canvases.end( ));
+    LBASSERT( i != canvases.end( ));
 
     ++i;
     if( i == canvases.end( ))
@@ -860,7 +871,7 @@ void Config::_switchView()
 
     const View* view = _getCurrentView();
     const eq::Views& views = layout->getViews();
-    EQASSERT( !views.empty( ));
+    LBASSERT( !views.empty( ));
 
     if( !view )
     {
@@ -872,7 +883,7 @@ void Config::_switchView()
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
-        _frameData.setCurrentViewID( eq::UUID::ZERO );
+        _frameData.setCurrentViewID( eq::UUID( ));
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
@@ -892,7 +903,7 @@ void Config::_switchModel()
     {
         if( (*i)->getID() != currentID )
             continue;
-                
+
         ++i;
         break;
     }
@@ -909,7 +920,7 @@ void Config::_switchModel()
     if( view )
     {
         const Model* model = getModel( modelID );
-        _setMessage( "Using " + co::base::getFilename( model->getName( )));
+        _setMessage( "Using " + lunchbox::getFilename( model->getName( )));
     }
 }
 
@@ -958,11 +969,27 @@ void Config::_adjustTileSize( const int delta )
     if( !view )
         return;
 
-    eq::Vector2i tileSize = view->getTileSize();
+    eq::Vector2i tileSize = view->getEqualizer().getTileSize();
     if( tileSize == eq::Vector2i( -1, -1 ) )
         tileSize = eq::Vector2i( 64, 64 );
     tileSize += delta;
-    view->setTileSize( tileSize );
+    view->getEqualizer().setTileSize( tileSize );
+}
+
+void Config::_adjustResistance( const int delta )
+{
+    View* view = _getCurrentView();
+    if( !view )
+        return;
+
+    eq::Vector2i size = view->getEqualizer().getResistance2i();
+    size += delta;
+    size.x() = LB_MAX( size.x(), 0 );
+    size.y() = LB_MAX( size.y(), 0 );
+    std::ostringstream stream;
+    stream << "Set load equalizer resistance to " << size;
+    _setMessage( stream.str( ));
+    view->getEqualizer().setResistance( size );
 }
 
 void Config::_adjustModelScale( const float factor )
@@ -985,11 +1012,11 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::UUID::ZERO );
+    _frameData.setCurrentViewID( eq::UUID( ));
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
-    EQASSERT( !layouts.empty( ));
+    LBASSERT( !layouts.empty( ));
 
     index = ( index % layouts.size( ));
     _currentCanvas->useLayout( uint32_t( index ));
@@ -1107,9 +1134,9 @@ void Config::_closeAdminServer()
     eq::admin::ClientPtr client = _admin->getClient();
     client->disconnectServer( _admin );
     client->exitLocal();
-    EQASSERT( client->getRefCount() == 1 );
-    EQASSERT( _admin->getRefCount() == 1 );
-    
+    LBASSERT( client->getRefCount() == 1 );
+    LBASSERT( _admin->getRefCount() == 1 );
+
     _admin = 0;
     eq::admin::exit();
 }

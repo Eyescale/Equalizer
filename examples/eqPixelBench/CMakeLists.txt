@@ -10,7 +10,6 @@ eq_add_example(eqPixelBench
   SOURCES
     channel.cpp
     config.cpp
-    configEvent.cpp
     main.cpp
     window.cpp
   )

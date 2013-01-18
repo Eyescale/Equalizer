@@ -45,16 +45,16 @@ Channel::Channel( eq::Window* parent )
         , _drawRange( eq::Range::ALL )
         , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
-    eq::FrameData* frameData = new eq::FrameData;
+    eq::FrameDataPtr frameData = new eq::FrameData;
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
-    _frame.setData( frameData );
+    _frame.setFrameData( frameData );
 }
 
 static void checkError( const std::string& msg ) 
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
-        EQERROR << msg << " GL Error: " << error << std::endl;
+        LBERROR << msg << " GL Error: " << error << std::endl;
 }
 
 
@@ -65,6 +65,14 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
     setNearFar( 0.001f, 10.0f );
     return true;
+}
+
+bool Channel::configExit()
+{
+    eq::FrameDataPtr frameData = _frame.getFrameData();
+    frameData->resetPlugins();
+
+    return eq::Channel::configExit();
 }
 
 void Channel::frameStart( const eq::uint128_t& frameID,
@@ -165,7 +173,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 
     Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
     Renderer* renderer = pipe->getRenderer();
-    EQASSERT( renderer );
+    LBASSERT( renderer );
 
     eq::Matrix4f  modelviewM;     // modelview matrix
     eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix
@@ -313,7 +321,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     // calculate correct frames sequence
-    eq::FrameData* data = _frame.getData();
+    eq::FrameDataPtr data = _frame.getFrameData();
     if( !composeOnly && coveredPVP.hasArea( ))
     {
         _frame.clear();
@@ -361,7 +369,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     catch( const co::Exception& e )
     {
-        EQWARN << e.what() << std::endl;
+        LBWARN << e.what() << std::endl;
     }
 
     resetAssemblyState();
@@ -384,7 +392,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         eq::Frame* frame = *i;
         frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
         frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
-        frame->getData()->setRange( _drawRange );
+        frame->getFrameData()->setRange( _drawRange );
     }
 
     eq::Channel::frameReadback( frameID );

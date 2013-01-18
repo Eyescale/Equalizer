@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,9 @@ namespace eqPly
         void registerTree( co::LocalNodePtr node );
         void deregisterTree();
 
-        mesh::VertexBufferRoot* mapModel( co::LocalNodePtr node,
-                                          const eq::uint128_t& modelID );
-        void unmapTree();
+        mesh::VertexBufferRoot* loadModel( co::NodePtr master,
+                                           co::LocalNodePtr localNode,
+                                           const eq::uint128_t& modelID );
 
     protected:
         VertexBufferDist( const mesh::VertexBufferRoot* root,
@@ -62,10 +62,11 @@ namespace eqPly
     private:
         const mesh::VertexBufferRoot* _root;
         const mesh::VertexBufferBase* _node;
-        bool                          _isRoot;
-
         VertexBufferDist* _left;
         VertexBufferDist* _right;
+        bool _isRoot;
+
+        void _unmapTree();
     };
 }
 

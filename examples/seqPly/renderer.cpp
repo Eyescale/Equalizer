@@ -59,8 +59,6 @@ bool Renderer::exit()
 
 void Renderer::draw( co::Object* frameDataObj )
 {
-    EQASSERT( _state );
-
     const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
     Application& application = static_cast< Application& >( getApplication( ));
     const eq::uint128_t id = frameData->getModelID();
@@ -90,25 +88,13 @@ void Renderer::draw( co::Object* frameDataObj )
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = frustum.compute_matrix();
     const eq::Matrix4f pmv = projection * view * modelM;
+    const seq::RenderContext& context = getRenderContext();
 
     _state->setProjectionModelViewMatrix( pmv );
-    //_state->setRange( &getRange().start);
+    _state->setRange( &context.range.start );
     _state->setColors( model->hasColors( ));
     
     model->cullDraw( *_state );
-}
-
-co::Object* Renderer::createObject( const uint32_t type )
-{
-    switch( type )
-    {
-      case seq::OBJECTTYPE_FRAMEDATA:
-          return new eqPly::FrameData;
-
-      default:
-          EQASSERTINFO( false, "Object type " << type << " unknown" );
-          return 0;
-    }
 }
 
 }

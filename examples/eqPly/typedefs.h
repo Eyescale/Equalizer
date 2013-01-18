@@ -39,10 +39,10 @@
 
 #ifdef EQUALIZER
 #  include <eq/eq.h>
-#  define MESHASSERT  EQASSERT
-#  define MESHERROR   EQERROR
-#  define MESHWARN    EQWARN
-#  define MESHINFO    EQINFO
+#  define MESHASSERT  LBASSERT
+#  define MESHERROR   LBERROR
+#  define MESHWARN    LBWARN
+#  define MESHINFO    LBINFO
 #else
 #  include <vmmlib/vmmlib.hpp>
 #  ifdef _WIN32
@@ -68,9 +68,9 @@
 namespace mesh 
 {
     // basic type definitions   
-    typedef vmml::vector< 3, GLfloat >    Vertex;
-    typedef vmml::vector< 4, GLubyte >    Color;
-    typedef vmml::vector< 3, GLfloat >    Normal;
+    typedef vmml::vector< 3, float >      Vertex;
+    typedef vmml::vector< 4, uint8_t >    Color;
+    typedef vmml::vector< 3, float >      Normal;
     typedef vmml::matrix< 4, 4, float >   Matrix4f;
     typedef vmml::vector< 4, float >      Vector4f;
     typedef size_t                        Index;
@@ -194,5 +194,17 @@ namespace mesh
     static mesh::NullOStream cnul;
 }
 
+#ifdef EQUALIZER
+namespace lunchbox
+{
+template<> inline void byteswap( mesh::RenderMode& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
 
+template<> inline void byteswap( mesh::Range& value )
+{ 
+    byteswap( value[ 0 ]);
+    byteswap( value[ 1 ]);
+}
+}
+#endif
 #endif // MESH_TYPEDEFS_H

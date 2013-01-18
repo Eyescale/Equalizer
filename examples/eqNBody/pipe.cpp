@@ -32,7 +32,7 @@
 #include "config.h"
 #include "frameData.h"
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 namespace eqNbody
@@ -55,13 +55,13 @@ bool Pipe::configInit( const eq::uint128_t& initID )
     const eq::uint128_t frameDataID = initData.getFrameDataID();
 
     _data = new SharedData(config);
-    EQASSERT( _data );
+    LBASSERT( _data );
 
     FrameData& fd = const_cast<FrameData&>(_data->getFrameData());
     fd.init(initData.getNumBodies());
 
     const bool mapped = config->mapObject( &fd, frameDataID );
-    EQASSERT( mapped );
+    LBASSERT( mapped );
 
     return mapped;
 }
@@ -72,7 +72,7 @@ bool Pipe::configExit()
     FrameData& fd = const_cast<FrameData&>(_data->getFrameData());
 
     config->unmapObject( &fd );
-    EQASSERT( _data );
+    LBASSERT( _data );
     _data->releaseMemory();
     delete _data;
     return eq::Pipe::configExit();

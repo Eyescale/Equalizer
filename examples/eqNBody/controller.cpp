@@ -82,7 +82,7 @@ bool Controller::init( const InitData& initData, float* hPos, bool usePBO )
             int size = 0;
             glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, (GLint*)&size); 
             if ((unsigned)size != 4 * (sizeof(float) * _numBodies)) {
-                EQERROR << "WARNING: Pixel Buffer Object allocation failed" 
+                LBERROR << "WARNING: Pixel Buffer Object allocation failed" 
                         << std::endl;
             }
 
@@ -210,7 +210,7 @@ void Controller::setArray( BodyArray array, const float* pos,
                                     ( GLint* )&size ); 
             if ((unsigned)size != numBytes) 
             {
-                EQERROR << " WARNING : Pixel Buffer Object download failed."  
+                LBERROR << " WARNING : Pixel Buffer Object download failed."  
                         <<  " Size " << size << " does not match numBytes " 
                         << numBytes << std::endl;
             }

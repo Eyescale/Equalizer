@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ namespace eqPly
 View::View( eq::Layout* parent )
         : eq::View( parent )
         , _proxy( this )
-        , _modelID( co::base::UUID::ZERO )
         , _idleSteps( 0 )
 {
     setUserData( &_proxy );
@@ -51,7 +50,7 @@ View::View( eq::Layout* parent )
 View::~View()
 {
     setUserData( 0 );
-    _modelID = co::base::UUID::ZERO;
+    _modelID = 0;
     _idleSteps = 0;
 }
 
@@ -75,7 +74,7 @@ void View::Proxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void View::setModelID( const co::base::uint128_t& id )
+void View::setModelID( const lunchbox::uint128_t& id )
 {
     if( _modelID == id )
         return;

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,7 +36,6 @@ FrameData::FrameData()
         : _rotation( eq::Matrix4f::ZERO )
         , _modelRotation( eq::Matrix4f::ZERO )
         , _position( eq::Vector3f::ZERO )
-        , _modelID( co::base::UUID::ZERO )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
@@ -46,10 +46,8 @@ FrameData::FrameData()
         , _pilotMode( false )
         , _idle( false )
         , _compression( true )
-        , _currentViewID( co::base::UUID::ZERO )
 {
     reset();
-    EQINFO << "New FrameData " << std::endl;
 }
 
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
@@ -145,10 +143,10 @@ void FrameData::toggleColorMode()
 void FrameData::adjustQuality( const float delta )
 {
     _quality += delta;
-    _quality = EQ_MAX( _quality, 0.1f );
-    _quality = EQ_MIN( _quality, 1.0f );
+    _quality = LB_MAX( _quality, 0.1f );
+    _quality = LB_MIN( _quality, 1.0f );
     setDirty( DIRTY_FLAGS );
-    EQINFO << "Set non-idle image quality to " << _quality << std::endl;
+    LBINFO << "Set non-idle image quality to " << _quality << std::endl;
 }
 
 void FrameData::togglePilotMode()
@@ -162,7 +160,7 @@ void FrameData::toggleRenderMode()
     _renderMode = static_cast< mesh::RenderMode >(
         ( _renderMode + 1) % mesh::RENDER_MODE_ALL );
 
-    EQINFO << "Switched to " << _renderMode << std::endl;
+    LBINFO << "Switched to " << _renderMode << std::endl;
     setDirty( DIRTY_FLAGS );
 }
 
@@ -243,7 +241,7 @@ void FrameData::reset()
     model.rotate_x( static_cast<float>( -M_PI_2 ));
     model.rotate_y( static_cast<float>( -M_PI_2 ));
 
-    if( _position == eq::Vector3f( 0.f, 0.f, -2.f ) && 
+    if( _position == eq::Vector3f( 0.f, 0.f, -2.f ) &&
         _rotation == eq::Matrix4f::IDENTITY && _modelRotation == model )
     {
         _position.z() = 0.f;
@@ -274,4 +272,3 @@ void FrameData::setMessage( const std::string& message )
 }
 
 }
-

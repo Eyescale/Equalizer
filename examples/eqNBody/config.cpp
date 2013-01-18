@@ -1,6 +1,7 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,18 +32,18 @@
 
 namespace eqNbody
 {
-    
+
 Config::Config( eq::ServerPtr parent )
         : eq::Config( parent )
         , _redraw( true )
 {
 }
-        
+
 bool Config::init()
-{           
+{
     // init distributed objects
     _frameData.init( _initData.getNumBodies() );
-    registerObject( &_frameData );      
+    registerObject( &_frameData );
 
     _initData.setFrameDataID( _frameData.getID( ));
     registerObject( &_initData );
@@ -56,109 +57,114 @@ bool Config::init()
 
     return true;
 }
-    
+
 bool Config::exit()
 {
     const bool ret = eq::Config::exit();
     _deregisterData();
-        
+
     return ret;
 }
-        
+
 void Config::_deregisterData()
 {
     releaseData();
     deregisterObject( &_frameData );
-        
-    _initData.setFrameDataID( eq::UUID::ZERO );
+
+    _initData.setFrameDataID( 0 );
 }
-    
-    
+
+
 void Config::mapData( const eq::uint128_t& initDataID )
-{       
+{
     if( !_initData.isAttached( ))
     {
-        EQCHECK( mapObject( &_initData, initDataID ));
+        LBCHECK( mapObject( &_initData, initDataID ));
         releaseData(); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
 }
-    
+
 void Config::releaseData()
 {
     releaseObject( &_initData );
 }
-    
+
 uint32_t Config::startFrame()
 {
     static bool isInitialized = false;
-        
+
     // Allocate the CUDA memory after the CUDA device initialisation!
     if( isInitialized == false ) {
         _frameData.initHostData();
         _frameData.updateParameters( NBODY_CONFIG_SHELL,
                                      2.12f, 2.98f, 0.016f );
         isInitialized = true;
-    }       
-    
-    const eq::uint128_t& version = _frameData.commit();    
-    
+    }
+
+    const eq::uint128_t& version = _frameData.commit();
+
     _redraw = false;
     return eq::Config::startFrame( version );
 }
-    
+
 bool Config::needsRedraw()
 {
     return ( _redraw );
 }
-    
-bool Config::handleEvent( const eq::ConfigEvent* event )
-{               
-    switch( event->data.type )
-    {
-      case ConfigEvent::DATA_CHANGED:
-          _registerData(static_cast< const ConfigEvent* >( event ));
-          if( _readyToCommit() ) {
-              _frameData.commit();        // broadcast changed data to all clients
-          }
-          break;
 
-      case ConfigEvent::PROXY_CHANGED:
-      {
-          _updateData(static_cast< const ConfigEvent* >( event ));
-          if( _readyToCommit() ) {
-              _updateSimulation();    // update the simulation every nth frame
-              _frameData.commit();    // broadcast changed data to all clients
-          }
-      }
-      break;
-                
-      case eq::Event::KEY_PRESS:
-          if( _handleKeyEvent( event->data.keyPress ))
-          {
-              _redraw = true;
-              return true;
-          }
-          break;
-                                
-      case eq::Event::WINDOW_EXPOSE:
-      case eq::Event::WINDOW_RESIZE:
-      case eq::Event::WINDOW_CLOSE:
-      case eq::Event::VIEW_RESIZE:
-          _redraw = true;
-          break;
-                
-      default:
-          break;
+bool Config::handleEvent( eq::EventICommand command )
+{
+    switch( command.getEventType( ))
+    {
+        case DATA_CHANGED:
+        {
+            _registerData( command );
+            if( _readyToCommit() )
+                _frameData.commit();    // broadcast changed data to all clients
+            return false;
+        }
+
+        case PROXY_CHANGED:
+        {
+            _updateData( command );
+            if( _readyToCommit() )
+            {
+                _updateSimulation();    // update the simulation every nth frame
+                _frameData.commit();    // broadcast changed data to all clients
+            }
+            return false;
+        }
+
+        case eq::Event::KEY_PRESS:
+        {
+            const eq::Event& event = command.get< eq::Event >();
+            if( _handleKeyEvent( event.keyPress ))
+            {
+                _redraw = true;
+                return true;
+            }
+            break;
+        }
+
+        case eq::Event::WINDOW_EXPOSE:
+        case eq::Event::WINDOW_RESIZE:
+        case eq::Event::WINDOW_CLOSE:
+        case eq::Event::VIEW_RESIZE:
+            _redraw = true;
+            break;
+
+        default:
+            break;
     }
-        
-    _redraw |= eq::Config::handleEvent( event );
+
+    _redraw |= eq::Config::handleEvent( command );
     return _redraw;
 }
-    
+
 bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
@@ -166,27 +172,27 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
       case ' ':
           //_frameData.reset();
           return true;
-                
+
       case 's':
       case 'S':
           _frameData.toggleStatistics();
           return true;
-                
+
       default:
           return false;
     }
 }
-    
+
 bool Config::_readyToCommit()
 {
     return _frameData.isReady();
 }
-            
-void Config::_updateSimulation() 
+
+void Config::_updateSimulation()
 {
     static int ctr = 0;     // frame counter
     static int demo = 0;    // demo config
-        
+
     ctr++;
 
     if(ctr > 200) {
@@ -207,14 +213,21 @@ void Config::_updateSimulation()
         }
     }
 }
-    
-void Config::_registerData(const ConfigEvent* event)
-{   
-    _frameData.addProxyID(event->_proxyID, event->_range);
-}   
 
-void Config::_updateData(const ConfigEvent* event)
-{   
-    _frameData.updateProxyID(event->_proxyID, event->_version, event->_range);
-}   
+void Config::_registerData( eq::EventICommand& command )
+{
+    const eq::uint128_t pid = command.get< eq::uint128_t >();
+    const eq::Range range = command.get< eq::Range >();
+
+    _frameData.addProxyID( pid, range );
+}
+
+void Config::_updateData( eq::EventICommand& command )
+{
+    const eq::uint128_t pid = command.get< eq::uint128_t >();
+    const eq::Range range = command.get< eq::Range >();
+    const eq::uint128_t version = command.get< eq::uint128_t >();
+
+    _frameData.updateProxyID( pid, version, range );
+}
 }
