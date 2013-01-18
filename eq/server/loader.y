@@ -226,6 +226,9 @@
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
+%token EQTOKEN_EYE_LEFT
+%token EQTOKEN_EYE_CYCLOP
+%token EQTOKEN_EYE_RIGHT
 %token EQTOKEN_FOCUS_DISTANCE
 %token EQTOKEN_FOCUS_MODE
 %token EQTOKEN_ROBUSTNESS
@@ -758,7 +761,31 @@ observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer( config );}
 observerFields: /*null*/ | observerFields observerField
 observerField:
     EQTOKEN_NAME STRING { observer->setName( $2 ); }
-    | EQTOKEN_EYE_BASE FLOAT { observer->setEyeBase( $2 ); }
+    | EQTOKEN_EYE_BASE FLOAT
+    {
+        const float eyeBase_2 = $2 * .5f;
+        observer->setEyePosition( eq::fabric::EYE_LEFT,
+                                  eq::fabric::Vector3f( -eyeBase_2, 0.f, 0.f ));
+        observer->setEyePosition( eq::fabric::EYE_CYCLOP,
+                                  eq::fabric::Vector3f::ZERO );
+        observer->setEyePosition( eq::fabric::EYE_RIGHT,
+                                  eq::fabric::Vector3f( eyeBase_2, 0.f, 0.f ));
+    }
+    | EQTOKEN_EYE_LEFT  '[' FLOAT FLOAT FLOAT ']'
+    {
+        observer->setEyePosition( eq::fabric::EYE_LEFT,
+                                  eq::fabric::Vector3f( $3, $4, $5 ));
+    }
+    | EQTOKEN_EYE_CYCLOP  '[' FLOAT FLOAT FLOAT ']'
+    {
+        observer->setEyePosition( eq::fabric::EYE_CYCLOP,
+                                  eq::fabric::Vector3f( $3, $4, $5 ));
+    }
+    | EQTOKEN_EYE_RIGHT  '[' FLOAT FLOAT FLOAT ']'
+    {
+        observer->setEyePosition( eq::fabric::EYE_RIGHT,
+                                  eq::fabric::Vector3f( $3, $4, $5 ));
+    }
     | EQTOKEN_FOCUS_DISTANCE FLOAT { observer->setFocusDistance( $2 ); }
     | EQTOKEN_FOCUS_MODE IATTR
         { observer->setFocusMode( eq::fabric::FocusMode( $2 )); }

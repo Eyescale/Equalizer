@@ -1,5 +1,5 @@
 
-# Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2012-2013 Stefan Eilemann <eile@eyescale.ch>
 
 # Compile definitions
 set(EQUALIZER_DEFINES)
@@ -12,6 +12,8 @@ endif()
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND EQUALIZER_DEFINES EQ_2_0_API)
+else()
+  list(APPEND EQUALIZER_DEFINES EQ_1_0_API)
 endif()
 
 if(WIN32)

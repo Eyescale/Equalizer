@@ -621,7 +621,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
 void Compound::computeFrustum( RenderContext& context, const Eye eye ) const
 {
     // compute eye position in screen space
-    const Vector3f eyeWorld = _getEyePosition( eye );
+    const Vector3f& eyeWorld = _getEyePosition( eye );
     const FrustumData& frustumData = getInheritFrustumData();
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
@@ -635,7 +635,7 @@ void Compound::computeFrustum( RenderContext& context, const Eye eye ) const
 void Compound::computeTileFrustum( Frustumf& frustum, const Eye eye,
                                    Viewport vp, bool ortho ) const
 {
-    const Vector3f eyeWorld = _getEyePosition( eye );
+    const Vector3f& eyeWorld = _getEyePosition( eye );
     const FrustumData& frustumData = getInheritFrustumData();
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
@@ -676,7 +676,7 @@ void Compound::_computePerspective( RenderContext& context,
 void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
 {
     // Compute corners for cyclop eye without perspective correction:
-    const Vector3f cyclopWorld = _getEyePosition( EYE_CYCLOP );
+    const Vector3f& cyclopWorld = _getEyePosition( EYE_CYCLOP );
     const FrustumData& frustumData = getInheritFrustumData();
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f cyclopWall = xfm * cyclopWorld;
@@ -700,26 +700,25 @@ Vector3f Compound::_getEyePosition( const Eye eye ) const
     const View* view = destChannel->getView();
     const Observer* observer = view ? view->getObserver() : 0;
 
-    if( observer && frustumData.getType() == Wall::TYPE_FIXED )
-        return observer->getEyePosition( eye ) * view->getModelUnit();
+    if( observer )
+        return (frustumData.getType() == Wall::TYPE_FIXED) ?
+            observer->getEyeWorld( eye ) * view->getModelUnit() :
+            observer->getEyePosition( eye )  * view->getModelUnit();
 
-    const Config* config = getConfig();
-    const float eyeBase_2 = 0.5f * view->getModelUnit() * ( observer ?
-        observer->getEyeBase() :
-        config->getFAttribute( Config::FATTR_EYE_BASE ));
+    const float eyeBase_2 =
+        0.5f * getConfig()->getFAttribute( Config::FATTR_EYE_BASE );
 
     switch( eye )
     {
-    case EYE_LEFT:
-        return Vector3f(-eyeBase_2, 0.f, 0.f );
+      case EYE_LEFT:
+          return Vector3f(-eyeBase_2, 0.f, 0.f );
+      case EYE_RIGHT:
+          return Vector3f( eyeBase_2, 0.f, 0.f );
 
-    case EYE_RIGHT:
-        return Vector3f( eyeBase_2, 0.f, 0.f );
-
-    default:
-        LBUNIMPLEMENTED;
-    case EYE_CYCLOP:
-        return Vector3f::ZERO;
+      default:
+          LBUNIMPLEMENTED;
+      case EYE_CYCLOP:
+          return Vector3f::ZERO;
     }
 }
 

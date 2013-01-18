@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -55,7 +55,7 @@ void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
 
-    if( dirtyBits & ( DIRTY_EYE_BASE | DIRTY_HEAD ))
+    if( dirtyBits & ( DIRTY_EYE_POSITION | DIRTY_HEAD ))
         _updateEyes();
     if( dirtyBits & DIRTY_FOCUS ||
         ( (dirtyBits & DIRTY_HEAD) && getFocusMode() != FOCUSMODE_FIXED ))
@@ -66,7 +66,7 @@ void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         getHeadMatrix().inverse( _inverseHeadMatrix );
 }
 
-ServerPtr Observer::getServer() 
+ServerPtr Observer::getServer()
 {
     Config* config = getConfig();
     LBASSERT( config );
@@ -93,34 +93,14 @@ void Observer::init()
     _updateViews();
     getHeadMatrix().inverse( _inverseHeadMatrix );
 }
-    
+
 void Observer::_updateEyes()
 {
-    const float eyeBase_2 = .5f * getEyeBase();
     const Matrix4f& head = getHeadMatrix();
+    for( size_t i = 0; i < NUM_EYES; ++i )
+        _eyeWorld[ i ] = head * getEyePosition( Eye( 1 << i ));
 
-    // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
-    // OPT: don't use vector operator* due to possible simplification
-    const int32_t cyclop = lunchbox::getIndexOfLastBit( EYE_CYCLOP );
-    const int32_t right  = lunchbox::getIndexOfLastBit( EYE_RIGHT );
-    const int32_t left   = lunchbox::getIndexOfLastBit( EYE_LEFT );
-
-    _eyes[ cyclop ].x() = head.at( 0, 3 );
-    _eyes[ cyclop ].y() = head.at( 1, 3 );
-    _eyes[ cyclop ].z() = head.at( 2, 3 );
-    _eyes[ cyclop ]    /= head.at( 3, 3 );
-
-    _eyes[ left ].x() = ( -eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
-    _eyes[ left ].y() = ( -eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
-    _eyes[ left ].z() = ( -eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
-    _eyes[ left ]    /= ( -eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
-
-    _eyes[ right ].x() = ( eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
-    _eyes[ right ].y() = ( eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
-    _eyes[ right ].z() = ( eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
-    _eyes[ right ]    /= ( eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
-
-    LBVERB << "Eye position: " << _eyes[ cyclop ] << std::endl;
+    LBVERB << "Eye position: " << _eyeWorld[ EYE_CYCLOP ] << std::endl;
 }
 
 void Observer::_updateViews()

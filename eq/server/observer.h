@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -36,7 +36,7 @@ namespace server
     class Observer : public fabric::Observer< Config, Observer >
     {
     public:
-        /** 
+        /**
          * Constructs a new Observer.
          */
         EQSERVER_API Observer( Config* parent );
@@ -50,8 +50,8 @@ namespace server
         ServerPtr getServer();
 
         /** @return the position of an eye in world-space coordinates. */
-        const fabric::Vector3f& getEyePosition( const fabric::Eye eye ) const
-        { return _eyes[ lunchbox::getIndexOfLastBit( eye ) ]; }
+        const fabric::Vector3f& getEyeWorld( const fabric::Eye eye ) const
+        { return _eyeWorld[ lunchbox::getIndexOfLastBit( eye ) ]; }
 
         /** @return the inverse of the current head matrix. */
         const fabric::Matrix4f& getInverseHeadMatrix() const
@@ -79,15 +79,15 @@ namespace server
         virtual void setDirty( const uint64_t bits ); //!< @internal
 
         /** @sa Object::deserialize */
-        virtual void deserialize( co::DataIStream& is, 
+        virtual void deserialize( co::DataIStream& is,
                                   const uint64_t dirtyBits );
 
     private:
         /** Cached inverse head matrix. */
         fabric::Matrix4f _inverseHeadMatrix;
 
-        /** The eye positions in world space. */ 
-        fabric::Vector3f _eyes[ eq::fabric::NUM_EYES ];
+        /** The eye positions in world space. */
+        fabric::Vector3f _eyeWorld[ eq::fabric::NUM_EYES ];
 
         /** Views tracked by this observer. */
         Views _views;
