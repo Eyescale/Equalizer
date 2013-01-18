@@ -1168,7 +1168,7 @@ bool Pipe::_cmdFrameStart( co::ICommand& cmd )
         waitEvent.event.statistic.idleTime =
             _impl->thread ? _impl->thread->getWorkerQueue()->resetWaitTime() :0;
         waitEvent.event.statistic.totalTime =
-            _impl->frameTime - lastFrameTime;
+            LB_MAX( _impl->frameTime - lastFrameTime, 1 ); // avoid SIGFPE
     }
 
     LBASSERTINFO( _impl->currentFrame + 1 == frameNumber,
