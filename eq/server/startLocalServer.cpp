@@ -6,12 +6,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -42,7 +42,7 @@ public:
             _server = server;
             return Thread::start();
         }
-    
+
 protected:
 
     virtual void run()
@@ -51,7 +51,7 @@ protected:
             _server->close();
             _server->deleteConfigs();
 
-            LBINFO << "Server thread done, still referenced by " 
+            LBINFO << "Server thread done, still referenced by "
                    << _server->getRefCount() - 1 << std::endl;
 
             LBASSERTINFO( _server->getRefCount() == 1, _server );
@@ -60,14 +60,14 @@ protected:
         }
 
 private:
-    eq::server::ServerPtr _server;    
+    eq::server::ServerPtr _server;
 };
 
 static ServerThread _serverThread;
 }
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_API 
+extern "C" EQSERVER_API
 co::Connection* eqsStartLocalServer( const std::string& config )
 {
 #pragma warning(pop)
@@ -80,7 +80,7 @@ co::Connection* eqsStartLocalServer( const std::string& config )
     eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
+    if( config.length() > 3 && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
 #ifdef EQ_USE_HWSD
     else
