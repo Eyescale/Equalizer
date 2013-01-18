@@ -73,6 +73,8 @@ NodeStatistics::~NodeStatistics()
 
     Config* config = _owner->getConfig();
     event.statistic.endTime = config->getTime();
+    if( event.statistic.endTime <= event.statistic.startTime )
+        event.statistic.endTime = event.statistic.startTime + 1;
     config->sendEvent( event.type ) << event;
 }
 

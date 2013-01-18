@@ -33,7 +33,6 @@
 #ifndef OSGSV_FRAMEDATA_H
 #define OSGSV_FRAMEDATA_H
 
-#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 
 #include <osg/ref_ptr>
@@ -47,38 +46,38 @@ namespace osgScaleViewer
     public:
         FrameData();
 
-        /** 
+        /**
          * Sets the camera position.
          * @param cameraPosition the camera position.
          */
         void setCameraPosition( eq::Vector3f cameraPosition );
 
-        /** 
+        /**
          * Gets the camera position.
          * @return the camera position.
          */
         const eq::Vector3f getCameraPosition() const { return _cameraPosition; }
 
-        /** 
+        /**
          * Sets the camera look at point.
          * @param cameraLookAtPoint the camera look at point vector.
          */
         void setCameraLookAtPoint( eq::Vector3f cameraLookAtPoint );
 
-        /** 
+        /**
          * Gets the camera look at point.
          * @return the camera look at point vector.
          */
-        const eq::Vector3f getCameraLookAtPoint() const 
+        const eq::Vector3f getCameraLookAtPoint() const
             { return _cameraLookAtPoint; }
 
-        /** 
+        /**
          * Sets the camera up vector.
          * @param cameraUpVector the camera up vector.
          */
         void setCameraUpVector( eq::Vector3f cameraUpVector );
 
-        /** 
+        /**
          * Gets the camera up vector.
          * @return the camera up vector.
          */
@@ -93,7 +92,7 @@ namespace osgScaleViewer
     protected:
         /** @sa Object::serialize() */
         virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
-    
+
         /** @sa Object::deserialize() */
         virtual void deserialize( co::DataIStream& is,
                                   const uint64_t dirtyBits );
@@ -116,7 +115,7 @@ namespace osgScaleViewer
         eq::Vector3f _cameraLookAtPoint;
 
         /** Up vector of the camera */
-        eq::Vector3f _cameraUpVector;    
+        eq::Vector3f _cameraUpVector;
 
         bool _statistics;
     };

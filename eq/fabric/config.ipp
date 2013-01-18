@@ -639,9 +639,11 @@ uint128_t Config< S, C, O, L, CV, N, V >::commit( const uint32_t incarnation )
         commitChildren< O, C >( _observers, static_cast< C* >( this ),
                                 CMD_CONFIG_NEW_OBSERVER, incarnation );
 
-    // Always traverse layouts: view objects may be dirty
+    // Always traverse layouts and canvases: view/segment objects may be dirty
     commitChildren< L, C >( _layouts, static_cast<C*>( this ),
                             CMD_CONFIG_NEW_LAYOUT, incarnation );
+    commitChildren< CV, C >( _canvases, static_cast<C*>( this ),
+                            CMD_CONFIG_NEW_CANVAS, incarnation );
 
     if( Serializable::isDirty( DIRTY_CANVASES ))
         commitChildren< CV, C >( _canvases, static_cast< C* >( this ),

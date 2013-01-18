@@ -597,12 +597,13 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels,
 
     Compound* compound = new Compound( root );
     compound->setName( name );
-    if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
-    {
-        if( params.getEqualizer().getMode() == LoadEqualizer::MODE_DB )
-            params.getEqualizer().setMode( LoadEqualizer::MODE_2D );
-        compound->addEqualizer( new LoadEqualizer( params.getEqualizer( )));
-    }
+    if( params.getEqualizer().getMode() == LoadEqualizer::MODE_DB )
+        params.getEqualizer().setMode( LoadEqualizer::MODE_2D );
+
+    LoadEqualizer* lb = new LoadEqualizer( params.getEqualizer( ));
+    if( name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
+        lb->setDamping( 1.f );
+    compound->addEqualizer( lb );
 
     _fill2DCompound( compound, channels );
     return compound;

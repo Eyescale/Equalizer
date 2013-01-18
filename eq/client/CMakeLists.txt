@@ -79,7 +79,7 @@ install(TARGETS Equalizer
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib
         LIBRARY DESTINATION lib COMPONENT eqlib)
-install(FILES ${OPTIONS_CMAKE} DESTINATION share/Equalizer/CMake COMPONENT dev)
+install(FILES ${OPTIONS_CMAKE} DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 
 option(EQUALIZER_OLD_CLIENT_LAYOUT
   "Install header files as in v1.0 directory layout" OFF)

@@ -3,6 +3,8 @@
 
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
+add_definitions(-DEQ_IGNORE_GLEW)
+
 eq_add_example(osgScaleViewer
   HEADERS
     channel.h

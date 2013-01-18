@@ -30,9 +30,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef WIN32
-#define EQ_IGNORE_GLEW 
-#endif
 
 #include "osgScaleViewer.h"
 #include "initData.h"

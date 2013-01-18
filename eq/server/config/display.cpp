@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -86,6 +86,8 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
+
         if( flags & fabric::ConfigParams::FLAG_MULTIPROCESS_DB &&
             nodes.size() > 1 )
         {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -576,11 +576,7 @@ void Compound::updateFrustum( const Vector3f& eyeWorld, const float ratio )
     }
     // else frustum from segment
 
-    if( segment->getCurrentType() == Frustum::TYPE_NONE )
-    {
-        LBASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE);
-        segment->notifyFrustumChanged();
-    }
+    segment->inheritFrustum();
 
     // set compound frustum =
     //         segment frustum X channel/segment coverage

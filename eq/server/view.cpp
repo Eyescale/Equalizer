@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com
  *
@@ -468,12 +468,9 @@ float View::_computeFocusRatio( Vector3f& eye )
         for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
         {
             Segment* segment = (*i)->getSegment();
+            segment->inheritFrustum();
             if( segment->getCurrentType() == Frustum::TYPE_NONE )
-            {
-                segment->notifyFrustumChanged();
-                if( segment->getCurrentType() == Frustum::TYPE_NONE )
-                    continue;
-            }
+                continue;
 
             // http://en.wikipedia.org/wiki/Line-plane_intersection
             const Wall& wall = segment->getWall();
