@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -26,7 +26,7 @@
 
 namespace eq
 {
-    /** 
+    /**
      * The client represents a network node of the application in the cluster.
      *
      * The methods initLocal() and exitLocal() should be used to set up and exit
@@ -43,31 +43,32 @@ namespace eq
         /** Destruct the client. @version 1.0 */
         EQ_API virtual ~Client();
 
-        /** 
+        /**
          * Open and connect an Equalizer server to the local client.
          *
          * The client has to be in the listening state, see initLocal().
          *
          * @param server the server.
          * @return true if the server was connected, false if not.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool connectServer( ServerPtr server );
 
-        /** 
+        /**
          * Disconnect and close the connection to an Equalizer server.
-         * 
+         *
          * @param server the server.
          * @return true if the server was disconnected, false if not.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool disconnectServer( ServerPtr server );
 
-        /** 
+        /**
          * Initialize a local, listening node.
          *
-         * The <code>--eq-client</code> and <code>--eq-layout</code> command
-         * line options are recognized by this method.
+         * The <code>--eq-client</code>, <code>--eq-layout</code> and
+         * <code>--eq-modelunit</code> command line options are recognized by
+         * this method.
          *
          * <code>--eq-client</code> is used for remote nodes which have been
          * auto-launched by another node, e.g., remote render clients. This
@@ -76,6 +77,11 @@ namespace eq
          * <code>--eq-layout</code> can apply multiple times. Each instance has
          * to be followed by the name of a layout. The given layouts will be
          * activated on all canvases using them during Config::init().
+         *
+         * <code>--eq-modelunit</code> is used for scaling the rendered models
+         * in all views. The model unit defines the size of the model wrt the
+         * virtual room unit which is always in meter. The default unit is 1
+         * (1 meter or EQ_M).
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.
@@ -90,7 +96,7 @@ namespace eq
 
         /**
          * @return true if the client has commands pending, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool hasCommands();
 
@@ -106,7 +112,7 @@ namespace eq
 
     protected:
         /**
-         * Implements the processing loop for render clients. 
+         * Implements the processing loop for render clients.
          *
          * As long as the node is running, that is, between initLocal() and an
          * exit send from the server, this method executes received commands
@@ -114,7 +120,7 @@ namespace eq
          * commands.
          *
          * @sa Pipe::createMessagePump()
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API virtual void clientLoop();
 
@@ -124,7 +130,7 @@ namespace eq
     private:
         /** The command->node command queue. */
         CommandQueue _mainThreadQueue;
-        
+
         bool _running;
 
         struct Private;
