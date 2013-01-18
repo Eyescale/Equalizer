@@ -65,11 +65,11 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Compound::Compound( Config* parent )
-        : _config( parent )
-        , _parent( 0 )
-        , _usage( 1.0f )
-        , _taskID( 0 )
-        , _frustum( _data.frustumData )
+    : _config( parent )
+    , _parent( 0 )
+    , _usage( 1.0f )
+    , _taskID( 0 )
+    , _frustum( _data.frustumData )
 {
     LBASSERT( parent );
     parent->addCompound( this );
@@ -77,11 +77,11 @@ Compound::Compound( Config* parent )
 }
 
 Compound::Compound( Compound* parent )
-        : _config( 0 )
-        , _parent( parent )
-        , _usage( 1.0f )
-        , _taskID( 0 )
-        , _frustum( _data.frustumData )
+    : _config( 0 )
+    , _parent( parent )
+    , _usage( 1.0f )
+    , _taskID( 0 )
+    , _frustum( _data.frustumData )
 {
     LBASSERT( parent );
     parent->_addChild( this );
@@ -140,14 +140,14 @@ Compound::~Compound()
 }
 
 Compound::Data::Data()
-        : channel( 0 )
-        , overdraw( Vector4i::ZERO )
-        , buffers( eq::Frame::BUFFER_UNDEFINED )
-        , eyes( EYE_UNDEFINED )
-        , tasks( fabric::TASK_DEFAULT )
-        , period( LB_UNDEFINED_UINT32 )
-        , phase( LB_UNDEFINED_UINT32 )
-        , maxFPS( std::numeric_limits< float >::max( ))
+    : channel( 0 )
+    , overdraw( Vector4i::ZERO )
+    , buffers( eq::Frame::BUFFER_UNDEFINED )
+    , eyes( EYE_UNDEFINED )
+    , tasks( fabric::TASK_DEFAULT )
+    , period( LB_UNDEFINED_UINT32 )
+    , phase( LB_UNDEFINED_UINT32 )
+    , maxFPS( std::numeric_limits< float >::max( ))
 {
     const Global* global = Global::instance();
     for( int i=0; i<IATTR_ALL; ++i )
@@ -554,24 +554,24 @@ void Compound::updateFrustum( const Vector3f& eyeWorld, const float ratio )
 
         switch( view->getCurrentType( ))
         {
-            case Frustum::TYPE_WALL:
-                setWall( wall );
-                LBLOG( LOG_VIEW ) << "View wall for " << channel->getName()
-                                  << ": " << wall << std::endl;
-                return;
+          case Frustum::TYPE_WALL:
+              setWall( wall );
+              LBLOG( LOG_VIEW ) << "View wall for " << channel->getName()
+                                << ": " << wall << std::endl;
+              return;
 
-            case Frustum::TYPE_PROJECTION:
-            {
-                Projection projection( view->getProjection( )); // keep distance
-                projection = wall;
-                setProjection( projection );
-                LBLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
-                                  << ": " << projection << std::endl;
-                return;
-            }
+          case Frustum::TYPE_PROJECTION:
+          {
+              Projection projection( view->getProjection( )); // keep distance
+              projection = wall;
+              setProjection( projection );
+              LBLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
+                                << ": " << projection << std::endl;
+              return;
+          }
 
-            default:
-                LBUNIMPLEMENTED;
+          default:
+              LBUNIMPLEMENTED;
         }
     }
     // else frustum from segment
@@ -595,26 +595,26 @@ void Compound::updateFrustum( const Vector3f& eyeWorld, const float ratio )
 
     switch( segment->getCurrentType( ))
     {
-        case Frustum::TYPE_WALL:
-        {
-            setWall( wall );
-            LBLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
-                              << ": " << wall << std::endl;
-            return;
-        }
+      case Frustum::TYPE_WALL:
+      {
+          setWall( wall );
+          LBLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
+                            << ": " << wall << std::endl;
+          return;
+      }
 
-        case Frustum::TYPE_PROJECTION:
-        {
-            Projection projection( segment->getProjection( ));
-            projection = wall;
-            setProjection( projection );
-            LBLOG( LOG_VIEW ) << "Segment projection for "
-                              << channel->getName() << ": " << projection
-                              << std::endl;
-            return;
-        }
-        default:
-            LBUNIMPLEMENTED;
+      case Frustum::TYPE_PROJECTION:
+      {
+          Projection projection( segment->getProjection( ));
+          projection = wall;
+          setProjection( projection );
+          LBLOG( LOG_VIEW ) << "Segment projection for "
+                            << channel->getName() << ": " << projection
+                            << std::endl;
+          return;
+      }
+      default:
+          LBUNIMPLEMENTED;
     }
 }
 
@@ -627,7 +627,7 @@ void Compound::computeFrustum( RenderContext& context, const Eye eye ) const
     const Vector3f eyeWall = xfm * eyeWorld;
 
     LBVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
-        << std::endl;
+           << std::endl;
     _computePerspective( context, eyeWall );
     _computeOrtho( context, eyeWall );
 }
@@ -645,72 +645,72 @@ void Compound::computeTileFrustum( Frustumf& frustum, const Eye eye,
 
 namespace
 {
-    static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
-                                       const Vector3f& eyeWorld )
+static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
+                                   const Vector3f& eyeWorld )
+{
+    // headTransform = -trans(eyeWorld) * view matrix (frustum position)
+    for( int i=0; i<16; i += 4 )
     {
-        // headTransform = -trans(eyeWorld) * view matrix (frustum position)
-        for( int i=0; i<16; i += 4 )
-        {
-            result.array[i]   = xfm.array[i]   - eyeWorld[0] * xfm.array[i+3];
-            result.array[i+1] = xfm.array[i+1] - eyeWorld[1] * xfm.array[i+3];
-            result.array[i+2] = xfm.array[i+2] - eyeWorld[2] * xfm.array[i+3];
-            result.array[i+3] = xfm.array[i+3];
-        }
+        result.array[i]   = xfm.array[i]   - eyeWorld[0] * xfm.array[i+3];
+        result.array[i+1] = xfm.array[i+1] - eyeWorld[1] * xfm.array[i+3];
+        result.array[i+2] = xfm.array[i+2] - eyeWorld[2] * xfm.array[i+3];
+        result.array[i+3] = xfm.array[i+3];
+    }
+}
+
+static Matrix4f _computeHeadTransformCustom( const Matrix4f& trackMat, const Matrix4f& extr )
+{
+    Vector3f pos;
+    trackMat.get_translation( pos );
+    Matrix4f rot = trackMat;
+    rot.set_translation( Vector3f(0, 0, 0) );
+
+    // forward transform
+    Matrix4f full_transform;
+    {
+        // split extrinsic calibration into rotational and translational part
+        Vector3f extr_C;
+        extr.get_translation( extr_C );
+        Matrix4f extr_rot = extr;
+        extr_rot.set_translation( Vector3f(0, 0, 0) );
+
+        // full rotation is "Tracker Rotation" * "Tracker->Eye Rotation"
+        //full_transform = rot;
+        //full_transform *= extr_rot;
+        full_transform.multiply( rot, extr_rot );
+
+        // full translation is "Tracker Translation" + "(Tracker Rotation)*(Tracker->Eye Translation)"
+        Vector3f full_c = rot * extr_C;
+        full_c = pos + full_c;
+        full_transform.set_translation(full_c);
     }
 
-	static Matrix4f _computeHeadTransformCustom( const Matrix4f& trackMat, const Matrix4f& extr )
-	{
-		Vector3f pos;
-		trackMat.get_translation( pos );
-		Matrix4f rot = trackMat;
-		rot.set_translation( Vector3f(0, 0, 0) );
+    // split it up into R, C.
+    Vector3f C;
+    full_transform.get_translation( C );
+    Matrix4f R = full_transform;
+    R.set_translation(Vector3f(0,0,0));
 
-		// forward transform
-		Matrix4f full_transform;
-		{
-			// split extrinsic calibration into rotational and translational part
-			Vector3f extr_C;
-			extr.get_translation( extr_C );
-			Matrix4f extr_rot = extr;
-			extr_rot.set_translation( Vector3f(0, 0, 0) );
+    // flip y- and z-axis rotation
+    for (int i=0;i<3;i++) {
+        R.at(i,1) = - R.at(i,1);
+        R.at(i,2) = - R.at(i,2);
+    }
 
-			// full rotation is "Tracker Rotation" * "Tracker->Eye Rotation"
-			//full_transform = rot;
-			//full_transform *= extr_rot;
-			full_transform.multiply( rot, extr_rot );
+    // revert rotation on C
+    Matrix4f temp = R;
+    temp.transpose_to( R );
+    C = R*C;
+    Matrix4f result = R;
 
-			// full translation is "Tracker Translation" + "(Tracker Rotation)*(Tracker->Eye Translation)" 
-			Vector3f full_c = rot * extr_C;
-			full_c = pos + full_c;
-			full_transform.set_translation(full_c);
-		}
+    // invert c
+    C = C * (-1.0f);
 
-		// split it up into R, C.
-		Vector3f C;
-		full_transform.get_translation( C );
-		Matrix4f R = full_transform;
-		R.set_translation(Vector3f(0,0,0));
+    // our new matrix is now R,c
+    result.set_translation( C );
 
-		// flip y- and z-axis rotation
-		for (int i=0;i<3;i++) {
-			R.at(i,1) = - R.at(i,1);
-			R.at(i,2) = - R.at(i,2);
-		}
-
-		// revert rotation on C
-		Matrix4f temp = R;
-		temp.transpose_to( R );
-		C = R*C;
-		Matrix4f result = R;
-
-		// invert c
-		C = C * (-1.0f);
-
-		// our new matrix is now R,c
-		result.set_translation( C );
-
-		return result;
-	}
+    return result;
+}
 }
 
 void Compound::_computePerspective( RenderContext& context,
@@ -718,30 +718,30 @@ void Compound::_computePerspective( RenderContext& context,
 {
     const FrustumData& frustumData = getInheritFrustumData();
 
-	const Channel* destChannel = getInheritChannel();
-	const View* view = destChannel->getView();
-	const Observer* observer = view ? view->getObserver() : 0;
+    const Channel* destChannel = getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = view ? view->getObserver() : 0;
 
     _computeFrustumCorners( context.frustum, frustumData, eyeWorld, false, context.eye );
 
-	if( !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
-	{
-		_computeHeadTransform( context.headTransform, frustumData.getTransform(),
-			                   eyeWorld );
+    if( !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
+    {
+        _computeHeadTransform( context.headTransform, frustumData.getTransform(),
+                               eyeWorld );
 
-		const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
-		if( isHMD )
-			context.headTransform *= _getInverseHeadMatrix();
-	}
-	else
-	{
-		context.headTransform = _computeHeadTransformCustom( observer->getHeadMatrix(),
-															 observer->getEyeWorld( context.eye ) );
-	}
+        const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+        if( isHMD )
+            context.headTransform *= _getInverseHeadMatrix();
+    }
+    else
+    {
+        context.headTransform = _computeHeadTransformCustom( observer->getHeadMatrix(),
+                                                             observer->getEyeWorld( context.eye ) );
+    }
 }
 
 void Compound::_computeOrtho( RenderContext& context,
-							  const Vector3f& eyeWorld ) const
+                              const Vector3f& eyeWorld ) const
 {
     // Compute corners for cyclop eye without perspective correction:
     const Vector3f cyclopWorld = _getEyePosition( EYE_CYCLOP );
@@ -749,29 +749,29 @@ void Compound::_computeOrtho( RenderContext& context,
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f cyclopWall = xfm * cyclopWorld;
 
-	const Channel* destChannel = getInheritChannel();
-	const View* view = destChannel->getView();
-	const Observer* observer = view ? view->getObserver() : 0;
+    const Channel* destChannel = getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = view ? view->getObserver() : 0;
 
     _computeFrustumCorners( context.ortho, frustumData, cyclopWall, true, context.eye );
 
-	if( !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
-	{
-		_computeHeadTransform( context.orthoTransform, xfm, eyeWorld );
+    if( !observer || observer->getEyeWorld( context.eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
+    {
+        _computeHeadTransform( context.orthoTransform, xfm, eyeWorld );
 
-		// Apply stereo shearing
-		context.orthoTransform.array[8] += (cyclopWall[0] - eyeWorld[0]) / eyeWorld[2];
-		context.orthoTransform.array[9] += (cyclopWall[1] - eyeWorld[1]) / eyeWorld[2];
+        // Apply stereo shearing
+        context.orthoTransform.array[8] += (cyclopWall[0] - eyeWorld[0]) / eyeWorld[2];
+        context.orthoTransform.array[9] += (cyclopWall[1] - eyeWorld[1]) / eyeWorld[2];
 
-		const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
-		if( isHMD )
-			context.orthoTransform *= _getInverseHeadMatrix();
-	}
-	else
-	{
-		context.orthoTransform = _computeHeadTransformCustom( observer->getHeadMatrix(),
-															  observer->getEyeWorld( context.eye ) );
-	}
+        const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+        if( isHMD )
+            context.orthoTransform *= _getInverseHeadMatrix();
+    }
+    else
+    {
+        context.orthoTransform = _computeHeadTransformCustom( observer->getHeadMatrix(),
+                                                              observer->getEyeWorld( context.eye ) );
+    }
 }
 
 Vector3f Compound::_getEyePosition( const Eye eye ) const
@@ -786,21 +786,21 @@ Vector3f Compound::_getEyePosition( const Eye eye ) const
 
     const Config* config = getConfig();
     const float eyeBase_2 = 0.5f * view->getModelUnit() * ( observer ?
-        observer->getEyeBase() :
-        config->getFAttribute( Config::FATTR_EYE_BASE ));
+                                                            observer->getEyeBase() :
+                                                            config->getFAttribute( Config::FATTR_EYE_BASE ));
 
     switch( eye )
     {
-    case EYE_LEFT:
-        return Vector3f(-eyeBase_2, 0.f, 0.f );
+      case EYE_LEFT:
+          return Vector3f(-eyeBase_2, 0.f, 0.f );
 
-    case EYE_RIGHT:
-        return Vector3f( eyeBase_2, 0.f, 0.f );
+      case EYE_RIGHT:
+          return Vector3f( eyeBase_2, 0.f, 0.f );
 
-    default:
-        LBUNIMPLEMENTED;
-    case EYE_CYCLOP:
-        return Vector3f::ZERO;
+      default:
+          LBUNIMPLEMENTED;
+      case EYE_CYCLOP:
+          return Vector3f::ZERO;
     }
 }
 
@@ -821,88 +821,88 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
                                        const FrustumData& frustumData,
                                        const Vector3f& eyeWorld,
                                        const bool ortho,
-									   const Eye eye,
+                                       const Eye eye,
                                        Viewport* invp /* = 0*/) const
 {
     const Channel* destination = getInheritChannel();
     frustum = destination->getFrustum();
 
-	const View* view = destination->getView();
-	const Observer* observer = view ? view->getObserver() : 0; 
-	if ( observer && !observer->getKMatrix( eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
-	{
-		// perspective only
-		eq::Matrix4f kmat = observer->getKMatrix( eye );
+    const View* view = destination->getView();
+    const Observer* observer = view ? view->getObserver() : 0;
+    if ( observer && !observer->getKMatrix( eye ).equals( eq::Matrix4f::IDENTITY, std::numeric_limits<float>::epsilon() ) )
+    {
+        // perspective only
+        eq::Matrix4f kmat = observer->getKMatrix( eye );
 
-		eq::Matrix4f projMat = eq::Matrix4f::IDENTITY;
+        eq::Matrix4f projMat = eq::Matrix4f::IDENTITY;
 
-		const float width( destination->getPixelViewport().w );
-		const float height( destination->getPixelViewport().h );        
-		const float fnear( frustum.near_plane() );
-		const float ffar( frustum.far_plane() );
+        const float width( destination->getPixelViewport().w );
+        const float height( destination->getPixelViewport().h );
+        const float fnear( frustum.near_plane() );
+        const float ffar( frustum.far_plane() );
 
-		kmat.at(0,0) = -kmat.at(0,0);
+        kmat.at(0,0) = -kmat.at(0,0);
 
-		projMat.at(0,0) = -2.f / width;
-		projMat.at(0,2) = -1.f / width - 1.f;
-		projMat.at(1,1) = 2.f / height;
-		projMat.at(1,2) = 1.f / height - 1.f;
-		projMat.at(2,2) = -(ffar + fnear)/  (ffar - fnear);
-		projMat.at(2,3) = -(1.f - projMat.at(2,2)) * fnear;
-		projMat.at(3,2) = -1.f;  
+        projMat.at(0,0) = -2.f / width;
+        projMat.at(0,2) = -1.f / width - 1.f;
+        projMat.at(1,1) = 2.f / height;
+        projMat.at(1,2) = 1.f / height - 1.f;
+        projMat.at(2,2) = -(ffar + fnear)/  (ffar - fnear);
+        projMat.at(2,3) = -(1.f - projMat.at(2,2)) * fnear;
+        projMat.at(3,2) = -1.f;
 
-		projMat *= kmat;
-		projMat(3,3) = 0.0;
+        projMat *= kmat;
+        projMat(3,3) = 0.0;
 
-		if( projMat.at(3,0) !=  .0f || projMat.at(3,1)!= .0f ||
-			projMat.at(3,2) != -1.f || projMat.at(3,3)!= .0f )
-		{
-			EQERROR << "wrong matrix for projection calculation" << std::endl;
-			return;
-		}
+        if( projMat.at(3,0) !=  .0f || projMat.at(3,1)!= .0f ||
+            projMat.at(3,2) != -1.f || projMat.at(3,3)!= .0f )
+        {
+            EQERROR << "wrong matrix for projection calculation" << std::endl;
+            return;
+        }
 
-		eq::Matrix4f projTrans;
-		projMat.transpose_to( projTrans );
-		projMat = projTrans;
+        eq::Matrix4f projTrans;
+        projMat.transpose_to( projTrans );
+        projMat = projTrans;
 
-		frustum.near_plane() = projMat.at(2,3) / (projMat.at(2,2) - 1.f);
-		frustum.far_plane() = projMat.at(2,3) / (1.f + projMat.at(2,2));
+        frustum.near_plane() = projMat.at(2,3) / (projMat.at(2,2) - 1.f);
+        frustum.far_plane() = projMat.at(2,3) / (1.f + projMat.at(2,2));
 
-		frustum.left() = frustum.near_plane() * (projMat.at(0,2) - 1.f) / projMat.at(0,0);
-		frustum.right() = frustum.near_plane() * (1.f + projMat.at(0,2)) / projMat.at(0,0);
+        frustum.left() = frustum.near_plane() * (projMat.at(0,2) - 1.f) / projMat.at(0,0);
+        frustum.right() = frustum.near_plane() * (1.f + projMat.at(0,2)) / projMat.at(0,0);
 
-		frustum.top() = frustum.near_plane() * (1.f + projMat.at(1,2)) / projMat.at(1,1);
-		frustum.bottom() = frustum.near_plane() * (projMat.at(1,2) - 1.f) / projMat.at(1,1);
+        frustum.top() = frustum.near_plane() * (1.f + projMat.at(1,2)) / projMat.at(1,1);
+        frustum.bottom() = frustum.near_plane() * (projMat.at(1,2) - 1.f) / projMat.at(1,1);
 
-		// move frustum according to principal point from k matrix
-		float displacementX = ( .5f - ( kmat.at(0,2) / width ) )  * fabs( frustum.right() - frustum.left() );
-		float displacementY = ( .5f - ( kmat.at(1,2) / height ) ) * fabs( frustum.top() - frustum.bottom() );
-		frustum.left()	 += displacementX;
-		frustum.right()  += displacementX;
-		frustum.top()	 -= displacementY;
-		frustum.bottom() -= displacementY;
-	}
-	else
-	{
-		const float ratio    = ortho ? 1.0f : frustum.near_plane() / eyeWorld.z();
-		const float width_2  = frustumData.getWidth()  * .5f;
-		const float height_2 = frustumData.getHeight() * .5f;
+        // move frustum according to principal point from k matrix
+        float displacementX = ( .5f - ( kmat.at(0,2) / width ) )  * fabs( frustum.right() - frustum.left() );
+        float displacementY = ( .5f - ( kmat.at(1,2) / height ) ) * fabs( frustum.top() - frustum.bottom() );
+        frustum.left()   += displacementX;
+        frustum.right()  += displacementX;
+        frustum.top()    -= displacementY;
+        frustum.bottom() -= displacementY;
+    }
+    else
+    {
+        const float ratio    = ortho ? 1.0f : frustum.near_plane() / eyeWorld.z();
+        const float width_2  = frustumData.getWidth()  * .5f;
+        const float height_2 = frustumData.getHeight() * .5f;
 
-		if( eyeWorld.z() > 0 || ortho )
-		{
-			frustum.left()   =  ( -width_2  - eyeWorld.x() ) * ratio;
-			frustum.right()  =  (  width_2  - eyeWorld.x() ) * ratio;
-			frustum.bottom() =  ( -height_2 - eyeWorld.y() ) * ratio;
-			frustum.top()    =  (  height_2 - eyeWorld.y() ) * ratio;
-		}
-		else // eye behind near plane - 'mirror' x
-		{
-			frustum.left()   =  (  width_2  - eyeWorld.x() ) * ratio;
-			frustum.right()  =  ( -width_2  - eyeWorld.x() ) * ratio;
-			frustum.bottom() =  (  height_2 + eyeWorld.y() ) * ratio;
-			frustum.top()    =  ( -height_2 + eyeWorld.y() ) * ratio;
-		}
-	}
+        if( eyeWorld.z() > 0 || ortho )
+        {
+            frustum.left()   =  ( -width_2  - eyeWorld.x() ) * ratio;
+            frustum.right()  =  (  width_2  - eyeWorld.x() ) * ratio;
+            frustum.bottom() =  ( -height_2 - eyeWorld.y() ) * ratio;
+            frustum.top()    =  (  height_2 - eyeWorld.y() ) * ratio;
+        }
+        else // eye behind near plane - 'mirror' x
+        {
+            frustum.left()   =  (  width_2  - eyeWorld.x() ) * ratio;
+            frustum.right()  =  ( -width_2  - eyeWorld.x() ) * ratio;
+            frustum.bottom() =  (  height_2 + eyeWorld.y() ) * ratio;
+            frustum.top()    =  ( -height_2 + eyeWorld.y() ) * ratio;
+        }
+    }
 
     // move frustum according to pixel decomposition
     const Pixel& pixel = getInheritPixel();
@@ -989,7 +989,7 @@ void Compound::_updateOverdraw( Wall& wall )
         {
             const uint32_t maxOverdraw = maxSize.x() - channelPVP.w;
             const float ratio = static_cast< float >( maxOverdraw ) /
-                                static_cast< float >( xOverdraw );
+                static_cast< float >( xOverdraw );
             channelOverdraw.x() = static_cast< int >(
                 channelOverdraw.x() * ratio + .5f );
             channelOverdraw.z() = maxOverdraw - channelOverdraw.x();
@@ -1001,7 +1001,7 @@ void Compound::_updateOverdraw( Wall& wall )
         {
             const uint32_t maxOverdraw = maxSize.y() - channelPVP.h;
             const float ratio = static_cast< float >( maxOverdraw ) /
-                                static_cast< float >( yOverdraw );
+                static_cast< float >( yOverdraw );
             channelOverdraw.y() = static_cast< int >(
                 channelOverdraw.y() * ratio +.5f );
             channelOverdraw.w() = maxOverdraw - channelOverdraw.y();
@@ -1013,7 +1013,7 @@ void Compound::_updateOverdraw( Wall& wall )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
         const float ratio = static_cast<float>( pvp.w + channelOverdraw.x( )) /
-                            static_cast<float>( pvp.w );
+            static_cast<float>( pvp.w );
         wall.resizeLeft( ratio );
     }
 
@@ -1022,7 +1022,7 @@ void Compound::_updateOverdraw( Wall& wall )
         const PixelViewport& pvp = channel->getPixelViewport();
         const float ratio = static_cast<float>( pvp.w + channelOverdraw.x( ) +
                                                 channelOverdraw.z( )) /
-                            static_cast<float>( pvp.w + channelOverdraw.x( ));
+            static_cast<float>( pvp.w + channelOverdraw.x( ));
         wall.resizeRight( ratio );
     }
 
@@ -1030,7 +1030,7 @@ void Compound::_updateOverdraw( Wall& wall )
     {
         const PixelViewport& pvp = channel->getPixelViewport();
         const float ratio = static_cast<float>( pvp.h + channelOverdraw.y( )) /
-                            static_cast<float>( pvp.h );
+            static_cast<float>( pvp.h );
         wall.resizeBottom( ratio );
     }
 
@@ -1039,7 +1039,7 @@ void Compound::_updateOverdraw( Wall& wall )
         const PixelViewport& pvp = channel->getPixelViewport();
         const float ratio = static_cast<float>( pvp.h + + channelOverdraw.y( ) +
                                                 channelOverdraw.w( )) /
-                            static_cast<float>( pvp.h + channelOverdraw.y( ));
+            static_cast<float>( pvp.h + channelOverdraw.y( ));
         wall.resizeTop( ratio );
     }
 
@@ -1073,40 +1073,40 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
         {
             switch( visitor.visitLeaf( current ))
             {
-                case TRAVERSE_TERMINATE:
-                    return TRAVERSE_TERMINATE;
+              case TRAVERSE_TERMINATE:
+                  return TRAVERSE_TERMINATE;
 
-                case TRAVERSE_PRUNE:
-                    result = TRAVERSE_PRUNE;
-                    current = next;
-                    break;
+              case TRAVERSE_PRUNE:
+                  result = TRAVERSE_PRUNE;
+                  current = next;
+                  break;
 
-                case TRAVERSE_CONTINUE:
-                    current = next;
-                    break;
+              case TRAVERSE_CONTINUE:
+                  current = next;
+                  break;
 
-                default:
-                    LBASSERTINFO( 0, "Unreachable" );
+              default:
+                  LBASSERTINFO( 0, "Unreachable" );
             }
         }
         else // node
         {
             switch( visitor.visitPre( current ))
             {
-                case TRAVERSE_TERMINATE:
-                    return TRAVERSE_TERMINATE;
+              case TRAVERSE_TERMINATE:
+                  return TRAVERSE_TERMINATE;
 
-                case TRAVERSE_PRUNE:
-                    result = TRAVERSE_PRUNE;
-                    current = next;
-                    break;
+              case TRAVERSE_PRUNE:
+                  result = TRAVERSE_PRUNE;
+                  current = next;
+                  break;
 
-                case TRAVERSE_CONTINUE:
-                    current = child;
-                    break;
+              case TRAVERSE_CONTINUE:
+                  current = child;
+                  break;
 
-                default:
-                    LBASSERTINFO( 0, "Unreachable" );
+              default:
+                  LBASSERTINFO( 0, "Unreachable" );
             }
         }
 
@@ -1121,18 +1121,18 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
 
             switch( visitor.visitPost( current ))
             {
-                case TRAVERSE_TERMINATE:
-                    return TRAVERSE_TERMINATE;
+              case TRAVERSE_TERMINATE:
+                  return TRAVERSE_TERMINATE;
 
-                case TRAVERSE_PRUNE:
-                    result = TRAVERSE_PRUNE;
-                    break;
+              case TRAVERSE_PRUNE:
+                  result = TRAVERSE_PRUNE;
+                  break;
 
-                case TRAVERSE_CONTINUE:
-                    break;
+              case TRAVERSE_CONTINUE:
+                  break;
 
-                default:
-                    LBASSERTINFO( 0, "Unreachable" );
+              default:
+                  LBASSERTINFO( 0, "Unreachable" );
             }
 
             if ( current == compound )
@@ -1272,14 +1272,14 @@ void Compound::deregister()
     }
 
     for( TileQueuesCIter i = _inputTileQueues.begin();
-        i != _inputTileQueues.end(); ++i )
+         i != _inputTileQueues.end(); ++i )
     {
         TileQueue* queue = *i;
         server->deregisterObject( queue );
     }
 
     for( TileQueuesCIter i = _outputTileQueues.begin();
-        i != _outputTileQueues.end(); ++i )
+         i != _outputTileQueues.end(); ++i )
     {
         TileQueue* queue = *i;
         queue->flush();
@@ -1573,7 +1573,7 @@ void Compound::updateInheritTasks()
         }
         else
             _inherit.tasks = fabric::TASK_CLEAR | fabric::TASK_ASSEMBLE |
-                             fabric::TASK_READBACK;
+                fabric::TASK_READBACK;
     }
     else
         _inherit.tasks = _data.tasks;
@@ -1621,7 +1621,7 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
         const uint32_t eye = 1 << i;
         const bool eyeActive = _inherit.eyes & eye;
         const bool destActive = isDestination() ? _data.active[i] :
-                                                  _inherit.active[i];
+            _inherit.active[i];
 
         if( destActive && eyeActive && phaseActive && channelActive )
             _inherit.active[i] = 1;
@@ -1747,7 +1747,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     const SubPixel& subpixel = compound.getSubPixel();
     if( subpixel.isValid() && subpixel != SubPixel::ALL )
-            os << subpixel << std::endl;
+        os << subpixel << std::endl;
 
     const Zoom& zoom = compound.getZoom();
     if( zoom.isValid() && zoom != Zoom::NONE )
@@ -1796,25 +1796,25 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         }
 
         os << ( i==Compound::IATTR_STEREO_MODE ?
-                    "stereo_mode                " :
+                "stereo_mode                " :
                 i==Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ?
-                    "stereo_anaglyph_left_mask  " :
+                "stereo_anaglyph_left_mask  " :
                 i==Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ?
-                    "stereo_anaglyph_right_mask " : "ERROR " );
+                "stereo_anaglyph_right_mask " : "ERROR " );
 
         switch( i )
         {
-            case Compound::IATTR_STEREO_MODE:
-                os << static_cast< fabric::IAttribute >( value ) << std::endl;
-                break;
+          case Compound::IATTR_STEREO_MODE:
+              os << static_cast< fabric::IAttribute >( value ) << std::endl;
+              break;
 
-            case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:
-            case Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK:
-                os << ColorMask( value ) << std::endl;
-                break;
+          case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:
+          case Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK:
+              os << ColorMask( value ) << std::endl;
+              break;
 
-            default:
-                LBASSERTINFO( 0, "unimplemented" );
+          default:
+              LBASSERTINFO( 0, "unimplemented" );
         }
     }
 
@@ -1823,14 +1823,14 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     switch( compound.getFrustumType( ))
     {
-        case Frustum::TYPE_WALL:
-            os << compound.getWall() << std::endl;
-            break;
-        case Frustum::TYPE_PROJECTION:
-            os << compound.getProjection() << std::endl;
-            break;
-        default:
-            break;
+      case Frustum::TYPE_WALL:
+          os << compound.getWall() << std::endl;
+          break;
+      case Frustum::TYPE_PROJECTION:
+          os << compound.getProjection() << std::endl;
+          break;
+      default:
+          break;
     }
 
     const Equalizers& equalizers = compound.getEqualizers();
