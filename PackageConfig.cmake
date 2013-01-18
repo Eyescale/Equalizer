@@ -74,7 +74,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "      string(TOUPPER \${_libraryname} _librarynameUC)\n"
   "      find_library(\${_librarynameUC}_LIBRARY \${_libraryname} NO_DEFAULT_PATH\n"
   "                   PATHS \${PACKAGE_PREFIX_DIR} PATH_SUFFIXES lib ${PYTHON_LIBRARY_PREFIX})\n"
-  "      if(${UPPER_PROJECT_NAME}_LIBRARY MATCHES "${UPPER_PROJECT_NAME}_LIBRARY-NOTFOUND")\n"
+  "      if(\${_librarynameUC}_LIBRARY MATCHES "\${_librarynameUC}_LIBRARY-NOTFOUND")\n"
   "        set(_fail \"\${_libraryname} not found\")\n"
   "        if(_out)\n"
   "          message(\${_output_type} \"   Missing the ${CMAKE_PROJECT_NAME} \"\n"
@@ -82,6 +82,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "        endif()\n"
   "      else()\n"
   "        list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_librarynameUC}_LIBRARY})\n"
+  "        string(REPLACE \"${CMAKE_PROJECT_NAME}_\" \"\" _component \${_libraryname})\n"
+  "        list(APPEND ${UPPER_PROJECT_NAME}_COMPONENTS \${_component})\n"
   "      endif()\n"
   "    endforeach()\n"
   "  endif()\n"
@@ -107,7 +109,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "else()\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
   "  if(_out)\n"
-  "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} in \"\n"
+  "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} \${${UPPER_PROJECT_NAME}_COMPONENTS} in \"\n"
   "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
   "  endif()\n"
   "endif()\n"
@@ -150,9 +152,10 @@ set(TRANSIENTS
 foreach(_transient ${${UPPER_PROJECT_NAME}_TRANSIENT_LIBRARIES})
   list(APPEND TRANSIENTS
     "find_package(${_transient} ${${${_transient}_name}_VERSION} EXACT \${_req} \${_quiet})\n"
-    "list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_transient}_name}_LIBRARIES})\n"
     "string(TOUPPER ${_transient} _TRANSIENT)\n"
-    "if(NOT \${_TRANSIENT}_FOUND)\n"
+    "if(\${_TRANSIENT}_FOUND)\n"
+    "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_transient}_name}_LIBRARIES})\n"
+    "else()\n"
     "  set(_fail TRUE)\n"
     "endif()\n\n")
 endforeach()
