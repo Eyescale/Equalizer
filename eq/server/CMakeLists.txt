@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2013 Stefan Eilemann <eile@eyescale.ch>
 #               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 find_package(BISON REQUIRED)
@@ -131,9 +131,7 @@ if(HWSD_FOUND)
   include_directories(${HWSD_INCLUDE_DIRS})
   add_definitions(-DEQ_USE_HWSD)
   foreach(HWSD_COMPONENT ${HWSD_COMPONENTS})
-    if(HWSD_${HWSD_COMPONENT}_FOUND)
-      add_definitions(-DEQ_USE_HWSD_${HWSD_COMPONENT})
-    endif()
+    add_definitions(-DEQ_USE_HWSD_${HWSD_COMPONENT})
   endforeach()
 endif()
 
