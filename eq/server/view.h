@@ -6,12 +6,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -51,30 +51,30 @@ namespace server
         /** @return the index path to this view. */
         ViewPath getPath() const;
 
-        /** 
+        /**
          * Adds a new destination channel to this view.
-         * 
+         *
          * @param channel the channel.
          */
         void addChannel( Channel* channel );
-        
-        /** 
+
+        /**
          * Removes a destination channel from this view.
-         * 
+         *
          * @param channel the channel
-         * @return <code>true</code> if the channel was removed, 
+         * @return <code>true</code> if the channel was removed,
          *         <code>false</code> otherwise.
          */
         bool removeChannel( Channel* channel );
-        
+
         /** @return the vector of destination channels. */
-        const Channels& getChannels() const{ return _channels; } 
+        const Channels& getChannels() const{ return _channels; }
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Trigger a view (de)activation.
-         * 
+         *
          * @param canvas The canvas to activate, or 0 to activate for all
          *               canvases using this view's layout.
          * @param active true to activate, false to deactivate.
@@ -84,7 +84,7 @@ namespace server
         /**
          * Activate the given mode on this view.
          *
-         * @param mode the new rendering mode 
+         * @param mode the new rendering mode
          */
         virtual void activateMode( const Mode mode );
 
@@ -99,8 +99,6 @@ namespace server
     protected:
         /** @internal */
         virtual void attach( const UUID& id, const uint32_t instanceID );
-
-        /** @sa eq::View::deserialize() */
         virtual void deserialize( co::DataIStream&, const uint64_t );
         virtual void notifyAttached() { _updateChannels(); }
 

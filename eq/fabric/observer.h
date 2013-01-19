@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,6 +19,7 @@
 #define EQFABRIC_OBSERVER_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/eye.h>           // enum
 #include <eq/fabric/focusMode.h>     // enum
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
@@ -40,7 +41,7 @@ namespace fabric
 
         /** @name Data Access */
         //@{
-        /** 
+        /**
          * Set the head matrix.
          *
          * The head matrix specifies the transformation origin->observer.
@@ -57,11 +58,26 @@ namespace fabric
         /** @return the current head matrix. @version 1.0 */
         const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }
 
-        /** Set the eye separation of this observer. @version 1.0 */
+#ifdef EQ_1_0_API
+        /** @deprecated Use setEyePosition() */
         EQFABRIC_INL void setEyeBase( const float eyeBase );
 
-        /** @return the current eye separation. @version 1.0 */
-        float getEyeBase() const { return _data.eyeBase; }
+        /** @deprecated Use getEyePosition() */
+        EQFABRIC_INL float getEyeBase() const;
+#endif
+        /**
+         * Set the position of the given eye relative to the observer.
+         *
+         * A standard symmetric eye setup uses (+-eyeBase/2, 0, 0).
+         * @param eye the eye to update.
+         * @param pos the new eye position.
+         * @version 1.5.2
+         */
+        EQFABRIC_INL void setEyePosition( const Eye eye, const Vector3f& pos );
+
+        /** @return the position of the given eye. @version 1.5.2 */
+        EQFABRIC_INL const Vector3f& getEyePosition( const Eye eye ) const;
+
 
         /** Set the focal distance. @sa setFocusMode @version 1.1 */
         EQFABRIC_INL void setFocusDistance( const float focusDistance );
@@ -87,9 +103,9 @@ namespace fabric
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Traverse this observer using a observer visitor.
-         * 
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -102,7 +118,7 @@ namespace fabric
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
         //@}
-        
+
     protected:
         /** @internal Construct a new Observer. */
         EQFABRIC_INL Observer( C* config );
@@ -121,11 +137,11 @@ namespace fabric
         /** @internal */
         enum DirtyBits
         {
-            DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,
-            DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1,
-            DIRTY_FOCUS      = Object::DIRTY_CUSTOM << 2,
+            DIRTY_EYE_POSITION = Object::DIRTY_CUSTOM << 0,
+            DIRTY_HEAD         = Object::DIRTY_CUSTOM << 1,
+            DIRTY_FOCUS        = Object::DIRTY_CUSTOM << 2,
             DIRTY_OBSERVER_BITS =
-                DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_OBJECT_BITS
+                DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS |DIRTY_OBJECT_BITS
         };
 
         /** @internal @return the bits to be re-committed by the master. */
@@ -140,17 +156,10 @@ namespace fabric
         {
             BackupData();
 
-            /** The current eye separation. */
-            float eyeBase;
-
-            /** The current focal distance. */
-            float focusDistance;
-
-            /** The current focal distance calculation mode. */
-            FocusMode focusMode;
-
-            /** The current head position. */
-            Matrix4f headMatrix;
+            Vector3f eyePosition[ NUM_EYES ]; //!< The current eye positions
+            float focusDistance; //!< The current focal distance
+            FocusMode focusMode; //!< The current focal distance mode
+            Matrix4f headMatrix; //!< The current head position
         }
             _data, _backup;
 

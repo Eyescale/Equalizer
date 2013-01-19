@@ -57,7 +57,7 @@ file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 
 if(MSVC)
-  set(CMAKE_MODULE_INSTALL_PATH ${CMAKE_PROJECT_NAME})
+  set(CMAKE_MODULE_INSTALL_PATH ${CMAKE_PROJECT_NAME}/CMake)
 else()
   set(CMAKE_MODULE_INSTALL_PATH share/${CMAKE_PROJECT_NAME}/CMake)
 endif()
@@ -71,18 +71,18 @@ if(BOOST_ROOT)
 endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
-# Compiler settings
-if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-  set(CMAKE_COMPILER_IS_XLCXX ON)
-endif()
-
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
 if(BIGENDIAN)
   add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+# Compiler settings
+if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+  set(CMAKE_COMPILER_IS_XLCXX ON)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  set(CMAKE_COMPILER_IS_INTEL ON)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_COMPILER_IS_CLANG ON)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
@@ -108,6 +108,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
   endif()
+elseif(CMAKE_COMPILER_IS_INTEL)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
 endif()
 
 if(MSVC)
@@ -189,33 +191,31 @@ macro(add_library _target)
 
   # ignore IMPORTED add_library from finders (e.g. Qt)
   cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
-  if(_arg_IMPORTED)
-    return()
-  endif()
-
-  # add defines TARGET_DSO_NAME and TARGET_SHARED for dlopen() usage
-  get_target_property(THIS_DEFINITIONS ${_target} COMPILE_DEFINITIONS)
-  if(NOT THIS_DEFINITIONS)
-    set(THIS_DEFINITIONS) # clear THIS_DEFINITIONS-NOTFOUND
-  endif()
-  string(TOUPPER ${_target} _TARGET)
-
-  if(MSVC OR XCODE_VERSION)
-    set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX})
-  else()
-    if(APPLE)
-      set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
-    else()
-      set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI})
+  if(NOT _arg_IMPORTED)
+    # add defines TARGET_DSO_NAME and TARGET_SHARED for dlopen() usage
+    get_target_property(THIS_DEFINITIONS ${_target} COMPILE_DEFINITIONS)
+    if(NOT THIS_DEFINITIONS)
+      set(THIS_DEFINITIONS) # clear THIS_DEFINITIONS-NOTFOUND
     endif()
+    string(TOUPPER ${_target} _TARGET)
+
+    if(MSVC OR XCODE_VERSION)
+      set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    else()
+      if(APPLE)
+        set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}.${VERSION_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
+      else()
+        set(_libraryname ${CMAKE_SHARED_LIBRARY_PREFIX}${_target}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI})
+      endif()
+    endif()
+
+    list(APPEND THIS_DEFINITIONS
+      ${_TARGET}_SHARED ${_TARGET}_DSO_NAME=\"${_libraryname}\")
+
+    set_target_properties(${_target} PROPERTIES
+      COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
+
+    set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
+    set_property(GLOBAL APPEND PROPERTY ALL_LIB_TARGETS ${_target})
   endif()
-
-  list(APPEND THIS_DEFINITIONS
-    ${_TARGET}_SHARED ${_TARGET}_DSO_NAME=\"${_libraryname}\")
-
-  set_target_properties(${_target} PROPERTIES
-    COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
-
-  set_property(GLOBAL APPEND PROPERTY ALL_DEP_TARGETS ${_target})
-  set_property(GLOBAL APPEND PROPERTY ALL_LIB_TARGETS ${_target})
 endmacro()

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -32,9 +32,9 @@ namespace fabric
     enum Eye
     {
         EYE_UNDEFINED  = 0,
-        EYE_CYCLOP     = 1, //!<  monoscopic 'middle' eye
-        EYE_LEFT       = 2, //!< left eye
-        EYE_RIGHT      = 4, //!< right eye
+        EYE_CYCLOP     = LB_BIT1, //!<  monoscopic 'middle' eye
+        EYE_LEFT       = LB_BIT2, //!< left eye
+        EYE_RIGHT      = LB_BIT3, //!< right eye
         EYE_LAST       = EYE_RIGHT, //!< the last eye
         NUM_EYES       = 3,  //!< @internal increase with each new enum
         EYES_STEREO    = EYE_LEFT | EYE_RIGHT, //!< left and right eye

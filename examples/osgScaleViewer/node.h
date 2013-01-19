@@ -33,7 +33,6 @@
 #ifndef NODE_H
 #define NODE_H
 
-typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 #include <osg/Image>

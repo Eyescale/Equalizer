@@ -32,7 +32,6 @@
 #ifndef INITDATA_H
 #define INITDATA_H
 
-typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 namespace osgScaleViewer

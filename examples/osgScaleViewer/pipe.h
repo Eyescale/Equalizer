@@ -32,7 +32,6 @@
 #ifndef OSGSV_PIPE_H
 #define OSGSV_PIPE_H
 
-typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 
 #include "frameData.h"

@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,6 +28,8 @@
 
 #include <eq/fabric/paths.h>
 #include <co/dataOStream.h>
+
+#include <boost/foreach.hpp>
 
 namespace eq
 {
@@ -77,6 +79,15 @@ Segment::~Segment()
     _destinationChannels.clear();
 }
 
+void Segment::updateFrustum()
+{
+    BOOST_FOREACH( Channel* channel, _destinationChannels )
+    {
+        View* view = channel->getView();
+        view->updateFrusta();
+    }
+}
+
 Config* Segment::getConfig()
 {
     Canvas* canvas = getCanvas();
@@ -92,7 +103,7 @@ const Config* Segment::getConfig() const
     return canvas ? canvas->getConfig() : 0;
 }
 
-ServerPtr Segment::getServer() 
+ServerPtr Segment::getServer()
 {
     Canvas* canvas = getCanvas();
     LBASSERT( canvas );
@@ -102,8 +113,8 @@ ServerPtr Segment::getServer()
 void Segment::addDestinationChannel( Channel* channel )
 {
     LBASSERT( channel );
-    LBASSERT( std::find( _destinationChannels.begin(), 
-                         _destinationChannels.end(), channel ) == 
+    LBASSERT( std::find( _destinationChannels.begin(),
+                         _destinationChannels.end(), channel ) ==
               _destinationChannels.end( ));
 
     _destinationChannels.push_back( channel );
@@ -119,8 +130,8 @@ bool Segment::removeDestinationChannel( Channel* channel )
 
     _destinationChannels.erase( i );
 
-    LBASSERT( std::find( _destinationChannels.begin(), 
-                         _destinationChannels.end(), channel ) == 
+    LBASSERT( std::find( _destinationChannels.begin(),
+                         _destinationChannels.end(), channel ) ==
               _destinationChannels.end( ));
     return true;
 }
@@ -142,7 +153,7 @@ SegmentPath Segment::getPath() const
     const Canvas* canvas = getCanvas();
     LBASSERT( canvas );
     SegmentPath path( canvas->getPath( ));
-    
+
     const Segments& segments = canvas->getSegments();
     Segments::const_iterator i = std::find( segments.begin(), segments.end(),
                                             this );

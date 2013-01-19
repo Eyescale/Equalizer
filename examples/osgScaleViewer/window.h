@@ -29,7 +29,6 @@
 #ifndef OSG_SV_WINDOW_H
 #define OSG_SV_WINDOW_H
 
-typedef void* HPBUFFERARB;
 #include <eq/eq.h>
 #include "sceneView.h"
 

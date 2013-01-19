@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -36,7 +36,11 @@ Observer< C, O >::Observer( C* config )
 {
     LBASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
-    _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
+
+    const float eyeBase_2 = config->getFAttribute( C::FATTR_EYE_BASE ) * .5f;
+    setEyePosition( EYE_LEFT, Vector3f( -eyeBase_2, 0.f, 0.f ));
+    setEyePosition( EYE_CYCLOP, Vector3f::ZERO );
+    setEyePosition( EYE_RIGHT, Vector3f( eyeBase_2, 0.f, 0.f ));
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
@@ -49,11 +53,15 @@ Observer< C, O >::~Observer()
 
 template< typename C, typename O >
 Observer< C, O >::BackupData::BackupData()
-        : eyeBase( .05f )
-        , focusDistance( 1.f )
+        : focusDistance( 1.f )
         , focusMode( FOCUSMODE_FIXED )
         , headMatrix( Matrix4f::IDENTITY )
-{}
+{
+    for( size_t i = 0; i < NUM_EYES; ++i )
+        eyePosition[ i ] = Vector3f::ZERO;
+    eyePosition[ EYE_LEFT ].x() = -.05f;
+    eyePosition[ EYE_RIGHT ].x() = .05f;
+}
 
 template< typename C, typename O >
 void Observer< C, O >::backup()
@@ -67,7 +75,7 @@ void Observer< C, O >::restore()
 {
     _data = _backup;
     Object::restore();
-    setDirty( DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_FOCUS );
+    setDirty( DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS );
 }
 
 template< typename C, typename O >
@@ -76,8 +84,9 @@ void Observer< C, O >::serialize( co::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
 
-    if( dirtyBits & DIRTY_EYE_BASE )
-        os << _data.eyeBase;
+    if( dirtyBits & DIRTY_EYE_POSITION )
+        for( size_t i = 0; i < NUM_EYES; ++i )
+            os << _data.eyePosition[i];
     if( dirtyBits & DIRTY_FOCUS )
         os << _data.focusDistance << _data.focusMode;
     if( dirtyBits & DIRTY_HEAD )
@@ -90,8 +99,9 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
 
-    if( dirtyBits & DIRTY_EYE_BASE )
-        is >> _data.eyeBase;
+    if( dirtyBits & DIRTY_EYE_POSITION )
+        for( size_t i = 0; i < NUM_EYES; ++i )
+            is >> _data.eyePosition[i];
     if( dirtyBits & DIRTY_FOCUS )
         is >> _data.focusDistance >> _data.focusMode;
     if( dirtyBits & DIRTY_HEAD )
@@ -131,14 +141,40 @@ ObserverPath Observer< C, O >::getPath() const
     return path;
 }
 
+#ifdef EQ_1_0_API
 template< typename C, typename O >
 void Observer< C, O >::setEyeBase( const float eyeBase )
 {
-    if( _data.eyeBase == eyeBase )
+    const float eyeBase_2 = eyeBase * .5f;
+    setEyePosition( EYE_LEFT, Vector3f( -eyeBase_2, 0.f, 0.f ));
+    setEyePosition( EYE_CYCLOP, Vector3f::ZERO );
+    setEyePosition( EYE_RIGHT, Vector3f( eyeBase_2, 0.f, 0.f ));
+}
+
+template< typename C, typename O >
+float Observer< C, O >::getEyeBase() const
+{
+    return (getEyePosition( EYE_LEFT ) - getEyePosition( EYE_RIGHT )).length();
+}
+#endif
+
+template< typename C, typename O >
+void Observer< C, O >::setEyePosition( const Eye eye, const Vector3f& pos )
+{
+    LBASSERT( lunchbox::getIndexOfLastBit( eye ) <= EYE_LAST );
+    Vector3f& position = _data.eyePosition[ lunchbox::getIndexOfLastBit( eye )];
+    if( position == pos )
         return;
 
-    _data.eyeBase = eyeBase;
-    setDirty( DIRTY_EYE_BASE );
+    position = pos;
+    setDirty( DIRTY_EYE_POSITION );
+}
+
+template< typename C, typename O >
+const Vector3f& Observer< C, O >::getEyePosition( const Eye eye ) const
+{
+    LBASSERT( lunchbox::getIndexOfLastBit( eye ) <= EYE_LAST );
+    return _data.eyePosition[ lunchbox::getIndexOfLastBit( eye )];
 }
 
 template< typename C, typename O >
@@ -176,23 +212,18 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "observer"
        << std::endl;
-    os << "{" << std::endl << lunchbox::indent; 
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = observer.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const float eyeBase = observer.getEyeBase();
-    if( eyeBase != observer.getConfig()->getFAttribute( C::FATTR_EYE_BASE ))
-        os << "eye_base       " << eyeBase << std::endl;
-
-    const float focusDistance = observer.getFocusDistance();
-    os << "focus_distance " << focusDistance << std::endl;
-
-    const FocusMode focusMode = observer.getFocusMode();
-    os << "focus_mode     " << focusMode << std::endl;
-
-    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+    os << "eye_left       " << observer.getEyePosition( EYE_LEFT ) << std::endl
+       << "eye_cyclop     " << observer.getEyePosition( EYE_CYCLOP ) <<std::endl
+       << "eye_right      " << observer.getEyePosition( EYE_RIGHT ) << std::endl
+       << "focus_distance " << observer.getFocusDistance() << std::endl
+       << "focus_mode     " << observer.getFocusMode() << std::endl
+       << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
        << lunchbox::enableFlush;
     return os;
 }
