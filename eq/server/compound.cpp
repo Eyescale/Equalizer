@@ -784,13 +784,12 @@ Vector3f Compound::_getEyePosition( const Eye eye ) const
     const Observer* observer = view ? view->getObserver() : 0;
 
     if( observer )
-        return (frustumData.getType() == Wall::TYPE_FIXED) ?
-            observer->getEyeWorld( eye ) * view->getModelUnit() :
-            observer->getEyePosition( eye )  * view->getModelUnit();
+        return view->getModelUnit() *
+            (frustumData.getType() == Wall::TYPE_FIXED) ?
+                observer->getEyeWorld( eye ) : observer->getEyePosition( eye );
 
-    const float eyeBase_2 =
-        0.5f * getConfig()->getFAttribute( Config::FATTR_EYE_BASE );
-
+    const float eyeBase_2 = 0.5f *  view->getModelUnit() *
+                           getConfig()->getFAttribute( Config::FATTR_EYE_BASE );
     switch( eye )
     {
       case EYE_LEFT:
