@@ -956,9 +956,15 @@ void Config::_adjustEyeBase( const float delta )
     for( eq::ObserversCIter i = observers.begin(); i != observers.end(); ++i )
     {
         eq::Observer* observer = *i;
-        observer->setEyeBase( observer->getEyeBase() + delta );
+        observer->setEyePosition( eq::EYE_LEFT,
+                                  observer->getEyePosition( eq::EYE_LEFT ) +
+                                  eq::Vector3f( -delta, 0.f, 0.f ));
+        observer->setEyePosition( eq::EYE_RIGHT,
+                                  observer->getEyePosition( eq::EYE_RIGHT ) +
+                                  eq::Vector3f( delta, 0.f, 0.f ));
         std::ostringstream stream;
-        stream << "Set eye base to " << observer->getEyeBase();
+        stream << "Set eyes to " << observer->getEyePosition( eq::EYE_LEFT )
+               << ", " <<  observer->getEyePosition( eq::EYE_RIGHT );
         _setMessage( stream.str( ));
     }
 }

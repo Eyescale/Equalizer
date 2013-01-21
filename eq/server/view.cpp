@@ -444,7 +444,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
     {
         view4 = observer->getHeadMatrix() * view4;
-        eye = observer->getEyePosition( EYE_CYCLOP );
+        eye = observer->getEyeWorld( EYE_CYCLOP );
     }
     Vector3f view = view4;
     view.normalize();
@@ -492,7 +492,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     float focusDistance = observer->getFocusDistance();
     if( mode == FOCUSMODE_RELATIVE_TO_ORIGIN )
     {
-        eye = observer->getEyePosition( EYE_CYCLOP );
+        eye = observer->getEyeWorld( EYE_CYCLOP );
 
         if( distance != std::numeric_limits< float >::max( ))
         {

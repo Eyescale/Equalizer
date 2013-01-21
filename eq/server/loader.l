@@ -221,6 +221,9 @@ filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eye_base                        { return EQTOKEN_EYE_BASE; }
+eye_left                        { return EQTOKEN_EYE_LEFT; }
+eye_cyclop                      { return EQTOKEN_EYE_CYCLOP; }
+eye_right                       { return EQTOKEN_EYE_RIGHT; }
 focus_distance                  { return EQTOKEN_FOCUS_DISTANCE; }
 focus_mode                      { return EQTOKEN_FOCUS_MODE; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }

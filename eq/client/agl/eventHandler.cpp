@@ -566,28 +566,28 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                                                               messageArgument );
             if( state->client == _magellanID )
             {
-                ConfigEvent event;
-                event.data.originator = _magellanNode->getID();
-                event.data.serial = _magellanNode->getSerial();
-                event.data.magellan.buttons = state->buttons;
-                event.data.magellan.xAxis =  state->axis[0];
-                event.data.magellan.yAxis = -state->axis[1];
-                event.data.magellan.zAxis = -state->axis[2];
-                event.data.magellan.xRotation = -state->axis[3];
-                event.data.magellan.yRotation =  state->axis[4];
-                event.data.magellan.zRotation =  state->axis[5];
+                Event event;
+                event.originator = _magellanNode->getID();
+                event.serial = _magellanNode->getSerial();
+                event.magellan.buttons = state->buttons;
+                event.magellan.xAxis =  state->axis[0];
+                event.magellan.yAxis = -state->axis[1];
+                event.magellan.zAxis = -state->axis[2];
+                event.magellan.xRotation = -state->axis[3];
+                event.magellan.yRotation =  state->axis[4];
+                event.magellan.zRotation =  state->axis[5];
 
                 // decipher what command/event is being reported by the driver
                 switch( state->command )
                 {
                     case kConnexionCmdHandleAxis:
-                        event.data.type = Event::MAGELLAN_AXIS;
-                        event.data.magellan.button = 0;
+                        event.type = Event::MAGELLAN_AXIS;
+                        event.magellan.button = 0;
                         break;
 
                     case kConnexionCmdHandleButtons:
-                        event.data.type = Event::MAGELLAN_BUTTON;
-                        event.data.magellan.button = state->value;
+                        event.type = Event::MAGELLAN_BUTTON;
+                        event.magellan.button = state->value;
                         break;
 
                     default:
@@ -595,7 +595,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                                       state->command );
                 }
 
-                _magellanNode->getConfig()->sendEvent( event );
+                _magellanNode->getConfig()->sendEvent( event.type ) << event;
             }
             break;
         }
