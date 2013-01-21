@@ -664,7 +664,7 @@ void Compound::_computePerspective( RenderContext& context,
 {
     const FrustumData& frustumData = getInheritFrustumData();
 
-    _computeFrustumCorners( context.frustum, frustumData, eye, false);
+    _computeFrustumCorners( context.frustum, frustumData, eye, false );
     _computeHeadTransform( context.headTransform, frustumData.getTransform(),
                            eye );
 
