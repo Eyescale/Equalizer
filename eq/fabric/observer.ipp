@@ -227,14 +227,14 @@ void Observer< C, O >::setKMatrix( const Eye eye, const Matrix4f& mtx )
     if ( getKMatrix( eye ) == mtx )
         return;
 
-    _data.kmatrix[ co::base::getIndexOfLastBit( eye ) ] = mtx;
+    _data.kmatrix[ getIndexOfLastBit( eye ) ] = mtx;
     setDirty( DIRTY_KMATRIX );
 }
 
 template< typename C, typename O >
 const Matrix4f& Observer< C, O >::getKMatrix( const Eye eye ) const
 {
-    return _data.kmatrix[ co::base::getIndexOfLastBit( eye ) ];
+    return _data.kmatrix[ getIndexOfLastBit( eye ) ];
 }
 
 template< typename C, typename O >
@@ -243,14 +243,14 @@ void Observer< C, O >::setEyeWorld( const Eye eye, const Matrix4f& mtx )
     if ( getEyeWorld( eye ) == mtx )
         return;
 
-    _data.eyes[ co::base::getIndexOfLastBit( eye ) ] = mtx;
+    _data.eyes[ getIndexOfLastBit( eye ) ] = mtx;
     setDirty( DIRTY_EYES );
 }
 
 template< typename C, typename O >
 const Matrix4f& Observer< C, O >::getEyeWorld( const Eye eye ) const
 {
-    return _data.eyes[ co::base::getIndexOfLastBit( eye ) ];
+    return _data.eyes[ getIndexOfLastBit( eye ) ];
 }
 
 template< typename C, typename O >

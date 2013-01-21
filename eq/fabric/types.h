@@ -52,6 +52,7 @@ struct GPUInfo;
 
 using lunchbox::uint128_t;
 using lunchbox::UUID;
+using lunchbox::getIndexOfLastBit;
 
 class Client;
 template< class, class > class Channel;
