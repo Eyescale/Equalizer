@@ -155,10 +155,13 @@ set(TRANSIENTS
 )
 foreach(_transient ${${UPPER_PROJECT_NAME}_TRANSIENT_LIBRARIES})
   list(APPEND TRANSIENTS
-    "find_package(${_transient} ${${${_transient}_name}_VERSION} EXACT \${_req} \${_quiet})\n"
     "string(TOUPPER ${_transient} _TRANSIENT)\n"
+    "if(\${\${_TRANSIENT}_VERSION})\n"
+    "  set(${_transient}_exact EXACT)\n"
+    "endif()\n"
+    "find_package(${_transient} \${\${_TRANSIENT}_VERSION} REQUIRED \${${_transient}_exact} \${_req} \${_quiet})\n"
     "if(\${_TRANSIENT}_FOUND)\n"
-    "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_transient}_name}_LIBRARIES})\n"
+    "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${\${_TRANSIENT}_LIBRARIES})\n"
     "else()\n"
     "  set(_fail TRUE)\n"
     "endif()\n\n")
