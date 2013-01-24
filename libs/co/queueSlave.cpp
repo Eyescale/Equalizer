@@ -106,7 +106,7 @@ Command* QueueSlave::pop( const uint32_t timeout )
             if( (*cmd)->command == CMD_QUEUE_ITEM )
                 return cmd;
 
-            LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+            EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
             const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
             if( packet->requestID == request )
             {

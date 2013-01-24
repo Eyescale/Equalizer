@@ -483,7 +483,7 @@ void RSPConnection::_handleConnectedTimeout()
 
     if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
-        LBERROR << "Too many timeouts during send: " << _timeouts << std::endl;
+        EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         bool all = true;
         for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i)
         {
@@ -505,7 +505,7 @@ void RSPConnection::_handleConnectedTimeout()
             for( RSPConnectionsCIter i = _children.begin();
                  i !=_children.end(); ++i)
             {
-                RSPConnectionPtr child = *i;
+            	RSPConnectionPtr child = *i;
                 child->_state = STATE_CLOSING;
                 child->_appBuffers.push( 0 ); // unlock read func
             }
