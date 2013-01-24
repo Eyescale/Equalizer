@@ -1,5 +1,5 @@
 // -*- mode: c++ -*-
-/* Copyright (c) 2011, Computer Integration & Programming Solutions, Corp. and
+/* Copyright (c) 2012, Computer Integration & Programming Solutions, Corp. and
  *                     United States Naval Research Laboratory
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -18,13 +18,20 @@
 #pragma once
 
 #include <co/connection.h>
+#include "ring.h"
 
 #include <co/base/thread.h>
 #include <co/base/monitor.h>
-#include <co/base/ring.h>
+#include <co/base/scopedMutex.h>
+#include <co/base/spinLock.h>
 
-#include <netinet/in.h>
+#include <bitset>
+
 #include <rdma/rdma_cma.h>
+
+#ifndef _WIN32
+#include <netdb.h>
+#endif
 
 namespace co
 {
@@ -35,28 +42,36 @@ namespace co
 class BufferPool
 {
 public:
-    BufferPool( unsigned int buffer_size );
+    BufferPool( size_t buffer_size );
     ~BufferPool( );
 
-    inline ibv_mr *getMR( ) const { return _mr; }
-    inline unsigned int getBufferSize( ) const { return _buffer_size; }
-    inline void *getBuffer( )
+    ibv_mr *getMR( ) const { return _mr; }
+    size_t getBufferSize( ) const { return _buffer_size; }
+    void *getBuffer( )
     {
+        co::base::ScopedWrite mutex( _buffer_lock );
+
         return (void *)( (uintptr_t)_buffer + ( _ring.get( ) * _buffer_size ));
     }
-    inline void freeBuffer( void *buf )
+    void freeBuffer( void *buf )
     {
-        _ring.put(( (uintptr_t)buf - (uintptr_t)_buffer ) / _buffer_size );
+        co::base::ScopedWrite mutex( _buffer_lock );
+
+        ::memset( buf, 0xff, _buffer_size ); // Paranoid
+
+        _ring.put((uint32_t)(( (uintptr_t)buf - (uintptr_t)_buffer ) /
+            _buffer_size ));
     }
 
     void clear( );
-    bool resize( ibv_pd *pd, const unsigned int num_bufs );
+    bool resize( ibv_pd *pd, uint32_t num_bufs );
 private:
-    const unsigned int _buffer_size;
-    unsigned int _num_bufs;
+    const size_t _buffer_size;
+    uint32_t _num_bufs;
     void *_buffer;
     struct ibv_mr *_mr;
-    BufferQ<unsigned int> _ring;
+    BufferQ<uint32_t> _ring;
+    co::base::Lock _buffer_lock;
 }; // BufferPool
 
 /**
@@ -70,43 +85,56 @@ public:
     RingBuffer( int access = 0 );
     ~RingBuffer( );
 
-    inline ibv_mr *getMR( ) const { return _mr; }
-    inline uint32_t getSize( ) const { return _size; }
-    inline void *getBase( ) const { return _map; }
+    ibv_mr *getMR( ) const { return _mr; }
+    size_t getSize( ) const { return _size; }
+    void *getBase( ) const { return _map; }
 
     void clear( );
-    bool resize( ibv_pd *pd, const unsigned long size );
+    bool resize( ibv_pd *pd, size_t size );
 private:
     const int _access;
-    uint32_t _size;
-    void *_map;
+    size_t _size;
+    void* _map;
     struct ibv_mr *_mr;
+#ifdef _WIN32
+    HANDLE _mapping;
+    void* determineViableAddr( size_t size );
+    void  allocAt( size_t size, void* desiredAddr );
+#endif
 }; // RingBuffer
+
+/**
+  * Private data sent with connect/accept to validate protocol version and
+  * pass protocol parameters (NB: limited to 56 bytes for RDMA_PS_TCP).
+  */
+struct RDMAConnParamData
+{
+    uint16_t magic;
+    uint16_t version;
+    uint32_t depth;
+};
 
 struct RDMASetupPayload;
 struct RDMAFCPayload;
 struct RDMAMessage;
 
+class EventConnection;
+
 /**
  * An RDMA connection implementation.
  *
  * This connection utilizes the OFED RDMA library to send Collage messages by
- * RDMA write operations on the remote MR.  Since there are two "notifiers" when
- * connected via RDMA CM (in the connection manager channel and the completion
- * channel), a thread is launched that monitors both via epoll(7) and dispatches
- * events via an eventfd(2) that the application can monitor.  For listening,
- * however, the connection manager's channel is sufficient and it is simply
- * handed back to the application for monitoring.
+ * RDMA write operations on a remote memory region.
  *
  * In order to use this connection type, at least:
  *
  * 1) The rdma_ucm kernel module must be loaded
- * 2) The application must have read/write access to the IB device nodes
+ * 2) The application must have read/write access to the RDMA device nodes
  *    (typically /dev/infiniband/[rdma_cm|uverbs*])
  * 3) The IP address assigned to the connection must be an address assigned to
- *    an RDMA-capable device (e.g. IPoIB)
+ *    an RDMA-capable device (i.e. IPoIB)
  * 4) Shared memory must be sufficient for all RDMA connections,
- *    2 * Global::IATTR_RDMA_RING_BUFFER_SIZE_MB for each one
+ *    2 * Global::IATTR_RDMA_RING_BUFFER_SIZE_MB for each
  *    (i.e. /dev/shm, kernel.shm[min|max|all])
  * 5) The user must be able to lock the memory registered with verbs, such that
  *    the locked memory limit needs to be sufficient ("ulimit -l" for bash,
@@ -115,6 +143,18 @@ struct RDMAMessage;
  *    all users):
  *    * soft memlock 2048000
  *    * hard memlock 2048000
+ *
+ * NB : Binding to "localhost" does *not* limit remote access, rdma_cm will
+ * bind to all available RDMA interfaces as if bound to a wildcard address!
+ *
+ * TODO? : Binding to wildcard address updates the description with the
+ * canonical hostname, which is possibly not a valid RDMA IPoIB name.
+ *
+ * TODO? : Mixed IPv6/IPv4 naming isn't handled correctly.  If one listens on
+ * IPv6 and gets an IPv4 connection the address in the route struct doesn't
+ * appear to be valid, and vice versa.  Not sure if this is an RDMA CM
+ * issue or improper handling.
+ *
  */
 class RDMAConnection : public Connection
 {
@@ -123,7 +163,7 @@ public:
 
     virtual bool connect( );
     virtual bool listen( );
-    virtual void close( );
+    virtual void close( ) { _close( ); }
 
     virtual void acceptNB( );
     virtual ConnectionPtr acceptSync( );
@@ -131,11 +171,11 @@ public:
 protected:
     virtual void    readNB  ( void* buffer, const uint64_t bytes );
     virtual int64_t readSync( void* buffer, const uint64_t bytes,
-                              const bool ignored );
+                              const bool block );
     virtual int64_t write   ( const void* buffer, const uint64_t bytes );
 
 public:
-    virtual Notifier getNotifier( ) const { return _notifier; };
+    virtual Notifier getNotifier( ) const;
 
 protected:
     virtual ~RDMAConnection( );
@@ -144,149 +184,194 @@ protected:
 
 private:
     /* Teardown */
-    void _drainEvents( );
+    void _close( );
     void _cleanup( );
 
     /* Setup */
-    bool _finishAccept( struct rdma_event_channel *listen_channel );
+    bool _finishAccept( struct rdma_cm_id *new_cm_id,
+        const RDMAConnParamData &cpd );
 
+    bool _lookupAddress( const bool passive );
     void _updateInfo( struct sockaddr *addr );
-    bool _parseAddress( struct sockaddr &address, const bool passive ) const;
+
     bool _createEventChannel( );
     bool _createId( );
 
-    bool _resolveAddress( struct sockaddr &address );
+    bool _initVerbs( );
+    bool _createQP( );
+    bool _initBuffers( );
+
+    bool _resolveAddress( );
     bool _resolveRoute( );
     bool _connect( );
 
-    bool _bindAddress( struct sockaddr &address ) const;
-    bool _listen( ) const;
+    bool _bindAddress( );
+    bool _listen( int backlog );
+    bool _migrateId( );
     bool _accept( );
-    bool _migrateId( ) const;
+    bool _reject( );
 
-    bool _initVerbs( );
-    bool _initBuffers( );
-    bool _createQP( );
+    /* Protocol */
+    bool _initProtocol( int32_t depth );
 
-    bool _postReceives( const unsigned int count );
+    inline bool _needFC( );
 
-    /* Event thread handlers */
-    void _handleSetup( RDMASetupPayload &setup );
-    void _handleFC( RDMAFCPayload &fc );
-    void _handleMessage( RDMAMessage &message );
-    void _handleImm( const uint32_t imm );
+    bool _postReceives( const uint32_t count );
 
-    /* Application read/write services */
-    bool _postSendWR( struct ibv_send_wr &wr );
-
-    bool _postSendMessage( RDMAMessage &message );
-    void _fillSetup( RDMASetupPayload &setup ) const;
-    bool _postSendSetup( );
-    void _fillFC( RDMAFCPayload &fc ) const;
-    bool _postSendFC( );
-
+    inline void _recvRDMAWrite( const uint32_t imm_data );
+    inline uint32_t _makeImm( const uint32_t b );
     bool _postRDMAWrite( );
 
-    bool _waitRecvSetup( ) const;
+    bool _postMessage( const RDMAMessage &message );
+    void _recvMessage( const RDMAMessage &message );
+    inline void _recvFC( const RDMAFCPayload &fc );
+    bool _postFC( );
+    void _recvSetup( const RDMASetupPayload &setup );
+    bool _postSetup( );
+
+    bool _waitRecvSetup( );
 
 private:
-    /* Connection Manager event handler */
-    bool _doCMEvent( struct rdma_event_channel *channel,
-        rdma_cm_event_type expected );
-    /* Completion Queue event handler */
-    bool _doCQEvents( struct ibv_comp_channel *channel, bool drain = false );
-
-    /* Event handler thread */
-    class ChannelEventThread : public base::Thread
+    enum Events
     {
-    public:
-        ChannelEventThread( RDMAConnection *conn ) : _conn( conn ) { }
-        virtual ~ChannelEventThread( ) { _conn = NULL; }
-
-        virtual bool init( ) { return _conn->_initEventThread( ); }
-        virtual void run( ) { _conn->_runEventThread( ); }
-    private:
-        RDMAConnection *_conn;
+        CM_EVENT  = 0,
+        CQ_EVENT  = 1,
+        BUF_EVENT = 2,
     };
+    typedef std::bitset<3> eventset;
 
-    void _eventFDWrite( int fd, const uint64_t val ) const;
+    bool _createNotifier( );
+    void _updateNotifier();
+    bool _checkEvents( eventset &events );
 
-    Notifier _notifier; // _cm->fd or read/status event fd
-    void _notify( const uint64_t val ) const;
-    int _wfd; // write completion event fd
-    void _complete( const uint64_t val ) const;
+    /* Connection manager events */
+    bool _checkDisconnected( eventset &events );
+    bool _waitForCMEvent( enum rdma_cm_event_type expected );
+    bool _doCMEvent( enum rdma_cm_event_type expected );
 
-    ChannelEventThread *_event_thread;
-    int _efd; // epoll fd
+    /* Completion queue events */
+    bool _rearmCQ( );
+    bool _checkCQ( bool drain );
 
-    bool _startEventThread( );
-    bool _initEventThread( );
-    void _runEventThread( );
-    void _joinEventThread( );
+    /* Available byte events */
+    bool _createBytesAvailableFD( );
+    bool _incrAvailableBytes( const uint64_t b );
+    uint64_t _getAvailableBytes( );
+
+#ifdef _WIN32
+    static void _triggerNotifierCQ( RDMAConnection* conn );
+    static void _triggerNotifierCM( RDMAConnection* conn );
+    void _triggerNotifierWorker( Events event );
+#endif
 
 private:
-    enum SetupWait
-    {
-        SETUP_NOK  = 0,
-        SETUP_OK   = 1,
-        SETUP_WAIT = 2
-    };
-    /* Blocks application connect/accept until the event thread receives the
-       remote sink's MR parameters */
-    base::Monitor<SetupWait> _setup_block;
+    Notifier _notifier;
 
-    /* Protect close( ) from multiple threads */
-    base::Lock _close_mutex;
+    /* Protect RDMA/Verbs vars from multiple threads */
+    co::base::Lock _poll_lock;
 
+    /* Timeout for resolving RDMA address & route */
+    const int32_t _timeout;
+
+    /* Final connection info */
+    char _addr[NI_MAXHOST], _serv[NI_MAXSERV];
+    std::string _device_name;
+
+    /* RDMA/Verbs vars */
+    struct rdma_addrinfo *_rai;
     struct rdma_event_channel *_cm;
     struct rdma_cm_id *_cm_id;
-    struct rdma_conn_param _conn_param;
-    bool _established; // set on receipt of RDMA_CM_EVENT_ESTABLISHED
-    bool _thread_running; // state of the event thread
-    bool _wcerr; // set when any work completion indicates failure
-    uint32_t _depth;
-
-    struct ibv_device_attr _dev_attr;
-    struct ibv_pd *_pd;
+    struct rdma_cm_id *_new_cm_id;
     struct ibv_comp_channel *_cc;
     struct ibv_cq *_cq;
-    struct ibv_qp *_qp;
+    struct ibv_pd *_pd;
+    struct ibv_wc* _wcs;
+
+#ifndef _WIN32
+    int _pipe_fd[2];
+#else
+    uint64_t _availBytes;
+    uint32_t _eventFlag;
+    co::base::SpinLock _eventLock;
+#endif
+
+    uint64_t _readBytes;
+
+    struct RDMAConnParamData _cpd;
+    bool _established;
+
+    int32_t _depth;               // Maximum sends in flight (RDMA & FC)
+    co::base::a_int32_t _writes;  // Number of unacked RDMA writes received
+    co::base::a_int32_t _fcs;     // Number of unacked FC messages received
+    co::base::a_int32_t _wcredits; // Number of RDMA write credits available
+    co::base::a_int32_t _fcredits; // Number of FC message credits available
+
     unsigned int _completions;
-    struct ibv_qp_cap _qpcap;
 
-    /* Send WR tracking */
-    base::a_int32_t _available_wr;
-
-    /* MR for setup and FC messages */
+    /* MR for setup and ack messages */
     BufferPool _msgbuf;
 
     /* source RDMA MR */
     RingBuffer _sourcebuf;
     Ring<uint32_t, 3> _sourceptr;
-        //        : initialized by application during connect/accept
-        // HEAD   : advanced by application after copying buffer on local write
-        // MIDDLE : advanced by application before posting RDMA write
-        // TAIL   : advanced by event thread after completing RDMA write
+        //        : initialized during connect/accept
+        // HEAD   : advanced after copying buffer (fill) on local write
+        //          - write thread only
+        // MIDDLE : advanced before posting RDMA write
+        //          - write thread only
+        // TAIL   : advanced after completing RDMA write
+        //          - write & read threads (in pollCQ)
 
     /* sink RDMA MR */
     RingBuffer _sinkbuf;
     Ring<uint32_t, 2> _sinkptr;
-        //        : initialized by application during connect/accept
-        // HEAD   : advanced by event thread on receipt of remote FC
-        // TAIL   : advanced by application after copying buffer on local read
+        //        : initialized during connect/accept
+        // HEAD   : advanced on receipt of RDMA WRITE
+        //          - write & read threads (in pollCQ)
+        // TAIL   : advanced after copying buffer (drain) on local read
+        //          - read thread only
 
     /* local "view" of remote sink MR */
     Ring<uint32_t, 2> _rptr;
-        //        : initialized by event thread on receipt of setup message
-        // HEAD   : advanced by application while posting RDMA write
-        // TAIL   : advanced by event thread on receipt of remote FC
+        //        : initialized on receipt of setup message
+        // HEAD   : advanced before posting RDMA write
+        //          - write thread only
+        // TAIL   : advanced on receipt of FC
+        //          - write & read threads (in pollCQ)
 
     /* remote sink MR parameters */
     uint64_t _rbase, _rkey;
 
     /* copy bytes out of the sink buffer */
-    uint32_t _drain( void *buffer, const uint32_t bytes );
+    inline uint32_t _drain( void *buffer, const uint32_t bytes );
     /* copy bytes in to the source buffer */
-    uint32_t _fill( const void *buffer, const uint32_t bytes );
+    inline uint32_t _fill( const void *buffer, const uint32_t bytes );
+
+#ifdef WIN32
+    HANDLE _ccWaitObj;
+    HANDLE _cmWaitObj;
+#endif
+
+private:
+    struct stats
+    {
+        stats( )
+            : reads( 0ULL )
+            , buffer_empty( 0ULL )
+            , no_credits_fc( 0ULL )
+            , writes( 0ULL )
+            , buffer_full( 0ULL )
+            , no_credits_rdma( 0ULL )
+        { }
+
+        uint64_t reads;
+        uint64_t buffer_empty;
+        uint64_t no_credits_fc;
+        uint64_t writes;
+        uint64_t buffer_full;
+        uint64_t no_credits_rdma;
+    } _stats;
+
+    void _showStats( );
 }; // RDMAConnection
 } // namespace co

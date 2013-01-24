@@ -195,7 +195,7 @@ namespace co
         CO_API bool deserialize( std::string& data );
 
         /** @return last receive time. */
-        int64_t getLastReceiveTime() const { return _lastReceive; }
+        CO_API int64_t getLastReceiveTime() const { return _lastReceive; }
 
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return NODETYPE_CO_NODE; }

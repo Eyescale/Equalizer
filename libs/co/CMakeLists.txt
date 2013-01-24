@@ -60,6 +60,9 @@ if(OFED_FOUND)
   list(APPEND CO_HEADERS rdmaConnection.h)
   list(APPEND CO_SOURCES rdmaConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
+  if(WIN32)
+    list(APPEND CO_ADD_LINKLIB DelayImp.lib)
+  endif(WIN32)
 endif()
 
 
@@ -83,6 +86,12 @@ purple_add_amalgamation(Collage co ${CO_VERSION} ${VERSION_ABI}
     shared co_base shared co
   )
 
+if(OFED_FOUND)
+  if(WIN32)
+    set_target_properties(Collage PROPERTIES LINK_FLAGS "/DELAYLOAD:librdmacm.dll /DELAYLOAD:libibverbs.dll")
+  endif(WIN32)
+endif()
+  
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Collage.pc.in ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc

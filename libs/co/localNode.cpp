@@ -495,7 +495,8 @@ void LocalNode::ping( NodePtr remoteNode )
 bool LocalNode::pingIdleNodes()
 {
     EQASSERT( !_inReceiverThread( ) );
-    const int64_t timeout = co::Global::getKeepaliveTimeout();
+    const int64_t alivetimeout = co::Global::getKeepaliveTimeout()/2;
+    const uint32_t timeout = Global::getTimeout();
     Nodes nodes;
     getNodes( nodes, false );
 
@@ -503,7 +504,7 @@ bool LocalNode::pingIdleNodes()
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr node = *i;
-        if( getTime64() - node->getLastReceiveTime() > timeout )
+        if( getTime64() - node->getLastReceiveTime() > alivetimeout )
         {
             EQINFO << " Ping Node: " <<  node->getNodeID() << " last seen "
                    << node->getLastReceiveTime() << std::endl;
@@ -991,11 +992,12 @@ void LocalNode::_handleDisconnect()
             node->_state    = STATE_CLOSED;
             node->_outgoing = 0;
 
-            if( node->_outMulticast.data.isValid( ) )
-                _removeConnection( node->_outMulticast.data );
-
+            // TODO: properly handle slave/child connection closes.
+            //if( node->_outMulticast.data.isValid( ) )
+            //    _removeConnection( node->_outMulticast.data );
+ 
             node->_outMulticast = 0;
-            node->_multicasts.clear();
+            //node->_multicasts.clear();
 
             base::ScopedFastWrite mutex( _nodes );
             _connectionNodes.erase( i );
@@ -1728,6 +1730,7 @@ bool LocalNode::_cmdPing( Command& command )
     EQASSERT( inCommandThread( ));
     NodePingReplyPacket reply;
     command.getNode()->send( reply );
+    EQINFO << "Sent ping reply" << std::endl;
     return true;
 }
 
