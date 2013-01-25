@@ -48,6 +48,6 @@ if(HWLOC_FOUND)
 
   if(HWLOC_FOUND AND _hwloc_output)
     message(STATUS
-      "Found HWLOC ${HWLOC_VERSION} in ${HWLOC_INCLUDE_DIRS};${HWLOC_LIBRARIES}")
+      "Found hwloc ${HWLOC_VERSION} in ${HWLOC_INCLUDE_DIRS};${HWLOC_LIBRARIES}")
   endif()
 endif()
