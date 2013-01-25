@@ -9,32 +9,26 @@ find_package(PkgConfig)
 
 if(HWLOC_ROOT)
   set(ENV{PKG_CONFIG_PATH} "${HWLOC_ROOT}/lib/pkgconfig")
-else()
-  foreach(PREFIX ${CMAKE_PREFIX_PATH})
-    set(PKG_CONFIG_PATH "${PKG_CONFIG_PATH}:${PREFIX}/lib/pkgconfig")
-  endforeach()
-  message(    "${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}")
-  set(ENV{PKG_CONFIG_PATH}
-    "${PKG_CONFIG_PATH}:$ENV{PKG_CONFIG_PATH}")
 endif()
 
-if(HWLOC_FIND_QUIETLY)
+if(hwloc_FIND_QUIETLY)
   set(_hwloc_QUIET QUIET)
 else()
   set(_hwloc_output 1)
 endif()
 
-if(HWLOC_FIND_VERSION)
-  if(HWLOC_FIND_VERSION_EXACT)
-    pkg_check_modules(HWLOC ${_hwloc_QUIET} hwloc=${HWLOC_FIND_VERSION})
+if(hwloc_FIND_VERSION)
+  if(hwloc_FIND_VERSION_EXACT)
+    pkg_check_modules(HWLOC ${_hwloc_QUIET} hwloc=${hwloc_FIND_VERSION})
   else()
-    pkg_check_modules(HWLOC ${_hwloc_QUIET} hwloc>=${HWLOC_FIND_VERSION})
+    pkg_check_modules(HWLOC ${_hwloc_QUIET} hwloc>=${hwloc_FIND_VERSION})
   endif()
 else()
   pkg_check_modules(HWLOC ${_hwloc_QUIET} hwloc)
 endif()
 
-if(HWLOC_FOUND)
+if(hwloc_FOUND)
+  set(HWLOC_FOUND 1)
   find_library(HWLOC_LIBRARY hwloc
     HINTS $ENV{HWLOC_ROOT} ${HWLOC_ROOT}
     PATHS ${HWLOC_LIBRARY_DIRS}
