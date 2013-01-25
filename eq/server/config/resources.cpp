@@ -303,7 +303,7 @@ bool Resources::discover( ServerPtr server, Config* config,
             for( co::ConnectionDescriptionsCIter j = descs.begin();
                  j != descs.end(); ++j )
             {
-                mtNode->addConnectionDescription( *j );
+                mpNode->addConnectionDescription( *j );
             }
         }
 
