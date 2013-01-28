@@ -35,9 +35,7 @@ class ConfigParams
 {
 public:
     ConfigParams()
-        : renderClient( co::Global::getProgramName( ))
-        , workDir( co::Global::getWorkDir( ))
-        , flags( eq::fabric::Global::getFlags( ))
+        : flags( eq::fabric::Global::getFlags( ))
         , prefixes( eq::fabric::Global::getPrefixes( ))
     {
         switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )

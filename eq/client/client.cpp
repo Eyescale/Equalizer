@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -283,7 +283,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     const std::string workDir = clientArgs.substr( 0, nextPos );
     std::string description = clientArgs.substr( nextPos + 1 );
 
-    co::Global::setWorkDir( workDir );
+    Global::setWorkDir( workDir );
     if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
         LBWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << std::endl;

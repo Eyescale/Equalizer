@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -24,12 +24,34 @@
 
 namespace eq
 {
+std::string _programName;
+std::string _workDir;
 NodeFactory* Global::_nodeFactory = 0;
 std::string Global::_configFile = "local";
 
 #ifdef AGL
 static lunchbox::Lock _carbonLock;
 #endif
+
+void Global::setProgramName( const std::string& programName )
+{
+    _programName = programName;
+}
+
+const std::string& Global::getProgramName()
+{
+    return _programName;
+}
+
+void Global::setWorkDir( const std::string& workDir )
+{
+    _workDir = workDir;
+}
+
+const std::string& Global::getWorkDir()
+{
+    return _workDir;
+}
 
 void Global::setConfigFile( const std::string& configFile )
 {

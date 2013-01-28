@@ -90,6 +90,36 @@ typedef BOOL (WINAPI * PFNWGLENUMGPUSFROMAFFINITYDCNVPROC) (HDC hAffinityDC, UIN
 typedef BOOL (WINAPI * PFNWGLDELETEDCNVPROC) (HDC hAffinityDC);
 #    endif // WGL_WGLEXT_PROTOTYPES
 #  endif // WGL_NV_gpu_affinity
+
+#ifndef WGL_ARB_pbuffer
+#   define WGL_ARB_pbuffer 1
+
+#   define WGL_DRAW_TO_PBUFFER_ARB 0x202D
+#   define WGL_MAX_PBUFFER_PIXELS_ARB 0x202E
+#   define WGL_MAX_PBUFFER_WIDTH_ARB 0x202F
+#   define WGL_MAX_PBUFFER_HEIGHT_ARB 0x2030
+#   define WGL_PBUFFER_LARGEST_ARB 0x2033
+#   define WGL_PBUFFER_WIDTH_ARB 0x2034
+#   define WGL_PBUFFER_HEIGHT_ARB 0x2035
+#   define WGL_PBUFFER_LOST_ARB 0x2036
+
+DECLARE_HANDLE(HPBUFFERARB);
+
+typedef HPBUFFERARB (WINAPI * PFNWGLCREATEPBUFFERARBPROC) (HDC hDC, int iPixelFormat, int iWidth, int iHeight, const int* piAttribList);
+typedef BOOL (WINAPI * PFNWGLDESTROYPBUFFERARBPROC) (HPBUFFERARB hPbuffer);
+typedef HDC (WINAPI * PFNWGLGETPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer);
+typedef BOOL (WINAPI * PFNWGLQUERYPBUFFERARBPROC) (HPBUFFERARB hPbuffer, int iAttribute, int* piValue);
+typedef int (WINAPI * PFNWGLRELEASEPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer, HDC hDC);
+
+#   define wglCreatePbufferARB WGLEW_GET_FUN(__wglewCreatePbufferARB)
+#   define wglDestroyPbufferARB WGLEW_GET_FUN(__wglewDestroyPbufferARB)
+#   define wglGetPbufferDCARB WGLEW_GET_FUN(__wglewGetPbufferDCARB)
+#   define wglQueryPbufferARB WGLEW_GET_FUN(__wglewQueryPbufferARB)
+#   define wglReleasePbufferDCARB WGLEW_GET_FUN(__wglewReleasePbufferDCARB)
+
+#   define WGLEW_ARB_pbuffer WGLEW_GET_VAR(__WGLEW_ARB_pbuffer)
+
+#   endif /* WGL_ARB_pbuffer */
 #endif
 
 #ifndef WGL

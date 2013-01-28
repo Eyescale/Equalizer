@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,9 +22,6 @@
 
 namespace eq
 {
-    class Exception;
-    std::ostream& operator << ( std::ostream& os, const Exception& e );
-
     /** Exception class for Equalizer operations. */
     class Exception : public co::Exception
     {
@@ -41,28 +38,17 @@ namespace eq
 
         virtual const char* what() const throw()
         {
-            std::stringstream os;
-            os << *this;
-            return os.str().c_str();
+            switch( getType( ))
+            {
+              case Exception::TIMEOUT_INPUTFRAME:
+                  return " Timeout waiting on input frame";
+              case Exception::GL_ERROR:
+                  return " OpenGL Error";
+              default:
+                  return co::Exception::what();
+            }
         }
     };
-
-    inline std::ostream& operator << ( std::ostream& os, const Exception& e )
-    {
-        switch( e.getType() )
-        {
-          case Exception::TIMEOUT_INPUTFRAME:
-              os << " Timeout waiting on input frame";
-              break;
-          case Exception::GL_ERROR:
-              os << " OpenGL Error";
-              break;
-          default:
-              os << static_cast< const co::Exception& >( e );
-              break;
-        }
-        return os;
-    }
 }
 
 #endif // EQ_EXCEPTION_H

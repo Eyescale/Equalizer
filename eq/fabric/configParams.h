@@ -83,8 +83,9 @@ namespace detail { class ConfigParams; }
         /**
          * Set the name of the render client executable.
          *
-         * The default value is the program name retrieved from
-         * co::Global::getProgramName(), i.e., the filename part of argv[0].
+         * If no render client is provided, eq::Server::chooseConfig() uses the
+         * program name retrieved from eq::Global::getProgramName(), i.e., the
+         * filename part of argv[0].
          * @version 1.0
          */
         EQFABRIC_API void setRenderClient( const std::string& renderClient );
@@ -95,9 +96,8 @@ namespace detail { class ConfigParams; }
         /**
          * Set the directory from which to launch the render client.
          *
-         * The default value is the program directory retrieved from
-         * co::Global::getWorkDir(), i.e., the directory part of the render
-         * client executable.
+         * If no working directory is provided, eq::Server::chooseConfig() uses
+         * eq::Global::getWorkDir(), i.e., the current working directory.
          * @version 1.0
          */
         EQFABRIC_API void setWorkDir( const std::string& workDir );
