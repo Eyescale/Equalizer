@@ -60,7 +60,75 @@
 #  include <QtNetwork/QHostAddress>
 #endif
 
+#include <boost/regex.hpp>
+
 #define USE_IPv4
+
+namespace detail
+{
+class RegExFilter
+{
+public:
+    RegExFilter( const std::string& gpuNameRegex,
+                 const std::string& netNameRegex )
+    {
+        if ( !gpuNameRegex.empty() )
+            gpuNameRegex_.assign( gpuNameRegex );
+        if ( !netNameRegex.empty() )
+            netNameRegex_.assign( netNameRegex );
+    }
+
+    boost::regex gpuNameRegex_;
+    boost::regex netNameRegex_;
+};
+}
+
+class RegExFilter : public hwsd::Filter
+{
+public:
+    RegExFilter( const std::string& gpuNameRegex,
+                 const std::string& netNameRegex )
+        : impl_( new detail::RegExFilter( gpuNameRegex, netNameRegex ) )
+    {}
+
+    ~RegExFilter() { delete impl_; }
+
+    virtual bool operator() ( const hwsd::GPUInfos& current,
+                              const hwsd::GPUInfo& candidate )
+    {
+        std::stringstream name;
+        /** \todo Consider other windowing sytems where the port attribute
+            is not used */
+        if( _testRegex( impl_->gpuNameRegex_, name.str( ) ) )
+        {
+            return Filter::operator()( current, candidate );
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    virtual bool operator() ( const hwsd::NetInfos& current,
+                              const hwsd::NetInfo& candidate )
+    {
+        /** \todo */
+        return hwsd::Filter::operator()( current, candidate );
+    }
+
+private:
+    detail::RegExFilter* const impl_;
+
+    /*! @return true if the string matches the regular expression or the
+                expresion is empty */
+    bool _testRegex(const boost::regex& regex, const std::string& name)
+    {
+        if( regex.empty() )
+            return true;
+        else
+            return boost::regex_match( name, regex );
+    }
+};
 
 
 namespace eq
@@ -195,8 +263,11 @@ bool Resources::discover( ServerPtr server, Config* config,
     hwsd::net::dns_sd::Module::use();
 #endif
 
-    hwsd::FilterPtr filter = *hwsd::FilterPtr( new hwsd::MirrorFilter ) |
-                               hwsd::FilterPtr( new hwsd::DuplicateFilter );
+    hwsd::FilterPtr filter( new hwsd::MirrorFilter );
+    filter = *filter | hwsd::FilterPtr( new hwsd::DuplicateFilter );
+    filter = *filter | hwsd::FilterPtr(
+        new RegExFilter( config->getSAttribute( Config::SATTR_GPU_FILTER ),
+                         "" ) ); //!< \todo Net name filter missing
     if( !session.empty( ))
         *filter |= hwsd::FilterPtr( new hwsd::SessionFilter( session ));
     hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( filter );

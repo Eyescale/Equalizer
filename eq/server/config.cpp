@@ -80,6 +80,11 @@ Config::Config( ServerPtr parent )
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getConfigIAttribute( attr ));
     }
+    for( int i=0; i < SATTR_ALL; ++i )
+    {
+        const SAttribute attr = static_cast< SAttribute >( i );
+        setSAttribute( attr, global->getConfigSAttribute( attr ));
+    }
 }
 
 Config::~Config()
