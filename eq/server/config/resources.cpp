@@ -99,6 +99,8 @@ public:
         std::stringstream name;
         /** \todo Consider other windowing sytems where the port attribute
             is not used */
+        name << candidate.nodeName << ':'
+             << candidate.port << '.' << candidate.device;
         if( _testRegex( impl_->gpuNameRegex_, name.str( ) ) )
         {
             return Filter::operator()( current, candidate );
