@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -33,6 +33,26 @@ namespace eq
     class Global : public fabric::Global
     {
     public:
+        /**
+         * Set the name of the program.
+         *
+         * @param programName the program name.
+         */
+        CO_API static void setProgramName( const std::string& programName );
+
+        /** @return the program name. */
+        CO_API static const std::string& getProgramName();
+
+        /**
+         * Set the working directory of the program.
+         *
+         * @param workDir the working directory.
+         */
+        CO_API static void setWorkDir( const std::string& workDir );
+
+        /** @return the working directory of the program. */
+        CO_API static const std::string& getWorkDir();
+
         /** @return the node factory. @version 1.0 */
         static NodeFactory* getNodeFactory() { return _nodeFactory; }
 

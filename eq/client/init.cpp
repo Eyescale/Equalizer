@@ -103,6 +103,17 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
     LBASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
+    const std::string& programName = Global::getProgramName();
+    if( programName.empty() && argc > 0 )
+        Global::setProgramName( argv[0] );
+
+    const std::string& workDir = Global::getWorkDir();
+    if( workDir.empty( ))
+    {
+        char cwd[MAXPATHLEN];
+        Global::setWorkDir( getcwd( cwd, MAXPATHLEN ));
+    }
+
     _initPlugins();
     return fabric::init( argc, argv );
 }
@@ -251,8 +262,8 @@ bool _parseArguments( const int argc, char** argv )
     if( vm.count( "eq-client" ))
     {
         const std::string& renderClient = vm["eq-client"].as< std::string >();
-        co::Global::setProgramName( renderClient );
-        co::Global::setWorkDir( lunchbox::getDirname( renderClient ));
+        Global::setProgramName( renderClient );
+        Global::setWorkDir( lunchbox::getDirname( renderClient ));
     }
 
     return true;

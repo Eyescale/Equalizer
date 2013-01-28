@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -104,7 +104,7 @@ namespace eq
         virtual co::CommandQueue* getMainThreadQueue()
             { return &_mainThreadQueue; }
 
-        /** @internal @return the list of active layouts given by --eq-layout. */
+        /** @internal @return the active layouts given by --eq-layout. */
         const Strings& getActiveLayouts();
 
         /** @internal @return the model unit for all views. */

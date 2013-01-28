@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -620,7 +620,7 @@ void EventHandler::initMagellan( Node* node )
     else
     {
         std::string program( '\0' + lunchbox::getFilename(
-                                        co::Global::getProgramName( )));
+                                        Global::getProgramName( )));
         program[0] = program.length() - 1;
 
         _magellanID = RegisterConnexionClient( 0, (uint8_t*)program.c_str( ),

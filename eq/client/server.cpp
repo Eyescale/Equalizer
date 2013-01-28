@@ -74,12 +74,18 @@ co::CommandQueue* Server::getCommandThreadQueue()
     return getClient()->getCommandThreadQueue();
 }
 
-Config* Server::chooseConfig( const fabric::ConfigParams& parameters )
+Config* Server::chooseConfig( const fabric::ConfigParams& p )
 {
     if( !isConnected( ))
         return 0;
 
-    if( parameters.getRenderClient().empty( ))
+    fabric::ConfigParams params( p );
+
+    if( params.getWorkDir().empty( ))
+        params.setWorkDir( Global::getWorkDir( ));
+    if( params.getRenderClient().empty( ))
+        params.setRenderClient( Global::getProgramName( ));
+    if( params.getRenderClient().empty( ))
     {
         LBWARN << "No render client in ConfigParams specified" << std::endl;
         return 0;
@@ -89,7 +95,7 @@ Config* Server::chooseConfig( const fabric::ConfigParams& parameters )
     const uint32_t requestID =  client->registerRequest();
 
     send( fabric::CMD_SERVER_CHOOSE_CONFIG )
-        << requestID << parameters << eq::Global::getConfigFile();
+        << requestID << params << eq::Global::getConfigFile();
 
     while( !client->isRequestServed( requestID ))
         getClient()->processCommand();
