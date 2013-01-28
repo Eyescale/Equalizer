@@ -113,11 +113,12 @@ co::Connection* eqsStartLocalServer( const std::string& config )
     }
 
     co::ConnectionPtr sibling = connection->acceptSync();
-    if( !server->listen( sibling ))
+    if( !sibling || !server->listen( ))
     {
         LBERROR << "Failed to setup server listener" << std::endl;
         return 0;
     }
+    server->addListener(  sibling );
 
     if( !_serverThread.start( server ))
     {

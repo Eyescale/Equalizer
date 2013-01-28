@@ -702,8 +702,8 @@ Vector3f Compound::_getEyePosition( const Eye eye ) const
 
     if( observer )
         return view->getModelUnit() *
-            (frustumData.getType() == Wall::TYPE_FIXED) ?
-                observer->getEyeWorld( eye ) : observer->getEyePosition( eye );
+            ( frustumData.getType() == Wall::TYPE_FIXED ?
+                observer->getEyeWorld( eye ) : observer->getEyePosition( eye ));
 
     const float eyeBase_2 = 0.5f *  view->getModelUnit() *
                            getConfig()->getFAttribute( Config::FATTR_EYE_BASE );
