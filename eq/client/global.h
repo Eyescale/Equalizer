@@ -33,24 +33,16 @@ namespace eq
     class Global : public fabric::Global
     {
     public:
-        /**
-         * Set the name of the program.
-         *
-         * @param programName the program name.
-         */
+        /** Set the name of the program. @version 1.5.2 */
         CO_API static void setProgramName( const std::string& programName );
 
-        /** @return the program name. */
+        /** @return the program name. @version 1.5.2 */
         CO_API static const std::string& getProgramName();
 
-        /**
-         * Set the working directory of the program.
-         *
-         * @param workDir the working directory.
-         */
+        /** Set the working directory of the program. @version 1.5.2 */
         CO_API static void setWorkDir( const std::string& workDir );
 
-        /** @return the working directory of the program. */
+        /** @return the working directory of the program. @version 1.5.2 */
         CO_API static const std::string& getWorkDir();
 
         /** @return the node factory. @version 1.0 */
@@ -93,4 +85,3 @@ namespace eq
 }
 
 #endif // EQ_GLOBAL_H
-
