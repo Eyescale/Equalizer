@@ -26,6 +26,7 @@
 
 namespace eq
 {
+namespace detail { class Client; }
     /**
      * The client represents a network node of the application in the cluster.
      *
@@ -101,8 +102,7 @@ namespace eq
         EQ_API bool hasCommands();
 
         /** @internal @return the command queue to the main node thread. */
-        virtual co::CommandQueue* getMainThreadQueue()
-            { return &_mainThreadQueue; }
+        EQ_API virtual co::CommandQueue* getMainThreadQueue();
 
         /** @internal @return the active layouts given by --eq-layout. */
         const Strings& getActiveLayouts();
@@ -128,13 +128,7 @@ namespace eq
         EQ_API virtual void exitClient();
 
     private:
-        /** The command->node command queue. */
-        CommandQueue _mainThreadQueue;
-
-        bool _running;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        detail::Client* const impl_;
 
         /** @sa co::LocalNode::createNode */
         EQ_API virtual co::NodePtr createNode( const uint32_t type );

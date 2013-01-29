@@ -52,6 +52,17 @@ namespace
     Strings _activeLayouts;
     float _modelUnit = EQ_UNDEFINED_UNIT;
 }
+namespace detail
+{
+class Client
+{
+public:
+    Client() : running( false ) {}
+
+    CommandQueue queue; //!< The command->node command queue.
+    bool running;
+};
+}
 
 typedef co::CommandFunc<Client> ClientFunc;
 
@@ -66,10 +77,10 @@ typedef fabric::Client Super;
 
 Client::Client()
         : Super()
-        , _running( false )
+        , impl_( new detail::Client )
 {
     registerCommand( fabric::CMD_CLIENT_EXIT,
-                     ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
+                     ClientFunc( this, &Client::_cmdExit ), &impl_->queue );
 
     LBVERB << "New client at " << (void*)this << std::endl;
 }
@@ -79,6 +90,7 @@ Client::~Client()
     LBVERB << "Delete client at " << (void*)this << std::endl;
     LBASSERT( isClosed( ));
     close();
+    delete impl_;
 }
 
 bool Client::connectServer( ServerPtr server )
@@ -205,7 +217,7 @@ bool Client::disconnectServer( ServerPtr server )
         success = Super::disconnectServer( server.get( ));
     }
 
-    _mainThreadQueue.flush();
+    impl_->queue.flush();
     return success;
 }
 
@@ -314,12 +326,12 @@ void Client::clientLoop()
 {
     LBINFO << "Entered client loop" << std::endl;
 
-    _running = true;
-    while( _running )
+    impl_->running = true;
+    while( impl_->running )
         processCommand();
 
     // cleanup
-    _mainThreadQueue.flush();
+    impl_->queue.flush();
 }
 
 bool Client::exitLocal()
@@ -341,7 +353,12 @@ void Client::exitClient()
 
 bool Client::hasCommands()
 {
-    return !_mainThreadQueue.isEmpty();
+    return !impl_->queue.isEmpty();
+}
+
+co::CommandQueue* Client::getMainThreadQueue()
+{
+    return &impl_->queue;
 }
 
 const Strings& Client::getActiveLayouts()
@@ -372,7 +389,7 @@ co::NodePtr Client::createNode( const uint32_t type )
 
 bool Client::_cmdExit( co::ICommand& command )
 {
-    _running = false;
+    impl_->running = false;
     // Close connection here, this is the last command we'll get on it
     command.getLocalNode()->disconnect( command.getNode( ));
     return true;
