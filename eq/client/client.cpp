@@ -47,20 +47,20 @@
 namespace eq
 {
 /** @cond IGNORE */
-namespace
-{
-    Strings _activeLayouts;
-    float _modelUnit = EQ_UNDEFINED_UNIT;
-}
 namespace detail
 {
 class Client
 {
 public:
-    Client() : running( false ) {}
+    Client()
+        : running( false )
+        , modelUnit( EQ_UNDEFINED_UNIT )
+    {}
 
     CommandQueue queue; //!< The command->node command queue.
     bool running;
+    Strings activeLayouts;
+    float modelUnit;
 };
 }
 
@@ -245,14 +245,14 @@ bool Client::initLocal( const int argc, char** argv )
                  i < argc-1 && // more args
                  argv[i+1][0] != '-' ) // next arg not an option
         {
-            _activeLayouts.push_back( argv[++i] );
+            impl_->activeLayouts.push_back( argv[++i] );
         }
         else if( std::string( "--eq-modelunit" ) == argv[i] &&
                  i < argc-1 && // more args
                  argv[i+1][0] != '-' ) // next arg not an option
         {
             std::istringstream unitString( argv[++i] );
-            unitString >> _modelUnit;
+            unitString >> impl_->modelUnit;
         }
     }
     LBVERB << "Launching " << getNodeID() << std::endl;
@@ -336,7 +336,8 @@ void Client::clientLoop()
 
 bool Client::exitLocal()
 {
-    _activeLayouts.clear();
+    impl_->activeLayouts.clear();
+    impl_->modelUnit = EQ_UNDEFINED_UNIT;
     return fabric::Client::exitLocal();
 }
 
@@ -363,12 +364,12 @@ co::CommandQueue* Client::getMainThreadQueue()
 
 const Strings& Client::getActiveLayouts()
 {
-    return _activeLayouts;
+    return impl_->activeLayouts;
 }
 
 float Client::getModelUnit() const
 {
-    return _modelUnit;
+    return impl_->modelUnit;
 }
 
 co::NodePtr Client::createNode( const uint32_t type )
