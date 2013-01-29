@@ -73,6 +73,13 @@ namespace server
             { _configIAttributes[attr] = value; }
         int32_t getConfigIAttribute( const Config::IAttribute attr ) const
             { return _configIAttributes[attr]; }
+
+        void setConfigSAttribute( const Config::SAttribute attr,
+                                  const std::string& value )
+            { _configSAttributes[attr] = value; }
+        const std::string& getConfigSAttribute(
+            const Config::SAttribute attr ) const
+            { return _configSAttributes[attr]; }
         //@}
 
         /** @name Node Attributes. */  
@@ -139,6 +146,7 @@ namespace server
         
         float       _configFAttributes[Config::FATTR_ALL];
         int32_t     _configIAttributes[Config::IATTR_ALL];
+        std::string _configSAttributes[Config::SATTR_ALL];
 
         std::string _nodeSAttributes[Node::SATTR_ALL];
         char        _nodeCAttributes[Node::CATTR_ALL];

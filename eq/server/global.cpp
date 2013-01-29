@@ -167,6 +167,15 @@ void Global::_readEnvironment()
         if( envValue )
             _configIAttributes[i] = atol( envValue );
     }
+    for( uint32_t i=0; i < Config::SATTR_LAST; ++i )
+    {
+        const std::string& name = Config::getSAttributeString(
+            (Config::SAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _configSAttributes[i] = envValue ;
+    }
 
     for( uint32_t i=0; i < Node::SATTR_LAST; ++i )
     {
@@ -304,6 +313,18 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             static_cast<Config::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
+    }
+
+    for( uint32_t i=0; i<Config::SATTR_ALL; ++i )
+    {
+        const std::string& value = global->_configSAttributes[i];
+        if( value == reference._configSAttributes[i] )
+            continue;
+
+        const std::string& name = Config::getSAttributeString( 
+            static_cast<Config::SAttribute>( i ));
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "\"" << value << "\"" << std::endl;
     }
 
     for( uint32_t i=0; i<Node::SATTR_ALL; ++i )

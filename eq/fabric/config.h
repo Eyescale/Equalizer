@@ -142,12 +142,24 @@ namespace fabric
             IATTR_ALL = IATTR_LAST + 5
         };
 
+        /** String attributes. */
+        enum SAttribute
+        {
+            SATTR_GPU_FILTER, /*!< Regular expression to filter GPUs
+                                reported by dns_sd */
+            SATTR_LAST,
+            SATTR_ALL = SATTR_LAST + 5
+        };
+
         /** @internal */
         void setFAttribute( const FAttribute attr, const float value )
             { _fAttributes[attr] = value; }
         /** @internal */
         void setIAttribute( const IAttribute attr, const int32_t value )
             { _iAttributes[attr] = value; }
+        /** @internal */
+        void setSAttribute( const SAttribute attr, const std::string& value )
+            { _sAttributes[attr] = value; }
 
         /** @return the given floating-point attribute. */
         float getFAttribute( const FAttribute attr ) const
@@ -157,10 +169,16 @@ namespace fabric
         int32_t getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
 
+        /** @return the given string attribute. */
+        const std::string &getSAttribute( const SAttribute attr ) const
+            { return _sAttributes[attr]; }
+
         /** @internal */
         static const std::string& getFAttributeString( const FAttribute attr );
         /** @internal */
         static const std::string& getIAttributeString( const IAttribute attr );
+        /** @internal */
+        static const std::string& getSAttributeString( const SAttribute attr );
         //@}
 
 
@@ -254,6 +272,9 @@ namespace fabric
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
+
+        /** Integer attributes. */
+        std::string _sAttributes[IATTR_ALL];
 
         /** The list of observers. */
         Observers _observers;

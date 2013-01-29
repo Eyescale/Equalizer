@@ -46,6 +46,10 @@ std::string _iAttributeStrings[] =
 {
     MAKE_ATTR_STRING( IATTR_ROBUSTNESS ),
 };
+std::string _sAttributeStrings[] =
+{
+    MAKE_ATTR_STRING( SATTR_GPU_FILTER ),
+};
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -368,6 +372,13 @@ const std::string& Config< S, C, O, L, CV, N, V >::getIAttributeString(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+const std::string& Config< S, C, O, L, CV, N, V >::getSAttributeString(
+    const SAttribute attr )
+{
+    return _sAttributeStrings[ attr ];
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
 {
     if( getIAttribute( IATTR_ROBUSTNESS ) == OFF )
@@ -661,7 +672,8 @@ void Config< S, C, O, L, CV, N, V >::serialize( co::DataOStream& os,
         os << _appNodeID;
     if( dirtyBits & Config::DIRTY_ATTRIBUTES )
         os << co::Array< float >( _fAttributes, C::FATTR_ALL )
-           << co::Array< int32_t >( _iAttributes, C::IATTR_ALL );
+           << co::Array< int32_t >( _iAttributes, C::IATTR_ALL )
+           ;//<< co::Array< std::string >( _sAttributes, C::SATTR_ALL );
     if( isMaster( ) )
     {
         if( dirtyBits & Config::DIRTY_NODES )
@@ -687,7 +699,8 @@ void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
         is >> _appNodeID;
     if( dirtyBits & Config::DIRTY_ATTRIBUTES )
         is >> co::Array< float >( _fAttributes, C::FATTR_ALL )
-           >> co::Array< int32_t >( _iAttributes, C::IATTR_ALL );
+           >> co::Array< int32_t >( _iAttributes, C::IATTR_ALL )
+           ;//>> co::Array< std::string >( _sAttributes, C::SATTR_ALL );
     if( isMaster( ))
     {
         if( dirtyBits & Config::DIRTY_NODES )
@@ -901,6 +914,7 @@ std::ostream& operator << ( std::ostream& os,
        << "robustness "
        << IAttribute( config.getIAttribute( C::IATTR_ROBUSTNESS )) << std::endl
        << "eye_base   " << config.getFAttribute( C::FATTR_EYE_BASE )
+       //! \todo Add the GPU filter regex here
        << std::endl
        << lunchbox::exdent << "}" << std::endl;
 

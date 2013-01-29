@@ -59,8 +59,8 @@ Observer< C, O >::BackupData::BackupData()
 {
     for( size_t i = 0; i < NUM_EYES; ++i )
         eyePosition[ i ] = Vector3f::ZERO;
-    eyePosition[ EYE_LEFT ].x() = -.05f;
-    eyePosition[ EYE_RIGHT ].x() = .05f;
+    eyePosition[ EYE_LEFT_BIT ].x() = -.05f;
+    eyePosition[ EYE_RIGHT_BIT ].x() = .05f;
 }
 
 template< typename C, typename O >

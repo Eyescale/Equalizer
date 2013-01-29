@@ -31,10 +31,13 @@ namespace fabric
      */
     enum Eye
     {
+        EYE_CYCLOP_BIT = 0, //!< @internal
+        EYE_LEFT_BIT   = 1, //!< @internal
+        EYE_RIGHT_BIT  = 2, //!< @internal
         EYE_UNDEFINED  = 0,
-        EYE_CYCLOP     = LB_BIT1, //!<  monoscopic 'middle' eye
-        EYE_LEFT       = LB_BIT2, //!< left eye
-        EYE_RIGHT      = LB_BIT3, //!< right eye
+        EYE_CYCLOP     = 1 << EYE_CYCLOP_BIT, //!<  monoscopic 'middle' eye
+        EYE_LEFT       = 1 << EYE_LEFT_BIT,   //!< left eye
+        EYE_RIGHT      = 1 << EYE_RIGHT_BIT,  //!< right eye
         EYE_LAST       = EYE_RIGHT, //!< the last eye
         NUM_EYES       = 3,  //!< @internal increase with each new enum
         EYES_STEREO    = EYE_LEFT | EYE_RIGHT, //!< left and right eye
