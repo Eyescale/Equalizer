@@ -136,6 +136,12 @@ namespace detail { class ConfigParams; }
 
         /** @return network prefixes in CIDR notation. @version 1.5.1 */
         EQFABRIC_API const Strings& getPrefixes() const;
+
+        /** Set a regex filter matching to 'nodename:display.port' */
+        EQFABRIC_API void setGPUFilter( const std::string& regex );
+
+        /** @return the GPU regex filter. */
+        EQFABRIC_API const std::string& getGPUFilter() const;
         //@}
 
         EQFABRIC_API void serialize( co::DataOStream& os ) const; //!< @internal

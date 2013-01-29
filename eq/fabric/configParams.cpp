@@ -61,6 +61,7 @@ public:
     uint32_t flags;
     fabric::Equalizer equalizer;
     Strings prefixes;
+    std::string gpuFilter;
 };
 }
 
@@ -145,16 +146,26 @@ const Strings& ConfigParams::getPrefixes() const
     return _impl->prefixes;
 }
 
+void ConfigParams::setGPUFilter( const std::string& regex )
+{
+    _impl->gpuFilter = regex;
+}
+
+const std::string& ConfigParams::getGPUFilter() const
+{
+    return _impl->gpuFilter;
+}
+
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
     os << _impl->renderClient << _impl->workDir << _impl->flags
-       << _impl->equalizer << _impl->prefixes;
+       << _impl->equalizer << _impl->prefixes << _impl->gpuFilter;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
     is >> _impl->renderClient >> _impl->workDir >> _impl->flags
-       >> _impl->equalizer >> _impl->prefixes;
+       >> _impl->equalizer >> _impl->prefixes >> _impl->gpuFilter;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )
