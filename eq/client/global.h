@@ -34,16 +34,16 @@ namespace eq
     {
     public:
         /** Set the name of the program. @version 1.5.2 */
-        CO_API static void setProgramName( const std::string& programName );
+        EQ_API static void setProgramName( const std::string& programName );
 
         /** @return the program name. @version 1.5.2 */
-        CO_API static const std::string& getProgramName();
+        EQ_API static const std::string& getProgramName();
 
         /** Set the working directory of the program. @version 1.5.2 */
-        CO_API static void setWorkDir( const std::string& workDir );
+        EQ_API static void setWorkDir( const std::string& workDir );
 
         /** @return the working directory of the program. @version 1.5.2 */
-        CO_API static const std::string& getWorkDir();
+        EQ_API static const std::string& getWorkDir();
 
         /** @return the node factory. @version 1.0 */
         static NodeFactory* getNodeFactory() { return _nodeFactory; }

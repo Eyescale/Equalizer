@@ -35,6 +35,15 @@
 
 #include <fstream>
 
+#ifdef _MSC_VER
+#  include <direct.h>
+#  define getcwd _getcwd
+#endif
+
+#ifndef MAXPATHLEN
+#  define MAXPATHLEN 1024
+#endif
+
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
