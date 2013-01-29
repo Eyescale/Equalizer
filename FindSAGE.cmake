@@ -29,7 +29,7 @@ endif()
 
 find_path(_SAGE_INCLUDE_DIR sage.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
-  PATH_SUFFIXES include
+  PATH_SUFFIXES include sage/include
   PATHS /usr/local/sage /usr /usr/local /opt /opt/local)
 
 if(_SAGE_INCLUDE_DIR AND EXISTS "${_SAGE_INCLUDE_DIR}/sage.h")
@@ -64,12 +64,12 @@ endif()
 
 find_library(SAGE_SAIL_LIBRARY sail
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
-  PATH_SUFFIXES lib lib64
+  PATH_SUFFIXES lib lib64 sage/lib sage/lib64
   PATHS /usr/local/sage /usr /usr/local /opt /opt/local)
 
 find_library(SAGE_QUANTA_LIBRARY quanta
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{SAGE_ROOT} ${SAGE_ROOT}
-  PATH_SUFFIXES lib lib64
+  PATH_SUFFIXES lib lib64 sage/lib sage/lib64
   PATHS /usr/local/sage /usr /usr/local /opt /opt/local)
 
 # Inform the users with an error message based on what version they
