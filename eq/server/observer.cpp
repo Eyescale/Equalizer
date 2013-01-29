@@ -100,7 +100,8 @@ void Observer::_updateEyes()
     for( size_t i = 0; i < NUM_EYES; ++i )
         _eyeWorld[ i ] = head * getEyePosition( Eye( 1 << i ));
 
-    LBVERB << "Eye position: " << _eyeWorld[ EYE_CYCLOP ] << std::endl;
+    LBVERB << "Eye position: " << _eyeWorld[ fabric::EYE_CYCLOP_BIT ]
+           << std::endl;
 }
 
 void Observer::_updateViews()
