@@ -79,19 +79,22 @@ Config* Server::chooseConfig( const fabric::ConfigParams& p )
     if( !isConnected( ))
         return 0;
 
+    ClientPtr client = getClient();
     fabric::ConfigParams params( p );
 
     if( params.getWorkDir().empty( ))
         params.setWorkDir( Global::getWorkDir( ));
     if( params.getRenderClient().empty( ))
         params.setRenderClient( Global::getProgramName( ));
+    if( params.getGPUFilter().empty( ))
+        params.setGPUFilter( client->getGPUFilter( ));
+
     if( params.getRenderClient().empty( ))
     {
         LBWARN << "No render client in ConfigParams specified" << std::endl;
         return 0;
     }
 
-    ClientPtr client = getClient();
     const uint32_t requestID =  client->registerRequest();
 
     send( fabric::CMD_SERVER_CHOOSE_CONFIG )

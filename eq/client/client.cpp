@@ -60,6 +60,7 @@ public:
     CommandQueue queue; //!< The command->node command queue.
     bool running;
     Strings activeLayouts;
+    std::string gpuFilter;
     float modelUnit;
 };
 }
@@ -221,6 +222,17 @@ bool Client::disconnectServer( ServerPtr server )
     return success;
 }
 
+namespace
+{
+bool _isParameterOption( const std::string& name, const int argc, char** argv,
+                         const int index )
+{
+    return ( index < argc-1 &&          // has enough total arguments
+             name == argv[index] &&     // name matches
+             argv[index+1][0] != '-' ); // next arg not an option
+}
+}
+
 bool Client::initLocal( const int argc, char** argv )
 {
     bool isClient = false;
@@ -241,15 +253,11 @@ bool Client::initLocal( const int argc, char** argv )
                 LBASSERT( !clientOpts.empty( ));
             }
         }
-        else if( std::string( "--eq-layout" ) == argv[i] &&
-                 i < argc-1 && // more args
-                 argv[i+1][0] != '-' ) // next arg not an option
-        {
+        else if( _isParameterOption( "--eq-layout", argc, argv, i ))
             impl_->activeLayouts.push_back( argv[++i] );
-        }
-        else if( std::string( "--eq-modelunit" ) == argv[i] &&
-                 i < argc-1 && // more args
-                 argv[i+1][0] != '-' ) // next arg not an option
+        else if( _isParameterOption( "--eq-gpufilter" , argc, argv, i ))
+            impl_->gpuFilter = argv[ ++i ];
+        else if( _isParameterOption( "--eq-modelunit", argc, argv, i ))
         {
             std::istringstream unitString( argv[++i] );
             unitString >> impl_->modelUnit;
@@ -365,6 +373,11 @@ co::CommandQueue* Client::getMainThreadQueue()
 const Strings& Client::getActiveLayouts()
 {
     return impl_->activeLayouts;
+}
+
+const std::string& Client::getGPUFilter() const
+{
+    return impl_->gpuFilter;
 }
 
 float Client::getModelUnit() const

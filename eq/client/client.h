@@ -107,6 +107,9 @@ namespace detail { class Client; }
         /** @internal @return the active layouts given by --eq-layout. */
         const Strings& getActiveLayouts();
 
+        /** @internal @return the gpu filter regex given by --eq-gpufilter. */
+        const std::string& getGPUFilter() const;
+
         /** @internal @return the model unit for all views. */
         float getModelUnit() const;
 
