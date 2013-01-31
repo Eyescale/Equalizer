@@ -47,11 +47,9 @@ class Node;
 class NodeFactory;
 class Observer;
 class Pipe;
+class SageProxy;
 class Segment;
 class Server;
-#ifdef EQ_USE_SAGE
-class SageProxy;
-#endif
 class SystemPipe;
 class SystemWindow;
 class View;

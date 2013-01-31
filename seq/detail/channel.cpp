@@ -119,15 +119,13 @@ void Channel::frameViewFinish( const uint128_t& frameID )
 {
     const ViewData* data = getViewData();
     LBASSERT( data );
-    if( !data || !data->getStatistics( ))
+    if( data && data->getStatistics( ))
     {
-        eq::Channel::frameViewFinish( frameID );
-        return;
+        applyBuffer();
+        applyViewport();
+        drawStatistics();
     }
 
-    applyBuffer();
-    applyViewport();
-    drawStatistics();
     eq::Channel::frameViewFinish( frameID );
 }
 

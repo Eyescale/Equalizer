@@ -99,7 +99,8 @@ SageProxy::SageProxy( Channel* channel )
     : _impl( new detail::SageProxy( channel ))
 {
 #ifdef GLX
-    _impl->_eventHandler = new glx::SageEventHandler( this );
+    if( channel->getPipe()->getWindowSystem()->getName() == "GLX" )
+        _impl->_eventHandler = new glx::SageEventHandler( this );
 #endif
 }
 

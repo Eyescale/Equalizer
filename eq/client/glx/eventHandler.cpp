@@ -130,8 +130,10 @@ EventHandler::~EventHandler()
 #endif
 
     eq::Pipe* pipe = _window->getPipe();
-    MessagePump* messagePump = dynamic_cast<MessagePump*>( pipe->isThreaded() ?
-                 pipe->getMessagePump() : pipe->getConfig()->getMessagePump( ));
+    MessagePump* messagePump =
+        dynamic_cast<MessagePump*>( pipe->isThreaded() ?
+                                    pipe->getMessagePump() :
+                                    pipe->getConfig()->getMessagePump( ));
     if( messagePump )
     {
         Display* display = _window->getXDisplay();

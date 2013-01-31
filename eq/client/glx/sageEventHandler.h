@@ -27,24 +27,26 @@ namespace eq
 {
 namespace glx
 {
-    /** The event handler for one SAGE view. */
+    /** @internal The event handler for one SAGE view. */
     class SageEventHandler : public eq::EventHandler
     {
     public:
+        /** Construct a new SAGE event handler. @version 1.5.2 */
+        SageEventHandler( SageProxy* sage );
+
+        /** Destruct the SAGE event handler. @version 1.5.2 */
+        virtual ~SageEventHandler();
+
         /**
          * Dispatch all pending events on the current thread.
          *
          * If no event handlers have been constructed by the calling thread,
          * this function does nothing. This function does not block on events.
-         * @version 1.5.1
+         *
+         * @param sage if not 0, limit processing to the given sage instance.
+         * @version 1.5.2
          */
         static void processEvents( const SageProxy* sage = 0 );
-
-        /** Construct a new SAGE event handler. @version 1.5.1 */
-        SageEventHandler( SageProxy* sage );
-
-        /** Destruct the SAGE event handler. @version 1.5.1 */
-        virtual ~SageEventHandler();
 
     private:
         /** The corresponding SAGE proxy instance. */

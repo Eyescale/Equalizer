@@ -153,11 +153,11 @@ namespace fabric
          * streaming and event handling on a SAGE-driven display.
          *
          * @param config the filepath of the SAGE configuration file
-         * @version 1.5.1
+         * @version 1.5.2
          */
         void setSageConfig( const std::string& config );
 
-        /** @return  the SAGE configuration file of this view. @version 1.5.1 */
+        /** @return the SAGE configuration file of this view. @version 1.5.2 */
         const std::string& getSageConfig() const;
         //@}
 

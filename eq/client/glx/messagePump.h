@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,7 +24,6 @@
 
 #include <co/connectionSet.h>  // member
 #include <lunchbox/stdExt.h>    // member
-
 
 namespace eq
 {
@@ -60,13 +59,11 @@ namespace glx
         /** Deregister a Display connection from event dispatch. @version 1.0 */
         void deregister( Display* display );
 
-#ifdef EQ_USE_SAGE
         /** Register a new SAGE connection for event dispatch. @version 1.5.2 */
         void register_( SageProxy* sage );
 
         /** Deregister a SAGE connection from event dispatch. @version 1.5.2 */
         void deregister( SageProxy* sage );
-#endif
 
     private:
         co::ConnectionSet _connections; //!< Registered Display connections
