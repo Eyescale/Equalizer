@@ -111,8 +111,8 @@ void MessagePump::deregister( Display* display )
         {
             co::ConnectionPtr connection = *i;
             const X11Connection* x11Connection =
-                static_cast< const X11Connection* >( connection.get( ));
-            if( x11Connection->getDisplay() == display )
+                dynamic_cast< const X11Connection* >( connection.get( ));
+            if( x11Connection && x11Connection->getDisplay() == display )
             {
                 _connections.removeConnection( connection );
                 break;
@@ -139,8 +139,8 @@ void MessagePump::deregister( SageProxy* sage )
         {
             co::ConnectionPtr connection = *i;
             const SageConnection* sageConnection =
-                static_cast< const SageConnection* >( connection.get( ));
-            if( sageConnection->getSageProxy() == sage )
+                dynamic_cast< const SageConnection* >( connection.get( ));
+            if( sageConnection && sageConnection->getSageProxy() == sage )
             {
                 _connections.removeConnection( connection );
                 break;
