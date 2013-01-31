@@ -40,6 +40,7 @@
 #include "pixelData.h"
 #include "server.h"
 #include "systemWindow.h"
+#include "view.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
@@ -64,6 +65,10 @@
 #include <set>
 
 #include "detail/channel.ipp"
+
+#ifdef EQ_USE_SAGE
+#  include "sageProxy.h"
+#endif
 
 namespace eq
 {
@@ -221,12 +226,25 @@ const GLEWContext* Channel::glewGetContext() const
 
 bool Channel::configExit()
 {
+#ifdef EQ_USE_SAGE
+    delete _impl->_sageProxy;
+    _impl->_sageProxy = 0;
+#endif
+
     delete _impl->fbo;
     _impl->fbo = 0;
     return true;
 }
+
 bool Channel::configInit( const uint128_t& )
 {
+#ifdef EQ_USE_SAGE
+    if( getView() && !getView()->getSageConfig().empty( ))
+    {
+        LBASSERT( !_impl->_sageProxy );
+        _impl->_sageProxy = new SageProxy( this );
+    }
+#endif
     return _configInitFBO();
 }
 
@@ -436,16 +454,34 @@ void Channel::frameStart( const uint128_t&, const uint32_t frameNumber )
     resetRegions();
     startFrame( frameNumber );
 }
+
 void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrame( frameNumber );
 }
+
 void Channel::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrameLocal( frameNumber );
 }
+
 void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
-void Channel::frameViewFinish( const uint128_t& ) { /* nop */ }
+
+void Channel::frameViewFinish( const uint128_t& )
+{
+#ifdef EQ_USE_SAGE
+    if( !_impl->_sageProxy )
+        return;
+
+    if( !_impl->_sageProxy->isRunning( ))
+    {
+        delete _impl->_sageProxy;
+        _impl->_sageProxy = 0;
+    }
+    else
+        _impl->_sageProxy->swapBuffer();
+#endif
+}
 
 void Channel::setupAssemblyState()
 {

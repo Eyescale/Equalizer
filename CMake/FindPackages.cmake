@@ -146,6 +146,19 @@ if(OpenSceneGraph_name)
   include_directories(${${OpenSceneGraph_name}_INCLUDE_DIRS})
 endif()
 
+find_package(SAGE 3.0)
+if(SAGE_FOUND)
+  set(SAGE_name SAGE)
+endif()
+if(SAGE_FOUND)
+  set(SAGE_name SAGE)
+endif()
+if(SAGE_name)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_SAGE)
+  link_directories(${${SAGE_name}_LIBRARY_DIRS})
+  include_directories(${${SAGE_name}_INCLUDE_DIRS})
+endif()
+
 
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)

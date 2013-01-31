@@ -64,7 +64,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     // - 2D viewport
     Window *window = static_cast< Window* >( getWindow( ));
     osg::ref_ptr< SceneView > view = window->getSceneView();
-    
+
     const eq::PixelViewport& pvp = getPixelViewport();
     view->setViewport( pvp.x, pvp.y, pvp.w, pvp.h );
 
@@ -78,14 +78,14 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 
     // - Frustum (Projection matrix)
     const eq::Frustumf& frustum = getFrustum();
-    view->setProjectionMatrixAsFrustum( 
+    view->setProjectionMatrixAsFrustum(
         frustum.left(), frustum.right(), frustum.bottom(), frustum.top(),
         frustum.near_plane(), frustum.far_plane( ));
 
     // - Camera (Model Matrix)
     const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
-    
+
     const eq::Vector3f position = frameData.getCameraPosition();
     const eq::Vector3f lookAt = frameData.getCameraLookAtPoint();
     const eq::Vector3f upVector = frameData.getCameraUpVector();
@@ -93,7 +93,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     const osg::Vec3f pos( position.x(), position.y(), position.z( ));
     const osg::Vec3f look( lookAt.x(), lookAt.y(), lookAt.z( ));
     const osg::Vec3f up( upVector.x(), upVector.y(), upVector.z( ));
-  
+
     view->setViewMatrixAsLookAt( pos, look, up );
 
     // - Frustum position (View Matrix)
@@ -111,11 +111,15 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
     if( !frameData.useStatistics( ))
+    {
+        eq::Channel::frameViewFinish( frameID );
         return;
+    }
 
     applyBuffer();
     applyViewport();
     drawStatistics();
+    eq::Channel::frameViewFinish( frameID );
 }
 
 }

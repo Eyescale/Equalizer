@@ -166,6 +166,10 @@ if(NOT EQ_GLEW_INTERNAL)
   list(APPEND EQUALIZER_TRANSIENT_LIBRARIES GLEW_MX)
 endif()
 
+if(SAGE_FOUND)
+  list(APPEND EQUALIZER_TRANSIENT_LIBRARIES SAGE)
+endif()
+
 include(CPackConfig)
 include(PackageConfig)
 install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
@@ -182,6 +186,9 @@ if(CUDA_FOUND)
 endif()
 if(QT_QTNETWORK_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} QtNetwork")
+endif()
+if(SAGE_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} SAGE")
 endif()
 
 if(MSVC)

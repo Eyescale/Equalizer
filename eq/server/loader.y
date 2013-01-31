@@ -300,6 +300,7 @@
 %token EQTOKEN_SIZE
 %token EQTOKEN_CORE
 %token EQTOKEN_SOCKET
+%token EQTOKEN_SAGE
 
 %union{
     const char*             _string;
@@ -802,6 +803,7 @@ view: EQTOKEN_VIEW '{' { view = new eq::server::View( layout ); }
 viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_NAME STRING { view->setName( $2 ); }
+    | EQTOKEN_SAGE STRING { view->setSageConfig( $2 ); }
     | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport

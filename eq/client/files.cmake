@@ -34,8 +34,19 @@ set(GLX_SOURCES
   glx/pipe.cpp
   glx/window.cpp
   glx/windowSystem.cpp
+  glx/X11Connection.h
   glXTypes.cpp
 )
+
+if(SAGE_FOUND)
+  set(SAGE_SOURCES
+    sageProxy.h
+    sageProxy.cpp
+    glx/sageEventHandler.h
+    glx/sageEventHandler.cpp
+    glx/sageConnection.h
+  )
+endif()
 
 set(WGL_HEADERS
   wgl/eventHandler.h
@@ -55,7 +66,7 @@ set(WGL_SOURCES
 )
 
 set(CLIENT_HEADERS
-  ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
+  ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS} ${SAGE_SOURCES}
   aglTypes.h
   api.h
   base.h

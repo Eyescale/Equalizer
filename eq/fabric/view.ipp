@@ -88,6 +88,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _equalizers;
     if( dirtyBits & DIRTY_MODELUNIT )
         os << _modelUnit;
+    if( dirtyBits & DIRTY_SAGECONFIG )
+        os << _sageConfig;
 }
 
 template< class L, class V, class O >
@@ -156,6 +158,8 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _equalizers;
     if( dirtyBits & DIRTY_MODELUNIT )
         is >> _modelUnit;
+    if( dirtyBits & DIRTY_SAGECONFIG )
+        is >> _sageConfig;
 }
 
 template< class L, class V, class O >
@@ -200,6 +204,19 @@ float View< L, V, O >::getModelUnit() const
 {
     LBASSERT( _modelUnit > 0.f );
     return _modelUnit;
+}
+
+template< class L, class V, class O >
+void View< L, V, O >::setSageConfig( const std::string& config )
+{
+    _sageConfig = config;
+    setDirty( DIRTY_SAGECONFIG );
+}
+
+template< class L, class V, class O >
+const std::string& View< L, V, O >::getSageConfig() const
+{
+    return _sageConfig;
 }
 
 template< class L, class V, class O >
