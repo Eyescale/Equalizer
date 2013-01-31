@@ -38,7 +38,7 @@ namespace glx
          * this function does nothing. This function does not block on events.
          * @version 1.5.1
          */
-        static void processEvents( SageProxy* sage = 0 );
+        static void processEvents( const SageProxy* sage = 0 );
 
         /** Construct a new SAGE event handler. @version 1.5.1 */
         SageEventHandler( SageProxy* sage );
@@ -50,7 +50,7 @@ namespace glx
         /** The corresponding SAGE proxy instance. */
         SageProxy* const _sage;
 
-        void _processEvents( SageProxy* sage );
+        void _processEvents( const SageProxy* sage );
 
         LB_TS_VAR( _thread );
     };

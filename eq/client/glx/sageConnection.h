@@ -45,7 +45,7 @@ namespace glx
         virtual Notifier getNotifier() const
             { return _sage->getSail()->_notifier; }
 
-        SageProxy* getSageProxy() const { return _sage; }
+        const SageProxy* getSageProxy() const { return _sage; }
 
     protected:
         virtual void readNB( void*, const uint64_t ) { LBDONTCALL; }

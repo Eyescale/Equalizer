@@ -77,7 +77,7 @@ SageEventHandler::~SageEventHandler()
     }
 }
 
-void SageEventHandler::processEvents( SageProxy* sage )
+void SageEventHandler::processEvents( const SageProxy* sage )
 {
     if( !_eventHandlers )
         return;
@@ -89,7 +89,7 @@ void SageEventHandler::processEvents( SageProxy* sage )
     }
 }
 
-void SageEventHandler::_processEvents( SageProxy* sage )
+void SageEventHandler::_processEvents( const SageProxy* sage )
 {
     LB_TS_THREAD( _thread );
     if( !_sage || (sage && _sage != sage ))
