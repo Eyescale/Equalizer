@@ -18,9 +18,8 @@
 #ifndef EQ_SAGE_CONNECTION_H
 #define EQ_SAGE_CONNECTION_H
 
+#include "../sageProxy.h"
 #include <co/connection.h>
-
-#include <eq/client/sageProxy.h>
 #include <sail.h>
 
 namespace eq
@@ -45,7 +44,7 @@ namespace glx
         virtual Notifier getNotifier() const
             { return _sage->getSail()->_notifier; }
 
-        SageProxy* getSageProxy() const { return _sage; }
+        const SageProxy* getSageProxy() const { return _sage; }
 
     protected:
         virtual void readNB( void*, const uint64_t ) { LBDONTCALL; }

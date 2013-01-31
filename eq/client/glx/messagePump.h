@@ -61,10 +61,10 @@ namespace glx
         void deregister( Display* display );
 
 #ifdef EQ_USE_SAGE
-        /** Register a new SAGE connection for event dispatch. @version 1.5.1 */
+        /** Register a new SAGE connection for event dispatch. @version 1.5.2 */
         void register_( SageProxy* sage );
 
-        /** Deregister a SAGE connection from event dispatch. @version 1.5.1 */
+        /** Deregister a SAGE connection from event dispatch. @version 1.5.2 */
         void deregister( SageProxy* sage );
 #endif
 
