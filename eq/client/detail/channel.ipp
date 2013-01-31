@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -17,6 +17,11 @@
 
 namespace eq
 {
+
+#ifdef EQ_USE_SAGE
+class SageProxy;
+#endif
+
 namespace detail
 {
 enum State
@@ -34,6 +39,9 @@ public:
             : state( STATE_STOPPED )
             , fbo( 0 )
             , initialSize( Vector2i::ZERO )
+#ifdef EQ_USE_SAGE
+            , _sageProxy( 0 )
+#endif
         {
             lunchbox::RNG rng;
             color.r() = rng.get< uint8_t >();
@@ -60,7 +68,7 @@ public:
     Frames inputFrames;
 
     /** Used as an alternate drawable. */
-    util::FrameBufferObject* fbo; 
+    util::FrameBufferObject* fbo;
 
     /** A random, unique color for this channel. */
     Vector3ub color;
@@ -83,12 +91,16 @@ public:
     /** The initial channel size, used for view resize events. */
     Vector2i initialSize;
 
-    /** The application-declared regions of interest, merged if 
+    /** The application-declared regions of interest, merged if
         necessary to be non overlapping. */
     PixelViewports regions;
 
     /** The number of the last finished frame. */
     lunchbox::Monitor< uint32_t > finishedFrame;
+
+#ifdef EQ_USE_SAGE
+    SageProxy* _sageProxy;
+#endif
 };
 
 }

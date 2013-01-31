@@ -15,22 +15,26 @@ set(EQUALIZER_DEFINES)
 
 if(CUDA_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_CUDA)
-endif(CUDA_FOUND)
+endif()
 
 if(HWLOC_GL_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_HWLOC_GL)
-endif(HWLOC_GL_FOUND)
+endif()
 
 if(MAGELLAN_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_MAGELLAN)
   if(NOT EQ_AGL_USED)
     list(APPEND EQUALIZER_DEFINES EQ_USE_MAGELLAN_GLX)
   endif()
-endif(MAGELLAN_FOUND)
+endif()
 
 if(GLSTATS_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_GLSTATS)
-endif(GLSTATS_FOUND)
+endif()
+
+if(SAGE_FOUND)
+  list(APPEND EQUALIZER_DEFINES EQ_USE_SAGE)
+endif()
 
 list(APPEND EQUALIZER_DEFINES GLEW_MX) # always define GLEW_MX
 list(APPEND EQUALIZER_DEFINES GLEW_NO_GLU)
@@ -38,24 +42,24 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_FOUND_GLEW_MX)
 else()
   list(APPEND EQUALIZER_DEFINES GLEW_STATIC)
-endif(GLEW_MX_FOUND)
+endif()
 
 if(WIN32) # maybe use BOOST_WINDOWS instead?
   list(APPEND EQUALIZER_DEFINES WGL)
   set(ARCH Win32)
-endif(WIN32)
+endif()
 
 if(APPLE)
   set(ARCH Darwin)
-endif(APPLE)
+endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(ARCH Linux)
-endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+endif()
 
 if(EQ_GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
-endif(EQ_GLX_USED)
+endif()
 
 if(EQ_GLEW_INTERNAL)
   list(APPEND EQUALIZER_DEFINES EQ_GLEW_INTERNAL)
@@ -81,7 +85,7 @@ foreach(DEF ${EQUALIZER_DEFINES})
   if(DEF MATCHES "EQ_")
     file(APPEND ${OPTIONS_CMAKE} "set(${DEF} ON)\n")
   endif()
-endforeach(DEF ${EQUALIZER_DEFINES})
+endforeach()
 
 if(EQ_AGL_USED) # special case
   file(APPEND ${DEFINES_FILE_IN}
@@ -91,7 +95,7 @@ if(EQ_AGL_USED) # special case
     "#  endif\n"
     "#endif\n"
     )
-endif(EQ_AGL_USED)
+endif()
 
 file(APPEND ${DEFINES_FILE_IN}
   "\n#endif /* EQ_DEFINES_${ARCH}_H */\n"

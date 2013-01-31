@@ -375,6 +375,8 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     // FSAA idle mode and block on the next redraw event.
     eq::Config* config = getConfig();
     config->sendEvent( IDLE_AA_LEFT ) << steps;
+
+    eq::Channel::frameViewFinish( frameID );
 }
 
 bool Channel::useOrtho() const

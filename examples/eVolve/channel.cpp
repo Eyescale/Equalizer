@@ -50,7 +50,7 @@ Channel::Channel( eq::Window* parent )
     _frame.setFrameData( frameData );
 }
 
-static void checkError( const std::string& msg ) 
+static void checkError( const std::string& msg )
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
@@ -148,7 +148,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     // Setup frustum
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
-    
+
     EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
     EQ_GL_CALL( glLoadIdentity( ));
     EQ_GL_CALL( applyFrustum( ));
@@ -364,7 +364,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     // blend DB frames in order
     try
     {
-        eq::Compositor::assembleFramesSorted( dbFrames, this, 0, 
+        eq::Compositor::assembleFramesSorted( dbFrames, this, 0,
                                               true /*blendAlpha*/ );
     }
     catch( const co::Exception& e )
@@ -380,7 +380,7 @@ void Channel::_startAssemble()
     applyBuffer();
     applyViewport();
     setupAssemblyState();
-}   
+}
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
 {
@@ -402,6 +402,7 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
 {
     _drawHelp();
     _drawLogo();
+    eq::Channel::frameViewFinish( frameID );
 }
 
 void Channel::_drawLogo( )
@@ -429,7 +430,7 @@ void Channel::_drawLogo( )
     texture->bind();
     glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    
+
     const float tWidth = float( texture->getWidth( ) );
     const float tHeight = float( texture->getHeight( ) );
 
@@ -511,7 +512,7 @@ void Channel::_drawHelp()
              pos = message.find( '\n' ))
         {
             glRasterPos3f( 10.f - xOffset, y, 0.99f );
-            
+
             font->draw( message.substr( 0, pos ));
             message = message.substr( pos + 1 );
             y -= 22.f;

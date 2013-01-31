@@ -20,9 +20,11 @@
 
 #include <eq/client/glx/types.h>
 #include <eq/client/messagePump.h> // base class
+#include <eq/client/types.h>
 
 #include <co/connectionSet.h>  // member
 #include <lunchbox/stdExt.h>    // member
+
 
 namespace eq
 {
@@ -57,6 +59,14 @@ namespace glx
 
         /** Deregister a Display connection from event dispatch. @version 1.0 */
         void deregister( Display* display );
+
+#ifdef EQ_USE_SAGE
+        /** Register a new SAGE connection for event dispatch. @version 1.5.1 */
+        void register_( SageProxy* sage );
+
+        /** Deregister a SAGE connection from event dispatch. @version 1.5.1 */
+        void deregister( SageProxy* sage );
+#endif
 
     private:
         co::ConnectionSet _connections; //!< Registered Display connections

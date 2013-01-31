@@ -20,6 +20,11 @@
 #include "eventHandler.h"
 #include "X11Connection.h"
 
+#ifdef EQ_USE_SAGE
+#  include "sageConnection.h"
+#  include "sageEventHandler.h"
+#endif
+
 #include <lunchbox/debug.h>
 #include <lunchbox/log.h>
 
@@ -54,8 +59,19 @@ void MessagePump::dispatchOne( const uint32_t timeout )
         }
 
         case co::ConnectionSet::EVENT_DATA:
+        {
+#ifdef EQ_USE_SAGE
+            co::ConnectionPtr connection = _connections.getConnection();
+            const SageConnection* sageConnection =
+                dynamic_cast< const SageConnection* >( connection.get( ));
+            if( sageConnection )
+                SageEventHandler::processEvents(
+                                               sageConnection->getSageProxy( ));
+            else
+#endif
             EventHandler::dispatch();
             break;
+        }
 
         case co::ConnectionSet::EVENT_INTERRUPT:
             break;
@@ -74,6 +90,9 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 void MessagePump::dispatchAll()
 {
     EventHandler::dispatch();
+#ifdef EQ_USE_SAGE
+    SageEventHandler::processEvents();
+#endif
 }
 
 void MessagePump::register_( Display* display )
@@ -102,6 +121,36 @@ void MessagePump::deregister( Display* display )
         _referenced.erase( _referenced.find( display ));
     }
 }
+
+#ifdef EQ_USE_SAGE
+void MessagePump::register_( SageProxy* sage )
+{
+    if( ++_referenced[ sage ] == 1 )
+        _connections.addConnection( new SageConnection( sage ));
+}
+
+void MessagePump::deregister( SageProxy* sage )
+{
+    if( --_referenced[ sage ] == 0 )
+    {
+        const co::Connections& connections = _connections.getConnections();
+        for( co::Connections::const_iterator i = connections.begin();
+             i != connections.end(); ++i )
+        {
+            co::ConnectionPtr connection = *i;
+            const SageConnection* sageConnection =
+                static_cast< const SageConnection* >( connection.get( ));
+            if( sageConnection->getSageProxy() == sage )
+            {
+                _connections.removeConnection( connection );
+                break;
+            }
+        }
+        _referenced.erase( _referenced.find( sage ));
+    }
+}
+
+#endif
 
 }
 }
