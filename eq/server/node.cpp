@@ -294,7 +294,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
     while( true )
     {
         co::NodePtr node = localNode->getNode( _node->getNodeID( ));
-        if( node.isValid() && node->isConnected( ))
+        if( node && node->isConnected( ))
         {
             LBASSERT( _node->getRefCount() == 1 );
             _node = node; // Use co::Node already connected
