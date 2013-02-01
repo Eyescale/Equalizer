@@ -643,7 +643,6 @@ bool Window::processEvent( const Event& event )
             // else fall through
         case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:
-        case Event::WINDOW_POINTER_WHEEL:
         case Event::STATISTIC:
         case Event::MAGELLAN_AXIS:
         case Event::MAGELLAN_BUTTON:
@@ -659,6 +658,7 @@ bool Window::processEvent( const Event& event )
         case Event::WINDOW_POINTER_MOTION:
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        case Event::WINDOW_POINTER_WHEEL:
         {
             const Channels& channels = _getEventChannels( event.pointer );
             for( Channels::const_iterator i = channels.begin();
@@ -676,6 +676,9 @@ bool Window::processEvent( const Event& event )
                     break;
                   case Event::WINDOW_POINTER_BUTTON_RELEASE:
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
+                    break;
+                  case Event::WINDOW_POINTER_WHEEL:
+                    channelEvent.type = Event::CHANNEL_POINTER_WHEEL;
                     break;
                   default:
                     LBWARN << "Unhandled window event of type " << event.type

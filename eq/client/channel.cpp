@@ -900,6 +900,7 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_POINTER_MOTION:
         case Event::CHANNEL_POINTER_BUTTON_PRESS:
         case Event::CHANNEL_POINTER_BUTTON_RELEASE:
+        case Event::CHANNEL_POINTER_WHEEL:
         case Event::STATISTIC:
             break;
 

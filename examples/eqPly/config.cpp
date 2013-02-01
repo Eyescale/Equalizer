@@ -477,7 +477,7 @@ bool Config::handleEvent( eq::EventICommand command )
             break;
         }
 
-        case eq::Event::WINDOW_POINTER_WHEEL:
+        case eq::Event::CHANNEL_POINTER_WHEEL:
         {
             const eq::Event& event = command.get< eq::Event >();
             _frameData.moveCamera( -0.05f * event.pointerWheel.yAxis,

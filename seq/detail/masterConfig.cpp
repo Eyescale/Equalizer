@@ -161,7 +161,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
           // no break;
       case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
       case eq::Event::CHANNEL_POINTER_MOTION:
-      case eq::Event::WINDOW_POINTER_WHEEL:
+      case eq::Event::CHANNEL_POINTER_WHEEL:
       case eq::Event::MAGELLAN_AXIS:
       {
           if( _currentViewID == 0 )
@@ -229,7 +229,7 @@ bool MasterConfig::handleEvent( eq::EventICommand command )
           // no break;
       case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
       case eq::Event::CHANNEL_POINTER_MOTION:
-      case eq::Event::WINDOW_POINTER_WHEEL:
+      case eq::Event::CHANNEL_POINTER_WHEEL:
       case eq::Event::MAGELLAN_AXIS:
       {
           if( _currentViewID == 0 )

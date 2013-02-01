@@ -124,7 +124,7 @@ bool ViewData::_handleEvent( const eq::Event& event )
                 return false;
           }
 
-      case eq::Event::WINDOW_POINTER_WHEEL:
+      case eq::Event::CHANNEL_POINTER_WHEEL:
           moveModel( -0.05f * event.pointerWheel.yAxis, 0.f,
                       0.05f * event.pointerWheel.xAxis );
           return true;
