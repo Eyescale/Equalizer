@@ -56,10 +56,6 @@
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
-#ifdef EQ_USE_QTNETWORK
-#  include <QtNetwork/QHostAddress>
-#endif
-
 #define USE_IPv4
 
 namespace eq
@@ -70,9 +66,9 @@ namespace config
 {
 namespace
 {
-co::ConnectionDescriptions _findConnections(
-    const lunchbox::UUID& id, const fabric::ConfigParams& params,
-    const hwsd::NetInfos& netInfos, const uint16_t port = 0 )
+co::ConnectionDescriptions _findConnections( const lunchbox::UUID& id,
+                                             const hwsd::NetInfos& netInfos,
+                                             const uint16_t port = 0 )
 {
     // sort connections by bandwidth
     typedef std::multimap< int32_t, co::ConnectionDescriptionPtr > Connections;
@@ -86,53 +82,6 @@ co::ConnectionDescriptions _findConnections(
         {
             continue;
         }
-
-        const uint32_t flags = params.getFlags();
-        const bool filterNetworks =
-                                 flags & fabric::ConfigParams::FLAG_NETWORK_ALL;
-
-        if( filterNetworks &&
-            ( flags & fabric::ConfigParams::FLAG_NETWORK_ETHERNET &&
-              netInfo.type != hwsd::NetInfo::TYPE_ETHERNET ))
-        {
-            continue;
-        }
-
-        if( filterNetworks &&
-            ( flags & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND &&
-              netInfo.type != hwsd::NetInfo::TYPE_INFINIBAND ))
-        {
-            continue;
-        }
-
-        const Strings& prefixes = params.getPrefixes();
-#ifdef EQ_USE_QTNETWORK
-#  ifdef USE_IPv4
-        QHostAddress address( QString::fromStdString( netInfo.inetAddress ));
-#  else
-        QHostAddress address( QString::fromStdString( netInfo.inet6Address ));
-#  endif
-        bool isInSubnet = prefixes.empty();
-        for( StringsCIter j = prefixes.begin(); j != prefixes.end(); ++j )
-        {
-            const QString prefixStr = QString::fromStdString( *j );
-            const QPair< QHostAddress, int > subnet =
-                                         QHostAddress::parseSubnet( prefixStr );
-            if( address.isInSubnet( subnet ))
-            {
-                isInSubnet = true;
-                break;
-            }
-        }
-#else
-        if( !prefixes.empty( ))
-            LBWARN << "Ignoring prefix filter, QtNetwork not available"
-                   << std::endl;
-        const bool isInSubnet = true;
-#endif
-
-        if( !isInSubnet )
-            continue;
 
         co::ConnectionDescriptionPtr desc = new ConnectionDescription;
         switch( netInfo.type )
@@ -194,16 +143,29 @@ bool Resources::discover( ServerPtr server, Config* config,
     hwsd::net::dns_sd::Module::use();
 #endif
 
-    const std::string& gpuFilter = params.getGPUFilter();
-    hwsd::FilterPtr filter = *hwsd::FilterPtr( new hwsd::MirrorFilter ) |
-                              hwsd::FilterPtr( new hwsd::DuplicateFilter );
-    if( !gpuFilter.empty( ))
-        *filter |= hwsd::FilterPtr( new hwsd::GPUFilter( gpuFilter ));
-    if( !session.empty( ))
-        *filter |= hwsd::FilterPtr( new hwsd::SessionFilter( session ));
+    hwsd::FilterPtr filter = *hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
+                           hwsd::FilterPtr( new hwsd::SessionFilter( session ));
 
-    hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( filter );
-    const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( filter );
+    hwsd::FilterPtr gpuFilter = *filter |
+                                hwsd::FilterPtr( new hwsd::MirrorFilter );
+    *gpuFilter |= hwsd::FilterPtr( new hwsd::GPUFilter( params.getGPUFilter()));
+
+    uint32_t netTypes = 0;
+    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
+    {
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
+            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
+            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
+    }
+    else
+        netTypes = hwsd::NetInfo::TYPE_ALL;
+
+    hwsd::FilterPtr netFilter = *filter |
+        hwsd::FilterPtr( new hwsd::NetFilter( params.getPrefixes(), netTypes ));
+
+    hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( gpuFilter );
+    const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( netFilter );
 
 #ifdef EQ_USE_HWSD_gpu_cgl
     hwsd::gpu::cgl::Module::dispose();
@@ -265,7 +227,7 @@ bool Resources::discover( ServerPtr server, Config* config,
             if( multiNode )
             {
                 const co::ConnectionDescriptions& descs =
-                    _findConnections( info.id, params, netInfos );
+                    _findConnections( info.id, netInfos );
 
                 if( descs.empty() && !info.nodeName.empty())
                 {
@@ -292,7 +254,7 @@ bool Resources::discover( ServerPtr server, Config* config,
 
             LBASSERT( multiNode );
             const co::ConnectionDescriptions& descs =
-                _findConnections( info.id, params, netInfos );
+                _findConnections( info.id, netInfos );
 
             if( descs.empty() && !info.nodeName.empty())
             {
@@ -366,7 +328,7 @@ bool Resources::discover( ServerPtr server, Config* config,
         else
         {
             const co::ConnectionDescriptions& descs =
-                _findConnections( appNodeID, params, netInfos, EQ_DEFAULT_PORT);
+                _findConnections( appNodeID, netInfos, EQ_DEFAULT_PORT);
 
             for( co::ConnectionDescriptionsCIter i = descs.begin();
                  i != descs.end(); ++i )

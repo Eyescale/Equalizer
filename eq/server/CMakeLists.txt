@@ -135,12 +135,6 @@ if(HWSD_FOUND)
   endforeach()
 endif()
 
-if(QT_QTNETWORK_FOUND)
-  include(${QT_USE_FILE})
-  add_definitions(-DEQ_USE_QTNETWORK)
-  list(APPEND SERVER_LIBRARIES ${QT_LIBRARIES})
-endif()
-
 add_library(EqualizerServer SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(EqualizerServer ${SERVER_LIBRARIES})
 set_target_properties(EqualizerServer
