@@ -35,6 +35,13 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
 # add helper stuff from CMakePackageConfigHelpers
   "@PACKAGE_INIT@\n"
   "\n"
+# reset before using them
+  "set(_output_type)\n"
+  "set(_out)\n"
+  "set(_req)\n"
+  "set(_quiet)\n"
+  "set(_fail)\n"
+  "\n"
 # add transient library finding
   "@TRANSIENTS@"
   "if(NOT _fail)\n"
