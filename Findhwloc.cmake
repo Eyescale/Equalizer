@@ -22,7 +22,7 @@ if(hwloc_FIND_REQUIRED)
 endif()
 
 if(hwloc_FIND_QUIETLY)
-  set(_hwloc_OPTS "${_hwloc_OPTS} REQUIRED")
+  set(_hwloc_OPTS "${_hwloc_OPTS} QUIET")
 else()
   set(_hwloc_output 1)
 endif()
