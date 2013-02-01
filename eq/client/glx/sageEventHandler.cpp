@@ -98,7 +98,8 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
         return;
 
     const PixelViewport& pvp = _sage->getChannel()->getPixelViewport();
-    eq::Window* window = _sage->getChannel()->getWindow();
+    eq::Channel* channel = _sage->getChannel();
+    const eq::Window* window = channel->getWindow();
 
     sageMessage msg;
     while( _sage->getSail()->checkMsg( msg, false ) > 0 )
