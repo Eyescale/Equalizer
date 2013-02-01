@@ -150,6 +150,8 @@ bool Resources::discover( ServerPtr server, Config* config,
                                 hwsd::FilterPtr( new hwsd::MirrorFilter );
     *gpuFilter |= hwsd::FilterPtr( new hwsd::GPUFilter( params.getGPUFilter()));
 
+    hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( gpuFilter );
+
     uint32_t netTypes = 0;
     if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
     {
@@ -164,7 +166,6 @@ bool Resources::discover( ServerPtr server, Config* config,
     hwsd::FilterPtr netFilter = *filter |
         hwsd::FilterPtr( new hwsd::NetFilter( params.getPrefixes(), netTypes ));
 
-    hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( gpuFilter );
     const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( netFilter );
 
 #ifdef EQ_USE_HWSD_gpu_cgl
