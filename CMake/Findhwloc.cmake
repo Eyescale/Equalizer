@@ -19,10 +19,8 @@ endif()
 
 if(hwloc_FIND_REQUIRED)
   set(_hwloc_OPTS "REQUIRED")
-endif()
-
-if(hwloc_FIND_QUIETLY)
-  set(_hwloc_OPTS "${_hwloc_OPTS} REQUIRED")
+elseif(hwloc_FIND_QUIETLY)
+  set(_hwloc_OPTS "QUIET")
 else()
   set(_hwloc_output 1)
 endif()
