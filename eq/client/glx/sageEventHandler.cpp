@@ -62,8 +62,10 @@ SageEventHandler::SageEventHandler( SageProxy* sage )
 SageEventHandler::~SageEventHandler()
 {
     eq::Pipe* pipe = _sage->getChannel()->getPipe();
-    MessagePump* messagePump = dynamic_cast<MessagePump*>( pipe->isThreaded() ?
-                 pipe->getMessagePump() : pipe->getConfig()->getMessagePump( ));
+    MessagePump* messagePump =
+        dynamic_cast<MessagePump*>( pipe->isThreaded() ?
+                                    pipe->getMessagePump() :
+                                    pipe->getConfig()->getMessagePump( ));
     if( messagePump )
         messagePump->deregister( _sage );
 
@@ -96,7 +98,8 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
         return;
 
     const PixelViewport& pvp = _sage->getChannel()->getPixelViewport();
-    eq::Window* window = _sage->getChannel()->getWindow();
+    eq::Channel* channel = _sage->getChannel();
+    const eq::Window* window = channel->getWindow();
 
     sageMessage msg;
     while( _sage->getSail()->checkMsg( msg, false ) > 0 )
@@ -104,12 +107,14 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
         if( msg.getCode() == APP_QUIT )
         {
             _sage->stopRunning();
+            // TODO send new 'sage_quit' event so that app may decide to close
+            // itself, or make this decision configurable through launch option
             continue;
         }
 
         Event event;
-        event.originator = window->getID();
-        event.serial = window->getSerial();
+        event.originator = channel->getID();
+        event.serial = channel->getSerial();
         event.type = Event::UNKNOWN;
 
         int deviceID;
@@ -129,8 +134,8 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
             int buttonID, isDown, clickEvent;
             data >> buttonID >> isDown >> clickEvent;
 
-            event.type = isDown ? Event::WINDOW_POINTER_BUTTON_PRESS :
-                                  Event::WINDOW_POINTER_BUTTON_RELEASE;
+            event.type = isDown ? Event::CHANNEL_POINTER_BUTTON_PRESS :
+                                  Event::CHANNEL_POINTER_BUTTON_RELEASE;
             event.pointerButtonPress.x = x;
             event.pointerButtonPress.y = pvp.h - y;
             event.pointerButtonPress.buttons = buttonID == 1 ? PTR_BUTTON1 :
@@ -150,10 +155,10 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
             dy *= pvp.h;
             event.pointerMotion.dx = dx;
             event.pointerMotion.dy = -dy;
-        }
+        } // no break;
         case EVT_MOVE:
         {
-            event.type = Event::WINDOW_POINTER_MOTION;
+            event.type = Event::CHANNEL_POINTER_MOTION;
             event.pointerMotion.x = x;
             event.pointerMotion.y = pvp.h - y;
 
@@ -178,7 +183,7 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
             float dx, dy;
             data >> dx >> dy;
 
-            event.type = Event::WINDOW_POINTER_WHEEL;
+            event.type = Event::CHANNEL_POINTER_WHEEL;
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
             event.pointerWheel.buttons = PTR_BUTTON_NONE;
@@ -200,10 +205,11 @@ void SageEventHandler::_processEvents( const SageProxy* sage )
 
         if( event.type != Event::UNKNOWN )
         {
+            // TODO: compute and use window x,y coordinates
             if( !window->getRenderContext( x, y, event.context ))
                 LBVERB << "No rendering context for pointer event at " << x
                        << ", " << y << std::endl;
-            window->processEvent( event );
+            channel->processEvent( event );
         }
     }
 }

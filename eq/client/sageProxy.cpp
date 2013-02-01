@@ -16,7 +16,9 @@
  */
 
 #include "sageProxy.h"
+
 #include "channel.h"
+#include "pipe.h"
 #include "view.h"
 #include "window.h"
 
@@ -99,7 +101,8 @@ SageProxy::SageProxy( Channel* channel )
     : _impl( new detail::SageProxy( channel ))
 {
 #ifdef GLX
-    _impl->_eventHandler = new glx::SageEventHandler( this );
+    if( channel->getPipe()->getWindowSystem().getName() == "GLX" )
+        _impl->_eventHandler = new glx::SageEventHandler( this );
 #endif
 }
 

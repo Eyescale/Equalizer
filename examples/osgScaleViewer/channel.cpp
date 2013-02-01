@@ -110,15 +110,13 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
 {
     const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
-    if( !frameData.useStatistics( ))
+    if( frameData.useStatistics( ))
     {
-        eq::Channel::frameViewFinish( frameID );
-        return;
+        applyBuffer();
+        applyViewport();
+        drawStatistics();
     }
 
-    applyBuffer();
-    applyViewport();
-    drawStatistics();
     eq::Channel::frameViewFinish( frameID );
 }
 

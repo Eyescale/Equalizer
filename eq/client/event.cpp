@@ -45,6 +45,7 @@ public:
         _names[Event::CHANNEL_POINTER_BUTTON_PRESS] = "pointer button press";
         _names[Event::CHANNEL_POINTER_BUTTON_RELEASE] =
             "pointer button release";
+        _names[Event::CHANNEL_POINTER_WHEEL] = "pointer wheel";
         _names[Event::WINDOW_POINTER_WHEEL] = "pointer wheel";
         _names[Event::WINDOW_POINTER_MOTION] = "window pointer motion";
         _names[Event::WINDOW_POINTER_BUTTON_PRESS] =
@@ -102,6 +103,7 @@ std::ostream& operator << ( std::ostream& os, const Event& event )
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::WINDOW_POINTER_BUTTON_RELEASE:
         case Event::WINDOW_POINTER_WHEEL:
+        case Event::CHANNEL_POINTER_WHEEL:
         case Event::CHANNEL_POINTER_MOTION:
         case Event::CHANNEL_POINTER_BUTTON_PRESS:
         case Event::CHANNEL_POINTER_BUTTON_RELEASE:

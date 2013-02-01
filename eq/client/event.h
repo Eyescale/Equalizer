@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -205,6 +205,8 @@ namespace eq
             CHANNEL_POINTER_BUTTON_PRESS,
             /** Channel pointer button release data in pointerButtonRelease */
             CHANNEL_POINTER_BUTTON_RELEASE,
+            //!< Channel pointer Mouse wheel data in wheel
+            CHANNEL_POINTER_WHEEL,
             //!< Window pointer Mouse wheel data in wheel
             WINDOW_POINTER_WHEEL,
 #endif

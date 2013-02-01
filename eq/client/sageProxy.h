@@ -24,51 +24,46 @@ class sail;
 
 namespace eq
 {
-namespace detail { class SageProxy; struct RBStat; }
+namespace detail { class SageProxy; }
 
 /**
  * @internal
- * A SageProxy can be associated to one destination channel to stream data to a
- * SAGE-driven display. Each SageProxy instance appears as one SAGE application.
- * Additionally to the pixel data streaming, the SageProxy installs an event
- * handler for incoming messages from SAGE on that application.
+ * A SageProxy is associated to one destination channel to stream data to a
+ * SAGE-driven display. Several SageProxy instances appear as one SAGE
+ * application when they share the same Sage appID. Additionally to the pixel
+ * data streaming, the SageProxy installs an event handler for incoming messages
+ * from SAGE on that application.
  */
 class SageProxy
 {
 public:
-    /**
-     * Construct a new SAGE proxy associated to a destination channel.
-     * @version 1.5.1
-     */
+    /** Construct a new SAGE proxy associated to a destination channel. */
     SageProxy( Channel* channel );
 
-    /** Destruct the SAGE proxy and close the SAGE application. @version 1.5.1*/
+    /** Destruct the SAGE proxy and close the SAGE application. */
     ~SageProxy();
 
     /**
      * Stream the pixel data of the currently bound buffer to SAGE.
      *
-     * Has to called from Channel::frameViewFinish.
-     * @version 1.5.1
+     * Has to be called from Channel::frameViewFinish.
      */
     void swapBuffer();
 
-    /** @return the associated destination channel. @version 1.5.1 */
+    /** @return the associated destination channel. */
     Channel* getChannel();
 
-    /** @return the SAGE sail instance. @version 1.5.1 */
+    /** @return the SAGE sail instance. */
     sail* getSail();
 
     /**
      * Signal the proxy to stop running.
      *
      * This is called if the application is closed in SAGE.
-     *
-     * @version 1.5.1
      */
     void stopRunning();
 
-    /** @return whether the application is running in SAGE. @version 1.5.1 */
+    /** @return whether the application is running in SAGE. */
     bool isRunning() const;
 
 private:

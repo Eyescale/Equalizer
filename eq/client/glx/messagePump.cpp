@@ -122,15 +122,17 @@ void MessagePump::deregister( Display* display )
     }
 }
 
-#ifdef EQ_USE_SAGE
 void MessagePump::register_( SageProxy* sage )
 {
+#ifdef EQ_USE_SAGE
     if( ++_referenced[ sage ] == 1 )
         _connections.addConnection( new SageConnection( sage ));
+#endif
 }
 
 void MessagePump::deregister( SageProxy* sage )
 {
+#ifdef EQ_USE_SAGE
     if( --_referenced[ sage ] == 0 )
     {
         const co::Connections& connections = _connections.getConnections();
@@ -148,9 +150,8 @@ void MessagePump::deregister( SageProxy* sage )
         }
         _referenced.erase( _referenced.find( sage ));
     }
-}
-
 #endif
+}
 
 }
 }

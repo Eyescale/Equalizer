@@ -18,9 +18,8 @@
 #ifndef EQ_SAGE_CONNECTION_H
 #define EQ_SAGE_CONNECTION_H
 
+#include "../sageProxy.h"
 #include <co/connection.h>
-
-#include <eq/client/sageProxy.h>
 #include <sail.h>
 
 namespace eq
