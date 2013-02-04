@@ -368,9 +368,9 @@ int32_t Pipe::_getAutoAffinity() const
 
     // Get the cpuset for the socket connected to GPU attached to the display
     // defined by its port and device
-    hwloc_bitmap_t cpuSet;  // alloc in hwloc_gl_get_display_cpuset
+    hwloc_bitmap_t cpuSet = hwloc_bitmap_alloc();
     if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
-                                     &cpuSet ) < 0 )
+                                     cpuSet ) < 0 )
     {
         LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_gl_get_display_cpuset() failed" << std::endl;
