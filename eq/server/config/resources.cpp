@@ -487,6 +487,8 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
         LBASSERT( multiProcessDB );
         compound = _addDB2DCompound( root, channels, params );
     }
+    else if( name == EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL )
+        compound = _addSubpixelCompound( root, multiProcess ? activeMP:activeMT);
     else
     {
         LBASSERTINFO( false, "Unimplemented mode " << name );
@@ -759,8 +761,22 @@ Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
     return compound;
 }
 
+Compound* Resources::_addSubpixelCompound( Compound* root,
+                                           const Channels& channels )
+{
+    Compound* compound = new Compound( root );
+    compound->setName( EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL );
+
+    const Compounds& children = _addSources( compound, channels, true );
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+        (*i)->setSubPixel( SubPixel( i - children.begin(), children.size( )));
+
+    return compound;
+}
+
 const Compounds& Resources::_addSources( Compound* compound,
-                                         const Channels& channels )
+                                         const Channels& channels,
+                                         const bool destChannelFrame )
 {
     const Channel* rootChannel = compound->getChannel();
     const Segment* segment = rootChannel->getSegment();
@@ -771,14 +787,18 @@ const Compounds& Resources::_addSources( Compound* compound,
         Channel* channel = *i;
         Compound* child = new Compound( compound );
 
-        if( channel == outputChannel )
+        const bool isDestChannel = channel == outputChannel;
+        if( isDestChannel && !destChannelFrame )
             continue;
-        child->setChannel( channel );
+        if( !isDestChannel )
+            child->setChannel( channel );
 
         Frame* outFrame = new Frame;
         std::stringstream frameName;
         frameName << "Frame." << compound->getName() << '.' << ++_frameCounter;
         outFrame->setName( frameName.str( ));
+        if( isDestChannel )
+            outFrame->setType( Frame::TYPE_TEXTURE ); // OPT
         child->addOutputFrame( outFrame );
 
         Frame* inFrame = new Frame;
