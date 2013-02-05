@@ -143,12 +143,11 @@ bool Resources::discover( ServerPtr server, Config* config,
     hwsd::net::dns_sd::Module::use();
 #endif
 
-    hwsd::FilterPtr filter = *hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
-                           hwsd::FilterPtr( new hwsd::SessionFilter( session ));
+    hwsd::FilterPtr filter = hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
+                             new hwsd::SessionFilter( session );
 
-    hwsd::FilterPtr gpuFilter = *filter |
-                                hwsd::FilterPtr( new hwsd::MirrorFilter );
-    *gpuFilter |= hwsd::FilterPtr( new hwsd::GPUFilter( params.getGPUFilter()));
+    hwsd::FilterPtr gpuFilter = filter | new hwsd::MirrorFilter |
+                                new hwsd::GPUFilter( params.getGPUFilter( ));
 
     hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( gpuFilter );
 
@@ -163,8 +162,8 @@ bool Resources::discover( ServerPtr server, Config* config,
     else
         netTypes = hwsd::NetInfo::TYPE_ALL;
 
-    hwsd::FilterPtr netFilter = *filter |
-        hwsd::FilterPtr( new hwsd::NetFilter( params.getPrefixes(), netTypes ));
+    hwsd::FilterPtr netFilter = filter |
+                          new hwsd::NetFilter( params.getPrefixes(), netTypes );
 
     const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( netFilter );
 
@@ -488,6 +487,8 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
         LBASSERT( multiProcessDB );
         compound = _addDB2DCompound( root, channels, params );
     }
+    else if( name == EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL )
+        compound = _addSubpixelCompound( root, multiProcess ? activeMP:activeMT);
     else
     {
         LBASSERTINFO( false, "Unimplemented mode " << name );
@@ -756,6 +757,19 @@ Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
         const Channels& localChannels = _filterLocalChannels( channels, child );
         _fill2DCompound( drawChild, localChannels );
     }
+
+    return compound;
+}
+
+Compound* Resources::_addSubpixelCompound( Compound* root,
+                                           const Channels& channels )
+{
+    Compound* compound = new Compound( root );
+    compound->setName( EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL );
+
+    const Compounds& children = _addSources( compound, channels );
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+        (*i)->setSubPixel( SubPixel( i - children.begin(), children.size( )));
 
     return compound;
 }

@@ -107,7 +107,7 @@ if(GLStats_name)
   include_directories(${${GLStats_name}_INCLUDE_DIRS})
 endif()
 
-find_package(hwloc 1.1)
+find_package(hwloc 1.5)
 if(hwloc_FOUND)
   set(hwloc_name hwloc)
 endif()

@@ -87,6 +87,7 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL );
 
         if( flags & fabric::ConfigParams::FLAG_MULTIPROCESS_DB &&
             nodes.size() > 1 )
