@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,6 +28,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DS       "DBDirectSend"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_2D       "DB_2D"
+#define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL    "Subpixel"
 
 namespace eq
 {
@@ -59,6 +60,7 @@ private:
     static Compound* _addDSCompound( Compound* root, const Channels& channels );
     static Compound* _addDB2DCompound( Compound* root, const Channels& channels,
                                        fabric::ConfigParams params );
+    static Compound* _addSubpixelCompound( Compound* root, const Channels& );
     static const Compounds& _addSources( Compound* compound, const Channels& );
     static void _fill2DCompound( Compound* compound, const Channels& channels );
 };
