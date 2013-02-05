@@ -143,11 +143,12 @@ bool Resources::discover( ServerPtr server, Config* config,
     hwsd::net::dns_sd::Module::use();
 #endif
 
-    hwsd::FilterPtr filter = hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
-                             new hwsd::SessionFilter( session );
+    hwsd::FilterPtr filter = *hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
+                           hwsd::FilterPtr( new hwsd::SessionFilter( session ));
 
-    hwsd::FilterPtr gpuFilter = filter | new hwsd::MirrorFilter |
-                                new hwsd::GPUFilter( params.getGPUFilter( ));
+    hwsd::FilterPtr gpuFilter = *filter |
+                                hwsd::FilterPtr( new hwsd::MirrorFilter );
+    *gpuFilter |= hwsd::FilterPtr( new hwsd::GPUFilter( params.getGPUFilter()));
 
     hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( gpuFilter );
 
@@ -162,8 +163,8 @@ bool Resources::discover( ServerPtr server, Config* config,
     else
         netTypes = hwsd::NetInfo::TYPE_ALL;
 
-    hwsd::FilterPtr netFilter = filter |
-                          new hwsd::NetFilter( params.getPrefixes(), netTypes );
+    hwsd::FilterPtr netFilter = *filter |
+        hwsd::FilterPtr( new hwsd::NetFilter( params.getPrefixes(), netTypes ));
 
     const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( netFilter );
 
