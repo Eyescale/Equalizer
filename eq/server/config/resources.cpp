@@ -414,7 +414,7 @@ void Resources::configure( const Compounds& compounds, const Channels& channels,
                            const fabric::ConfigParams& params )
 {
     LBASSERT( !compounds.empty( ));
-    if( compounds.empty() || channels.empty()) // No additional resources
+    if( compounds.empty() || channels.empty( )) // No additional resources
         return;
 
 #ifndef NDEBUG
@@ -462,25 +462,25 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
                     params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS;
     const bool multiProcessDB = multiProcess ||
              ( params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
-    const Channels& activeMT = _filter( channels, " mt " );
-    const Channels& activeMP = _filter( channels, " mp " );
+    const Channels& activeChannels = _filter( channels,
+                                              multiProcess ? " mp " : " mt " );
+    const Channels& activeDBChannels = _filter( channels,
+                                                multiProcessDB ? " mp ":" mt ");
 
     if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
         /* nop */;
     else if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
     {
-        compound = _add2DCompound( root, multiProcess ? activeMP : activeMT,
-                                   params );
+        compound = _add2DCompound( root, activeChannels, params );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
     {
-        compound = _addDBCompound( root, multiProcessDB ? activeMP : activeMT,
-                                   params );
+        compound = _addDBCompound( root, activeDBChannels, params );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
-        compound = _addDSCompound( root, multiProcessDB ? activeMP : activeMT );
+        compound = _addDSCompound( root, activeDBChannels );
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_2D )
     {
         LBASSERT( !multiProcess );
@@ -488,16 +488,15 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
         compound = _addDB2DCompound( root, channels, params );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL )
-        compound = _addSubpixelCompound( root, multiProcess ? activeMP:activeMT);
+        compound = _addSubpixelCompound( root, activeChannels );
     else
     {
         LBASSERTINFO( false, "Unimplemented mode " << name );
     }
 
-    if( !compound )
-        return 0;
+    if( compound )
+        compound->setEyes( EYE_CYCLOP );
 
-    compound->setEyes( EYE_CYCLOP );
     return compound;
 }
 

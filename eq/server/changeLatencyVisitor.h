@@ -1,17 +1,17 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *               2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -43,9 +43,9 @@ public:
     ChangeLatencyVisitor( const uint32_t latency ) : _latency( latency ) {}
 
     virtual VisitorResult visit( Compound* compound )
-    { 
+    {
         const Frames& outputFrames = compound->getOutputFrames();
-        for( FramesCIter i = outputFrames.begin(); 
+        for( FramesCIter i = outputFrames.begin();
              i != outputFrames.end(); ++i )
         {
             Frame* frame = *i;
@@ -53,7 +53,7 @@ public:
         }
 
         const Frames& inputFrames = compound->getInputFrames();
-        for( FramesCIter i = inputFrames.begin(); 
+        for( FramesCIter i = inputFrames.begin();
              i != inputFrames.end(); ++i )
         {
             Frame* frame = *i;
@@ -61,7 +61,7 @@ public:
         }
 
         const TileQueues& outputTileQueues = compound->getOutputTileQueues();
-        for( TileQueuesCIter i = outputTileQueues.begin(); 
+        for( TileQueuesCIter i = outputTileQueues.begin();
              i != outputTileQueues.end(); ++i )
         {
             TileQueue* queue = *i;
@@ -69,19 +69,19 @@ public:
         }
 
         const TileQueues& inputTileQueues = compound->getInputTileQueues();
-        for( TileQueuesCIter i = inputTileQueues.begin(); 
+        for( TileQueuesCIter i = inputTileQueues.begin();
              i != inputTileQueues.end(); ++i )
         {
             TileQueue* queue = *i;
             queue->setAutoObsolete( _latency );
         }
-        return TRAVERSE_CONTINUE; 
+        return TRAVERSE_CONTINUE;
     }
 
     virtual VisitorResult visitPre( Node* node )
     {
         node->changeLatency( _latency );
-        return TRAVERSE_CONTINUE; 
+        return TRAVERSE_CONTINUE;
     }
 
     virtual VisitorResult visit( Observer* observer )

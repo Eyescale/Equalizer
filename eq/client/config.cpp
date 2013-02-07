@@ -506,9 +506,8 @@ uint32_t Config::finishFrame()
     _updateStatistics( frameToFinish );
     _releaseObjects();
 
-    LBLOG( lunchbox::LOG_ANY )
-        << "---- Finished Frame --- " << frameToFinish << " ("
-        << _impl->currentFrame << ')' << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
+                               << " (" << _impl->currentFrame << ')'<<std::endl;
     return frameToFinish;
 }
 
