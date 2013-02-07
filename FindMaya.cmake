@@ -20,7 +20,7 @@ else()
   endif()
 endif()
 
-FIND_PATH(MAYA_ROOT_DIR include/maya/MLibrary.h
+find_path(MAYA_ROOT_DIR include/maya/MLibrary.h
   /usr/autodesk/maya2012-x64
   /usr/autodesk/maya8.5-x64
   /usr/autodesk/maya8.0-x64
@@ -38,97 +38,40 @@ FIND_PATH(MAYA_ROOT_DIR include/maya/MLibrary.h
   "$ENV{PROGRAMFILES}/Alias/Maya8.0"
   "$ENV{PROGRAMFILES}/Alias/Maya7.0"
   "$ENV{PROGRAMFILES}/Alias/Maya6.5"
-  DOC "Root directory of Maya"
- )
+  DOC "Root directory of Maya installation"
+  )
 
-IF(MAYA_ROOT_DIR)
-  IF(${_maya_output})
-        MESSAGE(STATUS "MAYA_ROOT_DIR is found in : ${MAYA_ROOT_DIR}")
-  ENDIF()
-
+if(MAYA_ROOT_DIR)
   # Include & libraries directories
-  SET(MAYA_INCLUDE_DIR "${MAYA_ROOT_DIR}/include")
-  SET(MAYA_LIBRARY_DIR "${MAYA_ROOT_DIR}/lib")
+  set(MAYA_INCLUDE_DIR "${MAYA_ROOT_DIR}/include")
+  set(MAYA_LIBRARY_DIR "${MAYA_ROOT_DIR}/lib")
+  set(MAYE_DEFINITIONS -D_BOOL -DFUNCPROTO -DREQUIRE_IOSTREAM)
 
   # Checking the libraries
-  IF(UNIX)
-      SET(MAYA_APP_LIBRARIES OpenMayalib)
-  ELSE(UNIX)
-      SET(MAYA_APP_LIBRARIES "")
-  ENDIF(UNIX)
+  if(UNIX)
+    set(MAYA_LIBRARY_NAMES OpenMayalib)
+  endif()
 
-  # Foundation library
-  FIND_LIBRARY(MAYA_Foundation_LIBRARY Foundation
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
+  list(APPEND MAYA_LIBRARY_NAMES Foundation OpenMaya OpenMayaAnim OpenMayaUI
+    OpenMayaRender OpenMayaFX Cloth Image)
 
-  # OpenMaya library
-  FIND_LIBRARY(MAYA_OpenMaya_LIBRARY OpenMaya
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
+  foreach(MAYA_LIBRARY ${MAYA_LIBRARY_NAMES})
+    find_library(MAYA_${MAYA_LIBRARY}_LIBRARY ${MAYA_LIBRARY}
+      ${MAYA_LIBRARY_DIR} NO_DEFAULT_PATH)
+    list(APPEND MAYA_LIBRARIES ${MAYA_${MAYA_LIBRARY}_LIBRARY})
+    list(APPEND MAYA_LIBRARY_CHECKS MAYA_${MAYA_LIBRARY}_LIBRARY)
+  endforeach()
 
-  # Maya animation library
-  FIND_LIBRARY(MAYA_OpenMayaAnim_LIBRARY OpenMayaAnim
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(MAYA DEFAULT_MSG MAYA_ROOT_DIR
+    ${MAYA_LIBRARY_CHECKS})
+else()
+  if(${_maya_output})
+    message(${_maya_output_type} "MAYA_ROOT_DIR not found")
+  endif()
+endif(MAYA_ROOT_DIR)
 
-  # OpenMayaUI library
-  FIND_LIBRARY(MAYA_OpenMayaUI_LIBRARY OpenMayaUI
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
-
-  # OpenMayaRender library
-  FIND_LIBRARY(MAYA_OpenMayaRender_LIBRARY OpenMayaRender
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
-
-  # OpenMayaFX library
-  FIND_LIBRARY(MAYA_OpenMayaFX_LIBRARY OpenMayaFX
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
-
-  # Maya cloth library
-  FIND_LIBRARY(MAYA_Cloth_LIBRARY Cloth
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
-
-  # Maya image library
-  FIND_LIBRARY(MAYA_Image_LIBRARY Image
-      ${MAYA_LIBRARY_DIR}
-      NO_DEFAULT_PATH
-   )
-
-  # Adding libraries to the MAYA_LIBRARY list to be linking against
-  SET(MAYA_LIBRARIES ${MAYA_Foundation_LIBRARY}
-                     ${MAYA_OpenMaya_LIBRARY}
-                     ${MAYA_OpenMayaAnim_LIBRARY}
-                     ${MAYA_OpenMayaUI_LIBRARY} 
-                     ${MAYA_OpenMayaRender_LIBRARY}
-                     ${MAYA_OpenMayaFX_LIBRARY}
-                     ${MAYA_Cloth_LIBRARY}
-                     ${MAYA_Image_LIBRARY})
-
-  # Adding BASIC definitions
-  ADD_DEFINITIONS(-D_BOOL -DFUNCPROTO -DREQUIRE_IOSTREAM)
-
-  INCLUDE(FindPackageHandleStandardArgs)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(MAYA DEFAULT_MSG MAYA_ROOT_DIR 
-	MAYA_LIBRARIES)
-
-ELSE(MAYA_ROOT_DIR)
-  IF(${_maya_output})
-    MESSAGE(${_maya_output_type} "MAYA_ROOT_DIR is NOT found")
-  ENDIF()
-ENDIF(MAYA_ROOT_DIR)
-
-IF(MAYA_FOUND AND _maya_output)
-  MESSAGE(STATUS "Found MAYA in ${MAYA_INCLUDE_DIR} ${MAYA_LIBRARIES}")
-ENDIF()
+if(MAYA_FOUND AND _maya_output)
+  message(STATUS "Found Maya in ${MAYA_INCLUDE_DIR}:${MAYA_LIBRARIES}")
+endif()
 
