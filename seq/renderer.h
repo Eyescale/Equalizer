@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -53,7 +53,7 @@ namespace seq
          */
         SEQ_API virtual bool init( co::Object* initData ) { return true; }
 
-        /** 
+        /**
          * De-initialize the renderer.
          *
          * Called just before the last context will be destroyed after the last
@@ -77,7 +77,7 @@ namespace seq
          */
         SEQ_API virtual bool initContext( co::Object* initData );
 
-        /** 
+        /**
          * De-initialize an OpenGL context.
          *
          * Called just before the context will be destroyed.
@@ -156,15 +156,15 @@ namespace seq
         /** Delete the given view data. @version 1.0 */
         SEQ_API virtual void destroyViewData( ViewData* viewData );
 
-        /** 
+        /**
          * Get the GLEW context for this renderer.
-         * 
+         *
          * The glew context provides access to OpenGL extensions. This function
          * does not follow the Sequel naming conventions, since GLEW uses a
          * function of this name to automatically resolve OpenGL function entry
          * points. Therefore, any OpenGL function support by the driver can be
          * directly called from any method of an initialized renderer.
-         * 
+         *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          * @version 1.0
@@ -189,7 +189,7 @@ namespace seq
         //@}
 
     private:
-        detail::Renderer* _impl;
+        detail::Renderer* const _impl;
         Application& _app;
     };
 }

@@ -32,7 +32,6 @@ Renderer::Renderer( Application& application )
 Renderer::~Renderer()
 {
     delete _impl;
-    _impl = 0;
 }
 
 co::Object* Renderer::getFrameData()
