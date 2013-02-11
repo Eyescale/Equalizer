@@ -112,9 +112,9 @@ EventHandler::EventHandler( WindowIF* window )
 
 EventHandler::~EventHandler()
 {
-#ifdef EQ_USE_MAGELLAN_GLX
     if( _magellanUsed )
     {
+#ifdef EQ_USE_MAGELLAN_GLX
         lunchbox::ScopedFastWrite mutex( _magellan );
         if( --_magellan->used == 0 )
         {
@@ -125,9 +125,9 @@ EventHandler::~EventHandler()
                     << std::endl;
             }
         }
+#endif
         _magellanUsed = false;
     }
-#endif
 
     eq::Pipe* pipe = _window->getPipe();
     MessagePump* messagePump =
