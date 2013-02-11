@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ namespace eqPixelBench
 Config::Config( eq::ServerPtr parent )
         : eq::Config( parent )
         , _clock(0)
-        , _modeTest( false )
 {
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,8 +35,8 @@ namespace eqPly
 class ModelAssigner : public eq::ConfigVisitor
 {
 public:
-    ModelAssigner( const ModelDists& models ) 
-            : _models( models ), _current( models.begin( )), _layout( 0 ) {}
+    ModelAssigner( const ModelDists& models )
+            : _models( models ), _current( models.begin( )) {}
 
     virtual eq::VisitorResult visit( eq::View* view )
         {
@@ -47,14 +47,12 @@ public:
             if( _current == _models.end( ))
                 _current = _models.begin(); // wrap around
 
-            return eq::TRAVERSE_CONTINUE; 
+            return eq::TRAVERSE_CONTINUE;
         }
 
 private:
     const ModelDists&          _models;
     ModelDists::const_iterator _current;
-    
-    eq::Layout* _layout;
 };
 
 }
