@@ -33,13 +33,19 @@ namespace eq
 {
 namespace fabric
 {
+namespace detail
+{
+class Client {};
+}
 
 Client::Client()
+    : _impl( 0 )
 {
 }
 
 Client::~Client()
 {
+    delete _impl;
     LBASSERT( isClosed( ));
 }
 
