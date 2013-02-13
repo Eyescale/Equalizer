@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2013 Stefan.Eilemann@epfl.ch
 
 include(CMakeParseArguments)
 include(PurpleInstallPDB)
@@ -31,8 +32,7 @@ if(HWSD_FOUND)
 endif()
 
 if(WIN32)
-  eq_add_tool(affinityCheck
-    SOURCES affinityCheck/affinityCheck.cpp
+  eq_add_tool(affinityCheck SOURCES affinityCheck/affinityCheck.cpp
     LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_gl_LIBRARY}
     )
 endif(WIN32)
@@ -40,6 +40,10 @@ endif(WIN32)
 eq_add_tool(eqConfigTool
   HEADERS configTool/configTool.h configTool/frame.h
   SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
+  LINK_LIBRARIES Equalizer EqualizerServer
+  )
+
+eq_add_tool(eqThreadAffinity SOURCES threadAffinity/threadAffinity.cpp
   LINK_LIBRARIES Equalizer EqualizerServer
   )
 

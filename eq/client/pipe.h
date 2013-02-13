@@ -6,12 +6,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -72,13 +72,13 @@ namespace detail { class Pipe; class RenderThread; }
 
         /**
          * @return true if this pipe is running, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         bool isRunning() const;
 
         /**
          * @return true if this pipe is stopped, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool isStopped() const;
 
@@ -88,17 +88,17 @@ namespace detail { class Pipe; class RenderThread; }
          * To be called only from the pipe thread. Updated by startFrame().
          * @return the current frame number.
          * @version 1.0
-         */ 
+         */
         EQ_API uint32_t getCurrentFrame() const;
         EQ_API uint32_t getFinishedFrame() const; //!< @internal
 
         /**
          * Return the window system used by this pipe.
-         * 
+         *
          * The return value is quaranteed to be constant for an initialized
          * pipe, that is, the window system is determined using
          * selectWindowSystem() before configInit() is executed.
-         * 
+         *
          * @return the window system used by this pipe.
          * @version 1.0
          */
@@ -109,16 +109,16 @@ namespace detail { class Pipe; class RenderThread; }
          * @name Operations
          */
         //@{
-        /** 
+        /**
          * @internal
          * Get an assembly frame.
-         * 
+         *
          * @param frameVersion the frame's identifier and version.
          * @param eye the current eye pass.
          * @param output true if an output frame, false if input frame
          * @return the frame.
          */
-        Frame* getFrame( const co::ObjectVersion& frameVersion, 
+        Frame* getFrame( const co::ObjectVersion& frameVersion,
                          const Eye eye, const bool output );
 
         /** @internal @return the queue for the given identifier and version. */
@@ -140,7 +140,7 @@ namespace detail { class Pipe; class RenderThread; }
         /**
          * @internal
          * Wait for a frame to be finished.
-         * 
+         *
          * @param frameNumber the frame number.
          * @sa releaseFrame()
          */
@@ -149,7 +149,7 @@ namespace detail { class Pipe; class RenderThread; }
         /**
          * @internal
          * Wait for a frame to be released locally.
-         * 
+         *
          * @param frameNumber the frame number.
          * @sa releaseFrameLocal()
          */
@@ -169,14 +169,14 @@ namespace detail { class Pipe; class RenderThread; }
         /** @internal Checks if async readback thread is running. */
         bool hasTransferThread() const;
 
-        /** 
+        /**
          * @name Interface to and from the SystemPipe, the window-system
          *       specific pieces for a pipe.
          */
         //@{
         /**
          * Set the system-specific pipe implementation.
-         * 
+         *
          * The system-specific pipe implements the window-system-dependent part.
          * The os-specific pipe has to be initialized.
          * @version 1.0
@@ -192,7 +192,7 @@ namespace detail { class Pipe; class RenderThread; }
 
         /**
          * @name Interface to and from the ComputeContext
-         * @warning experimental - may not be supported in the future.         
+         * @warning experimental - may not be supported in the future.
          */
         //@{
         /** Set the compute-specific context. */
@@ -207,7 +207,7 @@ namespace detail { class Pipe; class RenderThread; }
 
         /** @name Configuration. */
         //@{
-        /** 
+        /**
          * Create a new MessagePump for this pipe.
          *
          * At most one message pump per execution thread is created. Each pipe
@@ -231,25 +231,25 @@ namespace detail { class Pipe; class RenderThread; }
     protected:
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Start a frame by unlocking all child resources.
-         * 
+         *
          * @param frameNumber the frame to start.
          * @version 1.0
          */
         EQ_API void startFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Signal the completion of a frame to the parent.
-         * 
+         *
          * @param frameNumber the frame to end.
          * @version 1.0
          */
         EQ_API void releaseFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Release the local synchronization of the parent for a frame.
-         * 
+         *
          * @param frameNumber the frame to release.
          * @version 1.0
          */
@@ -264,7 +264,7 @@ namespace detail { class Pipe; class RenderThread; }
          */
         //@{
 #ifndef EQ_2_0_API
-        /** 
+        /**
          * Tests wether a particular windowing system is supported by this pipe
          * and all its windows.
          *
@@ -277,26 +277,26 @@ namespace detail { class Pipe; class RenderThread; }
          */
         EQ_API virtual bool supportsWindowSystem( const WindowSystem ws ) const;
 #endif
-        /** 
+        /**
          * Choose the window system to be used by this pipe.
-         * 
+         *
          * This function determines which of the supported windowing systems is
-         * used by this pipe instance. 
-         * 
+         * used by this pipe instance.
+         *
          * @return the window system currently used by this pipe.
          * @version 1.0
          */
         EQ_API virtual WindowSystem selectWindowSystem() const;
 
-        /** 
+        /**
          * Initialize this pipe.
-         * 
+         *
          * @param initID the init identifier.
          * @version 1.0
          */
         EQ_API virtual bool configInit( const uint128_t& initID );
 
-       /** 
+       /**
          * Initialize the OS-specific pipe.
          *
          * @sa setSystemPipe()
@@ -304,7 +304,7 @@ namespace detail { class Pipe; class RenderThread; }
          */
         EQ_API virtual bool configInitSystemPipe( const uint128_t& initID );
 
-        /** 
+        /**
          * De-initialize this pipe.
          * @version 1.0
          */
@@ -327,7 +327,7 @@ namespace detail { class Pipe; class RenderThread; }
          *     Node::waitFrameStarted()
          * @version 1.0
          */
-        EQ_API virtual void frameStart( const uint128_t& frameID, 
+        EQ_API virtual void frameStart( const uint128_t& frameID,
                                         const uint32_t frameNumber );
 
         /**
@@ -344,12 +344,12 @@ namespace detail { class Pipe; class RenderThread; }
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameFinish( const uint128_t& frameID,
                                          const uint32_t frameNumber );
 
-        /** 
+        /**
          * Finish drawing.
-         * 
+         *
          * Called once per frame after the last draw operation. Releases the
          * local synchronization if the thread model is draw_sync (the default).
          *
@@ -357,7 +357,7 @@ namespace detail { class Pipe; class RenderThread; }
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
                                              const uint32_t frameNumber );
 
         /** @internal */
