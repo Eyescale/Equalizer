@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -30,7 +30,7 @@
 
 namespace eq
 {
-namespace detail { class Pipe; class RenderThread; }
+namespace detail { class Pipe; class RenderThread; class ThreadAffinityVisitor; }
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -374,6 +374,7 @@ namespace detail { class Pipe; class RenderThread; }
 
         /** @internal @return lunchbox::Thread::Affinity mask for this GPU.  */
         int32_t _getAutoAffinity() const;
+        friend class detail::ThreadAffinityVisitor;
 
         //friend class Window;
 

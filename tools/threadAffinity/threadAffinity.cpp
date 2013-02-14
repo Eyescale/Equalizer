@@ -30,6 +30,28 @@
 
 #include <eq/eq.h>
 
+namespace eq
+{
+namespace detail
+{
+class ThreadAffinityVisitor : public eq::ConfigVisitor
+{
+public:
+    ThreadAffinityVisitor() {}
+    virtual ~ThreadAffinityVisitor() {}
+
+    virtual VisitorResult visitPre( eq::Pipe* pipe )
+    {
+        std::cout << "GPU " << pipe->getPort() << "." << pipe->getDevice()
+                  << ": "
+                  << lunchbox::Thread::Affinity( pipe->_getAutoAffinity( ))
+                  << std::endl;
+        return TRAVERSE_PRUNE;
+    }
+};
+}
+}
+
 int main( int argc, char **argv )
 {
     int retval = EXIT_FAILURE;
@@ -44,10 +66,17 @@ int main( int argc, char **argv )
             if( client->connectServer( server ))
             {
                 eq::fabric::ConfigParams configParams;
+                eq::Global::setConfigFile( "local" );
                 eq::Config* config = server->chooseConfig( configParams );
                 if( config )
                 {
-                    retval = EXIT_SUCCESS;
+                    if( config->init( 0 ))
+                    {
+                        eq::detail::ThreadAffinityVisitor visitor;
+                        config->accept( visitor );
+                        retval = EXIT_SUCCESS;
+                        config->exit();
+                    }
                     server->releaseConfig( config );
                 }
                 else
