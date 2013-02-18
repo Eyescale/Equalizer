@@ -373,7 +373,7 @@ namespace detail { class Pipe; class RenderThread; class ThreadAffinityVisitor; 
         void _exitCommandQueue();
 
         /** @internal @return lunchbox::Thread::Affinity mask for this GPU.  */
-        int32_t _getAutoAffinity() const;
+        EQ_API int32_t _getAutoAffinity() const;
         friend class detail::ThreadAffinityVisitor;
 
         //friend class Window;
