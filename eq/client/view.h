@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,6 +28,8 @@
 
 namespace eq
 {
+namespace detail { class View; }
+
     /**
      * A View is a 2D area of a Layout. It is a view of the application's data
      * on a model, in the sense used by the MVC pattern. It can be a scene,
@@ -73,13 +75,13 @@ namespace eq
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Handle a received (view) event.
          *
          * The task of this method is to update the view as necessary. It is
          * called by Config::handleEvent on the application main thread for all
          * view events.
-         * 
+         *
          * @param event the received view event.
          * @return true when the event was handled, false if not.
          * @version 1.0
@@ -92,24 +94,20 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void deserialize( co::DataIStream& is, 
+        EQ_API virtual void deserialize( co::DataIStream& is,
                                          const uint64_t dirtyBits );
 
         /** @return the initial frustum value of this view. */
-        const Frustum& getBaseFrustum() const { return _baseFrustum; }
+        EQ_API const Frustum& getBaseFrustum() const;
 
         /** @internal trigger deletion for render-client views. */
         EQ_API virtual void detach();
 
     private:
+        detail::View* const impl_;
+
         Pipe* _pipe; // for render-client views
         friend class Pipe;
-
-        /** Unmodified, baseline view frustum data, used when resizing. */
-        Frustum _baseFrustum;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

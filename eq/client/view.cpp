@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -32,25 +32,38 @@
 
 namespace eq
 {
+namespace detail
+{
+class View
+{
+public:
+
+    /** Unmodified, baseline view frustum data, used for resizing. */
+    Frustum baseFrustum;
+};
+}
+
 typedef fabric::View< Layout, View, Observer > Super;
 
 View::View( Layout* parent )
         : Super( parent )
+        , impl_( new detail::View )
         , _pipe( 0 )
 {
 }
 
 View::~View()
 {
+    delete impl_;
 }
 
 void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
-    if( _baseFrustum.getCurrentType() == TYPE_NONE &&
+    if( impl_->baseFrustum.getCurrentType() == TYPE_NONE &&
         ( dirtyBits & DIRTY_FRUSTUM ))
     {
-        _baseFrustum = *this; // save baseline data for resizing
+        impl_->baseFrustum = *this; // save baseline data for resizing
     }
 }
 
@@ -101,47 +114,52 @@ ServerPtr View::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
+const Frustum& View::getBaseFrustum() const
+{
+    return impl_->baseFrustum;
+}
+
 bool View::handleEvent( const Event& event )
 {
     switch( event.type )
     {
-        case Event::VIEW_RESIZE:
-        {
-            const ResizeEvent& resize = event.resize;
-            if( resize.dw == 0.f || resize.dh == 0.f )
-                return true;
-
-            switch( getCurrentType( ))
-            {
-                case TYPE_WALL:
-                {
-                    const float ratio( resize.dw / resize.dh );
-                    Wall wall( _baseFrustum.getWall( ));
-
-                    wall.resizeHorizontal( ratio );
-                    setWall( wall );
-                    break;
-                }
-
-                case View::TYPE_PROJECTION:
-                {
-                    const float ratio( resize.dw / resize.dh );
-                    eq::Projection projection( _baseFrustum.getProjection( ));
-
-                    projection.resizeHorizontal( ratio );
-                    setProjection( projection );
-                    break;
-                }
-
-                case eq::View::TYPE_NONE:
-                    break;
-                default:
-                    LBUNIMPLEMENTED;
-                    break;
-            }
-
+    case Event::VIEW_RESIZE:
+    {
+        const ResizeEvent& resize = event.resize;
+        if( resize.dw == 0.f || resize.dh == 0.f )
             return true;
+
+        switch( getCurrentType( ))
+        {
+        case TYPE_WALL:
+        {
+            const float ratio( resize.dw / resize.dh );
+            Wall wall( impl_->baseFrustum.getWall( ));
+
+            wall.resizeHorizontal( ratio );
+            setWall( wall );
+            break;
         }
+
+        case View::TYPE_PROJECTION:
+        {
+            const float ratio( resize.dw / resize.dh );
+            eq::Projection projection( impl_->baseFrustum.getProjection( ));
+
+            projection.resizeHorizontal( ratio );
+            setProjection( projection );
+            break;
+        }
+
+        case eq::View::TYPE_NONE:
+            break;
+        default:
+            LBUNIMPLEMENTED;
+            break;
+        }
+
+        return true;
+    }
     }
 
     return false;
