@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -369,7 +369,7 @@ namespace detail { class Config; }
         EQ_API const ConfigEvent* tryNextEvent();
 
         /**
-         * Handle one config event.
+         * Handle one config event. Thread safe.
          *
          * @param event the event.
          * @return true if the event requires a redraw, false if not.
@@ -383,7 +383,7 @@ namespace detail { class Config; }
          *
          * The returned command can be used to pass additional data to the
          * event. The event will be send after the command is destroyed,
-         * aka when it is running out of scope.
+         * aka when it is running out of scope. Thread safe.
          *
          * @param type the event type.
          * @return the event command to pass additional data to
@@ -397,7 +397,7 @@ namespace detail { class Config; }
          * To be called only on the application node.
          *
          * The returned event command is valid until it gets out of scope. This
-         * method does not block if the given timeout is 0.
+         * method does not block if the given timeout is 0. Not thread safe.
          *
          * @param timeout time in ms to wait for incoming events
          * @return the event command.
@@ -408,7 +408,7 @@ namespace detail { class Config; }
                                               LB_TIMEOUT_INDEFINITE ) const;
 
         /**
-         * Handle one config event.
+         * Handle one config event. Thread safe.
          *
          * @param command the event command.
          * @return true if the event requires a redraw, false if not.
@@ -416,23 +416,22 @@ namespace detail { class Config; }
          */
         EQ_API virtual bool handleEvent( EventICommand command );
 
-        /** @return true if events are pending. @version 1.0 */
+        /** @return true if events are pending. Thread safe. @version 1.0 */
         EQ_API bool checkEvent() const;
 
         /**
          * Handle all config events.
          *
-         * To be called only on the application node.
-         *
-         * Called automatically at the end of each frame to handle pending
-         * config events. The default implementation calls handleEvent() on all
-         * pending events, without blocking.
+         * To be called only on the application node. Called automatically at
+         * the end of each frame to handle pending config events. The default
+         * implementation calls handleEvent() on all pending events, without
+         * blocking. Not thread safe.
          * @version 1.0
          */
         EQ_API virtual void handleEvents();
 
         /**
-         * Add an statistic event to the statistics overlay.
+         * Add an statistic event to the statistics overlay. Thread safe.
          *
          * @param originator the originator serial id.
          * @param stat the statistic event.
@@ -504,4 +503,3 @@ namespace detail { class Config; }
 }
 
 #endif // EQ_CONFIG_H
-
