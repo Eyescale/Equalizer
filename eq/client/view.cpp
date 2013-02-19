@@ -37,6 +37,7 @@ namespace detail
 class View
 {
 public:
+    lunchbox::SpinLock eventLock; //!< event-handling resize synchronizer
 
     /** Unmodified, baseline view frustum data, used for resizing. */
     Frustum baseFrustum;
@@ -135,8 +136,9 @@ bool View::handleEvent( const Event& event )
         {
             const float ratio( resize.dw / resize.dh );
             Wall wall( impl_->baseFrustum.getWall( ));
-
             wall.resizeHorizontal( ratio );
+
+            lunchbox::ScopedFastWrite mutex( impl_->eventLock );
             setWall( wall );
             break;
         }
@@ -145,8 +147,9 @@ bool View::handleEvent( const Event& event )
         {
             const float ratio( resize.dw / resize.dh );
             eq::Projection projection( impl_->baseFrustum.getProjection( ));
-
             projection.resizeHorizontal( ratio );
+
+            lunchbox::ScopedFastWrite mutex( impl_->eventLock );
             setProjection( projection );
             break;
         }

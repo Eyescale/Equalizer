@@ -80,7 +80,7 @@ namespace detail { class View; }
          *
          * The task of this method is to update the view as necessary. It is
          * called by Config::handleEvent on the application main thread for all
-         * view events.
+         * view events. Thread safe.
          *
          * @param event the received view event.
          * @return true when the event was handled, false if not.
