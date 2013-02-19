@@ -683,11 +683,11 @@ void Config::handleEvents()
 {
     for( ;; )
     {
-        EventICommand EventICommand = getNextEvent( 0 );
-        if( !EventICommand.isValid( ))
+        EventICommand event = getNextEvent( 0 );
+        if( !event.isValid( ))
             break;
 
-        handleEvent( EventICommand );
+        handleEvent( event );
     }
 }
 
