@@ -65,9 +65,6 @@ else()
 endif()
 
 # Boost settings
-if(MSVC)
-  option(Boost_USE_STATIC_LIBS "Use boost static libs" ON)
-endif()
 if(BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS TRUE)
 endif()
