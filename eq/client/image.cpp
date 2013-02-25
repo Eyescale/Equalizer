@@ -603,9 +603,9 @@ bool Image::startReadback( const Frame::Buffer buffer,
 
     // get the pixel type produced by the downloader
     const EqCompressorInfo& info = downloader->getInfo();
-    const bool hasAlpha = (info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) == 0;
+    const bool alpha = (info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) == 0;
     _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
-                        hasAlpha );
+                        alpha );
     attachment.memory.state = Memory::DOWNLOAD;
 
     if( !memory.hasAlpha )
@@ -614,8 +614,8 @@ bool Image::startReadback( const Frame::Buffer buffer,
     uint64_t outDims[4] = {0};
     if( texture )
     {
-        const uint64_t inDims[4] = { 0, texture->getWidth(),
-                                     0, texture->getHeight() };
+        const uint64_t inDims[4] = { 0ull, uint64_t( texture->getWidth( )),
+                                     0ull, uint64_t( texture->getHeight( )) };
         if( downloader->start( &memory.pixels, inDims, flags, outDims,
                                texture->getName( )))
         {
