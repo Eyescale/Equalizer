@@ -90,7 +90,7 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::Strings images;
-    eq::Strings candidates = lunchbox::searchDirectory( "images", "*.rgb");
+    eq::Strings candidates = lunchbox::searchDirectory( "images", ".*\\.rgb");
     stde::usort( candidates ); // have a predictable order
     for( eq::StringsCIter i = candidates.begin(); i != candidates.end(); ++i )
     {
@@ -100,7 +100,7 @@ int main( int argc, char **argv )
             images.push_back( "images/" + filename );
     }
 
-    candidates = lunchbox::searchDirectory( ".", "Result*.rgb" );
+    candidates = lunchbox::searchDirectory( ".", "Result.*\\.rgb" );
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )

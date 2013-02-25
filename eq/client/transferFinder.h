@@ -42,7 +42,7 @@ public:
 
     virtual ~TransferFinder() {}
 
-    virtual fabric::VisitorResult visit( const lunchbox::Plugin* plugin,
+    virtual fabric::VisitorResult visit( const lunchbox::Plugin& plugin,
                                          const EqCompressorInfo& info )
     {
         if(( (info.capabilities & caps_) == caps_ )  &&
@@ -53,7 +53,7 @@ public:
            ( info.quality >= minQuality_ )                    &&
            ( ignoreAlpha_ ||
              !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA ))   &&
-           ( !gl_ || plugin->isCompatible( info.name, gl_ )))
+           ( !gl_ || plugin.isCompatible( info.name, gl_ )))
         {
             result.push_back( info );
         }

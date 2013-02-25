@@ -929,7 +929,9 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const EqCompressorInfo& info = attachment.compressor->getInfo();
+    const EqCompressorInfo& info = attachment.decompressor->getInfo();
+    LBASSERTINFO( info.name == pixels.compressorName, info );
+
     if( memory.externalFormat != info.outputTokenType )
     {
         // decompressor output differs from compressor input
