@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -26,20 +26,17 @@
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
-
 #include <eq/fabric/colorMask.h>
 
-#include <co/compressorInfo.h>
-#include <co/cpuCompressor.h>
 #include <co/global.h>
-#include <co/plugin.h>
-#include <co/pluginRegistry.h>
 
+#include <lunchbox/compressor.h>
+#include <lunchbox/decompressor.h>
+#include <lunchbox/downloader.h>
 #include <lunchbox/memoryMap.h>
 #include <lunchbox/omp.h>
-
-// Internal headers
-#include "../util/gpuCompressor.h"
+#include <lunchbox/pluginRegistry.h>
+#include <lunchbox/uploader.h>
 
 #include <fstream>
 
@@ -50,10 +47,10 @@
 #  include <alloca.h>
 #endif
 
+#include "transferFinder.h"
+
 namespace eq
 {
-#define glewGetContext glObjects->glewGetContext
-
 namespace
 {
 /** @internal Raw image data. */
@@ -100,14 +97,17 @@ public:
 /** @internal The individual parameters for a buffer. */
 struct Attachment
 {
-    co::CPUCompressor fullCompressor;
-    co::CPUCompressor lossyCompressor;
+    lunchbox::Compressor fullCompressor;
+    lunchbox::Compressor lossyCompressor;
+    lunchbox::Decompressor fullDecompressor;
+    lunchbox::Decompressor lossyDecompressor;
 
-    util::GPUCompressor fullTransfer;
-    util::GPUCompressor lossyTransfer;
+    lunchbox::Downloader fullDownloader;
+    lunchbox::Downloader lossyDownloader;
 
-    co::CPUCompressor* compressor; //!< current CPU (de)compressor
-    util::GPUCompressor* transfer;   //!< current up/download engine
+    lunchbox::Compressor* compressor; //!< current CPU compressor
+    lunchbox::Decompressor* decompressor; //!< current CPU decompressor
+    lunchbox::Downloader* downloader;   //!< current up/download engine
 
     float quality; //!< the minimum quality
 
@@ -119,17 +119,20 @@ struct Attachment
 
     Attachment()
             : compressor( &fullCompressor )
-            , transfer ( &fullTransfer )
+            , decompressor( &fullDecompressor )
+            , downloader ( &fullDownloader )
             , quality( 1.f )
             , texture( GL_TEXTURE_RECTANGLE_ARB )
         {}
 
     ~Attachment()
     {
-        LBASSERT( !fullCompressor.isValid( fullCompressor.getName( )));
-        LBASSERT( !lossyCompressor.isValid( lossyCompressor.getName( )));
-        LBASSERT( !fullTransfer.isValid( fullTransfer.getName( )));
-        LBASSERT( !lossyTransfer.isValid( lossyTransfer.getName( )));
+        LBASSERT( !fullCompressor.isGood( ));
+        LBASSERT( !lossyCompressor.isGood( ));
+        LBASSERT( !fullDecompressor.isGood( ));
+        LBASSERT( !lossyDecompressor.isGood( ));
+        LBASSERT( !fullDownloader.isGood( ));
+        LBASSERT( !lossyDownloader.isGood( ));
     }
 
     void flush()
@@ -141,22 +144,25 @@ struct Attachment
 
     void resetPlugins()
     {
-        fullCompressor.reset();
-        lossyCompressor.reset();
-        fullTransfer.reset();
-        lossyTransfer.reset();
+        fullCompressor.clear();
+        lossyCompressor.clear();
+        fullDecompressor.clear();
+        lossyDecompressor.clear();
+        fullDownloader.clear();
+        lossyDownloader.clear();
     }
 };
 
 /** Find and activate a decompression engine */
 static bool _allocDecompressor( Attachment& attachment, uint32_t name )
 {
-    if( !attachment.compressor->isValid( name ) &&
-        !attachment.compressor->initDecompressor( name ))
+    if( !attachment.decompressor->uses( name ))
     {
-        return false;
+        lunchbox::Decompressor decompressor( co::Global::getPluginRegistry(),
+                                             name);
+        attachment.decompressor->swap( decompressor );
     }
-    return true;
+    return attachment.decompressor->isGood();
 }
 }
 
@@ -214,6 +220,17 @@ public:
         { return getAttachment( buffer ).memory; }
     const Memory& getMemory( const eq::Frame::Buffer buffer ) const
         { return getAttachment( buffer ).memory; }
+
+    EqCompressorInfos findTransferers( const eq::Frame::Buffer buffer,
+                                       const GLEWContext* gl ) const
+    {
+        const Attachment& attachment = getAttachment( buffer );
+        const Memory& memory = attachment.memory;
+        TransferFinder finder( memory.internalFormat, memory.externalFormat, 0,
+                               attachment.quality, ignoreAlpha, gl );
+        co::Global::getPluginRegistry().accept( finder );
+        return finder.result;
+    }
 };
 }
 
@@ -333,69 +350,51 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
     return memory.internalFormat;
 }
 
+namespace
+{
+class CompressorFinder : public lunchbox::ConstPluginVisitor
+{
+public:
+    CompressorFinder( const uint32_t token ) : token_( token ) {}
+
+    virtual fabric::VisitorResult visit( const EqCompressorInfo& info )
+    {
+        if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
+            return fabric::TRAVERSE_CONTINUE;
+
+        if( info.tokenType == token_ )
+            result.push_back( info.name );
+        return fabric::TRAVERSE_CONTINUE;
+    }
+
+    std::vector< uint32_t > result;
+
+private:
+    const uint32_t token_;
+};
+}
+
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
-    const co::Plugins& plugins = registry.getPlugins();
-    const uint32_t tokenType = getExternalFormat( buffer );
+    const lunchbox::PluginRegistry& registry = co::Global::getPluginRegistry();
+    CompressorFinder finder( getExternalFormat( buffer ));
+    registry.accept( finder );
 
-    std::vector< uint32_t > names;
-    for( co::Plugins::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
-    {
-        const co::Plugin* plugin = *i;
-        const co::CompressorInfos& infos = plugin->getInfos();
-
-        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
-        {
-            const co::CompressorInfo& info = *j;
-
-            if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
-                continue;
-
-            if( info.tokenType == tokenType )
-                names.push_back( info.name );
-        }
-    }
-
-    LBLOG( LOG_PLUGIN )
-        << "Found " << names.size() << " compressors for token type 0x"
-        << std::hex << tokenType << std::dec << std::endl;
-    return names;
+    LBLOG( lunchbox::LOG_PLUGIN )
+        << "Found " << finder.result.size() << " compressors for token type 0x"
+        << std::hex << getExternalFormat( buffer ) << std::dec << std::endl;
+    return finder.result;
 }
 
 std::vector< uint32_t > Image::findTransferers( const Frame::Buffer buffer,
                                                 const GLEWContext* gl ) const
 {
     std::vector< uint32_t > result;
-    const co::CompressorInfos& infos = _findTransferers( buffer, gl );
-    for( co::CompressorInfosCIter i = infos.begin(); i != infos.end(); ++i )
+    const EqCompressorInfos& infos = _impl->findTransferers( buffer, gl );
+    for( EqCompressorInfosCIter i = infos.begin(); i != infos.end(); ++i )
         result.push_back( i->name );
     return result;
-}
-
-co::CompressorInfos Image::_findTransferers( const Frame::Buffer buffer,
-                                             const GLEWContext* gl ) const
-{
-    return util::GPUCompressor::findTransferers(
-        getInternalFormat( buffer ), getExternalFormat( buffer ), 0 /*caps*/,
-        getQuality( buffer ), _impl->ignoreAlpha, gl );
-}
-
-uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
-{
-    const uint32_t tokenType = getExternalFormat( buffer );
-    LBASSERT( tokenType != EQ_COMPRESSOR_DATATYPE_NONE );
-    if( tokenType == EQ_COMPRESSOR_DATATYPE_NONE )
-        return EQ_COMPRESSOR_NONE;
-
-    const Attachment& attachment = _impl->getAttachment( buffer );
-    const float quality = attachment.quality /
-                          attachment.lossyTransfer.getQuality();
-
-    return co::CPUCompressor::chooseCompressor( tokenType, quality,
-                                                _impl->ignoreAlpha );
 }
 
 bool Image::hasAlpha() const
@@ -421,17 +420,17 @@ void Image::setQuality( const Frame::Buffer buffer, const float quality )
         return;
 
     attachment.quality = quality;
-    if( quality == 1.f )
+    if( quality >= 1.f )
     {
         attachment.compressor = &attachment.fullCompressor;
-        attachment.transfer = &attachment.fullTransfer;
+        attachment.downloader = &attachment.fullDownloader;
     }
     else
     {
-        attachment.lossyCompressor.reset();
-        attachment.lossyTransfer.reset();
+        attachment.lossyCompressor.clear();
+        attachment.lossyDownloader.clear();
         attachment.compressor = &attachment.lossyCompressor;
-        attachment.transfer = &attachment.lossyTransfer;
+        attachment.downloader = &attachment.lossyDownloader;
     }
 }
 
@@ -474,7 +473,7 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     LBASSERT( glObjects );
 
     // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
-    util::GPUCompressor* uploader = glObjects->obtainEqUploader(
+    lunchbox::Uploader* uploader = glObjects->obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
@@ -484,12 +483,17 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
 
-    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ) &&
-        !uploader->initUploader( externalFormat, internalFormat, flags ))
+    if( !uploader->supports( externalFormat, internalFormat, flags ))
     {
-        LBWARN << "Can't initialize upload plugin for " << std::hex
-               << externalFormat << " -> " << internalFormat << std::dec
-               << " upload" << std::endl;
+        lunchbox::Uploader newUploader( co::Global::getPluginRegistry(),
+                                        externalFormat, internalFormat, flags,
+                                        glObjects->glewGetContext( ));
+        uploader->swap( newUploader );
+    }
+    if( !uploader->isGood( ))
+    {
+        LBWARN << "No upload plugin for " << std::hex << externalFormat
+               << " -> " << internalFormat << std::dec << " upload" <<std::endl;
         return false;
     }
 
@@ -499,7 +503,10 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     if( texture )
         texture->init( internalFormat, _impl->pvp.w, _impl->pvp.h );
 
-    uploader->upload( pixelData.pixels, pixelData.pvp, flags, pvp,
+    uint64_t inDims[4], outDims[4];
+    pixelData.pvp.convertToPlugin( inDims );
+    pvp.convertToPlugin( outDims );
+    uploader->upload( pixelData.pixels, inDims, flags, outDims,
                       texture ? texture->getName() : 0 );
     return true;
 }
@@ -512,7 +519,7 @@ bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
                       const Zoom& zoom, ObjectManager* glObjects )
 {
     if( startReadback( buffers, pvp, zoom, glObjects ))
-        finishReadback( zoom, glewGetContext( ));
+        finishReadback( zoom, glObjects->glewGetContext( ));
     return true;
 }
 #endif
@@ -553,14 +560,14 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         LBASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not " <<
                       "implemented, zoom happens during compositing" );
         util::Texture& texture = attachment.texture;
-        texture.setGLEWContext( glewGetContext( ));
+        texture.setGLEWContext( glObjects->glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _impl->pvp );
         texture.setGLEWContext( 0 );
         return false;
     }
 
     if( zoom == Zoom::NONE ) // normal framebuffer readback
-        return startReadback( buffer, 0, glewGetContext( ));
+        return startReadback( buffer, 0, glObjects->glewGetContext( ));
 
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
     return _readbackZoom( buffer, zoom, glObjects );
@@ -571,46 +578,61 @@ bool Image::startReadback( const Frame::Buffer buffer,
                            const GLEWContext* glewContext )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
-    util::GPUCompressor* downloader = attachment.transfer;
+    lunchbox::Downloader* downloader = attachment.downloader;
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
-
-    downloader->setGLEWContext( glewContext );
 
     uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
                      ( texture ? texture->getCompressorTarget() :
                                  EQ_COMPRESSOR_USE_FRAMEBUFFER );
+    const bool noAlpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
 
-    const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
-    if( !downloader->isValidDownloader( inputToken, alpha, flags ) &&
-        !downloader->initDownloader( inputToken, attachment.quality, alpha,
-                                     flags ))
+    if( !downloader->supports( inputToken, noAlpha, flags ))
+    {
+        lunchbox::Downloader newDownloader( co::Global::getPluginRegistry(),
+                                            inputToken, attachment.quality,
+                                            noAlpha, flags, glewContext );
+        downloader->swap( newDownloader );
+    }
+    if( !downloader->isGood( ))
     {
         LBWARN << "Download plugin initialization failed" << std::endl;
         return false;
     }
+    LBASSERT( downloader->glewGetContext() == glewContext );
 
     // get the pixel type produced by the downloader
-    _setExternalFormat( buffer, downloader->getExternalFormat(),
-                        downloader->getTokenSize(), downloader->hasAlpha( ));
+    const EqCompressorInfo& info = downloader->getInfo();
+    const bool hasAlpha = (info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) == 0;
+    _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
+                        hasAlpha );
     attachment.memory.state = Memory::DOWNLOAD;
 
     if( !memory.hasAlpha )
         flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
 
-    const bool needFinish = texture ?
-        downloader->startDownload( PixelViewport( 0, 0, texture->getWidth(),
-                                                  texture->getHeight( )),
-                                   texture->getName(), flags,
-                                   memory.pvp, &memory.pixels ) :
-        downloader->startDownload( _impl->pvp, 0, flags, memory.pvp,
-                                   &memory.pixels );
+    uint64_t outDims[4] = {0};
+    if( texture )
+    {
+        const uint64_t inDims[4] = { 0, texture->getWidth(),
+                                     0, texture->getHeight() };
+        if( downloader->start( &memory.pixels, inDims, flags, outDims,
+                               texture->getName( )))
+        {
+            return true;
+        }
+    }
+    else
+    {
+        uint64_t inDims[4];
+        _impl->pvp.convertToPlugin( inDims );
+        if( downloader->start( &memory.pixels, inDims, flags, outDims, 0 ))
+            return true;
+    }
 
-    downloader->setGLEWContext( 0 );
-
-    if( !needFinish )
-        attachment.memory.state = Memory::VALID;
-    return needFinish;
+    memory.pvp.convertFromPlugin( outDims );
+    attachment.memory.state = Memory::VALID;
+    return false;
 }
 
 void Image::finishReadback( const Zoom& zoom, const GLEWContext* glewContext )
@@ -642,21 +664,19 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return;
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    util::GPUCompressor* downloader = attachment.transfer;
+    lunchbox::Downloader* downloader = attachment.downloader;
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
     if( memory.state != Memory::DOWNLOAD )
         return;
 
-    downloader->setGLEWContext( glewContext );
-
     uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
                      ( zoom == Zoom::NONE ? EQ_COMPRESSOR_USE_FRAMEBUFFER :
                                             EQ_COMPRESSOR_USE_TEXTURE_RECT );
 
     const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
-    if( !downloader->isValidDownloader( inputToken, alpha, flags ))
+    if( !downloader->supports( inputToken, alpha, flags ))
     {
         LBWARN << "Download plugin initialization failed" << std::endl;
         attachment.memory.state = Memory::INVALID;
@@ -666,18 +686,27 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
     if( !memory.hasAlpha )
         flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
 
+    LBASSERT( downloader->glewGetContext() == glewContext );
+
+    uint64_t outDims[4] = {0};
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
-        downloader->finishDownload( _impl->pvp, flags, memory.pvp, &memory.pixels );
+    {
+        uint64_t inDims[4];
+        _impl->pvp.convertToPlugin( inDims );
+        downloader->finish( &memory.pixels, inDims, flags, outDims );
+    }
     else
     {
+        uint64_t inDims[4];
         PixelViewport pvp = _impl->pvp;
         pvp.apply( zoom );
         pvp.x = 0;
         pvp.y = 0;
-        downloader->finishDownload( pvp, flags, memory.pvp, &memory.pixels );
+        _impl->pvp.convertToPlugin( inDims );
+        downloader->finish( &memory.pixels, inDims, flags, outDims );
     }
 
-    downloader->setGLEWContext( 0 );
+    memory.pvp.convertFromPlugin( outDims );
     memory.state = Memory::VALID;
 }
 
@@ -776,7 +805,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     LBLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
-    return startReadback( buffer, zoomedTexture, glewGetContext( ));
+    return startReadback( buffer, zoomedTexture, glObjects->glewGetContext( ));
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )
@@ -846,8 +875,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.isCompressed = false;
     memory.hasAlpha = false;
 
-    const co::CompressorInfos& transferrers =
-        _findTransferers( buffer, 0 /*GLEW context*/ );
+    const EqCompressorInfos& transferrers =
+        _impl->findTransferers( buffer, 0 /*GLEW context*/ );
 
     if( transferrers.empty( ))
         LBWARN << "No upload engines found for given pixel data" << std::endl;
@@ -856,7 +885,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         memory.hasAlpha =
             transferrers.front().capabilities & EQ_COMPRESSOR_IGNORE_ALPHA;
 #ifndef NDEBUG
-        for( co::CompressorInfosCIter i = transferrers.begin();
+        for( EqCompressorInfosCIter i = transferrers.begin();
              i != transferrers.end(); ++i )
         {
             LBASSERTINFO( memory.hasAlpha ==
@@ -900,7 +929,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const co::CompressorInfo& info = attachment.compressor->getInfo();
+    const EqCompressorInfo& info = attachment.compressor->getInfo();
     if( memory.externalFormat != info.outputTokenType )
     {
         // decompressor output differs from compressor input
@@ -909,15 +938,15 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     }
     validatePixelData( buffer ); // alloc memory for pixels
 
-    uint64_t outDims[4] = { uint64_t(memory.pvp.x), uint64_t(memory.pvp.w),
-                            uint64_t(memory.pvp.y), uint64_t(memory.pvp.h) };
+    uint64_t outDims[4];
+    memory.pvp.convertToPlugin( outDims );
     const uint64_t nBlocks = pixels.compressedSize.size();
 
     LBASSERT( nBlocks == pixels.compressedData.size( ));
-    attachment.compressor->decompress( &pixels.compressedData.front(),
-                                       &pixels.compressedSize.front(),
-                                       nBlocks, memory.pixels, outDims,
-                                       pixels.compressorFlags );
+    attachment.decompressor->decompress( &pixels.compressedData.front(),
+                                         &pixels.compressedSize.front(),
+                                         nBlocks, memory.pixels, outDims,
+                                         pixels.compressorFlags );
 }
 
 /** Find and activate a compression engine */
@@ -927,56 +956,52 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     if( name <= EQ_COMPRESSOR_NONE )
     {
         attachment.memory.isCompressed = false;
-        attachment.compressor->reset();
+        attachment.compressor->clear();
         return true;
     }
 
-    if( !attachment.compressor->isValid( name ) )
-    {
-        attachment.memory.isCompressed = false;
-        if( !attachment.compressor->co::Compressor::initCompressor( name ))
-            return false;
+    if( attachment.compressor->uses( name ))
+        return true;
 
-        LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
-                            << name << std::dec << std::endl;
-    }
-    return true;
+    attachment.memory.isCompressed = false;
+    lunchbox::Compressor compressor( co::Global::getPluginRegistry(), name );
+    attachment.compressor->swap( compressor );
+    LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+                        << name << std::dec << std::endl;
+    return compressor.isGood();
 }
 
 /** Find and activate a compression engine */
-bool Image::allocDownloader( const Frame::Buffer buffer,
-                             const uint32_t name,
-                             const GLEWContext* glewContext )
+bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
+                             const GLEWContext* gl )
 {
     LBASSERT( name > EQ_COMPRESSOR_NONE )
-    LBASSERT( glewContext );
+    LBASSERT( gl );
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    util::GPUCompressor* downloader = attachment.transfer;
+    lunchbox::Downloader* downloader = attachment.downloader;
 
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        downloader->initDownloader( name );
+        downloader->clear();
         _setExternalFormat( buffer, EQ_COMPRESSOR_DATATYPE_NONE, 0, true );
         return false;
     }
 
-    if( !downloader->isValid( name ))
+    if( !downloader->uses( name ))
     {
-        downloader->setGLEWContext( glewContext );
-        if( !downloader->initDownloader( name ))
-        {
-            downloader->setGLEWContext( 0 );
+        lunchbox::Downloader newDownloader( co::Global::getPluginRegistry(),
+                                         name, gl );
+        downloader->swap( newDownloader );
+        if( !downloader->isGood( ))
             return false;
-        }
 
-        downloader->setGLEWContext( 0 );
-        attachment.memory.internalFormat = downloader->getInternalFormat();
-        _setExternalFormat( buffer, downloader->getExternalFormat(),
-                            downloader->getTokenSize(), downloader->hasAlpha());
-
+        const EqCompressorInfo& info = downloader->getInfo();
+        attachment.memory.internalFormat = info.tokenType;
+        _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
+                            !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) );
         LBLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
-                            << name << std::dec << std::endl;
+                            << info.name << std::dec << std::endl;
     }
     return true;
 }
@@ -984,9 +1009,8 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
 uint32_t Image::getDownloaderName( const Frame::Buffer buffer ) const
 {
     const Attachment& attachment = _impl->getAttachment( buffer );
-    const uint32_t name = attachment.transfer->getName();
-    if( attachment.transfer->isValid( name ))
-        return name;
+    if( attachment.downloader->isGood( ))
+        return attachment.downloader->getInfo().name;
     return EQ_COMPRESSOR_INVALID;
 }
 
@@ -1007,28 +1031,28 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         return memory;
     }
 
-    const co::CPUCompressor* compressor = attachment.compressor;
+    lunchbox::Compressor* compressor = attachment.compressor;
 
-    if( compressor->isValid( attachment.compressor->getName( )) &&
-        compressor->getInfo().tokenType == getExternalFormat( buffer ) &&
-        memory.compressorName != EQ_COMPRESSOR_AUTO )
+    if( !compressor->isGood() ||
+        compressor->getInfo().tokenType != getExternalFormat( buffer ) ||
+        memory.compressorName == EQ_COMPRESSOR_AUTO )
     {
-        memory.compressorName = compressor->getName();
-    }
-    else
-    {
-        if( memory.compressorName == EQ_COMPRESSOR_AUTO )
-            memory.compressorName = _chooseCompressor( buffer );
-
-        if( !allocCompressor( buffer, memory.compressorName ) ||
-            memory.compressorName == EQ_COMPRESSOR_NONE )
+        const uint32_t tokenType = getExternalFormat( buffer );
+        const float quality = attachment.quality /
+                              attachment.lossyDownloader.getInfo().quality;
+        lunchbox::Compressor newCompressor( co::Global::getPluginRegistry(),
+                                            tokenType, quality,
+                                            _impl->ignoreAlpha );
+        compressor->swap( newCompressor );
+        if( !compressor->isGood( ))
         {
             LBWARN << "No compressor found for token type 0x" << std::hex
                    << getExternalFormat( buffer ) << std::dec << std::endl;
-            memory.compressorName = EQ_COMPRESSOR_NONE;
+            compressor->clear();
         }
     }
 
+    memory.compressorName = compressor->getInfo().name;
     LBASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
     LBASSERT( memory.compressorName != EQ_COMPRESSOR_INVALID );
     if( memory.compressorName == EQ_COMPRESSOR_NONE )
@@ -1041,22 +1065,17 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
-    const uint64_t inDims[4] = { uint64_t(memory.pvp.x),
-                                 uint64_t(memory.pvp.w),
-                                 uint64_t(memory.pvp.y),
-                                 uint64_t(memory.pvp.h) };
-    attachment.compressor->compress( memory.pixels, inDims,
-                                     memory.compressorFlags );
+    uint64_t inDims[4];
+    memory.pvp.convertToPlugin( inDims );
+    compressor->compress( memory.pixels, inDims, memory.compressorFlags );
 
     const unsigned numResults = attachment.compressor->getNumResults();
-
     memory.compressedSize.resize( numResults );
     memory.compressedData.resize( numResults );
 
     for( unsigned i = 0; i < numResults ; ++i )
         attachment.compressor->getResult( i, &memory.compressedData[i],
                                           &memory.compressedSize[i] );
-
     memory.isCompressed = true;
     return memory;
 }
@@ -1065,7 +1084,6 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 //---------------------------------------------------------------------------
 // File IO
 //---------------------------------------------------------------------------
-
 bool Image::writeImages( const std::string& filenameTemplate ) const
 {
     return( writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR) &&

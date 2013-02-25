@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -26,6 +26,7 @@
 #include <co/types.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/uint128_t.h>
+#include <lunchbox/visitorResult.h>
 
 namespace eq
 {
@@ -52,6 +53,10 @@ struct GPUInfo;
 
 using lunchbox::uint128_t;
 using lunchbox::UUID;
+using lunchbox::VisitorResult;
+using lunchbox::TRAVERSE_CONTINUE;
+using lunchbox::TRAVERSE_PRUNE;
+using lunchbox::TRAVERSE_TERMINATE;
 
 class Client;
 template< class, class > class Channel;

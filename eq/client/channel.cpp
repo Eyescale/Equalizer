@@ -55,6 +55,7 @@
 #include <co/queueSlave.h>
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
+#include <lunchbox/plugins/compressor.h>
 
 #ifdef EQ_USE_GLSTATS
 #  include "detail/statsRenderer.h"

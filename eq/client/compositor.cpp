@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -42,8 +42,7 @@
 #include <co/global.h>
 #include <lunchbox/debug.h>
 #include <lunchbox/monitor.h>
-
-#include <co/plugins/compressor.h>
+#include <lunchbox/plugins/compressor.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
@@ -1176,7 +1175,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         const float width  = float( pvp.w * op.pixel.w );
         const float step   = float( op.pixel.w );
 
-        const float startX = float( op.offset.x() + pvp.x ) + 0.5f - 
+        const float startX = float( op.offset.x() + pvp.x ) + 0.5f -
                              float( op.pixel.w );
         const float endX   = startX + width + op.pixel.w + step;
         const float startY = float( op.offset.y() + pvp.y + op.pixel.y );

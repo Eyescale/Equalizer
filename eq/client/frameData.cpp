@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -35,8 +35,8 @@
 #include <co/dataOStream.h>
 #include <lunchbox/monitor.h>
 #include <lunchbox/scopedMutex.h>
+#include <lunchbox/plugins/compressor.h>
 
-#include <co/plugins/compressor.h>
 #include <algorithm>
 
 namespace eq

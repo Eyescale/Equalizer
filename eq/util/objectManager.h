@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -115,11 +115,11 @@ namespace util
 
 #ifdef EQUALIZER_SHARED
         /** @internal */
-        EQ_API GPUCompressor* getEqUploader( const T& key ) const;
+        EQ_API lunchbox::Uploader* getEqUploader( const T& key ) const;
         /** @internal */
-        EQ_API GPUCompressor* newEqUploader( const T& key );
+        EQ_API lunchbox::Uploader* newEqUploader( const T& key );
         /** @internal */
-        EQ_API GPUCompressor* obtainEqUploader( const T& key );
+        EQ_API lunchbox::Uploader* obtainEqUploader( const T& key );
         /** @internal */
         EQ_API void   deleteEqUploader( const T& key );
 #endif
@@ -164,7 +164,7 @@ namespace util
         typedef stde::hash_map< T, PixelBufferObject* > PBOHash;
         typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
         typedef stde::hash_map< T, Accum* > AccumHash;
-        typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
+        typedef stde::hash_map< T, lunchbox::Uploader* > UploaderHash;
 #   ifdef EQ_OM_TRACE_ALLOCATIONS
         typedef stde::hash_map< T, std::string > UploaderAllocs;
 #   endif

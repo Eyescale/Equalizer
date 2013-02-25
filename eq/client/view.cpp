@@ -160,7 +160,6 @@ bool View::handleEvent( const Event& event )
             LBUNIMPLEMENTED;
             break;
         }
-
         return true;
     }
     }

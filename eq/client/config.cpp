@@ -47,8 +47,8 @@
 #include <co/object.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <co/plugins/compressorTypes.h>
 #include <lunchbox/scopedMutex.h>
+#include <lunchbox/plugins/compressor.h>
 
 #ifdef EQ_USE_GLSTATS
 #  include <GLStats/GLStats.h>
@@ -742,11 +742,9 @@ void Config::addStatistic( const uint32_t originator, const Statistic& stat )
     const uint32_t frame = stat.frameNumber;
     LBASSERT( stat.type != Statistic::NONE );
 
-    if( frame == 0 ||  // Not a frame-related stat event or
-        stat.type == Statistic::NONE ) // No event-type set
-    {
+     // Not a frame-related stat event OR no event-type set
+    if( frame == 0 || stat.type == Statistic::NONE )
         return;
-    }
 
     lunchbox::ScopedFastWrite mutex( _impl->statistics );
     GLStats::Item item;

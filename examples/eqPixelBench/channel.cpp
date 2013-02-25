@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,6 @@
 
 #include "config.h"
 #include "configEvent.h"
-
-#include <co/plugins/compressor.h>
 
 #ifdef WIN32_API
 #  define snprintf _snprintf

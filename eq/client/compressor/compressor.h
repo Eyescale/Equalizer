@@ -1,31 +1,31 @@
 
-/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
-#ifndef EQ_PLUGIN_COMPRESSOR
-#define EQ_PLUGIN_COMPRESSOR 
 
-#include <co/plugins/compressor.h>
+#ifndef EQ_PLUGIN_COMPRESSOR
+#define EQ_PLUGIN_COMPRESSOR
+
+#include <lunchbox/plugins/compressor.h>
 #include <lunchbox/buffer.h>
 #include <vector>
 
 /**
  * @file client/compressor/compressor.h
- * 
+ *
  * Compression plugin provided with Equalizer.
  */
 namespace eq
@@ -37,9 +37,9 @@ namespace plugin
     public:
         typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
         typedef void* (*NewCompressor_t)( const unsigned );
-        typedef void (*Decompress_t)( const void* const*, const 
+        typedef void (*Decompress_t)( const void* const*, const
                                       eq_uint64_t* const,
-                                      const unsigned, void* const, 
+                                      const unsigned, void* const,
                                       const eq_uint64_t, const bool );
         typedef bool ( *IsCompatible_t ) ( const GLEWContext* );
 
@@ -70,7 +70,7 @@ namespace plugin
          * @param useAlpha use alpha channel in compression.
          */
         virtual void compress( const void* const inData,
-                               const eq_uint64_t nPixels, 
+                               const eq_uint64_t nPixels,
                                const bool useAlpha ) { LBDONTCALL; };
 
         typedef lunchbox::Bufferb Result;
@@ -84,7 +84,7 @@ namespace plugin
 
         /**
          * Transfer frame buffer data into main memory.
-         * 
+         *
          * @param glewContext the initialized GLEW context describing
          *                    corresponding to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
@@ -92,7 +92,7 @@ namespace plugin
          * @param flags capability flags for the compression (see description).
          * @param outDims the dimensions of the output data (see description).
          * @param out the pointer to the output data.
-         */        
+         */
         virtual void download( const GLEWContext* glewContext,
                                const eq_uint64_t  inDims[4],
                                const unsigned     source,
@@ -111,16 +111,16 @@ namespace plugin
          * @param outDims the result data size
          * @param destination the destination texture name.
          */
-        virtual void upload( const GLEWContext* glewContext, 
+        virtual void upload( const GLEWContext* glewContext,
                              const void*        buffer,
                              const eq_uint64_t  inDims[4],
                              const eq_uint64_t  flags,
-                             const eq_uint64_t  outDims[4],  
+                             const eq_uint64_t  outDims[4],
                              const unsigned     destination ) { LBDONTCALL; }
 
         /**
          * Start transferring frame buffer data into main memory.
-         * 
+         *
          * @param glewContext the initialized GLEW context describing corresponding
          *                    to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
@@ -137,7 +137,7 @@ namespace plugin
 
         /**
          * Finish transferring frame buffer data into main memory.
-         * 
+         *
          * @param glewContext the initialized GLEW context describing corresponding
          *                    to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
@@ -163,4 +163,3 @@ namespace plugin
 }
 
 #endif // EQ_PLUGIN_COMPRESSOR
-
