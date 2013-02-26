@@ -55,9 +55,39 @@ public:
             names.push_back( info.name );
         return lunchbox::TRAVERSE_CONTINUE;
     }
+<<<<<<< HEAD
 
     std::vector< uint32_t > names;
 };
+=======
+
+    return names;
+}
+
+#ifdef COMPARE_RESULT
+static float _getCompressorQuality( const uint32_t name )
+{
+    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
+
+    float quality = 1.0f;
+    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
+    {
+        const co::CompressorInfos& infos = (*i)->getInfos();
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
+        {
+            if( name != (*j).name )
+                continue;
+
+            quality = (*j).quality;
+            break;
+        }
+    }
+
+    return quality;
+}
+#endif
+>>>>>>> master
 
 template< typename T >
 static void _compare( const void* data, const void* destData,

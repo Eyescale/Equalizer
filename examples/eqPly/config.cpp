@@ -184,8 +184,7 @@ void Config::_loadModels()
 
             // recursively search directories
             const eq::Strings subFiles = lunchbox::searchDirectory( filename,
-                                                                    "*" );
-
+                                                                    ".*" );
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
                 filenames.push_back( filename + '/' + *i );
         }

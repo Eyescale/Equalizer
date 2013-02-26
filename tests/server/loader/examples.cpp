@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -30,19 +30,20 @@
 int main( int argc, char **argv )
 {
     // Test for: https://github.com/Eyescale/Equalizer/issues/56
-    setlocale( LC_ALL, "de_DE.UTF-8" ); 
+    setlocale( LC_ALL, "de_DE.UTF-8" );
 
     TEST( lunchbox::init( argc, argv ));
 
     eq::server::Loader loader;
-    lunchbox::Strings configs = lunchbox::searchDirectory( "configs", "*.eqc" );
+    lunchbox::Strings configs = lunchbox::searchDirectory( "configs",
+                                                           ".*\\.eqc" );
     TESTINFO( configs.size() > 20, configs.size( ));
 
     for( lunchbox::StringsCIter i = configs.begin(); i != configs.end(); ++i )
     {
         const std::string& filename = "configs/" + *i;
         eq::server::Global* global = eq::server::Global::instance();
-        const eq::server::Config::FAttribute attr = 
+        const eq::server::Config::FAttribute attr =
             eq::server::Config::FATTR_VERSION;
 
         // load

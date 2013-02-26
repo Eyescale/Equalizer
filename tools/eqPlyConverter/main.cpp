@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,7 +73,7 @@ int main( const int argc, char** argv )
 
             // recursively search directories
             const eq::Strings& subFiles =
-                lunchbox::searchDirectory( filename, "*" );
+                lunchbox::searchDirectory( filename, ".*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
                 filenames.push_back( filename + '/' + *i );
