@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -65,7 +65,7 @@ static std::vector< uint32_t > _getCompressorNames()
             names.push_back( info.name );
         }
     }
-    
+
     return names;
 }
 
@@ -88,7 +88,7 @@ static float _getCompressorQuality( const uint32_t name )
             break;
         }
     }
-    
+
     return quality;
 }
 #endif
@@ -103,7 +103,7 @@ static void _compare( const void* data, const void* destData,
 
 #pragma omp parallel for
     for( int64_t k = 0; k < nElem; ++k )
-    { 
+    {
         if( !useAlpha && buffer == eq::Frame::BUFFER_COLOR )
         {
             // Don't test alpha if alpha is ignored
@@ -124,7 +124,7 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::Strings images;
-    eq::Strings candidates = lunchbox::searchDirectory( "images", "*.rgb");
+    eq::Strings candidates = lunchbox::searchDirectory( "images", ".*\\.rgb");
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -135,7 +135,7 @@ int main( int argc, char **argv )
             images.push_back( "images/" + filename );
     }
 
-    candidates = lunchbox::searchDirectory( ".", "Result*.rgb" );
+    candidates = lunchbox::searchDirectory( ".", "Result.*\\.rgb" );
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -150,7 +150,7 @@ int main( int argc, char **argv )
     lunchbox::Clock clock;
     eq::Image image;
     eq::Image destImage;
-    
+
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
     std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
@@ -185,7 +185,7 @@ int main( int argc, char **argv )
 
                 TEST( image.readImage( filename, buffer ));
 
-                if( !image.getAlphaUsage() && 
+                if( !image.getAlphaUsage() &&
                     ( buffer != eq::Frame::BUFFER_COLOR || !image.hasAlpha( )))
                 {
                     continue; // Ignoring alpha doesn't make sense
@@ -202,9 +202,9 @@ int main( int argc, char **argv )
 
                 image.allocCompressor( buffer, name );
                 destImage.setPixelViewport( image.getPixelViewport( ));
-            
+
                 const uint32_t size = image.getPixelDataSize( buffer );
-                
+
 #ifndef NDEBUG
                 // touch memory once
                 destImage.setPixelData( buffer,
@@ -229,17 +229,17 @@ int main( int argc, char **argv )
                 uint32_t compressedSize = 0;
                 if( compressedPixels.compressorName == EQ_COMPRESSOR_NONE )
                     compressedSize = size;
-                else 
+                else
                 {
 #ifdef WRITE_COMPRESSED
                     std::ofstream comp( std::string( filename+".comp" ).c_str(),
-                                        std::ios::out | std::ios::binary ); 
+                                        std::ios::out | std::ios::binary );
                     TEST( comp.is_open( ));
-                    std::vector< void* >::const_iterator compData = 
+                    std::vector< void* >::const_iterator compData =
                         compressedPixels.compressedData.begin();
 #endif
 
-                    for( std::vector< uint64_t >::const_iterator k = 
+                    for( std::vector< uint64_t >::const_iterator k =
                              compressedPixels.compressedSize.begin();
                          k != compressedPixels.compressedSize.end(); ++k )
                     {
@@ -264,7 +264,7 @@ int main( int argc, char **argv )
                            << std::hex << name << std::dec << std::setfill(' ')
                            << ", " << std::setw(37) << filename
                            << ", " << std::setw(10) << size << ", "
-                           << image.getAlphaUsage() << ", " << std::setw(10) 
+                           << image.getAlphaUsage() << ", " << std::setw(10)
                            << compressedSize << ", " << std::setw(10)
                            << compressTime << ", " << std::setw(10)
                            << decompressTime << std::endl;
@@ -276,7 +276,7 @@ int main( int argc, char **argv )
 
 #ifdef WRITE_DECOMPRESSED
                 destImage.writeImage( lunchbox::getDirname( filename ) +
-                                      "/out_" + 
+                                      "/out_" +
                                       lunchbox::getFilename( filename ),
                                       buffer );
 #endif
@@ -287,7 +287,7 @@ int main( int argc, char **argv )
                 const float quality = _getCompressorQuality( name );
                 uint8_t channelSize = 0;
                 switch( image.getExternalFormat( buffer ))
-                {      
+                {
                     case EQ_COMPRESSOR_DATATYPE_RGBA:
                     case EQ_COMPRESSOR_DATATYPE_BGRA:
                     case EQ_COMPRESSOR_DATATYPE_RGB:
@@ -314,7 +314,7 @@ int main( int argc, char **argv )
                         channelSize = 0;
                 }
                 const int64_t nElem = size / channelSize;
-                
+
                 switch( channelSize )
                 {
                     case 1:
@@ -349,7 +349,7 @@ int main( int argc, char **argv )
                     << totalCompressedSize << ", " << std::setw(10)
                     << totalCompressTime << ", " << std::setw(10)
                     << totalDecompressTime << std::endl << std::endl;
-            
+
             image.setAlphaUsage( !image.getAlphaUsage( ));
             destImage.setAlphaUsage( image.getAlphaUsage( ));
             if( image.getAlphaUsage( ))
@@ -363,4 +363,3 @@ int main( int argc, char **argv )
 
     return EXIT_SUCCESS;
 }
-
