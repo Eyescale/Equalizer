@@ -20,7 +20,9 @@ set(HEADERS
     canvas.h
     channel.h
     compound.h
+	compoundVisitor.h
     config.h
+	configVisitor.h
     connectionDescription.h
     frame.h
     frameData.h

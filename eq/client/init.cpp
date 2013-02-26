@@ -44,9 +44,18 @@
 #  define MAXPATHLEN 1024
 #endif
 
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4275 4251 )
+#endif
+#define BOOST_PROGRAM_OPTIONS_DYN_LINK
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
+
 namespace arg = boost::program_options;
 
 #ifdef EQ_USE_PARACOMP
