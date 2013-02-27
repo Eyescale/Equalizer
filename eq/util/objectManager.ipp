@@ -645,12 +645,13 @@ void ObjectManager<T>::deleteEqUploader( const T& key )
     if( i == _data->eqUploaders.end( ))
         return;
 
-    lunchbox::Uploader* compressor = i->second;
+    lunchbox::Uploader* uploader = i->second;
     _data->eqUploaders.erase( i );
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     _data->eqUploaderAllocs.erase( key );
 #endif
-    delete compressor;
+    uploader->clear();
+    delete uploader;
 }
 #endif
 

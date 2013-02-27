@@ -574,8 +574,7 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
 }
 
 bool Image::startReadback( const Frame::Buffer buffer,
-                           const util::Texture* texture,
-                           const GLEWContext* glewContext )
+                           const util::Texture* texture, const GLEWContext* gl )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
     lunchbox::Downloader* downloader = attachment.downloader;
@@ -591,7 +590,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     {
         lunchbox::Downloader newDownloader( co::Global::getPluginRegistry(),
                                             inputToken, attachment.quality,
-                                            noAlpha, flags, glewContext );
+                                            noAlpha, flags, gl );
         downloader->swap( newDownloader );
     }
     if( !downloader->isGood( ))
@@ -599,7 +598,6 @@ bool Image::startReadback( const Frame::Buffer buffer,
         LBWARN << "Download plugin initialization failed" << std::endl;
         return false;
     }
-    LBASSERT( downloader->glewGetContext() == glewContext );
 
     // get the pixel type produced by the downloader
     const EqCompressorInfo& info = downloader->getInfo();
@@ -617,7 +615,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
         const uint64_t inDims[4] = { 0ull, uint64_t( texture->getWidth( )),
                                      0ull, uint64_t( texture->getHeight( )) };
         if( downloader->start( &memory.pixels, inDims, flags, outDims,
-                               texture->getName( )))
+                               texture->getName(), gl ))
         {
             return true;
         }
@@ -626,7 +624,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     {
         uint64_t inDims[4];
         _impl->pvp.convertToPlugin( inDims );
-        if( downloader->start( &memory.pixels, inDims, flags, outDims, 0 ))
+        if( downloader->start( &memory.pixels, inDims, flags, outDims, 0, gl ))
             return true;
     }
 
@@ -635,14 +633,14 @@ bool Image::startReadback( const Frame::Buffer buffer,
     return false;
 }
 
-void Image::finishReadback( const Zoom& zoom, const GLEWContext* glewContext )
+void Image::finishReadback( const Zoom& zoom, const GLEWContext* gl )
 {
-    LBASSERT( glewContext );
+    LBASSERT( gl );
     LBLOG( LOG_ASSEMBLY ) << "finishReadback, zoom " << zoom
                           << std::endl;
 
-    _finishReadback( Frame::BUFFER_COLOR, zoom, glewContext );
-    _finishReadback( Frame::BUFFER_DEPTH, zoom, glewContext );
+    _finishReadback( Frame::BUFFER_COLOR, zoom, gl );
+    _finishReadback( Frame::BUFFER_DEPTH, zoom, gl );
 
 #ifndef NDEBUG
     if( getenv( "EQ_DUMP_IMAGES" ))
@@ -658,7 +656,7 @@ void Image::finishReadback( const Zoom& zoom, const GLEWContext* glewContext )
 }
 
 void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                             const GLEWContext* glewContext )
+                             const GLEWContext* gl )
 {
     if( _impl->type == Frame::TYPE_TEXTURE )
         return;
@@ -686,14 +684,12 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
     if( !memory.hasAlpha )
         flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
 
-    LBASSERT( downloader->glewGetContext() == glewContext );
-
     uint64_t outDims[4] = {0};
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         uint64_t inDims[4];
         _impl->pvp.convertToPlugin( inDims );
-        downloader->finish( &memory.pixels, inDims, flags, outDims );
+        downloader->finish( &memory.pixels, inDims, flags, outDims, gl );
     }
     else
     {
@@ -703,7 +699,7 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
         pvp.x = 0;
         pvp.y = 0;
         _impl->pvp.convertToPlugin( inDims );
-        downloader->finish( &memory.pixels, inDims, flags, outDims );
+        downloader->finish( &memory.pixels, inDims, flags, outDims, gl );
     }
 
     memory.pvp.convertFromPlugin( outDims );
@@ -993,7 +989,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
     if( !downloader->uses( name ))
     {
         lunchbox::Downloader newDownloader( co::Global::getPluginRegistry(),
-                                         name, gl );
+                                            name );
         downloader->swap( newDownloader );
         if( !downloader->isGood( ))
             return false;

@@ -1,17 +1,17 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,11 +28,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <lunchbox/perThread.h>
 
-#ifdef _WIN32
-#  define bzero( ptr, size ) { memset( ptr, 0, size ); }
-#endif
-
-template 
+template
 void lunchbox::perThreadNoDelete< const eq::GLWindow >( const eq::GLWindow* );
 
 namespace eq
@@ -49,7 +45,9 @@ GLWindow::GLWindow( Window* parent )
     , _glewContext( new GLEWContext )
     , _fbo( 0 )
 {
-    bzero( _glewContext, sizeof( _glewContext ));
+    lunchbox::setZero( _glewContext, sizeof( _glewContext ));
+    LBINFO << "Window  " << parent->getName() << " GLEW " << _glewContext
+           << std::endl;
 }
 
 GLWindow::~GLWindow()
@@ -63,7 +61,7 @@ GLWindow::~GLWindow()
         _current = 0;
 }
 
-void GLWindow::makeCurrent( const bool useCache ) const 
+void GLWindow::makeCurrent( const bool useCache ) const
 {
     if( useCache && _current == this )
         return;
@@ -76,7 +74,7 @@ bool GLWindow::isCurrent() const
 {
     return _current == this;
 }
-    
+
 void GLWindow::initGLEW()
 {
     if( _glewInitialized )
@@ -88,7 +86,7 @@ void GLWindow::initGLEW()
     else
         _glewInitialized = true;
 }
-    
+
 const GLEWContext* GLWindow::glewGetContext() const
 {
     return _glewContext;
@@ -107,10 +105,10 @@ bool GLWindow::configInitFBO()
         setError( ERROR_FBO_UNSUPPORTED );
         return false;
     }
-    
+
     // needs glew initialized (see above)
     _fbo = new util::FrameBufferObject( _glewContext );
-    
+
     const PixelViewport& pvp = getWindow()->getPixelViewport();
     const GLuint colorFormat = getWindow()->getColorFormat();
 
@@ -138,7 +136,7 @@ bool GLWindow::configInitFBO()
 }
 
 void GLWindow::configExitFBO()
-{   
+{
     if( _fbo )
         _fbo->exit();
 
@@ -146,11 +144,11 @@ void GLWindow::configExitFBO()
     _fbo = 0;
 }
 
-void GLWindow::bindFrameBuffer() const 
+void GLWindow::bindFrameBuffer() const
 {
    if( !_glewInitialized )
        return;
-    
+
    if( _fbo )
        _fbo->bind();
    else if( GLEW_EXT_framebuffer_object )
@@ -163,25 +161,25 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     const char* glVersion = (const char*)glGetString( GL_VERSION );
     if( !glVersion ) // most likely no context - fail
     {
-        LBWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
+        LBWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1"
                << std::endl;
         drawableConfig.glVersion = 1.1f;
     }
     else
         drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
-        
+
     // Framebuffer capabilities
     GLboolean result;
     glGetBooleanv( GL_STEREO,       &result );
     drawableConfig.stereo = result;
-        
+
     glGetBooleanv( GL_DOUBLEBUFFER, &result );
     drawableConfig.doublebuffered = result;
 
     GLint stencilBits;
     glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
     drawableConfig.stencilBits = stencilBits;
-        
+
     GLint colorBits;
     glGetIntegerv( GL_RED_BITS, &colorBits );
     drawableConfig.colorBits = colorBits;
@@ -193,8 +191,8 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     GLint accumBits;
     glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
     drawableConfig.accumBits = accumBits * 4;
-        
+
     LBINFO << "Window drawable config: " << drawableConfig << std::endl;
 }
-    
+
 }
