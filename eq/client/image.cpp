@@ -20,6 +20,7 @@
 #include "image.h"
 
 #include "gl.h"
+#include "half.h"
 #include "log.h"
 #include "pixelData.h"
 #include "windowSystem.h"
@@ -1088,6 +1089,8 @@ bool Image::writeImages( const std::string& filenameTemplate ) const
             writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH ));
 }
 
+namespace
+{
 #define SWAP_SHORT(v) ( v = (v&0xff) << 8 | (v&0xff00) >> 8 )
 #define SWAP_INT(v)   ( v = (v&0xff) << 24 | (v&0xff00) << 8 |      \
                         (v&0xff0000) >> 8 | (v&0xff000000) >> 24)
@@ -1099,20 +1102,20 @@ bool Image::writeImages( const std::string& filenameTemplate ) const
 struct RGBHeader
 {
     RGBHeader()
-        {
-            memset( this, 0, sizeof( RGBHeader ));
-            magic           = 474;
-            bytesPerChannel = 1;
-            nDimensions     = 3;
-            maxValue        = 255;
-        }
+    {
+        memset( this, 0, sizeof( RGBHeader ));
+        magic           = 474;
+        bytesPerChannel = 1;
+        nDimensions     = 3;
+        maxValue        = 255;
+    }
 
-        /**
-         * Convert to and from big endian by swapping bytes on little endian
-         * machines.
-         */
-        void convert()
-        {
+    /**
+     * Convert to and from big endian by swapping bytes on little endian
+     * machines.
+     */
+    void convert()
+    {
 #if defined(__i386__) || defined(__amd64__) || defined (__ia64) || \
     defined(__x86_64) || defined(_WIN32)
             SWAP_SHORT(magic);
@@ -1124,7 +1127,7 @@ struct RGBHeader
             SWAP_INT(maxValue);
             SWAP_INT(colorMode);
 #endif
-        }
+    }
 
     unsigned short magic;
     char compression;
@@ -1145,6 +1148,26 @@ struct RGBHeader
   __attribute__((packed))
 #endif
 ;
+
+template< class T > void put8( std::ostream& os, const char* ptr,
+                               const bool invert = false );
+template<> void put8< float >( std::ostream& os, const char* ptr,
+                               const bool invert )
+{
+    const float& value = *(float*)(ptr);
+    const uint8_t byte = invert ? 255 - uint8_t( value * 255.f ) :
+                                  uint8_t( value * 255.f );
+    os.write( (char*)&byte, 1 );
+}
+template<> void put8< uint16_t >( std::ostream& os, const char* ptr,
+                                  const bool invert )
+{
+    const uint16_t& value = *(uint16_t*)(ptr);
+    const uint8_t byte = invert ? 255 - uint8_t( value * 255.f ) :
+                                  uint8_t( value * 255.f );
+    os.write( (char*)&byte, 1 );
+}
+}
 
 bool Image::writeImage( const std::string& filename,
                         const Frame::Buffer buffer ) const
@@ -1237,20 +1260,20 @@ bool Image::writeImage( const std::string& filename,
         header.bytesPerChannel /= 4;
     }
     LBASSERT( header.bytesPerChannel > 0 );
+
+    strncpy( header.filename, filename.c_str(), 80 );
+
     if( header.bytesPerChannel > 2 )
         LBWARN << static_cast< int >( header.bytesPerChannel )
                << " bytes per channel not supported by RGB spec" << std::endl;
-
-    const uint8_t bpc = header.bytesPerChannel;
-    const uint16_t nChannels = header.depth;
-
-    strncpy( header.filename, filename.c_str(), 80 );
 
     header.convert();
     image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
     header.convert();
 
     // Each channel is saved separately
+    const uint8_t bpc = header.bytesPerChannel;
+    const uint16_t nChannels = header.depth;
     const size_t depth  = nChannels * bpc;
     const size_t nBytes = nPixels * depth;
     const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
@@ -1280,7 +1303,10 @@ bool Image::writeImage( const std::string& filename,
         // channel four is Alpha
         if( nChannels == 4 )
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
-                image.write( &data[j], bpc );
+                if( bpc == 1 )
+                    image.put( 255 - data[j] ); // invert alpha
+                else
+                    image.write( &data[j], bpc );
     }
     else
     {
@@ -1288,8 +1314,71 @@ bool Image::writeImage( const std::string& filename,
            for( size_t j = i * bpc; j < nBytes; j += depth )
               image.write(&data[j], bpc );
     }
-
     image.close();
+
+    if( header.bytesPerChannel == 1 )
+        return true;
+    // else also write 8bpp version
+
+    const std::string smallFilename = std::string("s_") + filename.c_str();
+    image.open( smallFilename.c_str(), std::ios::out | std::ios::binary );
+    if( !image.is_open( ))
+    {
+        LBERROR << "Can't open " << smallFilename << " for writing" << std::endl;
+        return false;
+    }
+
+    header.bytesPerChannel = 1;
+    header.maxValue = 255;
+    header.convert();
+    image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
+    header.convert();
+
+    LBASSERTINFO( bpc == 2 || bpc == 4, bpc );
+    const bool twoBPC = bpc == 2;
+
+    if( nChannels == 3 || nChannels == 4 )
+    {
+        // channel one is R or B
+        if ( swapRB )
+            for( size_t j = 0 * bpc; j < nBytes; j += depth )
+                twoBPC ? put8< uint16_t >( image, &data[j] ) :
+                         put8< float >( image, &data[j] );
+        else
+            for( size_t j = 2 * bpc; j < nBytes; j += depth )
+                twoBPC ? put8< uint16_t >( image, &data[j] ) :
+                         put8< float >( image, &data[j] );
+
+        // channel two is G
+        for( size_t j = 1 * bpc; j < nBytes; j += depth )
+                twoBPC ? put8< uint16_t >( image, &data[j] ) :
+                         put8< float >( image, &data[j] );
+
+        // channel three is B or G
+        if ( swapRB )
+            for( size_t j = 2 * bpc; j < nBytes; j += depth )
+                twoBPC ? put8< uint16_t >( image, &data[j] ) :
+                         put8< float >( image, &data[j] );
+        else
+            for( size_t j = 0; j < nBytes; j += depth )
+                twoBPC ? put8< uint16_t >( image, &data[j] ) :
+                         put8< float >( image, &data[j] );
+
+         // channel four is Alpha
+        if( nChannels == 4 )
+            for( size_t j = 3 * bpc; j < nBytes; j += depth )
+                twoBPC ? put8< uint16_t >( image, &data[j], true ) :
+                         put8< float >( image, &data[j], true );
+    }
+    else
+    {
+        for( size_t i = 0; i < nChannels; i += bpc )
+           for( size_t j = i * bpc; j < nBytes; j += depth )
+               twoBPC ? put8< uint16_t >( image, &data[j] ) :
+                        put8< float >( image, &data[j] );
+    }
+    image.close();
+
     return true;
 }
 

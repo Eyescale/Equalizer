@@ -144,6 +144,8 @@ set(CLIENT_SOURCES
   glException.cpp
   glWindow.cpp
   global.cpp
+  half.h
+  half.cpp
   image.cpp
   init.cpp
   jitter.cpp

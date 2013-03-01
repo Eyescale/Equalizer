@@ -133,7 +133,7 @@ if(OpenSceneGraph_name)
   include_directories(${${OpenSceneGraph_name}_INCLUDE_DIRS})
 endif()
 
-find_package(SAGE 3.0)
+find_package(SAGE 4.0)
 if(SAGE_FOUND)
   set(SAGE_name SAGE)
 endif()
