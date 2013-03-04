@@ -357,7 +357,8 @@ class CompressorFinder : public lunchbox::ConstPluginVisitor
 public:
     CompressorFinder( const uint32_t token ) : token_( token ) {}
 
-    virtual fabric::VisitorResult visit( const EqCompressorInfo& info )
+    virtual fabric::VisitorResult visit( const lunchbox::Plugin&,
+                                         const EqCompressorInfo& info )
     {
         if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
             return fabric::TRAVERSE_CONTINUE;
