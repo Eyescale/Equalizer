@@ -155,7 +155,15 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::ICommand& command )
 
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
-    localNode->mapObject( config, configVersion );
+    if( !localNode->mapObject( config, configVersion ))
+    {
+        LBUNREACHABLE;
+        LBERROR << "Can't map chosen config" << std::endl;
+
+        _nodeFactory->releaseConfig( config );
+        return true;
+    }
+
     co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS,
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
     if( requestID != LB_UNDEFINED_UINT32 )
