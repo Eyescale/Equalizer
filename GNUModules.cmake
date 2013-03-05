@@ -104,11 +104,13 @@ set(MODULE_ROOT "$sw_basedir/$sw_class/$package_name/$version/$architecture")
 set(MODULE_FILENAME "${MODULE_PACKAGE_NAME}/${MODULE_VERSION}-${MODULE_PLATFORM}-${MODULE_COMPILER}")
 
 # Load dependend modules if any
-if(MODULE_DEPENDENCIES)
-  foreach(MODULE_DEP ${MODULE_DEPENDENCIES})
-    list(INSERT MODULE_ENV 0
-      "module load ${MODULE_DEP}-${MODULE_PLATFORM}-${MODULE_COMPILER}\n"
-      "prereq      ${MODULE_DEP}-${MODULE_PLATFORM}-${MODULE_COMPILER}\n\n")
+if(${UPPER_PROJECT_NAME}_DEPENDS)
+  foreach(MODULE_DEP ${${UPPER_PROJECT_NAME}_DEPENDS})
+    if(${MODULE_DEP}_MODULE_FILENAME)
+      list(INSERT MODULE_ENV 0
+        "module load ${${MODULE_DEP}_MODULE_FILENAME}\n"
+        "prereq      ${${MODULE_DEP}_MODULE_FILENAME}\n\n")
+    endif()
   endforeach()
 endif()
 
