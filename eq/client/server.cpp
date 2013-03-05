@@ -173,7 +173,8 @@ bool Server::_cmdChooseConfigReply( co::ICommand& command )
         }
     }
 
-    LBUNIMPLEMENTED
+    LBUNREACHABLE;
+    localNode->serveRequest( requestID, (void*)0 );
     return true;
 }
 
