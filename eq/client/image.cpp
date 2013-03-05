@@ -984,9 +984,10 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
 uint32_t Image::getDownloaderName( const Frame::Buffer buffer ) const
 {
     const Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
+    const lunchbox::Downloader& downloader =
+        attachment.downloader[attachment.active];
     if( downloader.isGood( ))
-        return attachment.downloader.getInfo().name;
+        return downloader.getInfo().name;
     return EQ_COMPRESSOR_INVALID;
 }
 
