@@ -117,17 +117,20 @@ int main( int argc, char **argv )
     eq::Image image;
     eq::Image destImage;
 
-    std::cout.setf( std::ios::right, std::ios::adjustfield );
-    std::cout.precision( 5 );
-    std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
-              << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
-
     // For each compressor...
     const lunchbox::PluginRegistry& registry = co::Global::getPluginRegistry();
     Finder finder;
     registry.accept( finder );
     std::vector< uint32_t >& names = finder.names;
+    std::cout << images.size() << " test images X " << names.size()
+              << " plugins" << std::endl;
     TESTINFO( names.size() > 23, names.size( ));
+
+    std::cout.setf( std::ios::right, std::ios::adjustfield );
+    std::cout.precision( 5 );
+    std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
+              << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
+
     for( std::vector< uint32_t >::const_iterator i = names.begin();
          i != names.end(); ++i )
     {
@@ -144,8 +147,7 @@ int main( int argc, char **argv )
             float totalDecompressTime( 0.f );
 
             // For each image
-            for( eq::Strings::const_iterator j = images.begin();
-                 j != images.end(); ++j )
+            for( eq::StringsCIter j = images.begin(); j != images.end(); ++j )
             {
                 const std::string& filename = *j;
                 const size_t depthPos = filename.find( "depth" );
