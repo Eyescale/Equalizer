@@ -25,8 +25,8 @@ namespace eq
     /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
     enum LogTopics
     {
-        LOG_PLUGIN   = lunchbox::LOG_PLUGIN,         //!< Plugin usage (2)
-        LOG_INIT     = fabric::LOG_INIT,       //!< Initialization (512)
+        LOG_PLUGIN   = lunchbox::LOG_PLUGIN,      //!< Plugin usage (2)
+        LOG_INIT     = fabric::LOG_INIT,          //!< Initialization (512)
 
         LOG_ASSEMBLY = fabric::LOG_CUSTOM << 0,   //!< Compositing tasks (1024)
         LOG_TASKS    = fabric::LOG_CUSTOM << 1,   //!< Rendering tasks (2048)

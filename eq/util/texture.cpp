@@ -34,26 +34,25 @@ class Texture
 {
 public:
     Texture( const GLenum tgt, const GLEWContext* const gl )
-            : name( 0 )
-            , target( tgt )
-            , internalFormat( 0 )
-            , format( 0 )
-            , type( 0 )
-            , width( 0 )
-            , height( 0 )
-            , defined( false )
-            , glewContext( gl )
+        : name( 0 )
+        , target( tgt )
+        , internalFormat( 0 )
+        , format( 0 )
+        , type( 0 )
+        , width( 0 )
+        , height( 0 )
+        , defined( false )
+        , glewContext( gl )
         {}
 
     ~Texture()
-    {
-        if( name != 0 )
-            LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
+        {
+            if( name != 0 )
+                LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
 
-        name      = 0;
-        defined = false;
-    }
-
+            name      = 0;
+            defined = false;
+        }
 
     GLuint name;
     const GLenum target;
@@ -68,7 +67,7 @@ public:
 }
 
 Texture::Texture( const unsigned target, const GLEWContext* const glewContext )
-        : _impl( new detail::Texture( target, glewContext ))
+    : _impl( new detail::Texture( target, glewContext ))
 {}
 
 Texture::~Texture()
@@ -402,6 +401,7 @@ void Texture::writeRGB( const std::string& filename ) const
     if( image.startReadback( Frame::BUFFER_COLOR, this, _impl->glewContext ))
         image.finishReadback( Zoom::NONE, _impl->glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
+    image.resetPlugins();
 }
 
 GLenum Texture::getTarget() const { return _impl->target; }

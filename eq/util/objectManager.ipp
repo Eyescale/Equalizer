@@ -127,7 +127,7 @@ ObjectManager<T>::SharedData::~SharedData()
 
     if( !eqUploaders.empty( ))
         LBWARN << eqUploaders.size()
-               << " Uploader's still allocated in ObjectManager destructor"
+               << " uploader still allocated in ObjectManager destructor"
                << std::endl;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     LBASSERTINFO( eqUploaders.empty(), eqUploaderAllocs.begin()->second );
@@ -220,17 +220,15 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqFrameBufferObjects.clear();
 
-#ifdef EQUALIZER_SHARED
     for( typename UploaderHash::const_iterator i = _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
     {
         lunchbox::Uploader* uploader = i->second;
-        LBVERB << "Delete Uploader " << i->first << " @" << (void*)uploader
+        LBVERB << "Delete uploader " << i->first << " @" << (void*)uploader
                << std::endl;
         delete uploader;
     }
     _data->eqUploaders.clear();
-#endif
 }
 
 // display list functions
@@ -597,7 +595,6 @@ void ObjectManager<T>::deleteEqAccum( const T& key )
     delete accum;
 }
 
-#ifdef EQUALIZER_SHARED
 // eq::CompressorData object functions
 template< class T >
 lunchbox::Uploader* ObjectManager<T>::getEqUploader( const T& key ) const
@@ -653,7 +650,6 @@ void ObjectManager<T>::deleteEqUploader( const T& key )
     uploader->clear();
     delete uploader;
 }
-#endif
 
 // eq::Texture object functions
 template< class T >

@@ -49,7 +49,8 @@ namespace
 class Finder : public lunchbox::ConstPluginVisitor
 {
 public:
-    virtual lunchbox::VisitorResult visit( const EqCompressorInfo& info )
+    virtual lunchbox::VisitorResult visit( const lunchbox::Plugin&,
+                                           const EqCompressorInfo& info )
     {
         if( !(info.capabilities & EQ_COMPRESSOR_TRANSFER) )
             names.push_back( info.name );

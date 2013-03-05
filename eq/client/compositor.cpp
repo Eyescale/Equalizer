@@ -48,10 +48,6 @@
 #  include <pcapi.h>
 #endif
 
-#ifdef _WIN32
-#  define bzero( ptr, size ) { memset( ptr, 0, size ); }
-#endif
-
 using lunchbox::Monitor;
 
 namespace eq
@@ -874,9 +870,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
         memcpy( destC + skip, color + y * pvp.w * pixelSize, rowLength);
         // clear depth, for depth-assembly into existing FB
         if( destD )
-        {
-            bzero( destD + skip, rowLength );
-        }
+            lunchbox::setZero( destD + skip, rowLength );
     }
 }
 

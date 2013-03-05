@@ -43,7 +43,6 @@
 
 #ifdef _WIN32
 #  include <malloc.h>
-#  define bzero( ptr, size ) memset( ptr, 0, size );
 #else
 #  include <alloca.h>
 #endif
@@ -95,20 +94,20 @@ public:
     bool hasAlpha; //!< The uncompressed pixels contain alpha
 };
 
+enum ActivePlugin
+{
+    PLUGIN_FULL,
+    PLUGIN_LOSSY,
+    PLUGIN_ALL
+};
+
 /** @internal The individual parameters for a buffer. */
 struct Attachment
 {
-    lunchbox::Compressor fullCompressor;
-    lunchbox::Compressor lossyCompressor;
-    lunchbox::Decompressor fullDecompressor;
-    lunchbox::Decompressor lossyDecompressor;
-
-    lunchbox::Downloader fullDownloader;
-    lunchbox::Downloader lossyDownloader;
-
-    lunchbox::Compressor* compressor; //!< current CPU compressor
-    lunchbox::Decompressor* decompressor; //!< current CPU decompressor
-    lunchbox::Downloader* downloader;   //!< current up/download engine
+    ActivePlugin active;
+    lunchbox::Compressor compressor[ PLUGIN_ALL ];
+    lunchbox::Decompressor decompressor[ PLUGIN_ALL ];
+    lunchbox::Downloader downloader[ PLUGIN_ALL ];
 
     float quality; //!< the minimum quality
 
@@ -119,21 +118,19 @@ struct Attachment
     Memory memory;
 
     Attachment()
-            : compressor( &fullCompressor )
-            , decompressor( &fullDecompressor )
-            , downloader ( &fullDownloader )
-            , quality( 1.f )
-            , texture( GL_TEXTURE_RECTANGLE_ARB )
+        : active( PLUGIN_FULL )
+        , quality( 1.f )
+        , texture( GL_TEXTURE_RECTANGLE_ARB )
         {}
 
     ~Attachment()
     {
-        LBASSERT( !fullCompressor.isGood( ));
-        LBASSERT( !lossyCompressor.isGood( ));
-        LBASSERT( !fullDecompressor.isGood( ));
-        LBASSERT( !lossyDecompressor.isGood( ));
-        LBASSERT( !fullDownloader.isGood( ));
-        LBASSERT( !lossyDownloader.isGood( ));
+        LBASSERT( !compressor[ PLUGIN_FULL ].isGood( ));
+        LBASSERT( !compressor[ PLUGIN_LOSSY ].isGood( ));
+        LBASSERT( !decompressor[ PLUGIN_FULL ].isGood( ));
+        LBASSERT( !decompressor[ PLUGIN_LOSSY ].isGood( ));
+        LBASSERT( !downloader[ PLUGIN_FULL ].isGood( ));
+        LBASSERT( !downloader[ PLUGIN_LOSSY ].isGood( ));
     }
 
     void flush()
@@ -145,26 +142,14 @@ struct Attachment
 
     void resetPlugins()
     {
-        fullCompressor.clear();
-        lossyCompressor.clear();
-        fullDecompressor.clear();
-        lossyDecompressor.clear();
-        fullDownloader.clear();
-        lossyDownloader.clear();
+        compressor[ PLUGIN_FULL ].clear();
+        compressor[ PLUGIN_LOSSY ].clear();
+        decompressor[ PLUGIN_FULL ].clear();
+        decompressor[ PLUGIN_LOSSY ].clear();
+        downloader[ PLUGIN_FULL ].clear();
+        downloader[ PLUGIN_LOSSY ].clear();
     }
 };
-
-/** Find and activate a decompression engine */
-static bool _allocDecompressor( Attachment& attachment, uint32_t name )
-{
-    if( !attachment.decompressor->uses( name ))
-    {
-        lunchbox::Decompressor decompressor( co::Global::getPluginRegistry(),
-                                             name);
-        attachment.decompressor->swap( decompressor );
-    }
-    return attachment.decompressor->isGood();
-}
 }
 
 namespace detail
@@ -422,16 +407,13 @@ void Image::setQuality( const Frame::Buffer buffer, const float quality )
 
     attachment.quality = quality;
     if( quality >= 1.f )
-    {
-        attachment.compressor = &attachment.fullCompressor;
-        attachment.downloader = &attachment.fullDownloader;
-    }
+        attachment.active = PLUGIN_FULL;
     else
     {
-        attachment.lossyCompressor.clear();
-        attachment.lossyDownloader.clear();
-        attachment.compressor = &attachment.lossyCompressor;
-        attachment.downloader = &attachment.lossyDownloader;
+        attachment.active = PLUGIN_LOSSY;
+        attachment.compressor[ PLUGIN_LOSSY ].clear();
+        attachment.decompressor[ PLUGIN_LOSSY ].clear();
+        attachment.downloader[ PLUGIN_LOSSY ].clear();
     }
 }
 
@@ -483,15 +465,13 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                            EQ_COMPRESSOR_DATA_2D |
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
+    const GLEWContext* const gl = glObjects->glewGetContext();
 
-    if( !uploader->supports( externalFormat, internalFormat, flags ))
-    {
-        lunchbox::Uploader newUploader( co::Global::getPluginRegistry(),
-                                        externalFormat, internalFormat, flags,
-                                        glObjects->glewGetContext( ));
-        uploader->swap( newUploader );
-    }
-    if( !uploader->isGood( ))
+    if( !uploader->supports( externalFormat, internalFormat, flags, gl ))
+        uploader->setup( co::Global::getPluginRegistry(), externalFormat,
+                         internalFormat, flags, gl );
+
+    if( !uploader->isGood( gl ))
     {
         LBWARN << "No upload plugin for " << std::hex << externalFormat
                << " -> " << internalFormat << std::dec << " upload" <<std::endl;
@@ -508,7 +488,7 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     pixelData.pvp.convertToPlugin( inDims );
     pvp.convertToPlugin( outDims );
     uploader->upload( pixelData.pixels, inDims, flags, outDims,
-                      texture ? texture->getName() : 0 );
+                      texture ? texture->getName() : 0, gl );
     return true;
 }
 
@@ -578,7 +558,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
                            const util::Texture* texture, const GLEWContext* gl )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader* downloader = attachment.downloader;
+    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
@@ -587,21 +567,18 @@ bool Image::startReadback( const Frame::Buffer buffer,
                                  EQ_COMPRESSOR_USE_FRAMEBUFFER );
     const bool noAlpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
 
-    if( !downloader->supports( inputToken, noAlpha, flags ))
-    {
-        lunchbox::Downloader newDownloader( co::Global::getPluginRegistry(),
-                                            inputToken, attachment.quality,
-                                            noAlpha, flags, gl );
-        downloader->swap( newDownloader );
-    }
-    if( !downloader->isGood( ))
+    if( !downloader.supports( inputToken, noAlpha, flags ))
+        downloader.setup( co::Global::getPluginRegistry(), inputToken,
+                           attachment.quality, noAlpha, flags, gl );
+
+    if( !downloader.isGood( ))
     {
         LBWARN << "Download plugin initialization failed" << std::endl;
         return false;
     }
 
     // get the pixel type produced by the downloader
-    const EqCompressorInfo& info = downloader->getInfo();
+    const EqCompressorInfo& info = downloader.getInfo();
     const bool alpha = (info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) == 0;
     _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
                         alpha );
@@ -615,7 +592,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     {
         const uint64_t inDims[4] = { 0ull, uint64_t( texture->getWidth( )),
                                      0ull, uint64_t( texture->getHeight( )) };
-        if( downloader->start( &memory.pixels, inDims, flags, outDims,
+        if( downloader.start( &memory.pixels, inDims, flags, outDims,
                                texture->getName(), gl ))
         {
             return true;
@@ -625,7 +602,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     {
         uint64_t inDims[4];
         _impl->pvp.convertToPlugin( inDims );
-        if( downloader->start( &memory.pixels, inDims, flags, outDims, 0, gl ))
+        if( downloader.start( &memory.pixels, inDims, flags, outDims, 0, gl ))
             return true;
     }
 
@@ -663,7 +640,7 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return;
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader* downloader = attachment.downloader;
+    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
@@ -675,7 +652,7 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
                                             EQ_COMPRESSOR_USE_TEXTURE_RECT );
 
     const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
-    if( !downloader->supports( inputToken, alpha, flags ))
+    if( !downloader.supports( inputToken, alpha, flags ))
     {
         LBWARN << "Download plugin initialization failed" << std::endl;
         attachment.memory.state = Memory::INVALID;
@@ -690,7 +667,7 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
     {
         uint64_t inDims[4];
         _impl->pvp.convertToPlugin( inDims );
-        downloader->finish( &memory.pixels, inDims, flags, outDims, gl );
+        downloader.finish( &memory.pixels, inDims, flags, outDims, gl );
     }
     else
     {
@@ -700,7 +677,7 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
         pvp.x = 0;
         pvp.y = 0;
         _impl->pvp.convertToPlugin( inDims );
-        downloader->finish( &memory.pixels, inDims, flags, outDims, gl );
+        downloader.finish( &memory.pixels, inDims, flags, outDims, gl );
     }
 
     memory.pvp.convertFromPlugin( outDims );
@@ -838,7 +815,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         const unsigned char pixel[4] = { 0, 0, 0, 255 };
         memset_pattern4( data, &pixel, size );
 #else
-        bzero( data, size );
+        lunchbox::setZero( data, size );
 #pragma omp parallel for
         for( ssize_t i = 3; i < size; i+=4 )
             data[i] = 255;
@@ -848,7 +825,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
       default:
         LBWARN << "Unknown external format " << memory.externalFormat
                << ", initializing to 0" << std::endl;
-        bzero( memory.pixels, size );
+        lunchbox::setZero( memory.pixels, size );
         break;
     }
 }
@@ -872,9 +849,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.isCompressed = false;
     memory.hasAlpha = false;
 
-    const EqCompressorInfos& transferrers =
-        _impl->findTransferers( buffer, 0 /*GLEW context*/ );
-
+    const EqCompressorInfos& transferrers = _impl->findTransferers( buffer,
+                                                           0 /*GLEW context*/ );
     if( transferrers.empty( ))
         LBWARN << "No upload engines found for given pixel data" << std::endl;
     else
@@ -918,7 +894,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     LBASSERT( pixels.compressorName != EQ_COMPRESSOR_AUTO );
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    if( !_allocDecompressor( attachment, pixels.compressorName ))
+    if( !attachment.decompressor->setup( co::Global::getPluginRegistry(),
+                                         pixels.compressorName ))
     {
         LBASSERTINFO( false,
                       "Can't allocate decompressor " << pixels.compressorName <<
@@ -952,19 +929,19 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
+    lunchbox::Compressor& compressor = attachment.compressor[attachment.active];
     if( name <= EQ_COMPRESSOR_NONE )
     {
         attachment.memory.isCompressed = false;
-        attachment.compressor->clear();
+        compressor.clear();
         return true;
     }
 
-    if( attachment.compressor->uses( name ))
+    if( compressor.uses( name ))
         return true;
 
     attachment.memory.isCompressed = false;
-    lunchbox::Compressor compressor( co::Global::getPluginRegistry(), name );
-    attachment.compressor->swap( compressor );
+    compressor.setup( co::Global::getPluginRegistry(), name );
     LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
     return compressor.isGood();
@@ -978,38 +955,37 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
     LBASSERT( gl );
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader* downloader = attachment.downloader;
+    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
 
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        downloader->clear();
+        downloader.clear();
         _setExternalFormat( buffer, EQ_COMPRESSOR_DATATYPE_NONE, 0, true );
         return false;
     }
 
-    if( !downloader->uses( name ))
-    {
-        lunchbox::Downloader newDownloader( co::Global::getPluginRegistry(),
-                                            name );
-        downloader->swap( newDownloader );
-        if( !downloader->isGood( ))
-            return false;
 
-        const EqCompressorInfo& info = downloader->getInfo();
-        attachment.memory.internalFormat = info.tokenType;
-        _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
-                            !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) );
-        LBLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
-                            << info.name << std::dec << std::endl;
-    }
+    if( downloader.uses( name ))
+        return true;
+
+    if( !downloader.setup( co::Global::getPluginRegistry(), name ))
+        return false;
+
+    const EqCompressorInfo& info = downloader.getInfo();
+    attachment.memory.internalFormat = info.tokenType;
+    _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
+                        !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) );
+    LBLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
+                        << info.name << std::dec << std::endl;
     return true;
 }
 
 uint32_t Image::getDownloaderName( const Frame::Buffer buffer ) const
 {
     const Attachment& attachment = _impl->getAttachment( buffer );
-    if( attachment.downloader->isGood( ))
-        return attachment.downloader->getInfo().name;
+    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
+    if( downloader.isGood( ))
+        return attachment.downloader.getInfo().name;
     return EQ_COMPRESSOR_INVALID;
 }
 
@@ -1030,28 +1006,35 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         return memory;
     }
 
-    lunchbox::Compressor* compressor = attachment.compressor;
+    lunchbox::Compressor& compressor = attachment.compressor[attachment.active];
 
-    if( !compressor->isGood() ||
-        compressor->getInfo().tokenType != getExternalFormat( buffer ) ||
+    if( !compressor.isGood() ||
+        compressor.getInfo().tokenType != getExternalFormat( buffer ) ||
         memory.compressorName == EQ_COMPRESSOR_AUTO )
     {
-        const uint32_t tokenType = getExternalFormat( buffer );
-        const float quality = attachment.quality /
-                              attachment.lossyDownloader.getInfo().quality;
-        lunchbox::Compressor newCompressor( co::Global::getPluginRegistry(),
-                                            tokenType, quality,
-                                            _impl->ignoreAlpha );
-        compressor->swap( newCompressor );
-        if( !compressor->isGood( ))
+        if( memory.compressorName == EQ_COMPRESSOR_AUTO )
+        {
+            const uint32_t tokenType = getExternalFormat( buffer );
+            const float lossyQuality =
+                attachment.downloader[ PLUGIN_LOSSY ].getInfo().quality;
+            const float quality = attachment.quality / lossyQuality;
+
+            compressor.setup( co::Global::getPluginRegistry(), tokenType,
+                               quality, _impl->ignoreAlpha );
+        }
+        else
+            compressor.setup( co::Global::getPluginRegistry(),
+                               memory.compressorName );
+
+        if( !compressor.isGood( ))
         {
             LBWARN << "No compressor found for token type 0x" << std::hex
                    << getExternalFormat( buffer ) << std::dec << std::endl;
-            compressor->clear();
+            compressor.clear();
         }
     }
 
-    memory.compressorName = compressor->getInfo().name;
+    memory.compressorName = compressor.getInfo().name;
     LBASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
     LBASSERT( memory.compressorName != EQ_COMPRESSOR_INVALID );
     if( memory.compressorName == EQ_COMPRESSOR_NONE )
@@ -1066,15 +1049,15 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
     uint64_t inDims[4];
     memory.pvp.convertToPlugin( inDims );
-    compressor->compress( memory.pixels, inDims, memory.compressorFlags );
+    compressor.compress( memory.pixels, inDims, memory.compressorFlags );
 
-    const unsigned numResults = attachment.compressor->getNumResults();
+    const unsigned numResults = compressor.getNumResults();
     memory.compressedSize.resize( numResults );
     memory.compressedData.resize( numResults );
 
     for( unsigned i = 0; i < numResults ; ++i )
-        attachment.compressor->getResult( i, &memory.compressedData[i],
-                                          &memory.compressedSize[i] );
+        compressor.getResult( i, &memory.compressedData[i],
+                              &memory.compressedSize[i] );
     memory.isCompressed = true;
     return memory;
 }
@@ -1149,23 +1132,18 @@ struct RGBHeader
 #endif
 ;
 
-template< class T > void put8( std::ostream& os, const char* ptr,
-                               const bool invert = false );
-template<> void put8< float >( std::ostream& os, const char* ptr,
-                               const bool invert )
+void put32f( std::ostream& os, const char* ptr, const bool invert = false )
 {
     const float& value = *(float*)(ptr);
     const uint8_t byte = invert ? 255 - uint8_t( value * 255.f ) :
                                   uint8_t( value * 255.f );
-    os.write( (char*)&byte, 1 );
+    os.write( (const char*)&byte, 1 );
 }
-template<> void put8< uint16_t >( std::ostream& os, const char* ptr,
-                                  const bool invert )
+void put16f( std::ostream& os, const char* ptr, const bool invert = false )
 {
     const uint16_t& value = *(uint16_t*)(ptr);
-    const uint8_t byte = invert ? 255 - uint8_t( value * 255.f ) :
-                                  uint8_t( value * 255.f );
-    os.write( (char*)&byte, 1 );
+    const float f = half_to_float( value );
+    put32f( os, (const char*)&f, invert );
 }
 }
 
@@ -1187,8 +1165,7 @@ bool Image::writeImage( const std::string& filename,
         return false;
     }
 
-    RGBHeader    header;
-
+    RGBHeader header;
     header.width  = pvp.w;
     header.height = pvp.h;
 
@@ -1303,7 +1280,7 @@ bool Image::writeImage( const std::string& filename,
         // channel four is Alpha
         if( nChannels == 4 )
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
-                if( bpc == 1 )
+                if( bpc == 1 && header.maxValue == 255 )
                     image.put( 255 - data[j] ); // invert alpha
                 else
                     image.write( &data[j], bpc );
@@ -1320,11 +1297,12 @@ bool Image::writeImage( const std::string& filename,
         return true;
     // else also write 8bpp version
 
-    const std::string smallFilename = std::string("s_") + filename.c_str();
+    const std::string smallFilename = lunchbox::getDirname( filename ) + "/s_" +
+                                      lunchbox::getFilename( filename );
     image.open( smallFilename.c_str(), std::ios::out | std::ios::binary );
     if( !image.is_open( ))
     {
-        LBERROR << "Can't open " << smallFilename << " for writing" << std::endl;
+        LBERROR << "Can't open " << smallFilename << " for writing" <<std::endl;
         return false;
     }
 
@@ -1342,40 +1320,34 @@ bool Image::writeImage( const std::string& filename,
         // channel one is R or B
         if ( swapRB )
             for( size_t j = 0 * bpc; j < nBytes; j += depth )
-                twoBPC ? put8< uint16_t >( image, &data[j] ) :
-                         put8< float >( image, &data[j] );
+                twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
         else
             for( size_t j = 2 * bpc; j < nBytes; j += depth )
-                twoBPC ? put8< uint16_t >( image, &data[j] ) :
-                         put8< float >( image, &data[j] );
+                twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
 
         // channel two is G
         for( size_t j = 1 * bpc; j < nBytes; j += depth )
-                twoBPC ? put8< uint16_t >( image, &data[j] ) :
-                         put8< float >( image, &data[j] );
+                twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
 
         // channel three is B or G
         if ( swapRB )
             for( size_t j = 2 * bpc; j < nBytes; j += depth )
-                twoBPC ? put8< uint16_t >( image, &data[j] ) :
-                         put8< float >( image, &data[j] );
+                twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
         else
             for( size_t j = 0; j < nBytes; j += depth )
-                twoBPC ? put8< uint16_t >( image, &data[j] ) :
-                         put8< float >( image, &data[j] );
+                twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
 
          // channel four is Alpha
         if( nChannels == 4 )
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
-                twoBPC ? put8< uint16_t >( image, &data[j], true ) :
-                         put8< float >( image, &data[j], true );
+                twoBPC ? put16f( image, &data[j], true ) :
+                         put32f( image, &data[j], true );
     }
     else
     {
         for( size_t i = 0; i < nChannels; i += bpc )
            for( size_t j = i * bpc; j < nBytes; j += depth )
-               twoBPC ? put8< uint16_t >( image, &data[j] ) :
-                        put8< float >( image, &data[j] );
+               twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
     }
     image.close();
 

@@ -113,7 +113,6 @@ namespace util
         EQ_API Accum* obtainEqAccum( const T& key );
         EQ_API void   deleteEqAccum( const T& key );
 
-#ifdef EQUALIZER_SHARED
         /** @internal */
         EQ_API lunchbox::Uploader* getEqUploader( const T& key ) const;
         /** @internal */
@@ -122,7 +121,6 @@ namespace util
         EQ_API lunchbox::Uploader* obtainEqUploader( const T& key );
         /** @internal */
         EQ_API void   deleteEqUploader( const T& key );
-#endif
 
         EQ_API bool     supportsEqTexture() const;
         EQ_API Texture* getEqTexture( const T& key ) const;

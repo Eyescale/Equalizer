@@ -46,8 +46,6 @@ GLWindow::GLWindow( Window* parent )
     , _fbo( 0 )
 {
     lunchbox::setZero( _glewContext, sizeof( _glewContext ));
-    LBINFO << "Window  " << parent->getName() << " GLEW " << _glewContext
-           << std::endl;
 }
 
 GLWindow::~GLWindow()

@@ -45,12 +45,12 @@ public:
     virtual fabric::VisitorResult visit( const lunchbox::Plugin& plugin,
                                          const EqCompressorInfo& info )
     {
-        if(( (info.capabilities & caps_) == caps_ )  &&
+        if(( (info.capabilities & caps_) == caps_ )                &&
            ( internal_ == EQ_COMPRESSOR_DATATYPE_NONE ||
-             info.tokenType == internal_ )                    &&
+             info.tokenType == internal_ )                         &&
            ( external_ == EQ_COMPRESSOR_DATATYPE_NONE ||
-             info.outputTokenType == external_ )              &&
-           ( info.quality >= minQuality_ )                    &&
+             info.outputTokenType == external_ )                   &&
+           ( info.quality >= minQuality_ )                         &&
            ( ignoreAlpha_ ||
              !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA ))   &&
            ( !gl_ || plugin.isCompatible( info.name, gl_ )))
