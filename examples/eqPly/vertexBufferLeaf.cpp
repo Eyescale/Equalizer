@@ -48,12 +48,12 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     _vertexLength = 0;
     _indexStart = globalData.indices.size();
     _indexLength = 0;
-    
-    const bool hasColors = ( data.colors.size() > 0 ); 
-    
+
+    const bool hasColors = !data.colors.emtpy();
+
     // stores the new indices (relative to _start)
     std::map< Index, ShortIndex > newIndex;
-    
+
     for( Index t = 0; t < length; ++t )
     {
         for( Index v = 0; v < 3; ++v )
@@ -70,10 +70,10 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                 globalData.normals.push_back( data.normals[i] );
             }
             globalData.indices.push_back( newIndex[i] );
-            ++_indexLength; 
+            ++_indexLength;
         }
     }
-    
+
 #ifndef NDEBUG
     MESHINFO << "setupTree" << "( " << _indexStart << ", " << _indexLength
              << "; start " << _vertexStart << ", " << _vertexLength
@@ -95,12 +95,12 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     // 1a) initialize and compute a bounding box
     _boundingBox[0] = _globalData.vertices[ _vertexStart +
                                             _globalData.indices[_indexStart] ];
-    _boundingBox[1] = _globalData.vertices[ _vertexStart + 
+    _boundingBox[1] = _globalData.vertices[ _vertexStart +
                                             _globalData.indices[_indexStart] ];
 
     for( Index i = 1 + _indexStart; i < _indexStart + _indexLength; ++i )
     {
-        const Vertex& vertex = _globalData.vertices[ _vertexStart + 
+        const Vertex& vertex = _globalData.vertices[ _vertexStart +
                                                      _globalData.indices[ i ] ];
         _boundingBox[0][0] = std::min( _boundingBox[0][0], vertex[0] );
         _boundingBox[1][0] = std::max( _boundingBox[1][0], vertex[0] );
@@ -109,7 +109,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         _boundingBox[0][2] = std::min( _boundingBox[0][2], vertex[2] );
         _boundingBox[1][2] = std::max( _boundingBox[1][2], vertex[2] );
     }
-    
+
     // 1b) get inner sphere of bounding box as an initial estimate
     _boundingSphere.x() = ( _boundingBox[0].x() + _boundingBox[1].x() ) * 0.5f;
     _boundingSphere.y() = ( _boundingBox[0].y() + _boundingBox[1].y() ) * 0.5f;
@@ -128,10 +128,10 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     // 2) test all points to be in the estimated bounding sphere
     for( Index offset = 0; offset < _indexLength; ++offset )
     {
-        const Vertex& vertex = 
-            _globalData.vertices[ _vertexStart + 
+        const Vertex& vertex =
+            _globalData.vertices[ _vertexStart +
                                   _globalData.indices[_indexStart + offset] ];
-        
+
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
         if( distanceSquared <= radiusSquared ) // point is inside existing BS
@@ -144,12 +144,12 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         radius        = ( radius + distance ) * .5f;
         radiusSquared = radius * radius;
         const Vertex normdelta = normalize( centerToPoint ) * ( 0.5f * delta );
-  
+
         center       += normdelta;
 
-        LBASSERTINFO( Vertex( vertex-center ).squared_length() <= 
+        LBASSERTINFO( Vertex( vertex-center ).squared_length() <=
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
-                      vertex << " c " << center << " r " << radius << " (" 
+                      vertex << " c " << center << " r " << radius << " ("
                              << Vertex( vertex-center ).length() << ")" );
     }
 
@@ -157,20 +157,20 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     // 2a) re-test all points to be in the estimated bounding sphere
     for( Index offset = 0; offset < _indexLength; ++offset )
     {
-        const Vertex& vertex = 
-            _globalData.vertices[ _vertexStart + 
+        const Vertex& vertex =
+            _globalData.vertices[ _vertexStart +
                                   _globalData.indices[_indexStart + offset] ];
-        
+
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
-        LBASSERTINFO( distanceSquared <= 
+        LBASSERTINFO( distanceSquared <=
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
-                      vertex << " c " << center << " r " << radius << " (" 
+                      vertex << " c " << center << " r " << radius << " ("
                              << Vertex( vertex-center ).length() << ")" );
     }
 #endif
 
-    // store optimal bounding sphere 
+    // store optimal bounding sphere
     _boundingSphere.x() = center.x();
     _boundingSphere.y() = center.y();
     _boundingSphere.z() = center.z();
@@ -180,7 +180,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )."
              << std::endl;
 #endif
-    
+
     return _boundingSphere;
 }
 
@@ -190,7 +190,7 @@ void VertexBufferLeaf::updateRange()
 {
     _range[0] = 1.0f * _indexStart / _globalData.indices.size();
     _range[1] = _range[0] + 1.0f * _indexLength / _globalData.indices.size();
-    
+
 #ifndef NDEBUG
     MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
              << " )." << std::endl;
@@ -211,19 +211,19 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
     case RENDER_MODE_BUFFER_OBJECT:
     {
         const char* charThis = reinterpret_cast< const char* >( this );
-        
+
         if( data[VERTEX_OBJECT] == state.INVALID )
             data[VERTEX_OBJECT] = state.newBufferObject( charThis + 0 );
         glBindBuffer( GL_ARRAY_BUFFER, data[VERTEX_OBJECT] );
         glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
                         &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
-        
+
         if( data[NORMAL_OBJECT] == state.INVALID )
             data[NORMAL_OBJECT] = state.newBufferObject( charThis + 1 );
         glBindBuffer( GL_ARRAY_BUFFER, data[NORMAL_OBJECT] );
         glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
                         &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
-        
+
         if( data[COLOR_OBJECT] == state.INVALID )
             data[COLOR_OBJECT] = state.newBufferObject( charThis + 2 );
         if( state.useColors() )
@@ -232,16 +232,16 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
             glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
                             &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
         }
-        
+
         if( data[INDEX_OBJECT] == state.INVALID )
             data[INDEX_OBJECT] = state.newBufferObject( charThis + 3 );
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, data[INDEX_OBJECT] );
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER,
                         _indexLength * sizeof( ShortIndex ),
                         &_globalData.indices[_indexStart], GL_STATIC_DRAW );
-        
+
         break;
-    }        
+    }
     case RENDER_MODE_DISPLAY_LIST:
     default:
     {
@@ -287,26 +287,26 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
 {
     GLuint buffers[4];
     for( int i = 0; i < 4; ++i )
-        buffers[i] = 
+        buffers[i] =
             state.getBufferObject( reinterpret_cast< const char* >(this) + i );
-    if( buffers[VERTEX_OBJECT] == state.INVALID || 
-        buffers[NORMAL_OBJECT] == state.INVALID || 
-        buffers[COLOR_OBJECT] == state.INVALID || 
+    if( buffers[VERTEX_OBJECT] == state.INVALID ||
+        buffers[NORMAL_OBJECT] == state.INVALID ||
+        buffers[COLOR_OBJECT] == state.INVALID ||
         buffers[INDEX_OBJECT] == state.INVALID )
 
         setupRendering( state, buffers );
-    
+
     if( state.useColors() )
     {
         glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
-        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
+        glColorPointer( 3, GL_UNSIGNED_BYTE, 0, 0 );
     }
     glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
     glNormalPointer( GL_FLOAT, 0, 0 );
     glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
-    glDrawElements( GL_TRIANGLES, GLsizei( _indexLength ), GL_UNSIGNED_SHORT, 0 );
+    glDrawElements( GL_TRIANGLES, GLsizei(_indexLength), GL_UNSIGNED_SHORT, 0 );
 }
 
 
@@ -322,7 +322,7 @@ void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 
     if( displayList == state.INVALID )
         setupRendering( state, &displayList );
-    
+
     glCallList( displayList );
 }
 
@@ -331,24 +331,16 @@ void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 inline
 void VertexBufferLeaf::renderImmediate( VertexBufferState& state ) const
 {
-    glBegin( GL_TRIANGLES );  
+    glBegin( GL_TRIANGLES );
     for( Index offset = 0; offset < _indexLength; ++offset )
     {
         const Index i =_vertexStart + _globalData.indices[_indexStart + offset];
         if( state.useColors() )
-            glColor4ubv( &_globalData.colors[i][0] );
+            glColor3ubv( &_globalData.colors[i][0] );
         glNormal3fv( &_globalData.normals[i][0] );
         glVertex3fv( &_globalData.vertices[i][0] );
     }
     glEnd();
-    
-//    if( state.useColors() )
-//        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 
-//                        &_globalData.colors[_vertexStart] );
-//    glNormalPointer( GL_FLOAT, 0, &_globalData.normals[_vertexStart] );
-//    glVertexPointer( 3, GL_FLOAT, 0, &_globalData.vertices[_vertexStart] );
-//    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 
-//                    &_globalData.indices[_indexStart] );
 }
 
 
@@ -361,15 +353,15 @@ void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
         throw MeshException( "Error reading binary file. Expected a leaf "
                              "node, but found something else instead." );
     VertexBufferBase::fromMemory( addr, globalData );
-    memRead( reinterpret_cast< char* >( &_boundingBox ), addr, 
+    memRead( reinterpret_cast< char* >( &_boundingBox ), addr,
              sizeof( BoundingBox ) );
-    memRead( reinterpret_cast< char* >( &_vertexStart ), addr, 
+    memRead( reinterpret_cast< char* >( &_vertexStart ), addr,
              sizeof( Index ) );
-    memRead( reinterpret_cast< char* >( &_vertexLength ), addr, 
+    memRead( reinterpret_cast< char* >( &_vertexLength ), addr,
              sizeof( ShortIndex ) );
-    memRead( reinterpret_cast< char* >( &_indexStart ), addr, 
+    memRead( reinterpret_cast< char* >( &_indexStart ), addr,
              sizeof( Index ) );
-    memRead( reinterpret_cast< char* >( &_indexLength ), addr, 
+    memRead( reinterpret_cast< char* >( &_indexLength ), addr,
              sizeof( Index ) );
 }
 

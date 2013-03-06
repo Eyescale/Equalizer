@@ -76,7 +76,7 @@ void AccumBufferObject::load( const GLfloat value )
     unbind();
     EQ_GL_ERROR( "after AccumBufferObject::load" );
 
-#if 0
+#if 1
     static a_int32_t i;
     std::ostringstream os;
     os << "abo" << ++i;
