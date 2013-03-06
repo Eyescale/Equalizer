@@ -1134,18 +1134,17 @@ struct RGBHeader
 #endif
 ;
 
-void put32f( std::ostream& os, const char* ptr, const bool invert = false )
+void put32f( std::ostream& os, const char* ptr )
 {
     const float& value = *(float*)(ptr);
-    const uint8_t byte = invert ? 255 - uint8_t( value * 255.f ) :
-                                  uint8_t( value * 255.f );
+    const uint8_t byte = uint8_t( value * 255.f );
     os.write( (const char*)&byte, 1 );
 }
-void put16f( std::ostream& os, const char* ptr, const bool invert = false )
+void put16f( std::ostream& os, const char* ptr )
 {
     const uint16_t& value = *(uint16_t*)(ptr);
     const float f = half_to_float( value );
-    put32f( os, (const char*)&f, invert );
+    put32f( os, (const char*)&f );
 }
 }
 
@@ -1282,10 +1281,7 @@ bool Image::writeImage( const std::string& filename,
         // channel four is Alpha
         if( nChannels == 4 )
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
-                if( bpc == 1 && header.maxValue == 255 )
-                    image.put( 255 - data[j] ); // invert alpha
-                else
-                    image.write( &data[j], bpc );
+                image.write( &data[j], bpc );
     }
     else
     {
@@ -1342,8 +1338,7 @@ bool Image::writeImage( const std::string& filename,
          // channel four is Alpha
         if( nChannels == 4 )
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
-                twoBPC ? put16f( image, &data[j], true ) :
-                         put32f( image, &data[j], true );
+                twoBPC ? put16f( image, &data[j] ) : put32f( image, &data[j] );
     }
     else
     {
@@ -1541,50 +1536,43 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     // Each channel is saved separately
     switch( bpc )
     {
-        case 1:
-            for( size_t i = 0; i < nChannels; ++i )
+    case 1:
+        for( size_t i = 0; i < nChannels; ++i )
+            for( size_t j = i; j < nComponents; j += nChannels )
             {
-                for( size_t j = i; j < nComponents; j += nChannels )
-                {
-                    data[j] = *addr;
-                    ++addr;
-                }
+                data[j] = *addr;
+                ++addr;
             }
-            break;
+        break;
 
-        case 2:
-            for( size_t i = 0; i < nChannels; ++i )
+    case 2:
+        for( size_t i = 0; i < nChannels; ++i )
+            for( size_t j = i; j < nComponents; j += nChannels )
             {
-                for( size_t j = i; j < nComponents; j += nChannels )
-                {
-                    reinterpret_cast< uint16_t* >( data )[ j ] =
-                        *reinterpret_cast< const uint16_t* >( addr );
-                    addr += bpc;
-                }
+                reinterpret_cast< uint16_t* >( data )[ j ] =
+                    *reinterpret_cast< const uint16_t* >( addr );
+                addr += bpc;
             }
-            break;
+        break;
 
-        case 4:
-            for( size_t i = 0; i < nChannels; ++i )
+    case 4:
+        for( size_t i = 0; i < nChannels; ++i )
+            for( size_t j = i; j < nComponents; j += nChannels )
             {
-                for( size_t j = i; j < nComponents; j += nChannels )
-                {
-                    reinterpret_cast< uint32_t* >( data )[ j ] =
-                        *reinterpret_cast< const uint32_t* >( addr );
-                    addr += bpc;
-                }
+                reinterpret_cast< uint32_t* >( data )[ j ] =
+                    *reinterpret_cast< const uint32_t* >( addr );
+                addr += bpc;
             }
-            break;
+        break;
 
-        default:
-            for( size_t i = 0; i < depth; i += bpc )
+    default:
+        for( size_t i = 0; i < depth; i += bpc )
+            for( size_t j = i * bpc; j < nBytes; j += depth )
             {
-                for( size_t j = i * bpc; j < nBytes; j += depth )
-                {
-                    memcpy( &data[j], addr, bpc );
-                    addr += bpc;
-                }
+                memcpy( &data[j], addr, bpc );
+                addr += bpc;
             }
+        break;
     }
     return true;
 }
