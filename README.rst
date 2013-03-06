@@ -269,9 +269,9 @@ information.
 .. _4. Errata: #errata
 .. _listed below: #bugfixes
 .. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-1.3.6.tar.gz
+    http://www.equalizergraphics.com/downloads/Equalizer-1.4.1.tar.gz
 .. _precompiled packages:
-    http://www.equalizergraphics.com/downloads/developer.html
+    http://www.equalizergraphics.com/downloads/major.html
 .. _detailed feature list: /features.html
 .. _Asynchronous       readback:
     http://www.equalizergraphics.com/documents/design/asyncCompositing.html
@@ -342,7 +342,7 @@ information.
 .. _online: http://www.equalizergraphics.com/survey.html
 .. _API     documentation:
     http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html
-.. _examples: https://github.com/Eyescale/Equalizer/tree/1.3.5/examples
+.. _examples: https://github.com/Eyescale/Equalizer/tree/1.4.1/examples
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _     Developer Mailing List: http://www.equalizergraphics.com/cgi-

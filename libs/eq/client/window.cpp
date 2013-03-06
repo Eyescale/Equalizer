@@ -378,10 +378,7 @@ bool Window::configInit( const uint128_t& initID )
 
     LBASSERT( !_systemWindow );
 
-    if( !configInitSystemWindow( initID )) return false;
-    if( !configInitGL( initID ))       return false;
-
-    return true;
+    return configInitSystemWindow( initID ) && configInitGL( initID );
 }
 
 bool Window::configInitSystemWindow( const uint128_t& )
@@ -557,6 +554,9 @@ void Window::deleteTransferSystemWindow()
 //----------------------------------------------------------------------
 bool Window::configExit()
 {
+    if( !_systemWindow )
+        return true;
+
     const bool ret = configExitGL();
     return configExitSystemWindow() && ret;
 }
@@ -598,7 +598,7 @@ void Window::swapBuffers()
 
 const GLEWContext* Window::glewGetContext() const
 {
-    return _systemWindow->glewGetContext();
+    return _systemWindow ? _systemWindow->glewGetContext() : 0;
 }
 
 void Window::_enterBarrier( co::ObjectVersion barrier )
