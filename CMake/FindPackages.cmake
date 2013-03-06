@@ -147,6 +147,8 @@ if(SAGE_name)
 endif()
 
 
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE)
+
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)
   set(FIND_PACKAGES_INCLUDE

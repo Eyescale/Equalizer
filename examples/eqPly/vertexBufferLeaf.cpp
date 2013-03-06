@@ -49,7 +49,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     _indexStart = globalData.indices.size();
     _indexLength = 0;
 
-    const bool hasColors = !data.colors.emtpy();
+    const bool hasColors = !data.colors.empty();
 
     // stores the new indices (relative to _start)
     std::map< Index, ShortIndex > newIndex;
