@@ -23,8 +23,6 @@
 #include <eq/fabric/focusMode.h>     // enum
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
-#include <eq/fabric/visitorResult.h> // enum
-
 #include <string>
 #include <vector>
 

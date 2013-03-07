@@ -18,8 +18,6 @@
 #define EQ_TEST_RUNTIME 1200 // seconds
 #include <test.h>
 
-#include <co/plugins/compressor.h>
-
 #include <eq/client/frame.h>    // enum Eye
 #include <eq/client/image.h>
 #include <eq/client/init.h>
@@ -27,16 +25,16 @@
 #include <eq/client/pixelData.h>
 
 #include <co/global.h>
-#include <co/pluginRegistry.h>
+
 #include <lunchbox/clock.h>
 #include <lunchbox/file.h>
+#include <lunchbox/plugin.h>
+#include <lunchbox/pluginRegistry.h>
+#include <lunchbox/pluginVisitor.h>
+#include <lunchbox/plugins/compressor.h>
 
 #include <numeric>
 #include <fstream>
-
-#include <co/compressorInfo.h> // private header
-#include <co/plugin.h> // private header
-
 
 // Tests the functionality and speed of the image compression.
 //#define WRITE_DECOMPRESSED
@@ -48,50 +46,19 @@
 
 namespace
 {
-static std::vector< uint32_t > _getCompressorNames()
+class Finder : public lunchbox::ConstPluginVisitor
 {
-    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
-    const co::Plugins& plugins = registry.getPlugins();
+public:
+    virtual lunchbox::VisitorResult visit( const lunchbox::Plugin&,
+                                           const EqCompressorInfo& info )
+    {
+        if( !(info.capabilities & EQ_COMPRESSOR_TRANSFER) )
+            names.push_back( info.name );
+        return lunchbox::TRAVERSE_CONTINUE;
+    }
 
     std::vector< uint32_t > names;
-    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
-    {
-        const co::CompressorInfos& infos = (*i)->getInfos();
-        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
-        {
-            const EqCompressorInfo& info = *j;
-            if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
-                continue;
-            names.push_back( info.name );
-        }
-    }
-
-    return names;
-}
-
-#ifdef COMPARE_RESULT
-static float _getCompressorQuality( const uint32_t name )
-{
-    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
-    const co::Plugins& plugins = registry.getPlugins();
-
-    float quality = 1.0f;
-    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
-    {
-        const co::CompressorInfos& infos = (*i)->getInfos();
-        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
-        {
-            if( name != (*j).name )
-                continue;
-
-            quality = (*j).quality;
-            break;
-        }
-    }
-
-    return quality;
-}
-#endif
+};
 
 template< typename T >
 static void _compare( const void* data, const void* destData,
@@ -126,8 +93,7 @@ int main( int argc, char **argv )
     eq::Strings images;
     eq::Strings candidates = lunchbox::searchDirectory( "images", ".*\\.rgb");
     stde::usort( candidates ); // have a predictable order
-    for( eq::Strings::const_iterator i = candidates.begin();
-        i != candidates.end(); ++i )
+    for( eq::StringsCIter i = candidates.begin(); i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
         const size_t decompPos = filename.find( "out_" );
@@ -151,14 +117,20 @@ int main( int argc, char **argv )
     eq::Image image;
     eq::Image destImage;
 
+    // For each compressor...
+    const lunchbox::PluginRegistry& registry = co::Global::getPluginRegistry();
+    Finder finder;
+    registry.accept( finder );
+    std::vector< uint32_t >& names = finder.names;
+    std::cout << images.size() << " test images X " << names.size()
+              << " plugins" << std::endl;
+    TESTINFO( names.size() > 23, names.size( ));
+
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
     std::cout << "COMPRESSOR,                            IMAGE,       SIZE, A,"
               << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
 
-    // For each compressor...
-    std::vector< uint32_t > names( _getCompressorNames( ));
-    TESTINFO( names.size() > 23, names.size( ));
     for( std::vector< uint32_t >::const_iterator i = names.begin();
          i != names.end(); ++i )
     {
@@ -175,8 +147,7 @@ int main( int argc, char **argv )
             float totalDecompressTime( 0.f );
 
             // For each image
-            for( eq::Strings::const_iterator j = images.begin();
-                 j != images.end(); ++j )
+            for( eq::StringsCIter j = images.begin(); j != images.end(); ++j )
             {
                 const std::string& filename = *j;
                 const size_t depthPos = filename.find( "depth" );
@@ -284,7 +255,8 @@ int main( int argc, char **argv )
 #ifdef COMPARE_RESULT
                 const uint8_t* data = image.getPixelPointer( buffer );
                 const uint8_t* destData = destImage.getPixelPointer( buffer );
-                const float quality = _getCompressorQuality( name );
+                const float quality =
+                    registry.findPlugin( name )->findInfo( name ).quality;
                 uint8_t channelSize = 0;
                 switch( image.getExternalFormat( buffer ))
                 {

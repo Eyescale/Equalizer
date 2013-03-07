@@ -23,7 +23,6 @@
 #include <eq/fabric/paths.h>
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/types.h>
-#include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
 {
@@ -430,4 +429,3 @@ namespace fabric
 }
 
 #endif // EQFABRIC_CHANNEL_H
-

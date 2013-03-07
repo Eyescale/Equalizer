@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -391,12 +391,6 @@ namespace detail { class Image; }
 
     private:
         detail::Image* const _impl;
-
-        /** @return an appropriate compressor name for the given buffer.*/
-        uint32_t _chooseCompressor( const Frame::Buffer buffer ) const;
-
-        co::CompressorInfos _findTransferers( const Frame::Buffer buffer,
-                                              const GLEWContext* gl ) const;
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;

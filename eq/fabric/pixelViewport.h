@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@ namespace eq
 namespace fabric
 {
     /** Holds a 2D pixel viewport with methods for manipulation. */
-    class PixelViewport 
+    class PixelViewport
     {
     public:
         /** @name Constructors */
@@ -40,7 +40,7 @@ namespace fabric
         PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
         /** Construct a new pixel viewport with default values. @version 1.0 */
-        explicit PixelViewport( const int32_t x_, const int32_t y_, 
+        explicit PixelViewport( const int32_t x_, const int32_t y_,
                                 const int32_t w_, const int32_t h_ )
                 : x(x_), y(y_), w(w_), h(h_)  {}
 
@@ -54,14 +54,14 @@ namespace fabric
         /** Invalidate the pixel viewport. @version 1.0 */
         void invalidate() { x = 0; y = 0; w = -1; h = -1; }
 
-        /** 
+        /**
          * @return true if the pixel viewport has a non-negative, but
          *         potentially empty, size.
          * @version 1.0
          */
         bool isValid() const { return (w>=0 && h>=0); }
-        
-        /** 
+
+        /**
          * @return true if the pixel viewport has a non-zero area, i.e, it is
          *         not empty.
          * @version 1.0
@@ -134,7 +134,7 @@ namespace fabric
                 w = static_cast< int32_t >( w * zoom.x() + .5f );
                 h = static_cast< int32_t >( h * zoom.y() + .5f );
             }
-        
+
         /**
          * @return the zoom which would result in the given rhs pixel
          *         viewport when applied to this pixel viewport.
@@ -146,7 +146,7 @@ namespace fabric
                     return Zoom::NONE;
 
                 if( !rhs.hasArea( ))
-                    return Zoom( std::numeric_limits< float >::max(), 
+                    return Zoom( std::numeric_limits< float >::max(),
                                  std::numeric_limits< float >::max( ));
 
                 return Zoom( w / static_cast<float>( rhs.w ),
@@ -158,6 +158,24 @@ namespace fabric
 
         /** @return the Y end position. @version 1.0 */
         int32_t getYEnd() const { return y+h; }
+
+        /** Convert into a lunchbox::Plugin usable format. @version 1.5.2 */
+        void convertToPlugin( uint64_t dims[4] ) const
+        {
+            dims[ 0 ] = x;
+            dims[ 1 ] = w;
+            dims[ 2 ] = y;
+            dims[ 3 ] = h;
+        }
+
+        /** Convert from a lunchbox::Plugin format. @version 1.5.2 */
+        void convertFromPlugin( const uint64_t dims[4] )
+        {
+            x = dims[ 0 ];
+            w = dims[ 1 ];
+            y = dims[ 2 ];
+            h = dims[ 3 ];
+        }
 
         /** @return the addition of this pvp with an offset. @version 1.0 */
         const PixelViewport operator + ( const Vector2i& offset ) const
@@ -175,7 +193,7 @@ namespace fabric
                     return Viewport::FULL;
 
                 if( !rhs.hasArea( ))
-                    return Viewport( static_cast<float>( x ), 
+                    return Viewport( static_cast<float>( x ),
                                      static_cast<float>( y ), 0.f, 0.f );
 
                 return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
@@ -209,8 +227,8 @@ namespace fabric
          * @return true if the two pixel viewports are identical.
          * @version 1.0
          */
-        bool operator == ( const PixelViewport& rhs ) const 
-            { 
+        bool operator == ( const PixelViewport& rhs ) const
+            {
                 return ( x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h );
             }
 
@@ -218,8 +236,8 @@ namespace fabric
          * @return true if the two pixel viewports are not identical.
          * @version 1.0
          */
-        bool operator != ( const PixelViewport& rhs ) const 
-            { 
+        bool operator != ( const PixelViewport& rhs ) const
+            {
                 return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h );
             }
 
@@ -242,7 +260,7 @@ namespace fabric
                 const int32_t sEy =     y +     h;
                 const int32_t dEx = rhs.x + rhs.w;
                 const int32_t dEy = rhs.y + rhs.h;
-                
+
                 x = LB_MIN( x, rhs.x );
                 y = LB_MIN( y, rhs.y );
                 w = LB_MAX( sEx, dEx ) - x;
@@ -260,7 +278,7 @@ namespace fabric
                     invalidate();
                     return;
                 }
-                
+
                 if( !rhs.hasArea() || !hasArea() )
                 {
                     x = 0;
@@ -269,12 +287,12 @@ namespace fabric
                     h = 0;
                     return;
                 }
-                
+
                 const int32_t sEx =     x +     w;
                 const int32_t sEy =     y +     h;
                 const int32_t dEx = rhs.x + rhs.w;
                 const int32_t dEy = rhs.y + rhs.h;
-                    
+
                 x = LB_MAX( x, rhs.x );
                 y = LB_MAX( y, rhs.y );
                 w = LB_MIN( sEx, dEx ) - x;
@@ -289,7 +307,7 @@ namespace fabric
         int32_t h;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, 
+    inline std::ostream& operator << ( std::ostream& os,
                                        const PixelViewport& pvp )
     {
         os << "[ " << pvp.x << " " << pvp.y << " " << pvp.w << " " << pvp.h

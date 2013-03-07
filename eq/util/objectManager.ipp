@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,7 +25,7 @@
 #include <eq/util/texture.h>
 
 #ifdef EQUALIZER_SHARED
-#  include "gpuCompressor.h"
+#  include <lunchbox/uploader.h>
 #endif
 
 #include <eq/client/gl.h>
@@ -127,8 +127,8 @@ ObjectManager<T>::SharedData::~SharedData()
 
     if( !eqUploaders.empty( ))
         LBWARN << eqUploaders.size()
-               << " eq::GPUCompressor's still allocated in ObjectManager "
-               << "destructor" << std::endl;
+               << " uploader still allocated in ObjectManager destructor"
+               << std::endl;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     LBASSERTINFO( eqUploaders.empty(), eqUploaderAllocs.begin()->second );
 #else
@@ -220,17 +220,15 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqFrameBufferObjects.clear();
 
-#ifdef EQUALIZER_SHARED
     for( typename UploaderHash::const_iterator i = _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
     {
-        GPUCompressor* uploader = i->second;
-        LBVERB << "Delete eq::GPUCompressor " << i->first << " @"
-               << (void*)uploader << std::endl;
+        lunchbox::Uploader* uploader = i->second;
+        LBVERB << "Delete uploader " << i->first << " @" << (void*)uploader
+               << std::endl;
         delete uploader;
     }
     _data->eqUploaders.clear();
-#endif
 }
 
 // display list functions
@@ -597,10 +595,9 @@ void ObjectManager<T>::deleteEqAccum( const T& key )
     delete accum;
 }
 
-#ifdef EQUALIZER_SHARED
 // eq::CompressorData object functions
 template< class T >
-GPUCompressor* ObjectManager<T>::getEqUploader( const T& key ) const
+lunchbox::Uploader* ObjectManager<T>::getEqUploader( const T& key ) const
 {
     typename UploaderHash::const_iterator i = _data->eqUploaders.find( key );
     if( i == _data->eqUploaders.end( ))
@@ -610,7 +607,7 @@ GPUCompressor* ObjectManager<T>::getEqUploader( const T& key ) const
 }
 
 template< class T >
-GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
+lunchbox::Uploader* ObjectManager<T>::newEqUploader( const T& key )
 {
     if( _data->eqUploaders.find( key ) != _data->eqUploaders.end( ))
     {
@@ -618,7 +615,7 @@ GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
         return 0;
     }
 
-    GPUCompressor* compressor = new GPUCompressor( _data->glewContext );
+    lunchbox::Uploader* compressor = new lunchbox::Uploader;
     _data->eqUploaders[ key ] = compressor;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     std::ostringstream out;
@@ -630,9 +627,9 @@ GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
 }
 
 template< class T >
-GPUCompressor* ObjectManager<T>::obtainEqUploader( const T& key )
+lunchbox::Uploader* ObjectManager<T>::obtainEqUploader( const T& key )
 {
-    GPUCompressor* compressor = getEqUploader( key );
+    lunchbox::Uploader* compressor = getEqUploader( key );
     if( compressor )
         return compressor;
     return newEqUploader( key );
@@ -645,14 +642,14 @@ void ObjectManager<T>::deleteEqUploader( const T& key )
     if( i == _data->eqUploaders.end( ))
         return;
 
-    GPUCompressor* compressor = i->second;
+    lunchbox::Uploader* uploader = i->second;
     _data->eqUploaders.erase( i );
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     _data->eqUploaderAllocs.erase( key );
 #endif
-    delete compressor;
+    uploader->clear();
+    delete uploader;
 }
-#endif
 
 // eq::Texture object functions
 template< class T >

@@ -468,7 +468,6 @@ bool Window::configInitGL( const uint128_t& )
     glEnable( GL_COLOR_MATERIAL );
 
     glClearDepth( 1.f );
-    //glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 
     glClear( GL_COLOR_BUFFER_BIT );
     swapBuffers();

@@ -55,6 +55,7 @@
 #include <co/queueSlave.h>
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
+#include <lunchbox/plugins/compressor.h>
 
 #ifdef EQ_USE_GLSTATS
 #  include "detail/statsRenderer.h"
@@ -382,9 +383,7 @@ void Channel::frameClear( const uint128_t& )
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         const Vector3ub color = getUniqueColor();
-        glClearColor( color.r()/255.0f,
-                      color.g()/255.0f,
-                      color.b()/255.0f, 1.0f );
+        glClearColor( color.r()/255.f, color.g()/255.f, color.b()/255.f, 0.f );
     }
 #endif // NDEBUG
 

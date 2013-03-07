@@ -133,7 +133,7 @@ if(OpenSceneGraph_name)
   include_directories(${${OpenSceneGraph_name}_INCLUDE_DIRS})
 endif()
 
-find_package(SAGE 3.0)
+find_package(SAGE 4.0)
 if(SAGE_FOUND)
   set(SAGE_name SAGE)
 endif()
@@ -146,6 +146,8 @@ if(SAGE_name)
   include_directories(${${SAGE_name}_INCLUDE_DIRS})
 endif()
 
+
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE)
 
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)

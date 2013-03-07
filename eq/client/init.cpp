@@ -30,32 +30,29 @@
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
-#include <co/pluginRegistry.h>
 #include <lunchbox/file.h>
+#include <lunchbox/pluginRegistry.h>
+
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
 
 #include <fstream>
 
 #ifdef _MSC_VER
 #  include <direct.h>
 #  define getcwd _getcwd
+#  define atoll _atoi64
 #endif
-
 #ifndef MAXPATHLEN
 #  define MAXPATHLEN 1024
 #endif
-
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/program_options/variables_map.hpp>
-namespace arg = boost::program_options;
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
 #endif
 
-#ifdef _WIN32
-#  define atoll _atoi64
-#endif
+namespace arg = boost::program_options;
 
 namespace eq
 {
@@ -280,7 +277,7 @@ bool _parseArguments( const int argc, char** argv )
 
 void _initPlugins()
 {
-    co::PluginRegistry& plugins = co::Global::getPluginRegistry();
+    lunchbox::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
     plugins.addDirectory( "/usr/share/Equalizer/plugins" );
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
@@ -331,7 +328,7 @@ void _initPlugins()
 
 void _exitPlugins()
 {
-    co::PluginRegistry& plugins = co::Global::getPluginRegistry();
+    lunchbox::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.removeDirectory( "../share/Equalizer/plugins" );

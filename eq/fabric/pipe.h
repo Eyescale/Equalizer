@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -22,9 +22,6 @@
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/pixelViewport.h> // property
 #include <eq/fabric/types.h>
-#include <eq/fabric/visitorResult.h> // enum
-
-#include <co/types.h>            // LocalNodePtr
 
 namespace eq
 {
@@ -237,4 +234,3 @@ namespace fabric
 }
 
 #endif // EQFABRIC_PIPE_H
-
