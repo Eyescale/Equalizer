@@ -61,7 +61,7 @@ endforeach()
 
 # set_target_properties(tests PROPERTIES FOLDER "Tests")
 add_custom_target(doxygen DEPENDS doxygen_Equalizer)
-add_custom_target(github DEPENDS github_Collage github_Sequel github_Equalizer)
+add_custom_target(github DEPENDS github_Sequel github_Equalizer)
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/man/man3)
 make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/documents/Developer/API/internal)
