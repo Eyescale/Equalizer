@@ -83,11 +83,17 @@ namespace fabric
         /** @return the current focal distance. @version 1.1 */
         float getFocusDistance() const { return _data.focusDistance; }
 
-        /** Set the focal mode. @sa setFocusMode @version 1.1 */
+        /** Set the focal mode. @version 1.1 */
         EQFABRIC_INL void setFocusMode( const FocusMode focusMode );
 
         /** @return the current focal mode. @version 1.1 */
         FocusMode getFocusMode() const { return _data.focusMode; }
+
+        /** Set the index of the OpenCV camera for tracking. @version 1.5.2 */
+        EQFABRIC_INL void setOpenCVCamera( const int32_t index );
+
+        /** @return the current OpenCV camera. @version 1.1 */
+        int32_t getOpenCVCamera() const { return _data.camera; }
 
         /** @return the parent config of this observer. @version 1.0 */
         const C* getConfig() const { return _config; }
@@ -138,8 +144,10 @@ namespace fabric
             DIRTY_EYE_POSITION = Object::DIRTY_CUSTOM << 0,
             DIRTY_HEAD         = Object::DIRTY_CUSTOM << 1,
             DIRTY_FOCUS        = Object::DIRTY_CUSTOM << 2,
+            DIRTY_CAMERA       = Object::DIRTY_CUSTOM << 3,
             DIRTY_OBSERVER_BITS =
-                DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS |DIRTY_OBJECT_BITS
+                DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_CAMERA |
+                DIRTY_OBJECT_BITS
         };
 
         /** @internal @return the bits to be re-committed by the master. */
@@ -154,10 +162,11 @@ namespace fabric
         {
             BackupData();
 
+            Matrix4f headMatrix; //!< The current head position
             Vector3f eyePosition[ NUM_EYES ]; //!< The current eye positions
             float focusDistance; //!< The current focal distance
             FocusMode focusMode; //!< The current focal distance mode
-            Matrix4f headMatrix; //!< The current head position
+            int32_t camera; //!< The OpenCV camera used for head tracking
         }
             _data, _backup;
 

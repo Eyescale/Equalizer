@@ -138,8 +138,10 @@ set(CLIENT_SOURCES
   event.cpp
   eventICommand.cpp
   eventHandler.cpp
+  exitVisitor.h
   frame.cpp
   frameData.cpp
+  frameVisitor.h
   gl.cpp
   glException.cpp
   glWindow.cpp
@@ -148,6 +150,7 @@ set(CLIENT_SOURCES
   half.cpp
   image.cpp
   init.cpp
+  initVisitor.h
   jitter.cpp
   layout.cpp
   node.cpp

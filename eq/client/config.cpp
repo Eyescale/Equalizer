@@ -56,6 +56,10 @@
     namespace GLStats { class Data {} _fakeStats; }
 #endif
 
+#include "exitVisitor.h"
+#include "frameVisitor.h"
+#include "initVisitor.h"
+
 namespace eq
 {
 namespace
@@ -269,51 +273,6 @@ co::NodePtr Config::getApplicationNode()
     return _impl->appNode;
 }
 
-namespace
-{
-class SetDefaultVisitor : public ConfigVisitor
-{
-public:
-    SetDefaultVisitor( const Strings& activeLayouts, const float modelUnit )
-            : _layouts( activeLayouts ), _modelUnit( modelUnit )
-            , _update( false ) {}
-
-    virtual VisitorResult visit( View* view )
-        {
-            if( view->setModelUnit( _modelUnit ))
-                _update = true;
-            return TRAVERSE_CONTINUE;
-        }
-
-    virtual VisitorResult visitPre( Canvas* canvas )
-        {
-            const Layouts& layouts = canvas->getLayouts();
-
-            for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
-            {
-                const std::string& name = *i;
-                for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
-                {
-                    const Layout* layout = *j;
-                    if( layout->getName() == name &&
-                        canvas->useLayout( j - layouts.begin( )))
-                    {
-                        _update = true;
-                    }
-                }
-            }
-            return TRAVERSE_CONTINUE;
-        }
-
-    bool needsUpdate() const { return _update; }
-
-private:
-    const Strings& _layouts;
-    const float _modelUnit;
-    bool _update;
-};
-}
-
 bool Config::init( const uint128_t& initID )
 {
     LBASSERT( !_impl->running );
@@ -323,10 +282,14 @@ bool Config::init( const uint128_t& initID )
     _impl->frameTimes.clear();
 
     ClientPtr client = getClient();
-    SetDefaultVisitor defaults( client->getActiveLayouts(),
-                                client->getModelUnit( ));
-    accept( defaults );
-    if( defaults.needsUpdate( ))
+    InitVisitor initVisitor( client->getActiveLayouts(),
+                             client->getModelUnit( ));
+    if( accept( initVisitor ) == TRAVERSE_TERMINATE )
+    {
+        LBWARN << "Application-local initialization failed" << std::endl;
+        return false;
+    }
+    if( initVisitor.needsUpdate( ))
         update();
 
     co::LocalNodePtr localNode = getLocalNode();
@@ -364,6 +327,12 @@ bool Config::exit()
     bool ret = false;
     localNode->waitRequest( requestID, ret );
 
+    ExitVisitor exitVisitor;
+    if( accept( exitVisitor ) == TRAVERSE_TERMINATE )
+    {
+        LBWARN << "Application-local de-initialization failed" << std::endl;
+        ret = false;
+    }
 #ifndef EQ_2_0_API
     _impl->lastEvent.clear();
 #endif
@@ -420,6 +389,9 @@ bool Config::update()
 uint32_t Config::startFrame( const uint128_t& frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
+    FrameVisitor visitor( _impl->currentFrame + 1 );
+    accept( visitor );
+
     update();
 
     // Request new frame

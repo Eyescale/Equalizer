@@ -53,9 +53,10 @@ Observer< C, O >::~Observer()
 
 template< typename C, typename O >
 Observer< C, O >::BackupData::BackupData()
-        : focusDistance( 1.f )
-        , focusMode( FOCUSMODE_FIXED )
-        , headMatrix( Matrix4f::IDENTITY )
+    : headMatrix( Matrix4f::IDENTITY )
+    , focusDistance( 1.f )
+    , focusMode( FOCUSMODE_FIXED )
+    , camera( AUTO )
 {
     for( size_t i = 0; i < NUM_EYES; ++i )
         eyePosition[ i ] = Vector3f::ZERO;
@@ -84,13 +85,15 @@ void Observer< C, O >::serialize( co::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
 
+    if( dirtyBits & DIRTY_HEAD )
+        os << _data.headMatrix;
     if( dirtyBits & DIRTY_EYE_POSITION )
         for( size_t i = 0; i < NUM_EYES; ++i )
             os << _data.eyePosition[i];
     if( dirtyBits & DIRTY_FOCUS )
         os << _data.focusDistance << _data.focusMode;
-    if( dirtyBits & DIRTY_HEAD )
-        os << _data.headMatrix;
+    if( dirtyBits & DIRTY_CAMERA )
+        os << _data.camera;
 }
 
 template< typename C, typename O >
@@ -99,13 +102,15 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
 
+    if( dirtyBits & DIRTY_HEAD )
+        is >> _data.headMatrix;
     if( dirtyBits & DIRTY_EYE_POSITION )
         for( size_t i = 0; i < NUM_EYES; ++i )
             is >> _data.eyePosition[i];
     if( dirtyBits & DIRTY_FOCUS )
         is >> _data.focusDistance >> _data.focusMode;
-    if( dirtyBits & DIRTY_HEAD )
-        is >> _data.headMatrix;
+    if( dirtyBits & DIRTY_CAMERA )
+        is >> _data.camera;
 }
 
 template< typename C, typename O >
@@ -198,6 +203,16 @@ void Observer< C, O >::setFocusMode( const FocusMode focusMode )
 }
 
 template< typename C, typename O >
+void Observer< C, O >::setOpenCVCamera( const int32_t camera )
+{
+    if( _data.camera == camera )
+        return;
+
+    _data.camera = camera;
+    setDirty( DIRTY_CAMERA );
+}
+
+template< typename C, typename O >
 void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 {
     if( _data.headMatrix == matrix )
@@ -223,6 +238,8 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
        << "eye_right      " << observer.getEyePosition( EYE_RIGHT ) << std::endl
        << "focus_distance " << observer.getFocusDistance() << std::endl
        << "focus_mode     " << observer.getFocusMode() << std::endl
+       << "opencv_camera  " << IAttribute( observer.getOpenCVCamera( ))
+       << std::endl
        << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
        << lunchbox::enableFlush;
     return os;

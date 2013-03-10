@@ -352,7 +352,7 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-         EQ_API virtual bool configInit( const uint128_t& initID );
+        EQ_API virtual bool configInit( const uint128_t& initID );
 
         /**
          * Initialize the OS-specific window.
