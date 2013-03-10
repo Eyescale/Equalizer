@@ -68,7 +68,7 @@ endif()
 if(BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS TRUE)
 endif()
-add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
+add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_ALL_DYN_LINK) # Don't use 'pragma lib' on Windows
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
@@ -158,7 +158,7 @@ endif()
 set(LIBRARY_DIR lib${LIB_SUFFIX})
 
 if(APPLE)
-  list(APPEND CMAKE_PREFIX_PATH "/opt/local/") # Macports
+  list(APPEND CMAKE_PREFIX_PATH /opt/local/ /opt/local/lib) # Macports
   if(NOT CMAKE_OSX_ARCHITECTURES OR CMAKE_OSX_ARCHITECTURES STREQUAL "")
     if(_CMAKE_OSX_MACHINE MATCHES "ppc")
       set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64" CACHE
