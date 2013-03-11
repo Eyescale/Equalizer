@@ -23,7 +23,7 @@
 #include <eq/fabric/paths.h>
 
 #ifdef EQ_USE_OPENCV
-#  include <opencv2/opencv.hpp>
+#  include "cvTracker.h"
 #endif
 
 namespace eq
@@ -35,12 +35,12 @@ class Observer
 public:
     Observer()
 #ifdef EQ_USE_OPENCV
-        : capture( 0 )
+        : tracker( 0 )
 #endif
     {}
 
 #ifdef EQ_USE_OPENCV
-    CvCapture* capture;
+    CVTracker* tracker;
 #endif
 };
 }
@@ -76,18 +76,14 @@ bool Observer::configInit()
     else
         --camera; // .eqc counts from 1, OpenCV from 0
 
-    impl_->capture = cvCaptureFromCAM( camera );
-	if( !impl_->capture )
-    {
-        EQWARN << "Found no OpenCV camera " << camera << " for " << *this
-               << std::endl;
-        return getOpenCVCamera() == AUTO; // not a failure for auto setting
-    }
+    impl_->tracker = new detail::CVTracker( camera );
+    impl_->tracker->start();
+    if( impl_->tracker->isGood( ))
+        return true;
 
-    cvSetCaptureProperty( impl_->capture, CV_CAP_PROP_FRAME_WIDTH, 320 );
-    cvSetCaptureProperty( impl_->capture, CV_CAP_PROP_FRAME_HEIGHT, 240 );
-    LBINFO << "Activated tracking camera " << camera << " for " << *this
-           << std::endl;
+    delete impl_->tracker;
+    impl_->tracker = 0;
+    return getOpenCVCamera() == AUTO; // not a failure for auto setting
 #endif
     return true;
 }
@@ -95,9 +91,8 @@ bool Observer::configInit()
 bool Observer::configExit()
 {
 #ifdef EQ_USE_OPENCV
-	if( !impl_->capture )
-        cvReleaseCapture( &impl_->capture );
-    impl_->capture = 0;
+    delete impl_->tracker;
+    impl_->tracker = 0;
 #endif
     return true;
 }
@@ -105,8 +100,8 @@ bool Observer::configExit()
 void Observer::frameStart( const uint32_t frameNumber )
 {
 #ifdef EQ_USE_OPENCV
-    if( !impl_->capture )
-        return;
+    if( impl_->tracker )
+        setHeadMatrix( impl_->tracker->getHeadMatrix( ));
 #endif
 }
 

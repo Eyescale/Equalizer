@@ -146,8 +146,21 @@ if(SAGE_name)
   include_directories(${${SAGE_name}_INCLUDE_DIRS})
 endif()
 
+find_package(OpenCV )
+if(OpenCV_FOUND)
+  set(OpenCV_name OpenCV)
+endif()
+if(OPENCV_FOUND)
+  set(OpenCV_name OPENCV)
+endif()
+if(OpenCV_name)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_OPENCV)
+  link_directories(${${OpenCV_name}_LIBRARY_DIRS})
+  include_directories(${${OpenCV_name}_INCLUDE_DIRS})
+endif()
 
-set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE)
+
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV)
 
 # Write defines.h and options.cmake
 if(NOT FIND_PACKAGES_INCLUDE)
