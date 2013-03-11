@@ -199,7 +199,7 @@ configure_package_config_file(
   PATH_VARS INCLUDE_INSTALL_DIR ${HAS_LIBRARY_NAMES} DEPENDENTS
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
-# create ProjectConfigVersion.cmake
+# create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
   VERSION ${VERSION} COMPATIBILITY AnyNewerVersion)
@@ -208,3 +208,25 @@ install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
+
+# create and install Project.pc
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
+  "prefix=${CMAKE_INSTALL_PREFIX}\n"
+  "exec_prefix=\${prefix}\n"
+  "libdir=\${exec_prefix}/${LIBRARY_DIR}\n"
+  "includedir=\${prefix}/include\n\n"
+  "Name: ${CMAKE_PROJECT_NAME}\n"
+  "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n"
+  "Version: ${VERSION}\n"
+  "Requires: ${CPACK_PACKAGE_CONFIG_REQUIRES}\n"
+  "Conflicts: ${CPACK_PACKAGE_CONFIG_CONFLICTS}\n"
+  "Cflags: -I\${includedir}\n"
+  "Libs: -L\${libdir}" )
+foreach(_library ${LIBRARY_NAMES})
+  file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
+    " -l${_library}")
+endforeach()
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc "\n")
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
+  DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT dev)
