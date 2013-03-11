@@ -23,14 +23,7 @@
 #include <eq/fabric/paths.h>
 
 #ifdef EQ_USE_OPENCV
-#  include <opencv2/opencv.hpp>
-
-#  define FACE_CONFIG std::string( OPENCV_INSTALL_PATH ) + \
-    "/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml"
-#  define EYE_CONFIG  std::string( OPENCV_INSTALL_PATH ) + \
-    "/share/OpenCV/haarcascades/haarcascade_eye_tree_eyeglasses.xml"
-#  define CAPTURE_WIDTH  320
-#  define CAPTURE_HEIGHT 240
+#  include "cvTracker.h"
 #endif
 
 namespace eq
@@ -42,14 +35,12 @@ class Observer
 public:
     Observer()
 #ifdef EQ_USE_OPENCV
-        : capture( 0 )
+        : tracker( 0 )
 #endif
     {}
 
 #ifdef EQ_USE_OPENCV
-    CvCapture* capture;
-    cv::CascadeClassifier faceDetector;
-    cv::CascadeClassifier eyeDetector;
+    CVTracker* tracker;
 #endif
 };
 }
@@ -85,39 +76,14 @@ bool Observer::configInit()
     else
         --camera; // .eqc counts from 1, OpenCV from 0
 
-    impl_->capture = cvCaptureFromCAM( camera );
-	if( !impl_->capture )
-    {
-        EQWARN << "Found no OpenCV camera " << camera << " for " << *this
-               << std::endl;
-        return getOpenCVCamera() == AUTO; // not a failure for auto setting
-    }
+    impl_->tracker = new detail::CVTracker( camera );
+    impl_->tracker->start();
+    if( impl_->tracker->isGood( ))
+        return true;
 
-    if( !impl_->faceDetector.load( FACE_CONFIG ))
-    {
-        EQWARN << "Can't set up face detector using " << FACE_CONFIG
-               << std::endl;
-
-        cvReleaseCapture( &impl_->capture );
-        impl_->capture = 0;
-        return getOpenCVCamera() == AUTO; // not a failure for auto setting
-    }
-
-    if( !impl_->eyeDetector.load( EYE_CONFIG ))
-    {
-        EQWARN << "Can't set up eye detector using " << EYE_CONFIG << std::endl;
-
-        cvReleaseCapture( &impl_->capture );
-        impl_->capture = 0;
-        return getOpenCVCamera() == AUTO; // not a failure for auto setting
-    }
-
-    cvSetCaptureProperty( impl_->capture, CV_CAP_PROP_FRAME_WIDTH,
-                          CAPTURE_WIDTH );
-    cvSetCaptureProperty( impl_->capture, CV_CAP_PROP_FRAME_HEIGHT,
-                          CAPTURE_HEIGHT );
-    LBINFO << "Activated tracking camera " << camera << " for " << *this
-           << std::endl;
+    delete impl_->tracker;
+    impl_->tracker = 0;
+    return getOpenCVCamera() == AUTO; // not a failure for auto setting
 #endif
     return true;
 }
@@ -125,9 +91,8 @@ bool Observer::configInit()
 bool Observer::configExit()
 {
 #ifdef EQ_USE_OPENCV
-	if( !impl_->capture )
-        cvReleaseCapture( &impl_->capture );
-    impl_->capture = 0;
+    delete impl_->tracker;
+    impl_->tracker = 0;
 #endif
     return true;
 }
@@ -135,45 +100,8 @@ bool Observer::configExit()
 void Observer::frameStart( const uint32_t frameNumber )
 {
 #ifdef EQ_USE_OPENCV
-    if( !impl_->capture )
-        return;
-
-    cv::Mat frame = cvQueryFrame( impl_->capture );
-    if( frame.empty( ))
-        return;
-
-    cv::Mat bwFrame;
-    cvtColor( frame, bwFrame, CV_BGR2GRAY );
-    equalizeHist( bwFrame, bwFrame );
-
-    std::vector< cv::Rect > faces;
-    impl_->faceDetector.detectMultiScale( bwFrame, faces, 1.1f, 2,
-                                          CV_HAAR_SCALE_IMAGE |
-                                          CV_HAAR_FIND_BIGGEST_OBJECT,
-                                          cv::Size( 30, 30 ));
-    if( faces.empty( ))
-        return;
-
-    // detect eyes
-    const cv::Rect& face = faces.front();
-    const cv::Mat faceROI = bwFrame( face );
-    std::vector< cv::Rect > eyes;
-    impl_->eyeDetector.detectMultiScale( faceROI, eyes, 1.1f, 2,
-                                         CV_HAAR_SCALE_IMAGE,
-                                         cv::Size( 30, 30 ));
-    if( eyes.size() < 2 )
-    {
-        Matrix4f head = getHeadMatrix();
-        head.x() = .5f - ( face.x + face.width * .5f ) / float(CAPTURE_WIDTH);
-        head.y() = .5f - ( face.y + face.height * .5f ) / float(CAPTURE_HEIGHT);
-        setHeadMatrix( head );
-
-        LBVERB << eyes.size() << " eye detected, head at (" << head.x() << ", "
-               << head.y() << ")" << std::endl;
-        return;
-    }
-
-    LBVERB << "Eyes " << eyes[0] << ", " << eyes[1] << std::endl;
+    if( impl_->tracker )
+        setHeadMatrix( impl_->tracker->getHeadMatrix( ));
 #endif
 }
 
