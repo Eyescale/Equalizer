@@ -39,7 +39,7 @@ endif()
 
 if(OpenCV_FOUND)
   include_directories(${OpenCV_INCLUDE_DIRS})
-  list(APPEND EQ_LIBRARIES ${OpenCV_LIBRARIES})
+  list(APPEND EQ_LIBRARIES ${OpenCV_LIBS})
   add_definitions(-DOPENCV_INSTALL_PATH=\"${OpenCV_INSTALL_PATH}\")
 endif()
 
