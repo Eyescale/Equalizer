@@ -104,6 +104,7 @@ void CVTracker::run()
         eyeDetector_.detectMultiScale( faceROI, eyes, 1.1f, 2,
                                        CV_HAAR_SCALE_IMAGE, cv::Size( 15, 15 ));
         Vector3f center( 0.f, 0.f, head_.z( ));
+        Matrix3f rotation( Matrix3f::IDENTITY );
 
         if( eyes.size() == 2 )
         {
@@ -116,8 +117,12 @@ void CVTracker::run()
             const float distance = (right-left).length() / float(CAPTURE_WIDTH);
             center.z() = 1.f + (.16f - distance) / .16f;
 
-            LBINFO << distance << " -> " << center.z() << std::endl;
-            // TODO roll estimation
+            const float roll = atanf( fabs( left.y() - right.y( )) /
+                                      fabs( left.x() - right.x( )) );
+            rotation.array[ 0 ] = cosf( roll );
+            rotation.array[ 1 ] = sinf( roll );
+            rotation.array[ 4 ] = -rotation.array[ 1 ];
+            rotation.array[ 5 ] =  rotation.array[ 0 ];
         }
         else
         {
@@ -129,6 +134,8 @@ void CVTracker::run()
         lunchbox::ScopedFastWrite mutex( lock_ );
         head_.x() = center.x();
         head_.y() = center.y();
+        if( eyes.size() == 2 )
+            head_.set_sub_matrix( rotation );
 
         LBVERB << (eyes.size() == 2 ? "" : "not ") << "using eyes, head at "
                << center << std::endl;
