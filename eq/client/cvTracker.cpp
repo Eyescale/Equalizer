@@ -21,8 +21,8 @@
     "/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml"
 #define EYE_CONFIG  std::string( OPENCV_INSTALL_PATH ) +                \
     "/share/OpenCV/haarcascades/haarcascade_eye_tree_eyeglasses.xml"
-#define CAPTURE_WIDTH  320
-#define CAPTURE_HEIGHT 240
+#define CAPTURE_WIDTH  640
+#define CAPTURE_HEIGHT 480
 
 namespace eq
 {
@@ -103,21 +103,35 @@ void CVTracker::run()
         std::vector< cv::Rect > eyes;
         eyeDetector_.detectMultiScale( faceROI, eyes, 1.1f, 2,
                                        CV_HAAR_SCALE_IMAGE, cv::Size( 15, 15 ));
+        Vector3f center( 0.f, 0.f, head_.z( ));
+
         if( eyes.size() == 2 )
         {
-            // TODO roll and depth estimation using eyes
-            LBINFO << "Eyes " << eyes[0] << ", " << eyes[1] << std::endl;
+            const Vector2f left( face.x + eyes[0].x + eyes[0].width * .5f,
+                                 face.y + eyes[0].y + eyes[0].height * .5f );
+            const Vector2f right( face.x + eyes[1].x + eyes[1].width * .5f,
+                                  face.y + eyes[1].y + eyes[1].height * .5f );
+            center = (left + right) * .5f;
+
+            const float distance = (right-left).length() / float(CAPTURE_WIDTH);
+            center.z() = 1.f + (.16f - distance) / .16f;
+
+            LBINFO << distance << " -> " << center.z() << std::endl;
+            // TODO roll estimation
         }
         else
         {
-            lunchbox::ScopedFastWrite mutex( lock_ );
-            head_.x() = .5f - ( face.x + face.width * .5f ) /
-                float(CAPTURE_WIDTH);
-            head_.y() = .5f - ( face.y + face.height * .5f ) /
-                float(CAPTURE_HEIGHT);
-            LBVERB << eyes.size() << " eye detected, head at (" << head_.x()
-                   << ", " << head_.y() << ", " << head_.z() << ")" <<std::endl;
+            center.x() = face.x + face.width * .5f;
+            center.y() = face.y + face.height * .33f; // eyes are in upper third
         }
+        center = -center / Vector2f( CAPTURE_WIDTH, CAPTURE_HEIGHT ) + .5f;
+
+        lunchbox::ScopedFastWrite mutex( lock_ );
+        head_.x() = center.x();
+        head_.y() = center.y();
+
+        LBVERB << (eyes.size() == 2 ? "" : "not ") << "using eyes, head at "
+               << center << std::endl;
     }
 
     running_ = false;
