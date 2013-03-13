@@ -15,14 +15,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <eq/fabric/configVisitor.h>
+
 namespace eq
 {
-namespace
+namespace detail
 {
 class ExitVisitor : public ConfigVisitor
 {
 public:
-    virtual VisitorResult visit( Observer* observer )
+    virtual VisitorResult visit( eq::Observer* observer )
     {
         if( observer->configExit( ))
             return TRAVERSE_CONTINUE;

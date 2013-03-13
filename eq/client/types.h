@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -267,6 +267,13 @@ struct ConfigEvent;
 typedef co::ObjectOCommand EventOCommand;
 
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
+
+namespace detail
+{
+class InitVisitor; //!< @internal
+class ExitVisitor; //!< @internal
+class FrameVisitor; //!< @internal
+}
 /** @endcond */
 }
 

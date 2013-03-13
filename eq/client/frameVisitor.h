@@ -17,14 +17,14 @@
 
 namespace eq
 {
-namespace
+namespace detail
 {
 class FrameVisitor : public ConfigVisitor
 {
 public:
     FrameVisitor( const uint32_t frame ) : frame_( frame ) {}
 
-    virtual VisitorResult visit( Observer* observer )
+    virtual VisitorResult visit( eq::Observer* observer )
     {
         observer->frameStart( frame_ );
         return TRAVERSE_CONTINUE;

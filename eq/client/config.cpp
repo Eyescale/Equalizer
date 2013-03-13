@@ -40,7 +40,6 @@
 #include "window.h"
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
 
 #include <co/exception.h>
@@ -282,8 +281,8 @@ bool Config::init( const uint128_t& initID )
     _impl->frameTimes.clear();
 
     ClientPtr client = getClient();
-    InitVisitor initVisitor( client->getActiveLayouts(),
-                             client->getModelUnit( ));
+    detail::InitVisitor initVisitor( client->getActiveLayouts(),
+                                     client->getModelUnit( ));
     if( accept( initVisitor ) == TRAVERSE_TERMINATE )
     {
         LBWARN << "Application-local initialization failed" << std::endl;
@@ -327,7 +326,7 @@ bool Config::exit()
     bool ret = false;
     localNode->waitRequest( requestID, ret );
 
-    ExitVisitor exitVisitor;
+    detail::ExitVisitor exitVisitor;
     if( accept( exitVisitor ) == TRAVERSE_TERMINATE )
     {
         LBWARN << "Application-local de-initialization failed" << std::endl;
@@ -389,7 +388,7 @@ bool Config::update()
 uint32_t Config::startFrame( const uint128_t& frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
-    FrameVisitor visitor( _impl->currentFrame + 1 );
+    detail::FrameVisitor visitor( _impl->currentFrame + 1 );
     accept( visitor );
 
     update();

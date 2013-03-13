@@ -49,6 +49,10 @@ namespace detail { class Observer; }
         EQ_API ServerPtr getServer();
         //@}
 
+        void addView( View* ) { /* nop */ } //!< @internal
+        void removeView( View* ) { /* nop */ } //!< @internal
+
+    protected:
         /**
          * @name Callbacks
          *
@@ -64,9 +68,11 @@ namespace detail { class Observer; }
          * @version 1.5.2
          */
         EQ_API virtual bool configInit();
+        friend class detail::InitVisitor;
 
         /** Exit this observer. @version 1.5.2 */
         EQ_API virtual bool configExit();
+        friend class detail::ExitVisitor;
 
         /**
          * Start rendering a frame.
@@ -79,10 +85,8 @@ namespace detail { class Observer; }
          * @version 1.5.2
          */
         EQ_API virtual void frameStart( const uint32_t frameNumber );
+        friend class detail::FrameVisitor;
         //@}
-
-        void addView( View* ) { /* nop */ } //!< @internal
-        void removeView( View* ) { /* nop */ } //!< @internal
 
     private:
         detail::Observer* const impl_;
