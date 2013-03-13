@@ -77,9 +77,8 @@ bool Observer::configInit()
         --camera; // .eqc counts from 1, OpenCV from 0
 
     impl_->tracker = new detail::CVTracker( camera );
-    impl_->tracker->start();
     if( impl_->tracker->isGood( ))
-        return true;
+        return impl_->tracker->start();
 
     delete impl_->tracker;
     impl_->tracker = 0;

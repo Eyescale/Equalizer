@@ -36,13 +36,13 @@ CVTracker::CVTracker( const uint32_t camera )
 {
 	if( !capture_ )
     {
-        EQWARN << "Found no OpenCV camera " << camera_ << std::endl;
+        EQWARN << "Did not find OpenCV camera " << camera_ << std::endl;
         return;
     }
 
     if( !faceDetector_.load( FACE_CONFIG ))
     {
-        EQWARN << "Can't set up face detector using " << FACE_CONFIG
+        EQWARN << "Cannot set up face detector using " << FACE_CONFIG
                << std::endl;
 
         cvReleaseCapture( &capture_ );
