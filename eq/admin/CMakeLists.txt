@@ -48,6 +48,12 @@ set_target_properties(EqualizerAdmin
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
 install(FILES ${ADMIN_HEADERS} DESTINATION include/eq/admin COMPONENT eqdev)
+
+if (MSVC)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerAdmin.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerAdmin.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+endif()
+
 install(TARGETS EqualizerAdmin
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib

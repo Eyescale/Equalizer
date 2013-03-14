@@ -12,7 +12,13 @@ set_target_properties(EqualizerFabric
 
 install(FILES ${EQ_FABRIC_PUBLIC_HEADERS}
   DESTINATION include/eq/fabric COMPONENT eqdev)
-install(TARGETS EqualizerFabric
+
+if (MSVC)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerFabric.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerFabric.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+endif()
+
+  install(TARGETS EqualizerFabric
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib
         LIBRARY DESTINATION lib COMPONENT eqlib)

@@ -146,6 +146,11 @@ target_link_libraries(EqualizerServer ${SERVER_LIBRARIES})
 set_target_properties(EqualizerServer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
+if (MSVC)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerServer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerServer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+endif()
+
 install(TARGETS EqualizerServer
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib
