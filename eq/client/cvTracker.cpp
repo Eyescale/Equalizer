@@ -32,6 +32,8 @@ CVTracker::CVTracker( const uint32_t camera )
     : camera_( camera )
     , capture_( cvCaptureFromCAM( camera_ ))
     , head_( Matrix4f::IDENTITY )
+    , position_( 0.5f )
+    , roll_( 0.5f )
     , running_( false )
 {
 	if( !capture_ )
@@ -117,8 +119,9 @@ void CVTracker::run()
             const float distance = (right-left).length() / float(CAPTURE_WIDTH);
             center.z() = 1.f + (.16f - distance) / .16f;
 
-            const float roll = atanf( fabs( left.y() - right.y( )) /
-                                      fabs( left.x() - right.x( )) );
+            // low pass smooth filter of roll angle
+            const float roll = roll_.add( atanf( fabs( left.y() - right.y( )) /
+                                                 fabs( left.x() - right.x( ))));
             rotation.array[ 0 ] = cosf( roll );
             rotation.array[ 1 ] = sinf( roll );
             rotation.array[ 4 ] = -rotation.array[ 1 ];
@@ -130,6 +133,7 @@ void CVTracker::run()
             center.y() = face.y + face.height * .33f; // eyes are in upper third
         }
         center = -center / Vector2f( CAPTURE_WIDTH, CAPTURE_HEIGHT ) + .5f;
+        center = position_.add( center ); // low pass smooth filter
 
         lunchbox::ScopedFastWrite mutex( lock_ );
         head_.x() = center.x();

@@ -53,6 +53,9 @@ private:
     mutable lunchbox::SpinLock lock_;
     Matrix4f head_;
 
+    vmml::lowpass_filter< 5, Vector3f > position_;
+    vmml::lowpass_filter< 5, float > roll_;
+
     bool running_;
 };
 }
