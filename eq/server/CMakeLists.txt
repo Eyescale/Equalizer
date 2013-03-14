@@ -13,13 +13,17 @@ add_flex_bison_dependency(LEXER PARSER)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(equalizers)
+
 add_definitions(-DYY_NEVER_INTERACTIVE)
 
 set(HEADERS
     api.h
     canvas.h
     channel.h
+	channelListener.h
     compound.h
+	compoundListener.h
 	compoundVisitor.h
     config.h
 	configVisitor.h
