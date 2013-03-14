@@ -7,7 +7,7 @@
 # supersedes the Find${CMAKE_PROJECT_NAME}.cmake file.
 #
 # Input variables
-#    ${UPPER_PROJECT_NAME}_TRANSIENT_LIBRARIES - A list of dependent link libraries, format is ${CMAKE_PROJECT_NAME}
+#    ${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES - A list of dependent link libraries, format is ${CMAKE_PROJECT_NAME}
 #
 # Output variables
 #    ${UPPER_PROJECT_NAME}_FOUND - Was the project and all of the specified components found?
@@ -42,8 +42,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "set(_quiet)\n"
   "set(_fail)\n"
   "\n"
-# add transient library finding
-  "@TRANSIENTS@"
+# add dependent library finding
+  "@DEPENDENTS@"
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
@@ -119,6 +119,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   "  endif()\n"
   "else()\n"
   "  set(${UPPER_PROJECT_NAME}_FOUND TRUE)\n"
+  "  set(${UPPER_PROJECT_NAME}_MODULE_FILENAME ${MODULE_FILENAME})\n"
   "  if(_out)\n"
   "    message(STATUS \"Found ${CMAKE_PROJECT_NAME} ${VERSION} \${${UPPER_PROJECT_NAME}_COMPONENTS} in \"\n"
   "      \"\${${UPPER_PROJECT_NAME}_INCLUDE_DIRS}:\${${UPPER_PROJECT_NAME}_LIBRARY}\")\n"
@@ -144,8 +145,8 @@ foreach(_target ${LIBRARY_TARGETS})
   list(APPEND LIBRARY_NAMES ${_libraryname})
 endforeach()
 
-# compile finding of transient libraries
-set(TRANSIENTS
+# compile finding of dependent libraries
+set(DEPENDENTS
   "if(${CMAKE_PROJECT_NAME}_FIND_REQUIRED)\n"
   "  set(_output_type FATAL_ERROR)\n"
   "  set(_out 1)\n"
@@ -160,31 +161,31 @@ set(TRANSIENTS
   "  set(_quiet QUIET)\n"
   "endif()\n\n"
 )
-foreach(_transient ${${UPPER_PROJECT_NAME}_TRANSIENT_LIBRARIES})
-  if(${_transient}_FOUND)
-    set(${_transient}_name ${_transient})
+foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
+  if(${_dependent}_FOUND)
+    set(${_dependent}_name ${_dependent})
   endif()
-  string(TOUPPER ${_transient} _TRANSIENT)
-  if(${_TRANSIENT}_FOUND)
-    set(${_transient}_name ${_TRANSIENT})
+  string(TOUPPER ${_dependent} _DEPENDENT)
+  if(${_DEPENDENT}_FOUND)
+    set(${_dependent}_name ${_DEPENDENT})
   endif()
-  if(NOT ${_transient}_name)
-    message(FATAL_ERROR "Transient library ${_transient} was not properly resolved")
+  if(NOT ${_dependent}_name)
+    message(FATAL_ERROR "Dependent library ${_dependent} was not properly resolved")
   endif()
-  if(${${_transient}_name}_VERSION)
-    set(${${_transient}_name}_findmode EXACT)
+  if(${${_dependent}_name}_VERSION)
+    set(${${_dependent}_name}_findmode EXACT)
   else()
-    set(${${_transient}_name}_findmode REQUIRED)
+    set(${${_dependent}_name}_findmode REQUIRED)
   endif()
-  list(APPEND TRANSIENTS
-    "find_package(${_transient} ${${${_transient}_name}_VERSION} ${${${_transient}_name}_findmode} \${_req} \${_quiet})\n"
-    "if(${${_transient}_name}_FOUND)\n"
-    "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_transient}_name}_LIBRARIES})\n"
+  list(APPEND DEPENDENTS
+    "find_package(${_dependent} ${${${_dependent}_name}_VERSION} ${${${_dependent}_name}_findmode} \${_req} \${_quiet})\n"
+    "if(${${_dependent}_name}_FOUND)\n"
+    "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "else()\n"
     "  set(_fail TRUE)\n"
     "endif()\n\n")
 endforeach()
-string(REGEX REPLACE ";" " " TRANSIENTS ${TRANSIENTS})
+string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
 
 # create ProjectConfig.cmake
 if(LIBRARY_NAMES)
@@ -195,7 +196,7 @@ configure_package_config_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
-  PATH_VARS INCLUDE_INSTALL_DIR ${HAS_LIBRARY_NAMES} TRANSIENTS
+  PATH_VARS INCLUDE_INSTALL_DIR ${HAS_LIBRARY_NAMES} DEPENDENTS
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 # create ProjectConfigVersion.cmake
@@ -206,4 +207,4 @@ write_basic_package_version_file(
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-  DESTINATION ${CMAKE_MODULE_INSTALL_PATH})
+  DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)

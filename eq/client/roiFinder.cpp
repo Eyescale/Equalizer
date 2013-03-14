@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2009, Maxim Makhinya
- *               2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -26,7 +26,7 @@
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
 #include "roiFragmentShader_glsl.h"
-#else 
+#else
 #include "roiFragmentShaderRGB_glsl.h"
 #endif
 
@@ -36,7 +36,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <lunchbox/os.h>
-#include <co/plugins/compressor.h>
+#include <lunchbox/plugins/compressor.h>
 
 
 namespace eq
@@ -66,7 +66,7 @@ void ROIFinder::_dumpDebug( const uint32_t stage )
     _tmpImg.reset();
     _tmpImg.setPixelViewport( PixelViewport( 0, 0, _wb, _hb ));
 
-    _tmpImg.allocDownloader( Frame::BUFFER_COLOR, 
+    _tmpImg.allocDownloader( Frame::BUFFER_COLOR,
                              EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR,
                              glewGetContext( ));
 
@@ -164,7 +164,7 @@ void ROIFinder::_resize( const PixelViewport& pvp )
     _w   = _pvp.w;
     _h   = _pvp.h;
     _wh  = _w * _h;
-    _wb  = _w + 1; // borders are only on left and 
+    _wb  = _w + 1; // borders are only on left and
     _hb  = _h + 1; // top borders of the image
     _wbhb = _wb * _hb;
 
@@ -209,7 +209,7 @@ void ROIFinder::_fillWithColor( const PixelViewport& pvp,
 {
     for( int32_t y = pvp.y; y < pvp.y + pvp.h; y++ )
         for( int32_t x = pvp.x; x < pvp.x + pvp.w; x++ )
-            dst[ y * _wb + x ] = val; 
+            dst[ y * _wb + x ] = val;
 }
 
 void ROIFinder::_invalidateAreas( Area* areas, uint8_t num )
@@ -502,7 +502,7 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
         {
             LBASSERT( _finalAreas[i]->valid );
             LBASSERT( _finalAreas[i]->pvp.hasArea( ));
-            
+
             if( _finalAreas[i]->hole.getArea() == 0 )
                 resultPVPs.push_back( _finalAreas[i]->pvp );
             else
@@ -514,7 +514,7 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
     for( uint32_t i = 0; i < resultPVPs.size(); i++ )
     {
 #ifndef NDEBUG
-        // fill temporary array with found regions to 
+        // fill temporary array with found regions to
         // dump it later in _dumpDebug
         _fillWithColor( resultPVPs[i], &_tmpMask[0],
                         uint8_t( 255 - i*200/resultPVPs.size( )));
@@ -588,7 +588,7 @@ void ROIFinder::_readbackInfo( )
 
     if( program == ObjectManager::INVALID )
     {
-        // Create fragment shader which reads depth values from 
+        // Create fragment shader which reads depth values from
         // rectangular textures
         const GLuint shader = _glObjects->newShader( shaderRBInfo,
                                                         GL_FRAGMENT_SHADER );
@@ -689,7 +689,7 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
 #endif
 
 #ifdef EQ_ROI_TEST_SPEED
-    lunchbox::Clock clock; 
+    lunchbox::Clock clock;
     clock.reset();
 for( int i = 0; i < 100; i++ ) {
 #endif
@@ -729,7 +729,7 @@ for( int i = 0; i < 100; i++ ) {
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
     _emptyFinder.setLimits( 200, 0.002f );
-    
+
     result.clear();
     _findAreas( result );
 //    _dumpDebug( 1 );
@@ -770,4 +770,3 @@ const GLEWContext* ROIFinder::glewGetContext() const
 }
 
 }
-

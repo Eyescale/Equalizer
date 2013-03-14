@@ -26,8 +26,8 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
+
+
     Type definitions for the mesh classes.
 */
 
@@ -65,17 +65,17 @@
 #include <iostream>
 #include <string>
 
-namespace mesh 
+namespace mesh
 {
-    // basic type definitions   
+    // basic type definitions
     typedef vmml::vector< 3, float >      Vertex;
-    typedef vmml::vector< 4, uint8_t >    Color;
+    typedef vmml::vector< 3, uint8_t >    Color;
     typedef vmml::vector< 3, float >      Normal;
     typedef vmml::matrix< 4, 4, float >   Matrix4f;
     typedef vmml::vector< 4, float >      Vector4f;
     typedef size_t                        Index;
-    typedef GLushort                      ShortIndex;    
-    
+    typedef GLushort                      ShortIndex;
+
     // mesh exception
     struct MeshException : public std::exception
     {
@@ -85,7 +85,7 @@ namespace mesh
     private:
         std::string _message;
     };
-    
+
     // null output stream that discards everything written to it
     struct NullOStream : std::ostream
     {
@@ -93,10 +93,10 @@ namespace mesh
         {
             int overflow( int c ) { return traits_type::not_eof( c ); }
         } _nullBuf;
-        
+
         NullOStream() : std::ios( &_nullBuf ), std::ostream( &_nullBuf ) {}
     };
-    
+
     // wrapper to enable array use where arrays would not be allowed otherwise
     template< class T, size_t d >
     struct ArrayWrapper
@@ -108,31 +108,31 @@ namespace mesh
             MESHASSERT( i < d );
             return data[i];
         }
-        
+
         const T& operator[]( const size_t i ) const
         {
             MESHASSERT( i < d );
             return data[i];
         }
-        
+
     private:
         T data[d];
     };
-    
-    
+
+
     // compound type definitions
     typedef vmml::vector< 3, Index >    Triangle;
     typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
     typedef vmml::vector< 4, float >    BoundingSphere;
-    typedef ArrayWrapper< float, 2 >    Range;    
-    
+    typedef ArrayWrapper< float, 2 >    Range;
+
     // maximum triangle count per leaf node (keep in mind that the number of
     // different vertices per leaf must stay below ShortIndex range; usually
     // #vertices ~ #triangles/2, but max #vertices = #triangles * 3)
     const Index             LEAF_SIZE( 21845 );
-    
+
     // binary mesh file version, increment if changing the file format
-    const unsigned short    FILE_VERSION ( 0x0116 );
+    const unsigned short    FILE_VERSION ( 0x0118 );
 
     // enumeration for the sort axis
     enum Axis
@@ -147,7 +147,7 @@ namespace mesh
                 axis == AXIS_Z ? "z axis" : "ERROR" );
         return os;
     }
-    
+
     // enumeration for the buffer objects
     enum BufferObject
     {
@@ -156,7 +156,7 @@ namespace mesh
         COLOR_OBJECT,
         INDEX_OBJECT
     };
-    
+
     // enumeration for the render modes
     enum RenderMode
     {
@@ -167,12 +167,12 @@ namespace mesh
     };
     inline std::ostream& operator << ( std::ostream& os, const RenderMode mode )
     {
-        os << ( mode == RENDER_MODE_IMMEDIATE     ? "immediate mode" : 
-                mode == RENDER_MODE_DISPLAY_LIST  ? "display list mode" : 
+        os << ( mode == RENDER_MODE_IMMEDIATE     ? "immediate mode" :
+                mode == RENDER_MODE_DISPLAY_LIST  ? "display list mode" :
                 mode == RENDER_MODE_BUFFER_OBJECT ? "VBO mode" : "ERROR" );
         return os;
     }
-    
+
     // enumeration for kd-tree node types
     enum NodeType
     {
@@ -180,16 +180,16 @@ namespace mesh
         NODE_TYPE = 0xde,
         LEAF_TYPE = 0xef
     };
-    
-    
+
+
     // helper function for MMF (memory mapped file) reading
     inline void memRead( char* destination, char** source, size_t length )
     {
         memcpy( destination, *source, length );
         *source += length;
     }
-    
-    
+
+
     // internally linked null stream, every translation unit gets a copy
     static mesh::NullOStream cnul;
 }
@@ -201,7 +201,7 @@ template<> inline void byteswap( mesh::RenderMode& value )
     { byteswap( reinterpret_cast< uint32_t& >( value )); }
 
 template<> inline void byteswap( mesh::Range& value )
-{ 
+{
     byteswap( value[ 0 ]);
     byteswap( value[ 1 ]);
 }

@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,7 +19,6 @@
 #define EQFABRIC_CANVAS_H
 
 #include <eq/fabric/types.h>
-#include <eq/fabric/visitorResult.h>  // enum
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/swapBarrier.h>    // RefPtr member
@@ -39,8 +38,8 @@ namespace fabric
         typedef std::vector< S* > Segments; //!< A vector of segments
         typedef std::vector< L* > Layouts; //!< A vector of layouts
         /** A Canvas visitor */
-        typedef ElementVisitor< C, LeafVisitor< S > > Visitor; 
-        
+        typedef ElementVisitor< C, LeafVisitor< S > > Visitor;
+
         /** @name Data Access */
         //@{
         /** @return the parent config. @version 1.0 */
@@ -58,7 +57,7 @@ namespace fabric
         EQFABRIC_INL const L* getActiveLayout() const;
 
         /** @return the vector of child segments. @version 1.0 */
-        const Segments& getSegments() const { return _segments; }        
+        const Segments& getSegments() const { return _segments; }
 
         /** @internal Find the first segment of a given name. */
         S* findSegment( const std::string& name );
@@ -67,7 +66,7 @@ namespace fabric
         const S* findSegment( const std::string& name ) const;
 
         /** @return the vector of possible layouts. @version 1.0 */
-        const Layouts& getLayouts() const { return _layouts; }        
+        const Layouts& getLayouts() const { return _layouts; }
 
         /** @internal Add a new allowed layout to this canvas, can be 0. */
         EQFABRIC_INL void addLayout( L* layout );
@@ -80,11 +79,11 @@ namespace fabric
          *
          * This barrier will be set as a barrier on all segments added
          * afterwards.
-         * 
+         *
          * @param barrier the swap barrier.
          */
         EQFABRIC_INL void setSwapBarrier( SwapBarrierPtr barrier );
-        
+
         /** @internal @return the current swap barrier. */
         SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
 
@@ -93,7 +92,7 @@ namespace fabric
 
         /** @sa Frustum::setWall() */
         EQFABRIC_INL virtual void setWall( const Wall& wall );
-        
+
         /** @sa Frustum::setProjection() */
         EQFABRIC_INL virtual void setProjection( const Projection& );
 
@@ -110,9 +109,9 @@ namespace fabric
          */
         EQFABRIC_INL virtual bool useLayout( const uint32_t index );
 
-        /** 
+        /**
          * Traverse this canvas and all children using a canvas visitor.
-         * 
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -141,10 +140,10 @@ namespace fabric
                                           const uint32_t instanceID );
 
         /** @sa Frustum::serialize. @internal */
-        EQFABRIC_INL void serialize( co::DataOStream& os, 
+        EQFABRIC_INL void serialize( co::DataOStream& os,
                                         const uint64_t dirtyBits );
         /** @sa Frustum::deserialize. @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                   const uint64_t dirtyBits );
 
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal

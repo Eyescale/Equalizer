@@ -26,7 +26,6 @@
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/types.h>
 #include <eq/fabric/viewport.h>       // member
-#include <eq/fabric/visitorResult.h>  // enum
 
 #define EQ_MM 1000.f
 #define EQ_CM 100.f

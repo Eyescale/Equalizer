@@ -227,6 +227,7 @@ eye_cyclop                      { return EQTOKEN_EYE_CYCLOP; }
 eye_right                       { return EQTOKEN_EYE_RIGHT; }
 focus_distance                  { return EQTOKEN_FOCUS_DISTANCE; }
 focus_mode                      { return EQTOKEN_FOCUS_MODE; }
+opencv_camera                   { return EQTOKEN_OPENCV_CAMERA; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }

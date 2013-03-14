@@ -19,7 +19,6 @@
 #define EQFABRIC_SEGMENT_H
 
 #include <eq/fabric/types.h>
-#include <eq/fabric/visitorResult.h>  // enum
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/swapBarrier.h>    // RefPtr member

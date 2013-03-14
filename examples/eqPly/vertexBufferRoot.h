@@ -34,7 +34,7 @@
 #include "vertexBufferNode.h"
 #include "vertexBufferData.h"
 
-namespace mesh 
+namespace mesh
 {
     /*  The class for kd-tree root nodes.  */
     class VertexBufferRoot : public VertexBufferNode
@@ -44,7 +44,7 @@ namespace mesh
 
         virtual void cullDraw( VertexBufferState& state ) const;
         virtual void draw( VertexBufferState& state ) const;
-        
+
         void setupTree( VertexData& data );
         bool writeToFile( const std::string& filename );
         bool readFromFile( const std::string& filename );
@@ -57,7 +57,7 @@ namespace mesh
     protected:
         virtual void toStream( std::ostream& os );
         virtual void fromMemory( char* start );
-        
+
     private:
         bool _constructFromPly( const std::string& filename );
         bool _readBinary( std::string filename );
@@ -71,8 +71,6 @@ namespace mesh
 
         friend class eqPly::VertexBufferDist;
     };
-    
-    
 }
 
 

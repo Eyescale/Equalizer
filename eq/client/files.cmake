@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
 #               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 set(AGL_HEADERS
@@ -66,7 +66,7 @@ set(WGL_SOURCES
 )
 
 set(CLIENT_HEADERS
-  ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS} ${SAGE_SOURCES}
+  ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
   aglTypes.h
   api.h
   base.h
@@ -123,6 +123,7 @@ set(CLIENT_HEADERS
   )
 
 set(CLIENT_SOURCES
+  ${SAGE_SOURCES}
   detail/channel.ipp
   canvas.cpp
   channel.cpp
@@ -137,14 +138,19 @@ set(CLIENT_SOURCES
   event.cpp
   eventICommand.cpp
   eventHandler.cpp
+  exitVisitor.h
   frame.cpp
   frameData.cpp
+  frameVisitor.h
   gl.cpp
   glException.cpp
   glWindow.cpp
   global.cpp
+  half.h
+  half.cpp
   image.cpp
   init.cpp
+  initVisitor.h
   jitter.cpp
   layout.cpp
   node.cpp
@@ -162,6 +168,7 @@ set(CLIENT_SOURCES
   statistic.cpp
   systemPipe.cpp
   systemWindow.cpp
+  transferFinder.h
   version.cpp
   view.cpp
   window.cpp
@@ -183,4 +190,7 @@ if(EQ_GLX_USED)
 endif()
 if(WIN32)
   list(APPEND CLIENT_SOURCES ${WGL_SOURCES})
+endif()
+if(OpenCV_FOUND)
+  list(APPEND CLIENT_SOURCES cvTracker.h cvTracker.cpp)
 endif()

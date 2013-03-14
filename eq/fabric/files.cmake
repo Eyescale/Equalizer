@@ -51,7 +51,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   types.h
   view.h
   viewport.h
-  visitorResult.h
   vmmlib.h
   wall.h
   window.h
@@ -97,4 +96,3 @@ set(EQ_FABRIC_SOURCES
   wall.cpp
   zoom.cpp
   )
-

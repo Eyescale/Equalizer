@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *               2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,7 +21,6 @@
 
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
-#include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
 {
@@ -177,4 +176,3 @@ namespace fabric
 }
 
 #endif // EQFABRIC_NODE_H
-

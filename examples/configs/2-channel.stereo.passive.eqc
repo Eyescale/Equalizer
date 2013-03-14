@@ -3,7 +3,7 @@
 # assumes 4x3 aspect ratio of the pipe - change wall coordinates to adapt
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+#    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 
 server
@@ -17,19 +17,20 @@ server
             {
                 window
                 {
-                    channel 
+                    viewport [ .25 .25 .5 .5 ]
+                    channel
                     {
-                        name "channel-left" 
+                        name "channel-left"
                         viewport [ 0 0 0.5 1.0 ]
                     }
-                    channel 
+                    channel
                     {
-                        name "channel-right" 
+                        name "channel-right"
                         viewport [ 0.5 0 0.5 1.0 ]
                     }
-                    channel 
+                    channel
                     {
-                        name "channel-mono" 
+                        name "channel-mono"
                     }
                 }
             }
@@ -56,5 +57,5 @@ server
                 channel "channel-mono"
             }
         }
-    }    
+    }
 }

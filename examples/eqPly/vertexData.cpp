@@ -96,7 +96,7 @@ void VertexData::readVertices( PlyFile* file, const int nVertices,
         ply_get_element( file, static_cast< void* >( &vertex ) );
         vertices.push_back( Vertex( vertex.x, vertex.y, vertex.z ) );
         if( readColors )
-            colors.push_back( Color( vertex.r, vertex.g, vertex.b, 0 ) );
+            colors.push_back( Color( vertex.r, vertex.g, vertex.b ) );
     }
 }
 

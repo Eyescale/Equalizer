@@ -37,6 +37,12 @@ if(SAGE_FOUND)
   list(APPEND EQ_LIBRARIES ${SAGE_LIBRARIES})
 endif()
 
+if(OpenCV_FOUND)
+  include_directories(${OpenCV_INCLUDE_DIRS})
+  list(APPEND EQ_LIBRARIES ${OpenCV_LIBS})
+  add_definitions(-DOPENCV_INSTALL_PATH=\"${OpenCV_INSTALL_PATH}\")
+endif()
+
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)

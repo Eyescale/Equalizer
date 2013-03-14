@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,23 +15,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQADMIN_VISITORRESULT_H
-#define EQADMIN_VISITORRESULT_H
-
-#include <lunchbox/visitorResult.h> // 'base' class
-
 namespace eq
 {
-namespace admin
+namespace
 {
-     /** The result code from any visit operation. */
-    typedef lunchbox::VisitorResult VisitorResult;
+class FrameVisitor : public ConfigVisitor
+{
+public:
+    FrameVisitor( const uint32_t frame ) : frame_( frame ) {}
 
-    /** @cond IGNORE */
-    using lunchbox::TRAVERSE_CONTINUE;
-    using lunchbox::TRAVERSE_TERMINATE;
-    using lunchbox::TRAVERSE_PRUNE;
-    /** @endcond */
+    virtual VisitorResult visit( Observer* observer )
+    {
+        observer->frameStart( frame_ );
+        return TRAVERSE_CONTINUE;
+    }
+
+private:
+    const uint32_t frame_;
+};
 }
 }
-#endif // EQADMIN_VISITORRESULT_H

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -41,7 +41,6 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
                               const GLuint textureFormat )
 {
     _pvp = pvp;
-
     _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
     _texture->init( textureFormat, pvp.w, pvp.h );
 
@@ -70,13 +69,22 @@ void AccumBufferObject::load( const GLfloat value )
 {
     EQ_GL_ERROR( "before AccumBufferObject::load" );
     _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
-
     bind();
-    _drawQuadWithTexture( _texture, 
+    _drawQuadWithTexture( _texture,
                           fabric::PixelViewport( 0, 0, getWidth(), getHeight()),
                           value );
     unbind();
     EQ_GL_ERROR( "after AccumBufferObject::load" );
+
+#if 0
+    static a_int32_t i;
+    std::ostringstream os;
+    os << "abo" << ++i;
+    getColorTextures()[0]->writeRGB( os.str( ));
+
+    os << "tex";
+    _texture->writeRGB( os.str( ));
+#endif
 }
 
 void AccumBufferObject::accum( const GLfloat value )
@@ -101,8 +109,8 @@ void AccumBufferObject::display( const GLfloat value )
     _drawQuadWithTexture( getColorTextures()[0], _pvp, value );
 }
 
-void AccumBufferObject::_drawQuadWithTexture( Texture* texture, 
-                                              const PixelViewport& pvp, 
+void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
+                                              const PixelViewport& pvp,
                                               const GLfloat value )
 {
     texture->bind();

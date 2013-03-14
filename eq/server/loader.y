@@ -231,6 +231,7 @@
 %token EQTOKEN_EYE_RIGHT
 %token EQTOKEN_FOCUS_DISTANCE
 %token EQTOKEN_FOCUS_MODE
+%token EQTOKEN_OPENCV_CAMERA
 %token EQTOKEN_ROBUSTNESS
 %token EQTOKEN_THREAD_MODEL
 %token EQTOKEN_ASYNC
@@ -790,6 +791,7 @@ observerField:
     | EQTOKEN_FOCUS_DISTANCE FLOAT { observer->setFocusDistance( $2 ); }
     | EQTOKEN_FOCUS_MODE IATTR
         { observer->setFocusMode( eq::fabric::FocusMode( $2 )); }
+    | EQTOKEN_OPENCV_CAMERA IATTR { observer->setOpenCVCamera( $2 ); }
 
 layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout( config ); }
             layoutFields '}' { layout = 0; }
