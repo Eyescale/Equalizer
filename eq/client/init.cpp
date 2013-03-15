@@ -33,9 +33,16 @@
 #include <lunchbox/file.h>
 #include <lunchbox/pluginRegistry.h>
 
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4275 4251 )
+#endif
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
 
 #include <fstream>
 

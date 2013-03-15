@@ -60,6 +60,7 @@ public:
         _names[Event::EXIT] = "exit";
         _names[Event::MAGELLAN_AXIS] = "magellan axis";
         _names[Event::MAGELLAN_BUTTON] = "magellan button";
+        _names[Event::NODE_TIMEOUT] = "node timed out";
         _names[Event::UNKNOWN] = "unknown";
         _names[Event::USER] = "user-specific";
     }

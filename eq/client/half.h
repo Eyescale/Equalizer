@@ -1,7 +1,7 @@
 #ifndef HALF_H
 #define HALF_H
 
-#include <stdint.h>
+#include <lunchbox/types.h>
 
 float half_to_float( uint16_t h );
 uint16_t half_from_float( float f );

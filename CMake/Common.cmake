@@ -68,7 +68,7 @@ endif()
 if(BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS TRUE)
 endif()
-add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_ALL_DYN_LINK) # Don't use 'pragma lib' on Windows
+add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)

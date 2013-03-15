@@ -455,18 +455,11 @@ uint32_t Config::finishFrame()
             _impl->finishedFrame.waitGE( frameToFinish );
         else
         {
-            const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
-            const int64_t time = getTime() + timeout;
-
             while( !_impl->finishedFrame.timedWaitGE( frameToFinish,
-                                                      pingTimeout ))
+                                                      timeout ))
             {
-                if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
-                {
-                    LBWARN << "Timeout waiting for nodes to finish frame "
-                           << frameToFinish << std::endl;
-                    break;
-                }
+                send( getServer(), fabric::CMD_CONFIG_CHECK_FRAME ) 
+                    << frameToFinish;
             }
         }
         LBLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "

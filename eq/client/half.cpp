@@ -70,7 +70,9 @@ static inline uint32_t _uint32_not( uint32_t a )
 // Negate
 static inline uint32_t _uint32_neg( uint32_t a )
 {
+#pragma warning (disable: 4146)
   return (-a);
+#pragma warning( default: 4146)
 }
 
 // Extend sign

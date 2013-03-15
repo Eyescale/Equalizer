@@ -86,6 +86,12 @@ set_target_properties(Equalizer
 
 install_files(include/eq/client FILES ${CLIENT_HEADERS}  COMPONENT eqdev)
 install_files(include/eq/util FILES ${UTIL_HEADERS} COMPONENT eqdev)
+
+if (MSVC)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/Equalizer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Equalizer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+endif()
+
 install(TARGETS Equalizer
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib

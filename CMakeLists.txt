@@ -58,7 +58,9 @@ if(MSVC)
   include(UseGnuWin32)
 endif(MSVC)
 
-set(PTHREAD_LIBRARIES pthread)
+if (NOT MSVC)
+  set(PTHREAD_LIBRARIES pthread)
+endif()
 
 if(LUNCHBOX_USE_OPENMP)
   find_package(OpenMP REQUIRED)

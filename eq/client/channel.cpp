@@ -1055,12 +1055,13 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     int64_t drawTime = 0;
     int64_t readbackTime = 0;
     bool hasAsyncReadback = false;
+    const uint32_t timeout = getConfig()->getTimeout();
 
     co::QueueSlave* queue = _getQueue( queueID );
     LBASSERT( queue );
     for( ;; )
     {
-        co::ObjectICommand tileCmd = queue->pop();
+        co::ObjectICommand tileCmd = queue->pop( timeout );
         if( !tileCmd.isValid( ))
             break;
 

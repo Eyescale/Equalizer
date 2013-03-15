@@ -605,7 +605,7 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     Config* config = getConfig();
-    const uint32_t timeout = config->getTimeout();
+    const uint32_t timeout = config->getTimeout()/2;
     try
     {
         netBarrier->enter( timeout );

@@ -13,14 +13,20 @@ add_flex_bison_dependency(LEXER PARSER)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(equalizers)
+
 add_definitions(-DYY_NEVER_INTERACTIVE)
 
 set(HEADERS
     api.h
     canvas.h
     channel.h
+	channelListener.h
     compound.h
+	compoundListener.h
+	compoundVisitor.h
     config.h
+	configVisitor.h
     connectionDescription.h
     frame.h
     frameData.h
@@ -139,6 +145,11 @@ add_library(EqualizerServer SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(EqualizerServer ${SERVER_LIBRARIES})
 set_target_properties(EqualizerServer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
+
+if (MSVC)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerServer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerServer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+endif()
 
 install(TARGETS EqualizerServer
         ARCHIVE DESTINATION lib COMPONENT eqdev

@@ -68,6 +68,7 @@ Config::Config( ServerPtr parent )
         , _finishedFrame( 0 )
         , _state( STATE_UNUSED )
         , _needsFinish( false )
+        , _lastCheck( 0 )
 {
     const Global* global = Global::instance();
     for( int i=0; i < FATTR_ALL; ++i )
@@ -113,6 +114,8 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdStopFrames ), mainQ );
     registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES,
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
+    registerCommand( fabric::CMD_CONFIG_CHECK_FRAME,
+                     ConfigFunc( this, &Config::_cmdCheckFrame ), mainQ );
 }
 
 namespace
@@ -1113,6 +1116,67 @@ bool Config::_cmdCreateReply( co::ICommand& cmd )
     LB_TS_NOT_THREAD( _mainThread );
 
     getLocalNode()->serveRequest( command.get< uint32_t >( ));
+    return true;
+}
+
+bool Config::_cmdCheckFrame( co::ICommand& command ) 
+{
+    int64_t lastInterval = getServer()->getTime() - _lastCheck;
+
+    _lastCheck = getServer()->getTime();
+
+    co::ObjectICommand cmd( command );
+    EQVERB << "Check nodes for frame finish " << cmd << std::endl;
+
+    const uint32_t frameNumber = cmd.get< uint32_t >();
+
+    //const int64_t alivetimeout = co::Global::getKeepaliveTimeout();
+    const uint32_t timeout = getTimeout();
+
+    bool retry = false;
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isRunning() && node->isActive() )
+        {
+            co::NodePtr netNode = node->getNode();
+            if ( netNode->isClosed() )
+                continue;
+
+            if ( node->getFinishedFrame() >= frameNumber ) 
+                continue;
+
+            int64_t interval = getServer()->getTime() - netNode->getLastReceiveTime();
+            getLocalNode()->ping(netNode);
+
+            // TODO?: handle timed out nodes.
+            // currently we get a false positive due to lack of communication
+            // from client to server. we do not get ping responses in time.
+            // running clients should inform the server about their status with
+            // a timeout/2 period. 
+
+            if ( interval > timeout && lastInterval <= timeout )
+                continue;
+            else
+            {
+                // retry
+                EQINFO << "Retry waiting for node " << node->getName()
+                    << " to finish frame " << frameNumber 
+                    << " last seen " << interval << " ms ago"
+                    << " last run " << lastInterval << std::endl;
+                retry = true;
+            }
+            // else node timeout
+        }
+    }
+
+    if( retry )
+        return true;
+
+    send( command.getNode(), fabric::CMD_CONFIG_FRAME_FINISH )
+        << _currentFrame;
+
     return true;
 }
 
