@@ -38,27 +38,38 @@ CVTracker::CVTracker( const uint32_t camera )
 {
 	if( !capture_ )
     {
-        EQWARN << "Did not find OpenCV camera " << camera_ << std::endl;
+        LBWARN << "Did not find OpenCV camera " << camera_ << std::endl;
         return;
     }
 
     if( !faceDetector_.load( FACE_CONFIG ))
     {
-        EQWARN << "Cannot set up face detector using " << FACE_CONFIG
-               << std::endl;
+        std::string config = FACE_CONFIG;
+        config.replace( config.find( "OpenCV" ), 6, "opencv" );
+        if( !faceDetector_.load( config ))
+        {
+            LBWARN << "Cannot set up face detector using " << FACE_CONFIG
+                   << " or " << config << std::endl;
 
-        cvReleaseCapture( &capture_ );
-        capture_ = 0;
-        return;
+            cvReleaseCapture( &capture_ );
+            capture_ = 0;
+            return;
+        }
     }
 
     if( !eyeDetector_.load( EYE_CONFIG ))
     {
-        EQWARN << "Can't set up eye detector using " << EYE_CONFIG << std::endl;
+        std::string config = FACE_CONFIG;
+        config.replace( config.find( "OpenCV" ), 6, "opencv" );
+        if( !eyeDetector_.load( config ))
+        {
+            LBWARN << "Can't set up eye detector using " << EYE_CONFIG << " or "
+                   << config << std::endl;
 
-        cvReleaseCapture( &capture_ );
-        capture_ = 0;
-        return;
+            cvReleaseCapture( &capture_ );
+            capture_ = 0;
+            return;
+        }
     }
 
     cvSetCaptureProperty( capture_, CV_CAP_PROP_FRAME_WIDTH, CAPTURE_WIDTH );
@@ -82,7 +93,7 @@ void CVTracker::run()
         const cv::Mat frame = cvQueryFrame( capture_ );
         if( frame.empty( ))
         {
-            EQWARN << "Failure to grab a video frame, bailing" << std::endl;
+            LBWARN << "Failure to grab a video frame, bailing" << std::endl;
             break;
         }
 
@@ -138,6 +149,7 @@ void CVTracker::run()
         lunchbox::ScopedFastWrite mutex( lock_ );
         head_.x() = center.x();
         head_.y() = center.y();
+        head_.z() = center.z();
         if( eyes.size() == 2 )
             head_.set_sub_matrix( rotation );
 
