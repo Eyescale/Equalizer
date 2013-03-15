@@ -1119,18 +1119,15 @@ bool Config::_cmdCreateReply( co::ICommand& cmd )
     return true;
 }
 
-bool Config::_cmdCheckFrame( co::ICommand& command ) 
+bool Config::_cmdCheckFrame( co::ICommand& command )
 {
-    int64_t lastInterval = getServer()->getTime() - _lastCheck;
-
+    const int64_t lastInterval = getServer()->getTime() - _lastCheck;
     _lastCheck = getServer()->getTime();
 
     co::ObjectICommand cmd( command );
     EQVERB << "Check nodes for frame finish " << cmd << std::endl;
 
     const uint32_t frameNumber = cmd.get< uint32_t >();
-
-    //const int64_t alivetimeout = co::Global::getKeepaliveTimeout();
     const uint32_t timeout = getTimeout();
 
     bool retry = false;
@@ -1144,29 +1141,28 @@ bool Config::_cmdCheckFrame( co::ICommand& command )
             if ( netNode->isClosed() )
                 continue;
 
-            if ( node->getFinishedFrame() >= frameNumber ) 
+            if ( node->getFinishedFrame() >= frameNumber )
                 continue;
 
-            int64_t interval = getServer()->getTime() - netNode->getLastReceiveTime();
-            getLocalNode()->ping(netNode);
+            const int64_t interval = getServer()->getTime() -
+                                     netNode->getLastReceiveTime();
+            getLocalNode()->ping( netNode );
 
             // TODO?: handle timed out nodes.
             // currently we get a false positive due to lack of communication
             // from client to server. we do not get ping responses in time.
             // running clients should inform the server about their status with
-            // a timeout/2 period. 
+            // a timeout/2 period.
 
             if ( interval > timeout && lastInterval <= timeout )
                 continue;
-            else
-            {
-                // retry
-                EQINFO << "Retry waiting for node " << node->getName()
-                    << " to finish frame " << frameNumber 
-                    << " last seen " << interval << " ms ago"
-                    << " last run " << lastInterval << std::endl;
-                retry = true;
-            }
+
+            // retry
+            EQINFO << "Retry waiting for node " << node->getName()
+                   << " to finish frame " << frameNumber << " last seen "
+                   << interval << " ms ago" << " last run " << lastInterval
+                   << std::endl;
+            retry = true;
             // else node timeout
         }
     }
@@ -1176,7 +1172,6 @@ bool Config::_cmdCheckFrame( co::ICommand& command )
 
     send( command.getNode(), fabric::CMD_CONFIG_FRAME_FINISH )
         << _currentFrame;
-
     return true;
 }
 
@@ -1276,4 +1271,3 @@ CONST_FIND_NAME_TEMPLATE2( eq::server::Pipe );
 CONST_FIND_NAME_TEMPLATE2( eq::server::Segment );
 CONST_FIND_NAME_TEMPLATE2( eq::server::View );
 CONST_FIND_NAME_TEMPLATE2( eq::server::Window );
-

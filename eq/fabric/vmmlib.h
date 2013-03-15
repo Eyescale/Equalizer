@@ -88,8 +88,8 @@ template<> inline void byteswap( eq::fabric::Vector4i& value )
     byteswap( value.w( ));
 }
 
-template<> inline void byteswap( eq::fabric::Vector4ub& /*value*/ ) { /*NOP*/ }
-template<> inline void byteswap( eq::fabric::Vector3ub& /*value*/ ) { /*NOP*/ }
+template<> inline void byteswap( eq::fabric::Vector4ub& ) { /*NOP*/ }
+template<> inline void byteswap( eq::fabric::Vector3ub& ) { /*NOP*/ }
 
 template<> inline void byteswap( eq::fabric::Matrix4f& value )
 {

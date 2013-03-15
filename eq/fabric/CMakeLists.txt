@@ -18,7 +18,7 @@ if (MSVC)
   install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerFabric.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
 endif()
 
-  install(TARGETS EqualizerFabric
+install(TARGETS EqualizerFabric
         ARCHIVE DESTINATION lib COMPONENT eqdev
         RUNTIME DESTINATION bin COMPONENT eqlib
         LIBRARY DESTINATION lib COMPONENT eqlib)
