@@ -41,8 +41,8 @@ private:
     virtual bool setupFont( ObjectManager& gl, const void* key, 
                        const std::string& name, const uint32_t size ) const = 0;
 
-    virtual void configInit( Node* node ) {}
-    virtual void configExit( Node* node ) {}
+    virtual void configInit( Node* /*node*/ ) {}
+    virtual void configExit( Node* /*node*/ ) {}
 
 protected:
     static uint32_t _setupLists( ObjectManager& gl, const void* key,

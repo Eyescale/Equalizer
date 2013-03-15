@@ -542,10 +542,10 @@ namespace detail { class Channel; struct RBStat; }
         //@}
 
         /** Start a batch of tile rendering operations. @version 1.1.6 */
-        virtual void frameTilesStart( const uint128_t& frameID ) {}
+        virtual void frameTilesStart( const uint128_t& /*frameID*/ ) {}
 
         /** Finish a batch of tile rendering operations. @version 1.1.6 */
-        virtual void frameTilesFinish( const uint128_t& frameID ) {}
+        virtual void frameTilesFinish( const uint128_t& /*frameID*/ ) {}
 
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_API virtual void notifyViewportChanged();
@@ -562,7 +562,7 @@ namespace detail { class Channel; struct RBStat; }
          *        processed.
          * @version 1.0
          */
-        virtual void notifyStopFrame( const uint32_t lastFrameNumber ) {}
+        virtual void notifyStopFrame( const uint32_t /*lastFrameNumber*/ ) {}
 
     private:
         detail::Channel* const _impl;

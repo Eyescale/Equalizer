@@ -52,7 +52,9 @@ GLWindow::~GLWindow()
 {
     _glewInitialized = false;
 #ifndef NDEBUG
+#  ifndef _WIN32
     bzero( _glewContext, sizeof( GLEWContext ));
+#  endif
 #endif
     delete _glewContext;
     if( _current == this )

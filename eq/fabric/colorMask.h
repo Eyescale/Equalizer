@@ -67,7 +67,7 @@ namespace fabric
 
 namespace lunchbox
 {
-template<> inline void byteswap( eq::fabric::ColorMask& value ) { /* NOP */ }
+template<> inline void byteswap( eq::fabric::ColorMask& /*value*/ ) { /* NOP */ }
 }
 
 #endif // EQFABRIC_COLORMASK_H
