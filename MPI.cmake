@@ -20,26 +20,26 @@
 # Start with the list of MPI wrappers. Acknowledgement to http://www.openflipper.org/svnrepo/CoMISo/trunk/CoMISo/cmake/FindMPI.cmake
 # Generic MPI compilers
 set(_MPI_C_COMPILER_NAMES                  "mpicc|mpcc|mpicc_r|mpcc_r")
-set(_MPI_CXX_COMPILER_NAMES                "mpicxx|mpiCC|mpcxx|mpCC|mpic++|mpc++")
+set(_MPI_CXX_COMPILER_NAMES                "mpicxx|mpiCC|mpcxx|mpCC|mpic[++]|mpc[++]")
 # GNU compiler names
 set(_MPI_GNU_C_COMPILER_NAMES              "mpigcc|mpgcc|mpigcc_r|mpgcc_r")
-set(_MPI_GNU_CXX_COMPILER_NAMES            "mpig++|mpg++|mpig++_r|mpg++_r")
+set(_MPI_GNU_CXX_COMPILER_NAMES            "mpig[++]|mpg[++]|mpig[++]_r|mpg[++]_r")
 # Intel MPI compiler names
 set(_MPI_Intel_C_COMPILER_NAMES            "mpiicc")
-set(_MPI_Intel_CXX_COMPILER_NAMES          "mpiicpc|mpiicxx|mpiic++|mpiiCC")
+set(_MPI_Intel_CXX_COMPILER_NAMES          "mpiicpc|mpiicxx|mpiic[++]|mpiiCC")
 # PGI compiler names
 set(_MPI_PGI_C_COMPILER_NAMES              "mpipgcc|mppgcc")
 set(_MPI_PGI_CXX_COMPILER_NAMES            "mpipgCC|mppgCC")
 # XLC MPI Compiler names
 set(_MPI_XL_C_COMPILER_NAMES               "mpxlc|mpxlc_r|mpixlc|mpixlc_r")
-set(_MPI_XL_CXX_COMPILER_NAMES             "mpixlcxx|mpixlC|mpixlc++|mpxlcxx|mpxlc++|mpixlc++|mpxlCC|
-                                           mpixlcxx_r|mpixlC_r|mpixlc++_r|mpxlcxx_r|mpxlc++_r|mpixlc++_r|mpxlCC_r")
+set(_MPI_XL_CXX_COMPILER_NAMES             "mpixlcxx|mpixlC|mpixlc[++]|mpxlcxx|mpxlc[++]|mpixlc[++]|mpxlCC|
+                                           mpixlcxx_r|mpixlC_r|mpixlc[++]_r|mpxlcxx_r|mpxlc[++]_r|mpixlc[++]_r|mpxlCC_r")
 
 # Find CC and CXX MPI wrappers
 string(REGEX MATCH "${_MPI_C_COMPILER_NAMES}|${_MPI_GNU_C_COMPILER_NAMES}|${_MPI_Intel_C_COMPILER_NAMES}|
-                    ${_MPI_PGI_C_COMPILER_NAMES}|${_MPI_XL_C_COMPILER_NAMES}")
-string(REGEX MATCH "mpicc|mpixlc|mpixlc_r|mpicc_r|mpiicc|mpipgcc|mppgcc|" MPICC_COMPILER "${CMAKE_C_COMPILER}")
-#string(REGEX MATCH "mpicxx|mpixlcxx|mpixlcxx_r|mpicxx_r|" MPICXX_COMPILER "${CMAKE_CXX_COMPILER}")
+                    ${_MPI_PGI_C_COMPILER_NAMES}|${_MPI_XL_C_COMPILER_NAMES}" MPICC_COMPILER "${CMAKE_C_COMPILER}")
+string(REGEX MATCH "${_MPI_CXX_COMPILER_NAMES}|${_MPI_GNU_CXX_COMPILER_NAMES}|${_MPI_Intel_CXX_COMPILER_NAMES}|
+                    ${_MPI_PGI_CXX_COMPILER_NAMES}|${_MPI_XL_CXX_COMPILER_NAMES}" MPICXX_COMPILER "${CMAKE_CXX_COMPILER}")
 
 # Debugging
 #message(STATUS "Value of MPICC_COMPILER: " ${MPICC_COMPILER})
