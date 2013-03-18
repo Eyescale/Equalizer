@@ -49,9 +49,10 @@ namespace fabric
          * channel's head transformation during rendering.
          *
          * @param matrix the matrix
+         * @return true if the matrix was changed, false otherwise.
          * @version 1.0
          */
-        EQFABRIC_INL void setHeadMatrix( const Matrix4f& matrix );
+        EQFABRIC_INL bool setHeadMatrix( const Matrix4f& matrix );
 
         /** @return the current head matrix. @version 1.0 */
         const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }

@@ -65,7 +65,7 @@ uint32_t EventICommand::getEventType() const
 
 std::ostream& operator << ( std::ostream& os, const EventICommand& event )
 {
-    os << "Event command, event type " << event.getEventType();
+    os << "Event command, event type " << Event::Type( event.getEventType( ));
     return os;
 }
 

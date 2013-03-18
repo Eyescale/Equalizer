@@ -18,6 +18,8 @@
 #include "observer.h"
 
 #include "config.h"
+#include "event.h"
+#include "eventICommand.h"
 #include "server.h"
 
 #include <eq/fabric/paths.h>
@@ -76,7 +78,7 @@ bool Observer::configInit()
     else
         --camera; // .eqc counts from 1, OpenCV from 0
 
-    impl_->tracker = new detail::CVTracker( camera );
+    impl_->tracker = new detail::CVTracker( this, camera );
     if( impl_->tracker->isGood( ))
         return impl_->tracker->start();
 
@@ -87,6 +89,16 @@ bool Observer::configInit()
     return true;
 }
 
+bool Observer::handleEvent( EventICommand& command )
+{
+    switch( command.getEventType( ))
+    {
+    case Event::OBSERVER_MOTION:
+        return setHeadMatrix( command.get< Matrix4f >( ));
+    }
+    return false;
+}
+
 bool Observer::configExit()
 {
 #ifdef EQ_USE_OPENCV
@@ -94,14 +106,6 @@ bool Observer::configExit()
     impl_->tracker = 0;
 #endif
     return true;
-}
-
-void Observer::frameStart( const uint32_t frameNumber )
-{
-#ifdef EQ_USE_OPENCV
-    if( impl_->tracker )
-        setHeadMatrix( impl_->tracker->getHeadMatrix( ));
-#endif
 }
 
 }

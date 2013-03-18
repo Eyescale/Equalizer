@@ -43,6 +43,20 @@ namespace detail { class Observer; }
         /** Destruct this observer. @version 1.0 */
         EQ_API virtual ~Observer();
 
+        /** @name Operations */
+        //@{
+        /**
+         * Handle an event.
+         *
+         * The event type and originator identifier (of this object) have
+         * already been consumed from the given command.
+         *
+         * @param command The event input command.
+         * @return true if the event requires a redraw, false otherwise.
+         */
+        EQ_API virtual bool handleEvent( EventICommand& command );
+        //@}
+
         /** @name Data Access */
         //@{
         /** @return the Server of this observer. @version 1.0 */
@@ -73,19 +87,6 @@ namespace detail { class Observer; }
         /** Exit this observer. @version 1.5.2 */
         EQ_API virtual bool configExit();
         friend class detail::ExitVisitor;
-
-        /**
-         * Start rendering a frame.
-         *
-         * Called once at the beginning of each frame before the Config::frame
-         * is send to the server, to do per-frame updates of observer-specific
-         * data.
-         *
-         * @param frameNumber the frame to start.
-         * @version 1.5.2
-         */
-        EQ_API virtual void frameStart( const uint32_t frameNumber );
-        friend class detail::FrameVisitor;
         //@}
 
     private:

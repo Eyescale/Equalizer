@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -38,7 +38,7 @@ private:
     virtual SystemWindow* createWindow(Window* window) const = 0;
     virtual SystemPipe* createPipe(Pipe* pipe) const = 0;
     virtual MessagePump* createMessagePump() const = 0;
-    virtual bool setupFont( ObjectManager& gl, const void* key, 
+    virtual bool setupFont( ObjectManager& gl, const void* key,
                        const std::string& name, const uint32_t size ) const = 0;
 
     virtual void configInit( Node* node ) {}
@@ -55,12 +55,12 @@ private:
 
 #ifndef EQ_2_0_API
 enum WindowSystemEnum
-{                                                                            
-    WINDOW_SYSTEM_NONE = 0, // must be first                                 
-    WINDOW_SYSTEM_AGL,      //!< AGL/Carbon                                  
-    WINDOW_SYSTEM_GLX,      //!< GLX/X11                                     
-    WINDOW_SYSTEM_WGL,      //!< WGL/Win32                                   
-    WINDOW_SYSTEM_ALL       // must be last                                  
+{
+    WINDOW_SYSTEM_NONE = 0, // must be first
+    WINDOW_SYSTEM_AGL,      //!< AGL/Carbon
+    WINDOW_SYSTEM_GLX,      //!< GLX/X11
+    WINDOW_SYSTEM_WGL,      //!< WGL/Win32
+    WINDOW_SYSTEM_ALL       // must be last
 };
 #endif
 
@@ -106,7 +106,7 @@ EQ_API std::ostream& operator << ( std::ostream& os, const WindowSystem& );
 /** co::Object serializer. @version 1.1.3 */
 EQ_API co::DataOStream& operator << ( co::DataOStream& os, const WindowSystem& );
 
-/** co::Object deserializer. @version 1.1.3 */
+/** WindowSystem deserializer. @version 1.1.3 */
 EQ_API co::DataIStream& operator >> ( co::DataIStream& is, WindowSystem& ws );
 
 } // namespace eq

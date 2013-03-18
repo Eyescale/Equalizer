@@ -171,9 +171,9 @@ namespace detail { class Config; }
         /**
          * Update the configuration.
          *
-         * This method is to be called only on the application node on an
+         * This method is to be called only on the application node only on an
          * initialized configuration. Dirty objects on the config are committed,
-         * i.e., the View, Canvas and Observer, and any changes on the
+         * i.e., the View, Canvas and Observer, and any changes to the
          * configuration are effected. Changes may be caused by the eq::admin
          * API or by the application, e.g., through a layout change on a
          * Canvas. Any change causes an implicit finish of all outstanding
@@ -469,6 +469,7 @@ namespace detail { class Config; }
 
         bool _needsLocalSync() const;
 
+        bool _handleNewEvent( EventICommand& command );
         bool _handleEvent( const Event& event );
 
 #ifndef EQ_2_0_API

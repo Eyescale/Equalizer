@@ -213,13 +213,14 @@ void Observer< C, O >::setOpenCVCamera( const int32_t camera )
 }
 
 template< typename C, typename O >
-void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
+bool Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 {
     if( _data.headMatrix == matrix )
-        return;
+        return false;
 
     _data.headMatrix = matrix;
     setDirty( DIRTY_HEAD );
+    return true;
 }
 
 template< typename C, typename O >
