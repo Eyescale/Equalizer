@@ -38,36 +38,19 @@ elseif(CMAKE_COMPILER_IS_INTEL)
   # default 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
 
-  # optimized: flags + trying to link against MKL library
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-  # adding MKL if available
-  find_package(MKL)
-  # FindMKL.cmake implementation not ideal, no FOUND variable declared. 
-  # workaround by testing if the include is set. Will fork findMKL.cmake to fix it + checking library name
-  # lmkl_intel_ilp64
-  if(NOT ${MKL_INCLUDE_DIRS} STREQUAL "")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DMKL_ILP64")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DDMKL_ILP64")
-    include_directories(${MKL_INCLUDE_DIRS})
-    link_directories(${MKL_LIBRARIES})
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MKL_LIBRARIES}")
+  # optimized: Adding xhost to automatically generate instructions set up 
+  # to the highest supported compilation host
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -xhost")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -xhost")
   end()
 
 elseif(CMAKE_COMPILER_IS_XLCXX)
-  # default
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict") 
+  # default: Maintain code semantics
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict -qarch=qp -q64")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64") 
 
-  # optimized: flags + trying to link against MASS/MASSV libraries
-  # adding -qstrict to avoid altering semantics
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DBGQ -O3 -qarch=qp -q64 -qhot=level=1 -qsimd=auto -qstrict ")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DBGQ -O3 -qarch=qp -q64 -qhot=level=1 -qsimd=auto -qstrict ")
-
-  # Adding MASS/MASSV libraries: no find cmake script
-  # adding mass and massv libraries should not be necessary 
-  # since it should already be added by the compiler. 
-  # adding it on the first pass anyway
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lmass -lmassv")
+  # adding -qnohot to avoid higher order optimization loops
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -qnohot")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -qnohot")
 endif()
 
