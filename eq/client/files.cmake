@@ -141,7 +141,6 @@ set(CLIENT_SOURCES
   exitVisitor.h
   frame.cpp
   frameData.cpp
-  frameVisitor.h
   gl.cpp
   glException.cpp
   glWindow.cpp
