@@ -1,6 +1,6 @@
 # Copyright (c) 2012-2013 Fabien Delalondre <fabien.delalondre@epfl.ch>
-# Adding support for compiler optimization and definition of release configs
-# according to chosen compiler 
+# Sets compiler optimization, definition and warnings according to
+# chosen compiler
 # Supported compilers are XL, Intel, Clang and GNU
 
 # Compiler settings
@@ -14,6 +14,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
 
+# GCC (+clang)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
@@ -34,23 +35,23 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   if(CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
   endif()
+
+# icc
 elseif(CMAKE_COMPILER_IS_INTEL)
-  # default 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
 
-  # optimized: Adding xhost to automatically generate instructions set up 
-  # to the highest supported compilation host
+  # Release: automatically generate instructions for the highest
+  # supported compilation host
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -xhost")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -xhost")
   end()
 
+# xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
-  # default: Maintain code semantics
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict -qarch=qp -q64")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64") 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64")
 
   # adding -qnohot to avoid higher order optimization loops
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -qnohot")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -qnohot")
 endif()
-

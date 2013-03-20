@@ -76,8 +76,7 @@ if(BIGENDIAN)
   add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
 endif()
 
-# automatic configuration of options and libraries
-include(CompileConfig)
+include(Compiler) # compiler-specific default options and warnings
 
 if(MSVC)
   add_definitions(
