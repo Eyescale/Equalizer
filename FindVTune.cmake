@@ -10,6 +10,13 @@ if(CMAKE_VERSION VERSION_LESS 2.8.3) # WAR bug
   get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
 endif()
 
+if(VTune_FIND_REQUIRED)
+  set(_vtune_output 1)
+  set(VTUNE_FIND_REQUIRED 1)
+elseif(NOT VTune_FIND_QUIETLY)
+  set(_vtune_output 1)
+endif()
+
 find_program(VTUNE_EXECUTABLE amplxe-cl)
 if(NOT VTUNE_EXECUTABLE)
   set(VTUNE_FOUND)
@@ -40,6 +47,6 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DINTEL_NO_ITTNOTIFY_API")
 set(CMAKE_CXX_FLAGS_RELEASE
   "${CMAKE_CXX_FLAGS_RELEASE} -DINTEL_NO_ITTNOTIFY_API")
 
-if(VTUNE_FOUND)
+if(_vtune_output AND VTUNE_FOUND)
   message(STATUS "Found VTune in ${VTUNE_INCLUDE_DIRS};${VTUNE_LIBRARIES}")
 endif()

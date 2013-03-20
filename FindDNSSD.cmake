@@ -72,7 +72,7 @@ endif()
 
 find_path(_dnssd_INCLUDE_DIR dns_sd.h
   HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
-  PATH_SUFFIXES include 
+  PATH_SUFFIXES include
   PATHS ${_dnssd_lib_paths}
   )
 
@@ -106,7 +106,7 @@ elseif(WIN32)
   endif()
   find_library(_dnssd_LIBRARY dnssd.lib
     HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
-    PATH_SUFFIXES lib 
+    PATH_SUFFIXES lib
     PATHS ${_dnssd_lib_paths}/Lib/${_dnssd_lib_postfix})
 else()
   find_library(_dnssd_LIBRARY dns_sd
@@ -141,4 +141,3 @@ set(DNSSD_LIBRARIES ${_dnssd_LIBRARY})
 if(DNSSD_FOUND AND _dnssd_output)
   message(STATUS "Found ZeroConf in ${DNSSD_INCLUDE_DIRS};${DNSSD_LIBRARIES}")
 endif()
-
