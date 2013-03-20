@@ -93,26 +93,6 @@ bool Config::init()
     _loadModels();
     _registerModels();
 
-    // init tracker
-    if( !_initData.getTrackerPort().empty( ))
-    {
-        if( !_tracker.init( _initData.getTrackerPort() ))
-            LBWARN << "Failed to initialize tracker" << std::endl;
-        else
-        {
-            // Set up position of tracking system wrt world space
-            // Note: this depends on the physical installation.
-            eq::Matrix4f m( eq::Matrix4f::IDENTITY );
-            m.scale( 1.f, 1.f, -1.f );
-            _tracker.setWorldToEmitter( m );
-
-            m = eq::Matrix4f::IDENTITY;
-            m.rotate_z( -M_PI_2 );
-            _tracker.setSensorToObject( m );
-            LBINFO << "Tracker initialized" << std::endl;
-        }
-    }
-
     const eq::Canvases& canvases = getCanvases();
     if( canvases.empty( ))
         _currentCanvas = 0;
@@ -302,14 +282,6 @@ uint32_t Config::startFrame()
 
 void Config::_updateData()
 {
-    // update head position
-    if( _tracker.isRunning() )
-    {
-        _tracker.update();
-        const eq::Matrix4f& headMatrix = _tracker.getMatrix();
-        _setHeadMatrix( headMatrix );
-    }
-
     // update camera
     if( _animation.isValid( ))
     {
@@ -369,8 +341,7 @@ bool Config::_needNewFrame()
         return true;
     }
 
-    return ( _spinX != 0 || _spinY != 0 || _advance != 0 ||
-             _tracker.isRunning() || _redraw );
+    return ( _spinX != 0 || _spinY != 0 || _advance != 0 || _redraw );
 }
 
 bool Config::handleEvent( eq::EventICommand command )

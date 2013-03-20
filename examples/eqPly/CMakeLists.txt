@@ -45,7 +45,6 @@ eq_add_example(eqPly
     node.h
     node.h
     pipe.h
-    tracker.h
     typedefs.h
     view.h
     window.h
@@ -62,7 +61,6 @@ eq_add_example(eqPly
     main.cpp
     node.cpp
     pipe.cpp
-    tracker.cpp
     view.cpp
     window.cpp
     ${KD_SOURCES}

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,6 @@ namespace eqPly
 
         void parseArguments( const int argc, char** argv );
 
-        const std::string& getTrackerPort() const { return _trackerPort; }
         const std::string& getPathFilename()const { return _pathFilename; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
         bool               useColor()       const { return _color; }
@@ -58,8 +57,7 @@ namespace eqPly
         const LocalInitData& operator = ( const LocalInitData& from );
 
     private:
-        std::string _trackerPort;
-        std::vector< std::string > _filenames;
+        eq::Strings _filenames;
         std::string _pathFilename;
         uint32_t    _maxFrames;
         bool        _color;

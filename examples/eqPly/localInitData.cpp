@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,7 +61,6 @@ LocalInitData::LocalInitData()
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
-    _trackerPort = from._trackerPort;
     _maxFrames   = from._maxFrames;
     _color       = from._color;
     _isResident  = from._isResident;
@@ -104,10 +103,6 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::MultiArg<std::string> modelArg( "m", "model",
                                              "ply model file name or directory",
                                                false, "string", command );
-        TCLAP::ValueArg<std::string> portArg( "p", "port",
-                                              "tracking device port",
-                                              false, "/dev/ttyS0", "string",
-                                              command );
         TCLAP::SwitchArg colorArg( "b", "blackAndWhite",
                                    "Don't use colors from ply file",
                                    command, false );
@@ -150,8 +145,6 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             _filenames.clear();
             _filenames = modelArg.getValue();
         }
-        if( portArg.isSet( ))
-            _trackerPort = portArg.getValue();
         if( wsArg.isSet( ))
         {
             std::string windowSystem = wsArg.getValue();
@@ -203,4 +196,3 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     }
 }
 }
-
