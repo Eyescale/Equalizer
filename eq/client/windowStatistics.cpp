@@ -42,16 +42,16 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
 
     const std::string& name = window->getName();
     if( name.empty( ))
-        snprintf( event.statistic.resourceName, 32, "Window %s",
+        snprintf( event.data.statistic.resourceName, 32, "Window %s",
                   window->getID().getShortString().c_str( ));
     else
-        snprintf( event.statistic.resourceName, 32, "%s", name.c_str());
-    event.statistic.resourceName[31] = 0;
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str());
+    event.data.statistic.resourceName[31] = 0;
 
     if( type != Statistic::WINDOW_FPS && hint == NICEST )
         window->finish();
 
-    event.statistic.startTime  = window->getConfig()->getTime();
+    event.data.statistic.startTime  = window->getConfig()->getTime();
 }
 
 
@@ -61,16 +61,16 @@ WindowStatistics::~WindowStatistics()
     if( hint == OFF )
         return;
 
-    if( event.statistic.frameNumber == 0 ) // does not belong to a frame
+    if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    if( event.statistic.type != Statistic::WINDOW_FPS && hint == NICEST )
+    if( event.data.statistic.type != Statistic::WINDOW_FPS && hint == NICEST )
         _owner->finish();
 
-    event.statistic.endTime = _owner->getConfig()->getTime();
-    if( event.statistic.endTime <= event.statistic.startTime )
-        event.statistic.endTime = event.statistic.startTime + 1;
-    _owner->processEvent( event );
+    event.data.statistic.endTime = _owner->getConfig()->getTime();
+    if( event.data.statistic.endTime <= event.data.statistic.startTime )
+        event.data.statistic.endTime = event.data.statistic.startTime + 1;
+    _owner->processEvent( event.data );
 }
 
 }

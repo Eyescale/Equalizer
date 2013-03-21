@@ -139,10 +139,21 @@ bool Config::handleEvent( eq::EventICommand command )
             return false;
         }
 
+        default:
+            break;
+    }
+
+    _redraw |= eq::Config::handleEvent( command );
+    return _redraw;
+}
+
+bool Config::handleEvent( const eq::ConfigEvent* event )
+{
+    switch( event->data.type )
+    {
         case eq::Event::KEY_PRESS:
         {
-            const eq::Event& event = command.get< eq::Event >();
-            if( _handleKeyEvent( event.keyPress ))
+            if( _handleKeyEvent( event->data.keyPress ))
             {
                 _redraw = true;
                 return true;
@@ -161,7 +172,7 @@ bool Config::handleEvent( eq::EventICommand command )
             break;
     }
 
-    _redraw |= eq::Config::handleEvent( command );
+    _redraw |= eq::Config::handleEvent( event );
     return _redraw;
 }
 

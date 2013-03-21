@@ -35,20 +35,20 @@ ConfigStatistics::ConfigStatistics( const Statistic::Type type,
 {
     const std::string& name = config->getName();
     if( name.empty( ))
-        snprintf( event.statistic.resourceName, 32, "config" );
+        snprintf( event.data.statistic.resourceName, 32, "config" );
     else
-        snprintf( event.statistic.resourceName, 32, "%s", name.c_str( ));
-    event.statistic.resourceName[31] = 0;
-    event.statistic.startTime = config->getTime();
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+    event.data.statistic.resourceName[31] = 0;
+    event.data.statistic.startTime = config->getTime();
 }
 
 
 ConfigStatistics::~ConfigStatistics()
 {
-    event.statistic.endTime = _owner->getTime();
-    if( event.statistic.endTime <= event.statistic.startTime )
-        event.statistic.endTime = event.statistic.startTime + 1;
-    _owner->sendEvent( event.type ) << event;
+    event.data.statistic.endTime = _owner->getTime();
+    if( event.data.statistic.endTime <= event.data.statistic.startTime )
+        event.data.statistic.endTime = event.data.statistic.startTime + 1;
+    _owner->sendEvent( event );
 }
 
 }

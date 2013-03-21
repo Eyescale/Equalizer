@@ -56,6 +56,7 @@ namespace eqNbody
         void releaseData();
 
         virtual bool handleEvent( eq::EventICommand command );
+        virtual bool handleEvent( const eq::ConfigEvent* event );
         bool needsRedraw();
 
     protected:

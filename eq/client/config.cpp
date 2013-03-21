@@ -395,7 +395,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     ++_impl->currentFrame;
     LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- "
                                << _impl->currentFrame << std::endl;
-    stat.event.statistic.frameNumber = _impl->currentFrame;
+    stat.event.data.statistic.frameNumber = _impl->currentFrame;
     return _impl->currentFrame;
 }
 
@@ -418,10 +418,10 @@ uint32_t Config::finishFrame()
                                        _impl->currentFrame - latency : 0;
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
-    stat.event.statistic.frameNumber = frameToFinish;
+    stat.event.data.statistic.frameNumber = frameToFinish;
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
-        waitStat.event.statistic.frameNumber = frameToFinish;
+        waitStat.event.data.statistic.frameNumber = frameToFinish;
 
         // local draw sync
         if( _needsLocalSync( ))
