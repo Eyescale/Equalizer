@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -34,7 +34,6 @@
 // members
 #include "localInitData.h"
 #include "frameData.h"
-#include "tracker.h"
 #include "cameraAnimation.h"
 
 #include <eq/eq.h>
@@ -99,8 +98,6 @@ namespace eqPly
 
         LocalInitData _initData;
         FrameData     _frameData;
-
-        Tracker _tracker;
 
         Models     _models;
         ModelDists _modelDist;

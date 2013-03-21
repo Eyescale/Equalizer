@@ -40,7 +40,6 @@
 #include "window.h"
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
 
 #include <co/exception.h>
@@ -57,7 +56,6 @@
 #endif
 
 #include "exitVisitor.h"
-#include "frameVisitor.h"
 #include "initVisitor.h"
 
 namespace eq
@@ -282,8 +280,8 @@ bool Config::init( const uint128_t& initID )
     _impl->frameTimes.clear();
 
     ClientPtr client = getClient();
-    InitVisitor initVisitor( client->getActiveLayouts(),
-                             client->getModelUnit( ));
+    detail::InitVisitor initVisitor( client->getActiveLayouts(),
+                                     client->getModelUnit( ));
     if( accept( initVisitor ) == TRAVERSE_TERMINATE )
     {
         LBWARN << "Application-local initialization failed" << std::endl;
@@ -327,7 +325,7 @@ bool Config::exit()
     bool ret = false;
     localNode->waitRequest( requestID, ret );
 
-    ExitVisitor exitVisitor;
+    detail::ExitVisitor exitVisitor;
     if( accept( exitVisitor ) == TRAVERSE_TERMINATE )
     {
         LBWARN << "Application-local de-initialization failed" << std::endl;
@@ -389,9 +387,6 @@ bool Config::update()
 uint32_t Config::startFrame( const uint128_t& frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
-    FrameVisitor visitor( _impl->currentFrame + 1 );
-    accept( visitor );
-
     update();
 
     // Request new frame
@@ -459,7 +454,7 @@ uint32_t Config::finishFrame()
             while( !_impl->finishedFrame.timedWaitGE( frameToFinish,
                                                       timeout ))
             {
-                send( getServer(), fabric::CMD_CONFIG_CHECK_FRAME ) 
+                send( getServer(), fabric::CMD_CONFIG_CHECK_FRAME )
                     << frameToFinish;
             }
         }
@@ -628,15 +623,22 @@ EventICommand Config::getNextEvent( const uint32_t timeout ) const
 
 bool Config::handleEvent( EventICommand command )
 {
+    switch( command.getEventType( ))
+    {
+    case Event::OBSERVER_MOTION:
+        return _handleNewEvent( command );
+
+    default:
 #ifndef EQ_2_0_API
-    const ConfigEvent* configEvent = _convertEvent( command );
-    if( configEvent )
-        return handleEvent( configEvent );
+        const ConfigEvent* configEvent = _convertEvent( command );
+        if( configEvent )
+            return handleEvent( configEvent );
 #endif
 
-    LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
-    const Event& event = command.get< Event >();
-    return _handleEvent( event );
+        LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
+        const Event& event = command.get< Event >();
+        return _handleEvent( event );
+    }
 }
 
 bool Config::checkEvent() const
@@ -654,6 +656,23 @@ void Config::handleEvents()
 
         handleEvent( event );
     }
+}
+
+bool Config::_handleNewEvent( EventICommand& command )
+{
+    switch( command.getEventType( ))
+    {
+    case Event::OBSERVER_MOTION:
+    {
+        const uint128_t& originator = command.get< uint128_t >();
+        LBASSERT( originator != 0 );
+        Observer* observer = find< Observer >( originator );
+        if( observer )
+            return observer->handleEvent( command );
+        break;
+    }
+    }
+    return false;
 }
 
 bool Config::_handleEvent( const Event& event )

@@ -17,6 +17,10 @@
 
 #include "cvTracker.h"
 
+#include "config.h"
+#include "event.h"
+#include "observer.h"
+
 #define FACE_CONFIG std::string( OPENCV_INSTALL_PATH ) +            \
     "/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml"
 #define EYE_CONFIG  std::string( OPENCV_INSTALL_PATH ) +                \
@@ -28,35 +32,46 @@ namespace eq
 {
 namespace detail
 {
-CVTracker::CVTracker( const uint32_t camera )
-    : camera_( camera )
+CVTracker::CVTracker( eq::Observer* observer, const uint32_t camera )
+    : observer_( observer )
+    , camera_( camera )
     , capture_( cvCaptureFromCAM( camera_ ))
-    , head_( Matrix4f::IDENTITY )
     , running_( false )
 {
 	if( !capture_ )
     {
-        EQWARN << "Found no OpenCV camera " << camera_ << std::endl;
+        LBWARN << "Did not find OpenCV camera " << camera_ << std::endl;
         return;
     }
 
     if( !faceDetector_.load( FACE_CONFIG ))
     {
-        EQWARN << "Can't set up face detector using " << FACE_CONFIG
-               << std::endl;
+        std::string config = FACE_CONFIG;
+        config.replace( config.find( "OpenCV" ), 6, "opencv" );
+        if( !faceDetector_.load( config ))
+        {
+            LBWARN << "Cannot set up face detector using " << FACE_CONFIG
+                   << " or " << config << std::endl;
 
-        cvReleaseCapture( &capture_ );
-        capture_ = 0;
-        return;
+            cvReleaseCapture( &capture_ );
+            capture_ = 0;
+            return;
+        }
     }
 
     if( !eyeDetector_.load( EYE_CONFIG ))
     {
-        EQWARN << "Can't set up eye detector using " << EYE_CONFIG << std::endl;
+        std::string config = FACE_CONFIG;
+        config.replace( config.find( "OpenCV" ), 6, "opencv" );
+        if( !eyeDetector_.load( config ))
+        {
+            LBWARN << "Can't set up eye detector using " << EYE_CONFIG << " or "
+                   << config << std::endl;
 
-        cvReleaseCapture( &capture_ );
-        capture_ = 0;
-        return;
+            cvReleaseCapture( &capture_ );
+            capture_ = 0;
+            return;
+        }
     }
 
     cvSetCaptureProperty( capture_, CV_CAP_PROP_FRAME_WIDTH, CAPTURE_WIDTH );
@@ -75,12 +90,24 @@ CVTracker::~CVTracker()
 void CVTracker::run()
 {
     running_ = true;
+    eq::Config* config = observer_->getConfig();
+    const uint128_t originator = observer_->getID();
+
+    vmml::lowpass_filter< 5, Vector3f > position( .3f );
+    vmml::lowpass_filter< 5, float > roll( .3f );
+    vmml::lowpass_filter< 5, float > headEyeRatio( .3f );
+    Matrix4f head( Matrix4f::IDENTITY );
+
+    headEyeRatio.add( .4f ); // initial guesses
+    float width = 0.f;
+    bool isEyeWidth = false;
+
     while( running_ )
     {
         const cv::Mat frame = cvQueryFrame( capture_ );
         if( frame.empty( ))
         {
-            EQWARN << "Failure to grab a video frame, bailing" << std::endl;
+            LBWARN << "Failure to grab a video frame, bailing" << std::endl;
             break;
         }
 
@@ -103,7 +130,8 @@ void CVTracker::run()
         std::vector< cv::Rect > eyes;
         eyeDetector_.detectMultiScale( faceROI, eyes, 1.1f, 2,
                                        CV_HAAR_SCALE_IMAGE, cv::Size( 15, 15 ));
-        Vector3f center( 0.f, 0.f, head_.z( ));
+        Vector3f center( 0.f, 0.f, 0.f );
+        Matrix3f rotation( Matrix3f::IDENTITY );
 
         if( eyes.size() == 2 )
         {
@@ -112,35 +140,61 @@ void CVTracker::run()
             const Vector2f right( face.x + eyes[1].x + eyes[1].width * .5f,
                                   face.y + eyes[1].y + eyes[1].height * .5f );
             center = (left + right) * .5f;
+            center.z() = (right-left).length() / float(CAPTURE_WIDTH);
 
-            const float distance = (right-left).length() / float(CAPTURE_WIDTH);
-            center.z() = 1.f + (.16f - distance) / .16f;
+            // low pass smooth filter of roll angle
+            roll.add( atanf( fabs( left.y() - right.y( )) /
+                             fabs( left.x() - right.x( ))));
+            rotation.array[ 0 ] = cosf( *roll );
+            rotation.array[ 1 ] = sinf( *roll );
+            rotation.array[ 4 ] = -rotation.array[ 1 ];
+            rotation.array[ 5 ] =  rotation.array[ 0 ];
+            head.set_sub_matrix( rotation );
 
-            LBINFO << distance << " -> " << center.z() << std::endl;
-            // TODO roll estimation
+            if( !isEyeWidth && width > 0.f )
+            {
+                headEyeRatio.add( center.z() / width );
+                isEyeWidth = true;
+            }
+            width = center.z();
         }
         else
         {
             center.x() = face.x + face.width * .5f;
             center.y() = face.y + face.height * .33f; // eyes are in upper third
+            center.z() = face.width / float(CAPTURE_WIDTH);
+
+            if( isEyeWidth && width > 0.f )
+            {
+                headEyeRatio.add( width / center.z() );
+                isEyeWidth = false;
+            }
+            width = center.z();
+            center.z() *= *headEyeRatio;
         }
-        center = -center / Vector2f( CAPTURE_WIDTH, CAPTURE_HEIGHT ) + .5f;
+        center.x() = -center.x() / float( CAPTURE_WIDTH ) + .5f;
+        center.y() = -center.y() / float( CAPTURE_HEIGHT ) + .5f;
 
-        lunchbox::ScopedFastWrite mutex( lock_ );
-        head_.x() = center.x();
-        head_.y() = center.y();
+        // 20 cm macro distance, 2 m tele, inverted scale
+        center.z() *= 4.f;
+        if( center.z() < 0.f )
+            center.z() = 0.f;
+        if( center.z() > 1.f )
+            center.z() = 1.f;
+        center.z() = .2f + (1.f - center.z()) * 2.f;
+        position.add( center ); // low pass smooth filter
 
-        LBVERB << (eyes.size() == 2 ? "" : "not ") << "using eyes, head at "
-               << center << std::endl;
+        // emit
+        head.x() = position->x();
+        head.y() = position->y();
+        head.z() = position->z();
+
+        LBVERB << "head " << *position << " roll " << *roll << " eyes "
+               << (eyes.size() == 2) <<  " h->e " << *headEyeRatio << std::endl;
+        config->sendEvent( Event::OBSERVER_MOTION ) << originator << head;
     }
 
     running_ = false;
-}
-
-Matrix4f CVTracker::getHeadMatrix() const
-{
-    lunchbox::ScopedFastRead mutex( lock_ );
-    return head_;
 }
 
 }

@@ -33,25 +33,23 @@ class CVTracker : public lunchbox::Thread
 {
 public:
     /** Construct a new tracker. */
-    CVTracker( const uint32_t camera );
+    CVTracker( eq::Observer* observer, const uint32_t camera );
 
     /** Destruct this tracker. */
     virtual ~CVTracker();
 
+    /** @return true of the tracker is working. */
     bool isGood() const { return capture_; }
-    Matrix4f getHeadMatrix() const;
 
 protected:
     virtual void run();
 
 private:
+    eq::Observer* observer_;
     const uint32_t camera_;
     CvCapture* capture_;
     cv::CascadeClassifier faceDetector_;
     cv::CascadeClassifier eyeDetector_;
-
-    mutable lunchbox::SpinLock lock_;
-    Matrix4f head_;
 
     bool running_;
 };

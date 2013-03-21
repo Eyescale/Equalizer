@@ -17,7 +17,7 @@
 
 namespace eq
 {
-namespace
+namespace detail
 {
 class InitVisitor : public ConfigVisitor
 {
@@ -26,7 +26,7 @@ public:
             : _layouts( activeLayouts ), _modelUnit( modelUnit )
             , _update( false ) {}
 
-    virtual VisitorResult visit( Observer* observer )
+    virtual VisitorResult visit( eq::Observer* observer )
         {
             if( observer->configInit( ))
                 return TRAVERSE_CONTINUE;
@@ -34,14 +34,14 @@ public:
             return TRAVERSE_TERMINATE;
         }
 
-    virtual VisitorResult visit( View* view )
+    virtual VisitorResult visit( eq::View* view )
         {
             if( view->setModelUnit( _modelUnit ))
                 _update = true;
             return TRAVERSE_CONTINUE;
         }
 
-    virtual VisitorResult visitPre( Canvas* canvas )
+    virtual VisitorResult visitPre( eq::Canvas* canvas )
         {
             const Layouts& layouts = canvas->getLayouts();
 

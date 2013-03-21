@@ -21,12 +21,12 @@ set(HEADERS
     api.h
     canvas.h
     channel.h
-	channelListener.h
+    channelListener.h
     compound.h
-	compoundListener.h
-	compoundVisitor.h
+    compoundListener.h
+    compoundVisitor.h
     config.h
-	configVisitor.h
+    configVisitor.h
     connectionDescription.h
     frame.h
     frameData.h

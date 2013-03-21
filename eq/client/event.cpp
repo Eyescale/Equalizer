@@ -61,6 +61,7 @@ public:
         _names[Event::MAGELLAN_AXIS] = "magellan axis";
         _names[Event::MAGELLAN_BUTTON] = "magellan button";
         _names[Event::NODE_TIMEOUT] = "node timed out";
+        _names[Event::OBSERVER_MOTION] = "observer motion";
         _names[Event::UNKNOWN] = "unknown";
         _names[Event::USER] = "user-specific";
     }
@@ -88,42 +89,42 @@ std::ostream& operator << ( std::ostream& os, const Event& event )
     os << event.type << ':' << event.originator << ' ';
     switch( event.type )
     {
-        case Event::WINDOW_EXPOSE:
-        case Event::WINDOW_CLOSE:
-            break;
+    case Event::WINDOW_EXPOSE:
+    case Event::WINDOW_CLOSE:
+        break;
 
-        case Event::WINDOW_RESIZE:
-        case Event::WINDOW_SHOW:
-        case Event::WINDOW_HIDE:
-        case Event::CHANNEL_RESIZE:
-        case Event::VIEW_RESIZE:
-            os << event.resize;
-            break;
+    case Event::WINDOW_RESIZE:
+    case Event::WINDOW_SHOW:
+    case Event::WINDOW_HIDE:
+    case Event::CHANNEL_RESIZE:
+    case Event::VIEW_RESIZE:
+        os << event.resize;
+        break;
 
-        case Event::WINDOW_POINTER_MOTION:
-        case Event::WINDOW_POINTER_BUTTON_PRESS:
-        case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        case Event::WINDOW_POINTER_WHEEL:
-        case Event::CHANNEL_POINTER_WHEEL:
-        case Event::CHANNEL_POINTER_MOTION:
-        case Event::CHANNEL_POINTER_BUTTON_PRESS:
-        case Event::CHANNEL_POINTER_BUTTON_RELEASE:
-            os << event.pointer;
-            break;
+    case Event::WINDOW_POINTER_MOTION:
+    case Event::WINDOW_POINTER_BUTTON_PRESS:
+    case Event::WINDOW_POINTER_BUTTON_RELEASE:
+    case Event::WINDOW_POINTER_WHEEL:
+    case Event::CHANNEL_POINTER_WHEEL:
+    case Event::CHANNEL_POINTER_MOTION:
+    case Event::CHANNEL_POINTER_BUTTON_PRESS:
+    case Event::CHANNEL_POINTER_BUTTON_RELEASE:
+        os << event.pointer;
+        break;
 
-        case Event::KEY_PRESS:
-        case Event::KEY_RELEASE:
-            os << event.key;
-            break;
+    case Event::KEY_PRESS:
+    case Event::KEY_RELEASE:
+        os << event.key;
+        break;
 
-        case Event::STATISTIC:
-            os << event.statistic;
+    case Event::STATISTIC:
+        os << event.statistic;
 
-        case Event::MAGELLAN_AXIS:
-            os << event.magellan;
+    case Event::MAGELLAN_AXIS:
+        os << event.magellan;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     //os << ", context " << event.context <<;
@@ -142,8 +143,7 @@ std::ostream& operator << ( std::ostream& os, const Event::Type& type)
 
 std::ostream& operator << ( std::ostream& os, const ResizeEvent& event )
 {
-    os << event.x << 'x' << event.y << '+' << event.w << '+' << event.h << ' ';
-    return os;
+    return os << event.x << 'x' << event.y << '+' << event.w << '+' << event.h;
 }
 
 std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
@@ -167,22 +167,20 @@ std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
     if( event.button & PTR_BUTTON4 ) os << "4";
     if( event.button & PTR_BUTTON5 ) os << "5";
 
-    os << ' ';
     return os;
 }
 
 std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 {
-    os << "key " << event.key << ' ';
-    return os;
+    return os << "key " << event.key;
 }
 
 std::ostream& operator << ( std::ostream& os, const MagellanEvent& event )
 {
-    os << " buttons " << event.buttons << " trans " << event.xAxis << ", "
-       << event.yAxis << ", " << event.zAxis << " rot " << event.xRotation
-       << ", " << event.yRotation << ", " << event.zRotation;
-    return os;
+    return os << " buttons " << event.buttons << " trans " << event.xAxis
+              << ", " << event.yAxis << ", " << event.zAxis << " rot "
+              << event.xRotation << ", " << event.yRotation << ", "
+              << event.zRotation;
 }
 
 }
