@@ -69,6 +69,7 @@ if(BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS TRUE)
 endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
+add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
