@@ -44,15 +44,15 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     if( _hint == OFF )
         return;
 
-    event.statistic.task = channel->getTaskID();
+    event.data.statistic.task = channel->getTaskID();
 
     const std::string& name = channel->getName();
     if( name.empty( ))
-        snprintf( event.statistic.resourceName, 32, "Channel %s",
+        snprintf( event.data.statistic.resourceName, 32, "Channel %s",
                   channel->getID().getShortString().c_str( ));
     else
-        snprintf( event.statistic.resourceName, 32, "%s", name.c_str( ));
-    event.statistic.resourceName[31] = 0;
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+    event.data.statistic.resourceName[31] = 0;
 
     if( _hint == NICEST &&
         type != Statistic::CHANNEL_ASYNC_READBACK &&
@@ -63,7 +63,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
         channel->getWindow()->finish();
     }
 
-    event.statistic.startTime  = channel->getConfig()->getTime();
+    event.data.statistic.startTime  = channel->getConfig()->getTime();
 }
 
 
@@ -72,7 +72,7 @@ ChannelStatistics::~ChannelStatistics()
     if( _hint == OFF )
         return;
 
-    const Statistic::Type type = event.statistic.type;
+    const Statistic::Type type = event.data.statistic.type;
     if( _hint == NICEST &&
         type != Statistic::CHANNEL_ASYNC_READBACK &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
@@ -82,12 +82,12 @@ ChannelStatistics::~ChannelStatistics()
         _owner->getWindow()->finish();
     }
 
-    if( event.statistic.endTime == 0 )
-        event.statistic.endTime = _owner->getConfig()->getTime();
-    if( event.statistic.endTime <= event.statistic.startTime )
-        event.statistic.endTime = event.statistic.startTime + 1;
+    if( event.data.statistic.endTime == 0 )
+        event.data.statistic.endTime = _owner->getConfig()->getTime();
+    if( event.data.statistic.endTime <= event.data.statistic.startTime )
+        event.data.statistic.endTime = event.data.statistic.startTime + 1;
 
-    _owner->addStatistic( event );
+    _owner->addStatistic( event.data );
 }
 
 }

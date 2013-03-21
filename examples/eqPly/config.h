@@ -73,6 +73,7 @@ namespace eqPly
         const Model* getModel( const eq::uint128_t& id );
 
         /** @sa eq::Config::handleEvent */
+        virtual bool handleEvent( const eq::ConfigEvent* event );
         virtual bool handleEvent( eq::EventICommand command );
 
         /** @return true if the application is idling. */

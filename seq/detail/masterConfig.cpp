@@ -72,6 +72,7 @@ bool MasterConfig::exit()
 
     if( _objects )
         deregisterObject( _objects );
+    _objects->clear();
     delete _objects;
     _objects = 0;
 

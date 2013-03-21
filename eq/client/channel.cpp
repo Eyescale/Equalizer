@@ -892,7 +892,8 @@ const PixelViewports& Channel::getRegions() const
 
 bool Channel::processEvent( const Event& event )
 {
-    Event configEvent = event;
+    ConfigEvent configEvent;
+    configEvent.data = event;
 
     switch( event.type )
     {
@@ -910,10 +911,10 @@ bool Channel::processEvent( const Event& event )
                 return true;
 
             // transform to view event, which is meaningful for the config
-            configEvent.type       = Event::VIEW_RESIZE;
-            configEvent.originator = viewID;
+            configEvent.data.type       = Event::VIEW_RESIZE;
+            configEvent.data.originator = viewID;
 
-            ResizeEvent& resize = configEvent.resize;
+            ResizeEvent& resize = configEvent.data.resize;
             resize.dw = resize.w / float( _impl->initialSize.x( ));
             resize.dh = resize.h / float( _impl->initialSize.y( ));
             break;
@@ -926,7 +927,7 @@ bool Channel::processEvent( const Event& event )
     }
 
     Config* config = getConfig();
-    config->sendEvent( configEvent.type ) << configEvent;
+    config->sendEvent( configEvent );
     return true;
 }
 
@@ -1001,9 +1002,9 @@ struct RBStat
             , uncompressed( 0 )
             , compressed( 0 )
         {
-            event.event.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-            event.event.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-            LBASSERT( event.event.statistic.frameNumber > 0 );
+            event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+            event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+            LBASSERT( event.event.data.statistic.frameNumber > 0 );
         }
 
     lunchbox::SpinLock lock;
@@ -1018,10 +1019,10 @@ struct RBStat
                 return false;
 
             if( uncompressed > 0 && compressed > 0 )
-                event.event.statistic.ratio = float( compressed ) /
+                event.event.data.statistic.ratio = float( compressed ) /
                                                    float( uncompressed );
             else
-                event.event.statistic.ratio = 1.0f;
+                event.event.data.statistic.ratio = 1.0f;
             delete this;
             return true;
         }
@@ -1128,24 +1129,24 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     if( tasks & fabric::TASK_CLEAR )
     {
         ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
-        event.event.statistic.startTime = startTime;
+        event.event.data.statistic.startTime = startTime;
         startTime += clearTime;
-        event.event.statistic.endTime = startTime;
+        event.event.data.statistic.endTime = startTime;
     }
 
     if( tasks & fabric::TASK_DRAW )
     {
         ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
-        event.event.statistic.startTime = startTime;
+        event.event.data.statistic.startTime = startTime;
         startTime += drawTime;
-        event.event.statistic.endTime = startTime;
+        event.event.data.statistic.endTime = startTime;
     }
 
     if( tasks & fabric::TASK_READBACK )
     {
-        stat->event.event.statistic.startTime = startTime;
+        stat->event.event.data.statistic.startTime = startTime;
         startTime += readbackTime;
-        stat->event.event.statistic.endTime = startTime;
+        stat->event.event.data.statistic.endTime = startTime;
 
         _setReady( hasAsyncReadback, stat.get( ));
         _resetOutputFrames();
@@ -1218,7 +1219,7 @@ void Channel::_frameReadback( const uint128_t& frameID,
         nImages[i] = _impl->outputFrames[i]->getImages().size();
 
     frameReadback( frameID );
-    LBASSERT( stat->event.event.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
     const bool async = _asyncFinishReadback( nImages );
     _setReady( async, stat.get( ));
     _resetOutputFrames();
@@ -1335,7 +1336,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
     ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
                                      frameNumber );
-    transmitEvent.event.statistic.task = taskID;
+    transmitEvent.event.data.statistic.task = taskID;
 
     const Images& images = frameData->getImages();
     Image* image = images[ imageIndex ];
@@ -1375,10 +1376,10 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS,
                                          this, frameNumber,
                                          useCompression ? AUTO : OFF );
-        compressEvent.event.statistic.task = taskID;
-        compressEvent.event.statistic.ratio = 1.0f;
-        compressEvent.event.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-        compressEvent.event.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+        compressEvent.event.data.statistic.task = taskID;
+        compressEvent.event.data.statistic.ratio = 1.0f;
+        compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+        compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
 
         // Prepare image pixel data
         Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
@@ -1407,7 +1408,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                         imageDataSize += sizeof( uint64_t );
                         imageDataSize += data.compressedSize[ k ];
                     }
-                    compressEvent.event.statistic.plugins[j] =
+                    compressEvent.event.data.statistic.plugins[j] =
                         data.compressorName;
                 }
                 else
@@ -1422,7 +1423,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         }
 
         if( rawSize > 0 )
-            compressEvent.event.statistic.ratio =
+            compressEvent.event.data.statistic.ratio =
             static_cast< float >( imageDataSize ) /
             static_cast< float >( rawSize );
     }
@@ -1436,7 +1437,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     {
         ChannelStatistics waitEvent( Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
                                      this, frameNumber );
-        waitEvent.event.statistic.task = taskID;
+        waitEvent.event.data.statistic.task = taskID;
         token = getLocalNode()->acquireSendToken( toNode );
     }
     LBASSERT( image->getPixelViewport().isValid( ));
@@ -1523,11 +1524,11 @@ void Channel::_asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
-    LBASSERT( stat->event.event.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
 
-    stat->event.event.statistic.type = Statistic::CHANNEL_ASYNC_READBACK;
+    stat->event.event.data.statistic.type = Statistic::CHANNEL_ASYNC_READBACK;
 
-    _refFrame( stat->event.event.statistic.frameNumber );
+    _refFrame( stat->event.event.data.statistic.frameNumber );
     stat->ref( 0 );
 
     send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_SET_READY )
@@ -1542,7 +1543,7 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
                                     << std::endl;
     frame->setReady();
 
-    const uint32_t frameNumber = stat->event.event.statistic.frameNumber;
+    const uint32_t frameNumber = stat->event.event.data.statistic.frameNumber;
     _refFrame( frameNumber );
 
     send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_SET_READY_NODE )
@@ -1563,14 +1564,14 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
                     colorBytes * image->getPixelViewport().getArea();
                 stat->compressed +=
                     image->getPixelDataSize( Frame::BUFFER_COLOR );
-                stat->event.event.statistic.plugins[0] =
+                stat->event.event.data.statistic.plugins[0] =
                                 image->getDownloaderName( Frame::BUFFER_COLOR );
             }
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
                 stat->uncompressed += 4 * image->getPixelViewport().getArea();
                 stat->compressed +=image->getPixelDataSize(Frame::BUFFER_DEPTH);
-                stat->event.event.statistic.plugins[1] =
+                stat->event.event.data.statistic.plugins[1] =
                                 image->getDownloaderName( Frame::BUFFER_DEPTH );
             }
         }
@@ -1831,12 +1832,12 @@ bool Channel::_cmdFrameSetReady( co::ICommand& cmd )
     const std::vector< uint128_t >& netNodes =
             command.get< std::vector< uint128_t > >();
 
-    LBASSERT( stat->event.event.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
 
     FrameDataPtr frameData = getNode()->getFrameData( frameDataVersion );
     _setReady( frameData, stat, nodes, netNodes );
 
-    const uint32_t frame = stat->event.event.statistic.frameNumber;
+    const uint32_t frame = stat->event.event.data.statistic.frameNumber;
     stat->unref( 0 );
     _unrefFrame( frame );
     return true;

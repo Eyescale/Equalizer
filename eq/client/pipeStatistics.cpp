@@ -36,13 +36,13 @@ PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
 {
     const std::string& name = pipe->getName();
     if( name.empty( ))
-        snprintf( event.statistic.resourceName, 32, "Pipe %s",
+        snprintf( event.data.statistic.resourceName, 32, "Pipe %s",
                   pipe->getID().getShortString().c_str( ));
     else
-        snprintf( event.statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
 
-    event.statistic.resourceName[31] = 0;
-    event.statistic.startTime  = pipe->getConfig()->getTime();
+    event.data.statistic.resourceName[31] = 0;
+    event.data.statistic.startTime  = pipe->getConfig()->getTime();
 }
 
 
@@ -54,16 +54,16 @@ PipeStatistics::~PipeStatistics()
         return;
 #endif
 
-    if( event.statistic.frameNumber == 0 ) // does not belong to a frame
+    if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
     Config* config = _owner->getConfig();
-    if( event.statistic.endTime == 0 )
-        event.statistic.endTime = config->getTime();
-    if( event.statistic.endTime <= event.statistic.startTime )
-        event.statistic.endTime = event.statistic.startTime + 1;
+    if( event.data.statistic.endTime == 0 )
+        event.data.statistic.endTime = config->getTime();
+    if( event.data.statistic.endTime <= event.data.statistic.startTime )
+        event.data.statistic.endTime = event.data.statistic.startTime + 1;
 
-    config->sendEvent( event.type ) << event;
+    config->sendEvent( event );
 }
 
 }

@@ -126,19 +126,18 @@ void Config::_resetMessage()
     }
 }
 
-bool Config::handleEvent( eq::EventICommand command )
+bool Config::handleEvent( const eq::ConfigEvent* event )
 {
-    const eq::Event& event = command.get< eq::Event >();
-    switch( command.getEventType( ))
+    switch( event->data.type )
     {
         case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( event.keyPress ))
+            if( _handleKeyEvent( event->data.keyPress ))
                 return true;
             break;
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
-            const lunchbox::UUID& viewID = event.context.view.identifier;
+            const lunchbox::UUID& viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == 0 )
             {
@@ -165,36 +164,36 @@ bool Config::handleEvent( eq::EventICommand command )
         }
 
         case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-            if( event.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
-                && event.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
+            if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
+                && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
             {
-                _spinY = event.pointerButtonRelease.dx;
-                _spinX = event.pointerButtonRelease.dy;
+                _spinY = event->data.pointerButtonRelease.dx;
+                _spinX = event->data.pointerButtonRelease.dy;
             }
             return true;
 
         case eq::Event::CHANNEL_POINTER_MOTION:
-            if( event.pointerMotion.buttons == eq::PTR_BUTTON1 )
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
             {
                 _spinX = 0;
                 _spinY = 0;
 
-                _frameData.spinCamera(  -0.005f * event.pointerMotion.dy,
-                                        -0.005f * event.pointerMotion.dx);
+                _frameData.spinCamera(  -0.005f * event->data.pointerMotion.dy,
+                                        -0.005f * event->data.pointerMotion.dx);
                 return true;
             }
-            if( event.pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                event.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
+                event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
                 _frameData.moveCamera( .0, .0,
-                                        .005f*event.pointerMotion.dy );
+                                        .005f*event->data.pointerMotion.dy );
                 return true;
             }
-            if( event.pointerMotion.buttons == eq::PTR_BUTTON3 )
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData.moveCamera( .0005f * event.pointerMotion.dx,
-                                      -.0005f * event.pointerMotion.dy,
+                _frameData.moveCamera( .0005f * event->data.pointerMotion.dx,
+                                      -.0005f * event->data.pointerMotion.dy,
                                        .0f );
                 return true;
             }
@@ -203,7 +202,7 @@ bool Config::handleEvent( eq::EventICommand command )
         default:
             break;
     }
-    return eq::Config::handleEvent( command );
+    return eq::Config::handleEvent( event );
 }
 
 bool Config::_handleKeyEvent( const eq::KeyEvent& event )

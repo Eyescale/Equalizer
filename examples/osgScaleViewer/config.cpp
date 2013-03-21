@@ -172,24 +172,23 @@ bool Config::mapData( const eq::uint128_t& initDataID )
     return true;
 }
 
-bool Config::handleEvent( eq::EventICommand command )
+bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     const float moveSpeed = .1f;
 
-    const eq::Event& event = command.get< eq::Event >();
-    switch( command.getEventType( ))
+    switch( event->data.type )
     {
         // set mMoveDirection to a null vector after a key is released
         // so that the updating of the camera position stops
         case eq::Event::KEY_RELEASE:
-            if ( event.keyPress.key >= 261 &&
-                 event.keyPress.key <= 266 )
+            if ( event->data.keyPress.key >= 261 &&
+                 event->data.keyPress.key <= 266 )
                 _moveDirection = eq::Vector3f( 0, 0, 0 );
         break;
 
         // change mMoveDirection when the appropriate key is pressed
         case eq::Event::KEY_PRESS:
-            switch ( event.keyPress.key )
+            switch ( event->data.keyPress.key )
             {
                 case eq::KC_LEFT:
                     _moveDirection = vmml::normalize( orthographicVector(
@@ -226,14 +225,14 @@ bool Config::handleEvent( eq::EventICommand command )
 
         // turn left and right, up and down with mouse pointer
         case eq::Event::CHANNEL_POINTER_MOTION:
-            if ( event.pointerMotion.buttons == eq::PTR_BUTTON1 &&
-                 event.pointerMotion.x <= event.context.pvp.w &&
-                 event.pointerMotion.x >= 0 &&
-                 event.pointerMotion.y <= event.context.pvp.h &&
-                 event.pointerMotion.y >= 0 )
+            if ( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 &&
+                 event->data.pointerMotion.x <= event->data.context.pvp.w &&
+                 event->data.pointerMotion.x >= 0 &&
+                 event->data.pointerMotion.y <= event->data.context.pvp.h &&
+                 event->data.pointerMotion.y >= 0 )
             {
-                _pointerXDiff += event.pointerMotion.dx;
-                _pointerYDiff += event.pointerMotion.dy;
+                _pointerXDiff += event->data.pointerMotion.dx;
+                _pointerYDiff += event->data.pointerMotion.dy;
                 return true;
             }
             break;
@@ -241,7 +240,7 @@ bool Config::handleEvent( eq::EventICommand command )
 
     // let Equalizer handle any events we don't handle ourselves here, like the
     // escape key for closing the application.
-    return eq::Config::handleEvent( command );
+    return eq::Config::handleEvent( event );
 }
 
 // Note: real applications would use one tracking device per observer
