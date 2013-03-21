@@ -100,6 +100,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
+
 if(CUDA_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/eqNBody")
   add_subdirectory(eqNBody)
 endif()
@@ -113,3 +114,4 @@ add_subdirectory(eqHello)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
 add_subdirectory(seqPly)
+add_subdirectory(eqMassVolVis)

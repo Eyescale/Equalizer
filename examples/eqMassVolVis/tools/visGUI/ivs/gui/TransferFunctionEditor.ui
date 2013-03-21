@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TransferFunctionEditor</class>
+ <widget class="QDialog" name="TransferFunctionEditor">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>703</width>
+    <height>699</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Transfer Function Editor</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_">
+   <item row="5" column="3">
+    <widget class="QPushButton" name="previewButton_">
+     <property name="text">
+      <string>Preview</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <widget class="QDialogButtonBox" name="buttonBox_">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <layout class="QHBoxLayout" name="horizontalLayout5_">
+     <item>
+      <widget class="QPushButton" name="loadButton_">
+       <property name="text">
+        <string>Load...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveButton_">
+       <property name="text">
+        <string>Save...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="2" rowspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_">
+     <item>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_">
+       <item>
+        <widget class="QLabel" name="editModeLabel_">
+         <property name="text">
+          <string>Edit Mode:</string>
+         </property>
+         <property name="buddy">
+          <cstring>graphComboBox_</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="graphComboBox_">
+         <item>
+          <property name="text">
+           <string>Freehand</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ramp</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Gauss</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Double Gauss</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ramp Gauss</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Transfer Function Type:</string>
+         </property>
+         <property name="buddy">
+          <cstring>transferFunctionTypeComboBox_</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="transferFunctionTypeComboBox_">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Voxel Value</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Derivative</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="colorGroupBox_">
+         <property name="title">
+          <string>Color Channels</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout2_">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout3_">
+            <item>
+             <widget class="QCheckBox" name="checkBoxR_">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>R</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxG_">
+              <property name="text">
+               <string>G</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxB_">
+              <property name="text">
+               <string>B</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxA_">
+              <property name="text">
+               <string>A</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="materialGroupBox_">
+         <property name="title">
+          <string>Material Properties</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout3_">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout4_">
+            <item>
+             <widget class="QCheckBox" name="checkBoxS_">
+              <property name="text">
+               <string>S</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxD_">
+              <property name="text">
+               <string>D</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxAm_">
+              <property name="text">
+               <string>A</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Minimum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="previewCheckBox_">
+         <property name="text">
+          <string>Preview</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="rangeAutoUpdateCheckBox_">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Range Auto Update</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="3" rowspan="2" colspan="2">
+    <widget class="QFrame" name="frame_">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout2_">
+      <property name="margin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>graphComboBox_</tabstop>
+  <tabstop>transferFunctionTypeComboBox_</tabstop>
+  <tabstop>checkBoxR_</tabstop>
+  <tabstop>checkBoxG_</tabstop>
+  <tabstop>checkBoxB_</tabstop>
+  <tabstop>checkBoxA_</tabstop>
+  <tabstop>checkBoxS_</tabstop>
+  <tabstop>checkBoxD_</tabstop>
+  <tabstop>checkBoxAm_</tabstop>
+  <tabstop>previewCheckBox_</tabstop>
+  <tabstop>loadButton_</tabstop>
+  <tabstop>saveButton_</tabstop>
+  <tabstop>buttonBox_</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox_</sender>
+   <signal>accepted()</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>394</x>
+     <y>381</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox_</sender>
+   <signal>rejected()</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>394</x>
+     <y>381</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>previewCheckBox_</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>changePreview(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadButton_</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>loadTransferFunction(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>48</x>
+     <y>381</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveButton_</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>saveTransferFunction(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>381</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>graphComboBox_</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>changeGraph(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>transferFunctionTypeComboBox_</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>changeTransferFunctionType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>103</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rangeAutoUpdateCheckBox_</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>changeRangeAutoUpdate(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>106</x>
+     <y>300</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>previewButton_</sender>
+   <signal>clicked()</signal>
+   <receiver>TransferFunctionEditor</receiver>
+   <slot>triggerMainWndUpdate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>253</x>
+     <y>390</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>208</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>changePreview(bool)</slot>
+  <slot>loadTransferFunction(bool)</slot>
+  <slot>saveTransferFunction(bool)</slot>
+  <slot>changeGraph(int)</slot>
+  <slot>changeTransferFunctionType(int)</slot>
+  <slot>changeRangeAutoUpdate(bool)</slot>
+ </slots>
+</ui>

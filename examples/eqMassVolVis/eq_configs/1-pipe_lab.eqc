@@ -1,0 +1,34 @@
+server
+{
+#    connection { hostname "127.0.0.1" port "5242" }
+    connection { hostname "127.0.0.1" }
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+#                    viewport [ 2400 100 800 800 ]
+                    viewport [ 20 20 1024 1024 ]
+                    channel { name "channel" }
+                }
+            }
+        }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall
+            {
+                bottom_left  [ -.32 -.32 -.75 ]
+                bottom_right [  .32 -.32 -.75 ]
+                top_left     [ -.32  .32 -.75 ]
+            }
+            segment { channel "channel" }
+        }
+    }
+}
+

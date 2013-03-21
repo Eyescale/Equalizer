@@ -127,17 +127,18 @@ else()
 endif()
 add_definitions(${EQ_DEFINITIONS})
 
-add_subdirectory(tools) # before examples, they depend on it
+# before examples, they depend on it
+add_subdirectory(tools)
+include(GLEW/CMakeLists.txt)
+add_subdirectory(eq)
+add_subdirectory(seq)
+
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 if(EXISTS "${Equalizer_SOURCE_DIR}/tests/CMakeLists.txt")
   add_subdirectory(tests)
 endif()
-
-include(GLEW/CMakeLists.txt)
-add_subdirectory(eq)
-add_subdirectory(seq)
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
    IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
@@ -199,3 +200,4 @@ set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
   "ld: warning: duplicate dylib")
 include(CTest)
+
