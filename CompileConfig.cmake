@@ -46,8 +46,9 @@ elseif(CMAKE_COMPILER_IS_INTEL)
 
 elseif(CMAKE_COMPILER_IS_XLCXX)
   # default: Maintain code semantics
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict -qarch=qp -q64")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64") 
+  # Fix to link dynamically. On the next pass should add an if statement: if shared ...
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict -qarch=qp -q64 -qnostaticlink -qnostaticlink=libgcc")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64 -qnostaticlink -qnostaticlink=libgcc") 
 
   # adding -qnohot to avoid higher order optimization loops
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -qnohot")
