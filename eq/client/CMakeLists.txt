@@ -15,7 +15,7 @@ include(files.cmake)
 include(../util/files.cmake)
 include(compressor/files.cmake)
 
-add_definitions(-DEQ_PLUGIN_BUILD)
+add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
 set(EQ_LIBRARIES ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY}
   EqualizerFabric)
