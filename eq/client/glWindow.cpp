@@ -52,7 +52,7 @@ GLWindow::~GLWindow()
 {
     _glewInitialized = false;
 #ifndef NDEBUG
-    bzero( _glewContext, sizeof( GLEWContext ));
+    lunchbox::setZero( _glewContext, sizeof( GLEWContext ));
 #endif
     delete _glewContext;
     if( _current == this )
