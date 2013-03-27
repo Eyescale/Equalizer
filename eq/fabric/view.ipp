@@ -183,7 +183,10 @@ void View< L, V, O >::changeMode( const Mode mode )
 template< class L, class V, class O >
 bool View< L, V, O >::isActive() const
 {
-    return getLayout()->isActive();
+    const L* layout = getLayout();
+    if( !layout )
+        return true; // render client view, active by definition.
+    return layout->isActive();
 }
 
 template< class L, class V, class O >
