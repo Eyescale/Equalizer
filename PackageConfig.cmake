@@ -30,7 +30,7 @@
 include(CMakePackageConfigHelpers)
 
 # Write the ProjectConfig.cmake.in file for configure_package_config_file
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "\n"
 # add helper stuff from CMakePackageConfigHelpers
   "@PACKAGE_INIT@\n"
@@ -193,24 +193,24 @@ if(LIBRARY_NAMES)
 endif()
 
 configure_package_config_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake
   INSTALL_DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   PATH_VARS INCLUDE_INSTALL_DIR ${HAS_LIBRARY_NAMES} DEPENDENTS
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 # create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
   VERSION ${VERSION} COMPATIBILITY AnyNewerVersion)
 
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 
 # create and install Project.pc
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc
   "prefix=${CMAKE_INSTALL_PREFIX}\n"
   "exec_prefix=\${prefix}\n"
   "libdir=\${exec_prefix}/${LIBRARY_DIR}\n"
@@ -223,10 +223,10 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
   "Cflags: -I\${includedir}\n"
   "Libs: -L\${libdir}" )
 foreach(_library ${LIBRARY_NAMES})
-  file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
+  file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc
     " -l${_library}")
 endforeach()
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc "\n")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc "\n")
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.pc
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc
   DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT dev)
