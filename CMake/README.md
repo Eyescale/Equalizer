@@ -25,7 +25,14 @@ Update:
     git commit ...
     git push
     [open pull request]
-    
+
 ## Documentation
 
-- [GitTargets.cmake](CMake/blob/master/doc/GitTargets.md)
+- **DoxygenRule**: *doxygen* target to build documentation into
+    CMAKE_BINARY_DIR/doc. Optional *github* target to copy result to
+    ../GITHUB_ORGANIZATION/Project-M.m/.
+- **GNUModules**: *module* target to create a
+    [GNU module](http://modules.sourceforge.net/). See file for details.
+- [GitTargets documentation](CMake/blob/master/doc/GitTargets.md)
+- **UpdateFile**: *update_file* CMake function which uses configure_file
+    but leaves target untouched if unchanged.
