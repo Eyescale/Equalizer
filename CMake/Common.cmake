@@ -14,7 +14,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/System.cmake)
 
 enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 if(NOT CMAKE_BUILD_TYPE)
   if(RELEASE_VERSION)
@@ -68,7 +67,9 @@ endif()
 if(BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS TRUE)
 endif()
+set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
+add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
@@ -76,40 +77,7 @@ if(BIGENDIAN)
   add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
 endif()
 
-# Compiler settings
-if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-  set(CMAKE_COMPILER_IS_XLCXX ON)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_COMPILER_IS_INTEL ON)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CMAKE_COMPILER_IS_CLANG ON)
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
-  include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
-  COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
-  if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
-    message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
-  endif()
-  set(COMMON_GCC_FLAGS "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS} ")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo")
-  if(GCC_COMPILER_VERSION VERSION_GREATER 4.1) # < 4.2 doesn't know -isystem
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
-  if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-  endif()
-  if(CMAKE_COMPILER_IS_CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
-  endif()
-elseif(CMAKE_COMPILER_IS_INTEL)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
-endif()
+include(Compiler) # compiler-specific default options and warnings
 
 if(MSVC)
   add_definitions(

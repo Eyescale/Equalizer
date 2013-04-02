@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pthread.h> // needed for mtQueue template instantiation
 #include "view.h"
 #include "config.h"
 

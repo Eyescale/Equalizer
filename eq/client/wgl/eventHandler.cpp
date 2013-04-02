@@ -17,7 +17,6 @@
  */
 
 #include <lunchbox/os.h>      // first get windows.h
-#include <pthread.h>           // then get pthreads
 #include <lunchbox/perThread.h> // then get perThread to have template code
 
 #include "eventHandler.h"
