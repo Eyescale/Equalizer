@@ -1125,7 +1125,7 @@ bool Config::_cmdCheckFrame( co::ICommand& command )
     _lastCheck = getServer()->getTime();
 
     co::ObjectICommand cmd( command );
-    EQVERB << "Check nodes for frame finish " << cmd << std::endl;
+    LBVERB << "Check nodes for frame finish " << cmd << std::endl;
 
     const uint32_t frameNumber = cmd.get< uint32_t >();
     const uint32_t timeout = getTimeout();
@@ -1158,7 +1158,7 @@ bool Config::_cmdCheckFrame( co::ICommand& command )
                 continue;
 
             // retry
-            EQINFO << "Retry waiting for node " << node->getName()
+            LBINFO << "Retry waiting for node " << node->getName()
                    << " to finish frame " << frameNumber << " last seen "
                    << interval << " ms ago" << " last run " << lastInterval
                    << std::endl;

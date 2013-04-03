@@ -556,7 +556,6 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
-#ifndef EQ_2_0_API
 void Config::sendEvent( ConfigEvent& event )
 {
     LBASSERT( event.data.type != Event::STATISTIC ||
@@ -568,6 +567,7 @@ void Config::sendEvent( ConfigEvent& event )
         << event.size << co::Array< void >( &event, event.size );
 }
 
+#ifndef EQ_2_0_API
 const ConfigEvent* Config::nextEvent()
 {
     EventICommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
@@ -597,12 +597,12 @@ const ConfigEvent* Config::_convertEvent( co::ObjectICommand command )
     return reinterpret_cast< const ConfigEvent* >
                                           ( command.getRemainingBuffer( size ));
 }
+#endif
 
 bool Config::handleEvent( const ConfigEvent* event )
 {
     return _handleEvent( event->data );
 }
-#endif
 
 EventOCommand Config::sendEvent( const uint32_t type )
 {
