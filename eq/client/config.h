@@ -332,7 +332,6 @@ namespace detail { class Config; }
 
         /** @name Event handling */
         //@{
-#ifndef EQ_2_0_API
         /**
          * Send an event to the application node.
          *
@@ -341,6 +340,7 @@ namespace detail { class Config; }
          */
         EQ_API void sendEvent( ConfigEvent& event );
 
+#ifndef EQ_2_0_API
         /**
          * Get the next event.
          *
@@ -367,6 +367,7 @@ namespace detail { class Config; }
          * @deprecated
          */
         EQ_API const ConfigEvent* tryNextEvent();
+#endif
 
         /**
          * Handle one config event. Thread safe.
@@ -376,7 +377,6 @@ namespace detail { class Config; }
          * @deprecated
          */
         EQ_API virtual bool handleEvent( const ConfigEvent* event );
-#endif
 
         /**
          * Send an event to the application node.
