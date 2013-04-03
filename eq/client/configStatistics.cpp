@@ -48,7 +48,7 @@ ConfigStatistics::~ConfigStatistics()
     event.data.statistic.endTime = _owner->getTime();
     if( event.data.statistic.endTime <= event.data.statistic.startTime )
         event.data.statistic.endTime = event.data.statistic.startTime + 1;
-    _owner->sendEvent( event );
+    _owner->sendEvent( event.data.type ) << event;
 }
 
 }

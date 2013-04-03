@@ -727,9 +727,8 @@ bool Window::processEvent( const Event& event )
     }
 
     Config* config = getConfig();
-    ConfigEvent configEvent;
-    configEvent.data = event;
-    config->sendEvent( configEvent );
+    config->sendEvent( event.type ) << event;
+
     return true;
 }
 
