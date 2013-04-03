@@ -927,7 +927,8 @@ bool Channel::processEvent( const Event& event )
     }
 
     Config* config = getConfig();
-    config->sendEvent( configEvent );
+    config->sendEvent( event.type ) << configEvent.data;
+
     return true;
 }
 

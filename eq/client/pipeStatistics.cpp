@@ -63,7 +63,7 @@ PipeStatistics::~PipeStatistics()
     if( event.data.statistic.endTime <= event.data.statistic.startTime )
         event.data.statistic.endTime = event.data.statistic.startTime + 1;
 
-    config->sendEvent( event );
+    config->sendEvent( event.data.type ) << event;
 }
 
 }
