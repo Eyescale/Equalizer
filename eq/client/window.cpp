@@ -727,9 +727,13 @@ bool Window::processEvent( const Event& event )
     }
 
     Config* config = getConfig();
+#ifndef EQ_2_0_API
     ConfigEvent configEvent;
     configEvent.data = event;
     config->sendEvent( configEvent );
+#else
+    config->sendEvent(event.type) << event;
+#endif
     return true;
 }
 

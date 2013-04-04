@@ -17,6 +17,10 @@
 
 #include "eventICommand.h"
 
+#ifndef EQ_2_0_API
+#include "eq/fabric/commands.h"
+#include "configEvent.h"
+#endif
 #include "event.h"
 
 namespace eq
@@ -55,7 +59,20 @@ EventICommand::~EventICommand()
 void EventICommand::_init()
 {
     if( isValid( ))
+    {
+#ifndef EQ_2_0_API
+        if (getCommand() == fabric::CMD_CONFIG_EVENT_OLD)
+        {
+            co::ObjectICommand copy = *this;
+            uint64_t size = copy.get<uint64_t>();
+            ConfigEvent event;
+            copy >> co::Array<void>(&event, size);
+            _impl->eventType = event.data.type;
+            return;
+        }
+#endif
         *this >> _impl->eventType;
+    }
 }
 
 uint32_t EventICommand::getEventType() const
