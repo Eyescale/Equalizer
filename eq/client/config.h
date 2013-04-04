@@ -471,10 +471,7 @@ namespace detail { class Config; }
 
         bool _handleNewEvent( EventICommand& command );
         bool _handleEvent( const Event& event );
-
-#ifndef EQ_2_0_API
         const ConfigEvent* _convertEvent( co::ObjectICommand command );
-#endif
 
         /**
          * Update statistics for the finished frame, push it to the local node
