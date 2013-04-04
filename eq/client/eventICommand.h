@@ -60,6 +60,15 @@ namespace detail { class EventICommand; }
          */
         EQ_API uint32_t getEventType() const;
 
+        /**
+         * Converts this object into an eq::Event.
+         *
+         * This function assumes that the next data to extract from the stream
+         * is an eq::Event. Data may be extracted from the stream and the
+         * returned reference is an internal reference.
+         */
+        const eq::Event &convertToEvent();
+
     private:
         EventICommand();
         EventICommand& operator = ( const EventICommand& );

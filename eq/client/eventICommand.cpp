@@ -80,6 +80,20 @@ uint32_t EventICommand::getEventType() const
     return _impl->eventType;
 }
 
+const eq::Event &EventICommand::convertToEvent()
+{
+#ifndef EQ_2_0_API
+    if (getCommand() == fabric::CMD_CONFIG_EVENT_OLD)
+    {
+        const uint64_t size = get< uint64_t >();
+        return reinterpret_cast< const ConfigEvent* >
+            ( getRemainingBuffer( size ) )->data;
+    }
+#endif
+    return *reinterpret_cast< const eq::Event* >
+        ( getRemainingBuffer( sizeof(eq::Event) ) );
+}
+
 std::ostream& operator << ( std::ostream& os, const EventICommand& event )
 {
     os << "Event command, event type " << Event::Type( event.getEventType( ));
