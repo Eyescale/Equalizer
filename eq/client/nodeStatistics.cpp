@@ -75,7 +75,13 @@ NodeStatistics::~NodeStatistics()
     event.data.statistic.endTime = config->getTime();
     if( event.data.statistic.endTime <= event.data.statistic.startTime )
         event.data.statistic.endTime = event.data.statistic.startTime + 1;
+
+#ifndef EQ_2_0_API
     config->sendEvent( event );
+#else
+    config->sendEvent( event.data.type ) << event.data;
+#endif
+
 }
 
 }

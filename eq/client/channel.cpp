@@ -927,7 +927,13 @@ bool Channel::processEvent( const Event& event )
     }
 
     Config* config = getConfig();
+#ifndef EQ_2_0_API
     config->sendEvent( configEvent );
+#else
+    // Using configEvent.data because it may be a modification of the
+    // orignal event.
+    config->sendEvent( event.type ) << configEvent.data << std::endl;
+#endif
     return true;
 }
 

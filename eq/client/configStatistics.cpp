@@ -48,7 +48,11 @@ ConfigStatistics::~ConfigStatistics()
     event.data.statistic.endTime = _owner->getTime();
     if( event.data.statistic.endTime <= event.data.statistic.startTime )
         event.data.statistic.endTime = event.data.statistic.startTime + 1;
+#ifndef EQ_2_0_API
     _owner->sendEvent( event );
+#else
+    _owner->sendEvent( event.data.type ) << event.data;
+#endif
 }
 
 }
