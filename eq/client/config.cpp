@@ -563,7 +563,8 @@ void Config::sendEvent( ConfigEvent& event )
 const ConfigEvent* Config::nextEvent()
 {
     EventICommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
-    return _convertEvent( command );
+    const ConfigEvent* newEvent = _convertEvent( command );
+    return newEvent ? newEvent : nextEvent();
 }
 
 const ConfigEvent* Config::tryNextEvent()
@@ -571,7 +572,8 @@ const ConfigEvent* Config::tryNextEvent()
     EventICommand command = getNextEvent( 0 );
     if( !command.isValid( ))
         return 0;
-    return _convertEvent( command );
+    const ConfigEvent* newEvent = _convertEvent( command );
+    return newEvent ? newEvent : tryNextEvent();
 }
 #endif
 
