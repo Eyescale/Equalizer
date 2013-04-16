@@ -156,7 +156,7 @@ endif()
 if(OpenCV_name)
   list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_OPENCV)
   link_directories(${${OpenCV_name}_LIBRARY_DIRS})
-  include_directories(${${OpenCV_name}_INCLUDE_DIRS})
+  include_directories(SYSTEM ${${OpenCV_name}_INCLUDE_DIRS})
 endif()
 
 
