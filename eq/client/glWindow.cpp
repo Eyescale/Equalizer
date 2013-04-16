@@ -50,9 +50,7 @@ GLWindow::GLWindow( Window* parent )
 GLWindow::~GLWindow()
 {
     _glewInitialized = false;
-#ifndef NDEBUG
     lunchbox::setZero( _glewContext, sizeof( GLEWContext ));
-#endif
     delete _glewContext;
     if( _current == this )
         _current = 0;

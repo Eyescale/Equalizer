@@ -227,7 +227,7 @@ namespace server
         bool _cmdConfigInitReply( co::ICommand& command );
         bool _cmdConfigExitReply( co::ICommand& command );
         bool _cmdFrameFinishReply( co::ICommand& command );
-        bool _cmdNop( co::ICommand& command )
+        bool _cmdNop( co::ICommand& /*command*/ )
             { return true; }
 
         virtual void updateCapabilities();
