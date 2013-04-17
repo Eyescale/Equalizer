@@ -1017,9 +1017,9 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         if( memory.compressorName == EQ_COMPRESSOR_AUTO )
         {
             const uint32_t tokenType = getExternalFormat( buffer );
-            const float lossyQuality =
-                attachment.downloader[ PLUGIN_LOSSY ].getInfo().quality;
-            const float quality = attachment.quality / lossyQuality;
+            const float downloadQuality =
+                attachment.downloader[ attachment.active ].getInfo().quality;
+            const float quality = attachment.quality / downloadQuality;
 
             compressor.setup( co::Global::getPluginRegistry(), tokenType,
                                quality, _impl->ignoreAlpha );
