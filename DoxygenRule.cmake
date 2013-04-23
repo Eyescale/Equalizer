@@ -18,10 +18,13 @@ add_custom_target(doxygen
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
 
-include(GithubOrganization)
+if(NOT GIT_DOCUMENTATION_REPO)
+  include(GithubOrganization)
+  set(GIT_DOCUMENTATION_REPO GIT_ORIGIN_org)
+endif()
 if(GIT_ORIGIN_ORG)
   set(GIT_DOCUMENTATION_DIR
-    ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
   add_custom_target(github
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
