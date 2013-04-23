@@ -75,12 +75,7 @@ namespace detail { class Observer; }
          * corresponding command to the server.
          */
         //@{
-        /**
-         * Initialize this observer.
-         *
-         * @param initID the init identifier.
-         * @version 1.5.2
-         */
+        /** Initialize this observer. @version 1.5.2 */
         EQ_API virtual bool configInit();
         friend class detail::InitVisitor;
 

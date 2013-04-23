@@ -171,10 +171,10 @@ namespace fabric
         /** Convert from a lunchbox::Plugin format. @version 1.5.2 */
         void convertFromPlugin( const uint64_t dims[4] )
         {
-            x = dims[ 0 ];
-            w = dims[ 1 ];
-            y = dims[ 2 ];
-            h = dims[ 3 ];
+            x = int32_t( dims[ 0 ]);
+            w = int32_t( dims[ 1 ]);
+            y = int32_t( dims[ 2 ]);
+            h = int32_t( dims[ 3 ]);
         }
 
         /** @return the addition of this pvp with an offset. @version 1.0 */
