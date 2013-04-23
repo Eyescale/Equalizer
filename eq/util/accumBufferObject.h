@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,13 +28,13 @@ namespace eq
 {
 namespace util
 {
-    /** 
-     * A class to emulate an OpenGL accumulation buffer using an FBO. 
+    /**
+     * A class to emulate an OpenGL accumulation buffer using an FBO.
      * @sa glAccum(), eq::util::Accum
      */
     class AccumBufferObject : public FrameBufferObject
     {
-    public: 
+    public:
         /** Construct a new Accumulation Buffer Object. @version 1.0 */
         EQ_API AccumBufferObject( const GLEWContext* const glewContext );
 
@@ -45,7 +45,7 @@ namespace util
          * Initialize the Accumulation Buffer Object.
          *
          * The ABO uses a 32-bit float texture for the accumulation.
-         * 
+         *
          * @param pvp the initial pixel viewport of the rendering buffer.
          * @param format the texture format corresponding to the source color
          *               read buffer.
@@ -95,6 +95,9 @@ namespace util
         EQ_API void display( const float value );
 
     private:
+        void _setup( const PixelViewport& pvp );
+        void _reset();
+
         /**
          * Draw a textured quad.
          *
