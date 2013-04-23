@@ -22,15 +22,15 @@ if(NOT GIT_DOCUMENTATION_REPO)
   include(GithubOrganization)
   set(GIT_DOCUMENTATION_REPO GIT_ORIGIN_org)
 endif()
-if(GIT_ORIGIN_ORG)
+if(GIT_DOCUMENTATION_REPO)
   set(GIT_DOCUMENTATION_DIR
     ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
-  add_custom_target(github
+  add_custom_target(doxygit
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
     COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
     VERBATIM)
-  add_dependencies(github doxygen)
+  add_dependencies(doxygit doxygen)
 endif()
 
 make_directory(${CMAKE_BINARY_DIR}/doc/man/man3)
