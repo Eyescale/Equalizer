@@ -46,6 +46,8 @@ list(SORT PROJECTS)
 
 # generate version table
 list(LENGTH VERSIONS NUM_VERSIONS)
+set(GIT_DOCUMENTATION_INSTALL)
+
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
   "    <tr><th>Project</th><th colspan=\"${NUM_VERSIONS}\">Versions</th>")
 
@@ -61,6 +63,7 @@ foreach(PROJECT ${PROJECTS})
     else()
       file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
         "<td><a href=\"${ENTRY}/index.html\">${VERSION}</a></td>")
+      list(APPEND GIT_DOCUMENTATION_INSTALL ${ENTRY})
     endif()
   endforeach()
 endforeach()
