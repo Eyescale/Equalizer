@@ -18,21 +18,6 @@ add_custom_target(doxygen
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
 
-if(NOT GIT_DOCUMENTATION_REPO)
-  include(GithubOrganization)
-  set(GIT_DOCUMENTATION_REPO GIT_ORIGIN_org)
-endif()
-if(GIT_DOCUMENTATION_REPO)
-  set(GIT_DOCUMENTATION_DIR
-    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
-  add_custom_target(doxygit
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
-    COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
-    VERBATIM)
-  add_dependencies(doxygit doxygen)
-endif()
-
 make_directory(${CMAKE_BINARY_DIR}/doc/man/man3)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man/man3 DESTINATION man
   COMPONENT man PATTERN "*_docs_*" EXCLUDE)
@@ -40,3 +25,25 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man/man3 DESTINATION man
 make_directory(${CMAKE_BINARY_DIR}/doc/html)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
   DESTINATION share/${CMAKE_PROJECT_NAME}/doc/API COMPONENT doc)
+
+if(NOT GIT_DOCUMENTATION_REPO)
+  include(GithubOrganization)
+  set(GIT_DOCUMENTATION_REPO GIT_ORIGIN_org)
+endif()
+if(GIT_DOCUMENTATION_REPO)
+  set(GIT_DOCUMENTATION_DIR
+    ${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}/${PROJECT_NAME}-${VERSION_MAJOR}.${VERSION_MINOR})
+  add_custom_target(doxycopy
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${GIT_DOCUMENTATION_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${GIT_DOCUMENTATION_DIR}
+    COMMENT "Copying API documentation to ${GIT_DOCUMENTATION_DIR}"
+    VERBATIM)
+  add_dependencies(doxycopy doxygen)
+endif()
+
+add_custom_target(doxygit
+  COMMAND ${CMAKE_COMMAND} -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}" -DCMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}" -DCMAKE_PROJECT_NAME="${GIT_DOCUMENTATION_REPO}" -P ${CMAKE_CURRENT_LIST_DIR}/Doxygit.cmake
+  COMMENT "Updating ${GIT_DOCUMENTATION_REPO}}"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../${GIT_DOCUMENTATION_REPO}"
+  )
+add_dependencies(doxygit doxycopy)
