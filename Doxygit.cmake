@@ -1,6 +1,7 @@
 # used by DoxygenRule.cmake, don't use directly
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/oss)
 find_package(Git)
 
 if(NOT GIT_EXECUTABLE)
@@ -60,16 +61,12 @@ foreach(PROJECT ${PROJECTS})
     else()
       file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
         "<td><a href=\"${ENTRY}/index.html\">${VERSION}</a></td>")
-      if(NOT BUILDYARD)
-        install(DIRECTORY ${ENTRY} DESTINATION share/${CMAKE_PROJECT_NAME})
-      endif()
     endif()
   endforeach()
 endforeach()
 
-add_custom_target(gitadd ALL "${GIT_EXECUTABLE}" add images ${ENTRIES}
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    COMMENT "Adding new files in ${ENTRIES}" VERBATIM)
+execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${ENTRIES}
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "</tr>\n"
@@ -81,5 +78,4 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 )
 
 update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
-  "${CMAKE_CURRENT_SOURCE_DIR}/index.html")
-install(FILES index.html DESTINATION share/${CMAKE_PROJECT_NAME})
+  "${CMAKE_SOURCE_DIR}/index.html")
