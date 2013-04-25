@@ -5,7 +5,11 @@ if(NOT DOXYGEN_FOUND)
   return()
 endif()
 
-configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
+if(NOT DOXYGEN_CONFIG_FILE)
+  # Assuming there exists a Doxyfile and that needs configuring
+  configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
+  set(DOXYGEN_CONFIG_FILE ${CMAKE_BINARY_DIR}/doc/Doxyfile)
+endif()
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
 add_custom_target(doxygen_install
@@ -13,7 +17,7 @@ add_custom_target(doxygen_install
   DEPENDS ${ALL_DEP_TARGETS})
 
 add_custom_target(doxygen
-  ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/doc/Doxyfile
+  ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
