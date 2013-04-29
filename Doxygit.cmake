@@ -55,8 +55,10 @@ if(DOXYGIT_PROJECT_EXTRA)
 endif()
 
 foreach(PROJECT ${PROJECTS})
-  string(REPLACE "[PROJECT]" "${PROJECT}" DOXYGIT_PROJECT_EXTRA_
-    ${DOXYGIT_PROJECT_EXTRA})
+  if(DOXYGIT_PROJECT_EXTRA)
+    string(REPLACE "[PROJECT]" "${PROJECT}" DOXYGIT_PROJECT_EXTRA_
+      ${DOXYGIT_PROJECT_EXTRA})
+  endif()
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
     "</tr>\n"
     "    <tr><th>${PROJECT}</th>")
