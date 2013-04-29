@@ -50,10 +50,13 @@ set(GIT_DOCUMENTATION_INSTALL)
 
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
   "    <tr><th>Project</th><th colspan=\"${NUM_VERSIONS}\">Versions</th>")
+if(DOXYGIT_PROJECT_EXTRA)
+  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "<th>Status</th>")
+endif()
 
 foreach(PROJECT ${PROJECTS})
-  string(REPLACE "[PROJECT]" "${PROJECT}" GITHUB_PROJECT_EXTRA_
-    ${GITHUB_PROJECT_EXTRA})
+  string(REPLACE "[PROJECT]" "${PROJECT}" DOXYGIT_PROJECT_EXTRA_
+    ${DOXYGIT_PROJECT_EXTRA})
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
     "</tr>\n"
     "    <tr><th>${PROJECT}</th>")
@@ -68,9 +71,9 @@ foreach(PROJECT ${PROJECTS})
       list(APPEND GIT_DOCUMENTATION_INSTALL ${ENTRY})
     endif()
   endforeach()
-  if(GITHUB_PROJECT_EXTRA_)
+  if(DOXYGIT_PROJECT_EXTRA_)
     file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-      "<th>${GITHUB_PROJECT_EXTRA_}</th>")
+      "<th>${DOXYGIT_PROJECT_EXTRA_}</th>")
   endif()
 endforeach()
 
