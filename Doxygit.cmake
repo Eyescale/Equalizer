@@ -84,7 +84,7 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "</tr>\n"
 "  </table>\n"
 "  <h1>Project Dependencies</h1>"
-"  <img src=\"images/all.png\">"
+"  <a href=\"images/all.png\"><img src=\"images/all.png\" width=100%></a>"
 "  </body>\n"
 "</html>\n"
 )
