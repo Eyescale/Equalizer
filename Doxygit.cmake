@@ -52,6 +52,8 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
   "    <tr><th>Project</th><th colspan=\"${NUM_VERSIONS}\">Versions</th>")
 
 foreach(PROJECT ${PROJECTS})
+  string(REPLACE "[PROJECT]" "${PROJECT}" GITHUB_PROJECT_EXTRA_
+    ${GITHUB_PROJECT_EXTRA})
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
     "</tr>\n"
     "    <tr><th>${PROJECT}</th>")
@@ -66,6 +68,10 @@ foreach(PROJECT ${PROJECTS})
       list(APPEND GIT_DOCUMENTATION_INSTALL ${ENTRY})
     endif()
   endforeach()
+  if(GITHUB_PROJECT_EXTRA_)
+    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
+      "<th>${GITHUB_PROJECT_EXTRA_}</th>")
+  endif()
 endforeach()
 
 execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${ENTRIES}
