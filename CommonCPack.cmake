@@ -141,6 +141,11 @@ else()
       set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
     endif()
 
+    # setup'd by Buildyard config, same as for travis CI
+    if(NOT CPACK_DEBIAN_BUILD_DEPENDS AND ${UPPER_PROJECT_NAME}_BUILD_DEBS)
+      set(CPACK_DEBIAN_BUILD_DEPENDS ${${UPPER_PROJECT_NAME}_BUILD_DEBS})
+    endif()
+
     set(CPACK_DEBIAN_PACKAGE_CONFLICTS ${OLD_PACKAGES})
   endif()
 endif()
