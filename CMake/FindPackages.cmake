@@ -214,7 +214,7 @@ if(OpenCV_name)
 endif()
 
 
-set(EQUALIZER_BUILD_DEBS bison;flex;libavahi-compat-libdnssd-dev;libboost-date-time-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libopencv-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav0;libudt-dev;libx11-dev)
+set(EQUALIZER_BUILD_DEBS bison;flex;libavahi-compat-libdnssd-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libopencv-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav0;libudt-dev;libx11-dev)
 
 set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;BISON;FLEX;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV)
 
