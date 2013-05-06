@@ -334,14 +334,6 @@ namespace detail { class Config; }
         //@{
 #ifndef EQ_2_0_API
         /**
-         * Send an event to the application node.
-         *
-         * @param event the event.
-         * @deprecated
-         */
-        EQ_API void sendEvent( ConfigEvent& event );
-
-        /**
          * Get the next event.
          *
          * To be called only on the application node.
@@ -367,16 +359,31 @@ namespace detail { class Config; }
          * @deprecated
          */
         EQ_API const ConfigEvent* tryNextEvent();
+#endif
 
         /**
-         * Handle one config event. Thread safe.
+         * Send an (old) event to the application node.
+         *
+         * Should not be used by applications, other then sending any event
+         * defined by Equalizer 1.5.0.
+         *
+         * @param event the event.
+         * @deprecated
+         */
+        EQ_API void sendEvent( ConfigEvent& event );
+
+        /**
+         * Handle one (old) config event. Thread safe.
+         *
+         * This function handles all events which did exist in Equalizer
+         * 1.5.0. Events introduced in 1.5.1 or later are handled by the other
+         * handleEvent. Equalizer 2.0 will drop this method and send all events
+         * using EventICommand instead of the ConfigEvent struct.
          *
          * @param event the event.
          * @return true if the event requires a redraw, false if not.
-         * @deprecated
          */
         EQ_API virtual bool handleEvent( const ConfigEvent* event );
-#endif
 
         /**
          * Send an event to the application node.
@@ -471,10 +478,7 @@ namespace detail { class Config; }
 
         bool _handleNewEvent( EventICommand& command );
         bool _handleEvent( const Event& event );
-
-#ifndef EQ_2_0_API
         const ConfigEvent* _convertEvent( co::ObjectICommand command );
-#endif
 
         /**
          * Update statistics for the finished frame, push it to the local node

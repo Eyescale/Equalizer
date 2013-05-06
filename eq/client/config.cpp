@@ -22,9 +22,7 @@
 #include "canvas.h"
 #include "channel.h"
 #include "client.h"
-#ifndef EQ_2_0_API
-#  include "configEvent.h"
-#endif
+#include "configEvent.h"
 #include "configStatistics.h"
 #include "eventICommand.h"
 #include "global.h"
@@ -122,10 +120,8 @@ public:
     /** The receiver->app thread event queue. */
     CommandQueue eventQueue;
 
-#ifndef EQ_2_0_API
     /** The last received event to be released. */
     co::ICommand lastEvent;
-#endif
 
     /** The connections configured by the server for this config. */
     co::Connections connections;
@@ -201,10 +197,8 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH,
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
-#ifndef EQ_2_0_API
     registerCommand( fabric::CMD_CONFIG_EVENT_OLD, ConfigFunc( 0, 0 ),
                      &_impl->eventQueue );
-#endif
     registerCommand( fabric::CMD_CONFIG_EVENT, ConfigFunc( 0, 0 ),
                      &_impl->eventQueue );
     registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK,
@@ -331,9 +325,7 @@ bool Config::exit()
         LBWARN << "Application-local de-initialization failed" << std::endl;
         ret = false;
     }
-#ifndef EQ_2_0_API
     _impl->lastEvent.clear();
-#endif
     _impl->eventQueue.flush();
     _impl->running = false;
     return ret;
@@ -556,7 +548,6 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
-#ifndef EQ_2_0_API
 void Config::sendEvent( ConfigEvent& event )
 {
     LBASSERT( event.data.type != Event::STATISTIC ||
@@ -568,10 +559,12 @@ void Config::sendEvent( ConfigEvent& event )
         << event.size << co::Array< void >( &event, event.size );
 }
 
+#ifndef EQ_2_0_API
 const ConfigEvent* Config::nextEvent()
 {
     EventICommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
-    return _convertEvent( command );
+    const ConfigEvent* newEvent = _convertEvent( command );
+    return newEvent ? newEvent : nextEvent();
 }
 
 const ConfigEvent* Config::tryNextEvent()
@@ -579,8 +572,10 @@ const ConfigEvent* Config::tryNextEvent()
     EventICommand command = getNextEvent( 0 );
     if( !command.isValid( ))
         return 0;
-    return _convertEvent( command );
+    const ConfigEvent* newEvent = _convertEvent( command );
+    return newEvent ? newEvent : tryNextEvent();
 }
+#endif
 
 const ConfigEvent* Config::_convertEvent( co::ObjectICommand command )
 {
@@ -602,7 +597,6 @@ bool Config::handleEvent( const ConfigEvent* event )
 {
     return _handleEvent( event->data );
 }
-#endif
 
 EventOCommand Config::sendEvent( const uint32_t type )
 {
@@ -623,21 +617,22 @@ EventICommand Config::getNextEvent( const uint32_t timeout ) const
 
 bool Config::handleEvent( EventICommand command )
 {
-    switch( command.getEventType( ))
+    switch( command.getCommand( ))
     {
-    case Event::OBSERVER_MOTION:
-        return _handleNewEvent( command );
-
-    default:
-#ifndef EQ_2_0_API
+    case fabric::CMD_CONFIG_EVENT_OLD:
+    {
         const ConfigEvent* configEvent = _convertEvent( command );
+        LBASSERT( configEvent );
         if( configEvent )
             return handleEvent( configEvent );
-#endif
+        return false;
+    }
 
-        LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
-        const Event& event = command.get< Event >();
-        return _handleEvent( event );
+    default:
+        LBUNIMPLEMENTED;
+        // no break;
+    case fabric::CMD_CONFIG_EVENT:
+        return _handleNewEvent( command );
     }
 }
 

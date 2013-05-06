@@ -78,7 +78,7 @@ server
             name "2D"
             view
             {
-                observer 0 
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -708,12 +708,6 @@ server
             tile_equalizer {}
 
             compound {}
-            compound { channel "channel2" outputframe {} }
-            compound { channel "channel3" outputframe {} }
-            compound { channel "channel4" outputframe {} }
-            inputframe { name "frame.channel2" }
-            inputframe { name "frame.channel3" }
-            inputframe { name "frame.channel4" }
         }
 
         compound
@@ -721,7 +715,7 @@ server
             channel ( segment 0 layout "DB_DirectSend" view 0 )
             buffer    [ COLOR DEPTH ]
 
-            
+
             compound
             {
                 range     [ 0.00 0.25 ]

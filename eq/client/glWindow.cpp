@@ -17,7 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <pthread.h> // needed for PerThread instantiation
 #include "glWindow.h"
 
 #include "error.h"
@@ -52,9 +51,7 @@ GLWindow::~GLWindow()
 {
     _glewInitialized = false;
 #ifndef NDEBUG
-#  ifndef _WIN32
-    bzero( _glewContext, sizeof( GLEWContext ));
-#  endif
+    lunchbox::setZero( _glewContext, sizeof( GLEWContext ));
 #endif
     delete _glewContext;
     if( _current == this )

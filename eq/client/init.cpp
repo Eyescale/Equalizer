@@ -199,7 +199,13 @@ bool _parseArguments( const int argc, char** argv )
     arg::variables_map vm;
     try
     {
-        arg::store( arg::command_line_parser( argc, argv )
+        Strings args;
+        for( int i = 0; i < argc; ++i )
+        {
+            if( strcmp( argv[i], "--" ) != 0 )
+                args.push_back( argv[i] );
+        }
+        arg::store( arg::command_line_parser( args )
                         .options( options ).allow_unregistered().run(), vm );
         arg::notify( vm );
     }

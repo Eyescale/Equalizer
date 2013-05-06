@@ -55,6 +55,7 @@ class SystemWindow;
 class View;
 class Window;
 class WindowSystem;
+struct ConfigEvent; //!< @deprecated
 struct Event;
 struct PixelData;
 struct PointerEvent;
@@ -260,7 +261,6 @@ using lunchbox::UUID;
 
 /** @cond IGNORE */
 #ifndef EQ_2_0_API
-struct ConfigEvent;
 #define COMMANDTYPE_EQ_CUSTOM co::COMMANDTYPE_CUSTOM
 #endif
 

@@ -69,11 +69,12 @@ void AccumBufferObject::load( const GLfloat value )
 {
     EQ_GL_ERROR( "before AccumBufferObject::load" );
     _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
-    bind();
-    _drawQuadWithTexture( _texture,
-                          fabric::PixelViewport( 0, 0, getWidth(), getHeight()),
-                          value );
-    unbind();
+
+    const PixelViewport pvp( 0, 0, getWidth(), getHeight( ));
+    _setup( pvp );
+    _drawQuadWithTexture( _texture, pvp, value );
+    _reset();
+
     EQ_GL_ERROR( "after AccumBufferObject::load" );
 
 #if 0
@@ -91,22 +92,41 @@ void AccumBufferObject::accum( const GLfloat value )
 {
     _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
 
-    bind();
+    const PixelViewport pvp( 0, 0, getWidth(), getHeight( ));
+    _setup( pvp );
     glEnable( GL_BLEND );
     glBlendFunc( GL_ONE, GL_ONE );
 
-    _drawQuadWithTexture( _texture,
-                          fabric::PixelViewport( 0, 0, getWidth(), getHeight()),
-                          value );
+    _drawQuadWithTexture( _texture, pvp, value );
 
     glBlendFunc( GL_ONE, GL_ZERO );
     glDisable( GL_BLEND );
-    unbind();
+    _reset();
 }
 
 void AccumBufferObject::display( const GLfloat value )
 {
     _drawQuadWithTexture( getColorTextures()[0], _pvp, value );
+}
+
+void AccumBufferObject::_setup( const PixelViewport& pvp )
+{
+    bind();
+    glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT );
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, pvp.w, 0, pvp.h, -1, 1);
+    glScissor(0, 0, pvp.w, pvp.h);
+    glViewport(0, 0, pvp.w, pvp.h);
+
+}
+
+void AccumBufferObject::_reset()
+{
+    glPopMatrix();
+    glPopAttrib();
+    unbind();
 }
 
 void AccumBufferObject::_drawQuadWithTexture( Texture* texture,

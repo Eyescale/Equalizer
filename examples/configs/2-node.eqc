@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 # two-node software-framelocked config
 
 global
@@ -14,7 +14,7 @@ server
         appNode
         {
             connection { hostname "127.0.0.1" }
-            pipe 
+            pipe
             {
                 device 0
                 window
@@ -27,7 +27,7 @@ server
         node
         {
             connection { hostname "127.0.0.1" }
-            pipe 
+            pipe
             {
                 device 0
                 window
@@ -48,23 +48,10 @@ server
                 bottom_right [  1.6 -.5 -1 ]
                 top_left     [ -1.6  .5 -1 ]
             }
+            swapbarrier {}
 
             segment { viewport [ 0  0 .5 1 ] channel "channel1" }
             segment { viewport [ .5 0 .5 1 ] channel "channel2" }
         }
-
-        compound
-        {
-            compound 
-            {
-                channel ( view 0 segment 0 )
-                swapbarrier {}
-            }
-            compound 
-            {
-                channel ( view 0 segment 1 )
-                swapbarrier {}
-            }
-        }
-    }    
+    }
 }

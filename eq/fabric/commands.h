@@ -84,9 +84,7 @@ namespace fabric
         CMD_CONFIG_FINISH_ALL_FRAMES,
         CMD_CONFIG_STOP_FRAMES,
         CMD_CONFIG_EVENT,
-#ifndef EQ_2_0_API
         CMD_CONFIG_EVENT_OLD,
-#endif
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_SWAP_OBJECT,
         CMD_CONFIG_CHECK_FRAME,

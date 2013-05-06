@@ -35,6 +35,7 @@
 #  define isatty _isatty
 #endif
 #pragma warning(disable: 4267)
+#pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma clang diagnostic ignored "-Wsign-compare"
 #pragma clang diagnostic ignored "-Wnull-conversion"
 

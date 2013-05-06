@@ -22,7 +22,6 @@
 
 namespace eq
 {
-#ifndef EQ_2_0_API
     /**
      * @deprecated
      * A config event.
@@ -56,7 +55,6 @@ namespace eq
     /** Print the config event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream& os,
                                        const ConfigEvent* event );
-#endif
 }
 
 #endif // EQ_CONFIGEVENT_H
