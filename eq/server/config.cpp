@@ -592,7 +592,6 @@ bool Config::_connectNodes()
         {
             setError( node->getError( ));
             success = false;
-            break;
         }
     }
 
