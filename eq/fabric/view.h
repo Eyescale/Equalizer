@@ -158,6 +158,12 @@ namespace fabric
 
         /** @return the SAGE configuration file of this view. @version 1.5.2 */
         const std::string& getSageConfig() const;
+
+        /** Set the DisplayCluster hostname for this view. @version 1.5.2 */
+        void setDisplayCluster( const std::string& hostname );
+
+        /** @return the DisplayCluster host name. @version 1.5.2 */
+        const std::string& getDisplayCluster() const;
         //@}
 
         /** @name Operations */
@@ -230,23 +236,25 @@ namespace fabric
         /** @internal */
         enum DirtyBits
         {
-            DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_OBSERVER      = Object::DIRTY_CUSTOM << 1,
-            DIRTY_OVERDRAW      = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
-            DIRTY_MODE          = Object::DIRTY_CUSTOM << 4,
-            DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
-            DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
-            DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
-            DIRTY_EQUALIZER     = Object::DIRTY_CUSTOM << 8,
-            DIRTY_EQUALIZERS    = Object::DIRTY_CUSTOM << 9,
-            DIRTY_MODELUNIT     = Object::DIRTY_CUSTOM << 10,
-            DIRTY_SAGECONFIG    = Object::DIRTY_CUSTOM << 11,
+            DIRTY_VIEWPORT       = Object::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER       = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OVERDRAW       = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM        = Object::DIRTY_CUSTOM << 3,
+            DIRTY_MODE           = Object::DIRTY_CUSTOM << 4,
+            DIRTY_MINCAPS        = Object::DIRTY_CUSTOM << 5,
+            DIRTY_MAXCAPS        = Object::DIRTY_CUSTOM << 6,
+            DIRTY_CAPABILITIES   = Object::DIRTY_CUSTOM << 7,
+            DIRTY_EQUALIZER      = Object::DIRTY_CUSTOM << 8,
+            DIRTY_EQUALIZERS     = Object::DIRTY_CUSTOM << 9,
+            DIRTY_MODELUNIT      = Object::DIRTY_CUSTOM << 10,
+            DIRTY_SAGECONFIG     = Object::DIRTY_CUSTOM << 11,
+            DIRTY_DISPLAYCLUSTER = Object::DIRTY_CUSTOM << 12,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
                 DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_EQUALIZER |
-                DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_SAGECONFIG
+                DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_SAGECONFIG |
+                DIRTY_DISPLAYCLUSTER
         };
 
     protected:
@@ -305,6 +313,7 @@ namespace fabric
         uint32_t _equalizers; //!< Active Equalizers
         float _modelUnit; //!< Scaling of scene in this view
         std::string _sageConfig;
+        std::string _displayCluster;
 
         struct BackupData
         {

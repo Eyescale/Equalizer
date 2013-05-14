@@ -70,6 +70,9 @@
 #ifdef EQUALIZER_USE_SAGE
 #  include "sageProxy.h"
 #endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#  include "dcProxy.h"
+#endif
 
 namespace eq
 {
@@ -231,6 +234,10 @@ bool Channel::configExit()
     delete _impl->_sageProxy;
     _impl->_sageProxy = 0;
 #endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    delete _impl->_dcProxy;
+    _impl->_dcProxy = 0;
+#endif
 
     delete _impl->fbo;
     _impl->fbo = 0;
@@ -244,6 +251,13 @@ bool Channel::configInit( const uint128_t& )
     {
         LBASSERT( !_impl->_sageProxy );
         _impl->_sageProxy = new SageProxy( this );
+    }
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    if( getView() && !getView()->getDisplayCluster().empty( ))
+    {
+        LBASSERT( !_impl->_dcProxy );
+        _impl->_dcProxy = new DcProxy( this );
     }
 #endif
     return _configInitFBO();
@@ -469,16 +483,28 @@ void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 void Channel::frameViewFinish( const uint128_t& )
 {
 #ifdef EQUALIZER_USE_SAGE
-    if( !_impl->_sageProxy )
-        return;
-
-    if( !_impl->_sageProxy->isRunning( ))
+    if( _impl->_sageProxy )
     {
-        delete _impl->_sageProxy;
-        _impl->_sageProxy = 0;
+        if( !_impl->_sageProxy->isRunning( ))
+        {
+            delete _impl->_sageProxy;
+            _impl->_sageProxy = 0;
+        }
+        else
+            _impl->_sageProxy->swapBuffer();
     }
-    else
-        _impl->_sageProxy->swapBuffer();
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    if( _impl->_dcProxy )
+    {
+        if( !_impl->_dcProxy->isRunning( ))
+        {
+            delete _impl->_dcProxy;
+            _impl->_dcProxy = 0;
+        }
+        else
+            _impl->_dcProxy->swapBuffer();
+    }
 #endif
 }
 

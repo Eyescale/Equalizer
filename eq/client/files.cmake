@@ -48,6 +48,13 @@ if(SAGE_FOUND)
   )
 endif()
 
+if(DISPLAYCLUSTER_FOUND)
+  set(DISPLAYCLUSTER_SOURCES
+    dcProxy.h
+    dcProxy.cpp
+  )
+endif()
+
 set(WGL_HEADERS
   wgl/eventHandler.h
   wgl/messagePump.h
@@ -124,6 +131,7 @@ set(CLIENT_HEADERS
   )
 
 set(CLIENT_SOURCES
+  ${DISPLAYCLUSTER_SOURCES}
   ${SAGE_SOURCES}
   detail/channel.ipp
   canvas.cpp
