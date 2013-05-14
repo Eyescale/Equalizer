@@ -47,7 +47,7 @@ int main( const int argc, char** argv )
     const std::string config( argc == 1 ? "" : argv[1] );
     if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
-#ifdef EQ_USE_HWSD
+#ifdef EQUALIZER_USE_HWSD
     else
         server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif

@@ -47,7 +47,7 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/plugins/compressor.h>
 
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
 #  include <GLStats/GLStats.h>
 #else
     namespace GLStats { class Data {} _fakeStats; }
@@ -81,7 +81,7 @@ private:
     const ChangeType _changeType;
     const uint32_t _compressor;
 };
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
 namespace
 {
 enum
@@ -126,7 +126,7 @@ public:
     /** The connections configured by the server for this config. */
     co::Connections connections;
 
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     /** Global statistics data. */
     lunchbox::Lockable< GLStats::Data, lunchbox::SpinLock > statistics;
 #endif
@@ -370,7 +370,7 @@ bool Config::update()
     bool result = false;
     client->waitRequest( requestID, result );
     client->enableSendOnRegister();
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     _impl->statistics->clear();
 #endif
     return result;
@@ -717,7 +717,7 @@ bool Config::_handleEvent( const Event& event )
 
 void Config::addStatistic( const uint32_t originator, const Statistic& stat )
 {
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     const uint32_t frame = stat.frameNumber;
     LBASSERT( stat.type != Statistic::NONE );
 
@@ -885,7 +885,7 @@ bool Config::_needsLocalSync() const
 
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     // keep statistics for three frames
     lunchbox::ScopedFastWrite mutex( _impl->statistics );
     _impl->statistics->obsolete( 2 /* frames to keep */ );
@@ -894,7 +894,7 @@ void Config::_updateStatistics( const uint32_t finishedFrame )
 
 GLStats::Data Config::getStatistics() const
 {
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     lunchbox::ScopedFastRead mutex( _impl->statistics );
     return _impl->statistics.data;
 #else

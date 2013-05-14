@@ -1523,9 +1523,9 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          GLX= \
                          AGL= \
                          WGL= \
-                         EQ_USE_BOOST= \
-                         EQ_USE_CUDA= \
-                         EQ_USE_OPENMP= \
+                         EQUALIZER_USE_BOOST= \
+                         EQUALIZER_USE_CUDA= \
+                         EQUALIZER_USE_OPENMP= \
                          EQ_DLLIMPORT= \
                          EQBASE_API= \
                          EQNET_API= \

@@ -18,7 +18,7 @@
 namespace eq
 {
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
 class SageProxy;
 #endif
 
@@ -39,7 +39,7 @@ public:
             : state( STATE_STOPPED )
             , fbo( 0 )
             , initialSize( Vector2i::ZERO )
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
             , _sageProxy( 0 )
 #endif
         {
@@ -98,7 +98,7 @@ public:
     /** The number of the last finished frame. */
     lunchbox::Monitor< uint32_t > finishedFrame;
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     SageProxy* _sageProxy;
 #endif
 };

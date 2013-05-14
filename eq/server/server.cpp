@@ -28,7 +28,7 @@
 #include "nodeFactory.h"
 #include "pipe.h"
 #include "window.h"
-#ifdef EQ_USE_HWSD
+#ifdef EQUALIZER_USE_HWSD
 #  include "config/server.h"
 #  include <eq/client/global.h>
 #endif
@@ -100,7 +100,7 @@ void Server::init()
     LBASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
-#ifndef EQ_USE_HWSD
+#ifndef EQUALIZER_USE_HWSD
     if( configs.empty( ))
         LBWARN << "No configurations loaded" << std::endl;
 #endif
@@ -185,7 +185,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
             config = candidate;
     }
 
-#ifdef EQ_USE_HWSD
+#ifdef EQUALIZER_USE_HWSD
     if( !config )
     {
         const std::string& configFile = command.get< std::string >();
@@ -282,7 +282,7 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
             << config->getID() << destroyRequestID;
     waitRequest( destroyRequestID );
 
-#ifdef EQ_USE_HWSD
+#ifdef EQUALIZER_USE_HWSD
     if( config->isAutoConfig( ))
     {
         LBASSERT( _admins.empty( ));

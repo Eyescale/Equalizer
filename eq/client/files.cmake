@@ -78,6 +78,7 @@ set(CLIENT_HEADERS
   compositor.h
   computeContext.h
   config.h
+  configEvent.h
   configStatistics.h
   cudaContext.h
   defines.h
@@ -177,7 +178,7 @@ set(CLIENT_SOURCES
   )
 
 if(NOT EQUALIZER_BUILD_2_0_API)
-  list(APPEND CLIENT_HEADERS configEvent.h configParams.h)
+  list(APPEND CLIENT_HEADERS configParams.h)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
 endif()
 

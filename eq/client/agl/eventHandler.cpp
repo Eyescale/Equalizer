@@ -33,7 +33,7 @@
 #include <co/global.h>
 #include <lunchbox/file.h>
 
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
 #  include <eq/client/node.h>
 #  include <3DconnexionClient/ConnexionClientAPI.h>
 #endif
@@ -544,7 +544,7 @@ uint32_t EventHandler::_getKey( EventRef eventRef )
 }
 
 
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
 extern "C" OSErr InstallConnexionHandlers( ConnexionMessageHandlerProc,
                                            ConnexionAddedHandlerProc,
                                            ConnexionRemovedHandlerProc )
@@ -610,7 +610,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
 
 void EventHandler::initMagellan( Node* node )
 {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanNode )
         LBINFO << "Space Mouse already installed" << std::endl;
     else if( !InstallConnexionHandlers )
@@ -634,7 +634,7 @@ void EventHandler::initMagellan( Node* node )
 
 void EventHandler::exitMagellan( Node* node )
 {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanID && _magellanNode == node )
     {
         UnregisterConnexionClient( _magellanID );

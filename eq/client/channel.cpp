@@ -57,7 +57,7 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/plugins/compressor.h>
 
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
 #  include "detail/statsRenderer.h"
 #  include <GLStats/GLStats.h>
 #endif
@@ -67,7 +67,7 @@
 
 #include "detail/channel.ipp"
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
 #  include "sageProxy.h"
 #endif
 
@@ -227,7 +227,7 @@ const GLEWContext* Channel::glewGetContext() const
 
 bool Channel::configExit()
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     delete _impl->_sageProxy;
     _impl->_sageProxy = 0;
 #endif
@@ -239,7 +239,7 @@ bool Channel::configExit()
 
 bool Channel::configInit( const uint128_t& )
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     if( getView() && !getView()->getSageConfig().empty( ))
     {
         LBASSERT( !_impl->_sageProxy );
@@ -468,7 +468,7 @@ void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 
 void Channel::frameViewFinish( const uint128_t& )
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     if( !_impl->_sageProxy )
         return;
 
@@ -956,7 +956,7 @@ void Channel::drawStatistics()
 
     Window* window = getWindow();
 
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     const Window::Font* font = window->getSmallFont();
     const Config* config = getConfig();
     const GLStats::Data& data = config->getStatistics();

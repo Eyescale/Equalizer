@@ -22,36 +22,12 @@ endif(APPLE)
 
 find_package(GLEW_MX)
 
-include_directories(${COLLAGE_INCLUDE_DIRS})
-
-# CUDA
-option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
-if(EQUALIZER_USE_CUDA AND CMAKE_VERSION VERSION_GREATER 2.7)
-  find_package(CUDA)
-  if(APPLE)
-    set(CUDA_64_BIT_DEVICE_CODE OFF)
-  endif()
-endif()
 if(CUDA_FOUND)
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 endif(CUDA_FOUND)
 
 # OpenSceneGraph
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
-if(EQUALIZER_USE_OSG)
-  find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
-  if(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
-    set(OSG_FOUND 0)
-  endif()
-  if("${OPENSCENEGRAPH_VERSION}" VERSION_LESS "2.9.8")
-    set(OSG_FOUND 0)
-  endif()
-else()
+if(NOT EQUALIZER_USE_OSG)
   set(OSG_FOUND)
-endif()
-
-# SAGE (found through FindPackages)
-option(EQUALIZER_USE_SAGE "Test for SAGE support" ON)
-if(NOT EQUALIZER_USE_SAGE)
-  set(SAGE_FOUND)
 endif()

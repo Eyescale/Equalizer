@@ -7,7 +7,7 @@
  2) CPU-based compositing operations (10-75% speedup on two cores)
 
  OpenMP is enabled when using Visual Studio or icc on Mac OS X, in which
- case EQ_USE_OPENMP is defined.
+ case EQUALIZER_USE_OPENMP is defined.
 
  GCC <= 4.3 does not support using OpenMP concurrently from multiple
  threads (http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36242).

@@ -41,9 +41,6 @@ endif()
 include(Common)
 include(GitTargets)
 include(configure)
-
-include_directories(BEFORE ${CMAKE_SOURCE_DIR})
-
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
@@ -154,7 +151,6 @@ if(LINKS_EXECUTABLE)
   add_custom_target(RELNOTES.txt ALL DEPENDS ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
 endif()
 
-find_package(PythonInterp)
 if(PYTHON_EXECUTABLE)
   add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/README.rst
     COMMAND ${PYTHON_EXECUTABLE} CMake/html2rst.py doc/RelNotes.dox > README.rst
@@ -164,7 +160,7 @@ if(PYTHON_EXECUTABLE)
 endif()
 
 set(EQUALIZER_DEPENDENT_LIBRARIES Lunchbox Collage)
-if(NOT EQ_GLEW_INTERNAL)
+if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
