@@ -213,10 +213,25 @@ if(OpenCV_name)
   endif()
 endif()
 
+find_package(Bullet )
+if(Bullet_FOUND)
+  set(Bullet_name Bullet)
+endif()
+if(BULLET_FOUND)
+  set(Bullet_name BULLET)
+endif()
+if(Bullet_name)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_BULLET)
+  link_directories(${${Bullet_name}_LIBRARY_DIRS})
+  if(NOT "${${Bullet_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
+    include_directories(${${Bullet_name}_INCLUDE_DIRS})
+  endif()
+endif()
+
 
 set(EQUALIZER_BUILD_DEBS bison;flex;libavahi-compat-libdnssd-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libopencv-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav0;libudt-dev;libx11-dev)
 
-set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;BISON;FLEX;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV)
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;BISON;FLEX;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV;Bullet)
 
 # Write defines.h and options.cmake
 if(NOT PROJECT_INCLUDE_NAME)

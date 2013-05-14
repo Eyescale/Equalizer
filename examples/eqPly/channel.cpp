@@ -39,6 +39,10 @@
 #include "window.h"
 #include "vertexBufferState.h"
 
+#ifdef EQUALIZER_USE_BULLET
+#  include <bullet/btBulletDynamicsCommon.h>
+#endif
+
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
 static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};

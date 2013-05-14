@@ -30,6 +30,14 @@ set(KD_SOURCES
 )
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
 
+set(EQPLY_LIBRARIES ${EQUALIZER_ADMIN_LIBRARY})
+
+find_package(Bullet)
+if(BULLET_FOUND)
+  list(APPEND EQPLY_LIBRARIES ${BULLET_LIBRARIES})
+  add_definitions(-DEQUALIZER_USE_BULLET)
+endif()
+
 eq_add_example(eqPly
   HEADERS
     cameraAnimation.h
@@ -68,7 +76,7 @@ eq_add_example(eqPly
     vertexShader.glsl
     fragmentShader.glsl
   LINK_LIBRARIES
-    ${EQUALIZER_ADMIN_LIBRARY}
+    ${EQPLY_LIBRARIES}
   )
 
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
