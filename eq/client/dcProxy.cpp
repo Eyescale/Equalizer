@@ -40,7 +40,7 @@ public:
         const DrawableConfig& dc = channel->getDrawableConfig();
         if( dc.colorBits != 8 )
         {
-            LBWARN << "Cannot stream only 8-bit RGBA framebuffers to "
+            LBWARN << "Can only stream 8-bit RGBA framebuffers to "
                    << "DisplayCluster, got " << dc.colorBits << " color bits"
                    << std::endl;
             return;
