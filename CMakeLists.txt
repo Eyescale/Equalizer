@@ -55,7 +55,7 @@ if(MSVC)
   include(UseGnuWin32)
 endif(MSVC)
 
-if (NOT MSVC)
+if(NOT MSVC)
   set(PTHREAD_LIBRARIES pthread)
 endif()
 
@@ -64,14 +64,6 @@ if(LUNCHBOX_USE_OPENMP)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-
-if(HWLOC_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
-endif()
-
-if(X11_FOUND)
-  set(EQ_GLX_USED 1)
-endif(X11_FOUND)
 
 if(APPLE)
   add_definitions(-DDarwin)
@@ -90,13 +82,6 @@ if(APPLE)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
-
-  if(CMAKE_OSX_ARCHITECTURES MATCHES "64")
-    set(CUDA_FOUND 0)
-    message(STATUS "  Disable CUDA due to missing 64 bit libraries")
-  else()
-    set(CUDA_64_BIT_DEVICE_CODE OFF)
-  endif()
 endif(APPLE)
 
 if(EQ_GLX_USED)
@@ -169,6 +154,9 @@ include(PackageConfig)
 install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT eqdev)
 
+if(HWLOC_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
+endif()
 if(LUNCHBOX_USE_DNSSD)
   set(EQ_FEATURES "${EQ_FEATURES} zeroconf")
 endif()

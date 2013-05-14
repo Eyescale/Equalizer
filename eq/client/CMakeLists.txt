@@ -101,9 +101,11 @@ install(TARGETS Equalizer
 install(FILES ${OPTIONS_CMAKE} DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h ${DEFINES_FILE}
   DESTINATION include/eq/client COMPONENT eqdev)
-# install version.h in old place for compatibility with old FindEqualizer scripts
+# install version.h in old place for compatibility with old FindEqualizer
 install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h
   DESTINATION include/eq COMPONENT eqdev)
+update_file(${DEFINES_FILE}
+  ${CMAKE_BINARY_DIR}/include/eq/client/defines${SYSTEM}.h)
 
 option(EQUALIZER_OLD_CLIENT_LAYOUT
   "Install header files as in v1.0 directory layout" OFF)
