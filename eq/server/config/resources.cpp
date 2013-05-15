@@ -767,8 +767,9 @@ Compound* Resources::_addSubpixelCompound( Compound* root,
     compound->setName( EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL );
 
     const Compounds& children = _addSources( compound, channels, true );
+    const uint32_t nChildren( children.size( ));
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
-        (*i)->setSubPixel( SubPixel( i - children.begin(), children.size( )));
+        (*i)->setSubPixel( SubPixel( i - children.begin(), nChildren ));
 
     return compound;
 }
