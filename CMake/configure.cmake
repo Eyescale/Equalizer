@@ -7,8 +7,8 @@ endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
-  LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
-  LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
+  list(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
+  list(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
   link_directories(/usr/X11R6/lib)
   include_directories(SYSTEM /usr/X11R6/include)
 endif()
