@@ -364,6 +364,9 @@ void Channel::notifyViewportChanged()
     processEvent( event );
 }
 
+void Channel::notifyStopFrame( const uint32_t )
+{}
+
 void Channel::addStatistic( Event& event )
 {
     {
