@@ -123,7 +123,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
    IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
   add_subdirectory(auxiliary)
 endif()
-add_subdirectory(doc) # must be after all targets
+add_subdirectory(doc)
 
 find_program(LINKS_EXECUTABLE links)
 if(LINKS_EXECUTABLE)
@@ -147,8 +147,6 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-include(CPackConfig)
-include(PackageConfig)
 install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT eqdev)
 
@@ -182,6 +180,11 @@ if(MSVC)
 else()
   message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 endif()
+
+
+include(CPackConfig)
+include(PackageConfig)
+include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
