@@ -53,9 +53,7 @@ set(EQ_FEATURES)
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
   include(UseGnuWin32)
-endif(MSVC)
-
-if(NOT MSVC)
+else()
   set(PTHREAD_LIBRARIES pthread)
 endif()
 
