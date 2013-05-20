@@ -36,6 +36,21 @@
 
 #include <eq/eq.h>
 
+#ifdef EQUALIZER_USE_BULLET
+#include <bullet/LinearMath/btAlignedObjectArray.h>
+class btBroadphaseInterface;
+class btCollisionShape;
+class btCollisionDispatcher;
+class btConstraintSolver;
+struct btCollisionAlgorithmCreateFunc;
+class btDefaultCollisionConfiguration;
+class btDynamicsWorld;
+class btOverlappingPairCache;
+class btRigidBody;
+class btVector3;
+#endif
+
+
 
 namespace eqPly
 {
@@ -94,6 +109,23 @@ namespace eqPly
         const Model* _model;
         eq::uint128_t _modelID;
         uint32_t _frameRestart;
+
+#ifdef EQUALIZER_USE_BULLET
+        ///this is the most important class
+        btDynamicsWorld*		m_dynamicsWorld;
+        btRigidBody*            m_rigidBody;
+        //keep the collision shapes, for deletion/cleanup
+        btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+        btBroadphaseInterface*	m_broadphase;
+        btCollisionDispatcher*	m_dispatcher;
+        btCollisionShape*       m_shape;
+        btConstraintSolver*     m_solver;
+        btDefaultCollisionConfiguration* m_collisionConfiguration;
+
+        void _drawPhysics(const int& pass);
+        void glDrawVector(const btVector3& v);
+
+#endif
 
         struct Accum
         {
