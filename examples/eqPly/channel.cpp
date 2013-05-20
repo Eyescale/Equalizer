@@ -94,24 +94,24 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
 #ifdef EQUALIZER_USE_BULLET
     ///collision configuration contains default setup for memory, collision setup
-    this->m_shape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
+    m_shape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
     btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,-100,0)));
     btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
         0,                  // mass
         motionState,        // initial position
-        this->m_shape,      // collision shape of body
+        m_shape,      // collision shape of body
         btVector3(0,0,0)    // local inertia
     );
-    this->m_rigidBody = new btRigidBody(rigidBodyCI);
+    m_rigidBody = new btRigidBody(rigidBodyCI);
 
-    this->m_collisionConfiguration = new btDefaultCollisionConfiguration();
-    this->m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-    this->m_broadphase = new btDbvtBroadphase();
-    this->m_solver = new btSequentialImpulseConstraintSolver();
+    m_collisionConfiguration = new btDefaultCollisionConfiguration();
+    m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+    m_broadphase = new btDbvtBroadphase();
+    m_solver = new btSequentialImpulseConstraintSolver();
 
-    this->m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-    this->m_dynamicsWorld->setGravity(btVector3(0,-10,0));
-    this->m_dynamicsWorld->addRigidBody(m_rigidBody);
+    m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+    m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+    m_dynamicsWorld->addRigidBody(m_rigidBody);
 
         ///create a few basic rigid bodies
     btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
@@ -285,7 +285,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glColor3f( .75f, .75f, .75f );
 
 #ifdef EQUALIZER_USE_BULLET
-    this->m_dynamicsWorld->stepSimulation(btScalar(16666.) / 1000000.f);
+    m_dynamicsWorld->stepSimulation(btScalar(16666.) / 1000000.f);
     _drawPhysics(0);
 #endif
 
@@ -927,7 +927,7 @@ void Channel::_drawPhysics(const int& pass)
     btMatrix3x3	rot;
     rot.setIdentity();
 
-    const int numObjects = this->m_dynamicsWorld->getNumCollisionObjects();
+    const int numObjects = m_dynamicsWorld->getNumCollisionObjects();
 //    std::cout << "num Objects = " << numObjects << std::endl;
     for(int k=0;k<numObjects;k++)
     {
@@ -949,36 +949,13 @@ void Channel::_drawPhysics(const int& pass)
 
 //        std::cout << "Shape type = " << shape->getShapeType() << std::endl;
 
-        glPushMatrix();
-
-        glMatrixMode(GL_TEXTURE);
-        glLoadIdentity();
-        glScalef(0.025f,0.025f,0.025f);
-        glMatrixMode(GL_MODELVIEW);
-
-        static const GLfloat	planex[]={1,0,0,0};
-    //	static const GLfloat	planey[]={0,1,0,0};
-        static const GLfloat	planez[]={0,0,1,0};
-        glTexGenfv(GL_S,GL_OBJECT_PLANE,planex);
-        glTexGenfv(GL_T,GL_OBJECT_PLANE,planez);
-        glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-        glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
-        glEnable(GL_TEXTURE_GEN_S);
-        glEnable(GL_TEXTURE_GEN_T);
-        glEnable(GL_TEXTURE_GEN_R);
-
-        glEnable(GL_COLOR_MATERIAL);
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
         btVector3 color(1.f,1.0f,0.5f);
-        glColor3f(color.x(),color.y(), color.z());
+        glColor3f(color.x(), color.y(), color.z());
 
         if (shape->getShapeType() == 0)
         {
             const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
             btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
-
             static int indices[36] = {
                 0,1,2,
                 3,2,1,
@@ -1034,20 +1011,18 @@ void Channel::_drawPhysics(const int& pass)
             btVector3 pt1 = planeOrigin - vec0*vecLen;
             btVector3 pt2 = planeOrigin + vec1*vecLen;
             btVector3 pt3 = planeOrigin - vec1*vecLen;
-            glBegin(GL_QUADS);
-            glVertex3f(pt0.getX(),pt0.getY(),pt0.getZ());
-            glVertex3f(pt1.getX(),pt1.getY(),pt1.getZ());
-            glVertex3f(pt2.getX(),pt2.getY(),pt2.getZ());
-            glVertex3f(pt3.getX(),pt3.getY(),pt3.getZ());
-            glEnd();
+            glBegin(GL_QUADS); {
+                glVertex3f(pt0.getX(),pt0.getY(),pt0.getZ());
+                glVertex3f(pt1.getX(),pt1.getY(),pt1.getZ());
+                glVertex3f(pt2.getX(),pt2.getY(),pt2.getZ());
+                glVertex3f(pt3.getX(),pt3.getY(),pt3.getZ());
+            } glEnd();
         }
 
         glPopMatrix();
     }
 
 }
-
-void Channel::glDrawVector(const btVector3& v) { glVertex3d(v[0], v[1], v[2]); }
 
 #endif
 
