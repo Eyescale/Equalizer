@@ -40,7 +40,21 @@
 #include "vertexBufferState.h"
 
 #ifdef EQUALIZER_USE_BULLET
-#  include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/btBulletDynamicsCommon.h>
+
+///create 125 (5x5x5) dynamic object
+#define ARRAY_SIZE_X 5
+#define ARRAY_SIZE_Y 5
+#define ARRAY_SIZE_Z 5
+
+//maximum number of objects (and allow user to shoot additional boxes)
+#define MAX_PROXIES (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024)
+
+///scaling of the objects (0.1 = 20 centimeter boxes )
+#define SCALING 30.
+#define START_POS_X 0
+#define START_POS_Y 0
+#define START_POS_Z 0
 #endif
 
 // light parameters
@@ -77,6 +91,103 @@ bool Channel::configInit( const eq::uint128_t& initID )
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = 0;
+
+#ifdef EQUALIZER_USE_BULLET
+    ///collision configuration contains default setup for memory, collision setup
+    this->m_shape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
+    btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,-100,0)));
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
+        0,                  // mass
+        motionState,        // initial position
+        this->m_shape,      // collision shape of body
+        btVector3(0,0,0)    // local inertia
+    );
+    this->m_rigidBody = new btRigidBody(rigidBodyCI);
+
+    this->m_collisionConfiguration = new btDefaultCollisionConfiguration();
+    this->m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+    this->m_broadphase = new btDbvtBroadphase();
+    this->m_solver = new btSequentialImpulseConstraintSolver();
+
+    this->m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+    this->m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+    this->m_dynamicsWorld->addRigidBody(m_rigidBody);
+
+        ///create a few basic rigid bodies
+    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+    btTransform groundTransform;
+    groundTransform.setIdentity();
+    groundTransform.setOrigin(btVector3(0,-50,0));
+    //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
+    {
+        btScalar mass(0.);
+
+        //rigidbody is dynamic if and only if mass is non zero, otherwise static
+        bool isDynamic = (mass != 0.f);
+
+        btVector3 localInertia(0,0,0);
+        if (isDynamic)
+            groundShape->calculateLocalInertia(mass,localInertia);
+
+        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+        btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+        btRigidBody* body = new btRigidBody(rbInfo);
+
+        //add the body to the dynamics world
+        m_dynamicsWorld->addRigidBody(body);
+    }
+
+    {
+        //create a few dynamic rigidbodies
+        // Re-using the same collision is better for memory usage and performance
+
+        btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+        //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+        m_collisionShapes.push_back(colShape);
+
+        /// Create Dynamic Objects
+        btTransform startTransform;
+        startTransform.setIdentity();
+
+        btScalar	mass(1.f);
+
+        //rigidbody is dynamic if and only if mass is non zero, otherwise static
+        bool isDynamic = (mass != 0.f);
+
+        btVector3 localInertia(0,0,0);
+        if (isDynamic)
+            colShape->calculateLocalInertia(mass,localInertia);
+
+        float start_x = START_POS_X - ARRAY_SIZE_X/2;
+        float start_y = START_POS_Y;
+        float start_z = START_POS_Z - ARRAY_SIZE_Z/2;
+
+        for (int k=0;k<ARRAY_SIZE_Y;k++)
+        {
+            for (int i=0;i<ARRAY_SIZE_X;i++)
+            {
+                for(int j = 0;j<ARRAY_SIZE_Z;j++)
+                {
+                    startTransform.setOrigin(SCALING*btVector3(
+                                        btScalar(2.0*i + start_x),
+                                        btScalar(20+2.0*k + start_y),
+                                        btScalar(2.0*j + start_z)));
+
+
+                    //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+                    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+                    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+                    btRigidBody* body = new btRigidBody(rbInfo);
+
+
+                    m_dynamicsWorld->addRigidBody(body);
+                }
+            }
+        }
+    }
+#endif //EQUALIZER_USE_BULLET
+
     return true;
 }
 
@@ -172,6 +283,11 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     }
     else
         glColor3f( .75f, .75f, .75f );
+
+#ifdef EQUALIZER_USE_BULLET
+    this->m_dynamicsWorld->stepSimulation(btScalar(16666.) / 1000000.f);
+    _drawPhysics(0);
+#endif
 
     if( model )
         _drawModel( model );
@@ -802,6 +918,138 @@ void Channel::_drawHelp()
 
     resetAssemblyState();
 }
+
+#ifdef EQUALIZER_USE_BULLET
+void Channel::_drawPhysics(const int& pass)
+{
+//    glPushMatrix();
+    btScalar m[16];
+    btMatrix3x3	rot;
+    rot.setIdentity();
+
+    const int numObjects = this->m_dynamicsWorld->getNumCollisionObjects();
+//    std::cout << "num Objects = " << numObjects << std::endl;
+    for(int k=0;k<numObjects;k++)
+    {
+        btCollisionObject*	colObj=m_dynamicsWorld->getCollisionObjectArray()[k];
+        btRigidBody*		body=btRigidBody::upcast(colObj);
+        if(body&&body->getMotionState())
+        {
+            btDefaultMotionState* myMotionState = (btDefaultMotionState*)body->getMotionState();
+            myMotionState->m_graphicsWorldTrans.getOpenGLMatrix(m);
+            rot=myMotionState->m_graphicsWorldTrans.getBasis();
+        }
+        else
+        {
+            colObj->getWorldTransform().getOpenGLMatrix(m);
+            rot=colObj->getWorldTransform().getBasis();
+        }
+
+        btCollisionShape* shape = colObj->getCollisionShape();
+
+//        std::cout << "Shape type = " << shape->getShapeType() << std::endl;
+
+        glPushMatrix();
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glScalef(0.025f,0.025f,0.025f);
+        glMatrixMode(GL_MODELVIEW);
+
+        static const GLfloat	planex[]={1,0,0,0};
+    //	static const GLfloat	planey[]={0,1,0,0};
+        static const GLfloat	planez[]={0,0,1,0};
+        glTexGenfv(GL_S,GL_OBJECT_PLANE,planex);
+        glTexGenfv(GL_T,GL_OBJECT_PLANE,planez);
+        glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+        glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_OBJECT_LINEAR);
+        glEnable(GL_TEXTURE_GEN_S);
+        glEnable(GL_TEXTURE_GEN_T);
+        glEnable(GL_TEXTURE_GEN_R);
+
+        glEnable(GL_COLOR_MATERIAL);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        btVector3 color(1.f,1.0f,0.5f);
+        glColor3f(color.x(),color.y(), color.z());
+
+        if (shape->getShapeType() == 0)
+        {
+            const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+            btVector3 halfExtent = boxShape->getHalfExtentsWithMargin();
+
+            static int indices[36] = {
+                0,1,2,
+                3,2,1,
+                4,0,6,
+                6,0,2,
+                5,1,4,
+                4,1,0,
+                7,3,1,
+                7,1,5,
+                5,4,7,
+                7,4,6,
+                7,2,3,
+                7,6,2};
+
+             btVector3 vertices[8]={
+                btVector3(halfExtent[0],halfExtent[1],halfExtent[2]),
+                btVector3(-halfExtent[0],halfExtent[1],halfExtent[2]),
+                btVector3(halfExtent[0],-halfExtent[1],halfExtent[2]),
+                btVector3(-halfExtent[0],-halfExtent[1],halfExtent[2]),
+                btVector3(halfExtent[0],halfExtent[1],-halfExtent[2]),
+                btVector3(-halfExtent[0],halfExtent[1],-halfExtent[2]),
+                btVector3(halfExtent[0],-halfExtent[1],-halfExtent[2]),
+                btVector3(-halfExtent[0],-halfExtent[1],-halfExtent[2])};
+
+            glBegin (GL_TRIANGLES);
+            int si=36;
+            for (int i=0;i<si;i+=3)
+            {
+                const btVector3& v1 = vertices[indices[i]];;
+                const btVector3& v2 = vertices[indices[i+1]];
+                const btVector3& v3 = vertices[indices[i+2]];
+                btVector3 normal = (v3-v1).cross(v2-v1);
+                normal.normalize ();
+                glNormal3f(normal.getX(),normal.getY(),normal.getZ());
+                glVertex3f (v1.x(), v1.y(), v1.z());
+                glVertex3f (v2.x(), v2.y(), v2.z());
+                glVertex3f (v3.x(), v3.y(), v3.z());
+
+            }
+            glEnd();
+        }
+
+        else if (shape->getShapeType() == 28)
+        {
+            const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
+            btScalar planeConst = staticPlaneShape->getPlaneConstant();
+            const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+            btVector3 planeOrigin = planeNormal * planeConst;
+            btVector3 vec0,vec1;
+            btPlaneSpace1(planeNormal,vec0,vec1);
+            btScalar vecLen = 100.f;
+            btVector3 pt0 = planeOrigin + vec0*vecLen;
+            btVector3 pt1 = planeOrigin - vec0*vecLen;
+            btVector3 pt2 = planeOrigin + vec1*vecLen;
+            btVector3 pt3 = planeOrigin - vec1*vecLen;
+            glBegin(GL_QUADS);
+            glVertex3f(pt0.getX(),pt0.getY(),pt0.getZ());
+            glVertex3f(pt1.getX(),pt1.getY(),pt1.getZ());
+            glVertex3f(pt2.getX(),pt2.getY(),pt2.getZ());
+            glVertex3f(pt3.getX(),pt3.getY(),pt3.getZ());
+            glEnd();
+        }
+
+        glPopMatrix();
+    }
+
+}
+
+void Channel::glDrawVector(const btVector3& v) { glVertex3d(v[0], v[1], v[2]); }
+
+#endif
 
 void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
 {
