@@ -65,18 +65,6 @@ endif()
 
 if(APPLE)
   add_definitions(-DDarwin)
-
-  foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
-    if(ARCH STREQUAL "ppc" OR ARCH STREQUAL "i386")
-      set(EQ_AGL_USED 1)
-      list(APPEND EQ_EXAMPLES_OSX_ARCHITECTURES ${ARCH})
-    endif()
-  endforeach()
-  if(NOT EQ_EXAMPLES_OSX_ARCHITECTURES)
-    set(EQ_EXAMPLES_OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
-  endif()
-  list(REMOVE_DUPLICATES EQ_EXAMPLES_OSX_ARCHITECTURES)
-
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
