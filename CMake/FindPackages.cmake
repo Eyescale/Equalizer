@@ -138,15 +138,9 @@ if(MAGELLAN_name)
   endif()
 endif()
 
-<<<<<<< HEAD
 find_package(GLEW_MX )
 if(GLEW_MX_FOUND)
   set(GLEW_MX_name GLEW_MX)
-=======
-find_package(OpenSceneGraph 3.0 COMPONENTS osgDB osgUtil)
-if(OpenSceneGraph_FOUND)
-  set(OpenSceneGraph_name OpenSceneGraph)
->>>>>>> master
 endif()
 if(GLEW_MX_FOUND)
   set(GLEW_MX_name GLEW_MX)
@@ -175,83 +169,13 @@ if(Bullet_name)
 endif()
 
 
-<<<<<<< HEAD
-=======
-find_package(PythonInterp )
-if(PythonInterp_FOUND)
-  set(PythonInterp_name PythonInterp)
-endif()
-if(PYTHONINTERP_FOUND)
-  set(PythonInterp_name PYTHONINTERP)
-endif()
-if(PythonInterp_name)
-  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_PYTHONINTERP)
-  link_directories(${${PythonInterp_name}_LIBRARY_DIRS})
-  if(NOT "${${PythonInterp_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
-    include_directories(${${PythonInterp_name}_INCLUDE_DIRS})
-  endif()
-endif()
-
-find_package(DisplayCluster 0.2.0)
-if(DisplayCluster_FOUND)
-  set(DisplayCluster_name DisplayCluster)
-endif()
-if(DISPLAYCLUSTER_FOUND)
-  set(DisplayCluster_name DISPLAYCLUSTER)
-endif()
-if(DisplayCluster_name)
-  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_DISPLAYCLUSTER)
-  link_directories(${${DisplayCluster_name}_LIBRARY_DIRS})
-  if(NOT "${${DisplayCluster_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
-    include_directories(${${DisplayCluster_name}_INCLUDE_DIRS})
-  endif()
-endif()
-
-find_package(MAGELLAN )
-if(MAGELLAN_FOUND)
-  set(MAGELLAN_name MAGELLAN)
-endif()
-if(MAGELLAN_FOUND)
-  set(MAGELLAN_name MAGELLAN)
-endif()
-if(MAGELLAN_name)
-  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_MAGELLAN)
-  link_directories(${${MAGELLAN_name}_LIBRARY_DIRS})
-  if(NOT "${${MAGELLAN_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
-    include_directories(${${MAGELLAN_name}_INCLUDE_DIRS})
-  endif()
-endif()
-
-find_package(GLEW_MX )
-if(GLEW_MX_FOUND)
-  set(GLEW_MX_name GLEW_MX)
-endif()
-if(GLEW_MX_FOUND)
-  set(GLEW_MX_name GLEW_MX)
-endif()
-if(GLEW_MX_name)
-  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_GLEW_MX)
-  link_directories(${${GLEW_MX_name}_LIBRARY_DIRS})
-  if(NOT "${${GLEW_MX_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
-    include_directories(${${GLEW_MX_name}_INCLUDE_DIRS})
-  endif()
-endif()
-
-
->>>>>>> master
 if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
   include(${CMAKE_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
 endif()
 
-<<<<<<< HEAD
 set(EQUALIZER_BUILD_DEBS bison;flex;libavahi-compat-libdnssd-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libopencv-dev;libopenscenegraph-dev;librdmacm-dev;libspnav-dev;libudt-dev;libx11-dev)
 
 set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;OpenCV;PythonInterp;MAGELLAN;GLEW_MX;Bullet)
-=======
-set(EQUALIZER_BUILD_DEBS bison;flex;freeglut3-dev;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev)
-
-set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV;PythonInterp;DisplayCluster;MAGELLAN;GLEW_MX)
->>>>>>> master
 
 # Write defines.h and options.cmake
 if(NOT PROJECT_INCLUDE_NAME)

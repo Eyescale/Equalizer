@@ -1,91 +1,14 @@
--   `1. Introduction`_
-
--   `1.1. Features`_
-
--   `2. New in this release`_
-
--   `2.1. New Features`_
--   `2.2. Enhancements`_
--   `2.3. Optimizations`_
--   `2.4. Examples`_
--   `2.5. Tools`_
--   `2.6. Documentation`_
--   `2.7. Bug Fixes`_
--   `2.8. Known Bugs`_
-
--   `3. About`_
-
--   `3.1. Operating System Support`_
--   `3.2. Window System Support`_
--   `3.3. Documentation`_
--   `3.4. Support`_
-
--   `4. Errata`_
-
-
-1. Introduction
----------------
-
-Welcome to Equalizer, the standard middleware to create and deploy parallel,
-scalable OpenGL applications. This release introduces major new features,
-most notably asynchronous readbacks, region of interest and thread affinity
-for increased performance during scalable rendering.
-
-Equalizer 1.4.1 is a bugfix release for Equalizer 1.4, containing the fixes
-`listed below`_.
-
-Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
-seven years of development and decades of experience into a feature-rich,
-high-performance and mature parallel rendering framework and an object-
-oriented high-level network library. It is intended for all application
-developers creating parallel, interactive OpenGL applications. Equalizer 1.4
-can be retrieved by downloading the `source code`_ or one of the `precompiled
-packages`_.
-
-
-1.1. Features
-~~~~~~~~~~~~~
-
-Equalizer provides the following major features to facilitate the development
-and deployment of scalable OpenGL applications. A `detailed feature list`_
-can be found on the Equalizer website.
-
--   **Runtime Configurability:** An Equalizer application is configured
-    automatically or manually at runtime and can be deployed on laptops,
-    multi-GPU workstations and large-scale visualization clusters without
-    recompilation.
--   **Runtime Scalability:** An Equalizer application can benefit from
-    multiple graphics cards, processors and computers to scale rendering
-    performance, visual quality and display size.
--   **Distributed Execution:** Equalizer applications can be written to
-    support cluster-based execution. Equalizer furnishes and uses the Collage
-    network library, a cross-platform C++ library for building heterogenous,
-    distributed applications.
--   **Support for Stereo and Immersive Environments:** Equalizer supports
-    stereo rendering head tracking, head-mounted displays and other advanced
-    features for immersive Virtual Reality installations.
-
-
-2. New in this release
-----------------------
-
-Equalizer 1.4 contains the following features, enhancements, bug fixes and
-documentation changes:
-
 
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
--   `Asynchronous readback`_ support
--   `Region of interest`_ for scalable rendering and load-balancing
--   `Automatic CPU-GPU affinity`_
--   `Application-specific scaling`_ to visualize data in a scale
-    different to 1:1 in immersive environments
--   `VirtualGL-aware auto-configuration`_
+* `Asynchronous readback`_ support * `Region of interest`_ for scalable
+rendering and load-balancing * `Automatic CPU-GPU affinity`_ * `Application-
+specific scaling`_ to visualize data in a scale different to 1:1 in immersive
+environments * `VirtualGL-aware auto-configuration`_
 
--   `Zeroconf support and node discovery`_
--   `Blocking co::Object::commit`_
--   `Extensible packet dispatch`_
+* `Zeroconf support and node discovery`_ * `Blocking co::Object::commit`_ *
+`Extensible packet dispatch`_
 
 
 2.2. Enhancements
@@ -93,40 +16,39 @@ documentation changes:
 
 Equalizer 1.4.1:
 
--   `RDMA Windows implementation`_
+* `RDMA Windows implementation`_
 
 Equalizer 1.4.0:
 
--   `System window without drawable buffer`_
--   `Mac OS X: Build universal libraries even when AGL is enabled`_
--   auto-config: add direct send configuration
--   auto-config: save generated configuration to .eqc file
--   auto-config: application-specific flags for multiprocess execution
+* `System window without drawable buffer`_ * `Mac OS X: Build universal
+libraries even when AGL is enabled`_ * auto-config: add direct send
+configuration * auto-config: save generated configuration to .eqc file *
+auto-config: application-specific flags for multiprocess execution
 
 
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
 
--   `Multi-GPU NVidia optimization`_
--   load_equalizer: split along longest axis in 2D mode
+* `Multi-GPU NVidia optimization`_ * load_equalizer: split along longest axis
+in 2D mode
 
--   InfiniBand RDMA: significant performance increase using a different
-    underlying implementation
+* InfiniBand RDMA: significant performance increase using a different
+underlying implementation
 
 
 2.4. Examples
 ~~~~~~~~~~~~~
 
--   eqPly: Add command line option to disable region of interest
--   eqPly: Parallel kd-tree construction when using gcc 4.4 or later
--   eqPly: runtime-changeable model unit scaling
--   eqPly: Create all VBOs/display lists during the first frame
+* eqPly: Add command line option to disable region of interest * eqPly:
+Parallel kd-tree construction when using gcc 4.4 or later * eqPly: runtime-
+changeable model unit scaling * eqPly: Create all VBOs/display lists during
+the first frame
 
 
 2.5. Tools
 ~~~~~~~~~~
 
--   eqPlyConverter: New offline tool to generate binary cache for eqPly
+* eqPlyConverter: New offline tool to generate binary cache for eqPly
 
 
 2.6. Documentation
@@ -135,11 +57,10 @@ Equalizer 1.4.0:
 The following documentation has been added or substantially improved since
 the last release:
 
--   Full `API documentation`_ for the public Equalizer API
--   The `Programming and User Guide`_ has been extended to 107 pages and
-    60 figures
--   `Tile compounds`_ using a pull-based task distribution for volume
-    rendering and interactive raytracing
+* Full `API documentation`_ for the public Equalizer API * The `Programming
+and User Guide`_ has been extended to 107 pages and 60 figures * `Tile
+compounds`_ using a pull-based task distribution for volume rendering and
+interactive raytracing
 
 
 2.7. Bug Fixes
@@ -147,34 +68,26 @@ the last release:
 
 Equalizer 1.4.1 includes the following bugfixes over the 1.4 release:
 
--   `180`_: Launch error with empty host for a node bug
--   `179`_: Readback of non-modulo-4 images broken
--   `175`_: "--eq-logfile" followed by no other argument segfaults
--   `162`_: WGL window compile error
--   `161`_: eqPly crash on model load on Win32
--   `160`_: Memleak with pipe thread affinity
--   `159`_: exPixelBench crashes
--   `158`_: Non-freed GPUCompressors after application exit
--   `138`_: Windows: PBO error when rendering
+* `180`_: Launch error with empty host for a node bug * `179`_: Readback of
+non-modulo-4 images broken * `175`_: "--eq-logfile" followed by no other
+argument segfaults * `162`_: WGL window compile error * `161`_: eqPly crash
+on model load on Win32 * `160`_: Memleak with pipe thread affinity * `159`_:
+exPixelBench crashes * `158`_: Non-freed GPUCompressors after application
+exit * `138`_: Windows: PBO error when rendering
 
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
 following:
 
--   `157`_: Crash in Image::upload when no uploader is found
--   `149`_: Channel::configInit initID always 0
--   `147`_: Repeated Canvas::useLayout OFF/ON causes violation of
-    DRAW_SYNC thread ordering
--   `139`_: Tile compound readback broken
--   `120`_: Async readback deallocation
--   `118`_: OS X: Async readback doesn't work
--   `137`_: 1-window.DFR broken
--   `136`_: compositor assertion when using custom frames
--   `135`_: Command line option --eq-layout broken
--   `131`_: seqPly --help launches application
--   `127`_: Problem with getdomainname() in SocketConnection::listen()
--   `124`_: Upload plugins are not freed
--   `121`_: Packaging: netperf conflicts with other packages
--   `117`_: Race with async channel tasks
+* `157`_: Crash in Image::upload when no uploader is found * `149`_:
+Channel::configInit initID always 0 * `147`_: Repeated Canvas::useLayout
+OFF/ON causes violation of DRAW_SYNC thread ordering * `139`_: Tile compound
+readback broken * `120`_: Async readback deallocation * `118`_: OS X: Async
+readback doesn't work * `137`_: 1-window.DFR broken * `136`_: compositor
+assertion when using custom frames * `135`_: Command line option --eq-layout
+broken * `131`_: seqPly --help launches application * `127`_: Problem with
+getdomainname() in SocketConnection::listen() * `124`_: Upload plugins are
+not freed * `121`_: Packaging: netperf conflicts with other packages *
+`117`_: Race with async channel tasks
 
 
 2.8. Known Bugs
@@ -183,15 +96,12 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
--   `177`_: Occasional async readback deadlocks on GLX
--   `167`_: HWLOC: Segmentation Fault with empty auto thread affinity
--   `78`_: AGL: assertion on interaction with multiple GPUs
--   `77`_: 7-window.DB.PIXEL.eqc broken
--   `76`_: 7-window.DPLEX.2D.lb.eqc does not load-balance
--   `49`_: eqPixelBench crash with double free
--   `19`_: zoom readback with FBO
--   `18`_: zoom: depth readback does not work
--   `17`_: AGL: Window close does not work
+* `177`_: Occasional async readback deadlocks on GLX * `167`_: HWLOC:
+Segmentation Fault with empty auto thread affinity * `78`_: AGL: assertion on
+interaction with multiple GPUs * `77`_: 7-window.DB.PIXEL.eqc broken * `76`_:
+7-window.DPLEX.2D.lb.eqc does not load-balance * `49`_: eqPixelBench crash
+with double free * `19`_: zoom readback with FBO * `18`_: zoom: depth
+readback does not work * `17`_: AGL: Window close does not work
 
 
 3. About
@@ -211,17 +121,15 @@ when available. Version 1.4 has been tested on:
 Equalizer uses CMake to create a platform-specific build environment. The
 following platforms and build environments are tested:
 
--   **Linux:** Ubuntu 11.10, 12.04, RHEL 6.1 (Makefile, i386, x64)
--   **Windows:** 7 (Visual Studio 2008, i386, x64)
--   **Mac OS X:** 10.7 (Makefile, XCode, i386, x64)
+* Linux: Ubuntu 11.10, 12.04, RHEL 6.1 (Makefile, i386, x64) * Windows: 7
+(Visual Studio 2008, i386, x64) * Mac OS X: 10.7 (Makefile, XCode, i386, x64)
 
 
 3.2. Window System Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--   **X11:** Full support for all documented features
--   **WGL:** Full support for all documented features
--   **AGL:** Full support for all documented features
+* X11: Full support for all documented features * WGL: Full support for all
+documented features * AGL: Full support for all documented features
 
 
 3.3. Documentation
@@ -250,29 +158,6 @@ information.
 4. Errata
 ---------
 
-.. _1. Introduction: #introduction
-.. _1.1. Features: #features
-.. _2. New in this release: #new
-.. _2.1. New Features: #newFeatures
-.. _2.2. Enhancements: #enhancements
-.. _2.3. Optimizations: #optimizations
-.. _2.4. Examples: #examples
-.. _2.5. Tools: #tools
-.. _2.6. Documentation: #documentation
-.. _2.7. Bug Fixes: #bugfixes
-.. _2.8. Known Bugs: #knownbugs
-.. _3. About: #about
-.. _3.1. Operating System Support: #os
-.. _3.2. Window System Support: #ws
-.. _3.3. Documentation: #documentation
-.. _3.4. Support: #support
-.. _4. Errata: #errata
-.. _listed below: #bugfixes
-.. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-1.4.1.tar.gz
-.. _precompiled packages:
-    http://www.equalizergraphics.com/downloads/major.html
-.. _detailed feature list: /features.html
 .. _Asynchronous       readback:
     http://www.equalizergraphics.com/documents/design/asyncCompositing.html
 .. _Region       of interest:
