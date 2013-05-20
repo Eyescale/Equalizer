@@ -93,6 +93,21 @@ if(X11_name)
   endif()
 endif()
 
+find_package(hwsd 1.0.0)
+if(hwsd_FOUND)
+  set(hwsd_name hwsd)
+endif()
+if(HWSD_FOUND)
+  set(hwsd_name HWSD)
+endif()
+if(hwsd_name)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_HWSD)
+  link_directories(${${hwsd_name}_LIBRARY_DIRS})
+  if(NOT "${${hwsd_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
+    include_directories(${${hwsd_name}_INCLUDE_DIRS})
+  endif()
+endif()
+
 find_package(OpenCV 2.0)
 if(OpenCV_FOUND)
   set(OpenCV_name OpenCV)
@@ -173,9 +188,9 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
   include(${CMAKE_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
 endif()
 
-set(EQUALIZER_BUILD_DEBS bison;flex;libavahi-compat-libdnssd-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libopencv-dev;libopenscenegraph-dev;librdmacm-dev;libspnav-dev;libudt-dev;libx11-dev)
+set(EQUALIZER_BUILD_DEBS bison;flex;libavahi-compat-libdnssd-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libopencv-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libudt-dev;libx11-dev)
 
-set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;OpenCV;PythonInterp;MAGELLAN;GLEW_MX;Bullet)
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;OpenCV;PythonInterp;MAGELLAN;GLEW_MX;Bullet)
 
 # Write defines.h and options.cmake
 if(NOT PROJECT_INCLUDE_NAME)
