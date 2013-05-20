@@ -295,6 +295,7 @@ MONO                            { return EQTOKEN_MONO; }
 STEREO                          { return EQTOKEN_STEREO; }
 size                            { return EQTOKEN_SIZE; }
 SAGE                            { return EQTOKEN_SAGE; }
+DisplayCluster                  { return EQTOKEN_DISPLAYCLUSTER; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }

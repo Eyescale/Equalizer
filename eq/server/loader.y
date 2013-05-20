@@ -302,6 +302,7 @@
 %token EQTOKEN_CORE
 %token EQTOKEN_SOCKET
 %token EQTOKEN_SAGE
+%token EQTOKEN_DISPLAYCLUSTER
 
 %union{
     const char*             _string;
@@ -806,6 +807,7 @@ viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_NAME STRING { view->setName( $2 ); }
     | EQTOKEN_SAGE STRING { view->setSageConfig( $2 ); }
+    | EQTOKEN_DISPLAYCLUSTER STRING { view->setDisplayCluster( $2 ); }
     | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport

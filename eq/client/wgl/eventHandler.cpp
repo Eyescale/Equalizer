@@ -414,7 +414,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                     break;
             }
             break;
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
         case WM_INPUT:
             _magellanEventHandler( lParam );
             break;
@@ -517,7 +517,7 @@ int32_t EventHandler::_getWheelDelta( WPARAM wParam ) const
 }
 
 
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
 
 namespace
 {
@@ -535,7 +535,7 @@ namespace
 
 void EventHandler::_magellanEventHandler( LPARAM lParam )
 {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
     RAWINPUTHEADER header;
     const UINT size_rawinputheader = sizeof( RAWINPUTHEADER );
     UINT size = sizeof(header);
@@ -641,7 +641,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
 bool EventHandler::initMagellan( Node* node )
 {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
     _magellanGotRotation = false;
     _magellanGotTranslation = false;
     
@@ -747,7 +747,7 @@ bool EventHandler::initMagellan( Node* node )
 
 void EventHandler::exitMagellan(eq::Node *node)
 {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanNode == node )
     {
         free(_pRawInputDeviceList);

@@ -37,22 +37,22 @@
 #include <hwsd/gpuInfo.h>
 #include <hwsd/netInfo.h>
 #include <hwsd/hwsd.h>
-#ifdef EQ_USE_HWSD_gpu_cgl
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
 #  include <hwsd/gpu/cgl/module.h>
 #endif
-#ifdef EQ_USE_HWSD_gpu_glx
+#ifdef EQUALIZER_USE_HWSD_gpu_glx
 #  include <hwsd/gpu/glx/module.h>
 #endif
-#ifdef EQ_USE_HWSD_gpu_wgl
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
 #  include <hwsd/gpu/wgl/module.h>
 #endif
-#ifdef EQ_USE_HWSD_gpu_dns_sd
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
 #  include <hwsd/gpu/dns_sd/module.h>
 #endif
-#ifdef EQ_USE_HWSD_net_sys
+#ifdef EQUALIZER_USE_HWSD_net_sys
 #  include <hwsd/net/sys/module.h>
 #endif
-#ifdef EQ_USE_HWSD_net_dns_sd
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
@@ -125,21 +125,21 @@ bool Resources::discover( ServerPtr server, Config* config,
                           const std::string& session,
                           const fabric::ConfigParams& params )
 {
-#ifdef EQ_USE_HWSD_gpu_cgl
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
     hwsd::gpu::cgl::Module::use();
-#elif defined(EQ_USE_HWSD_gpu_glx)
+#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
     hwsd::gpu::glx::Module::use();
 #endif
-#ifdef EQ_USE_HWSD_gpu_wgl
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
     hwsd::gpu::wgl::Module::use();
 #endif
-#ifdef EQ_USE_HWSD_gpu_dns_sd
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
     hwsd::gpu::dns_sd::Module::use();
 #endif
-#ifdef EQ_USE_HWSD_net_sys
+#ifdef EQUALIZER_USE_HWSD_net_sys
     hwsd::net::sys::Module::use();
 #endif
-#ifdef EQ_USE_HWSD_net_dns_sd
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
     hwsd::net::dns_sd::Module::use();
 #endif
 
@@ -167,21 +167,21 @@ bool Resources::discover( ServerPtr server, Config* config,
 
     const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( netFilter );
 
-#ifdef EQ_USE_HWSD_gpu_cgl
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
     hwsd::gpu::cgl::Module::dispose();
-#elif defined(EQ_USE_HWSD_gpu_glx)
+#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
     hwsd::gpu::glx::Module::dispose();
 #endif
-#ifdef EQ_USE_HWSD_gpu_wgl
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
     hwsd::gpu::wgl::Module::dispose();
 #endif
-#ifdef EQ_USE_HWSD_gpu_dns_sd
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
     hwsd::gpu::dns_sd::Module::dispose();
 #endif
-#ifdef EQ_USE_HWSD_net_sys
+#ifdef EQUALIZER_USE_HWSD_net_sys
     hwsd::net::sys::Module::dispose();
 #endif
-#ifdef EQ_USE_HWSD_net_dns_sd
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
     hwsd::net::dns_sd::Module::dispose();
 #endif
 
@@ -767,8 +767,9 @@ Compound* Resources::_addSubpixelCompound( Compound* root,
     compound->setName( EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL );
 
     const Compounds& children = _addSources( compound, channels, true );
+    const uint32_t nChildren( children.size( ));
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
-        (*i)->setSubPixel( SubPixel( i - children.begin(), children.size( )));
+        (*i)->setSubPixel( SubPixel( i - children.begin(), nChildren ));
 
     return compound;
 }

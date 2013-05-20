@@ -57,7 +57,7 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/plugins/compressor.h>
 
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
 #  include "detail/statsRenderer.h"
 #  include <GLStats/GLStats.h>
 #endif
@@ -67,8 +67,11 @@
 
 #include "detail/channel.ipp"
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
 #  include "sageProxy.h"
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#  include "dcProxy.h"
 #endif
 
 namespace eq
@@ -227,9 +230,13 @@ const GLEWContext* Channel::glewGetContext() const
 
 bool Channel::configExit()
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     delete _impl->_sageProxy;
     _impl->_sageProxy = 0;
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    delete _impl->_dcProxy;
+    _impl->_dcProxy = 0;
 #endif
 
     delete _impl->fbo;
@@ -239,11 +246,18 @@ bool Channel::configExit()
 
 bool Channel::configInit( const uint128_t& )
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     if( getView() && !getView()->getSageConfig().empty( ))
     {
         LBASSERT( !_impl->_sageProxy );
         _impl->_sageProxy = new SageProxy( this );
+    }
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    if( getView() && !getView()->getDisplayCluster().empty( ))
+    {
+        LBASSERT( !_impl->_dcProxy );
+        _impl->_dcProxy = new DcProxy( this );
     }
 #endif
     return _configInitFBO();
@@ -349,6 +363,9 @@ void Channel::notifyViewportChanged()
 
     processEvent( event );
 }
+
+void Channel::notifyStopFrame( const uint32_t )
+{}
 
 void Channel::addStatistic( Event& event )
 {
@@ -468,17 +485,29 @@ void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 
 void Channel::frameViewFinish( const uint128_t& )
 {
-#ifdef EQ_USE_SAGE
-    if( !_impl->_sageProxy )
-        return;
-
-    if( !_impl->_sageProxy->isRunning( ))
+#ifdef EQUALIZER_USE_SAGE
+    if( _impl->_sageProxy )
     {
-        delete _impl->_sageProxy;
-        _impl->_sageProxy = 0;
+        if( !_impl->_sageProxy->isRunning( ))
+        {
+            delete _impl->_sageProxy;
+            _impl->_sageProxy = 0;
+        }
+        else
+            _impl->_sageProxy->swapBuffer();
     }
-    else
-        _impl->_sageProxy->swapBuffer();
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    if( _impl->_dcProxy )
+    {
+        if( !_impl->_dcProxy->isRunning( ))
+        {
+            delete _impl->_dcProxy;
+            _impl->_dcProxy = 0;
+        }
+        else
+            _impl->_dcProxy->swapBuffer();
+    }
 #endif
 }
 
@@ -956,7 +985,7 @@ void Channel::drawStatistics()
 
     Window* window = getWindow();
 
-#ifdef EQ_USE_GLSTATS
+#ifdef EQUALIZER_USE_GLSTATS
     const Window::Font* font = window->getSmallFont();
     const Config* config = getConfig();
     const GLStats::Data& data = config->getStatistics();

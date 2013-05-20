@@ -20,7 +20,7 @@
 #include "eventHandler.h"
 #include "X11Connection.h"
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
 #  include "sageConnection.h"
 #  include "sageEventHandler.h"
 #endif
@@ -60,7 +60,7 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 
         case co::ConnectionSet::EVENT_DATA:
         {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
             co::ConnectionPtr connection = _connections.getConnection();
             const SageConnection* sageConnection =
                 dynamic_cast< const SageConnection* >( connection.get( ));
@@ -90,7 +90,7 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 void MessagePump::dispatchAll()
 {
     EventHandler::dispatch();
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     SageEventHandler::processEvents();
 #endif
 }
@@ -124,7 +124,7 @@ void MessagePump::deregister( Display* display )
 
 void MessagePump::register_( SageProxy* sage )
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     if( ++_referenced[ sage ] == 1 )
         _connections.addConnection( new SageConnection( sage ));
 #endif
@@ -132,7 +132,7 @@ void MessagePump::register_( SageProxy* sage )
 
 void MessagePump::deregister( SageProxy* sage )
 {
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     if( --_referenced[ sage ] == 0 )
     {
         const co::Connections& connections = _connections.getConnections();

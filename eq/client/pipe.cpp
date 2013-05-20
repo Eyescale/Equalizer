@@ -38,7 +38,7 @@
 #include "systemPipe.h"
 
 #include "computeContext.h"
-#ifdef EQ_USE_CUDA
+#ifdef EQUALIZER_USE_CUDA
 #  include "cudaContext.h"
 #endif
 
@@ -52,7 +52,7 @@
 #include <co/worker.h>
 #include <sstream>
 
-#ifdef EQ_USE_HWLOC_GL
+#ifdef EQUALIZER_USE_HWLOC_GL
 #  include <hwloc.h>
 #  include <hwloc/gl.h>
 #endif
@@ -331,7 +331,7 @@ void Pipe::_setupCommandQueue()
 
 int32_t Pipe::_getAutoAffinity() const
 {
-#ifdef EQ_USE_HWLOC_GL
+#ifdef EQUALIZER_USE_HWLOC_GL
     uint32_t port = getPort();
     uint32_t device = getDevice();
 
@@ -778,7 +778,7 @@ bool Pipe::configInit( const uint128_t& initID )
     LBASSERT(!_impl->computeContext);
 
     // for now we only support CUDA
-#ifdef EQ_USE_CUDA
+#ifdef EQUALIZER_USE_CUDA
     if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
     {
         LBINFO << "Initializing CUDAContext" << std::endl;

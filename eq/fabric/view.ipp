@@ -90,6 +90,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _modelUnit;
     if( dirtyBits & DIRTY_SAGECONFIG )
         os << _sageConfig;
+    if( dirtyBits & DIRTY_DISPLAYCLUSTER )
+        os << _displayCluster;
 }
 
 template< class L, class V, class O >
@@ -160,6 +162,8 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _modelUnit;
     if( dirtyBits & DIRTY_SAGECONFIG )
         is >> _sageConfig;
+    if( dirtyBits & DIRTY_DISPLAYCLUSTER )
+        is >> _displayCluster;
 }
 
 template< class L, class V, class O >
@@ -220,6 +224,19 @@ template< class L, class V, class O >
 const std::string& View< L, V, O >::getSageConfig() const
 {
     return _sageConfig;
+}
+
+template< class L, class V, class O >
+void View< L, V, O >::setDisplayCluster( const std::string& hostname )
+{
+    _displayCluster = hostname;
+    setDirty( DIRTY_DISPLAYCLUSTER );
+}
+
+template< class L, class V, class O >
+const std::string& View< L, V, O >::getDisplayCluster() const
+{
+    return _displayCluster;
 }
 
 template< class L, class V, class O >

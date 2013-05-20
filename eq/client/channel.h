@@ -562,7 +562,7 @@ namespace detail { class Channel; struct RBStat; }
          *        processed.
          * @version 1.0
          */
-        virtual void notifyStopFrame( const uint32_t lastFrameNumber ) {}
+        EQ_API virtual void notifyStopFrame( const uint32_t lastFrameNumber );
 
     private:
         detail::Channel* const _impl;

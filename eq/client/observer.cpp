@@ -24,7 +24,7 @@
 
 #include <eq/fabric/paths.h>
 
-#ifdef EQ_USE_OPENCV
+#ifdef EQUALIZER_USE_OPENCV
 #  include "cvTracker.h"
 #endif
 
@@ -36,12 +36,12 @@ class Observer
 {
 public:
     Observer()
-#ifdef EQ_USE_OPENCV
+#ifdef EQUALIZER_USE_OPENCV
         : tracker( 0 )
 #endif
     {}
 
-#ifdef EQ_USE_OPENCV
+#ifdef EQUALIZER_USE_OPENCV
     CVTracker* tracker;
 #endif
 };
@@ -69,7 +69,7 @@ ServerPtr Observer::getServer()
 
 bool Observer::configInit()
 {
-#ifdef EQ_USE_OPENCV
+#ifdef EQUALIZER_USE_OPENCV
     int32_t camera = getOpenCVCamera();
     if( camera == OFF )
         return true;
@@ -101,7 +101,7 @@ bool Observer::handleEvent( EventICommand& command )
 
 bool Observer::configExit()
 {
-#ifdef EQ_USE_OPENCV
+#ifdef EQUALIZER_USE_OPENCV
     delete impl_->tracker;
     impl_->tracker = 0;
 #endif

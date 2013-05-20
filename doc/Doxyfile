@@ -26,19 +26,19 @@ DOXYFILE_ENCODING      = UTF-8
 # identify the project. Note that if you do not use Doxywizard you need
 # to put quotes around the project name if it contains spaces.
 
-PROJECT_NAME           = Equalizer Internal
+PROJECT_NAME           = Equalizer
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = @EQ_DOXYGEN_VERSION@
+PROJECT_NUMBER         = @VERSION@
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
 # a quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          =
+PROJECT_BRIEF          = "@CPACK_PACKAGE_DESCRIPTION_SUMMARY@"
 
 # With the PROJECT_LOGO tag one can specify an logo or icon that is
 # included in the documentation. The maximum height of the logo should not
@@ -193,7 +193,7 @@ TAB_SIZE               = 4
 # will result in a user-defined paragraph with heading "Side Effects:".
 # You can put \n's in the value part of an alias to insert newlines.
 
-ALIASES                =
+ALIASES                = "define=\xrefitem define \"Defines\" \"Preprocessor Definitions\""
 
 # This tag can be used to specify a number of word-keyword mappings (TCL only).
 # A mapping has the form "name=value". For example adding
@@ -355,7 +355,7 @@ LOOKUP_CACHE_SIZE      = 5
 # Private class members and static file members will be hidden unless
 # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
 
-EXTRACT_ALL            = YES
+EXTRACT_ALL            = NO
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -426,7 +426,7 @@ HIDE_IN_BODY_DOCS      = NO
 # to NO (the default) then the documentation will be excluded.
 # Set it to YES to include the internal documentation.
 
-INTERNAL_DOCS          = YES
+INTERNAL_DOCS          = NO
 
 # If the CASE_SENSE_NAMES tag is set to NO then Doxygen will only generate
 # file names in lower-case letters. If set to YES upper-case letters are also
@@ -655,8 +655,9 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = @Equalizer_SOURCE_DIR@/libs \
-                         @Equalizer_SOURCE_DIR@/examples
+INPUT = @CMAKE_INSTALL_PREFIX@/include/eq \
+        @CMAKE_INSTALL_PREFIX@/include/seq \
+        @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -677,7 +678,8 @@ INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.c \
                          *.cpp \
-                         *.ipp
+                         *.ipp \
+                         *.md
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
@@ -691,7 +693,9 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = @Equalizer_SOURCE_DIR@/examples/include/tclap
+EXCLUDE = @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples/include/tclap \
+          @CMAKE_INSTALL_PREFIX@/include/eq/admin \
+          @CMAKE_INSTALL_PREFIX@/include/GL
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -719,7 +723,7 @@ EXCLUDE_SYMBOLS        =
 # directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           = @Equalizer_SOURCE_DIR@/doc
+EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
@@ -869,7 +873,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = doc/html/internal
+HTML_OUTPUT            = doc/html
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
@@ -901,7 +905,7 @@ HTML_FOOTER            = doxyfooter.html
 # fine-tune the look of the HTML output. If the tag is left blank doxygen
 # will generate a default style sheet. Note that doxygen will try to copy
 # the style sheet file to the HTML output directory, so don't put your own
-# stylesheet in the HTML output directory as well, or it will be erased!
+# style sheet in the HTML output directory as well, or it will be erased!
 
 HTML_STYLESHEET        =
 
@@ -915,7 +919,7 @@ HTML_STYLESHEET        =
 HTML_EXTRA_FILES       =
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output.
-# Doxygen will adjust the colors in the stylesheet and background images
+# Doxygen will adjust the colors in the style sheet and background images
 # according to this color. Hue is specified as an angle on a colorwheel,
 # see http://en.wikipedia.org/wiki/Hue for more information.
 # For instance the value 0 represents red, 60 is yellow, 120 is green,
@@ -1343,7 +1347,7 @@ COMPACT_RTF            = NO
 
 RTF_HYPERLINKS         = NO
 
-# Load stylesheet definitions from file. Syntax is similar to doxygen's
+# Load style sheet definitions from file. Syntax is similar to doxygen's
 # config file, i.e. a series of assignments. You only have to provide
 # replacements, missing definitions are set to their default value.
 
@@ -1361,7 +1365,7 @@ RTF_EXTENSIONS_FILE    =
 # If the GENERATE_MAN tag is set to YES (the default) Doxygen will
 # generate man pages
 
-GENERATE_MAN           = NO
+GENERATE_MAN           = YES
 
 # The MAN_OUTPUT tag is used to specify where the man pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
@@ -1520,9 +1524,9 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          GLX= \
                          AGL= \
                          WGL= \
-                         EQ_USE_BOOST= \
-                         EQ_USE_CUDA= \
-                         EQ_USE_OPENMP= \
+                         EQUALIZER_USE_BOOST= \
+                         EQUALIZER_USE_CUDA= \
+                         EQUALIZER_USE_OPENMP= \
                          EQ_DLLIMPORT= \
                          EQBASE_API= \
                          EQNET_API= \
@@ -1773,7 +1777,7 @@ MSCFILE_DIRS           =
 # DOT_GRAPH_MAX_NODES then the graph will not be shown at all. Also note
 # that the size of a graph can be further restricted by MAX_DOT_GRAPH_DEPTH.
 
- DOT_GRAPH_MAX_NODES    = 500
+DOT_GRAPH_MAX_NODES    = 15
 
 # The MAX_DOT_GRAPH_DEPTH tag can be used to set the maximum depth of the
 # graphs generated by dot. A depth value of 3 means that only nodes reachable
@@ -1783,7 +1787,7 @@ MSCFILE_DIRS           =
 # code bases. Also note that the size of a graph can be further restricted by
 # DOT_GRAPH_MAX_NODES. Using a depth of 0 means no depth restriction.
 
- MAX_DOT_GRAPH_DEPTH    = 100
+MAX_DOT_GRAPH_DEPTH    = 4
 
 # Set the DOT_TRANSPARENT tag to YES to generate images with a transparent
 # background. This is disabled by default, because dot on Windows does not

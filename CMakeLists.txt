@@ -41,9 +41,6 @@ endif()
 include(Common)
 include(GitTargets)
 include(configure)
-
-include_directories(BEFORE ${CMAKE_SOURCE_DIR})
-
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
@@ -56,9 +53,7 @@ set(EQ_FEATURES)
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
   include(UseGnuWin32)
-endif(MSVC)
-
-if (NOT MSVC)
+else()
   set(PTHREAD_LIBRARIES pthread)
 endif()
 
@@ -67,14 +62,6 @@ if(LUNCHBOX_USE_OPENMP)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-
-if(HWLOC_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
-endif()
-
-if(X11_FOUND)
-  set(EQ_GLX_USED 1)
-endif(X11_FOUND)
 
 if(APPLE)
   add_definitions(-DDarwin)
@@ -93,13 +80,6 @@ if(APPLE)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
-
-  if(CMAKE_OSX_ARCHITECTURES MATCHES "64")
-    set(CUDA_FOUND 0)
-    message(STATUS "  Disable CUDA due to missing 64 bit libraries")
-  else()
-    set(CUDA_64_BIT_DEVICE_CODE OFF)
-  endif()
 endif(APPLE)
 
 if(EQ_GLX_USED)
@@ -143,7 +123,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
    IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
   add_subdirectory(auxiliary)
 endif()
-add_subdirectory(doc) # must be after all targets
+add_subdirectory(doc)
 
 find_program(LINKS_EXECUTABLE links)
 if(LINKS_EXECUTABLE)
@@ -154,7 +134,6 @@ if(LINKS_EXECUTABLE)
   add_custom_target(RELNOTES.txt ALL DEPENDS ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
 endif()
 
-find_package(PythonInterp)
 if(PYTHON_EXECUTABLE)
   add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/README.rst
     COMMAND ${PYTHON_EXECUTABLE} CMake/html2rst.py doc/RelNotes.dox > README.rst
@@ -164,15 +143,16 @@ if(PYTHON_EXECUTABLE)
 endif()
 
 set(EQUALIZER_DEPENDENT_LIBRARIES Lunchbox Collage)
-if(NOT EQ_GLEW_INTERNAL)
+if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-include(CPackConfig)
-include(PackageConfig)
 install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT eqdev)
 
+if(HWLOC_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
+endif()
 if(LUNCHBOX_USE_DNSSD)
   set(EQ_FEATURES "${EQ_FEATURES} zeroconf")
 endif()
@@ -185,8 +165,14 @@ endif()
 if(SAGE_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} SAGE")
 endif()
+if(DISPLAYCLUSTER_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} DisplayCluster")
+endif()
 if(OpenCV_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} OpenCV")
+endif()
+if(MAGELLAN_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} SpaceMouse")
 endif()
 
 if(MSVC)
@@ -194,6 +180,11 @@ if(MSVC)
 else()
   message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 endif()
+
+
+include(CPackConfig)
+include(PackageConfig)
+include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179

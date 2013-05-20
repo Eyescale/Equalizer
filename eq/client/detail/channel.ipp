@@ -18,8 +18,11 @@
 namespace eq
 {
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
 class SageProxy;
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+class DcProxy;
 #endif
 
 namespace detail
@@ -39,8 +42,11 @@ public:
             : state( STATE_STOPPED )
             , fbo( 0 )
             , initialSize( Vector2i::ZERO )
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
             , _sageProxy( 0 )
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+            , _dcProxy( 0 )
 #endif
         {
             lunchbox::RNG rng;
@@ -98,8 +104,11 @@ public:
     /** The number of the last finished frame. */
     lunchbox::Monitor< uint32_t > finishedFrame;
 
-#ifdef EQ_USE_SAGE
+#ifdef EQUALIZER_USE_SAGE
     SageProxy* _sageProxy;
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    DcProxy* _dcProxy;
 #endif
 };
 

@@ -27,10 +27,6 @@ else()
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
 endif()
 
-if(HWSD_FOUND)
-  add_definitions(-DEQ_USE_HWSD)
-endif()
-
 if(WIN32)
   eq_add_tool(affinityCheck SOURCES affinityCheck/affinityCheck.cpp
     LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_gl_LIBRARY}

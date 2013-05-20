@@ -24,7 +24,7 @@
 # include "wgl/pipe.h"
 #endif
 
-#ifdef EQ_USE_CUDA
+#ifdef EQUALIZER_USE_CUDA
 # if defined __GNUC__
 #  pragma GCC diagnostic ignored "-Wshadow"
 # endif
@@ -56,7 +56,7 @@ namespace eq
     //--------------------------------------------------------------------------
     bool CUDAContext::configInit( )
     {
-#ifdef EQ_USE_CUDA
+#ifdef EQUALIZER_USE_CUDA
         cudaDeviceProp props;
         uint32_t device = getPipe()->getDevice();
 
@@ -131,7 +131,7 @@ namespace eq
     //--------------------------------------------------------------------------
     void CUDAContext::configExit()
     {
-#ifdef EQ_USE_CUDA
+#ifdef EQUALIZER_USE_CUDA
         // Clean up all runtime-related resources associated with this thread.
         cudaThreadExit();
 #else
@@ -144,7 +144,7 @@ namespace eq
     //--------------------------------------------------------------------------
     int CUDAContext::_getFastestDeviceID()
     {
-#ifdef EQ_USE_CUDA
+#ifdef EQUALIZER_USE_CUDA
 # if __DEVICE_EMULATION__
         return 0;
 # else

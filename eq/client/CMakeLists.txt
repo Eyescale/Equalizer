@@ -10,10 +10,12 @@ endif()
 
 # TODO: resolve two-way dependency between client and util!
 include(InstallFiles)
-include(configure.cmake)
 include(files.cmake)
 include(../util/files.cmake)
 include(compressor/files.cmake)
+
+update_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h
+  ${OUTPUT_INCLUDE_DIR}/eq/client/version.h)
 
 add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
@@ -35,6 +37,10 @@ endif()
 if(SAGE_FOUND)
   include_directories(${SAGE_INCLUDE_DIRS})
   list(APPEND EQ_LIBRARIES ${SAGE_LIBRARIES})
+endif()
+
+if(DISPLAYCLUSTER_FOUND)
+  list(APPEND EQ_LIBRARIES ${DISPLAYCLUSTER_LIBRARIES})
 endif()
 
 if(OpenCV_FOUND)
@@ -97,6 +103,13 @@ install(TARGETS Equalizer
         RUNTIME DESTINATION bin COMPONENT eqlib
         LIBRARY DESTINATION lib COMPONENT eqlib)
 install(FILES ${OPTIONS_CMAKE} DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
+install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h ${DEFINES_FILE}
+  DESTINATION include/eq/client COMPONENT eqdev)
+# install version.h in old place for compatibility with old FindEqualizer
+install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h
+  DESTINATION include/eq COMPONENT eqdev)
+update_file(${DEFINES_FILE}
+  ${CMAKE_BINARY_DIR}/include/eq/client/defines${SYSTEM}.h)
 
 option(EQUALIZER_OLD_CLIENT_LAYOUT
   "Install header files as in v1.0 directory layout" OFF)

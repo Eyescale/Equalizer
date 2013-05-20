@@ -48,6 +48,13 @@ if(SAGE_FOUND)
   )
 endif()
 
+if(DISPLAYCLUSTER_FOUND)
+  set(DISPLAYCLUSTER_SOURCES
+    dcProxy.h
+    dcProxy.cpp
+  )
+endif()
+
 set(WGL_HEADERS
   wgl/eventHandler.h
   wgl/messagePump.h
@@ -78,6 +85,7 @@ set(CLIENT_HEADERS
   compositor.h
   computeContext.h
   config.h
+  configEvent.h
   configStatistics.h
   cudaContext.h
   defines.h
@@ -123,6 +131,7 @@ set(CLIENT_HEADERS
   )
 
 set(CLIENT_SOURCES
+  ${DISPLAYCLUSTER_SOURCES}
   ${SAGE_SOURCES}
   detail/channel.ipp
   canvas.cpp
@@ -177,7 +186,7 @@ set(CLIENT_SOURCES
   )
 
 if(NOT EQUALIZER_BUILD_2_0_API)
-  list(APPEND CLIENT_HEADERS configEvent.h configParams.h)
+  list(APPEND CLIENT_HEADERS configParams.h)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
 endif()
 

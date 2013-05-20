@@ -70,6 +70,7 @@ endif()
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
+add_definitions(-DBOOST_TEST_DYN_LINK) # generates main() for unit tests
 
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)

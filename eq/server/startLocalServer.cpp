@@ -82,7 +82,7 @@ co::Connection* eqsStartLocalServer( const std::string& config )
 
     if( config.length() > 3 && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
-#ifdef EQ_USE_HWSD
+#ifdef EQUALIZER_USE_HWSD
     else
         server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif
