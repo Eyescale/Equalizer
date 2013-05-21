@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation .
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -67,19 +67,19 @@ namespace eq
         /** @internal node thread only. */
         uint32_t getCurrentFrame() const { return _currentFrame.get(); }
 
-        /** 
+        /**
          * @internal
-         * Get a network barrier. 
-         * 
+         * Get a network barrier.
+         *
          * @param barrier the barrier identifier and version.
          * @return the barrier.
          */
         co::Barrier* getBarrier( const co::ObjectVersion barrier );
 
-        /** 
+        /**
          * @internal
          * Get a frame data instance.
-         * 
+         *
          * @param frameDataVersion the frame data identifier and version.
          * @return the frame.
          */
@@ -93,17 +93,17 @@ namespace eq
 
         /**
          * @return true if this node is running, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool isRunning() const;
 
         /**
          * @return true if this node is stopped, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool isStopped() const;
-        
-        /** 
+
+        /**
          * Wait for a frame to be started.
          *
          * Used by the pipe task methods to implement the current thread
@@ -118,6 +118,19 @@ namespace eq
         /** @internal @return the number of the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
 
+        /**
+         * Process a received event.
+         *
+         * The task of this method is to update the node as necessary, and
+         * transform the event into a config event to be send to the application
+         * using Config::sendEvent().
+         *
+         * @param event the received event.
+         * @return true when the event was handled, false if not.
+         * @version 1.5.2
+         */
+        EQ_API virtual bool processEvent( const Event& event );
+
         /** @internal */
         class TransmitThread : public lunchbox::Thread
         {
@@ -126,7 +139,7 @@ namespace eq
             virtual ~TransmitThread() {}
 
             co::CommandQueue& getQueue() { return _queue; }
-            
+
         protected:
             virtual void run();
 
@@ -147,25 +160,25 @@ namespace eq
 
         /** @name Actions */
         //@{
-        /** 
+        /**
          * Start a frame by unlocking all child resources.
-         * 
+         *
          * @param frameNumber the frame to start.
          * @version 1.0
          */
         EQ_API void startFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Signal the completion of a frame to the parent.
-         * 
+         *
          * @param frameNumber the frame to end.
          * @version 1.0
          */
         EQ_API void releaseFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Release the local synchronization of the parent for a frame.
-         * 
+         *
          * @param frameNumber the frame to release.
          * @version 1.0
          */
@@ -180,9 +193,9 @@ namespace eq
          */
         //@{
 
-        /** 
+        /**
          * Initialize this node.
-         * 
+         *
          * @param initID the init identifier.
          * @version 1.0
          */
@@ -204,7 +217,7 @@ namespace eq
          * @sa startFrame(), Config::beginFrame()
          * @version 1.0
          */
-        EQ_API virtual void frameStart( const uint128_t& frameID, 
+        EQ_API virtual void frameStart( const uint128_t& frameID,
                                         const uint32_t frameNumber );
 
         /**
@@ -219,12 +232,12 @@ namespace eq
          * @sa endFrame(), Config::finishFrame()
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameFinish( const uint128_t& frameID,
                                          const uint32_t frameNumber );
 
-        /** 
+        /**
          * Finish drawing.
-         * 
+         *
          * Called once per frame after the last draw operation. Waits for the
          * pipes to release the local synchonization and releases the node's
          * local synchronization if the thread model is draw_sync (the default).
@@ -234,12 +247,12 @@ namespace eq
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          * @version 1.0
          */
-        EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
                                              const uint32_t frameNumber );
 
-        /** 
+        /**
          * Finish all rendering tasks.
-         * 
+         *
          * Called once per frame after all frame tasks.  Waits for the pipes to
          * release the local synchonization and releases the node's local
          * synchronization if the thread model is local_sync.
@@ -252,7 +265,7 @@ namespace eq
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          * @version 1.0
          */
-        EQ_API virtual void frameTasksFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameTasksFinish( const uint128_t& frameID,
                                               const uint32_t frameNumber );
         //@}
 
@@ -317,4 +330,3 @@ namespace eq
 }
 
 #endif // EQ_NODE_H
-

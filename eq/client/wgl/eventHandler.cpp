@@ -594,8 +594,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         }
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
-            ConfigEvent configEvent;
-            Event& event = configEvent.data;
+            Event event;
             LBASSERT( _magellanNode->getID() != 0 );
             event.originator = _magellanNode->getID();
             event.serial = _magellanNode->getSerial();
@@ -610,7 +609,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
                 event.magellan.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
                 event.magellan.buttons |= PTR_BUTTON3;
-            _magellanNode->getConfig()->sendEvent( configEvent );
+            _magellanNode->processEvent( configEvent );
         }
         else
         {
@@ -620,8 +619,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
         if (_magellanGotTranslation && _magellanGotRotation)
         {
-            ConfigEvent configEvent;
-            Event& event = configEvent.data;
+            Event event;
             LBASSERT( _magellanNode->getID() != 0 );
             event.originator = _magellanNode->getID();
             event.serial = _magellanNode->getSerial();
@@ -635,7 +633,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
-            _magellanNode->getConfig()->sendEvent( configEvent );
+            _magellanNode->processEvent( configEvent );
         }
     }
 #endif

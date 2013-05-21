@@ -566,8 +566,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                                                               messageArgument );
             if( state->client == _magellanID )
             {
-                ConfigEvent configEvent;
-                Event& event = configEvent.data;
+                Event event;
                 event.originator = _magellanNode->getID();
                 event.serial = _magellanNode->getSerial();
                 event.magellan.buttons = state->buttons;
@@ -596,7 +595,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                                       state->command );
                 }
 
-                _magellanNode->getConfig()->sendEvent( configEvent );
+                _magellanNode->processEvent( event );
             }
             break;
         }

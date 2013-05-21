@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -342,8 +342,8 @@ namespace detail { class Channel; struct RBStat; }
          * Process a received event.
          *
          * The task of this method is to update the channel as necessary, and
-         * transform the event into an config event to be send to the
-         * application using Config::sendEvent().
+         * transform the event into a config event to be send to the application
+         * using Config::sendEvent().
          *
          * @param event the received event.
          * @return true when the event was handled, false if not.

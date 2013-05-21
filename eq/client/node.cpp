@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
@@ -375,6 +375,17 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
         default:
             LBUNIMPLEMENTED;
     }
+}
+
+
+bool Node::processEvent( const Event& event )
+{
+    ConfigEvent configEvent;
+    Config* config = getConfig();
+
+    configEvent.data = event;
+    config->sendEvent( configEvent );
+    return true;
 }
 
 void Node::_flushObjects()
