@@ -762,6 +762,13 @@ WindowSystem Pipe::getWindowSystem() const
     return _impl->windowSystem;
 }
 
+bool Pipe::processEvent( const Event& event )
+{
+    ConfigEvent configEvent( event );
+    getConfig()->sendEvent( configEvent );
+    return true;
+}
+
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------

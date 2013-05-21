@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,10 +43,9 @@ namespace eq
     struct ConfigEvent
     {
     public:
-        ConfigEvent()
-            {
-                size = sizeof( ConfigEvent );
-            }
+        ConfigEvent() : size( sizeof( ConfigEvent )) {}
+        ConfigEvent( const Event& d )
+            : data( d ), size( sizeof( ConfigEvent )) {}
 
         Event data; //!< the Event @version 1.0
         uint64_t size;
@@ -58,4 +57,3 @@ namespace eq
 }
 
 #endif // EQ_CONFIGEVENT_H
-

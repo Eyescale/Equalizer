@@ -64,8 +64,8 @@ namespace eq
         /** Destruct and finish statistics sampling. @version 1.0 */
         virtual ~StatisticSampler()
         {
-            LBASSERTINFO( event.data.statistic.startTime <= event.data.statistic.endTime,
-                          event.data.statistic );
+            LBASSERTINFO( event.data.statistic.startTime <=
+                          event.data.statistic.endTime, event.data.statistic );
         }
 
         ConfigEvent event; //!< The statistics event.

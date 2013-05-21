@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -63,7 +63,7 @@
  * execute window system specific tasks. The SystemWindow implementations
  * forward the generic Event to the window. The window will handle the necessary
  * events locally, and will transform the WindowEvent into a ConfigEvent, which
- * is sent to the application node using Config::sendEvent.
+ * is sent to the application node using Config::sendEvent().
  *
  * The Event is a union of the possible concrete PointerEvent, KeyEvent,
  * ResizeEvent, MagellanEvent, Statistic or UserEvent and may contain a valid

@@ -377,14 +377,10 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
     }
 }
 
-
 bool Node::processEvent( const Event& event )
 {
-    ConfigEvent configEvent;
-    Config* config = getConfig();
-
-    configEvent.data = event;
-    config->sendEvent( configEvent );
+    ConfigEvent configEvent( event );
+    getConfig()->sendEvent( configEvent );
     return true;
 }
 
