@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
+ *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -82,7 +82,7 @@ static class : WindowSystemIF
             CFStringCreateWithCString( kCFAllocatorDefault, name.c_str(),
                                        kCFStringEncodingMacRoman );
 
-        ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName, 
+        ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName,
                                                        kATSOptionFlagsDefault );
         CFRelease( cfFontName );
 
@@ -90,7 +90,7 @@ static class : WindowSystemIF
         {
             LBWARN << "Can't load font " << name << ", using Georgia"
                    << std::endl;
-            cfFontName = 
+            cfFontName =
                 CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
                                            kCFStringEncodingMacRoman );
 
@@ -111,14 +111,14 @@ static class : WindowSystemIF
     void configInit( eq::Node* node )
     {
 #ifdef EQUALIZER_USE_MAGELLAN
-        EventHandler::initMagellan(node);
+        EventHandler::initMagellan( node );
 #endif
     }
 
     void configExit( eq::Node* node )
     {
 #ifdef EQUALIZER_USE_MAGELLAN
-        EventHandler::exitMagellan(node);
+        EventHandler::exitMagellan( node );
 #endif
     }
 } _aglFactory;

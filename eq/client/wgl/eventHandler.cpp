@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -117,9 +117,9 @@ EventHandler::EventHandler( WindowIF* window )
 
 #pragma warning(push)
 #pragma warning(disable: 4312)
-    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, 
+    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC,
                                               (LONG_PTR)wndProc );
-#pragma warning(pop) 
+#pragma warning(pop)
 
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;
@@ -135,7 +135,7 @@ EventHandler::~EventHandler()
     deregisterHandler( _hWnd );
 }
 
-LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                            LPARAM lParam )
 {
     EventHandler* handler = getEventHandler( hWnd );
@@ -174,7 +174,7 @@ void _getWindowSize( HWND hWnd, ResizeEvent& event )
     RECT rect;
     GetClientRect( hWnd, &rect );
     event.w = rect.right - rect.left;
-    event.h = rect.bottom - rect.top; 
+    event.h = rect.bottom - rect.top;
 
     // Get window coordinates, the rect data is relative
     // to window parent, but we report pvp relative to screen.
@@ -425,7 +425,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                    << std::endl;
             break;
     }
-    
+
     LBASSERT( window->getID() != 0 );
     event.originator = window->getID();
     event.serial = window->getSerial();
@@ -440,42 +440,42 @@ uint32_t EventHandler::_getKey( LPARAM lParam, WPARAM wParam )
 {
     switch( wParam )
     {
-        case VK_ESCAPE:    return KC_ESCAPE;    
-        case VK_BACK:      return KC_BACKSPACE; 
-        case VK_RETURN:    return KC_RETURN;    
-        case VK_TAB:       return KC_TAB;       
-        case VK_HOME:      return KC_HOME;       
-        case VK_LEFT:      return KC_LEFT;       
-        case VK_UP:        return KC_UP;         
-        case VK_RIGHT:     return KC_RIGHT;      
-        case VK_DOWN:      return KC_DOWN;       
-        case VK_PRIOR:     return KC_PAGE_UP;    
-        case VK_NEXT:      return KC_PAGE_DOWN;  
-        case VK_END:       return KC_END;        
-        case VK_F1:        return KC_F1;         
-        case VK_F2:        return KC_F2;         
-        case VK_F3:        return KC_F3;         
-        case VK_F4:        return KC_F4;         
-        case VK_F5:        return KC_F5;         
-        case VK_F6:        return KC_F6;         
-        case VK_F7:        return KC_F7;         
-        case VK_F8:        return KC_F8;         
-        case VK_F9:        return KC_F9;         
-        case VK_F10:       return KC_F10;        
-        case VK_F11:       return KC_F11;        
-        case VK_F12:       return KC_F12;        
-        case VK_F13:       return KC_F13;        
-        case VK_F14:       return KC_F14;        
-        case VK_F15:       return KC_F15;        
-        case VK_F16:       return KC_F16;        
-        case VK_F17:       return KC_F17;        
-        case VK_F18:       return KC_F18;        
-        case VK_F19:       return KC_F19;        
-        case VK_F20:       return KC_F20;        
-        case VK_F21:       return KC_F21;        
-        case VK_F22:       return KC_F22;        
-        case VK_F23:       return KC_F23;        
-        case VK_F24:       return KC_F24;  
+        case VK_ESCAPE:    return KC_ESCAPE;
+        case VK_BACK:      return KC_BACKSPACE;
+        case VK_RETURN:    return KC_RETURN;
+        case VK_TAB:       return KC_TAB;
+        case VK_HOME:      return KC_HOME;
+        case VK_LEFT:      return KC_LEFT;
+        case VK_UP:        return KC_UP;
+        case VK_RIGHT:     return KC_RIGHT;
+        case VK_DOWN:      return KC_DOWN;
+        case VK_PRIOR:     return KC_PAGE_UP;
+        case VK_NEXT:      return KC_PAGE_DOWN;
+        case VK_END:       return KC_END;
+        case VK_F1:        return KC_F1;
+        case VK_F2:        return KC_F2;
+        case VK_F3:        return KC_F3;
+        case VK_F4:        return KC_F4;
+        case VK_F5:        return KC_F5;
+        case VK_F6:        return KC_F6;
+        case VK_F7:        return KC_F7;
+        case VK_F8:        return KC_F8;
+        case VK_F9:        return KC_F9;
+        case VK_F10:       return KC_F10;
+        case VK_F11:       return KC_F11;
+        case VK_F12:       return KC_F12;
+        case VK_F13:       return KC_F13;
+        case VK_F14:       return KC_F14;
+        case VK_F15:       return KC_F15;
+        case VK_F16:       return KC_F16;
+        case VK_F17:       return KC_F17;
+        case VK_F18:       return KC_F18;
+        case VK_F19:       return KC_F19;
+        case VK_F20:       return KC_F20;
+        case VK_F21:       return KC_F21;
+        case VK_F22:       return KC_F22;
+        case VK_F23:       return KC_F23;
+        case VK_F24:       return KC_F24;
         case VK_SHIFT:
             switch( lParam & SCANCODE_MASK )
             {
@@ -511,7 +511,7 @@ uint32_t EventHandler::_getKey( LPARAM lParam, WPARAM wParam )
 
 int32_t EventHandler::_getWheelDelta( WPARAM wParam ) const
 {
-    const int32_t rawDelta = 
+    const int32_t rawDelta =
         static_cast< int32_t >( GET_WHEEL_DELTA_WPARAM( wParam ));
     return rawDelta / _wheelDeltaPerLine;
 }
@@ -549,7 +549,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
     // Ask Windows for the size of the event, because it is different on 32-bit
     // vs. 64-bit versions of the OS
-    if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, 0, &size, 
+    if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, 0, &size,
                          size_rawinputheader ) == -1)
     {
         LBINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
@@ -559,7 +559,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
     // Set aside enough memory for the full event
     LPRAWINPUT evt = (LPRAWINPUT)alloca( size );
 
-    if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, evt, &size, 
+    if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, evt, &size,
                          size_rawinputheader ) == -1)
     {
         LBINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
@@ -568,16 +568,16 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
     // else
 
     if (evt->header.dwType == RIM_TYPEHID)
-    {           
+    {
         LPRAWHID pRawHid = &evt->data.hid;
 
         // translation or rotation packet?  They come in two different packets.
         if( pRawHid->bRawData[0] == 1) // Translation vector
         {
             _magellanDOFs[0] = (pRawHid->bRawData[1] & 0x000000ff) |
-                ((signed short)(pRawHid->bRawData[2]<<8) & 0xffffff00); 
-            _magellanDOFs[1] = (pRawHid->bRawData[3] & 0x000000ff) | 
-                ((signed short)(pRawHid->bRawData[4]<<8) & 0xffffff00); 
+                ((signed short)(pRawHid->bRawData[2]<<8) & 0xffffff00);
+            _magellanDOFs[1] = (pRawHid->bRawData[3] & 0x000000ff) |
+                ((signed short)(pRawHid->bRawData[4]<<8) & 0xffffff00);
             _magellanDOFs[2] = (pRawHid->bRawData[5] & 0x000000ff) |
                 ((signed short)(pRawHid->bRawData[6]<<8) & 0xffffff00);
             _magellanGotTranslation = true;
@@ -585,16 +585,17 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         else if (pRawHid->bRawData[0] == 2) // Rotation vector
         {
             _magellanDOFs[3] = (pRawHid->bRawData[1] & 0x000000ff) |
-                ((signed short)(pRawHid->bRawData[2]<<8) & 0xffffff00); 
+                ((signed short)(pRawHid->bRawData[2]<<8) & 0xffffff00);
             _magellanDOFs[4] = (pRawHid->bRawData[3] & 0x000000ff) |
-                ((signed short)(pRawHid->bRawData[4]<<8) & 0xffffff00); 
+                ((signed short)(pRawHid->bRawData[4]<<8) & 0xffffff00);
             _magellanDOFs[5] = (pRawHid->bRawData[5] & 0x000000ff) |
                 ((signed short)(pRawHid->bRawData[6]<<8) & 0xffffff00);
             _magellanGotRotation = true;
         }
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
-            Event event;
+            ConfigEvent configEvent;
+            Event& event = configEvent.data;
             LBASSERT( _magellanNode->getID() != 0 );
             event.originator = _magellanNode->getID();
             event.serial = _magellanNode->getSerial();
@@ -602,14 +603,14 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
             event.magellan.button = 0;
             event.magellan.buttons = 0;
             // TODO: find fired button(s) since last buttons event
-            
+
             if( pRawHid->bRawData[1] )
                 event.magellan.buttons = PTR_BUTTON1;
             if( pRawHid->bRawData[2] )
                 event.magellan.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
                 event.magellan.buttons |= PTR_BUTTON3;
-            _magellanNode->getConfig()->sendEvent( event.type ) << event;
+            _magellanNode->getConfig()->sendEvent( configEvent );
         }
         else
         {
@@ -619,7 +620,8 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
         if (_magellanGotTranslation && _magellanGotRotation)
         {
-            Event event;
+            ConfigEvent configEvent;
+            Event& event = configEvent.data;
             LBASSERT( _magellanNode->getID() != 0 );
             event.originator = _magellanNode->getID();
             event.serial = _magellanNode->getSerial();
@@ -633,7 +635,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
-            _magellanNode->getConfig()->sendEvent( event.type ) << event;
+            _magellanNode->getConfig()->sendEvent( configEvent );
         }
     }
 #endif
@@ -644,13 +646,13 @@ bool EventHandler::initMagellan( Node* node )
 #ifdef EQUALIZER_USE_MAGELLAN
     _magellanGotRotation = false;
     _magellanGotTranslation = false;
-    
+
     // Find the Raw Devices
     UINT nDevices;
 
     // Get Number of devices attached
     if( GetRawInputDeviceList( 0, &nDevices, sizeof( RAWINPUTDEVICELIST )) != 0)
-    { 
+    {
         LBINFO << "No RawInput devices attached" << std::endl;
         return false;
     }
@@ -663,8 +665,8 @@ bool EventHandler::initMagellan( Node* node )
         return false;
     }
     // Now get the data on the attached devices
-    if( GetRawInputDeviceList( _pRawInputDeviceList, &nDevices, 
-                               sizeof( RAWINPUTDEVICELIST )) == -1) 
+    if( GetRawInputDeviceList( _pRawInputDeviceList, &nDevices,
+                               sizeof( RAWINPUTDEVICELIST )) == -1)
     {
         LBINFO << "Error from GetRawInputDeviceList" << std::endl;
         return false;
@@ -683,10 +685,10 @@ bool EventHandler::initMagellan( Node* node )
             UINT nchars = 300;
             TCHAR deviceName[300];
             if( GetRawInputDeviceInfo( _pRawInputDeviceList[i].hDevice,
-                                       RIDI_DEVICENAME, deviceName, 
+                                       RIDI_DEVICENAME, deviceName,
                                        &nchars) >= 0)
             {
-                LBINFO << "Device [" << i << "]: handle=" 
+                LBINFO << "Device [" << i << "]: handle="
                        << _pRawInputDeviceList[i].hDevice << " name = "
                        << deviceName << std::endl;
             }
@@ -703,7 +705,7 @@ bool EventHandler::initMagellan( Node* node )
                     RID_DEVICE_INFO_HID *phidInfo = &dinfo.hid;
                     LBINFO << "VID = " << phidInfo->dwVendorId << std::endl
                            << "PID = " << phidInfo->dwProductId << std::endl
-                           << "Version = " << phidInfo->dwVersionNumber 
+                           << "Version = " << phidInfo->dwVersionNumber
                            << std::endl
                            << "UsagePage = " << phidInfo->usUsagePage
                            << std::endl
@@ -718,9 +720,9 @@ bool EventHandler::initMagellan( Node* node )
                     // devices.
                     if (phidInfo->usUsagePage == 1 && phidInfo->usUsage == 8)
                     {
-                        _rawInputDevices[_nRawInputDevices].usUsagePage = 
+                        _rawInputDevices[_nRawInputDevices].usUsagePage =
                             phidInfo->usUsagePage;
-                        _rawInputDevices[_nRawInputDevices].usUsage     = 
+                        _rawInputDevices[_nRawInputDevices].usUsage     =
                             phidInfo->usUsage;
                         _rawInputDevices[_nRawInputDevices].dwFlags     = 0;
                         _rawInputDevices[_nRawInputDevices].hwndTarget  = 0;
