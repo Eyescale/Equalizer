@@ -22,13 +22,10 @@ add_custom_target(doxygen
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
 
-make_directory(${CMAKE_BINARY_DIR}/doc/man/man3)
-install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man/man3 DESTINATION man
-  COMPONENT man PATTERN "*_docs_*" EXCLUDE)
-
 make_directory(${CMAKE_BINARY_DIR}/doc/html)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html
-  DESTINATION share/${CMAKE_PROJECT_NAME}/doc/API COMPONENT doc)
+  DESTINATION share/${CMAKE_PROJECT_NAME}/doc/API
+  COMPONENT doc CONFIGURATIONS Release)
 
 if(NOT GIT_DOCUMENTATION_REPO)
   include(GithubOrganization)
