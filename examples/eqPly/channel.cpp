@@ -1018,10 +1018,7 @@ void Channel::_drawPhysics(const int& pass)
                 glVertex3f(pt3.getX(),pt3.getY(),pt3.getZ());
             } glEnd();
         }
-
-        glPopMatrix();
     }
-
 }
 
 #endif
