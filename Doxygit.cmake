@@ -61,7 +61,7 @@ foreach(PROJECT ${PROJECTS})
   endif()
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
     "</tr>\n"
-    "    <tr><th>${PROJECT}</th>")
+    "    <tr><th><a href=\"https://github.com/${CMAKE_PROJECT_NAME}/${PROJECT}\">${PROJECT}</a></th>")
   foreach(VERSION ${VERSIONS})
     set(ENTRY "${PROJECT}-${VERSION}")
     list(FIND ENTRIES "${ENTRY}" HAS_ENTRY)
