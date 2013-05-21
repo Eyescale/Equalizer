@@ -23,9 +23,11 @@ if(MAGELLAN_API STREQUAL "Windows")
 endif()
 
 if(MAGELLAN_API STREQUAL "Carbon")
-  find_path(MAGELLAN_INCLUDE_DIR 3DconnexionClient/ConnexionClientAPI.h
-    PATHS /usr/include /usr/local/include /opt/local/include)
-  set(MAGELLAN_LIBRARY)
+  find_path(MAGELLAN_INCLUDE_DIR 3DconnexionClient/ConnexionClientAPI.h)
+  find_library(MAGELLAN_LIBRARY 3DconnexionClient)
+
+  # WAR cmake bug:
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F/Library/Frameworks")
 elseif(MAGELLAN_API STREQUAL "spnav")
   find_path(MAGELLAN_INCLUDE_DIR spnav.h PATHS /usr/include /usr/local/include)
   find_library(MAGELLAN_LIBRARY spnav PATHS /usr/lib /usr/local/lib)
