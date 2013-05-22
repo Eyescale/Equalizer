@@ -1,5 +1,5 @@
 
-# Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2012-2013 Stefan Eilemann <eile@eyescale.ch>
 # Info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 if(NOT CPACK_PROJECT_NAME)
@@ -51,9 +51,9 @@ endif()
 # Default component definition
 if(NOT CPACK_COMPONENTS_ALL)
   if(RELEASE_VERSION)
-    set(CPACK_COMPONENTS_ALL lib dev apps)
+    set(CPACK_COMPONENTS_ALL lib dev apps examples)
   else()
-    set(CPACK_COMPONENTS_ALL unspecified lib dev apps)
+    set(CPACK_COMPONENTS_ALL unspecified lib dev apps examples)
   endif()
 
   set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
@@ -72,6 +72,11 @@ if(NOT CPACK_COMPONENTS_ALL)
   set(CPACK_COMPONENT_APPS_DISPLAY_NAME "${CPACK_PROJECT_NAME} Applications")
   set(CPACK_COMPONENT_APPS_DESCRIPTION "${CPACK_PROJECT_NAME} Applications")
   set(CPACK_COMPONENT_APPS_DEPENDS lib)
+
+  set(CPACK_COMPONENT_EXAMPLES_DISPLAY_NAME "${CPACK_PROJECT_NAME} Examples")
+  set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION
+    "${CPACK_PROJECT_NAME} Example Source Code")
+  set(CPACK_COMPONENT_EXAMPLES_DEPENDS dev)
 elseif(CPACK_COMPONENTS_ALL STREQUAL "none")
   set(CPACK_COMPONENTS_ALL)
 endif()
