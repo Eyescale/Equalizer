@@ -172,8 +172,8 @@ void CVTracker::run()
             width = center.z();
             center.z() *= *headEyeRatio;
         }
-        center.x() = -center.x() / float( CAPTURE_WIDTH ) + .5f;
-        center.y() = -center.y() / float( CAPTURE_HEIGHT ) + .5f;
+        center.x() = 2.f * ( -center.x() / float( CAPTURE_WIDTH ) + .5f );
+        center.y() = 2.f * ( -center.y() / float( CAPTURE_HEIGHT ) + .5f );
 
         // 20 cm macro distance, 2 m tele, inverted scale
         center.z() *= 4.f;
