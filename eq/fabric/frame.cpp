@@ -31,6 +31,12 @@ struct ToNodes
     std::vector< uint128_t > inputNetNodes;
 };
 
+struct FromNodes
+{
+    std::vector< uint128_t > outputNodes;
+    std::vector< uint128_t > outputNetNodes;
+};
+
 namespace detail
 {
 class Frame
@@ -42,6 +48,7 @@ public:
     Zoom zoom;
     co::ObjectVersion frameDataVersion[ NUM_EYES ];
     ToNodes toNodes[ NUM_EYES ];
+    FromNodes fromNodes[ NUM_EYES ];
 
     Frame() : offset( Vector2i::ZERO ) {}
 
@@ -51,7 +58,8 @@ public:
 
         for( unsigned i = 0; i < NUM_EYES; ++i )
             os << frameDataVersion[i] << toNodes[i].inputNodes 
-               << toNodes[i].inputNetNodes;
+            << toNodes[i].inputNetNodes << fromNodes[i].outputNodes
+            << fromNodes[i].outputNetNodes;
     }
 
     void deserialize( co::DataIStream& is )
@@ -60,7 +68,8 @@ public:
 
         for( unsigned i = 0; i < NUM_EYES; ++i )
             is >> frameDataVersion[i] >> toNodes[i].inputNodes
-               >> toNodes[i].inputNetNodes;
+            >> toNodes[i].inputNetNodes >> fromNodes[i].outputNodes
+            >> fromNodes[i].outputNetNodes;
     }
 };
 }
@@ -141,6 +150,28 @@ std::vector< uint128_t >& Frame::_getInputNodes( const unsigned i )
 std::vector< uint128_t >& Frame::_getInputNetNodes( const unsigned i )
 {
     return _impl->toNodes[ i ].inputNetNodes;
+}
+
+//Output
+
+const std::vector< uint128_t >& Frame::getOutputNodes( const Eye eye ) const
+{
+    return _impl->fromNodes[ lunchbox::getIndexOfLastBit( eye )].outputNodes;
+}
+
+const std::vector< uint128_t >& Frame::getOutputNetNodes(const Eye eye) const
+{
+    return _impl->fromNodes[ lunchbox::getIndexOfLastBit( eye )].outputNetNodes;
+}
+
+std::vector< uint128_t >& Frame::_getOutputNodes( const unsigned i )
+{
+    return _impl->fromNodes[ i ].outputNodes;
+}
+
+std::vector< uint128_t >& Frame::_getOutputNetNodes( const unsigned i )
+{
+    return _impl->fromNodes[ i ].outputNetNodes;
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame& frame )

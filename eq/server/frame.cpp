@@ -81,6 +81,8 @@ void Frame::unsetData()
         _inputFrames[i].clear();
         _getInputNodes( i ).clear();
         _getInputNetNodes( i ).clear();
+        _getOutputNodes( i ).clear();
+        _getOutputNetNodes( i ).clear();
     }
 }
 
@@ -113,6 +115,13 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
     _masterFrameData = 0;
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
+        for( FramesCIter j = _inputFrames[i].begin(); j != _inputFrames[i].end(); ++j )
+        {
+            //deleted inputframes from Nodes
+            (*j)->_getOutputNodes( i ).clear();
+            (*j)->_getOutputNetNodes( i ).clear();
+        }
+
         _inputFrames[i].clear();
 
         const Eye eye = Eye(1<<i);
@@ -144,6 +153,8 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
         _frameData[i] = data;
         _getInputNodes( i ).clear();
         _getInputNetNodes( i ).clear();
+        _getOutputNodes( i ).clear();
+        _getOutputNetNodes( i ).clear();
         if( !_masterFrameData )
             _masterFrameData = data;
     }
@@ -166,6 +177,14 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
                 co::NodePtr inputNetNode = inputNode->getNode();
                 _getInputNodes( i ).push_back( inputNode->getID( ));
                 _getInputNetNodes( i ).push_back( inputNetNode->getNodeID( ));
+            }
+            //add output frames too
+            const Node* outputNode = getNode();
+            if( outputNode != frame->getNode( ))
+            {
+                co::NodePtr outputNetNode = outputNode->getNode();
+                frame->_getOutputNodes( i ).push_back( outputNode->getID() );
+                frame->_getOutputNetNodes( i ).push_back( outputNetNode->getNodeID());
             }
         }
         else

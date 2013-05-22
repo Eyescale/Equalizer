@@ -52,6 +52,7 @@
 #include "configUpdateVisitor.h"
 #include "configUpdateSyncVisitor.h"
 #include "nodeFailedVisitor.h"
+#include <eq/client/configEvent.h>
 
 namespace eq
 {
@@ -773,10 +774,10 @@ void Config::_syncClock()
         {
             LBASSERT( node->isApplicationNode() || node->isActive( ));
             co::NodePtr netNode = node->getNode();
-            LBASSERT( netNode->isConnected( ));
 
-            send( netNode,
-                  fabric::CMD_CONFIG_SYNC_CLOCK ) << getServer()->getTime();
+            if ( netNode->isConnected( )) 
+                send( netNode,
+                      fabric::CMD_CONFIG_SYNC_CLOCK ) << getServer()->getTime();
         }
     }
 }
@@ -912,6 +913,14 @@ void Config::_verifyFrameFinished( const uint32_t frameNumber )
         {
             NodeFailedVisitor nodeFailedVisitor;
             node->accept( nodeFailedVisitor );
+
+            // sends NODE_TIMEOUT Config event to master node
+            ConfigEvent configEvent;
+            configEvent.data.type = Event::NODE_TIMEOUT;
+            configEvent.data.originator = node->getID();
+            send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT_OLD )
+                << configEvent.size 
+                << co::Array< void >( &configEvent, configEvent.size );
         }
     }
 }
@@ -1170,6 +1179,9 @@ bool Config::_cmdCheckFrame( co::ICommand& command )
 
     if( retry )
         return true;
+
+    // to trigger frame redraw
+    _verifyFrameFinished( frameNumber + getLatency() );
 
     send( command.getNode(), fabric::CMD_CONFIG_FRAME_FINISH )
         << _currentFrame;
