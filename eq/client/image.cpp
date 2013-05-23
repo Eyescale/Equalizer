@@ -574,7 +574,8 @@ bool Image::startReadback( const Frame::Buffer buffer,
 
     if( !downloader.isGood( ))
     {
-        LBWARN << "Download plugin initialization failed" << std::endl;
+        LBWARN << "Download plugin initialization failed using input 0x"
+               << std::hex << inputToken << std::dec << std::endl;
         return false;
     }
 
@@ -976,8 +977,6 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
     attachment.memory.internalFormat = info.tokenType;
     _setExternalFormat( buffer, info.outputTokenType, info.outputTokenSize,
                         !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) );
-    LBLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
-                        << info.name << std::dec << std::endl;
     return true;
 }
 

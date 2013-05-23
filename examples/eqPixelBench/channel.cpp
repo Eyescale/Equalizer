@@ -409,6 +409,8 @@ void Channel::_testDepthAssemble()
         image->startReadback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
                               pvp, eq::Zoom::NONE, glObjects );
         image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
+        LBASSERT( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
+        LBASSERT( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
 
         if( i == NUM_IMAGES-1 )
             _saveImage( image,"EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT",

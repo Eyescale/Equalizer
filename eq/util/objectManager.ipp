@@ -226,6 +226,7 @@ void ObjectManager<T>::deleteAll()
         lunchbox::Uploader* uploader = i->second;
         LBVERB << "Delete uploader " << i->first << " @" << (void*)uploader
                << std::endl;
+        uploader->clear();
         delete uploader;
     }
     _data->eqUploaders.clear();
