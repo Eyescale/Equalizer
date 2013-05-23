@@ -25,7 +25,6 @@
 #include "windowEvent.h"
 
 #include "../config.h"
-#include "../configEvent.h"
 #include "../event.h"
 #include "../log.h"
 #include "../node.h"
@@ -609,7 +608,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
                 event.magellan.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
                 event.magellan.buttons |= PTR_BUTTON3;
-            _magellanNode->processEvent( configEvent );
+            _magellanNode->processEvent( event );
         }
         else
         {
@@ -633,7 +632,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
-            _magellanNode->processEvent( configEvent );
+            _magellanNode->processEvent( event );
         }
     }
 #endif
