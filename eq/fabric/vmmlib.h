@@ -1,5 +1,5 @@
-
 /* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+ *                    2013, David Steiner   <steiner@ifi.uzh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,6 +28,8 @@
 #pragma warning(disable : 4996)
 #  include <vmmlib/vmmlib.hpp>
 #pragma warning(pop)
+
+#include <lunchbox/bitOperation.h>
 
 namespace eq
 {
@@ -88,8 +90,8 @@ template<> inline void byteswap( eq::fabric::Vector4i& value )
     byteswap( value.w( ));
 }
 
-template<> inline void byteswap( eq::fabric::Vector4ub& ) { /*NOP*/ }
-template<> inline void byteswap( eq::fabric::Vector3ub& ) { /*NOP*/ }
+template<> inline void byteswap( eq::fabric::Vector3ub& value ) { /*NOP*/ }
+template<> inline void byteswap( eq::fabric::Vector4ub& value ) { /*NOP*/ }
 
 template<> inline void byteswap( eq::fabric::Matrix4f& value )
 {
@@ -109,3 +111,4 @@ template<> inline void byteswap( eq::fabric::Frustumf& value )
 }
 
 #endif // EQFABRIC_VMMLIB_H
+

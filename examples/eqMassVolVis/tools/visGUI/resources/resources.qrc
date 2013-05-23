@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>open.png</file>
+    <file>save.png</file>
+    <file>tune.png</file>
+    <file>link.png</file>
+</qresource>
+</RCC>
+
+<!--
+Icons are from http://iconza.com
+icons color is: #66b0e8
+-->
