@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@ namespace fabric
 
     /**
      * A wall defining a view frustum.
-     * 
+     *
      * The three points describe the bottom left, bottom right and top left
      * coordinate of the wall in real-world coordinates (meters).
      */
@@ -42,67 +42,67 @@ namespace fabric
         EQFABRIC_API Wall();
 
         /** Construct a new wall description with default values. */
-        EQFABRIC_API Wall( const Vector3f& bottomLeft, 
+        EQFABRIC_API Wall( const Vector3f& bottomLeft,
                            const Vector3f& bottomRight,
                            const Vector3f& topLeft );
 
-        /** 
+        /**
          * Resize the wall horizontally.
-         * 
+         *
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
         EQFABRIC_API void resizeHorizontal( const float ratio );
 
-        /** 
+        /**
          * Resize the wall vertically.
-         * 
+         *
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
         EQFABRIC_API void resizeVertical( const float ratio );
-        
-        /** 
+
+        /**
          * Resize the wall on the left side.
-         * 
+         *
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
         EQFABRIC_API void resizeLeft( const float ratio );
 
-        /** 
+        /**
          * Resize the wall on the right side.
-         * 
+         *
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
         EQFABRIC_API void resizeRight( const float ratio );
 
-        /** 
+        /**
          * Resize the wall on the top side.
-         * 
+         *
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
         EQFABRIC_API void resizeTop( const float ratio );
 
-        /** 
+        /**
          * Resize the wall on the bottom side.
-         * 
+         *
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
         EQFABRIC_API void resizeBottom( const float ratio );
 
-        /** 
+        /**
          * Resize the wall horizontally to match the given aspect ratio.
-         * 
+         *
          * @param aspectRatio the destination aspect ratio.
          * @version 1.1.2
          */
         EQFABRIC_API void resizeHorizontalToAR( const float aspectRatio );
 
-        /** 
+        /**
          * Resize the wall by the given ratio as observed from the eye position.
          *
          * Each wall corner is moved by ratio along the vector eye -> wall
@@ -132,6 +132,12 @@ namespace fabric
          */
         EQFABRIC_API Wall& operator = ( const Projection& projection );
 
+        /**
+         * Set the wall parameters from an inverse projection matrix.
+         * @version 1.5.2
+         */
+        EQFABRIC_API Wall& operator = ( const Matrix4f& xfm );
+
         /** @return the width of the wall. @version 1.0 */
         float getWidth() const { return (bottomRight - bottomLeft).length(); }
 
@@ -156,7 +162,7 @@ namespace fabric
         Vector3f bottomLeft;  //!< The bottom-left corner
         Vector3f bottomRight; //!< The bottom-right corner
         Vector3f topLeft;     //!< The top-left corner
-        
+
         /** The reference system type of the wall. */
         enum Type
         {
@@ -187,4 +193,3 @@ template<> inline void byteswap( eq::fabric::Wall& value )
 }
 }
 #endif // EQFABRIC_WALL_H
-

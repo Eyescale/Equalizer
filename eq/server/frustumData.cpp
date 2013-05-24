@@ -64,9 +64,9 @@ void FrustumData::applyWall( const fabric::Wall& wall )
     _xfm.array[11] = 0.;
 
     const Vector3f center = (wall.bottomRight + wall.topLeft) * 0.5f;
-    _xfm.array[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
-    _xfm.array[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
-    _xfm.array[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
+    _xfm.array[12] = -u.dot( center );
+    _xfm.array[13] = -v.dot( center );
+    _xfm.array[14] = -w.dot( center );
     _xfm.array[15] = 1.;
 }
 

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -143,7 +143,7 @@ void Wall::apply( const Viewport& viewport )
 {
     const Vector3f u = bottomRight - bottomLeft;
     const Vector3f v = topLeft - bottomLeft;
-    
+
     bottomLeft  = bottomLeft + u * viewport.x + v * viewport.y;
     bottomRight = bottomLeft + u * viewport.w;
     topLeft     = bottomLeft + v * viewport.h;
@@ -161,11 +161,11 @@ void Wall::scale( const float ratio )
 
 Wall& Wall::operator = ( const Projection& projection )
 {
-    const float width  = fabs( projection.distance * 2.0 * 
+    const float width  = fabs( projection.distance * 2.0 *
                                tanf(DEG2RAD( .5f * projection.fov[0] )));
     const float height = fabs( projection.distance * 2.0 *
                                tanf(DEG2RAD( .5f * projection.fov[1] )));
-   
+
     bottomLeft[0]  = -width * 0.5f;
     bottomLeft[1]  = -height * 0.5f;
     bottomLeft[2]  = 0;
@@ -187,28 +187,36 @@ Wall& Wall::operator = ( const Projection& projection )
     const float cosPsinH = cosP * sinH;
     const float sinPsinH = sinP * sinH;
 
-    mat.array[0] =   cosH * cosR;
-    mat.array[1] =  -cosH * sinR;
-    mat.array[2] =  -sinH;
+    mat.array[0] =  cosH * cosR;
+    mat.array[1] = -cosH * sinR;
+    mat.array[2] = -sinH;
     mat.array[3] = -sinPsinH * cosR + cosP * sinR;
     mat.array[4] =  sinPsinH * sinR + cosP * cosR;
-    mat.array[5] =  -sinP * cosH;
+    mat.array[5] = -sinP * cosH;
     mat.array[6] =  cosPsinH * cosR + sinP * sinR;
     mat.array[7] = -cosPsinH * sinR + sinP * cosR;
-    mat.array[8] =   cosP * cosH;
+    mat.array[8] =  cosP * cosH;
 
     bottomLeft  = mat * bottomLeft;
     bottomRight = mat * bottomRight;
     topLeft     = mat * topLeft;
-    
+
     Vector3f w( mat.array[6], mat.array[7], mat.array[8] );
-    
+
     bottomLeft  = bottomLeft  + projection.origin  + w *  projection.distance;
     bottomRight = bottomRight + projection.origin  + w *  projection.distance;
     topLeft     = topLeft     + projection.origin  + w *  projection.distance;
 
     return *this;
-}    
+}
+
+Wall& Wall::operator = ( const Matrix4f& xfm )
+{
+    bottomLeft  = xfm * Vector4f( -1.0f, -1.0f, -1.0f, 1.0f );
+    bottomRight = xfm * Vector4f(  1.0f, -1.0f, -1.0f, 1.0f );
+    topLeft     = xfm * Vector4f( -1.0f,  1.0f, -1.0f, 1.0f );
+    return *this;
+}
 
 bool Wall::operator == ( const Wall& rhs ) const
 {
