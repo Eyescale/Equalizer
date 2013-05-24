@@ -109,6 +109,15 @@ void AccumBufferObject::display( const GLfloat value )
     _drawQuadWithTexture( getColorTextures()[0], _pvp, value );
 }
 
+bool AccumBufferObject::resize( const PixelViewport& pvp )
+{
+    if (_pvp == pvp)
+        return false;
+
+    _pvp = pvp;
+    return FrameBufferObject::resize( pvp.w, pvp.h );
+}
+
 void AccumBufferObject::_setup( const PixelViewport& pvp )
 {
     bind();
