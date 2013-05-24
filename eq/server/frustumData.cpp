@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -41,9 +41,7 @@ void FrustumData::applyWall( const fabric::Wall& wall )
 {
     Vector3f u = wall.bottomRight - wall.bottomLeft;
     Vector3f v = wall.topLeft - wall.bottomLeft;
-    Vector3f w( u[1]*v[2] - u[2]*v[1],
-                u[2]*v[0] - u[0]*v[2],
-                u[0]*v[1] - u[1]*v[0] );
+    Vector3f w = u.cross( v );
 
     _type   = wall.type;
     _width  = u.normalize();
@@ -54,21 +52,18 @@ void FrustumData::applyWall( const fabric::Wall& wall )
     _xfm.array[1]  = v[0];
     _xfm.array[2]  = w[0];
     _xfm.array[3]  = 0.;
-             
+
     _xfm.array[4]  = u[1];
     _xfm.array[5]  = v[1];
     _xfm.array[6]  = w[1];
     _xfm.array[7]  = 0.;
-             
+
     _xfm.array[8]  = u[2];
     _xfm.array[9]  = v[2];
     _xfm.array[10] = w[2];
     _xfm.array[11] = 0.;
 
-    const Vector3f center( (wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
-                           (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
-                           (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f );
-
+    const Vector3f center = (wall.bottomRight + wall.topLeft) * 0.5f;
     _xfm.array[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
     _xfm.array[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
     _xfm.array[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
@@ -89,7 +84,7 @@ void FrustumData::applyProjection( const fabric::Projection& projection )
         {
             sinR*sinP*sinH + cosR*cosH,  cosR*sinP*sinH - sinR*cosH,  cosP*sinH,
             cosP*sinR,                   cosP*cosR,                  -sinP,
-            sinR*sinP*cosH - cosR*sinH,  cosR*sinP*cosH + sinR*sinH,  cosP*cosH 
+            sinR*sinP*cosH - cosR*sinH,  cosR*sinP*cosH + sinR*sinH,  cosP*cosH
         };
 
     // translation = HPR x -origin
@@ -109,8 +104,8 @@ void FrustumData::applyProjection( const fabric::Projection& projection )
     _xfm.array[5]  = rot[4];
     _xfm.array[6]  = rot[5];
     _xfm.array[7]  = 0.;
-            
-    _xfm.array[8]  = rot[6];                
+
+    _xfm.array[8]  = rot[6];
     _xfm.array[9]  = rot[7];
     _xfm.array[10] = rot[8];
     _xfm.array[11] = 0.;
@@ -124,7 +119,7 @@ void FrustumData::applyProjection( const fabric::Projection& projection )
     _height = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[1] ));
     _type   = Wall::TYPE_FIXED;
 }
- 
+
 std::ostream& operator << ( std::ostream& os, const FrustumData& frustumData )
 {
     os << "size: " << frustumData.getWidth() << "x" << frustumData.getHeight()

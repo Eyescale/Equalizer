@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -44,12 +44,7 @@ namespace eq
 {
 namespace server
 {
-    class CompoundListener;
-    class CompoundVisitor;
-
-    /**
-     * The compound.
-     */
+    /** The compound form the tree describing the rendering task setup. */
     class Compound
     {
     public:
@@ -158,9 +153,6 @@ namespace server
 
         Pipe* getPipe();
         const Pipe* getPipe() const;
-
-        /** @return the frustum of this compound. */
-        Frustum& getFrustum() { return _frustum; }
 
         /** Attach a load balancer to this compound. */
         EQSERVER_API void addEqualizer( Equalizer* equalizer );
@@ -390,7 +382,10 @@ namespace server
         Frustum::Type getFrustumType() const
             { return _frustum.getCurrentType(); }
 
-        /** @return the frustum. */
+        /** @return the frustum of this compound. */
+        Frustum& getFrustum() { return _frustum; }
+
+        /** @return the frustum of this compound. */
         const Frustum& getFrustum() const { return _frustum; }
 
         /** Update the frustum from the view or segment. */
@@ -627,7 +622,7 @@ namespace server
         const Matrix4f& _getInverseHeadMatrix() const;
         void _computeFrustumCorners( Frustumf& frustum,
             const FrustumData& frustumData, const Vector3f& eye,
-            const bool ortho, Viewport* invp = 0 ) const;
+            const bool ortho, const Viewport* const vp = 0 ) const;
     };
 
     std::ostream& operator << ( std::ostream& os, const Compound& compound );

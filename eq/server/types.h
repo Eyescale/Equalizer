@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -34,6 +34,8 @@ namespace server
 class Canvas;
 class Channel;
 class Compound;
+class CompoundListener;
+class CompoundVisitor;
 class Config;
 class ConfigVisitor;
 class Equalizer;

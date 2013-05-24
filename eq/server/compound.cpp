@@ -640,23 +640,23 @@ void Compound::computeTileFrustum( Frustumf& frustum, const Eye eye,
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
 
-    _computeFrustumCorners( frustum, frustumData, eyeWall, ortho, &vp);
+    _computeFrustumCorners( frustum, frustumData, eyeWall, ortho, &vp );
 }
 
 namespace
 {
-    static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
-                                       const Vector3f& eye )
+static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
+                                   const Vector3f& eye )
+{
+    // headTransform = -trans(eye) * view matrix (frustum position)
+    for( int i=0; i<16; i += 4 )
     {
-        // headTransform = -trans(eye) * view matrix (frustum position)
-        for( int i=0; i<16; i += 4 )
-        {
-            result.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
-            result.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
-            result.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
-            result.array[i+3] = xfm.array[i+3];
-        }
+        result.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
+        result.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
+        result.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
+        result.array[i+3] = xfm.array[i+3];
     }
+}
 }
 
 void Compound::_computePerspective( RenderContext& context,
@@ -738,7 +738,7 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
                                        const FrustumData& frustumData,
                                        const Vector3f& eye,
                                        const bool ortho,
-                                       Viewport* invp /* = 0*/) const
+                                       const Viewport* const invp ) const
 {
     const Channel* destination = getInheritChannel();
     frustum = destination->getFrustum();
@@ -793,7 +793,7 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
 
     // adjust to viewport (screen-space decomposition)
     // Note: vp is computed pixel-correct by Compound::updateInheritData()
-    const Viewport vp = invp ? *invp : getInheritViewport();
+    const Viewport& vp = invp ? *invp : getInheritViewport();
     if( vp != Viewport::FULL && vp.isValid( ))
     {
         const float frustumWidth = frustum.right() - frustum.left();

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -47,8 +47,8 @@ int main( int argc, char **argv )
               wall.getWidth() << " != " << wall.getHeight( ));
 
     projection2.distance = projection.distance;
-    projection2 = wall;    
-    TESTINFO( projection == projection2 , 
+    projection2 = wall;
+    TESTINFO( projection == projection2 ,
               projection << std::endl << wall << std::endl <<
               projection2  << std::endl );
 
@@ -63,9 +63,9 @@ int main( int argc, char **argv )
     projection2 = wall;
     TESTINFO( projection == projection2 , "Test 2" <<
              projection << std::endl << wall << std::endl <<
-             projection2  << std::endl ); 
-    
-    
+             projection2  << std::endl );
+
+
     // test 3
     projection.distance = 3;
     projection.fov[0] = 90;
@@ -77,9 +77,9 @@ int main( int argc, char **argv )
     projection2 = wall;
     TESTINFO( projection == projection2 , "Test 3" <<
              projection << std::endl << wall << std::endl <<
-             projection2  << std::endl ); 
-             
-             
+             projection2  << std::endl );
+
+
     // test 4
     projection.distance = 3;
     projection.fov[0] = 43;
@@ -87,18 +87,18 @@ int main( int argc, char **argv )
     projection.origin[0] = 4;
     projection.origin[1] = 3;
     projection.origin[2] = 2;
-    
+
     projection.hpr[0] = 90;
     projection.hpr[1] = -68;
     projection.hpr[2] = -77;
-    
+
     wall = projection;
     projection2 = wall;
     Wall wall2;
-    wall2=  projection2; 
+    wall2=  projection2;
     TESTINFO( wall == wall2 , "Test 4" <<
              projection << std::endl << wall << std::endl <<
-             projection2 << std::endl << wall2 << std::endl ); 
+             projection2 << std::endl << wall2 << std::endl );
 
 #if 0
     // Test n
@@ -107,7 +107,7 @@ int main( int argc, char **argv )
     wall.topLeft     = vmml::Vector3f( -4.5251f, -2.4749, 15.45f );
 
     projection = wall;
-    wall2 = projection; 
+    wall2 = projection;
     TESTINFO( wall == wall2, wall << projection << wall2 );
 #endif
 
