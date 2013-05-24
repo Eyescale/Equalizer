@@ -47,7 +47,7 @@ Config::Config( eq::ServerPtr parent )
         , _currentCanvas( 0 )
         , _messageTime( 0 )
         , _redraw( true )
-        , _useIdleAA( false )
+        , _useIdleAA( true )
         , _numFramesAA( 0 )
 {
 }

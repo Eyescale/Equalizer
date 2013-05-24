@@ -160,7 +160,7 @@ namespace fabric
         enum Type
         {
             TYPE_FIXED, //!< A fixed mounted projection wall
-            TYPE_HMD,   //!< A wall fixed to the observer (head-mounted display)
+            TYPE_HMD    //!< A wall fixed to the observer (head-mounted display)
         };
         Type type; //!< The wall type
     };
