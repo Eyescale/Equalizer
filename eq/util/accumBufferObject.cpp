@@ -138,6 +138,7 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
     glDepthMask( false );
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
     texture->applyWrap();
     texture->applyZoomFilter( FILTER_NEAREST );
 
