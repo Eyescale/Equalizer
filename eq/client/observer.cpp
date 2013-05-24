@@ -25,7 +25,7 @@
 #include <eq/fabric/paths.h>
 
 #ifdef EQUALIZER_USE_OPENCV
-#  include "cvTracker.h"
+#  include "detail/cvTracker.h"
 #endif
 
 namespace eq
