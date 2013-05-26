@@ -18,6 +18,7 @@
 #ifndef EQSERVER_FRUSTUMDATA_H
 #define EQSERVER_FRUSTUMDATA_H
 
+#include "api.h"
 #include "types.h"
 
 #include <eq/fabric/eye.h>   // EYE enum
@@ -35,7 +36,7 @@ namespace server
     class FrustumData
     {
     public:
-        FrustumData();
+        EQSERVER_API FrustumData();
 
         bool isValid() const { return (_width!=0.f && _height!=0.f); }
         void invalidate()    { _width = 0.f; _height = 0.f; }
@@ -46,7 +47,7 @@ namespace server
         void applyProjection( const fabric::Projection& projection );
 
         /** Update the frustum data using the given wall. */
-        void applyWall( const fabric::Wall& wall );
+        EQSERVER_API void applyWall( const fabric::Wall& wall );
         //@}
 
         /** @name Data Access. */
