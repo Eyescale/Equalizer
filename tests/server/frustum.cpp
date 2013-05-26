@@ -18,6 +18,10 @@
 #include <test.h>
 #include <eq/server/frustumData.h>
 
+#ifndef M_PI_2
+#  define M_PI_2 1.57079632679489661923
+#endif
+
 using namespace eq::server;
 
 int main( int argc, char **argv )
