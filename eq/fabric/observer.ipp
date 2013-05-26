@@ -92,8 +92,8 @@ void Observer< C, O >::serialize( co::DataOStream& os,
             os << _data.eyePosition[i];
     if( dirtyBits & DIRTY_FOCUS )
         os << _data.focusDistance << _data.focusMode;
-    if( dirtyBits & DIRTY_CAMERA )
-        os << _data.camera;
+    if( dirtyBits & DIRTY_TRACKER )
+        os << _data.camera << _data.vrpnTracker;
 }
 
 template< typename C, typename O >
@@ -109,8 +109,8 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
             is >> _data.eyePosition[i];
     if( dirtyBits & DIRTY_FOCUS )
         is >> _data.focusDistance >> _data.focusMode;
-    if( dirtyBits & DIRTY_CAMERA )
-        is >> _data.camera;
+    if( dirtyBits & DIRTY_TRACKER )
+        is >> _data.camera >> _data.vrpnTracker;
 }
 
 template< typename C, typename O >
@@ -209,7 +209,17 @@ void Observer< C, O >::setOpenCVCamera( const int32_t camera )
         return;
 
     _data.camera = camera;
-    setDirty( DIRTY_CAMERA );
+    setDirty( DIRTY_TRACKER );
+}
+
+template< typename C, typename O >
+void Observer< C, O >::setVRPNTracker( const std::string& tracker )
+{
+    if( _data.vrpnTracker == tracker )
+        return;
+
+    _data.vrpnTracker = tracker;
+    setDirty( DIRTY_TRACKER );
 }
 
 template< typename C, typename O >
@@ -240,8 +250,11 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
        << "focus_distance " << observer.getFocusDistance() << std::endl
        << "focus_mode     " << observer.getFocusMode() << std::endl
        << "opencv_camera  " << IAttribute( observer.getOpenCVCamera( ))
-       << std::endl
-       << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << std::endl;
+    if( !observer.getVRPNTracker().empty( ))
+        os << "vrpn_tracker   \"" << observer.getVRPNTracker() << "\""
+           << std::endl;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
        << lunchbox::enableFlush;
     return os;
 }

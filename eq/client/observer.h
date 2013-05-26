@@ -82,6 +82,19 @@ namespace detail { class Observer; }
         /** Exit this observer. @version 1.5.2 */
         EQ_API virtual bool configExit();
         friend class detail::ExitVisitor;
+
+        /**
+         * Start rendering a frame.
+         *
+         * Called once at the beginning of each frame before the Config::frame
+         * is send to the server, to do per-frame updates of observer-specific
+         * data.
+         *
+         * @param frameNumber the frame to start.
+         * @version 1.5.2
+         */
+        EQ_API virtual void frameStart( const uint32_t frameNumber );
+        friend class detail::FrameVisitor;
         //@}
 
     private:

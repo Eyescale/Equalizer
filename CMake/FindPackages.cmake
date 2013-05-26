@@ -183,6 +183,21 @@ if(OpenCV_name)
   endif()
 endif()
 
+find_package(VRPN 07.30)
+if(VRPN_FOUND)
+  set(VRPN_name VRPN)
+endif()
+if(VRPN_FOUND)
+  set(VRPN_name VRPN)
+endif()
+if(VRPN_name)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_VRPN)
+  link_directories(${${VRPN_name}_LIBRARY_DIRS})
+  if(NOT "${${VRPN_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
+    include_directories(${${VRPN_name}_INCLUDE_DIRS})
+  endif()
+endif()
+
 find_package(DisplayCluster 0.2.0)
 if(DisplayCluster_FOUND)
   set(DisplayCluster_name DisplayCluster)
@@ -235,7 +250,7 @@ endif()
 
 set(EQUALIZER_BUILD_DEBS bison;flex;freeglut3-dev;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev)
 
-set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV;DisplayCluster;MAGELLAN;GLEW_MX)
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;SAGE;OpenCV;VRPN;DisplayCluster;MAGELLAN;GLEW_MX)
 
 # Write defines.h and options.cmake
 if(NOT PROJECT_INCLUDE_NAME)
