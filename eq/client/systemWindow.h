@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -40,24 +40,24 @@ namespace eq
 
         /** Destroy the SystemWindow. @version 1.0 */
         EQ_API virtual ~SystemWindow();
-        
+
         /** @name Methods forwarded from eq::Window */
         //@{
-        /** 
+        /**
          * Initialize this system window.
-         * 
+         *
          * This method should take into account all attributes of the parent
          * Window.
-         * 
+         *
          * @return true if the window was correctly initialized, false
          *         on any error.
          * @version 1.0
          */
         EQ_API virtual bool configInit() = 0;
 
-        /** 
+        /**
          * De-initialize this system window.
-         * 
+         *
          * This function might be called on partially or uninitialized system
          * windows, and the implemenation has therefore be tolerant enough to
          * handle this case.
@@ -65,7 +65,7 @@ namespace eq
          */
         EQ_API virtual void configExit() = 0;
 
-        /** 
+        /**
          * Make the system window rendering context and drawable current.
          *
          * This function invalidates the pipe's make current cache. If this
@@ -81,12 +81,18 @@ namespace eq
         /** Swap the front and back buffer. @version 1.0 */
         EQ_API virtual void swapBuffers() = 0;
 
-        /** 
+        /** Flush all command buffers. @version 1.5.2 */
+        EQ_API virtual void flush() = 0;
+
+        /** Finish execution of  all commands. @version 1.5.2 */
+        EQ_API virtual void finish() = 0;
+
+        /**
          * Join a NV_swap_group.
          *
          * See WGL or GLX implementation and OpenGL extension for details on how
          * to implement this function.
-         * 
+         *
          * @param group the swap group name.
          * @param barrier the swap barrier name.
          * @version 1.0
@@ -160,9 +166,9 @@ namespace eq
          */
         virtual const GLEWContext* glewGetContext() const { return 0; }
 
-        /** 
+        /**
          * Set an error code why the last operation failed.
-         * 
+         *
          * The error will be set on the parent window.
          *
          * @param error the error message.
@@ -179,7 +185,7 @@ namespace eq
     private:
         /** The parent eq::Window. */
         Window* const _window;
-        
+
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
     };

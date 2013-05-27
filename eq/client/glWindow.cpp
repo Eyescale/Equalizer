@@ -152,6 +152,16 @@ void GLWindow::bindFrameBuffer() const
        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 }
 
+void GLWindow::flush()
+{
+    glFlush();
+}
+
+void GLWindow::finish()
+{
+    glFinish();
+}
+
 void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
 {
     // GL version

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -299,12 +299,16 @@ uint32_t Window::getColorFormat() const
 
 void Window::flush() const
 {
-    glFlush();
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->flush();
 }
 
 void Window::finish() const
 {
-    glFinish();
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->finish();
 }
 
 void Window::setSystemWindow( SystemWindow* window )

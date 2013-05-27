@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -42,7 +42,7 @@ namespace eq
         /** Bind the FBO and update the current cache. @version 1.0 */
         EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
-        /** 
+        /**
          * @return true if this window was last made current in this thread.
          * @version 1.3.2
          */
@@ -52,6 +52,12 @@ namespace eq
         //@{
         /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
         EQ_API virtual void bindFrameBuffer() const;
+
+        /** Flush all command buffers. @version 1.5.2 */
+        EQ_API virtual void flush();
+
+        /** Finish execution of  all commands. @version 1.5.2 */
+        EQ_API virtual void finish();
 
         /** Build and initialize the FBO. @version 1.0 */
         EQ_API virtual bool configInitFBO();
@@ -63,13 +69,13 @@ namespace eq
         virtual const util::FrameBufferObject* getFrameBufferObject()
             const { return _fbo; }
         //@}
-     
+
         /** Initialize the GLEW context for this window. @version 1.0 */
         EQ_API virtual void initGLEW();
-        
+
         /** De-initialize the GLEW context. @version 1.0 */
         virtual void exitGLEW() { _glewInitialized = false; }
-        
+
         /**
          * Get the GLEW context for this window.
          *
@@ -94,11 +100,11 @@ namespace eq
 
     private:
         bool _glewInitialized ;
-        
+
         /** Extended OpenGL function entries when window has a context. */
         GLEWContext* const _glewContext;
 
-        /** Frame buffer object for FBO drawables. */       
+        /** Frame buffer object for FBO drawables. */
         util::FrameBufferObject* _fbo;
 
         GLEWContext* glewGetContext();
