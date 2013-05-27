@@ -111,7 +111,7 @@ void AccumBufferObject::display( const GLfloat value )
 
 bool AccumBufferObject::resize( const PixelViewport& pvp )
 {
-    if (_pvp == pvp)
+    if( _pvp == pvp )
         return false;
 
     _pvp = pvp;

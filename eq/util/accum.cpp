@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -25,59 +25,74 @@ namespace eq
 {
 namespace util
 {
+namespace detail
+{
+class Accum
+{
+public:
+    Accum( const GLEWContext* const gl )
+        : glewContext( gl )
+        , abo( 0 )
+        , numSteps( 0 )
+        , totalSteps( 0 )
+    {
+        LBASSERT( glewContext );
+    }
+
+    const GLEWContext* const glewContext;
+    PixelViewport pvp;
+
+    AccumBufferObject* abo;
+    uint32_t numSteps;
+    uint32_t totalSteps;
+};
+}
 
 Accum::Accum( const GLEWContext* const glewContext )
-    : _glewContext( glewContext )
-    , _width( 0 )
-    , _height( 0 )
-    , _abo( 0 )
-    , _numSteps( 0 )
-    , _totalSteps( 0 )
+    : impl_( new detail::Accum( glewContext ))
 {
-    LBASSERT( glewContext );
 }
 
 Accum::~Accum()
 {
     exit();
+    delete impl_;
 }
 
 bool Accum::init( const PixelViewport& pvp, GLuint textureFormat )
 {
     if( usesFBO( ))
     {
-        _abo = new AccumBufferObject( _glewContext );
-        if( !_abo->init( pvp, textureFormat ))
+        impl_->abo = new AccumBufferObject( impl_->glewContext );
+        if( !impl_->abo->init( pvp, textureFormat ))
         {
-            delete _abo;
-            _abo = 0;
+            delete impl_->abo;
+            impl_->abo = 0;
             return false;
         }
     }
 
-    if( _totalSteps == 0 )
-        _totalSteps = getMaxSteps();
+    if( impl_->totalSteps == 0 )
+        impl_->totalSteps = getMaxSteps();
 
-    _width = pvp.w;
-    _height = pvp.h;
-
-    return ( _totalSteps > 0 );
+    impl_->pvp = pvp;
+    return ( impl_->totalSteps > 0 );
 }
 
 void Accum::exit()
 {
     clear();
 
-    if( _abo )
-        _abo->exit();
+    if( impl_->abo )
+        impl_->abo->exit();
 
-    delete _abo;
-    _abo = 0;
+    delete impl_->abo;
+    impl_->abo = 0;
 }
 
 void Accum::clear()
 {
-    _numSteps = 0;
+    impl_->numSteps = 0;
 }
 
 bool Accum::resize( const int width, const int height )
@@ -87,65 +102,59 @@ bool Accum::resize( const int width, const int height )
 
 bool Accum::resize( const PixelViewport& pvp )
 {
-    if( pvp.w != _width || pvp.h != _height )
-    {
-        _width = pvp.w;
-        _height = pvp.h;
-    }
+    if( impl_->pvp == pvp )
+        return false;
 
+    impl_->pvp = pvp;
     if( usesFBO( ))
-        return _abo->resize( pvp );
-
-    return false;
+        return impl_->abo->resize( pvp );
+    return true;
 }
 
 void Accum::accum()
 {
-    LBASSERT( _numSteps < _totalSteps );
+    LBASSERT( impl_->numSteps < impl_->totalSteps );
 
-    if( _abo )
+    if( impl_->abo )
     {
-        if( _numSteps == 0 )
-            _abo->load( 1.0f );
+        if( impl_->numSteps == 0 )
+            impl_->abo->load( 1.0f );
         else
-            _abo->accum( 1.0f );
+            impl_->abo->accum( 1.0f );
     }
     else
     {
         // This is the only working implementation on MacOS found at the moment.
         // glAccum function seems to be implemented differently.
-        if( _numSteps == 0 )
+        if( impl_->numSteps == 0 )
 #ifdef Darwin
-            glAccum( GL_LOAD, 1.0f / _totalSteps );
+            glAccum( GL_LOAD, 1.0f / impl_->totalSteps );
 #else
             glAccum( GL_LOAD, 1.0f );
 #endif
         else
 #ifdef Darwin
-            glAccum( GL_ACCUM, 1.0f / _totalSteps );
+            glAccum( GL_ACCUM, 1.0f / impl_->totalSteps );
 #else
             glAccum( GL_ACCUM, 1.0f );
 #endif
     }
 
-    ++_numSteps;
+    ++impl_->numSteps;
 }
 
 void Accum::display()
 {
-    LBASSERT( _numSteps <= _totalSteps );
+    LBASSERT( impl_->numSteps <= impl_->totalSteps );
 
-    if( _abo )
-    {
-        const float factor = 1.0f / _numSteps;
-        _abo->display( factor );
-    }
+    if( impl_->abo )
+        impl_->abo->display( 1.0f / impl_->numSteps );
     else
     {
 #ifdef Darwin
-        const float factor = static_cast<float>( _totalSteps ) / _numSteps;
+        const float factor = float( impl_->totalSteps ) / impl_->numSteps;
 #else
-        const float factor = 1.0f / _numSteps;
+        const float factor = 1.0f / impl_->numSteps;
 #endif
         glAccum( GL_RETURN, factor );
     }
@@ -155,16 +164,37 @@ uint32_t Accum::getMaxSteps() const
 {
     if( usesFBO( ))
         return 256;
-    
+
     GLint accumBits;
     glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
 
     return accumBits >= 16 ? 256 : 0;
 }
 
+uint32_t Accum::getNumSteps() const
+{
+    return impl_->numSteps;
+}
+
+void Accum::setTotalSteps( uint32_t totalSteps )
+{
+    impl_->totalSteps = totalSteps;
+}
+
+uint32_t Accum::getTotalSteps()
+{
+    return impl_->totalSteps;
+}
+
 bool Accum::usesFBO() const
 {
     return usesFBO( glewGetContext( ));
+}
+
+
+const GLEWContext* Accum::glewGetContext() const
+{
+    return impl_->glewContext;
 }
 
 #define glewGetContext() glewContext

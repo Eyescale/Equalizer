@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,100 +28,100 @@ namespace eq
 {
 namespace util
 {
+/**
+ * A class to emulate an OpenGL accumulation buffer using an FBO.
+ * @sa glAccum(), eq::util::Accum
+ */
+class AccumBufferObject : public FrameBufferObject
+{
+public:
+    /** Construct a new Accumulation Buffer Object. @version 1.0 */
+    EQ_API AccumBufferObject( const GLEWContext* const glewContext );
+
+    /** Destruct the Accumulation Buffer Object. @version 1.0 */
+    EQ_API ~AccumBufferObject();
+
     /**
-     * A class to emulate an OpenGL accumulation buffer using an FBO.
-     * @sa glAccum(), eq::util::Accum
+     * Initialize the Accumulation Buffer Object.
+     *
+     * The ABO uses a 32-bit float texture for the accumulation.
+     *
+     * @param pvp the initial pixel viewport of the rendering buffer.
+     * @param format the texture format corresponding to the source color
+     *               read buffer.
+     * @return true on success, false otherwise
+     * @sa Window::getColorFormat(), glReadBuffer()
+     * @version 1.0
      */
-    class AccumBufferObject : public FrameBufferObject
-    {
-    public:
-        /** Construct a new Accumulation Buffer Object. @version 1.0 */
-        EQ_API AccumBufferObject( const GLEWContext* const glewContext );
+    EQ_API bool init( const PixelViewport& pvp, const unsigned format );
 
-        /** Destruct the Accumulation Buffer Object. @version 1.0 */
-        EQ_API ~AccumBufferObject();
+    /** De-initialize the Accumulation Buffer Object. @version 1.0 */
+    EQ_API void exit();
 
-        /**
-         * Initialize the Accumulation Buffer Object.
-         *
-         * The ABO uses a 32-bit float texture for the accumulation.
-         *
-         * @param pvp the initial pixel viewport of the rendering buffer.
-         * @param format the texture format corresponding to the source color
-         *               read buffer.
-         * @return true on success, false otherwise
-         * @sa Window::getColorFormat(), glReadBuffer()
-         * @version 1.0
-         */
-        EQ_API bool init( const PixelViewport& pvp, const unsigned format );
+    /**
+     * Load the current read buffer into the accumulation buffer.
+     *
+     * The color values of the current read buffer are multiplied with value and
+     * copied into the accumulation buffer.
+     *
+     * @param value a floating-point value multiplying the source values
+     *              during the load operation.
+     * @version 1.0
+     */
+    EQ_API void load( const float value );
 
-        /** De-initialize the Accumulation Buffer Object. @version 1.0 */
-        EQ_API void exit();
+    /**
+     * Accumulate the current read buffer into the accumulation buffer.
+     *
+     * The color values of the current read buffer are multiplied by value and
+     * added to the accumulation buffer.
+     *
+     * @param value a floating-point value multiplying the source values
+     *              during the accum operation.
+     * @version 1.0
+     */
+    EQ_API void accum( const float value );
 
-        /**
-         * Load the current read buffer into the accumulation buffer.
-         *
-         * The color values of the current read buffer are multiplied with value
-         * and copied into the accumulation buffer.
-         *
-         * @param value a floating-point value multiplying the source values
-         *              during the load operation.
-         * @version 1.0
-         */
-        EQ_API void load( const float value );
+    /**
+     * Transfer accumulation buffer values to the draw buffer.
+     *
+     * The accumulation buffer color values are multiplied by value, and copied
+     * into the current draw buffer.
+     *
+     * @param value a floating-point value multiplying the accumulation
+     *              values during the operation.
+     * @version 1.0
+     */
+    EQ_API void display( const float value );
 
-        /**
-         * Accumulate the current read buffer into the accumulation buffer.
-         *
-         * The color values of the current read buffer are multiplied by value
-         * and added to the accumulation buffer.
-         *
-         * @param value a floating-point value multiplying the source values
-         *              during the accum operation.
-         * @version 1.0
-         */
-        EQ_API void accum( const float value );
+    /**
+     * Resets the pixel viewport used in display and resizes the
+     * accumulation buffer if needed
+     *
+     * @param pvp pixel viewport of the destination buffer.
+     * @return true if the accumulation buffer has been resized.
+     *
+     * @version 1.5.2
+     */
+    EQ_API bool resize( const PixelViewport& pvp );
 
-        /**
-         * Transfer accumulation buffer values to the draw buffer.
-         *
-         * The accumulation buffer color values are multiplied by value, and
-         * copied into the current draw buffer.
-         *
-         * @param value a floating-point value multiplying the accumulation
-         *              values during the operation.
-         * @version 1.0
-         */
-        EQ_API void display( const float value );
+private:
+    void _setup( const PixelViewport& pvp );
+    void _reset();
 
-        /**
-         * Resets the pixel viewport used in display and resizes the
-         * accumulation buffer if needed
-         *
-         * @param pvp pixel viewport of the destination buffer.
-         * @return true if the accumulation buffer has been resized.
-         *
-         * @version ??
-         */
-        EQ_API bool resize( const PixelViewport& pvp );
+    /**
+     * Draw a textured quad.
+     *
+     * @param texture a texture object.
+     * @param pvp The size of the quad.
+     * @param value the brightness factor of the result.
+     */
+    void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp,
+                               const float value );
 
-    private:
-        void _setup( const PixelViewport& pvp );
-        void _reset();
-
-        /**
-         * Draw a textured quad.
-         *
-         * @param texture a texture object.
-         * @param pvp The size of the quad.
-         * @param value the brightness factor of the result.
-         */
-        void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp,
-                                   const float value );
-
-        Texture* _texture;
-        PixelViewport _pvp;
-    };
+    Texture* _texture;
+    PixelViewport _pvp;
+};
 }
 }
 
