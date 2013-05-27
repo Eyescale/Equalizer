@@ -66,6 +66,16 @@ namespace util
          */
         EQ_API bool resize( const int width, const int height );
 
+        /**
+         * Resize the accumulation buffer.
+         *
+         * @param pvp The pixel viewport where the accumulation buffer will
+         *        be displayed
+         * @return true if the accumulation buffer is correctly resized.
+         * @version ??
+         */
+        EQ_API bool resize( const PixelViewport& pvp );
+
         /** Clear the accumulation buffer. @version 1.0 */
         EQ_API void clear();
 
