@@ -25,6 +25,8 @@
 #    ${UPPER_PROJECT_NAME}_${component}_LIBRARY - The path & name of the ${component} library
 #
 #    ${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES - A list of dependencies for the CPack deb generator
+#    ${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY - The runtime dependency for the CPack deb generator
+#    ${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY - The compile-time dependency for the CPack deb generator
 
 
 include(CMakePackageConfigHelpers)
@@ -49,6 +51,8 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
   "  set_and_check(${UPPER_PROJECT_NAME}_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
+  "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "\n"
 # find components if specified
   "  if(${CMAKE_PROJECT_NAME}_FIND_COMPONENTS)\n"
