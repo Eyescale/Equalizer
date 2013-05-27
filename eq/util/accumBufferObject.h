@@ -94,6 +94,17 @@ namespace util
          */
         EQ_API void display( const float value );
 
+        /**
+         * Resets the pixel viewport used in display and resizes the
+         * accumulation buffer if needed
+         *
+         * @param pvp pixel viewport of the destination buffer.
+         * @return true if the accumulation buffer has been resized.
+         *
+         * @version ??
+         */
+        EQ_API bool resize( const PixelViewport& pvp );
+
     private:
         void _setup( const PixelViewport& pvp );
         void _reset();

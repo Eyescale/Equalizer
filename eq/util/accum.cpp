@@ -82,20 +82,19 @@ void Accum::clear()
 
 bool Accum::resize( const int width, const int height )
 {
-    if( usesFBO( ))
-    {
-        if( _abo->getWidth() == width && _abo->getHeight() == height )
-            return false;
+    return resize( PixelViewport( 0, 0, width, height ) );
+}
 
-        return _abo->resize( width, height );
-    }
-    
-    if( width != _width || height != _height )
+bool Accum::resize( const PixelViewport& pvp )
+{
+    if( pvp.w != _width || pvp.h != _height )
     {
-        _width = width;
-        _height = height;
-        return true;
+        _width = pvp.w;
+        _height = pvp.h;
     }
+
+    if( usesFBO( ))
+        return _abo->resize( pvp );
 
     return false;
 }
