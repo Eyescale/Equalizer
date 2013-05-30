@@ -40,6 +40,7 @@ Canvas< CFG, C, S, L >::Canvas( CFG* config )
         : _config( config )
 {
     LBASSERT( config );
+    setWall( Wall( )); // default frustum
     config->_addCanvas( static_cast< C* >( this ));
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }

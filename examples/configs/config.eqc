@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
 # 'Hello, World!' config: one window rendering from the application process.
 server
@@ -19,17 +19,11 @@ server
             }
         }
         observer{}
-        layout{ view { observer 0 wall{} }}
+        layout{ view { observer 0 }}
         canvas
         {
             layout 0
-            wall{}
             segment { channel "channel" }
-        }
-        compound
-        {
-            channel  ( segment 0 view 0 )
-            wall {}
         }
     }
 }
