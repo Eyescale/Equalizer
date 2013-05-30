@@ -40,7 +40,7 @@ if(HWLOC_FOUND)
   find_package_handle_standard_args(HWLOC DEFAULT_MSG HWLOC_LIBRARIES
     HWLOC_INCLUDE_DIRS)
 
-  if(NOT ${HWLOC_VERSION} VERSION_LESS 1.5.0)
+  if(NOT ${HWLOC_VERSION} VERSION_LESS 1.7.0)
     set(HWLOC_GL_FOUND 1)
   endif()
 

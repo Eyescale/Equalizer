@@ -15,16 +15,15 @@ include(FindPackageHandleStandardArgs)
 
 if(DISPLAYCLUSTER_FIND_REQUIRED)
   set(_DISPLAYCLUSTER_required REQUIRED)
-  set(_DISPLAYCLUSTER_version_output_type FATAL_ERROR)
   set(_DISPLAYCLUSTER_output 1)
+  set(_DISPLAYCLUSTER_output_type FATAL_ERROR)
 else()
-  set(_DISPLAYCLUSTER__version_output_type STATUS)
-  if(NOT DISPLAYCLUSTER_FIND_QUIETLY)
-    set(_DISPLAYCLUSTER_output 1)
-  endif()
+  set(_DISPLAYCLUSTER_output_type STATUS)
 endif()
 if(DISPLAYCLUSTER_FIND_QUIETLY)
   set(_DISPLAYCLUSTER_quiet QUIET)
+else()
+  set(_DISPLAYCLUSTER_output 1)
 endif()
 
 find_path(_DISPLAYCLUSTER_INCLUDE_DIR dcStream.h
@@ -43,7 +42,8 @@ if(_DISPLAYCLUSTER_INCLUDE_DIR AND EXISTS "${_DISPLAYCLUSTER_INCLUDE_DIR}/dcStre
 else()
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
   if(_DISPLAYCLUSTER_output)
-    message(${_DISPLAYCLUSTER_version_output_type} "Can't find DisplayCluster header file dcStream.h.")
+    message(${_DISPLAYCLUSTER_output_type}
+      "Can't find DisplayCluster header file dcStream.h.")
   endif()
 endif()
 
@@ -75,14 +75,18 @@ if(NOT DISPLAYCLUSTER_VERSION)
                                     DISPLAYCLUSTER_LIBRARY _DISPLAYCLUSTER_INCLUDE_DIR)
 elseif(_DISPLAYCLUSTER_version_not_high_enough)
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
-  message(${_DISPLAYCLUSTER_version_output_type}
-    "Version ${DISPLAYCLUSTER_FIND_VERSION} or higher of DisplayCluster is required. "
-    "Version ${DISPLAYCLUSTER_VERSION} was found in ${_DISPLAYCLUSTER_Version_file}.")
+  if(_DISPLAYCLUSTER_output)
+    message(${_DISPLAYCLUSTER_output_type}
+      "Version ${DISPLAYCLUSTER_FIND_VERSION} or higher of DisplayCluster is required. "
+      "Version ${DISPLAYCLUSTER_VERSION} was found in ${_DISPLAYCLUSTER_Version_file}.")
+  endif()
 elseif(_DISPLAYCLUSTER_version_not_exact)
   set(_DISPLAYCLUSTER_EPIC_FAIL TRUE)
-  message(${_DISPLAYCLUSTER_version_output_type}
-    "Version ${DISPLAYCLUSTER_FIND_VERSION} of DisplayCluster is required exactly. "
-    "Version ${DISPLAYCLUSTER_VERSION} was found.")
+  if(_DISPLAYCLUSTER_output)
+    message(${_DISPLAYCLUSTER_output_type}
+      "Version ${DISPLAYCLUSTER_FIND_VERSION} of DisplayCluster is required exactly. "
+      "Version ${DISPLAYCLUSTER_VERSION} was found.")
+  endif()
 else()
   if(DISPLAYCLUSTER_FIND_REQUIRED)
     if(DISPLAYCLUSTER_LIBRARY MATCHES "DISPLAYCLUSTER_LIBRARY-NOTFOUND")

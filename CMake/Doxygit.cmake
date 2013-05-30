@@ -61,7 +61,7 @@ foreach(PROJECT ${PROJECTS})
   endif()
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
     "</tr>\n"
-    "    <tr><th>${PROJECT}</th>")
+    "    <tr><th><a href=\"https://github.com/${CMAKE_PROJECT_NAME}/${PROJECT}\">${PROJECT}</a></th>")
   foreach(VERSION ${VERSIONS})
     set(ENTRY "${PROJECT}-${VERSION}")
     list(FIND ENTRIES "${ENTRY}" HAS_ENTRY)
@@ -94,9 +94,11 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
   "${CMAKE_SOURCE_DIR}/index.html")
 
-foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})
-  install(DIRECTORY ${FOLDER} DESTINATION share/${CMAKE_PROJECT_NAME}
+if(VERSION_MAJOR) # hack to detect if invoked as script
+  foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})
+    install(DIRECTORY ${FOLDER} DESTINATION share/${CMAKE_PROJECT_NAME}
+      CONFIGURATIONS Release)
+  endforeach()
+  install(FILES index.html DESTINATION share/${CMAKE_PROJECT_NAME}
     CONFIGURATIONS Release)
-endforeach()
-install(FILES index.html DESTINATION share/${CMAKE_PROJECT_NAME}
-  CONFIGURATIONS Release)
+endif()
