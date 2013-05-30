@@ -17,7 +17,6 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
     "  glewContextInit(0);\n"
     "}\n"
     )
-  file(APPEND ${TEST_SRC} "}\n")
 
   try_compile(_glew_mx_SUPPORTED ${CMAKE_BINARY_DIR}/glew_test ${TEST_SRC}
     CMAKE_FLAGS
