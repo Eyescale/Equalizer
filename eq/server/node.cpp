@@ -302,7 +302,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
         }
 
         lunchbox::sleep( 100 /*ms*/ );
-        if( clock.getTime64() > timeOut )
+		if( timeOut != LB_TIMEOUT_INDEFINITE && clock.getTime64() > timeOut )
         {
             LBASSERT( _node->getRefCount() == 1 );
             _node = 0;
