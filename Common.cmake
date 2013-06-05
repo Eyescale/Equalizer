@@ -153,7 +153,11 @@ macro(add_library _target)
 
   # ignore IMPORTED add_library from finders (e.g. Qt)
   cmake_parse_arguments(_arg "IMPORTED" "" "" ${ARGN})
-  if(NOT _arg_IMPORTED)
+
+  # ignore user-specified targets, e.g. language bindings
+  list(FIND IGNORE_LIB_TARGETS ${_target} _ignore_target)
+
+  if(NOT _arg_IMPORTED AND _ignore_target EQUAL -1)
     # add defines TARGET_DSO_NAME and TARGET_SHARED for dlopen() usage
     get_target_property(THIS_DEFINITIONS ${_target} COMPILE_DEFINITIONS)
     if(NOT THIS_DEFINITIONS)
