@@ -985,6 +985,8 @@ compoundField:
     | swapBarrier { eqCompound->setSwapBarrier(swapBarrier); swapBarrier = 0; }
     | outputFrame
     | inputFrame
+    | outputTiles
+    | inputTiles
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
 
 viewSegmentRef:
@@ -1318,13 +1320,13 @@ frameType:
     EQTOKEN_TEXTURE { frame->setType( eq::fabric::Frame::TYPE_TEXTURE ); }
     | EQTOKEN_MEMORY { frame->setType( eq::fabric::Frame::TYPE_MEMORY ); }
 
-inputFrame: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
+outputTiles: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
     tileQueueFields '}'
         {
             eqCompound->addOutputTileQueue( tileQueue );
             tileQueue = 0;
         }
-inputFrame: EQTOKEN_INPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
+inputTiles: EQTOKEN_INPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
     tileQueueFields '}'
         {
             eqCompound->addInputTileQueue( tileQueue );
