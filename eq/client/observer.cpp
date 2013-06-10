@@ -175,9 +175,10 @@ bool Observer::configExit()
 #ifdef EQUALIZER_USE_VRPN
     if( impl_->vrpnTracker )
     {
-    impl_->vrpnTracker->unregister_change_handler( this, trackerCB );
-    delete impl_->vrpnTracker;
-    impl_->vrpnTracker = 0;
+        impl_->vrpnTracker->unregister_change_handler( this, trackerCB );
+        delete impl_->vrpnTracker;
+        impl_->vrpnTracker = 0;
+    }
 #endif
 #ifdef EQUALIZER_USE_OPENCV
     delete impl_->cvTracker;
