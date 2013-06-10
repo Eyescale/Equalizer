@@ -24,15 +24,15 @@
 #include "server.h"
 
 #include <eq/fabric/paths.h>
+#include <eq/fabric/commands.h>
+#include <co/bufferConnection.h>
 
 #ifdef EQUALIZER_USE_OPENCV
 #  include "detail/cvTracker.h"
 #endif
 #ifdef EQUALIZER_USE_VRPN
 #  include <vrpn_Tracker.h>
-#  include <eq/fabric/commands.h>
 #  include <co/buffer.h>
-#  include <co/bufferConnection.h>
 #else
    class vrpn_Tracker_Remote;
 #endif
@@ -42,7 +42,7 @@ namespace eq
 {
 namespace detail
 {
-class cvTracker;
+class CVTracker;
 
 class Observer
 {
@@ -76,6 +76,7 @@ ServerPtr Observer::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
+#ifdef EQUALIZER_USE_VRPN
 namespace
 {
 class MotionEvent
@@ -120,6 +121,7 @@ void VRPN_CALLBACK trackerCB( void* userdata, const vrpn_TRACKERCB data )
     observer->handleEvent( iEvent );
 }
 }
+#endif
 
 bool Observer::configInit()
 {
