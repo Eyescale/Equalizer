@@ -18,6 +18,7 @@
 #include "observer.h"
 
 #include "config.h"
+#include "client.h"
 #include "event.h"
 #include "eventICommand.h"
 #include "server.h"
@@ -27,23 +28,32 @@
 #ifdef EQUALIZER_USE_OPENCV
 #  include "detail/cvTracker.h"
 #endif
+#ifdef EQUALIZER_USE_VRPN
+#  include <vrpn_Tracker.h>
+#  include <eq/fabric/commands.h>
+#  include <co/buffer.h>
+#  include <co/bufferConnection.h>
+#else
+   class vrpn_Tracker_Remote;
+#endif
+
 
 namespace eq
 {
 namespace detail
 {
+class cvTracker;
+
 class Observer
 {
 public:
     Observer()
-#ifdef EQUALIZER_USE_OPENCV
-        : tracker( 0 )
-#endif
+        : vrpnTracker( 0 )
+        , cvTracker( 0 )
     {}
 
-#ifdef EQUALIZER_USE_OPENCV
-    CVTracker* tracker;
-#endif
+    vrpn_Tracker_Remote *vrpnTracker;
+    CVTracker* cvTracker;
 };
 }
 
@@ -52,8 +62,7 @@ typedef fabric::Observer< Config, Observer > Super;
 Observer::Observer( Config* parent )
         : Super( parent )
         , impl_( new detail::Observer )
-{
-}
+{}
 
 Observer::~Observer()
 {
@@ -67,8 +76,68 @@ ServerPtr Observer::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
+namespace
+{
+class MotionEvent
+{
+public:
+    MotionEvent( const co::Object* object )
+        : buffer( new co::BufferConnection )
+        , command( co::Connections( 1, buffer ), fabric::CMD_CONFIG_EVENT,
+                   co::COMMANDTYPE_OBJECT, object->getID(),
+                   object->getInstanceID( ))
+    {
+        command << Event::OBSERVER_MOTION;
+    }
+
+    co::BufferConnectionPtr buffer;
+    EventOCommand command;
+};
+
+void VRPN_CALLBACK trackerCB( void* userdata, const vrpn_TRACKERCB data )
+{
+    if( data.sensor != 0 )
+        return; // Only use first sensor
+
+    eq::Matrix4f head( eq::Matrix4f::IDENTITY );
+    const vmml::quaternion<float> quat( data.quat[0], data.quat[2],
+                                        -data.quat[1], data.quat[3] );
+    quat.get_rotation_matrix( head );
+    head.set_translation( data.pos[0], data.pos[2], -data.pos[1] );
+
+    Observer *observer = static_cast< Observer* >( userdata );
+    Config* config = observer->getConfig();
+
+    MotionEvent oEvent( config );
+    oEvent.command << observer->getID() << head;
+
+    ClientPtr client = config->getClient();
+    co::Buffer buffer;
+    buffer.swap( oEvent.buffer->getBuffer( ));
+
+    co::ICommand iCommand( client, client, &buffer, false );
+    EventICommand iEvent( iCommand );
+    observer->handleEvent( iEvent );
+}
+}
+
 bool Observer::configInit()
 {
+#ifdef EQUALIZER_USE_VRPN
+    const std::string& vrpnName = getVRPNTracker();
+    if( !vrpnName.empty( ))
+    {
+        impl_->vrpnTracker = new vrpn_Tracker_Remote( vrpnName.c_str( ));
+        if( impl_->vrpnTracker->register_change_handler(this, trackerCB) != -1 )
+            return true;
+
+        LBWARN << "VRPN tracker couldn't connect to device " << vrpnName
+               << std::endl;
+        delete impl_->vrpnTracker;
+        impl_->vrpnTracker = 0;
+        return false;
+    }
+#endif
 #ifdef EQUALIZER_USE_OPENCV
     int32_t camera = getOpenCVCamera();
     if( camera == OFF )
@@ -78,12 +147,12 @@ bool Observer::configInit()
     else
         --camera; // .eqc counts from 1, OpenCV from 0
 
-    impl_->tracker = new detail::CVTracker( this, camera );
-    if( impl_->tracker->isGood( ))
-        return impl_->tracker->start();
+    impl_->cvTracker = new detail::CVTracker( this, camera );
+    if( impl_->cvTracker->isGood( ))
+        return impl_->cvTracker->start();
 
-    delete impl_->tracker;
-    impl_->tracker = 0;
+    delete impl_->cvTracker;
+    impl_->cvTracker = 0;
     return getOpenCVCamera() == AUTO; // not a failure for auto setting
 #endif
     return true;
@@ -101,11 +170,26 @@ bool Observer::handleEvent( EventICommand& command )
 
 bool Observer::configExit()
 {
+#ifdef EQUALIZER_USE_VRPN
+    if( impl_->vrpnTracker )
+    {
+    impl_->vrpnTracker->unregister_change_handler( this, trackerCB );
+    delete impl_->vrpnTracker;
+    impl_->vrpnTracker = 0;
+#endif
 #ifdef EQUALIZER_USE_OPENCV
-    delete impl_->tracker;
-    impl_->tracker = 0;
+    delete impl_->cvTracker;
+    impl_->cvTracker = 0;
 #endif
     return true;
+}
+
+void Observer::frameStart( const uint32_t frameNumber )
+{
+#ifdef EQUALIZER_USE_VRPN
+    if( impl_->vrpnTracker )
+        impl_->vrpnTracker->mainloop();
+#endif
 }
 
 }

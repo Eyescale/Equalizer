@@ -49,6 +49,10 @@ if(OpenCV_FOUND)
   add_definitions(-DOPENCV_INSTALL_PATH=\"${OpenCV_INSTALL_PATH}\")
 endif()
 
+if(VRPN_FOUND)
+  list(APPEND EQ_LIBRARIES ${VRPN_LIBRARIES})
+endif()
+
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)

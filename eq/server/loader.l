@@ -229,6 +229,7 @@ eye_right                       { return EQTOKEN_EYE_RIGHT; }
 focus_distance                  { return EQTOKEN_FOCUS_DISTANCE; }
 focus_mode                      { return EQTOKEN_FOCUS_MODE; }
 opencv_camera                   { return EQTOKEN_OPENCV_CAMERA; }
+vrpn_tracker                    { return EQTOKEN_VRPN_TRACKER; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }
