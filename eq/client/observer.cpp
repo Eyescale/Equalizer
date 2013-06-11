@@ -111,6 +111,7 @@ void VRPN_CALLBACK trackerCB( void* userdata, const vrpn_TRACKERCB data )
 
     MotionEvent oEvent( config );
     oEvent.command << observer->getID() << head;
+    oEvent.command.disable();
 
     ClientPtr client = config->getClient();
     co::Buffer buffer;
@@ -118,6 +119,7 @@ void VRPN_CALLBACK trackerCB( void* userdata, const vrpn_TRACKERCB data )
 
     co::ICommand iCommand( client, client, &buffer, false );
     EventICommand iEvent( iCommand );
+    iEvent.get< uint128_t >(); // normally done by Config::handleEvent()
     observer->handleEvent( iEvent );
 }
 }
