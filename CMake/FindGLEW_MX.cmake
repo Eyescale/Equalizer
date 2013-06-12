@@ -29,7 +29,27 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
     message(STATUS "  ${_glew_mx_LIBRARY} does not support GLEW_MX.")
     set(_glew_mx_INCLUDE_DIR 0)
     set(_glew_mx_LIBRARY 0)
-  endif(NOT _glew_mx_SUPPORTED)
+  elseif(X11_FOUND)
+    file(WRITE ${TEST_SRC}
+      "#include <GL/glxew.h>\n"
+      "int main(int argc, char* argv[])\n"
+      "{\n"
+      "  glxewContextInit(0);\n"
+      "}\n"
+      )
+
+    try_compile(_glxew_mx_SUPPORTED ${CMAKE_BINARY_DIR}/glew_test ${TEST_SRC}
+      CMAKE_FLAGS
+      "-DINCLUDE_DIRECTORIES:STRING=${_glew_mx_INCLUDE_DIR}"
+      "-DLINK_LIBRARIES:STRING=${_glew_mx_LIBRARY}"
+      COMPILE_DEFINITIONS -DGLEW_MX=1
+      )
+    if(NOT _glxew_mx_SUPPORTED)
+      message(STATUS "  ${_glew_mx_LIBRARY} is missing glxewContextInit().")
+      set(_glew_mx_INCLUDE_DIR 0)
+      set(_glew_mx_LIBRARY 0)
+    endif()
+  endif()
 endif()
 
 include(FindPackageHandleStandardArgs)

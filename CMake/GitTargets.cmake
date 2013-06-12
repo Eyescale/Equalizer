@@ -84,6 +84,13 @@ add_custom_target(erase
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 
+# move tag
+add_custom_target(retag
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
+  COMMENT "Add tag release-${VERSION}"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  DEPENDS erase)
+
 # tarball
 if(NOT LAST_RELEASE)
   set(LAST_RELEASE ${VERSION})
