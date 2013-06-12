@@ -54,6 +54,7 @@
 #endif
 
 #include "exitVisitor.h"
+#include "frameVisitor.h"
 #include "initVisitor.h"
 
 namespace eq
@@ -379,6 +380,9 @@ bool Config::update()
 uint32_t Config::startFrame( const uint128_t& frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
+    detail::FrameVisitor visitor( _impl->currentFrame + 1 );
+    accept( visitor );
+
     update();
 
     // Request new frame

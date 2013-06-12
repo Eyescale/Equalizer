@@ -44,23 +44,24 @@ and documentation changes over the Equalizer 1.4 release:
 
 ## New Features {#NewFeatures}
 
-* [204:](https://github.com/Eyescale/Equalizer/issues/204) Camera-based
+* [204](https://github.com/Eyescale/Equalizer/issues/204): Camera-based
   head tracking using OpenCV
-* [196:](https://github.com/Eyescale/Equalizer/issues/196) Asymmetric
+* [196](https://github.com/Eyescale/Equalizer/issues/196): Asymmetric
   eye position
-* [194:](https://github.com/Eyescale/Equalizer/issues/194)
+* [194](https://github.com/Eyescale/Equalizer/issues/194):
   Runtime-Changeable Segment Frusta
-* [189:](https://github.com/Eyescale/Equalizer/issues/189) Runtime
+* [189](https://github.com/Eyescale/Equalizer/issues/189): Runtime
   changeable equalizer properties
+* [133](https://github.com/Eyescale/Equalizer/issues/133): VRPN head tracking
 
 ## Enhancements {#Enhancements}
 
-* [186:](https://github.com/Eyescale/Equalizer/issues/186) Resistance to
+* [186](https://github.com/Eyescale/Equalizer/issues/186): Resistance to
   load_equalizers changes
-* [185:](https://github.com/Eyescale/Equalizer/issues/185) Network
+* [185](https://github.com/Eyescale/Equalizer/issues/185): Network
   interface selection for autoconfiguration
-* [153:](https://github.com/Eyescale/Equalizer/issues/153) GLEW 1.9.0 update
-* [150:](https://github.com/Eyescale/Equalizer/issues/150) Spacemouse
+* [153](https://github.com/Eyescale/Equalizer/issues/153): GLEW 1.9.0 update
+* [150](https://github.com/Eyescale/Equalizer/issues/150): Spacemouse
   Linux support
 
 ## Optimizations {#Optimizations}
@@ -84,7 +85,7 @@ since the last release:
 Collage 1.0 includes various bugfixes over the Equalizer 1.4 release,
 including the following:
 
-* [22](https://github.com/Eyescale/Collage/issues/22) Crash during
+* [22](https://github.com/Eyescale/Collage/issues/22): Crash during
   concurrent object deregister and map
 * [13](https://github.com/Eyescale/Collage/issues/13): Global argument
   parsing broken

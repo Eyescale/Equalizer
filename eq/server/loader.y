@@ -232,6 +232,7 @@
 %token EQTOKEN_FOCUS_DISTANCE
 %token EQTOKEN_FOCUS_MODE
 %token EQTOKEN_OPENCV_CAMERA
+%token EQTOKEN_VRPN_TRACKER
 %token EQTOKEN_ROBUSTNESS
 %token EQTOKEN_THREAD_MODEL
 %token EQTOKEN_ASYNC
@@ -793,6 +794,7 @@ observerField:
     | EQTOKEN_FOCUS_MODE IATTR
         { observer->setFocusMode( eq::fabric::FocusMode( $2 )); }
     | EQTOKEN_OPENCV_CAMERA IATTR { observer->setOpenCVCamera( $2 ); }
+    | EQTOKEN_VRPN_TRACKER STRING { observer->setVRPNTracker( $2 ); }
 
 layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout( config ); }
             layoutFields '}' { layout = 0; }
@@ -983,6 +985,8 @@ compoundField:
     | swapBarrier { eqCompound->setSwapBarrier(swapBarrier); swapBarrier = 0; }
     | outputFrame
     | inputFrame
+    | outputTiles
+    | inputTiles
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
 
 viewSegmentRef:
@@ -1316,13 +1320,13 @@ frameType:
     EQTOKEN_TEXTURE { frame->setType( eq::fabric::Frame::TYPE_TEXTURE ); }
     | EQTOKEN_MEMORY { frame->setType( eq::fabric::Frame::TYPE_MEMORY ); }
 
-inputFrame: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
+outputTiles: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
     tileQueueFields '}'
         {
             eqCompound->addOutputTileQueue( tileQueue );
             tileQueue = 0;
         }
-inputFrame: EQTOKEN_INPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
+inputTiles: EQTOKEN_INPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
     tileQueueFields '}'
         {
             eqCompound->addInputTileQueue( tileQueue );

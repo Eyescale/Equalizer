@@ -93,8 +93,14 @@ namespace fabric
         /** Set the index of the OpenCV camera for tracking. @version 1.5.2 */
         EQFABRIC_INL void setOpenCVCamera( const int32_t index );
 
-        /** @return the current OpenCV camera. @version 1.1 */
+        /** @return the current OpenCV camera. @version 1.5.2 */
         int32_t getOpenCVCamera() const { return _data.camera; }
+
+        /** Set the VRPN tracker device. @version 1.5.2 */
+        EQFABRIC_INL void setVRPNTracker( const std::string& index );
+
+        /** @return the current VRPN tracker device name. @version 1.5.2 */
+        const std::string& getVRPNTracker() const { return _data.vrpnTracker; }
 
         /** @return the parent config of this observer. @version 1.0 */
         const C* getConfig() const { return _config; }
@@ -145,9 +151,9 @@ namespace fabric
             DIRTY_EYE_POSITION = Object::DIRTY_CUSTOM << 0,
             DIRTY_HEAD         = Object::DIRTY_CUSTOM << 1,
             DIRTY_FOCUS        = Object::DIRTY_CUSTOM << 2,
-            DIRTY_CAMERA       = Object::DIRTY_CUSTOM << 3,
+            DIRTY_TRACKER      = Object::DIRTY_CUSTOM << 3,
             DIRTY_OBSERVER_BITS =
-                DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_CAMERA |
+                DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_TRACKER |
                 DIRTY_OBJECT_BITS
         };
 
@@ -168,6 +174,7 @@ namespace fabric
             float focusDistance; //!< The current focal distance
             FocusMode focusMode; //!< The current focal distance mode
             int32_t camera; //!< The OpenCV camera used for head tracking
+            std::string vrpnTracker; //!< VRPN tracking device
         }
             _data, _backup;
 
