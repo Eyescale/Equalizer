@@ -37,7 +37,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
 # add helper stuff from CMakePackageConfigHelpers
   "@PACKAGE_INIT@\n"
   "\n"
-  "set(${CMAKE_PROJECT_NAME}_PREFIX_DIR ${PACKAGE_PREFIX_DIR})\n"
+  "set(${CMAKE_PROJECT_NAME}_PREFIX_DIR \${PACKAGE_PREFIX_DIR})\n"
 # reset before using them
   "set(_output_type)\n"
   "set(_out)\n"
