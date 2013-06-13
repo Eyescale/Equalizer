@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *               2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -124,10 +124,17 @@ TileEqualizer::TileEqualizer( const TileEqualizer& from )
 {
 }
 
+std::string TileEqualizer::_getQueueName() const
+{
+    std::ostringstream name;
+    name << "queue." << _name << (void*)this;
+    return name.str();
+}
+
 void TileEqualizer::_createQueues( Compound* compound )
 {
     _created = true;
-    const std::string name = std::string( "queue." ) + _name;
+    const std::string& name = _getQueueName();
     if( !_findQueue( name, compound->getOutputTileQueues( )))
     {
         TileQueue* output = new TileQueue;
@@ -146,7 +153,7 @@ void TileEqualizer::_createQueues( Compound* compound )
 
 void TileEqualizer::_destroyQueues( Compound* compound )
 {
-    const std::string name = std::string( "queue." ) + _name;
+    const std::string& name = _getQueueName();
     TileQueue* q = _findQueue( name, compound->getOutputTileQueues() );
     if ( q )
     {
