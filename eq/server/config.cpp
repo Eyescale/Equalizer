@@ -998,8 +998,8 @@ bool Config::_cmdInit( co::ICommand& cmd )
 
     const uint128_t initID = command.get< uint128_t >();
     const uint32_t requestID = command.get< uint32_t >();
-
     const bool result = _init( initID );
+
     if( !result )
         exit();
 

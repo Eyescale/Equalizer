@@ -49,10 +49,10 @@
 
 #include "compoundActivateVisitor.h"
 #include "compoundExitVisitor.h"
+#include "compoundUpdateActivateVisitor.h"
 
 namespace eq
 {
-
 namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_COMPOUND_") + #attr )
@@ -1168,6 +1168,10 @@ void Compound::restore()
 //---------------------------------------------------------------------------
 void Compound::update( const uint32_t frameNumber )
 {
+    // https://github.com/Eyescale/Equalizer/issues/76
+    CompoundUpdateActivateVisitor updateActivateVisitor( frameNumber );
+    accept( updateActivateVisitor );
+
     CompoundUpdateDataVisitor updateDataVisitor( frameNumber );
     accept( updateDataVisitor );
 
@@ -1490,7 +1494,7 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
     }
 }
 
-std::ostream& operator << (std::ostream& os, const Compound& compound)
+std::ostream& operator << ( std::ostream& os, const Compound& compound )
 {
     os << lunchbox::disableFlush << "compound" << std::endl;
     os << "{" << std::endl << lunchbox::indent;

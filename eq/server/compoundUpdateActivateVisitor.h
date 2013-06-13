@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,34 +15,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_COMPOUNDUPDATEDATAVISITOR_H
-#define EQSERVER_COMPOUNDUPDATEDATAVISITOR_H
+#ifndef EQSERVER_COMPOUNDUPDATEACTIVATEVISITOR_H
+#define EQSERVER_COMPOUNDUPDATEACTIVATEVISITOR_H
 
 #include "compoundVisitor.h" // base class
 #include "types.h"
 
-namespace eq
+namespace
 {
-namespace server
+class CompoundUpdateActivateVisitor : public eq::server::CompoundVisitor
 {
-    class Channel;
+public:
+    CompoundUpdateActivateVisitor( const uint32_t frameNumber )
+        : _frameNumber( frameNumber ), _taskID( 0 ) {}
+    virtual ~CompoundUpdateActivateVisitor() {}
 
-    /**
-     * The compound visitor updating the inherit data of a compound tree.
-     */
-    class CompoundUpdateDataVisitor : public CompoundVisitor
+    eq::server::VisitorResult visit( eq::server::Compound* compound )
     {
-    public:
-        CompoundUpdateDataVisitor( const uint32_t frameNumber );
-        virtual ~CompoundUpdateDataVisitor() {}
+        compound->setTaskID( ++_taskID );
+        compound->updateInheritData( _frameNumber );
+        return eq::server::TRAVERSE_CONTINUE;
+    }
 
-        /** Visit all compounds. */
-        virtual VisitorResult visit( Compound* compound );
-
-    private:
-        const uint32_t _frameNumber;
-        void _updateDrawFinish( Compound* compound );
-    };
+private:
+    const uint32_t _frameNumber;
+    uint32_t _taskID;
+};
 }
-}
-#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H
+#endif

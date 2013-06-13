@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -164,17 +164,17 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     _init();
 
     // find starting point of contiguous block
-    const ssize_t size = static_cast< ssize_t >( _times.size( ));
+    const ssize_t size = ssize_t( _times.size( ));
     ssize_t       from = 0;
     if( size > 0 )
     {
         for( ssize_t i = size-1; i >= 0; --i )
         {
-            if( _times[i].second != 0.f )
-                continue;
-
-            from = i;
-            break;
+            if( _times[i].second == 0.f )
+            {
+                from = i;
+                break;
+            }
         }
     }
 
@@ -186,6 +186,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     float maxTime  = 0.f;
 #endif
 
+    LBLOG( LOG_LB2 ) << "Searching " << from+1 << ".." << size << std::endl;
     for( ++from; from < size && nSamples < _nSamples; ++from )
     {
         const FrameTime& time = _times[from];
@@ -203,12 +204,12 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     }
 
     if( nSamples == _nSamples )       // If we have a full set
-        while( from < static_cast< ssize_t >( _times.size( )))
+        while( from < ssize_t( _times.size( )))
             _times.pop_back();            //  delete all older samples
+    // always execute code above to not leak memory
 
     if( isFrozen() || !compound->isActive() || !isActive( ))
     {
-        // always execute code above to not leak memory
         compound->setMaxFPS( std::numeric_limits< float >::max( ));
         return;
     }
@@ -231,12 +232,13 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
             compound->setMaxFPS( fps );
 
         LBLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/"
-                        << _times.size() << " samples, " << time << "ms"
-                        << std::endl;
+                         << _times.size() << " samples, " << time << "ms"
+                         << std::endl;
     }
 
-    _times.push_front( FrameTime( frameNumber, 0.f ));
-    LBASSERT( _times.size() < 210 );
+    if( frameNumber > 0 )
+        _times.push_front( FrameTime( frameNumber, 0.f ));
+    LBASSERT( _times.size() < 10 );
 }
 
 void FramerateEqualizer::LoadListener::notifyLoadData(
