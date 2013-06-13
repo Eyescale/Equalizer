@@ -708,6 +708,12 @@ server
             tile_equalizer {}
 
             compound {}
+            compound { channel "channel2" outputframe {} }
+            compound { channel "channel3" outputframe {} }
+            compound { channel "channel4" outputframe {} }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
         }
 
         compound
