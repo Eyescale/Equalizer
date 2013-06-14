@@ -8,10 +8,6 @@ endif()
 string(TOUPPER ${CPACK_PROJECT_NAME} UPPER_PROJECT_NAME)
 string(TOLOWER ${CPACK_PROJECT_NAME} LOWER_PROJECT_NAME)
 
-set(CMAKE_PACKAGE_VERSION "" CACHE
-  STRING "Additional build version for packages")
-mark_as_advanced(CMAKE_PACKAGE_VERSION)
-
 if(NOT CPACK_PACKAGE_NAME)
   set(CPACK_PACKAGE_NAME ${CPACK_PROJECT_NAME})
 endif()
@@ -88,6 +84,29 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   find_program(DEB_EXE debuild)
 endif()
 
+# Auto-package-version magic
+include(revision)
+set(CMAKE_PACKAGE_VERSION "" CACHE
+  STRING "Additional build version for packages")
+mark_as_advanced(CMAKE_PACKAGE_VERSION)
+
+if(GIT_REVISION)
+  if(NOT PACKAGE_VERSION_REVISION STREQUAL GIT_REVISION)
+    if(PACKAGE_VERSION_REVISION)
+      if(CMAKE_PACKAGE_VERSION)
+        math(EXPR CMAKE_PACKAGE_VERSION "${CMAKE_PACKAGE_VERSION} + 1")
+      else()
+        set(CMAKE_PACKAGE_VERSION "1")
+      endif()
+    else()
+      set(CMAKE_PACKAGE_VERSION "")
+    endif()
+    set(CMAKE_PACKAGE_VERSION ${CMAKE_PACKAGE_VERSION} CACHE STRING
+      "Additional build version for packages" FORCE)
+  endif()
+  set(PACKAGE_VERSION_REVISION ${GIT_REVISION} CACHE INTERNAL "" FORCE)
+endif()
+
 # Heuristics to figure out cpack generator
 if(MSVC)
   set(CPACK_GENERATOR "NSIS")
@@ -127,6 +146,8 @@ else()
     # dpkg requires lowercase package names
     string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_DEBIAN_PACKAGE_NAME)
 
+    set(CPACK_DEBIAN_PACKAGE_VERSION
+      "${CPACK_PACKAGE_VERSION}~${CPACK_PACKAGE_NAME_EXTRA}${LSB_RELEASE}")
     set(CPACK_PACKAGE_FILE_NAME
       "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}~${CPACK_PACKAGE_NAME_EXTRA}${LSB_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
 

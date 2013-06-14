@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -53,7 +53,7 @@ protected:
     virtual void notifyChildRemove( Compound* compound, Compound* child ) {}
 
 private:
-
+    std::string _getQueueName() const;
     void _destroyQueues( Compound* compound );
     void _createQueues( Compound* compound );
 

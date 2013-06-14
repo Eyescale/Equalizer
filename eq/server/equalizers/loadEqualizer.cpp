@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -342,6 +342,8 @@ void LoadEqualizer::_updateLeaf( Node* node )
     LBASSERT( channel );
     const PixelViewport& pvp = channel->getPixelViewport();
     node->resources = compound->isActive() ? compound->getUsage() : 0.f;
+    LBLOG( LOG_LB2 ) << channel->getName() << " active " << compound->isActive()
+                     << " using " << node->resources << std::endl;
     LBASSERT( node->resources >= 0.f );
 
     node->maxSize.x() = pvp.w;
@@ -560,7 +562,8 @@ void LoadEqualizer::_computeSplit()
     const float time = float( _getTotalTime( ));
     LBLOG( LOG_LB2 ) << "Render time " << time << " for "
                      << _tree->resources << " resources" << std::endl;
-    _computeSplit( _tree, time, sortedData, Viewport(), Range( ));
+    if( _tree->resources > 0.f )
+        _computeSplit( _tree, time, sortedData, Viewport(), Range( ));
 }
 
 void LoadEqualizer::_removeEmpty( LBDatas& items )
