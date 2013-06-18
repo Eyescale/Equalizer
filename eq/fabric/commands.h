@@ -194,7 +194,6 @@ namespace fabric
 
     enum ViewCommand
     {
-        CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 15
         CMD_VIEW_CUSTOM = CMD_OBJECT_CUSTOM + 5
     };
 /** @endcond */

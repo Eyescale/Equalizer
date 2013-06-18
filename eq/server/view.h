@@ -98,7 +98,6 @@ namespace server
 
     protected:
         /** @internal */
-        virtual void attach( const UUID& id, const uint32_t instanceID );
         virtual void deserialize( co::DataIStream&, const uint64_t );
         virtual void notifyAttached() { _updateChannels(); }
 
@@ -111,9 +110,6 @@ namespace server
 
         void _updateChannels() const;
         float _computeFocusRatio( Vector3f& eye );
-
-        /** The command functions. */
-        bool _cmdFreezeLoadBalancing( co::ICommand& command );
     };
 }
 }
