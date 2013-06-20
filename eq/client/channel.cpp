@@ -53,6 +53,7 @@
 #include <co/exception.h>
 #include <co/objectICommand.h>
 #include <co/queueSlave.h>
+#include <co/sendToken.h>
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/plugins/compressor.h>
@@ -1499,8 +1500,6 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     LBASSERTINFO( sentBytes == imageDataSize,
         sentBytes << " != " << imageDataSize );
 #endif
-
-    getLocalNode()->releaseSendToken( token );
 }
 
 void Channel::_setReady( const bool async, detail::RBStat* stat )
