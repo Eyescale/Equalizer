@@ -89,8 +89,8 @@ public:
                                             0,  // TODO: get channel index wrt view
                                             offsX, offsY, pvp.w, pvp.h,
                                             width, height );
-        dcStreamSend( _dcSocket, _buffer, offsX, offsY, pvp.w, 0, pvp.h, RGBA,
-                      parameters );
+        _isRunning = dcStreamSend( _dcSocket, _buffer, offsX, offsY, pvp.w, 0,
+                                   pvp.h, RGBA, parameters );
     }
 
     DcSocket* _dcSocket;
