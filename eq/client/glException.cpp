@@ -20,9 +20,10 @@
 
 namespace eq
 {
-std::ostream& operator << ( std::ostream& os, const GLException& e )
+const char* GLException::what() const throw()
 {
-    return os << static_cast< const Exception& >( e ) << glError( e.glError );
+    std::stringstream os;
+    os << Exception::what() << " " << eq::glError( glError );
+    return os.str().c_str();
 }
-
 }
