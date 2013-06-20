@@ -56,7 +56,7 @@ Observer< C, O >::BackupData::BackupData()
     : headMatrix( Matrix4f::IDENTITY )
     , focusDistance( 1.f )
     , focusMode( FOCUSMODE_FIXED )
-    , camera( AUTO )
+    , camera( OFF )
 {
     for( size_t i = 0; i < NUM_EYES; ++i )
         eyePosition[ i ] = Vector3f::ZERO;
