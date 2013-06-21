@@ -89,6 +89,7 @@ public:
                                             0,  // TODO: get channel index wrt view
                                             offsX, offsY, pvp.w, pvp.h,
                                             width, height );
+        dcStreamIncrementFrameIndex();
         _isRunning = dcStreamSend( _dcSocket, _buffer, offsX, offsY, pvp.w, 0,
                                    pvp.h, RGBA, parameters );
     }
