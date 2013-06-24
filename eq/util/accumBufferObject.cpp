@@ -121,20 +121,21 @@ bool AccumBufferObject::resize( const PixelViewport& pvp )
 void AccumBufferObject::_setup( const PixelViewport& pvp )
 {
     bind();
-    glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT );
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0, pvp.w, 0, pvp.h, -1, 1);
-    glScissor(0, 0, pvp.w, pvp.h);
-    glViewport(0, 0, pvp.w, pvp.h);
-
+    EQ_GL_CALL( glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT |
+                              GL_TRANSFORM_BIT ));
+    EQ_GL_CALL( glMatrixMode(GL_PROJECTION));
+    EQ_GL_CALL( glPushMatrix());
+    EQ_GL_CALL( glLoadIdentity());
+    EQ_GL_CALL( glOrtho(0, pvp.w, 0, pvp.h, -1, 1));
+    EQ_GL_CALL( glScissor(0, 0, pvp.w, pvp.h));
+    EQ_GL_CALL( glViewport(0, 0, pvp.w, pvp.h));
 }
 
 void AccumBufferObject::_reset()
 {
-    glPopMatrix();
-    glPopAttrib();
+    EQ_GL_CALL( glMatrixMode(GL_PROJECTION));
+    EQ_GL_CALL( glPopMatrix());
+    EQ_GL_CALL( glPopAttrib());
     unbind();
 }
 
