@@ -85,7 +85,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 # Auto-package-version magic
-include(revision)
+include(Revision)
 set(CMAKE_PACKAGE_VERSION "" CACHE
   STRING "Additional build version for packages")
 mark_as_advanced(CMAKE_PACKAGE_VERSION)
