@@ -514,12 +514,14 @@ void Channel::frameViewFinish( const uint128_t& )
 
 void Channel::setupAssemblyState()
 {
+    EQ_GL_CALL( bindFrameBuffer( ));
     const PixelViewport& pvp = getPixelViewport();
     Compositor::setupAssemblyState( pvp, glewGetContext( ));
 }
 
 void Channel::resetAssemblyState()
 {
+    EQ_GL_CALL( bindFrameBuffer( ));
     Compositor::resetAssemblyState();
 }
 
