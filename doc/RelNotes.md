@@ -48,8 +48,8 @@ and documentation changes over the Equalizer 1.4 release:
   head tracking using OpenCV
 * [196](https://github.com/Eyescale/Equalizer/issues/196): Asymmetric
   eye position
-* [194](https://github.com/Eyescale/Equalizer/issues/194):
-  Runtime-Changeable Segment Frusta
+* [194](https://github.com/Eyescale/Equalizer/issues/194): Runtime
+  changeable segment frusta
 * [189](https://github.com/Eyescale/Equalizer/issues/189): Runtime
   changeable equalizer properties
 * [133](https://github.com/Eyescale/Equalizer/issues/133): VRPN head tracking
@@ -63,58 +63,79 @@ and documentation changes over the Equalizer 1.4 release:
 * [153](https://github.com/Eyescale/Equalizer/issues/153): GLEW 1.9.0 update
 * [150](https://github.com/Eyescale/Equalizer/issues/150): Spacemouse
   Linux support
+* [110](https://github.com/Eyescale/Equalizer/issues/110): Refactored
+  statistics handling into external GLStats library
+* [166](https://github.com/Eyescale/Equalizer/issues/166): Custom HMD projection
+* [222](https://github.com/Eyescale/Equalizer/issues/222): Add default
+  frustum on canvas
 
 ## Optimizations {#Optimizations}
 
-*
+* No optimizations
 
-## Tools {#Tools}
+## Examples {#Examples}
 
-* New coNodePerf application to benchmark node-to-node messaging performance
+* eqPly: removed serial Flock of Birds tracker support, superseeded by
+  OpenCV and VRPN tracking support
 
 ## Documentation {#Documentation}
 
 The following documentation has been added or substantially improved
 since the last release:
 
-* Full documentation for the public Collage API
-* Expanded Collage content in the Equalizer Programming and User Guide
+* Full documentation for the public Equalizer API
+* Expanded content in the Equalizer Programming and User Guide
 
 ## Bug Fixes {#Fixes}
 
-Collage 1.0 includes various bugfixes over the Equalizer 1.4 release,
-including the following:
+Equalizer 1.6 includes various bugfixes over the 1.4 release, including
+the following:
 
-* [22](https://github.com/Eyescale/Collage/issues/22): Crash during
-  concurrent object deregister and map
-* [13](https://github.com/Eyescale/Collage/issues/13): Global argument
-  parsing broken
+* [138](https://github.com/Eyescale/Equalizer/issues/138),
+  [174](https://github.com/Eyescale/Equalizer/issues/174),
+  [177](https://github.com/Eyescale/Equalizer/issues/177),
+  [183](https://github.com/Eyescale/Equalizer/issues/183): Shared
+  rendering context setup bugs
+* [192](https://github.com/Eyescale/Equalizer/issues/192):
+  Auto-configured server connections are not removed
+* [203](https://github.com/Eyescale/Equalizer/issues/203): Sequel: crash
+  on failed window initialization
+* [201](https://github.com/Eyescale/Equalizer/issues/201): util::Accum
+  broken for operations with offset
+* [217](https://github.com/Eyescale/Equalizer/issues/217): Auto image
+  compressor allocation always uses lossy downloader data
+* [76](https://github.com/Eyescale/Equalizer/issues/76):
+  7-window.DPLEX.2D.lb.eqc does not load-balance
+* [187](https://github.com/Eyescale/Equalizer/issues/187): TileEqualizer
+  queue linking broken
 
 ## Known Bugs {#Bugs}
 
-The following bugs were known at release time. Please file a [Bug Report](https://github.com/Eyescale/Collage/issues) if you find any other issue with this release.
+The following bugs were known at release time. Please file a
+[Bug Report](https://github.com/Eyescale/Equalizer/issues) if you find
+any other issue with this release.
 
-* [16](https://github.com/Eyescale/Collage/issues/16): RSP Interface not
-  bound on Linux
-* [15](https://github.com/Eyescale/Collage/issues/15): RDMAConnection
-  not endian-safe
-* [14](https://github.com/Eyescale/Collage/issues/14): coNetperf server
-  occasionally crashes on client disconnect
-* [3](https://github.com/Eyescale/Collage/issues/3): Snappy compressor
-  does not work on PPC
-* [2](https://github.com/Eyescale/Collage/issues/2): Multiple dispatcher
-  inheritance not working with xlC
+* [77](https://github.com/Eyescale/Equalizer/issues/77):
+  7-window.DB.PIXEL.eqc broken
+* [78](https://github.com/Eyescale/Equalizer/issues/78): AGL: assertion
+  on interaction with multiple GPUs
+* [17](https://github.com/Eyescale/Equalizer/issues/17): AGL: Window
+  close does not work
+* [19](https://github.com/Eyescale/Equalizer/issues/19): zoom readback with FBO
+* [18](https://github.com/Eyescale/Equalizer/issues/18): zoom: depth
+  readback does not work
 
 # About {#About}
 
-Collage is a cross-platform library, designed to run on any modern
+Equalizer is a cross-platform framework, designed to run on any modern
 operating system, including all Unix variants and the Windows operating
-system. Collage uses CMake and
+system. Equalizer requires at least [OpenGL 1.1](http://www.opengl.org),
+but uses newer OpenGL features when available. Equalizer uses CMake and
 [Buildyard](https://github.com/Eyescale/Buildyard) to create a
 platform-specific build environment. The following platforms and build
-environments are tested for version 1.0:
+environments are tested for version 1.6:
 
-* Linux: Ubuntu 12.04, 12.10, RHEL 6.3 (Makefile, i386, x64)
+* Linux: Ubuntu 12.04, 12.10, RHEL 6.4 (Makefile, i386, x64)
 * Windows: 7 (Visual Studio 2008, i386, x64)
 * Mac OS X: 10.8 (Makefile, XCode, i386, x64)
 
@@ -123,7 +144,7 @@ programming. The API documentation can be found on
 [github](http://eyescale.github.com/).
 
 As with any open source project, the available source code, in
-particular the shipped tools provide a reference for developing or
+particular the shipped examples provide a reference for developing or
 porting applications.
 
 Technical questions can be posted to the eq-dev Mailing List, or

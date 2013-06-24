@@ -15,7 +15,7 @@ mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
-include(revision)
+include(Revision)
 
 set(RELEASE_VERSION 160) # OFF or 'Mm0' ABI version
 set(LAST_RELEASE 1.6.0)
