@@ -167,11 +167,6 @@ bool View::handleEvent( const Event& event )
     return false;
 }
 
-void View::freezeLoadBalancing( const bool onOff )
-{
-    send( getServer(), fabric::CMD_VIEW_FREEZE_LOAD_BALANCING ) << onOff;
-}
-
 }
 
 #include "../fabric/view.ipp"

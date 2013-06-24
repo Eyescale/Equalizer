@@ -918,7 +918,7 @@ void Config::_freezeLoadBalancing( const bool onOff )
 {
     View* view = _getCurrentView();
     if ( view )
-        view->freezeLoadBalancing( onOff );
+        view->getEqualizer().setFrozen( onOff );
 }
 
 void Config::_adjustEyeBase( const float delta )

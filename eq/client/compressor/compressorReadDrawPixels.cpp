@@ -34,6 +34,7 @@ namespace plugin
 
 namespace
 {
+int _warned = 0;
 static stde::hash_map< unsigned, unsigned > _depths;
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
@@ -461,6 +462,11 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
             glFlush(); // Fixes https://github.com/Eyescale/Equalizer/issues/118
             return;
         }
+        if( _warned < 10 )
+        {
+            LBWARN << "Can't initialize PBO for async readback" << std::endl;
+            ++_warned;
+        }
 #else  // else async RB through texture
         const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
         _initAsyncTexture( glewContext, pvp.w, pvp.h );
@@ -470,7 +476,7 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
 #endif
         // else
 
-        LBWARN << "Can't initialize PBO for async readback" << std::endl;
+
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
                                   _format, _type, _buffer.getData( )));

@@ -657,7 +657,8 @@ WARN_LOGFILE           =
 
 INPUT = @CMAKE_INSTALL_PREFIX@/include/eq \
         @CMAKE_INSTALL_PREFIX@/include/seq \
-        @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples
+        @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples \
+        @CMAKE_SOURCE_DIR@/doc
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -873,7 +874,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = doc/html
+HTML_OUTPUT            = @CMAKE_BINARY_DIR@/doc/html
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
@@ -1371,7 +1372,7 @@ GENERATE_MAN           = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `man' will be used as the default path.
 
-MAN_OUTPUT             = man
+MAN_OUTPUT             = @CMAKE_BINARY_DIR@/doc/man
 
 # The MAN_EXTENSION tag determines the extension that is added to
 # the generated man pages (default is the subroutine's section .3)
@@ -1677,7 +1678,7 @@ GROUP_GRAPHS           = YES
 # collaboration diagrams in a style similar to the OMG's Unified Modeling
 # Language.
 
-UML_LOOK               = NO
+UML_LOOK               = YES
 
 # If the UML_LOOK tag is enabled, the fields and methods are shown inside
 # the class node. If there are many fields or methods and many nodes the

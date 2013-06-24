@@ -23,9 +23,6 @@
 
 namespace eq
 {
-    class GLException;
-    EQ_API std::ostream& operator << ( std::ostream& os, const GLException& e );
-
     /** OpenGL Exception. */
     class GLException : public Exception
     {
@@ -34,12 +31,7 @@ namespace eq
         GLException( const uint32_t glError_ )
                 : Exception( GL_ERROR ), glError( glError_ ) {}
 
-        virtual const char* what() const throw()
-        {
-            std::stringstream os;
-            os << *this;
-            return os.str().c_str();
-        }
+        EQ_API virtual const char* what() const throw();
 
         const uint32_t glError;
     };

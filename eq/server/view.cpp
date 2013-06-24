@@ -66,15 +66,6 @@ View::~View()
     _channels.clear();
 }
 
-void View::attach( const UUID& id, const uint32_t instanceID )
-{
-    Super::attach( id, instanceID );
-
-    co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
-    registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING,
-                     ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
-}
-
 namespace
 {
 class FrustumUpdater : public ConfigVisitor
@@ -141,39 +132,6 @@ public:
 private:
     View* const _view;
     uint64_t _capabilities;
-};
-
-class FreezeVisitor : public ConfigVisitor
-{
-public:
-    FreezeVisitor( const View* view, const bool freeze )
-            : _view( view ), _freeze( freeze )
-        {}
-
-    // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    virtual VisitorResult visit( Compound* compound )
-    {
-        const Channel* dest = compound->getInheritChannel();
-        if( !dest )
-            return TRAVERSE_CONTINUE;
-
-        if( dest->getView() != _view )
-            return TRAVERSE_PRUNE;
-
-        const Equalizers& equalizers = compound->getEqualizers();
-        for( Equalizers::const_iterator i = equalizers.begin();
-            i != equalizers.end(); ++i )
-        {
-            (*i)->setFrozen( _freeze );
-        }
-        return TRAVERSE_CONTINUE;
-    }
-
-private:
-    const View* const _view;
-    const bool _freeze;
 };
 
 class UseEqualizerVisitor : public ConfigVisitor
@@ -506,14 +464,6 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( distance == std::numeric_limits< float >::max( ))
         return 1.f;
     return focusDistance / distance;
-}
-
-bool View::_cmdFreezeLoadBalancing( co::ICommand& command )
-{
-    FreezeVisitor visitor( this, command.get< bool >( ));
-    getConfig()->accept( visitor );
-
-    return true;
 }
 
 }

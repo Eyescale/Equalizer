@@ -20,15 +20,10 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
-
-#include <eq/client/base.h>
-#include <eq/util/base.h>
-#include <eq/fabric/base.h>
-#include <co/co.h>
-
+#  include <eq/client/base.h>
+#  include <eq/util/base.h>
+#  include <eq/fabric/base.h>
+#  include <co/co.h>
 #pragma warning(pop)
 
-/** \mainpage Equalizer API Documentation
-    \htmlinclude "doc/RelNotes.dox"
-*/
 #endif // EQ_H
