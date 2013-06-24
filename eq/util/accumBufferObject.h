@@ -121,6 +121,7 @@ private:
 
     Texture* _texture;
     PixelViewport _pvp;
+    int _previousFBO;
 };
 }
 }

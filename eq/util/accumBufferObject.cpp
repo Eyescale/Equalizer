@@ -29,6 +29,7 @@ AccumBufferObject::AccumBufferObject( const GLEWContext* glewContext )
     : FrameBufferObject( glewContext )
     , _texture( 0 )
     , _pvp( 0, 0, 0, 0 )
+    , _previousFBO( 0 )
 {
 }
 
@@ -120,6 +121,7 @@ bool AccumBufferObject::resize( const PixelViewport& pvp )
 
 void AccumBufferObject::_setup( const PixelViewport& pvp )
 {
+    EQ_GL_CALL( glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, &_previousFBO ));
     bind();
     EQ_GL_CALL( glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT |
                               GL_TRANSFORM_BIT ));
@@ -136,7 +138,7 @@ void AccumBufferObject::_reset()
     EQ_GL_CALL( glMatrixMode(GL_PROJECTION));
     EQ_GL_CALL( glPopMatrix());
     EQ_GL_CALL( glPopAttrib());
-    unbind();
+    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _previousFBO ));
 }
 
 void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
