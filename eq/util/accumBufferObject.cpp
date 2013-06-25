@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
@@ -154,7 +153,7 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
     texture->applyWrap();
     texture->applyZoomFilter( FILTER_NEAREST );
 
-    glColor3f( value, value, value );
+    glColor4f( value, value, value, value );
 
     const float startX = static_cast< float >( pvp.x );
     const float endX   = static_cast< float >( pvp.x + pvp.w );

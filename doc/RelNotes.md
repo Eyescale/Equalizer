@@ -108,6 +108,10 @@ the following:
   7-window.DPLEX.2D.lb.eqc does not load-balance
 * [187](https://github.com/Eyescale/Equalizer/issues/187): TileEqualizer
   queue linking broken
+* [199](https://github.com/Eyescale/Equalizer/issues/199): Alpha value
+  wrong in eq::util::Accum::display
+* [233](https://github.com/Eyescale/Equalizer/issues/233): Monitor
+  equalizer with FBO sources leads to crash
 
 ## Known Bugs {#Bugs}
 
