@@ -82,7 +82,7 @@ public:
         const int32_t width = pvp.w / vp.w;
         const int32_t height = pvp.h / vp.h;
         const int32_t offsX = vp.x * width;
-        const int32_t offsY = vp.y * height;
+        const int32_t offsY = height - (vp.y * height + vp.h * height);
 
         const DcStreamParameters parameters =
                 dcStreamGenerateParameters( _channel->getView()->getName(),
