@@ -11,8 +11,3 @@ add_subdirectory(admin)
 add_subdirectory(server)
 
 install(FILES eq.h DESTINATION include/eq COMPONENT dev)
-
-configure_file(Equalizer.pc.in ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc
-        DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT lib)
-
