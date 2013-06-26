@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
@@ -119,7 +119,7 @@ if(GLEW_MX_FOUND)
 endif()
 
 install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
-  COMPONENT eqdev)
+  COMPONENT dev)
 
 if(HWLOC_GL_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
@@ -156,9 +156,9 @@ else()
 endif()
 
 
+include(DoxygenRule) # must be after all targets
 include(CPackConfig)
 include(PackageConfig)
-include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179

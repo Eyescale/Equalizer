@@ -145,16 +145,18 @@ set_target_properties(EqualizerServer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
 if (MSVC)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerServer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerServer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerServer.pdb
+    DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerServer.pdb
+    DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
 endif()
 
 install(TARGETS EqualizerServer
-        ARCHIVE DESTINATION lib COMPONENT eqdev
-        RUNTIME DESTINATION bin COMPONENT eqlib
-        LIBRARY DESTINATION lib COMPONENT eqlib)
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
 if(EQUALIZER_INSTALL_SERVER_HEADERS)
-  install(FILES ${HEADERS} DESTINATION include/eq/server COMPONENT eqdev)
+  install(FILES ${HEADERS} DESTINATION include/eq/server COMPONENT dev)
 endif()
 
 source_group(equalizers REGULAR_EXPRESSION equalizers.*)

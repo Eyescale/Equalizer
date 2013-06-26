@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2013 Stefan Eilemann <eile@eyescale.ch>
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
@@ -45,7 +45,7 @@ else()
     add_definitions(-DGLEW_APPLE_GLX=1)
   endif(EQ_GLX_USED)
 
-  install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT eqdev)
+  install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT dev)
   message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked statically to Equalizer.")
 endif()
 

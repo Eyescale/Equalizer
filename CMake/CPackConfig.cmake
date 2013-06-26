@@ -9,45 +9,6 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/doc/RelNotes.md)
 set(CPACK_RESOURCE_FILE_README ${CPACK_PACKAGE_DESCRIPTION_FILE})
 
-set(CPACK_COMPONENTS_ALL eqlib eqdev seqlib seqdev man doc apps examples tools
-  data)
-
-set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Misc")
-set(CPACK_COMPONENT_UNSPECIFIED_DESCRIPTION "Miscellanous")
-
-set(CPACK_COMPONENT_EQDEV_DISPLAY_NAME "Equalizer Development Files")
-set(CPACK_COMPONENT_EQDEV_DESCRIPTION "Header and Library Files for Equalizer Development")
-set(CPACK_COMPONENT_EQDEV_DEPENDS eqlib)
-
-set(CPACK_COMPONENT_SEQLIB_DISPLAY_NAME "Sequel Libraries")
-set(CPACK_COMPONENT_SEQLIB_DESCRIPTION "Sequel Runtime Libraries, a simple interface for Equalizer")
-set(CPACK_COMPONENT_SEQLIB_DEPENDS eqlib)
-
-set(CPACK_COMPONENT_SEQDEV_DISPLAY_NAME "Sequel Development Files")
-set(CPACK_COMPONENT_SEQDEV_DESCRIPTION "Header and Library Files for Sequel Development, a simple interface for Equalizer")
-set(CPACK_COMPONENT_SEQDEV_DEPENDS eqdev seqlib)
-
-set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Man Pages")
-set(CPACK_COMPONENT_MAN_DESCRIPTION "Manual Pages")
-
-set(CPACK_COMPONENT_DOC_DISPLAY_NAME "Documentation")
-set(CPACK_COMPONENT_DOC_DESCRIPTION "Auxiliary Documentation: README, License, etc.")
-
-set(CPACK_COMPONENT_APPS_DISPLAY_NAME "Example Applications")
-set(CPACK_COMPONENT_APPS_DESCRIPTION "Example programs build with Equalizer")
-set(CPACK_COMPONENT_APPS_DEPENDS seqlib data)
-
-set(CPACK_COMPONENT_EXAMPLES_DISPLAY_NAME "Examples Source Code")
-set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "Source code of example programs")
-set(CPACK_COMPONENT_EXAMPLES_DEPENDS seqdev data)
-
-set(CPACK_COMPONENT_TOOLS_DISPLAY_NAME "Tools")
-set(CPACK_COMPONENT_TOOLS_DESCRIPTION "Utility programs for Equalizer")
-set(CPACK_COMPONENT_TOOLS_DEPENDS eqlib)
-
-set(CPACK_COMPONENT_DATA_DISPLAY_NAME "Data files")
-set(CPACK_COMPONENT_DATA_DESCRIPTION "Example configuration files and data sets")
-
 set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
   libboost-date-time-dev libboost-regex-dev libboost-serialization-dev

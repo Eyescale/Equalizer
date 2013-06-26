@@ -88,7 +88,7 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
 
-install(DIRECTORY configs DESTINATION share/Equalizer COMPONENT data
+install(DIRECTORY configs DESTINATION share/Equalizer COMPONENT examples
   FILES_MATCHING PATTERN "*.eqc"  PATTERN "issue*" EXCLUDE)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)

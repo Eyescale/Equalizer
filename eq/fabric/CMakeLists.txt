@@ -11,17 +11,19 @@ set_target_properties(EqualizerFabric
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
 install(FILES ${EQ_FABRIC_PUBLIC_HEADERS}
-  DESTINATION include/eq/fabric COMPONENT eqdev)
+  DESTINATION include/eq/fabric COMPONENT dev)
 
 if (MSVC)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerFabric.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerFabric.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerFabric.pdb
+    DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerFabric.pdb
+    DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
 endif()
 
 install(TARGETS EqualizerFabric
-        ARCHIVE DESTINATION lib COMPONENT eqdev
-        RUNTIME DESTINATION bin COMPONENT eqlib
-        LIBRARY DESTINATION lib COMPONENT eqlib)
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
 
 source_group(\\ REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)

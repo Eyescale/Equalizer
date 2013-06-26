@@ -1,7 +1,7 @@
 
 # Path : libs/client/CMakeLists.txt
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
 #               2011 Cedric Stalder <cedric.stalder@gmail.ch>
 
 if(EQUALIZER_USE_MAGELLAN)
@@ -94,29 +94,32 @@ target_link_libraries(Equalizer ${GLEW_LIBRARY} ${EQ_LIBRARIES})
 set_target_properties(Equalizer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install_files(include/eq/client FILES ${CLIENT_HEADERS}  COMPONENT eqdev)
-install_files(include/eq/util FILES ${UTIL_HEADERS} COMPONENT eqdev)
+install_files(include/eq/client FILES ${CLIENT_HEADERS}  COMPONENT dev)
+install_files(include/eq/util FILES ${UTIL_HEADERS} COMPONENT dev)
 
 if (MSVC)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/Equalizer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS Debug)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Equalizer.pdb DESTINATION bin COMPONENT lib CONFIGURATIONS RelWithDebInfo)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/Equalizer.pdb
+    DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Equalizer.pdb
+    DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
 endif()
 
 install(TARGETS Equalizer
-        ARCHIVE DESTINATION lib COMPONENT eqdev
-        RUNTIME DESTINATION bin COMPONENT eqlib
-        LIBRARY DESTINATION lib COMPONENT eqlib)
-install(FILES ${OPTIONS_CMAKE} DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
+install(FILES ${OPTIONS_CMAKE} DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
+  COMPONENT dev)
 install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h ${DEFINES_FILE}
-  DESTINATION include/eq/client COMPONENT eqdev)
+  DESTINATION include/eq/client COMPONENT dev)
 # install version.h in old place for compatibility with old FindEqualizer
 install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h
-  DESTINATION include/eq COMPONENT eqdev)
+  DESTINATION include/eq COMPONENT dev)
 update_file(${DEFINES_FILE}
   ${CMAKE_BINARY_DIR}/include/eq/client/defines${SYSTEM}.h)
 
 option(EQUALIZER_OLD_CLIENT_LAYOUT
   "Install header files as in v1.0 directory layout" OFF)
 if(EQUALIZER_OLD_CLIENT_LAYOUT)
-  install(FILES ${CLIENT_HEADERS} DESTINATION include/eq/ COMPONENT eqdev)
+  install(FILES ${CLIENT_HEADERS} DESTINATION include/eq/ COMPONENT dev)
 endif()

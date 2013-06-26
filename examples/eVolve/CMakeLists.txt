@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -44,4 +44,4 @@ eq_add_example(eVolve
   )
 
 install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
-  DESTINATION share/Equalizer/data COMPONENT data)
+  DESTINATION share/Equalizer/data COMPONENT apps)
