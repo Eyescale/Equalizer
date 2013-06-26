@@ -102,6 +102,9 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 #ifdef AGL
     GetCurrentEventQueue();
 #endif
+#ifdef GLX
+    ::XInitThreads();
+#endif
 
 #ifdef EQ_USE_PARACOMP
     LBINFO << "Initializing Paracomp library" << std::endl;
