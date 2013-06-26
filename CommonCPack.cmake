@@ -50,9 +50,9 @@ endif()
 # Default component definition
 if(NOT CPACK_COMPONENTS_ALL)
   if(RELEASE_VERSION)
-    set(CPACK_COMPONENTS_ALL lib dev apps examples)
+    set(CPACK_COMPONENTS_ALL lib dev doc apps examples)
   else()
-    set(CPACK_COMPONENTS_ALL unspecified lib dev apps examples)
+    set(CPACK_COMPONENTS_ALL unspecified lib dev doc apps examples)
   endif()
 
   set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
@@ -67,6 +67,10 @@ if(NOT CPACK_COMPONENTS_ALL)
   set(CPACK_COMPONENT_DEV_DESCRIPTION
     "Header and Library Files for ${CPACK_PROJECT_NAME} Development")
   set(CPACK_COMPONENT_DEV_DEPENDS lib)
+
+  set(CPACK_COMPONENT_DOC_DISPLAY_NAME "${CPACK_PROJECT_NAME} Documentation")
+  set(CPACK_COMPONENT_DOC_DESCRIPTION "${CPACK_PROJECT_NAME} Documentation")
+  set(CPACK_COMPONENT_DOC_DEPENDS lib)
 
   set(CPACK_COMPONENT_APPS_DISPLAY_NAME "${CPACK_PROJECT_NAME} Applications")
   set(CPACK_COMPONENT_APPS_DESCRIPTION "${CPACK_PROJECT_NAME} Applications")
