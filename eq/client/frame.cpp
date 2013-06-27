@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -174,8 +174,9 @@ void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 {
     LBASSERT( _impl->frameData );
     const PixelViewport& pvp = _impl->frameData->getPixelViewport();
-    const Images& images = _impl->frameData->startReadback( *this, glObjects, config,
-                                                      PixelViewports( 1, pvp ));
+    const Images& images =
+        _impl->frameData->startReadback( *this, glObjects, config,
+                                         PixelViewports( 1, pvp ));
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
 }
@@ -184,18 +185,18 @@ void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
     LBASSERT( _impl->frameData );
-    const Images& images = _impl->frameData->startReadback( *this, glObjects, config,
-                                                      regions );
+    const Images& images =
+        _impl->frameData->startReadback( *this, glObjects, config, regions );
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
 }
 
 Images Frame::startReadback( ObjectManager* glObjects,
-                           const DrawableConfig& config,
-                           const PixelViewports& regions )
+                             const DrawableConfig& config,
+                             const PixelViewports& regions )
 {
     LBASSERT( _impl->frameData );
-    return _impl->frameData->startReadback(  *this, glObjects, config, regions );
+    return _impl->frameData->startReadback( *this, glObjects, config, regions );
 }
 
 void Frame::setReady()
