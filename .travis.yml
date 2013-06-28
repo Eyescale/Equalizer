@@ -6,7 +6,7 @@ language: cpp
 script:
  - git clone --depth 10 https://github.com/Eyescale/Buildyard.git
  - cd Buildyard
- - git clone --depth 10 git@github.com:Eyescale/config.git config.eyescale
+ - git clone --depth 10 https://github.com/Eyescale/config.git config.eyescale
  - env TRAVIS=1 make -j8 Equalizer-test ARGS=-V
 before_install:
  - sudo apt-get update -qq
