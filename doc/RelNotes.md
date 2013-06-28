@@ -7,9 +7,7 @@ Release Notes {#mainpage}
 
 Welcome to Equalizer, the standard middleware to create and deploy
 parallel, scalable OpenGL applications. This release introduces major
-new features, most notably asynchronous readbacks, region of interest
-and thread affinity for increased performance during scalable
-rendering.
+new features, most notably integrated head tracking using VRPN or OpenCV.
 
 Equalizer 1.6 is a feature release extending the 1.0 API, distilling
 over eight years of development and decades of experience into a

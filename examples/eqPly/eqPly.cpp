@@ -68,8 +68,7 @@ static const std::string _help(
     std::string( "\t\tp:                         Add passive stereo window\n" ) +
     std::string( "\t\tx:                         Remove window\n" ) +
     std::string( "\t\ty, Y:                      Adjust model unit\n" ) +
-    std::string( "\t\tz, Z:                      Adjust eye base\n" )
-                               );
+    std::string( "\t\tz, Z:                      Adjust eye base\n" ));
 }
 
 const std::string& EqPly::getHelp()
