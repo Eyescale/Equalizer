@@ -57,6 +57,10 @@ set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 
+if(NOT DOC_DIR)
+  set(DOC_DIR share/${CMAKE_PROJECT_NAME}/doc)
+endif()
+
 if(MSVC)
   set(CMAKE_MODULE_INSTALL_PATH ${CMAKE_PROJECT_NAME}/CMake)
 else()
@@ -64,9 +68,6 @@ else()
 endif()
 
 # Boost settings
-if(BOOST_ROOT)
-  set(Boost_NO_SYSTEM_PATHS TRUE)
-endif()
 set(Boost_NO_BOOST_CMAKE ON CACHE BOOL "Enable fix for FindBoost.cmake" )
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 add_definitions(-DBoost_NO_BOOST_CMAKE) # Fix for CMake problem in FindBoost
@@ -107,9 +108,6 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
   endif()
-elseif(EXISTS ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec)
-  configure_file(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec
-    ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.spec @ONLY)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

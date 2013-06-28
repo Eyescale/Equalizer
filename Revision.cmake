@@ -1,5 +1,9 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
+if(GIT_REVISION)
+  return()
+endif()
+
 set(GIT_REVISION 0)
 
 if(CMAKE_VERSION VERSION_LESS 2.8)

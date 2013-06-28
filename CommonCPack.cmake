@@ -13,6 +13,9 @@ if(NOT CPACK_PACKAGE_NAME)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.in.spec
+    ${CMAKE_SOURCE_DIR}/CMake/${CMAKE_PROJECT_NAME}.spec @ONLY)
+
   string(TOLOWER ${CPACK_PACKAGE_NAME} LOWER_PACKAGE_NAME_PREFIX)
   set(CPACK_PACKAGE_NAME "${LOWER_PACKAGE_NAME_PREFIX}${VERSION_ABI}")
   set(OLD_PACKAGES)
@@ -47,9 +50,9 @@ endif()
 # Default component definition
 if(NOT CPACK_COMPONENTS_ALL)
   if(RELEASE_VERSION)
-    set(CPACK_COMPONENTS_ALL lib dev apps examples)
+    set(CPACK_COMPONENTS_ALL lib dev doc apps examples)
   else()
-    set(CPACK_COMPONENTS_ALL unspecified lib dev apps examples)
+    set(CPACK_COMPONENTS_ALL unspecified lib dev doc apps examples)
   endif()
 
   set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
@@ -64,6 +67,10 @@ if(NOT CPACK_COMPONENTS_ALL)
   set(CPACK_COMPONENT_DEV_DESCRIPTION
     "Header and Library Files for ${CPACK_PROJECT_NAME} Development")
   set(CPACK_COMPONENT_DEV_DEPENDS lib)
+
+  set(CPACK_COMPONENT_DOC_DISPLAY_NAME "${CPACK_PROJECT_NAME} Documentation")
+  set(CPACK_COMPONENT_DOC_DESCRIPTION "${CPACK_PROJECT_NAME} Documentation")
+  set(CPACK_COMPONENT_DOC_DEPENDS lib)
 
   set(CPACK_COMPONENT_APPS_DISPLAY_NAME "${CPACK_PROJECT_NAME} Applications")
   set(CPACK_COMPONENT_APPS_DESCRIPTION "${CPACK_PROJECT_NAME} Applications")
@@ -85,7 +92,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 # Auto-package-version magic
-include(revision)
+include(Revision)
 set(CMAKE_PACKAGE_VERSION "" CACHE
   STRING "Additional build version for packages")
 mark_as_advanced(CMAKE_PACKAGE_VERSION)
