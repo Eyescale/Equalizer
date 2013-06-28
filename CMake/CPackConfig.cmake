@@ -20,7 +20,7 @@ set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.6-dev, libspnav-dev, ${EQ_IB_PACKAGES}, ${COLLAGE_DEB_DEV_DEPENDENCY}, ${HWSD_DEB_DEPENDENCIES}, ${GLSTATS_DEB_DEV_DEPENDENCY}, ${LUNCHBOX_DEB_DEV_DEPENDENCY}, ${VMMLIB_DEB_DEPENDENCIES}")
 
 set(CPACK_MACPORTS_CATEGORY graphics)
-set(CPACK_MACPORTS_DEPENDS boost hwsd Lunchbox VMMLIB)
+set(CPACK_MACPORTS_DEPENDS boost hwsd GLStats Collage Lunchbox VMMLIB)
 
 set(UBUNTU_LP_BUG 300472)
 include(CommonCPack)
