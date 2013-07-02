@@ -80,6 +80,7 @@ if(BIGENDIAN)
 endif()
 
 include(Compiler) # compiler-specific default options and warnings
+include(TestFinalOverride)
 
 if(MSVC)
   add_definitions(

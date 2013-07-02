@@ -36,6 +36,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
   endif()
 
+  if(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
+    if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    else()
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif()
+  endif()
+
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
