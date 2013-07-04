@@ -287,8 +287,8 @@ Images FrameData::startReadback( const Frame& frame,
     }
     //else read only required regions
 
-// TODO: issue #85: move automatic ROI detection to eq::Channel
 #if 0
+    // TODO: issue #85: move automatic ROI detection to eq::Channel
     PixelViewports regions;
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         regions = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
@@ -313,6 +313,7 @@ Images FrameData::startReadback( const Frame& frame,
             images.push_back( image );
 
         pvp -= frame.getOffset();
+        pvp.apply( zoom );
         image->setOffset( (pvp.x - framePVP.x) * pixel.w,
                           (pvp.y - framePVP.y) * pixel.h );
     }

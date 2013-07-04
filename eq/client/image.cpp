@@ -595,7 +595,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
         const uint64_t inDims[4] = { 0ull, uint64_t( texture->getWidth( )),
                                      0ull, uint64_t( texture->getHeight( )) };
         if( downloader.start( &memory.pixels, inDims, flags, outDims,
-                               texture->getName(), gl ))
+                              texture->getName(), gl ))
         {
             return true;
         }
@@ -772,11 +772,10 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     LBLOG( LOG_ASSEMBLY ) << "Scale " << _impl->pvp << " -> " << pvp << std::endl;
 
-// BUG:
-// TODO: this is a bug in case of color and depth buffers read-back, as _impl->pvp
-//       will be incorrect for the depth buffer!
-//
-//       This should be done separately for color an depth buffers!
+    // BUG TODO: this is a bug in case of color and depth buffers read-back, as
+    // _impl->pvp will be incorrect for the depth buffer!
+    //
+    // This should be done separately for color an depth buffers!
     _impl->pvp = pvp;
 
     LBLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )

@@ -7,5 +7,6 @@ set(HEADERS
 )
 
 if(EQUALIZER_INSTALL_SERVER_HEADERS)
-  install(FILES ${HEADERS} DESTINATION include/eq/server/equalizers COMPONENT eqdev)
+  install(FILES ${HEADERS} DESTINATION include/eq/server/equalizers
+    COMPONENT dev)
 endif()

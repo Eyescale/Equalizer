@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
@@ -71,7 +71,7 @@ eq_add_example(eqPly
     ${EQUALIZER_ADMIN_LIBRARY}
   )
 
-install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)
 
 if(MSVC) # the custom command below doesn't work on VS
   return()
@@ -85,7 +85,7 @@ function(INSTALL_PLY IN OUT) # + command
     DEPENDS "${IN}" eqPlyConverter
     COMMENT "Creating eqPly kd-Tree for ${IN}"
     )
-  install(FILES ${OUT} DESTINATION share/Equalizer/data COMPONENT data)
+  install(FILES ${OUT} DESTINATION share/Equalizer/data COMPONENT apps)
 endfunction()
 
 set(PLY_FILES rockerArm.ply screwdriver.ply)
@@ -121,6 +121,6 @@ foreach(PLY_FILE ${PLY_FILES})
     install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
       "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
   endif()
-  install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT data)
+  install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT apps)
 endforeach()
-install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)

@@ -44,13 +44,6 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
-        static bool threadInit = false;
-        if( !threadInit )
-        {
-            XInitThreads();
-            threadInit = true;
-        }
-
         LBINFO << "Using glx::Pipe" << std::endl;
         return new Pipe(pipe);
     }

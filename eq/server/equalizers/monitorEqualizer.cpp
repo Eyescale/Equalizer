@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -48,7 +48,7 @@ public:
     virtual VisitorResult visit( const Compound* compound )
         {
             const Frames& outputFrames = compound->getOutputFrames();
-            for( Frames::const_iterator i = outputFrames.begin(); 
+            for( Frames::const_iterator i = outputFrames.begin();
                  i != outputFrames.end(); ++i )
             {
                 Frame* frame = *i;
@@ -92,7 +92,7 @@ void MonitorEqualizer::attach( Compound* compound )
     Equalizer::attach( compound );
 }
 
-void MonitorEqualizer::notifyUpdatePre( Compound* compound, 
+void MonitorEqualizer::notifyUpdatePre( Compound* compound,
                                         const uint32_t frameNumber )
 {
     _updateViewports();
@@ -109,7 +109,7 @@ void MonitorEqualizer::_updateViewports()
         return;
 
     const Frames& inputFrames = compound->getInputFrames();
-    for( Frames::const_iterator i = inputFrames.begin(); 
+    for( Frames::const_iterator i = inputFrames.begin();
          i != inputFrames.end(); ++i )
     {
         const Frame* frame = *i;
@@ -119,21 +119,21 @@ void MonitorEqualizer::_updateViewports()
         OutputFrameFinder frameFinder( frame->getName() );
         root->accept( frameFinder );
         Frame* outputFrame = frameFinder.getResult();
-        
+
         _outputFrames.push_back( outputFrame );
         _viewports.push_back( eq::Viewport::FULL );
-        
+
         if( outputFrame )
         {
             const Channel* channel = outputFrame->getChannel();
             const Segment* segment = channel->getSegment();
             const View* view =  channel->getView();
-        
+
             if( view )
             {
                 Viewport viewport( segment->getViewport( ));
                 viewport.intersect( view->getViewport( ));
-                
+
                 _viewports.back() = viewport;
             }
         }
@@ -147,7 +147,7 @@ void MonitorEqualizer::_updateZoomAndOffset()
 
     const Frames& inputFrames( compound->getInputFrames( ));
     const size_t size( inputFrames.size( ));
-    LBASSERTINFO( size == _outputFrames.size(), 
+    LBASSERTINFO( size == _outputFrames.size(),
                   size << " != " << _outputFrames.size( ));
     LBASSERT( size == _viewports.size( ));
 
@@ -165,17 +165,14 @@ void MonitorEqualizer::_updateZoomAndOffset()
         const int32_t offsetX = int32_t( float( pvp.w ) * viewport.x );
         const int32_t offsetY = int32_t( float( pvp.h ) * viewport.y );
         frame->setNativeOffset( Vector2i( offsetX, offsetY ));
-        
+
         // compute and apply output frame zoom
         const int32_t width   = int32_t( float( pvp.w ) * viewport.w );
-        const int32_t height  = int32_t( float( pvp.h ) * viewport.h ) ; 
-
+        const int32_t height  = int32_t( float( pvp.h ) * viewport.h ) ;
         const PixelViewport& srcPVP( srcCompound->getInheritPixelViewport( ));
-        const float factorW = float( width ) / float( srcPVP.w );
-        const float factorH = float( height ) / float( srcPVP.h );
-            
-        const Zoom newZoom( factorW, factorH );
-        outputFrame->setNativeZoom( newZoom );
+        const Zoom zoom( float( width ) / float( srcPVP.w ),
+                         float( height ) / float( srcPVP.h ));
+        outputFrame->setNativeZoom( zoom );
     }
 }
 

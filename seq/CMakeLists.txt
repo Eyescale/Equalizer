@@ -1,4 +1,4 @@
-# Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2013 Stefan Eilemann <eile@eyescale.ch>
 
 set(DETAIL_FILES
     detail/application.cpp
@@ -50,8 +50,8 @@ target_link_libraries(Sequel Equalizer)
 set_target_properties(Sequel
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install(FILES ${SEQUEL_HEADERS} DESTINATION include/seq COMPONENT seqdev)
+install(FILES ${SEQUEL_HEADERS} DESTINATION include/seq COMPONENT dev)
 install(TARGETS Sequel
-        ARCHIVE DESTINATION lib COMPONENT seqdev
-        RUNTIME DESTINATION bin COMPONENT seqlib
-        LIBRARY DESTINATION lib COMPONENT seqlib)
+        ARCHIVE DESTINATION lib COMPONENT dev
+        RUNTIME DESTINATION bin COMPONENT lib
+        LIBRARY DESTINATION lib COMPONENT lib)
