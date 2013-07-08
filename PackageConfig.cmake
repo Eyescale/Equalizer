@@ -50,7 +50,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
-  "  set_and_check(${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include)\n"
+  "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -186,6 +186,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "find_package(${_dependent} ${${${_dependent}_name}_VERSION} ${${${_dependent}_name}_findmode} \${_req} \${_quiet})\n"
     "if(${${_dependent}_name}_FOUND)\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
+    "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
     "  set(_fail TRUE)\n"
     "endif()\n\n")
