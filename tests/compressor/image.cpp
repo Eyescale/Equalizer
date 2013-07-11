@@ -67,8 +67,9 @@ static void _compare( const void* data, const void* destData,
 {
     const T* destValue = reinterpret_cast< const T* >( destData );
     const T* value = reinterpret_cast< const T* >( data );
+    double error = 0.;
 
-#pragma omp parallel for
+#pragma omp parallel for reduction(+ : error)
     for( int64_t k = 0; k < nElem; ++k )
     {
         if( !useAlpha && buffer == eq::Frame::BUFFER_COLOR )
@@ -78,10 +79,14 @@ static void _compare( const void* data, const void* destData,
                 continue;
         }
 
-        const float max = ( 1.f - quality ) * std::numeric_limits< T >::max();
-        TESTINFO( ::fabs( float( value[k] ) - float( destValue[k] ) ) <= max,
-                  "Comparison of initial data and decompressed data failed" );
+        error += ::abs( double( value[k] ) - double( destValue[k] ));
     }
+
+    const double max = ( 1.f - quality ) * std::numeric_limits< T >::max() *
+                       double( nElem );
+    TESTINFO( error <= max,
+              "Comparison of initial data and decompressed data failed" <<
+              ", error " << error << " max " << max );
 }
 }
 
