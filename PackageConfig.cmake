@@ -180,15 +180,27 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   if(${${_dependent}_name}_VERSION)
     set(${${_dependent}_name}_findmode EXACT)
     set(_FIND_VERSION "${${${_dependent}_name}_VERSION}")
+    set(_FIND_MAX_VERSION "${${${_dependent}_name}_VERSION}")
+
     if("${_FIND_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)")
       set(_FIND_VERSION "${CMAKE_MATCH_1}")
     endif()
   else()
     set(${${_dependent}_name}_findmode REQUIRED)
+    set(_FIND_VERSION)
   endif()
   list(APPEND DEPENDENTS
-    "find_package(${_dependent} ${_FIND_VERSION} ${${${_dependent}_name}_findmode} \${_req} \${_quiet})\n"
-    "if(${${_dependent}_name}_FOUND)\n"
+    "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
+    "if(${${_dependent}_name}_FOUND)\n")
+  if(_FIND_VERSION)
+    list(APPEND DEPENDENTS
+      "  if(\"${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
+      "    if(CMAKE_MATCH_1 VERSION_GREATER ${_FIND_VERSION})\n"
+      "      message(FATAL_ERROR \"${${_dependent}_name} ${${${_dependent}_name}_VERSION} not compatible with ${_FIND_VERSION}\")\n"
+      "    endif()\n"
+      "  endif()\n")
+  endif()
+  list(APPEND DEPENDENTS
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
