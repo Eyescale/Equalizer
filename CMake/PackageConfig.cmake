@@ -49,7 +49,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "@DEPENDENTS@"
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
-  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})\n"
+  "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
   "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -179,11 +179,15 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   endif()
   if(${${_dependent}_name}_VERSION)
     set(${${_dependent}_name}_findmode EXACT)
+    set(_FIND_VERSION "${${${_dependent}_name}_VERSION}")
+    if("${_FIND_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)")
+      set(_FIND_VERSION "${CMAKE_MATCH_1}")
+    endif()
   else()
     set(${${_dependent}_name}_findmode REQUIRED)
   endif()
   list(APPEND DEPENDENTS
-    "find_package(${_dependent} ${${${_dependent}_name}_VERSION} ${${${_dependent}_name}_findmode} \${_req} \${_quiet})\n"
+    "find_package(${_dependent} ${_FIND_VERSION} ${${${_dependent}_name}_findmode} \${_req} \${_quiet})\n"
     "if(${${_dependent}_name}_FOUND)\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
@@ -208,7 +212,7 @@ configure_package_config_file(
 # create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${VERSION} COMPATIBILITY AnyNewerVersion)
+  VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
 
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake
