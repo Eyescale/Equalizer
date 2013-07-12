@@ -26,6 +26,6 @@ find_library(LibJpegTurbo_LIBRARY
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
-set(LibJpegTurbo_PROCESS_INCLUDES LibJpegTurbo_INCLUDE_DIR)
-set(LibJpegTurbo_PROCESS_LIBS LibJpegTurbo_LIBRARY)
+set(LibJpegTurbo_PROCESS_INCLUDES ${LibJpegTurbo_INCLUDE_DIR})
+set(LibJpegTurbo_PROCESS_LIBS ${LibJpegTurbo_LIBRARY})
 libfind_process(LibJpegTurbo)

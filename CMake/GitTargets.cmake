@@ -62,32 +62,32 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
 
    # Create or move tag
    execute_process(
-     COMMAND ${GIT_EXECUTABLE} tag -f release-${VERSION} ${TAG_BRANCH}
+     COMMAND ${GIT_EXECUTABLE} tag -f ${VERSION} ${TAG_BRANCH}
      COMMAND ${GIT_EXECUTABLE} push --tags
      RESULT_VARIABLE notdone WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
    if(notdone)
      message(FATAL_ERROR
-        \"Error creating tag release-${VERSION} on branch ${TAG_BRANCH}\")
+        \"Error creating tag ${VERSION} on branch ${TAG_BRANCH}\")
    endif()")
 
 add_custom_target(tag
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
-  COMMENT "Add tag release-${VERSION}"
+  COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 
 # remove tag
 add_custom_target(erase
-  COMMAND ${GIT_EXECUTABLE} tag -d release-${VERSION}
-  COMMAND ${GIT_EXECUTABLE} push origin :release-${VERSION}
-  COMMENT "Remove tag release-${VERSION}"
+  COMMAND ${GIT_EXECUTABLE} tag -d ${VERSION}
+  COMMAND ${GIT_EXECUTABLE} push origin :${VERSION}
+  COMMENT "Remove tag ${VERSION}"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 
 # move tag
 add_custom_target(retag
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
-  COMMENT "Add tag release-${VERSION}"
+  COMMENT "Add tag ${VERSION}"
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   DEPENDS erase)
 
@@ -100,7 +100,7 @@ set(TARBALL "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${LAST_RELEASE}.tar")
 add_custom_target(tarball-create
   COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
     --prefix ${CMAKE_PROJECT_NAME}-${LAST_RELEASE}/ -o ${TARBALL}
-    release-${LAST_RELEASE}
+    ${LAST_RELEASE}
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   COMMENT "Creating ${TARBALL}"
   )
