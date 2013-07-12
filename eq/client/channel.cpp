@@ -1009,18 +1009,25 @@ void Channel::drawStatistics()
 void Channel::outlineViewport()
 {
     setupAssemblyState();
+    glDisable( GL_LIGHTING );
+
+    const eq::PixelViewport& region = getRegion();
+    glColor3f( .5f, .5f, .5f );
+    glBegin( GL_LINE_LOOP ); {
+        glVertex3f( region.x + .5f,         region.y + .5f,         0.f );
+        glVertex3f( region.getXEnd() - .5f, region.y + .5f,         0.f );
+        glVertex3f( region.getXEnd() - .5f, region.getYEnd() - .5f, 0.f );
+        glVertex3f( region.x + .5f,         region.getYEnd() - .5f, 0.f );
+    } glEnd();
 
     const PixelViewport& pvp = getPixelViewport();
-    glDisable( GL_LIGHTING );
     glColor3f( 1.0f, 1.0f, 1.0f );
-    glBegin( GL_LINE_LOOP );
-    {
+    glBegin( GL_LINE_LOOP ); {
         glVertex3f( pvp.x + .5f,         pvp.y + .5f,         0.f );
         glVertex3f( pvp.getXEnd() - .5f, pvp.y + .5f,         0.f );
         glVertex3f( pvp.getXEnd() - .5f, pvp.getYEnd() - .5f, 0.f );
         glVertex3f( pvp.x + .5f,         pvp.getYEnd() - .5f, 0.f );
-    }
-    glEnd();
+    } glEnd();
 
     resetAssemblyState();
 }
@@ -1897,11 +1904,12 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const co::ObjectVersion& frameDataVersion = command.get< co::ObjectVersion >();
+    const co::ObjectVersion& frameDataVersion =
+        command.get< co::ObjectVersion >();
     const std::vector< uint128_t >& nodes =
-            command.get< std::vector< uint128_t > >();
+        command.get< std::vector< uint128_t > >();
     const std::vector< uint128_t >& netNodes =
-            command.get< std::vector< uint128_t > >();
+        command.get< std::vector< uint128_t > >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
     co::LocalNodePtr localNode = getLocalNode();

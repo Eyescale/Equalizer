@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -46,15 +46,15 @@ namespace eq
         /** @name Methods forwarded from eq::Pipe. */
         //@{
         /** Initialize the GPU. @version 1.0 */
-        EQ_API virtual bool configInit( ) = 0;
+        EQ_API virtual bool configInit() = 0;
 
         /** De-initialize the GPU. @version 1.0 */
-        EQ_API virtual void configExit( ) = 0;
+        EQ_API virtual void configExit() = 0;
         //@}
 
         /** @return the parent Pipe. @version 1.0 */
         Pipe* getPipe() { return _pipe; }
-        
+
         /** @return the parent Pipe. @version 1.0 */
         const Pipe* getPipe() const { return _pipe; }
 
@@ -64,7 +64,7 @@ namespace eq
     protected:
         /** @name Error information. */
         //@{
-        /** 
+        /**
          * Set an error code why the last operation failed.
          * @param error the error code.
          * @version 1.0
@@ -82,4 +82,3 @@ namespace eq
 }
 
 #endif // EQ_SYSTEM_PIPE_H
-
