@@ -208,7 +208,7 @@ configure_package_config_file(
 # create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${VERSION} COMPATIBILITY AnyNewerVersion)
+  VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY AnyNewerVersion)
 
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake
