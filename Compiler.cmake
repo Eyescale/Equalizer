@@ -55,18 +55,20 @@ elseif(CMAKE_COMPILER_IS_INTEL)
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
-  # default: Maintain code semantics
-  # Fix to link dynamically. On the next pass should add an if statement: if shared ...
-  # Setting Release flags and not using default CMake since the default were -O -NDEBUG
-  # By default, set flags for back end since this is the most common use case
-  OPTION(XLC_Backend "To compile using XLC compilers on blue gene compute nodes" ON)
-  if(XLC_Backend)
-    message("Using release configuration for back end compilation (Compute Nodes)")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink")
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink")
+  # default: Maintain code semantics Fix to link dynamically. On the
+  # next pass should add an if statement: 'if shared ...'.  Overriding
+  # default release flags since the default were '-O -NDEBUG'. By
+  # default, set flags for backend since this is the most common use
+  # case
+  OPTION(XLC_BACKEND "Compile for BlueGene compute nodes using XLC compilers"
+    ON)
+  if(XLC_BACKEND)
+    set(CMAKE_CXX_FLAGS_RELEASE
+      "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohota -qnostaticlink -NDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   else()
-    message("Using release configuration for front end compilation")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc")
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc")
+    set(CMAKE_CXX_FLAGS_RELEASE
+      "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -NDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   endif()
 endif()
