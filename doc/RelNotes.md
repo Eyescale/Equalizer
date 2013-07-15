@@ -164,3 +164,5 @@ available from [Eyescale](http://www.eyescale.ch). Please contact
 for further information.
 
 # Errata
+* [0f5afef](https://github.com/Eyescale/Equalizer/commit/0f5afef) Fix
+  PackageConfig generation to locate FindGLEW_MX
