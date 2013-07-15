@@ -47,11 +47,17 @@ elseif(CMAKE_COMPILER_IS_INTEL)
 elseif(CMAKE_COMPILER_IS_XLCXX)
   # default: Maintain code semantics
   # Fix to link dynamically. On the next pass should add an if statement: if shared ...
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict -qarch=qp -q64 -qnostaticlink -qnostaticlink=libgcc")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64 -qnostaticlink -qnostaticlink=libgcc") 
-
-  # adding -qnohot to avoid higher order optimization loops
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -qnohot")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -qnohot")
+  # Setting Release flags and not using default CMake since the default were -O -NDEBUG 
+  # By default, set flags for back end since this is the most common use case
+  OPTION(XLC_Backend "To compile using XLC compilers on blue gene compute nodes" ON)
+  if(XLC_Backend)
+    message("Using release configuration for back end compilation (Compute Nodes)")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink")
+  else()
+    message("Using release configuration for front end compilation")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc")
+  endif()
 endif()
 
