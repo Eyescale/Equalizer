@@ -117,6 +117,12 @@ The following bugs were known at release time. Please file a
 [Bug Report](https://github.com/Eyescale/Equalizer/issues) if you find
 any other issue with this release.
 
+* [232](https://github.com/Eyescale/Equalizer/issues/232): ROI with
+  monitor equalizer results in wrong compositing
+* [226](https://github.com/Eyescale/Equalizer/issues/226): Crash with
+  layout switch on multi GPU system
+* [167](https://github.com/Eyescale/Equalizer/issues/167): HWLOC:
+  Segmentation Fault with empty auto thread affinity mask
 * [77](https://github.com/Eyescale/Equalizer/issues/77):
   7-window.DB.PIXEL.eqc broken
 * [78](https://github.com/Eyescale/Equalizer/issues/78): AGL: assertion
