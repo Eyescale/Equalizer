@@ -21,6 +21,7 @@ else()
 endif()
 
 find_path(MAYA_ROOT_DIR include/maya/MLibrary.h
+  /usr/autodesk/maya2013-x64
   /usr/autodesk/maya2012-x64
   /usr/autodesk/maya8.5-x64
   /usr/autodesk/maya8.0-x64
