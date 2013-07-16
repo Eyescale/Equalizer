@@ -64,11 +64,11 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
     ON)
   if(XLC_BACKEND)
     set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohota -qnostaticlink -NDEBUG")
+      "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   else()
     set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -NDEBUG")
+      "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
     set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
   endif()
 endif()
