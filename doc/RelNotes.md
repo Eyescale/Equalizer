@@ -7,9 +7,7 @@ Release Notes {#mainpage}
 
 Welcome to Equalizer, the standard middleware to create and deploy
 parallel, scalable OpenGL applications. This release introduces major
-new features, most notably asynchronous readbacks, region of interest
-and thread affinity for increased performance during scalable
-rendering.
+new features, most notably integrated head tracking using VRPN or OpenCV.
 
 Equalizer 1.6 is a feature release extending the 1.0 API, distilling
 over eight years of development and decades of experience into a
@@ -119,6 +117,12 @@ The following bugs were known at release time. Please file a
 [Bug Report](https://github.com/Eyescale/Equalizer/issues) if you find
 any other issue with this release.
 
+* [232](https://github.com/Eyescale/Equalizer/issues/232): ROI with
+  monitor equalizer results in wrong compositing
+* [226](https://github.com/Eyescale/Equalizer/issues/226): Crash with
+  layout switch on multi GPU system
+* [167](https://github.com/Eyescale/Equalizer/issues/167): HWLOC:
+  Segmentation Fault with empty auto thread affinity mask
 * [77](https://github.com/Eyescale/Equalizer/issues/77):
   7-window.DB.PIXEL.eqc broken
 * [78](https://github.com/Eyescale/Equalizer/issues/78): AGL: assertion
@@ -160,3 +164,7 @@ available from [Eyescale](http://www.eyescale.ch). Please contact
 for further information.
 
 # Errata
+* [236](https://github.com/Eyescale/Equalizer/issues/236): Bug in
+  Equalizer.pc pkg-config file
+* [0f5afef](https://github.com/Eyescale/Equalizer/commit/0f5afef) Fix
+  PackageConfig generation to locate FindGLEW_MX
