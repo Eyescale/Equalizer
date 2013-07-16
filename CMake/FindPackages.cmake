@@ -3,7 +3,7 @@
 include(System)
 list(APPEND FIND_PACKAGES_DEFINES ${SYSTEM})
 
-find_package(vmmlib 1.6.0 REQUIRED)
+find_package(vmmlib 1.7.0 REQUIRED)
 if(vmmlib_FOUND)
   set(vmmlib_name vmmlib)
 endif()
