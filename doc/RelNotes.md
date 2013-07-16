@@ -164,5 +164,7 @@ available from [Eyescale](http://www.eyescale.ch). Please contact
 for further information.
 
 # Errata
+* [236](https://github.com/Eyescale/Equalizer/issues/236): Bug in
+  Equalizer.pc pkg-config file
 * [0f5afef](https://github.com/Eyescale/Equalizer/commit/0f5afef) Fix
   PackageConfig generation to locate FindGLEW_MX
