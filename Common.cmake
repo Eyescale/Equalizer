@@ -191,24 +191,3 @@ macro(add_library _target)
     set_property(GLOBAL APPEND PROPERTY ALL_LIB_TARGETS ${_target})
   endif()
 endmacro()
-
-# To install cmakecache.txt, environment and information about git repository
-function(install_buildparam)
-install (PROGRAMS "${CMAKE_BINARY_DIR}/CMakeCache.txt" DESTINATION
-share/${CMAKE_PROJECT_NAME}/CMake/BuildParams)
-execute_process(COMMAND env OUTPUT_VARIABLE environment)
-execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --pretty=format:%H OUTPUT_VARIABLE SHA1  
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-execute_process(COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url OUTPUT_VARIABLE GIT_URL  
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD OUTPUT_VARIABLE GIT_BRANCH 
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-# Test whether the local source tree is different from origin/master
-execute_process(COMMAND ${GIT_EXECUTABLE} diff origin/master...HEAD OUTPUT_VARIABLE GIT_DIFF_MASTER  
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-if("${GIT_DIFF_MASTER}" STREQUAL "")
-  set(GIT_DIFF_MASTER "Local source directory version in sync with remote origin/master")
-else()
-  set(GIT_DIFF_MASTER "Local source directory version not in sync with remote origin/master")
-endif()
-endfunction()
