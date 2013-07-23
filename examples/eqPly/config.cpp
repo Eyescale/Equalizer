@@ -30,7 +30,6 @@
 
 #include "config.h"
 #include "configEvent.h"
-
 #include "view.h"
 #include "modelAssigner.h"
 

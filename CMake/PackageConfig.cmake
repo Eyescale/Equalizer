@@ -38,6 +38,10 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "@PACKAGE_INIT@\n"
   "\n"
   "set(${CMAKE_PROJECT_NAME}_PREFIX_DIR \${PACKAGE_PREFIX_DIR})\n"
+  "if(CMAKE_VERSION VERSION_LESS 2.8.3) # WAR bug\n"
+  "  get_filename_component(CMAKE_CURRENT_LIST_DIR \${CMAKE_CURRENT_LIST_FILE} PATH)\n"
+  "endif()\n"
+  "list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})\n"
 # reset before using them
   "set(_output_type)\n"
   "set(_out)\n"
@@ -50,7 +54,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
   "if(NOT _fail)\n"
 # setup VERSION, INCLUDE_DIRS and DEB_DEPENDENCIES
   "  set(${UPPER_PROJECT_NAME}_VERSION ${VERSION})\n"
-  "  set_and_check(${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include)\n"
+  "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${CMAKE_PROJECT_NAME}_PREFIX_DIR}/include)\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEPENDENCIES \"${LOWER_PROJECT_NAME}${VERSION_ABI} (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_LIB_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-lib (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
   "  set(${UPPER_PROJECT_NAME}_DEB_DEV_DEPENDENCY \"${LOWER_PROJECT_NAME}${VERSION_ABI}-dev (>= ${VERSION_MAJOR}.${VERSION_MINOR})\")\n"
@@ -179,13 +183,30 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
   endif()
   if(${${_dependent}_name}_VERSION)
     set(${${_dependent}_name}_findmode EXACT)
+    set(_FIND_VERSION "${${${_dependent}_name}_VERSION}")
+    set(_FIND_MAX_VERSION "${${${_dependent}_name}_VERSION}")
+
+    if("${_FIND_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)")
+      set(_FIND_VERSION "${CMAKE_MATCH_1}")
+    endif()
   else()
     set(${${_dependent}_name}_findmode REQUIRED)
+    set(_FIND_VERSION)
   endif()
   list(APPEND DEPENDENTS
-    "find_package(${_dependent} ${${${_dependent}_name}_VERSION} ${${${_dependent}_name}_findmode} \${_req} \${_quiet})\n"
-    "if(${${_dependent}_name}_FOUND)\n"
+    "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
+    "if(${${_dependent}_name}_FOUND)\n")
+  if(_FIND_VERSION)
+    list(APPEND DEPENDENTS
+      "  if(\"${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
+      "    if(CMAKE_MATCH_1 VERSION_GREATER ${_FIND_VERSION})\n"
+      "      message(FATAL_ERROR \"${${_dependent}_name} ${${${_dependent}_name}_VERSION} not compatible with ${_FIND_VERSION}\")\n"
+      "    endif()\n"
+      "  endif()\n")
+  endif()
+  list(APPEND DEPENDENTS
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
+    "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
     "  set(_fail TRUE)\n"
     "endif()\n\n")
@@ -207,7 +228,7 @@ configure_package_config_file(
 # create and install ProjectConfigVersion.cmake
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}ConfigVersion.cmake
-  VERSION ${VERSION} COMPATIBILITY AnyNewerVersion)
+  VERSION ${VERSION_MAJOR}.${VERSION_MINOR} COMPATIBILITY SameMajorVersion)
 
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake

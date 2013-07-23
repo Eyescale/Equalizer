@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ namespace eqPly
         virtual ~FrameData() {};
 
         void reset();
-        
+
         /** @name Rendering flags. */
         //*{
         void setModelID( const eq::uint128_t& id );
@@ -134,7 +134,7 @@ namespace eqPly
         eq::Matrix4f _rotation;
         eq::Matrix4f _modelRotation;
         eq::Vector3f _position;
-        
+
         eq::uint128_t _modelID;
         mesh::RenderMode _renderMode;
         ColorMode        _colorMode;
@@ -154,4 +154,3 @@ namespace eqPly
 
 
 #endif // EQ_PLY_FRAMEDATA_H
-

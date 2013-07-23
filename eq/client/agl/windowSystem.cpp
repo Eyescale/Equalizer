@@ -43,7 +43,6 @@ namespace eq
 {
 namespace agl
 {
-
 static class : WindowSystemIF
 {
     std::string getName() const { return "AGL"; }

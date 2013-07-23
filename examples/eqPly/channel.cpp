@@ -632,40 +632,8 @@ void Channel::_drawModel( const Model* scene )
     else
         declareRegion( getPixelViewport( ));
 
-#ifndef NDEBUG // region border
-    const eq::PixelViewport& pvp = getPixelViewport();
-    const eq::PixelViewport& region = getRegion();
-
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-
-    const eq::View* currentView = getView();
-    if( frameData.getColorMode() == COLOR_DEMO )
-    {
-        const eq::Vector3ub color = getUniqueColor();
-        glColor3ub( color.r(), color.g(), color.b() );
-    }
-    else if( currentView &&
-             frameData.getCurrentViewID() == currentView->getID( ))
-    {
-        glColor3f( 0.f, 0.f, 0.f );
-    }
-    else
-        glColor3f( 1.f, 1.f, 1.f );
-    glNormal3f( 0.f, 0.f, 1.f );
-
-    const eq::Vector4f rect( float( region.x ) + .5f, float( region.y ) + .5f,
-                             float( region.getXEnd( )) - .5f,
-                             float( region.getYEnd( )) - .5f );
-    glBegin( GL_LINE_LOOP ); {
-        glVertex3f( rect[0], rect[1], -.99f );
-        glVertex3f( rect[2], rect[1], -.99f );
-        glVertex3f( rect[2], rect[3], -.99f );
-        glVertex3f( rect[0], rect[3], -.99f );
-    } glEnd();
+#ifndef NDEBUG
+    outlineViewport();
 #endif
 }
 
