@@ -1529,7 +1529,8 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp,
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_LINE_BIT |
-        GL_PIXEL_MODE_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT | GL_TRANSFORM_BIT);
+        GL_PIXEL_MODE_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT | GL_TRANSFORM_BIT |
+        GL_COLOR_BUFFER_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
