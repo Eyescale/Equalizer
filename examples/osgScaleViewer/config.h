@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *   2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -79,7 +79,7 @@ namespace osgScaleViewer
          */
         const InitData& getInitData() const;
 
-        bool mapData( const eq::uint128_t& initDataID );
+        bool loadInitData( const eq::uint128_t& initDataID );
 
     protected:
         void updateFrameData( float elapsed );

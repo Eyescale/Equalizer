@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- * Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
+ *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,8 +25,8 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
+
+
     Header file of the VertexBufferNode class.
 */
 
@@ -37,7 +37,7 @@
 
 #include "vertexBufferBase.h"
 
-namespace mesh 
+namespace mesh
 {
     /*  The class for regular (non-leaf) kd-tree nodes.  */
     class VertexBufferNode : public VertexBufferBase
@@ -46,23 +46,25 @@ namespace mesh
         VertexBufferNode() : _left( 0 ), _right( 0 ) {}
         virtual ~VertexBufferNode();
 
-        virtual void draw( VertexBufferState& state ) const;
-        virtual Index getNumberOfVertices() const
+        void draw( VertexBufferState& state ) const override;
+        Index getNumberOfVertices() const override
             {return _left->getNumberOfVertices()+_right->getNumberOfVertices();}
 
-        virtual const VertexBufferBase* getLeft() const { return _left; }
-        virtual const VertexBufferBase* getRight() const { return _right; }
+        const VertexBufferBase* getLeft() const override { return _left; }
+        const VertexBufferBase* getRight() const override { return _right; }
+        VertexBufferBase* getLeft() override { return _left; }
+        VertexBufferBase* getRight() override { return _right; }
 
     protected:
-        virtual void toStream( std::ostream& os );
-        virtual void fromMemory( char** addr, VertexBufferData& globalData );
+        void toStream( std::ostream& os ) override;
+        void fromMemory( char** addr, VertexBufferData& globalData ) override;
 
-        virtual void setupTree( VertexData& data, const Index start,
+        void setupTree( VertexData& data, const Index start,
                                 const Index length, const Axis axis,
-                                const size_t depth, 
-                                VertexBufferData& globalData );
-        virtual const BoundingSphere& updateBoundingSphere();
-        virtual void updateRange();
+                                const size_t depth,
+                                VertexBufferData& globalData ) override;
+        const BoundingSphere& updateBoundingSphere() override;
+        void updateRange() override;
 
     private:
         VertexBufferBase*   _left;

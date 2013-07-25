@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
     Config* config = static_cast< Config* >( getConfig( ));
-    if( !config->mapData( initID ))
+    if( !isApplicationNode() && !config->loadInitData( initID ))
     {
         setError( ERROR_EVOLVE_MAPOBJECT_FAILED );
         return false;

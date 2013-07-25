@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         return false;
 
     Config* config = static_cast< Config* >( getConfig( ));
-    if( !config->loadData( initID ))
+    if( !isApplicationNode() && !config->loadInitData( initID ))
     {
         setError( ERROR_EQPLY_MAPOBJECT_FAILED );
         return false;

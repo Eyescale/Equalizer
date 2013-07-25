@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,19 +34,16 @@
 
 namespace eqNbody
 {
-    class Node : public eq::Node
-    {
-    public:
-        Node( eq::Config* parent ) : eq::Node( parent ) {}
+class Node : public eq::Node
+{
+public:
+    Node( eq::Config* parent ) : eq::Node( parent ) {}
 
-    protected:
-        virtual ~Node(){}
+protected:
+    virtual ~Node(){}
 
-        virtual bool configInit( const eq::uint128_t& initID );
-        virtual bool configExit();
-
-    private:
-    };
+    virtual bool configInit( const eq::uint128_t& initID );
+};
 }
 
 #endif // EQNBODY_NODE_H

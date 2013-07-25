@@ -158,18 +158,10 @@ const InitData& Config::getInitData() const
     return _initData;
 }
 
-bool Config::mapData( const eq::uint128_t& initDataID )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
-    if( !_initData.isAttached( ))
-    {
-        LBCHECK( mapObject( &_initData, initDataID ) );
-        unmapObject( &_initData );
-    }
-    else
-    {
-        LBASSERT( _initData.getID() == initDataID );
-    }
-    return true;
+    LBASSERT( !_initData.isAttached( ));
+    return getClient()->syncObject( &_initData, getApplicationNode(), id );
 }
 
 bool Config::handleEvent( const eq::ConfigEvent* event )

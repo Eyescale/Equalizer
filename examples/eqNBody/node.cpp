@@ -40,22 +40,14 @@ bool Node::configInit( const eq::uint128_t& initID )
     if( !eq::Node::configInit( initID ))
         return false;
 
-    // All render data is static or multi-buffered, we can run
-    // asynchronously
+    // All render data is static or multi-buffered, we can run asynchronously
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
-    {
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
-    }
 
     Config* config = static_cast< Config* >( getConfig( ));
-    config->mapData( initID );
+    if( !isApplicationNode() && !config->loadInitData( initID ))
+        return false;
 
     return true;
-}
-bool Node::configExit()
-{
-    Config* config = static_cast< Config* >( getConfig( ));
-    config->releaseData();
-    return eq::Node::configExit();
 }
 }

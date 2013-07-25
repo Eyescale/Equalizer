@@ -2,8 +2,8 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@eyescale.ch>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *   2010-2013, Stefan Eilemann <eile@eyescale.ch>
+ *        2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         return false;
 
     Config* config = static_cast<Config*>( getConfig( ));
-    if( !config->mapData( initID ))
+    if( !isApplicationNode() && !config->loadInitData( initID ))
         return false;
 
     _frameStamp = new osg::FrameStamp;
@@ -66,7 +66,7 @@ bool Node::configInit( const eq::uint128_t& initID )
     if( !_model )
     {
         const InitData& initData = config->getInitData();
-        const std::string& modelFile = initData.getModelFileName();    
+        const std::string& modelFile = initData.getModelFileName();
         if( !modelFile.empty( ))
         {
             SceneReader sceneReader;
@@ -134,7 +134,7 @@ void Node::frameStart( const eq::uint128_t& frameID,
 osg::ref_ptr< osg::Node > Node::_createSceneGraph()
 {
     // init scene graph
-    osg::ref_ptr<osg::Group> root = _initSceneGraph(); 
+    osg::ref_ptr<osg::Group> root = _initSceneGraph();
 
     // draw a red quad
     Quad quad;
@@ -148,12 +148,12 @@ osg::ref_ptr< osg::Node > Node::_createSceneGraph(
     osg::ref_ptr< osg::Image > image )
 {
     // init scene graph
-    osg::ref_ptr<osg::Group> root = _initSceneGraph(); 
+    osg::ref_ptr<osg::Group> root = _initSceneGraph();
 
     // det the image as a texture
     osg::Texture2D* texture = new osg::Texture2D();
     texture->setImage( image );
-    
+
     // draw a textured quad
     Quad quad;
     osg::ref_ptr<osg::Node> geometryChild = quad.createQuad( image->s(),
@@ -183,7 +183,7 @@ osg::ref_ptr< osg::Group > Node::_initSceneGraph()
 
     // translation of lightsource (with light0)
     osg::Matrix matrix;
-    osg::ref_ptr<osg::MatrixTransform> lightTranslateNode = 
+    osg::ref_ptr<osg::MatrixTransform> lightTranslateNode =
              new osg::MatrixTransform();
 
     matrix.makeTranslate( 0.f, -5.f, 0.f );

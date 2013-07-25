@@ -68,29 +68,16 @@ bool Config::exit()
 
 void Config::_deregisterData()
 {
-    releaseData();
+    deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
     _initData.setFrameDataID( 0 );
 }
 
-
-void Config::mapData( const eq::uint128_t& initDataID )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
-    if( !_initData.isAttached( ))
-    {
-        LBCHECK( mapObject( &_initData, initDataID ));
-        releaseData(); // data was retrieved, unmap immediately
-    }
-    else  // appNode, _initData is registered already
-    {
-        LBASSERT( _initData.getID() == initDataID );
-    }
-}
-
-void Config::releaseData()
-{
-    releaseObject( &_initData );
+    LBASSERT( !_initData.isAttached( ));
+    return getClient()->syncObject( &_initData, getApplicationNode(), id );
 }
 
 uint32_t Config::startFrame()

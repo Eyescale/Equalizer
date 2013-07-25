@@ -73,19 +73,10 @@ bool Config::init()
     return true;
 }
 
-bool Config::mapData( const eq::uint128_t& initDataID )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
-    if( !_initData.isAttached() )
-    {
-        if( !mapObject( &_initData, initDataID ))
-            return false;
-        unmapObject( &_initData ); // data was retrieved, unmap immediately
-    }
-    else  // appNode, _initData is registered already
-    {
-        LBASSERT( _initData.getID() == initDataID );
-    }
-    return true;
+    LBASSERT( !_initData.isAttached( ));
+    return getClient()->syncObject( &_initData, getApplicationNode(), id );
 }
 
 bool Config::exit()
