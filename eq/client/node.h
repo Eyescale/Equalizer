@@ -31,302 +31,302 @@
 
 namespace eq
 {
+/**
+ * A Node represents a single computer in the cluster.
+ *
+ * Each node is executed in a separate process. Each process has only its local
+ * node instantiated, that is, it has at most instance of a Node and does not
+ * see other node instances. The application process may not have a node, which
+ * is the case when it does not contribute to the rendering.
+ *
+ * The eq::Node is not to be confused with the co::Node which represents the
+ * process in the underlying peer-to-peer network layer. The eq::Client and
+ * eq::Server are co::Nodes representing the local client and Equalizer server,
+ * respectively.
+ *
+ * @sa fabric::Node
+ */
+class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
+{
+public:
+    /** Construct a new node. @version 1.0 */
+    EQ_API Node( Config* parent );
+
+    /** Destruct the node. @version 1.0 */
+    EQ_API virtual ~Node();
+
+    /** @return the parent client node. @version 1.0 */
+    EQ_API ClientPtr getClient();
+
+    /** @return the parent server node. @version 1.0 */
+    EQ_API ServerPtr getServer();
+
+    EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+    EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
+
+    /** @internal node thread only. */
+    uint32_t getCurrentFrame() const { return _currentFrame.get(); }
+
     /**
-     * A Node represents a single computer in the cluster.
+     * @internal
+     * Get a network barrier.
      *
-     * Each node is executed in a separate process. Each process has only its
-     * local node instantiated, that is, it has at most instance of a Node and
-     * does not see other node instances. The application process may not have a
-     * node, which is the case when it does not contribute to the rendering.
-     *
-     * The eq::Node is not to be confused with the co::Node which
-     * represents the process in the underlying peer-to-peer network layer. The
-     * eq::Client and eq::Server are co::Nodes representing the local
-     * client and Equalizer server, respectively.
-     *
-     * @sa fabric::Node
+     * @param barrier the barrier identifier and version.
+     * @return the barrier.
      */
-    class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
+    co::Barrier* getBarrier( const co::ObjectVersion barrier );
+
+    /**
+     * @internal
+     * Get a frame data instance.
+     *
+     * @param frameDataVersion the frame data identifier and version.
+     * @return the frame.
+     */
+    FrameDataPtr getFrameData( const co::ObjectVersion& frameDataVersion );
+
+    /** @internal Release the frame data instance. */
+    void releaseFrameData( FrameDataPtr data );
+
+    /** @internal Wait for the node to be initialized. */
+    EQ_API void waitInitialized() const;
+
+    /**
+     * @return true if this node is running, false otherwise.
+     * @version 1.0
+     */
+    EQ_API bool isRunning() const;
+
+    /**
+     * @return true if this node is stopped, false otherwise.
+     * @version 1.0
+     */
+    EQ_API bool isStopped() const;
+
+    /**
+     * Wait for a frame to be started.
+     *
+     * Used by the pipe task methods to implement the current thread
+     * synchronization model.
+     *
+     * @param frameNumber the frame number.
+     * @sa releaseFrame()
+     * @version 1.0
+     */
+    EQ_API void waitFrameStarted( const uint32_t frameNumber ) const;
+
+    /** @internal @return the number of the last finished frame. */
+    uint32_t getFinishedFrame() const { return _finishedFrame; }
+
+    /**
+     * Process a received event.
+     *
+     * The task of this method is to update the node as necessary, and transform
+     * the event into a config event to be send to the application using
+     * Config::sendEvent().
+     *
+     * @param event the received event.
+     * @return true when the event was handled, false if not.
+     * @version 1.5.2
+     */
+    EQ_API virtual bool processEvent( const Event& event );
+
+    /** @internal */
+    class TransmitThread : public lunchbox::Thread
     {
     public:
-        /** Construct a new node. @version 1.0 */
-        EQ_API Node( Config* parent );
+        TransmitThread( Node* parent ) : _node( parent ) {}
+        virtual ~TransmitThread() {}
 
-        /** Destruct the node. @version 1.0 */
-        EQ_API virtual ~Node();
-
-        /** @return the parent client node. @version 1.0 */
-        EQ_API ClientPtr getClient();
-
-        /** @return the parent server node. @version 1.0 */
-        EQ_API ServerPtr getServer();
-
-        EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
-        EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
-
-        /** @internal node thread only. */
-        uint32_t getCurrentFrame() const { return _currentFrame.get(); }
-
-        /**
-         * @internal
-         * Get a network barrier.
-         *
-         * @param barrier the barrier identifier and version.
-         * @return the barrier.
-         */
-        co::Barrier* getBarrier( const co::ObjectVersion barrier );
-
-        /**
-         * @internal
-         * Get a frame data instance.
-         *
-         * @param frameDataVersion the frame data identifier and version.
-         * @return the frame.
-         */
-        FrameDataPtr getFrameData( const co::ObjectVersion& frameDataVersion );
-
-        /** @internal Release the frame data instance. */
-        void releaseFrameData( FrameDataPtr data );
-
-        /** @internal Wait for the node to be initialized. */
-        EQ_API void waitInitialized() const;
-
-        /**
-         * @return true if this node is running, false otherwise.
-         * @version 1.0
-         */
-        EQ_API bool isRunning() const;
-
-        /**
-         * @return true if this node is stopped, false otherwise.
-         * @version 1.0
-         */
-        EQ_API bool isStopped() const;
-
-        /**
-         * Wait for a frame to be started.
-         *
-         * Used by the pipe task methods to implement the current thread
-         * synchronization model.
-         *
-         * @param frameNumber the frame number.
-         * @sa releaseFrame()
-         * @version 1.0
-         */
-        EQ_API void waitFrameStarted( const uint32_t frameNumber ) const;
-
-        /** @internal @return the number of the last finished frame. */
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
-
-        /**
-         * Process a received event.
-         *
-         * The task of this method is to update the node as necessary, and
-         * transform the event into a config event to be send to the application
-         * using Config::sendEvent().
-         *
-         * @param event the received event.
-         * @return true when the event was handled, false if not.
-         * @version 1.5.2
-         */
-        EQ_API virtual bool processEvent( const Event& event );
-
-        /** @internal */
-        class TransmitThread : public lunchbox::Thread
-        {
-        public:
-            TransmitThread( Node* parent ) : _node( parent ) {}
-            virtual ~TransmitThread() {}
-
-            co::CommandQueue& getQueue() { return _queue; }
-
-        protected:
-            virtual void run();
-
-        private:
-            co::CommandQueue     _queue;
-            Node* const           _node;
-        } transmitter;
-
-        /** @internal @sa Serializable::setDirty() */
-        EQ_API virtual void setDirty( const uint64_t bits );
-
-        /** @internal */
-        EQ_API void dirtyClientExit();
+        co::CommandQueue& getQueue() { return _queue; }
 
     protected:
-        /** @internal */
-        EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
-
-        /** @name Actions */
-        //@{
-        /**
-         * Start a frame by unlocking all child resources.
-         *
-         * @param frameNumber the frame to start.
-         * @version 1.0
-         */
-        EQ_API void startFrame( const uint32_t frameNumber );
-
-        /**
-         * Signal the completion of a frame to the parent.
-         *
-         * @param frameNumber the frame to end.
-         * @version 1.0
-         */
-        EQ_API void releaseFrame( const uint32_t frameNumber );
-
-        /**
-         * Release the local synchronization of the parent for a frame.
-         *
-         * @param frameNumber the frame to release.
-         * @version 1.0
-         */
-        EQ_API void releaseFrameLocal( const uint32_t frameNumber );
-        //@}
-
-        /**
-         * @name Callbacks
-         *
-         * The callbacks are called by Equalizer during rendering to execute
-         * various actions.
-         */
-        //@{
-
-        /**
-         * Initialize this node.
-         *
-         * @param initID the init identifier.
-         * @version 1.0
-         */
-        EQ_API virtual bool configInit( const uint128_t&  initID );
-
-        /** Exit this node. @version 1.0 */
-        EQ_API virtual bool configExit();
-
-        /**
-         * Start rendering a frame.
-         *
-         * Called once at the beginning of each frame, to start the node's frame
-         * and to do per-frame updates of node-specific data. This method has to
-         * call startFrame(). Immediately releases local synchronization if the
-         * thread model is async.
-         *
-         * @param frameID the per-frame identifier.
-         * @param frameNumber the frame to start.
-         * @sa startFrame(), Config::beginFrame()
-         * @version 1.0
-         */
-        EQ_API virtual void frameStart( const uint128_t& frameID,
-                                        const uint32_t frameNumber );
-
-        /**
-         * Finish rendering a frame.
-         *
-         * Called once at the end of each frame, to end the frame and to do
-         * per-frame updates of node-specific data. This method has to call
-         * releaseFrame().
-         *
-         * @param frameID the per-frame identifier.
-         * @param frameNumber the frame to finish.
-         * @sa endFrame(), Config::finishFrame()
-         * @version 1.0
-         */
-        EQ_API virtual void frameFinish( const uint128_t& frameID,
-                                         const uint32_t frameNumber );
-
-        /**
-         * Finish drawing.
-         *
-         * Called once per frame after the last draw operation. Waits for the
-         * pipes to release the local synchonization and releases the node's
-         * local synchronization if the thread model is draw_sync (the default).
-         *
-         * @param frameID the per-frame identifier.
-         * @param frameNumber the frame finished with draw.
-         * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
-         * @version 1.0
-         */
-        EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
-                                             const uint32_t frameNumber );
-
-        /**
-         * Finish all rendering tasks.
-         *
-         * Called once per frame after all frame tasks.  Waits for the pipes to
-         * release the local synchonization and releases the node's local
-         * synchronization if the thread model is local_sync.
-         *
-         * Note that frameFinish is called after the latency is exhausted and
-         * synchronizes pipe thread execution.
-         *
-         * @param frameID the per-frame identifier.
-         * @param frameNumber the frame finished with draw.
-         * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
-         * @version 1.0
-         */
-        EQ_API virtual void frameTasksFinish( const uint128_t& frameID,
-                                              const uint32_t frameNumber );
-        //@}
+        virtual void run();
 
     private:
-        enum State
-        {
-            STATE_STOPPED,
-            STATE_INITIALIZING,
-            STATE_INIT_FAILED,
-            STATE_RUNNING,
-            STATE_FAILED
-        };
-        /** The configInit/configExit state. */
-        lunchbox::Monitor< State > _state;
+        co::CommandQueue     _queue;
+        Node* const           _node;
+    } transmitter;
 
-        /** The number of the last started frame. */
-        lunchbox::Monitor< uint32_t > _currentFrame;
+    /** @internal @sa Serializable::setDirty() */
+    EQ_API virtual void setDirty( const uint64_t bits );
 
-        /** The number of the last finished frame. */
-        uint32_t _finishedFrame;
+    /** @internal */
+    EQ_API void dirtyClientExit();
 
-        /** The number of the last locally released frame. */
-        uint32_t _unlockedFrame;
+protected:
+    /** @internal */
+    EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
 
-        typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
-        /** All barriers mapped by the node. */
-        lunchbox::Lockable< BarrierHash > _barriers;
+    /** @name Actions */
+    //@{
+    /**
+     * Start a frame by unlocking all child resources.
+     *
+     * @param frameNumber the frame to start.
+     * @version 1.0
+     */
+    EQ_API void startFrame( const uint32_t frameNumber );
 
-        typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
-        typedef FrameDataHash::const_iterator FrameDataHashCIter;
-        typedef FrameDataHash::iterator FrameDataHashIter;
-        /** All frame datas used by the node during rendering. */
-        lunchbox::Lockable< FrameDataHash > _frameDatas;
+    /**
+     * Signal the completion of a frame to the parent.
+     *
+     * @param frameNumber the frame to end.
+     * @version 1.0
+     */
+    EQ_API void releaseFrame( const uint32_t frameNumber );
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    /**
+     * Release the local synchronization of the parent for a frame.
+     *
+     * @param frameNumber the frame to release.
+     * @version 1.0
+     */
+    EQ_API void releaseFrameLocal( const uint32_t frameNumber );
+    //@}
 
-        void _setAffinity();
+    /**
+     * @name Callbacks
+     *
+     * The callbacks are called by Equalizer during rendering to execute
+     * various actions.
+     */
+    //@{
 
-        void _finishFrame( const uint32_t frameNumber ) const;
-        void _frameFinish( const uint128_t& frameID,
-                           const uint32_t frameNumber );
+    /**
+     * Initialize this node.
+     *
+     * @param initID the init identifier.
+     * @version 1.0
+     */
+    EQ_API virtual bool configInit( const uint128_t&  initID );
 
-        void _flushObjects();
+    /** Exit this node. @version 1.0 */
+    EQ_API virtual bool configExit();
 
-        /** The command functions. */
-        bool _cmdCreatePipe( co::ICommand& command );
-        bool _cmdDestroyPipe( co::ICommand& command );
-        bool _cmdConfigInit( co::ICommand& command );
-        bool _cmdConfigExit( co::ICommand& command );
-        bool _cmdFrameStart( co::ICommand& command );
-        bool _cmdFrameFinish( co::ICommand& command );
-        bool _cmdFrameDrawFinish( co::ICommand& command );
-        bool _cmdFrameTasksFinish( co::ICommand& command );
-        bool _cmdFrameDataTransmit( co::ICommand& command );
-        bool _cmdFrameDataReady( co::ICommand& command );
-        bool _cmdSetAffinity( co::ICommand& command );
+    /**
+     * Start rendering a frame.
+     *
+     * Called once at the beginning of each frame, to start the node's frame
+     * and to do per-frame updates of node-specific data. This method has to
+     * call startFrame(). Immediately releases local synchronization if the
+     * thread model is async.
+     *
+     * @param frameID the per-frame identifier.
+     * @param frameNumber the frame to start.
+     * @sa startFrame(), Config::beginFrame()
+     * @version 1.0
+     */
+    EQ_API virtual void frameStart( const uint128_t& frameID,
+                                    const uint32_t frameNumber );
 
-        LB_TS_VAR( _nodeThread );
-        LB_TS_VAR( _commandThread );
+    /**
+     * Finish rendering a frame.
+     *
+     * Called once at the end of each frame, to end the frame and to do
+     * per-frame updates of node-specific data. This method has to call
+     * releaseFrame().
+     *
+     * @param frameID the per-frame identifier.
+     * @param frameNumber the frame to finish.
+     * @sa endFrame(), Config::finishFrame()
+     * @version 1.0
+     */
+    EQ_API virtual void frameFinish( const uint128_t& frameID,
+                                     const uint32_t frameNumber );
+
+    /**
+     * Finish drawing.
+     *
+     * Called once per frame after the last draw operation. Waits for the
+     * pipes to release the local synchonization and releases the node's
+     * local synchronization if the thread model is draw_sync (the default).
+     *
+     * @param frameID the per-frame identifier.
+     * @param frameNumber the frame finished with draw.
+     * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+     * @version 1.0
+     */
+    EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
+                                         const uint32_t frameNumber );
+
+    /**
+     * Finish all rendering tasks.
+     *
+     * Called once per frame after all frame tasks.  Waits for the pipes to
+     * release the local synchonization and releases the node's local
+     * synchronization if the thread model is local_sync.
+     *
+     * Note that frameFinish is called after the latency is exhausted and
+     * synchronizes pipe thread execution.
+     *
+     * @param frameID the per-frame identifier.
+     * @param frameNumber the frame finished with draw.
+     * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+     * @version 1.0
+     */
+    EQ_API virtual void frameTasksFinish( const uint128_t& frameID,
+                                          const uint32_t frameNumber );
+    //@}
+
+private:
+    enum State
+    {
+        STATE_STOPPED,
+        STATE_INITIALIZING,
+        STATE_INIT_FAILED,
+        STATE_RUNNING,
+        STATE_FAILED
     };
+    /** The configInit/configExit state. */
+    lunchbox::Monitor< State > _state;
+
+    /** The number of the last started frame. */
+    lunchbox::Monitor< uint32_t > _currentFrame;
+
+    /** The number of the last finished frame. */
+    uint32_t _finishedFrame;
+
+    /** The number of the last locally released frame. */
+    uint32_t _unlockedFrame;
+
+    typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
+    /** All barriers mapped by the node. */
+    lunchbox::Lockable< BarrierHash > _barriers;
+
+    typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
+    typedef FrameDataHash::const_iterator FrameDataHashCIter;
+    typedef FrameDataHash::iterator FrameDataHashIter;
+    /** All frame datas used by the node during rendering. */
+    lunchbox::Lockable< FrameDataHash > _frameDatas;
+
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
+
+    void _setAffinity();
+
+    void _finishFrame( const uint32_t frameNumber ) const;
+    void _frameFinish( const uint128_t& frameID,
+                       const uint32_t frameNumber );
+
+    void _flushObjects();
+
+    /** The command functions. */
+    bool _cmdCreatePipe( co::ICommand& command );
+    bool _cmdDestroyPipe( co::ICommand& command );
+    bool _cmdConfigInit( co::ICommand& command );
+    bool _cmdConfigExit( co::ICommand& command );
+    bool _cmdFrameStart( co::ICommand& command );
+    bool _cmdFrameFinish( co::ICommand& command );
+    bool _cmdFrameDrawFinish( co::ICommand& command );
+    bool _cmdFrameTasksFinish( co::ICommand& command );
+    bool _cmdFrameDataTransmit( co::ICommand& command );
+    bool _cmdFrameDataReady( co::ICommand& command );
+    bool _cmdSetAffinity( co::ICommand& command );
+
+    LB_TS_VAR( _nodeThread );
+    LB_TS_VAR( _commandThread );
+};
 }
 
 #endif // EQ_NODE_H
