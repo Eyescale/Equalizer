@@ -778,7 +778,7 @@ bool Window::_cmdCreateChannel( co::ICommand& cmd )
 
     Config* config = getConfig();
     LBCHECK( config->mapObject( channel, channelID ));
-    LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
+    LBASSERT( channel->getSerial() != CO_INSTANCE_INVALID );
 
     return true;
 }
