@@ -102,6 +102,7 @@ bool Config::init()
     return true;
 }
 
+
 bool Config::exit()
 {
     const bool ret = eq::Config::exit();
