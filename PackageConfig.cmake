@@ -237,6 +237,10 @@ install(
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 
 # create and install Project.pc
+if(NOT LIBRARY_DIR)
+  set(LIBRARY_DIR lib)
+endif()
+
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc
   "prefix=${CMAKE_INSTALL_PREFIX}\n"
   "exec_prefix=\${prefix}\n"
