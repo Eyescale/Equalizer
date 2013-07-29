@@ -179,7 +179,7 @@ void Config::_registerModels()
 
     for( size_t i = 0; i < nModels; ++i )
     {
-        const Model* model = _models[i];
+        Model* model = _models[i];
         ModelDist* modelDist = 0;
         if( createDist )
         {
@@ -223,22 +223,10 @@ void Config::_deregisterData()
     _frameData.setModelID( eq::UUID( ));
 }
 
-bool Config::loadData( const eq::uint128_t& initDataID )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
-    if( !_initData.isAttached( ))
-    {
-        const uint32_t request = mapObjectNB( &_initData, initDataID,
-                                              co::VERSION_OLDEST,
-                                              getApplicationNode( ));
-        if( !mapObjectSync( request ))
-            return false;
-        unmapObject( &_initData ); // data was retrieved, unmap immediately
-    }
-    else // appNode, _initData is registered already
-    {
-        LBASSERT( _initData.getID() == initDataID );
-    }
-    return true;
+    LBASSERT( !_initData.isAttached( ));
+    return getClient()->syncObject( &_initData, getApplicationNode(), id );
 }
 
 const Model* Config::getModel( const eq::uint128_t& modelID )

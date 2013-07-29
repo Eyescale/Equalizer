@@ -184,7 +184,7 @@ bool _parseArguments( const int argc, char** argv )
 
     arg::options_description options( "Equalizer library options" );
     options.add_options()
-        ( "eq-help", "Displays usage information and exits" )
+        ( "eq-help", "Display usage information and exit" )
         ( "eq-logfile", arg::value< std::string >(),
           "Redirect log output to given file" )
         ( "eq-server", arg::value< std::string >(), "The server address" )

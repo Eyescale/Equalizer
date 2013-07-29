@@ -34,7 +34,7 @@ Object::Object()
         : _userData( 0 )
         , _tasks( TASK_NONE )
         , _error( ERROR_NONE )
-        , _serial( EQ_INSTANCE_INVALID )
+        , _serial( CO_INSTANCE_INVALID )
 {}
 
 Object::~Object()

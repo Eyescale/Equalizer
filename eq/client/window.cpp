@@ -183,8 +183,8 @@ void Window::drawFPS()
 
     glLogicOp( GL_XOR );
     glEnable( GL_COLOR_LOGIC_OP );
-    glRasterPos3f( pvp.w - 60.f, 10.f , 0.99f );
-    glColor3f( 1.f, 1.f, 1.f );
+    glRasterPos3f( pvp.w - 60.f, pvp.h - 16.f , 0.99f );
+    glColor3f( .8f, .8f, .8f );
 
     font->draw( fpsText.str( ));
 }
@@ -778,7 +778,7 @@ bool Window::_cmdCreateChannel( co::ICommand& cmd )
 
     Config* config = getConfig();
     LBCHECK( config->mapObject( channel, channelID ));
-    LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
+    LBASSERT( channel->getSerial() != CO_INSTANCE_INVALID );
 
     return true;
 }

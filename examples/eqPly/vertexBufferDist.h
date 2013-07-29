@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,14 @@
 
 #include <eq/eq.h>
 
-namespace eqPly 
+namespace eqPly
 {
     /** co::Object to distribute a model, holds a VertexBufferBase node. */
     class VertexBufferDist : public co::Object
     {
     public:
         VertexBufferDist();
-        VertexBufferDist( const mesh::VertexBufferRoot* root );
+        VertexBufferDist( mesh::VertexBufferRoot* root );
         virtual ~VertexBufferDist();
 
         void registerTree( co::LocalNodePtr node );
@@ -53,20 +53,18 @@ namespace eqPly
                                            const eq::uint128_t& modelID );
 
     protected:
-        VertexBufferDist( const mesh::VertexBufferRoot* root,
-                          const mesh::VertexBufferBase* node );
+        VertexBufferDist( mesh::VertexBufferRoot* root,
+                          mesh::VertexBufferBase* node );
 
         virtual void getInstanceData( co::DataOStream& os );
         virtual void applyInstanceData( co::DataIStream& is );
 
     private:
-        const mesh::VertexBufferRoot* _root;
-        const mesh::VertexBufferBase* _node;
+        mesh::VertexBufferRoot* _root;
+        mesh::VertexBufferBase* _node;
         VertexBufferDist* _left;
         VertexBufferDist* _right;
         bool _isRoot;
-
-        void _unmapTree();
     };
 }
 

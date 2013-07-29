@@ -39,42 +39,41 @@
 
 namespace eqNbody
 {
-    class Config : public eq::Config
-    {
-    public:
-        Config( eq::ServerPtr parent );
+class Config : public eq::Config
+{
+public:
+    Config( eq::ServerPtr parent );
 
-        virtual bool init();
-        virtual bool exit();
+    virtual bool init();
+    virtual bool exit();
 
-        virtual uint32_t startFrame();
+    virtual uint32_t startFrame();
 
-        void setInitData( const InitData& data ) { _initData = data; }
-        const InitData& getInitData() const { return _initData; }
+    void setInitData( const InitData& data ) { _initData = data; }
+    const InitData& getInitData() const { return _initData; }
 
-        void mapData( const eq::uint128_t& initDataID );
-        void releaseData();
+    bool loadInitData( const eq::uint128_t& initDataID );
 
-        virtual bool handleEvent( eq::EventICommand command );
-        virtual bool handleEvent( const eq::ConfigEvent* event );
-        bool needsRedraw();
+    virtual bool handleEvent( eq::EventICommand command );
+    virtual bool handleEvent( const eq::ConfigEvent* event );
+    bool needsRedraw();
 
-    protected:
-        virtual ~Config() {}
+protected:
+    virtual ~Config() {}
 
-    private:
-        InitData    _initData;
-        FrameData   _frameData;
-        bool        _redraw;
+private:
+    InitData    _initData;
+    FrameData   _frameData;
+    bool        _redraw;
 
-        bool _readyToCommit();
-        bool _handleKeyEvent( const eq::KeyEvent& event );
+    bool _readyToCommit();
+    bool _handleKeyEvent( const eq::KeyEvent& event );
 
-        void _updateSimulation();
-        void _registerData( eq::EventICommand& command );
-        void _updateData( eq::EventICommand& command );
-        void _deregisterData();
-    };
+    void _updateSimulation();
+    void _registerData( eq::EventICommand& command );
+    void _updateData( eq::EventICommand& command );
+    void _deregisterData();
+};
 }
 
 #endif // EQ_PLY_CONFIG_H

@@ -1484,7 +1484,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     co::ObjectOCommand command( co::Connections( 1, connection ),
                                 fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
                                 co::COMMANDTYPE_OBJECT, nodeID,
-                                EQ_INSTANCE_ALL );
+                                CO_INSTANCE_ALL );
     command << frameDataVersion << image->getPixelViewport() << image->getZoom()
             << commandBuffers << frameNumber << image->getAlphaUsage();
     command.sendHeader( imageDataSize );
@@ -1922,7 +1922,7 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
         co::NodePtr toNode = localNode->connect( *j );
         co::ObjectOCommand( co::Connections( 1, toNode->getConnection( )),
                             fabric::CMD_NODE_FRAMEDATA_READY,
-                            co::COMMANDTYPE_OBJECT, *i, EQ_INSTANCE_ALL )
+                            co::COMMANDTYPE_OBJECT, *i, CO_INSTANCE_ALL )
             << frameDataVersion << frameData->_data;
     }
 

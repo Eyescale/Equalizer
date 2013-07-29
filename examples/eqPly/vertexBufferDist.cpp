@@ -25,7 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
+
  *
  * co::Object to distribute a model. Has a VertexBufferBase node.
  */
@@ -34,7 +34,7 @@
 
 #include "vertexBufferLeaf.h"
 
-namespace eqPly 
+namespace eqPly
 {
 
 VertexBufferDist::VertexBufferDist()
@@ -45,7 +45,7 @@ VertexBufferDist::VertexBufferDist()
         , _isRoot( false )
 {}
 
-VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root )
+VertexBufferDist::VertexBufferDist( mesh::VertexBufferRoot* root )
         : _root( root )
         , _node( root )
         , _left( 0 )
@@ -59,8 +59,8 @@ VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root )
         _right = new VertexBufferDist( root, root->getRight( ));
 }
 
-VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root, 
-                                    const mesh::VertexBufferBase* node )
+VertexBufferDist::VertexBufferDist( mesh::VertexBufferRoot* root,
+                                    mesh::VertexBufferBase* node )
         : _root( root )
         , _node( node )
         , _left( 0 )
@@ -92,7 +92,7 @@ void VertexBufferDist::registerTree( co::LocalNodePtr node )
 
     if( _left )
         _left->registerTree( node );
-    
+
     if( _right )
         _right->registerTree( node );
 }
@@ -116,29 +116,12 @@ mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
 {
     LBASSERT( !_root && !_node );
 
-    const uint32_t req = localNode->mapObjectNB( this, modelID,
-                                                 co::VERSION_OLDEST, master );
-    if( !localNode->mapObjectSync( req ))
+    if( !localNode->syncObject( this, master, modelID ))
     {
         LBWARN << "Mapping of model failed" << std::endl;
         return 0;
     }
-
-    _unmapTree();
-    return const_cast< mesh::VertexBufferRoot* >( _root );
-}
-
-void VertexBufferDist::_unmapTree()
-{
-    LBASSERT( isAttached() );
-    LBASSERT( !isMaster( ));
-
-    getLocalNode()->unmapObject( this );
-
-    if( _left )
-        _left->_unmapTree();
-    if( _right )
-        _right->_unmapTree();
+    return _root;
 }
 
 void VertexBufferDist::getInstanceData( co::DataOStream& os )
@@ -154,8 +137,8 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         {
             LBASSERT( _root );
             const mesh::VertexBufferData& data = _root->_data;
-            
-            os << data.vertices << data.colors << data.normals << data.indices 
+
+            os << data.vertices << data.colors << data.normals << data.indices
                << _root->_name;
         }
     }
@@ -164,7 +147,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         os << co::UUID() << co::UUID();
 
         LBASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
-        const mesh::VertexBufferLeaf* leaf = 
+        const mesh::VertexBufferLeaf* leaf =
             static_cast< const mesh::VertexBufferLeaf* >( _node );
 
         os << leaf->_boundingBox[0] << leaf->_boundingBox[1]
@@ -207,24 +190,20 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         base   = node;
         _left  = new VertexBufferDist( _root, 0 );
         _right = new VertexBufferDist( _root, 0 );
-        co::LocalNodePtr to = getLocalNode();
-        co::NodePtr from = is.getMaster();
-        const uint32_t sync1 = to->mapObjectNB( _left, leftID,
-                                                co::VERSION_OLDEST, from );
-        const uint32_t sync2 = to->mapObjectNB( _right, rightID,
-                                                co::VERSION_OLDEST, from );
+        co::NodePtr from = is.getRemoteNode();
+        co::LocalNodePtr to = is.getLocalNode();
+        co::Futureb leftSync = to->syncObject( _left, from, leftID );
+        co::Futureb rightSync = to->syncObject( _right, from, rightID );
 
-        LBCHECK( to->mapObjectSync( sync1 ));
-        LBCHECK( to->mapObjectSync( sync2 ));
+        LBCHECK( leftSync.wait() && rightSync.wait( ));
 
-        node->_left  = const_cast< mesh::VertexBufferBase* >( _left->_node );
-        node->_right = const_cast< mesh::VertexBufferBase* >( _right->_node );
+        node->_left  = _left->_node;
+        node->_right = _right->_node;
     }
     else
     {
         LBASSERT( !_isRoot );
-        mesh::VertexBufferData& data = 
-            const_cast< mesh::VertexBufferData& >( _root->_data );
+        mesh::VertexBufferData& data = _root->_data;
         mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
 
         uint64_t i1, i2, i3;

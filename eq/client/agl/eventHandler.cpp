@@ -117,13 +117,6 @@ EventHandler::EventHandler( agl::WindowIF* window )
         _eventDispatcher = 0;
 
     Global::leaveCarbon();
-
-    if( fullscreen )
-        LBVERB << "Installed event handlers for fullscreen carbon context"
-               << std::endl;
-    else
-        LBVERB << "Installed event handlers for carbon window " << carbonWindow
-               << std::endl;
 }
 
 EventHandler::~EventHandler()

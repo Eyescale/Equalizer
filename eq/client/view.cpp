@@ -77,7 +77,7 @@ void View::detach()
         // local command dispatching
         co::ObjectOCommand( _pipe, getLocalNode(), fabric::CMD_PIPE_DETACH_VIEW,
                             co::COMMANDTYPE_OBJECT, _pipe->getID(),
-                            EQ_INSTANCE_ALL ) << getID();
+                            CO_INSTANCE_ALL ) << getID();
     }
     Super::detach();
 }
