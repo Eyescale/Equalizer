@@ -35,7 +35,6 @@ namespace util
 ObjectManager::ObjectManager( const GLEWContext* const glewContext )
         : _data( new SharedData( glewContext ))
 {
-    LBASSERT( glewContext );
 }
 
 ObjectManager::ObjectManager( ObjectManager& shared )
@@ -63,8 +62,10 @@ void ObjectManager::clear()
 ObjectManager::SharedData::SharedData( const GLEWContext* gl )
         : glewContext( new GLEWContext )
 {
-    LBASSERT( gl );
-    memcpy( glewContext, gl, sizeof( GLEWContext ));
+    if( gl )
+        memcpy( glewContext, gl, sizeof( GLEWContext ));
+    else
+        lunchbox::setZero( glewContext, sizeof( GLEWContext ));
 }
 
 ObjectManager::SharedData::~SharedData()
