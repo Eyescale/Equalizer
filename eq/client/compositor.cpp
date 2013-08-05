@@ -1402,7 +1402,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     }
 
     GLuint program = objects.getProgram( shaderDBKey );
-
     if( program == util::ObjectManager::INVALID )
     {
         // Create fragment shader which reads color and depth values from

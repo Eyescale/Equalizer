@@ -3,6 +3,14 @@ This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
 
+05/Aug/2013, [6ee6727] Simplify ObjectManager and BitmapFont APIs:
+  * Replace template key type by 'void *' which was used exclusively
+  * Use ObjectManager references instead of pointers throughout API
+  * Needed for #83
+
+  To port, replace:
+  * eq::Window::ObjectManager* -> eq::util::ObjectManager&
+  * eq::Window::Font* -> eq::util::BitmapFont*
 
 -----------------------------------1.6-------------------------------------
 
