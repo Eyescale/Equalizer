@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -134,8 +134,8 @@ void Window::_loadLogo()
         return;
     }
 
-    eq::Window::ObjectManager* om = getObjectManager();
-    _logoTexture = om->getEqTexture( _logoTextureName.c_str( ));
+    eq::util::ObjectManager& om = getObjectManager();
+    _logoTexture = om.getEqTexture( _logoTextureName.c_str( ));
     if( _logoTexture )
         return;
 
@@ -146,10 +146,10 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = om->newEqTexture( _logoTextureName.c_str(),
-                                     GL_TEXTURE_RECTANGLE_ARB );
+    _logoTexture = om.newEqTexture( _logoTextureName.c_str(),
+                                    GL_TEXTURE_RECTANGLE_ARB );
     LBASSERT( _logoTexture );
-    
+
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
     image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
@@ -184,8 +184,8 @@ void Window::_loadShaders()
         LBWARN << "Failed to compile vertex shader" << std::endl;
         return;
     }
-    
-    const GLuint fShader = 
+
+    const GLuint fShader =
         _state->newShader( fragmentShader_glsl, GL_FRAGMENT_SHADER );
     LBASSERT( fShader != VertexBufferState::INVALID );
     const GLchar* fShaderPtr = fragmentShader_glsl;
@@ -197,7 +197,7 @@ void Window::_loadShaders()
         LBWARN << "Failed to compile fragment shader" << std::endl;
         return;
     }
-    
+
     const GLuint program = _state->newProgram( getPipe() );
     LBASSERT( program != VertexBufferState::INVALID );
     glAttachShader( program, vShader );
@@ -209,7 +209,7 @@ void Window::_loadShaders()
         LBWARN << "Failed to link shader program" << std::endl;
         return;
     }
-    
+
     // turn off OpenGL lighting if we are using our own shaders
     glDisable( GL_LIGHTING );
 

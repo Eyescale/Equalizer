@@ -211,18 +211,6 @@ typedef lunchbox::RefPtr< FrameData >     FrameDataPtr;
 /** A reference-counted pointer to a const eq::FrameData */
 typedef lunchbox::RefPtr< const FrameData >     ConstFrameDataPtr;
 
-namespace util
-{
-template< class > class BitmapFont;
-template< class > class ObjectManager;
-}
-
-/** The bitmap font used in the client library. */
-typedef util::BitmapFont< const void* > BitmapFont;
-
-/** The OpenGL object manager used in the client library. */
-typedef util::ObjectManager< const void* > ObjectManager;
-
 using fabric::Matrix3d;   //!< A 3x3 double matrix
 using fabric::Matrix4d;   //!< A 4x4 double matrix
 using fabric::Matrix3f;   //!< A 3x3 float matrix

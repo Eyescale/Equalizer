@@ -161,7 +161,7 @@ namespace detail { class Image; }
          * Requires the appropriate OpenGL context to be current.
          * @version 1.3.2
          */
-        EQ_API void deleteGLObjects( ObjectManager* om );
+        EQ_API void deleteGLObjects( util::ObjectManager& om );
 
         /**
          * Deallocate all transfer and compression plugins.
@@ -293,7 +293,7 @@ namespace detail { class Image; }
          * @deprecated @sa startReadback(), finishReadback()
          */
         EQ_API bool readback( const uint32_t buffers, const PixelViewport& pvp,
-                              const Zoom& zoom, ObjectManager* glObjects );
+                              const Zoom& zoom, util::ObjectManager& glObjects);
 #endif
 
         /**
@@ -308,7 +308,7 @@ namespace detail { class Image; }
          */
         EQ_API bool startReadback( const uint32_t buffers,
                                    const PixelViewport& pvp, const Zoom& zoom,
-                                   ObjectManager* glObjects );
+                                   util::ObjectManager& glObjects );
 
         /** @internal Start reading back data from a texture. */
         bool startReadback( const Frame::Buffer buffer,
@@ -342,7 +342,7 @@ namespace detail { class Image; }
          */
         EQ_API bool upload( const Frame::Buffer buffer, util::Texture* texture,
                             const Vector2i& position,
-                            ObjectManager* glObjects ) const;
+                            util::ObjectManager& glObjects ) const;
 
         /** Write the pixel data as rgb image file. @version 1.0 */
         EQ_API bool writeImage( const std::string& filename,
@@ -414,16 +414,16 @@ namespace detail { class Image; }
                                  const bool hasAlpha );
 
         bool _readback( const Frame::Buffer buffer, const Zoom& zoom,
-                        ObjectManager* glObjects );
+                        util::ObjectManager& glObjects );
 
         bool _startReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                             ObjectManager* glObjects );
+                             util::ObjectManager& glObjects );
 
         void _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
                               const GLEWContext* glewContext );
 
         bool _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                            ObjectManager* glObjects );
+                            util::ObjectManager& glObjects );
     };
 };
 #endif // EQ_IMAGE_H

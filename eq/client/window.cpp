@@ -81,9 +81,6 @@ Window::Window( Pipe* parent )
 Window::~Window()
 {
     LBASSERT( getChannels().empty( ));
-
-    delete _objectManager;
-    _objectManager = 0;
 }
 
 void Window::attach( const UUID& id, const uint32_t instanceID )
@@ -178,7 +175,7 @@ void Window::drawFPS()
     std::ostringstream fpsText;
     fpsText << std::setprecision(3) << getFPS() << " FPS";
 
-    const Font* font = getSmallFont();
+    const util::BitmapFont* font = getSmallFont();
     const PixelViewport& pvp = getPixelViewport();
 
     glLogicOp( GL_XOR );
@@ -406,54 +403,42 @@ void Window::_setupObjectManager()
 
     _releaseObjectManager();
 
-    Window*    sharedWindow = getSharedContextWindow();
-    ObjectManager* sharedOM = sharedWindow ? sharedWindow->getObjectManager():0;
-
-    if( sharedOM )
-        _objectManager = new ObjectManager( sharedOM );
+    Window* sharedWindow = getSharedContextWindow();
+    if( sharedWindow )
+        _objectManager = sharedWindow->_objectManager;
     else
-        _objectManager = new ObjectManager( glewGetContext( ));
+    {
+        util::ObjectManager om( glewGetContext( ));
+        _objectManager = om;
+    }
 }
 
 void Window::_releaseObjectManager()
 {
-    if( _objectManager )
-    {
-        _objectManager->deleteEqBitmapFont( _smallFontKey );
-        _objectManager->deleteEqBitmapFont( _mediumFontKey );
-        if( !_objectManager->isShared( ))
-            _objectManager->deleteAll();
-    }
-
-    delete _objectManager;
-    _objectManager = 0;
+    _objectManager.deleteEqBitmapFont( _smallFontKey );
+    _objectManager.deleteEqBitmapFont( _mediumFontKey );
+    if( !_objectManager.isShared( ))
+        _objectManager.deleteAll();
+    _objectManager.clear();
 }
 
-const Window::Font* Window::getSmallFont()
+const util::BitmapFont* Window::getSmallFont()
 {
-    LBASSERT( _objectManager );
-    if( !_objectManager )
-        return 0;
-
-    Window::Font* font = _objectManager->getEqBitmapFont( _smallFontKey );
+    util::BitmapFont* font = _objectManager.getEqBitmapFont( _smallFontKey );
     if( !font )
     {
-        font = _objectManager->newEqBitmapFont( _smallFontKey );
+        font = _objectManager.newEqBitmapFont( _smallFontKey );
         font->init( getPipe()->getWindowSystem(), "" );
     }
     return font;
 }
 
-const Window::Font* Window::getMediumFont()
+const util::BitmapFont* Window::getMediumFont()
 {
-    LBASSERT( _objectManager );
-    if( !_objectManager )
-        return 0;
-
-    Window::Font* font = _objectManager->getEqBitmapFont( _mediumFontKey );
+    util::BitmapFont* font = _objectManager.getEqBitmapFont( _mediumFontKey );
     if( !font )
     {
-        font = _objectManager->newEqBitmapFont( _mediumFontKey );
+        font = _objectManager.newEqBitmapFont( _mediumFontKey );
         font->init( getPipe()->getWindowSystem(), "", 20 );
     }
     return font;

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -56,8 +56,8 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
-                    const uint32_t size ) const
+    bool setupFont( util::ObjectManager& gl, const void* key,
+                    const std::string& name, const uint32_t size ) const
     {
         HDC dc = wglGetCurrentDC();
         if( !dc )
@@ -86,7 +86,7 @@ static class : WindowSystemIF
         HFONT newFont = CreateFontIndirect( &font );
         if( !newFont )
         {
-            LBWARN << "Can't load font " << name << ", using Times New Roman" 
+            LBWARN << "Can't load font " << name << ", using Times New Roman"
                    << std::endl;
 
             strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
@@ -98,10 +98,10 @@ static class : WindowSystemIF
 
         const GLuint lists = _setupLists( gl, key, 256 );
         const bool ret = wglUseFontBitmaps( dc, 0 , 255, lists );
-    
+
         SelectObject( dc, oldFont );
         //DeleteObject( newFont );
-    
+
         if( !ret )
             _setupLists( gl, key, 0 );
 

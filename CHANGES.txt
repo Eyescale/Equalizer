@@ -1,6 +1,11 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+-----------------------------------2.0-------------------------------------
+
+
+-----------------------------------1.6-------------------------------------
+
 03/Dec/2012
   Remove ...,     fabric::View::getEqualizer()(::getTileSize( ))
 

@@ -146,7 +146,7 @@ namespace detail{ class Frame; }
         EQ_API void clear();
 
         /** @internal Deallocate all data from the given object manager. */
-        void deleteGLObjects( ObjectManager* om );
+        void deleteGLObjects( util::ObjectManager& om );
 
         /**
          * Read back an image.
@@ -157,7 +157,7 @@ namespace detail{ class Frame; }
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
-        EQ_API void readback( ObjectManager* glObjects,
+        EQ_API void readback( util::ObjectManager& glObjects,
                               const DrawableConfig& config );
 
         /**
@@ -170,7 +170,7 @@ namespace detail{ class Frame; }
          * @param regions the areas to read back.
          * @version 1.0
          */
-        EQ_API void readback( ObjectManager* glObjects,
+        EQ_API void readback( util::ObjectManager& glObjects,
                               const DrawableConfig& config,
                               const PixelViewports& regions );
 
@@ -187,7 +187,7 @@ namespace detail{ class Frame; }
          * @return the new images which need finishReadback.
          * @version 1.3.2
          */
-        EQ_API Images startReadback( ObjectManager* glObjects,
+        EQ_API Images startReadback( util::ObjectManager& glObjects,
                                      const DrawableConfig& config,
                                      const PixelViewports& regions );
 

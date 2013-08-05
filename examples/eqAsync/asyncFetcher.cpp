@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
- *                    2012, Stefan Eilemann <eile@eyescale.ch>
+ *               2012-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,8 +36,6 @@
 
 namespace eqAsync
 {
-typedef eq::util::ObjectManager< int > ObjectManager;
-
 AsyncFetcher::AsyncFetcher()
     : lunchbox::Thread()
     , _sharedWindow( 0 )
@@ -124,7 +122,7 @@ void AsyncFetcher::run()
         return;
 
     _sharedWindow->makeCurrent();
-    eq::ObjectManager objects( glewGetContext( ));
+    eq::util::ObjectManager objects( glewGetContext( ));
     lunchbox::Bufferb textureData( 64*64*4 );
     LBINFO << "async fetcher initialized" << std::endl;
 

@@ -39,7 +39,7 @@
 #  include "channel.h"
 #endif // EQUALIZER
 
-namespace mesh 
+namespace mesh
 {
     /*  The abstract base class for kd-tree rendering state.  */
     class VertexBufferState
@@ -79,25 +79,25 @@ namespace mesh
         virtual void deleteAll() = 0;
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
-        
+
     protected:
-        VertexBufferState( const GLEWContext* glewContext );        
+        VertexBufferState( const GLEWContext* glewContext );
         virtual ~VertexBufferState() {}
-        
+
         Matrix4f      _pmvMatrix; //!< projection * modelView matrix
         Range         _range; //!< normalized [0,1] part of the model to draw
         const GLEWContext* const _glewContext;
         RenderMode    _renderMode;
-        Vector4f      _region; //!< normalized x1 y1 x2 y2 region from cullDraw 
+        Vector4f      _region; //!< normalized x1 y1 x2 y2 region from cullDraw
         bool          _useColors;
         bool          _useFrustumCulling;
-        
+
     private:
     };
-    
-    
+
+
     /*  Simple state for stand-alone single-pipe usage.  */
-    class VertexBufferStateSimple : public VertexBufferState 
+    class VertexBufferStateSimple : public VertexBufferState
     {
     private:
         typedef std::map< const void*, GLuint > GLMap;
@@ -106,10 +106,10 @@ namespace mesh
     public:
         VertexBufferStateSimple( const GLEWContext* glewContext )
             : VertexBufferState( glewContext ) {}
-        
+
         virtual GLuint getDisplayList( const void* key );
-        virtual GLuint newDisplayList( const void* key );        
-        virtual GLuint getBufferObject( const void* key );        
+        virtual GLuint newDisplayList( const void* key );
+        virtual GLuint getBufferObject( const void* key );
         virtual GLuint newBufferObject( const void* key );
         virtual void deleteAll();
 
@@ -123,61 +123,61 @@ namespace mesh
 namespace eqPly
 {
     /*  State for Equalizer usage, uses Eq's Object Manager.  */
-    class VertexBufferState : public mesh::VertexBufferState 
+    class VertexBufferState : public mesh::VertexBufferState
     {
     public:
-        VertexBufferState( eq::Window::ObjectManager* objectManager ) 
-                : mesh::VertexBufferState( objectManager->glewGetContext( ))
+        VertexBufferState( eq::util::ObjectManager& objectManager )
+                : mesh::VertexBufferState( objectManager.glewGetContext( ))
                 , _objectManager( objectManager )
-            {} 
-        
-        virtual GLuint getDisplayList( const void* key )
-            { return _objectManager->getList( key ); }
-        
-        virtual GLuint newDisplayList( const void* key )
-            { return _objectManager->newList( key ); }
-        
-        virtual GLuint getTexture( const void* key )
-            { return _objectManager->getTexture( key ); }
-        
-        virtual GLuint newTexture( const void* key )
-            { return _objectManager->newTexture( key ); }
-        
-        virtual GLuint getBufferObject( const void* key )
-            { return _objectManager->getBuffer( key ); }
-        
-        virtual GLuint newBufferObject( const void* key )
-            { return _objectManager->newBuffer( key ); }
-        
-        virtual GLuint getProgram( const void* key )
-            { return _objectManager->getProgram( key ); }
-        
-        virtual GLuint newProgram( const void* key )
-            { return _objectManager->newProgram( key ); }
-        
-        virtual GLuint getShader( const void* key )
-            { return _objectManager->getShader( key ); }
-        
-        virtual GLuint newShader( const void* key, GLenum type )
-            { return _objectManager->newShader( key, type ); }
+            {}
 
-        virtual void deleteAll() { _objectManager->deleteAll(); }
-        bool isShared() const { return _objectManager->isShared(); }
-        
+        virtual GLuint getDisplayList( const void* key )
+            { return _objectManager.getList( key ); }
+
+        virtual GLuint newDisplayList( const void* key )
+            { return _objectManager.newList( key ); }
+
+        virtual GLuint getTexture( const void* key )
+            { return _objectManager.getTexture( key ); }
+
+        virtual GLuint newTexture( const void* key )
+            { return _objectManager.newTexture( key ); }
+
+        virtual GLuint getBufferObject( const void* key )
+            { return _objectManager.getBuffer( key ); }
+
+        virtual GLuint newBufferObject( const void* key )
+            { return _objectManager.newBuffer( key ); }
+
+        virtual GLuint getProgram( const void* key )
+            { return _objectManager.getProgram( key ); }
+
+        virtual GLuint newProgram( const void* key )
+            { return _objectManager.newProgram( key ); }
+
+        virtual GLuint getShader( const void* key )
+            { return _objectManager.getShader( key ); }
+
+        virtual GLuint newShader( const void* key, GLenum type )
+            { return _objectManager.newShader( key, type ); }
+
+        virtual void deleteAll() { _objectManager.deleteAll(); }
+        bool isShared() const { return _objectManager.isShared(); }
+
         void setChannel( Channel* channel ) { _channel = channel; }
 
         virtual bool stopRendering( ) const
             { return _channel ? _channel->stopRendering() : false; }
 
-        virtual void declareRegion( const mesh::Vector4f& region ) 
+        virtual void declareRegion( const mesh::Vector4f& region )
             { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
 
     private:
-        eq::Window::ObjectManager* _objectManager;
+        eq::util::ObjectManager& _objectManager;
         Channel* _channel;
     };
 } // namespace eqPly
 #endif // EQUALIZER
-    
+
 
 #endif // MESH_VERTEXBUFFERSTATE_H

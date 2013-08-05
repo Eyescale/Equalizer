@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -109,8 +109,8 @@ void Window::_loadLogo()
         return;
     }
 
-    eq::Window::ObjectManager* om = getObjectManager();
-    _logoTexture = om->getEqTexture( _logoTextureName.c_str( ));
+    eq::util::ObjectManager& om = getObjectManager();
+    _logoTexture = om.getEqTexture( _logoTextureName.c_str( ));
     if( _logoTexture )
         return;
 
@@ -121,10 +121,10 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = om->newEqTexture( _logoTextureName.c_str(),
+    _logoTexture = om.newEqTexture( _logoTextureName.c_str(),
                                      GL_TEXTURE_RECTANGLE_ARB );
     LBASSERT( _logoTexture );
-    
+
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
     image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"

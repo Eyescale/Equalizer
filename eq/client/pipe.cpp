@@ -521,7 +521,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     return frame;
 }
 
-void Pipe::flushFrames( ObjectManager* om )
+void Pipe::flushFrames( util::ObjectManager& om )
 {
     LB_TS_THREAD( _pipeThread );
     ClientPtr client = getClient();

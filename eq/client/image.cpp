@@ -249,13 +249,13 @@ void Image::resetPlugins()
     _impl->depth.resetPlugins();
 }
 
-void Image::deleteGLObjects( ObjectManager* om )
+void Image::deleteGLObjects( util::ObjectManager& om )
 {
     const char* key = reinterpret_cast< const char* >( this );
     for( size_t i=0; i < 4; ++i )
     {
-        om->deleteEqUploader( key + i );
-        om->deleteEqTexture( key + i );
+        om.deleteEqUploader( key + i );
+        om.deleteEqTexture( key + i );
     }
 }
 
@@ -452,12 +452,10 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 }
 
 bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
-                    const Vector2i& position, ObjectManager* glObjects ) const
+                    const Vector2i& position, util::ObjectManager& glObjects ) const
 {
-    LBASSERT( glObjects );
-
     // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
-    lunchbox::Uploader* uploader = glObjects->obtainEqUploader(
+    lunchbox::Uploader* uploader = glObjects.obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
@@ -466,7 +464,7 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                            EQ_COMPRESSOR_DATA_2D |
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
-    const GLEWContext* const gl = glObjects->glewGetContext();
+    const GLEWContext* const gl = glObjects.glewGetContext();
 
     if( !uploader->supports( externalFormat, internalFormat, flags, gl ))
         uploader->setup( co::Global::getPluginRegistry(), externalFormat,
@@ -498,18 +496,17 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 //---------------------------------------------------------------------------
 #ifndef EQ_2_0_API
 bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
-                      const Zoom& zoom, ObjectManager* glObjects )
+                      const Zoom& zoom, util::ObjectManager& glObjects )
 {
     if( startReadback( buffers, pvp, zoom, glObjects ))
-        finishReadback( zoom, glObjects->glewGetContext( ));
+        finishReadback( zoom, glObjects.glewGetContext( ));
     return true;
 }
 #endif
 
 bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
-                           const Zoom& zoom, ObjectManager* glObjects )
+                           const Zoom& zoom, util::ObjectManager& glObjects )
 {
-    LBASSERT( glObjects );
     LBLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
                           << std::endl;
 
@@ -532,7 +529,7 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
 }
 
 bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                            ObjectManager* glObjects )
+                            util::ObjectManager& glObjects )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
     attachment.memory.isCompressed = false;
@@ -542,14 +539,14 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         LBASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not " <<
                       "implemented, zoom happens during compositing" );
         util::Texture& texture = attachment.texture;
-        texture.setGLEWContext( glObjects->glewGetContext( ));
+        texture.setGLEWContext( glObjects.glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _impl->pvp );
         texture.setGLEWContext( 0 );
         return false;
     }
 
     if( zoom == Zoom::NONE ) // normal framebuffer readback
-        return startReadback( buffer, 0, glObjects->glewGetContext( ));
+        return startReadback( buffer, 0, glObjects.glewGetContext( ));
 
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
     return _readbackZoom( buffer, zoom, glObjects );
@@ -687,11 +684,10 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
 }
 
 bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                           ObjectManager* glObjects )
+                           util::ObjectManager& glObjects )
 {
-    LBASSERT( glObjects );
-    LBASSERT( glObjects->supportsEqTexture( ));
-    LBASSERT( glObjects->supportsEqFrameBufferObject( ));
+    LBASSERT( glObjects.supportsEqTexture( ));
+    LBASSERT( glObjects.supportsEqFrameBufferObject( ));
 
     PixelViewport pvp = _impl->pvp;
     pvp.apply( zoom );
@@ -701,14 +697,14 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     // copy frame buffer to texture
     const void* bufferKey = _getBufferKey( buffer );
     util::Texture* texture =
-        glObjects->obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
+        glObjects.obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
 
     texture->copyFromFrameBuffer( getInternalFormat( buffer ), _impl->pvp );
 
     // draw zoomed quad into FBO
     //  uses the same FBO for color and depth, with masking.
     const void* fboKey = _getBufferKey( Frame::BUFFER_COLOR );
-    util::FrameBufferObject* fbo = glObjects->getEqFrameBufferObject( fboKey );
+    util::FrameBufferObject* fbo = glObjects.getEqFrameBufferObject( fboKey );
 
     if( fbo )
     {
@@ -716,7 +712,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     }
     else
     {
-        fbo = glObjects->newEqFrameBufferObject( fboKey );
+        fbo = glObjects.newEqFrameBufferObject( fboKey );
         LBCHECK( fbo->init( pvp.w, pvp.h, getInternalFormat( buffer ), 24, 0 ));
     }
     fbo->bind();
@@ -780,7 +776,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     LBLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
-    return startReadback( buffer, zoomedTexture, glObjects->glewGetContext( ));
+    return startReadback( buffer, zoomedTexture, glObjects.glewGetContext( ));
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

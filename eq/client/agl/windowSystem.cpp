@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+/* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -64,8 +64,8 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
-                    const uint32_t size ) const
+    bool setupFont( util::ObjectManager& gl, const void* key,
+                    const std::string& name, const uint32_t size ) const
     {
         AGLContext context = aglGetCurrentContext();
         LBASSERT( context );

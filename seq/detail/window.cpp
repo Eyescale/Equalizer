@@ -76,7 +76,7 @@ bool Window::configInitGL( const uint128_t& initID )
 
     co::Object* initData = getConfig()->getInitData();
     seq::Renderer* const renderer = getRenderer();
-    const bool first = !getObjectManager()->isShared();
+    const bool first = !getObjectManager().isShared();
 
     if( first && !renderer->init( initData ))
     {
@@ -94,7 +94,7 @@ bool Window::configExitGL()
     Renderer* rendererImpl = getRendererImpl();
     rendererImpl->setWindow( this );
     seq::Renderer* const renderer = getRenderer();
-    const bool last = !getObjectManager()->isShared();
+    const bool last = !getObjectManager().isShared();
 
     bool ret = renderer->exitContext();
     if( last && !renderer->exit( ))

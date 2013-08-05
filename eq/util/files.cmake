@@ -15,10 +15,8 @@ set(UTIL_SOURCES
   ../util/accum.cpp
   ../util/accumBufferObject.cpp
   ../util/bitmapFont.cpp
-  ../util/bitmapFont.ipp
   ../util/frameBufferObject.cpp
   ../util/objectManager.cpp
-  ../util/objectManager.ipp
   ../util/pixelBufferObject.cpp
   ../util/texture.cpp
   )
