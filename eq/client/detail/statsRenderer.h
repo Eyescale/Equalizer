@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale>
+/* Copyright (c) 2012-2013, Stefan Eilemann <eile@eyescale>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,7 +27,7 @@ namespace detail
     class StatsRenderer : public GLStats::Renderer
     {
     public:
-        StatsRenderer( const eq::Window::Font* font )
+        StatsRenderer( const util::BitmapFont* font )
                 : GLStats::Renderer(), _font( font ) {}
         virtual ~StatsRenderer() {}
 
@@ -35,10 +35,9 @@ namespace detail
         virtual void drawText( const std::string& text ) { _font->draw(text); }
 
     private:
-        const eq::Window::Font* const _font;
+        const util::BitmapFont* const _font;
     };
 }
 }
 
 #endif // EQ_STATSRENDERER_H
-

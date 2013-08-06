@@ -145,7 +145,7 @@ void Frame::clear()
     _impl->frameData->clear();
 }
 
-void Frame::deleteGLObjects( ObjectManager* om )
+void Frame::deleteGLObjects( util::ObjectManager& om )
 {
     LBASSERT( _impl->frameData );
     if( _impl->frameData )
@@ -170,7 +170,7 @@ void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
         _impl->frameData->useCompressor( buffer, name );
 }
 
-void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
+void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& config )
 {
     LBASSERT( _impl->frameData );
     const PixelViewport& pvp = _impl->frameData->getPixelViewport();
@@ -178,20 +178,20 @@ void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
         _impl->frameData->startReadback( *this, glObjects, config,
                                          PixelViewports( 1, pvp ));
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
+        (*i)->finishReadback( getZoom(), glObjects.glewGetContext( ));
 }
 
-void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config,
+void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
     LBASSERT( _impl->frameData );
     const Images& images =
         _impl->frameData->startReadback( *this, glObjects, config, regions );
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
+        (*i)->finishReadback( getZoom(), glObjects.glewGetContext( ));
 }
 
-Images Frame::startReadback( ObjectManager* glObjects,
+Images Frame::startReadback( util::ObjectManager& glObjects,
                              const DrawableConfig& config,
                              const PixelViewports& regions )
 {

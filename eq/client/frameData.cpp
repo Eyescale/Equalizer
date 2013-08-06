@@ -161,7 +161,7 @@ void FrameData::flush()
     _imageCache.clear();
 }
 
-void FrameData::deleteGLObjects( ObjectManager* om )
+void FrameData::deleteGLObjects( util::ObjectManager& om )
 {
     for( ImagesCIter i = _images.begin(); i != _images.end(); ++i )
         (*i)->deleteGLObjects( om );
@@ -243,19 +243,19 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 
 #ifndef EQ_2_0_API
 void FrameData::readback( const Frame& frame,
-                          ObjectManager* glObjects,
+                          util::ObjectManager& glObjects,
                           const DrawableConfig& config )
 {
     const Images& images = startReadback( frame, glObjects, config,
                                         PixelViewports( 1, getPixelViewport( )));
 
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( frame.getZoom(), glObjects->glewGetContext( ));
+        (*i)->finishReadback( frame.getZoom(), glObjects.glewGetContext( ));
 }
 #endif
 
 Images FrameData::startReadback( const Frame& frame,
-                                 ObjectManager* glObjects,
+                                 util::ObjectManager& glObjects,
                                  const DrawableConfig& config,
                                  const PixelViewports& regions )
 {

@@ -1,17 +1,17 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -55,15 +55,15 @@ Pipe::~Pipe( )
 bool Pipe::configInit()
 {
     const std::string displayName  = getXDisplayString();
-    const char*       cDisplayName = ( displayName.empty() ? 
+    const char*       cDisplayName = ( displayName.empty() ?
                                        0 : displayName.c_str( ));
     Display*          xDisplay     = XOpenDisplay( cDisplayName );
-            
+
     if( !xDisplay )
     {
         setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
-        LBWARN << getError() << " " << XDisplayName( displayName.c_str( ))
-               << ": " << lunchbox::sysError << std::endl;
+        LBWARN << getError() << " '" << XDisplayName( displayName.c_str( ))
+               << "': " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -97,12 +97,12 @@ void Pipe::configExit()
 std::string Pipe::getXDisplayString()
 {
     std::ostringstream  stringStream;
-    
+
     const uint32_t port   = getPipe()->getPort();
     const uint32_t device = getPipe()->getDevice();
 
     if( port != LB_UNDEFINED_UINT32 )
-    { 
+    {
         if( device == LB_UNDEFINED_UINT32 )
             stringStream << ":" << port;
         else
@@ -122,7 +122,7 @@ void Pipe::setXDisplay( Display* display )
     if( _xDisplay == display )
         return;
 
-    _xDisplay = display; 
+    _xDisplay = display;
     XSetCurrentDisplay( display );
 
     GPUInfo info;
@@ -169,7 +169,7 @@ bool Pipe::getGPUInfo( Display* display, GPUInfo& info )
     info.pvp.y = 0;
     info.pvp.w = DisplayWidth(  display, DefaultScreen( display ));
     info.pvp.h = DisplayHeight( display, DefaultScreen( display ));
-    
+
     return true;
 }
 
@@ -209,14 +209,14 @@ bool Pipe::_configInitGLXEW()
     wa.border_pixel = 0;
     XID drawable = XCreateWindow( _xDisplay, parent, 0, 0, 16, 16,
                                   0, visualInfo->depth, InputOutput,
-                                  visualInfo->visual, 
+                                  visualInfo->visual,
                                   CWBackPixmap | CWBorderPixel | CWColormap,
                                   &wa );
     if( !drawable )
     {
         setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
         return false;
-    }   
+    }
 
     XFree( visualInfo );
     XSync( _xDisplay, False );
@@ -247,7 +247,7 @@ bool Pipe::_configInitGLXEW()
 int XErrorHandler( Display* display, XErrorEvent* event )
 {
     LBWARN << lunchbox::disableFlush;
-    LBWARN << "X Error occured: " << lunchbox::disableHeader 
+    LBWARN << "X Error occured: " << lunchbox::disableHeader
            << lunchbox::indent;
 
     char buffer[256];
@@ -274,13 +274,13 @@ int XErrorHandler( Display* display, XErrorEvent* event )
             LBWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    LBWARN << lunchbox::enableFlush << lunchbox::exdent 
+    LBWARN << lunchbox::enableFlush << lunchbox::exdent
            << lunchbox::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))
     {
-        LBWARN << "Caught X Error, entering infinite loop for debugging" 
+        LBWARN << "Caught X Error, entering infinite loop for debugging"
                << std::endl;
         while( true ) ;
     }

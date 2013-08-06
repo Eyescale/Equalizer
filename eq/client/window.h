@@ -63,12 +63,6 @@ namespace eq
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
-        /** The per-window OpenGL object manager. @version 1.0 */
-        typedef eq::ObjectManager ObjectManager;
-
-        /** Fonts used for overlays. @version 1.0 */
-        typedef BitmapFont Font;
-
         /** Construct a new window. @version 1.0 */
         EQ_API Window( Pipe* parent );
 
@@ -151,22 +145,23 @@ namespace eq
         Window* getSharedContextWindow() { return _sharedContextWindow; }
 
         /** @return the window's object manager instance. @version 1.0 */
-        ObjectManager* getObjectManager() { return _objectManager; }
+        util::ObjectManager& getObjectManager() { return _objectManager; }
 
         /** @return the window's object manager instance. @version 1.0 */
-        const ObjectManager* getObjectManager() const { return _objectManager; }
+        const util::ObjectManager& getObjectManager() const
+            { return _objectManager; }
 
         /**
          * @return a small bitmap font used for overlays.
          * @warning experimental - may not be supported in the future.
          */
-        EQ_API const Font* getSmallFont();
+        EQ_API const util::BitmapFont* getSmallFont();
 
         /**
          * @return a medium bitmap font used for overlays.
          * @warning experimental - may not be supported in the future.
          */
-        EQ_API const Font* getMediumFont();
+        EQ_API const util::BitmapFont* getMediumFont();
 
         /**
          * Get the GLEW context for this window.
@@ -446,7 +441,7 @@ namespace eq
         State _state;
 
         /** OpenGL object management. */
-        ObjectManager* _objectManager;
+        util::ObjectManager _objectManager;
 
         /** Used to calculate time of last frame rendering */
         float _lastTime;

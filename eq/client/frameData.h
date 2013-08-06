@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -209,7 +209,7 @@ namespace server { class FrameData; }
         void flush();
 
         /** Delete data allocated by the given object manager on all images.*/
-        void deleteGLObjects( ObjectManager* om );
+        void deleteGLObjects( util::ObjectManager& om );
 
         /** Deallocate all transfer and compression plugins on all images. */
         EQ_API void resetPlugins();
@@ -227,7 +227,7 @@ namespace server { class FrameData; }
          * @version 1.0
          * @deprecated @sa startReadback()
          */
-        void readback( const Frame& frame, ObjectManager* glObjects,
+        void readback( const Frame& frame, util::ObjectManager& glObjects,
                        const DrawableConfig& config );
 #endif
 
@@ -244,7 +244,8 @@ namespace server { class FrameData; }
          * @return the new images which need finishReadback.
          * @version 1.3.0
          */
-        Images startReadback( const Frame& frame, ObjectManager* glObjects,
+        Images startReadback( const Frame& frame,
+                              util::ObjectManager& glObjects,
                               const DrawableConfig& config,
                               const PixelViewports& regions );
 

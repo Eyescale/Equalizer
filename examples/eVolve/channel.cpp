@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -348,7 +348,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
             dbFrames.erase( dbFrames.begin( ));
         else if( coveredPVP.hasArea())
         {
-            eq::Window::ObjectManager* glObjects = getObjectManager();
+            eq::util::ObjectManager& glObjects = getObjectManager();
 
             _frame.setOffset( eq::Vector2i( 0, 0 ));
             _frame.setZoom( zoom );
@@ -475,7 +475,7 @@ void Channel::_drawHelp()
 
     if( frameData.showHelp( ))
     {
-        const eq::Window::Font* font = getWindow()->getSmallFont();
+        const eq::util::BitmapFont* font = getWindow()->getSmallFont();
         std::string help = EVolve::getHelp();
         float y = 340.f;
 
@@ -495,7 +495,7 @@ void Channel::_drawHelp()
 
     if( !message.empty( ))
     {
-        const eq::Window::Font* font = getWindow()->getMediumFont();
+        const eq::util::BitmapFont* font = getWindow()->getMediumFont();
 
         const eq::Viewport& vp = getViewport();
         const eq::PixelViewport& pvp = getPixelViewport();

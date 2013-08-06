@@ -222,11 +222,11 @@ util::Accum* Compositor::_obtainAccum( Channel* channel )
 
     LBASSERT( pvp.isValid( ));
 
-    Window::ObjectManager* objects = channel->getObjectManager();
-    util::Accum* accum = objects->getEqAccum( channel );
+    util::ObjectManager& objects = channel->getObjectManager();
+    util::Accum* accum = objects.getEqAccum( channel );
     if( !accum )
     {
-        accum = objects->newEqAccum( channel );
+        accum = objects.newEqAccum( channel );
         if( !accum->init( pvp, channel->getWindow()->getColorFormat( )))
         {
             LBERROR << "Accumulation initialization failed." << std::endl;
@@ -1247,14 +1247,14 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     {
         LBASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
-        Window::ObjectManager* objects = channel->getObjectManager();
+        util::ObjectManager& objects = channel->getObjectManager();
 
         if( op.zoom == Zoom::NONE )
         {
             image->upload( which, 0, op.offset, objects );
             return;
         }
-        util::Texture* ncTexture = objects->obtainEqTexture(
+        util::Texture* ncTexture = objects.obtainEqTexture(
             which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey,
             GL_TEXTURE_RECTANGLE_ARB );
         texture = ncTexture;
@@ -1375,8 +1375,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     const PixelViewport& pvp = image->getPixelViewport();
     LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
 
-    Channel*               channel = op.channel; // needed for glewGetContext
-    Window::ObjectManager* objects = channel->getObjectManager();
+    Channel* channel = op.channel; // needed for glewGetContext
+    util::ObjectManager& objects = channel->getObjectManager();
     const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
 
     const util::Texture* textureColor = 0;
@@ -1388,9 +1388,9 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     }
     else
     {
-        util::Texture* ncTextureColor = objects->obtainEqTexture( colorDBKey,
+        util::Texture* ncTextureColor = objects.obtainEqTexture( colorDBKey,
                                                      GL_TEXTURE_RECTANGLE_ARB );
-        util::Texture* ncTextureDepth = objects->obtainEqTexture( depthDBKey,
+        util::Texture* ncTextureDepth = objects.obtainEqTexture( depthDBKey,
                                                      GL_TEXTURE_RECTANGLE_ARB );
         const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
 
@@ -1401,15 +1401,14 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         textureDepth = ncTextureDepth;
     }
 
-    GLuint program = objects->getProgram( shaderDBKey );
-
-    if( program == Window::ObjectManager::INVALID )
+    GLuint program = objects.getProgram( shaderDBKey );
+    if( program == util::ObjectManager::INVALID )
     {
         // Create fragment shader which reads color and depth values from
         // rectangular textures
-        const GLuint shader = objects->newShader( shaderDBKey,
+        const GLuint shader = objects.newShader( shaderDBKey,
                                                   GL_FRAGMENT_SHADER );
-        LBASSERT( shader != Window::ObjectManager::INVALID );
+        LBASSERT( shader != util::ObjectManager::INVALID );
 
         const char* source =
             "uniform sampler2DRect color; \
@@ -1427,7 +1426,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
             LBERROR << "Failed to compile fragment shader for DB compositing"
                     << std::endl;
 
-        program = objects->newProgram( shaderDBKey );
+        program = objects.newProgram( shaderDBKey );
 
         EQ_GL_CALL( glAttachShader( program, shader ));
         EQ_GL_CALL( glLinkProgram( program ));

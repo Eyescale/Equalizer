@@ -205,7 +205,7 @@ ServerPtr Channel::getServer()
     return ( window ? window->getServer() : 0 );
 }
 
-Window::ObjectManager* Channel::getObjectManager()
+util::ObjectManager& Channel::getObjectManager()
 {
     Window* window = getWindow();
     LBASSERT( window );
@@ -448,10 +448,10 @@ void Channel::frameReadback( const uint128_t& )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    Window::ObjectManager*  glObjects   = getObjectManager();
-    const DrawableConfig&   drawable    = getDrawableConfig();
-    const Frames&           frames      = getOutputFrames();
-    const PixelViewports&   regions     = getRegions();
+    util::ObjectManager&  glObjects   = getObjectManager();
+    const DrawableConfig& drawable    = getDrawableConfig();
+    const Frames&         frames      = getOutputFrames();
+    const PixelViewports& regions     = getRegions();
 
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
@@ -989,7 +989,7 @@ void Channel::drawStatistics()
     Window* window = getWindow();
 
 #ifdef EQUALIZER_USE_GLSTATS
-    const Window::Font* font = window->getSmallFont();
+    const util::BitmapFont* font = window->getSmallFont();
     const Config* config = getConfig();
     const GLStats::Data& data = config->getStatistics();
     detail::StatsRenderer renderer( font );

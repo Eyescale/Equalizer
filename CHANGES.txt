@@ -1,6 +1,9 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+-----------------------------------2.0-------------------------------------
+
+06/Aug/2013
   [Collage 5bb65c6] Remove most legacy EQ_ defines. Use lunchbox
   namespace for co::base and co::Global.
 
@@ -25,6 +28,19 @@ This file lists all changes in the public Equalizer API, latest on top:
   EQ_ABORT EQ_LOG EQ_SAFECAST
 
   Replace EQ_ with LB_
+
+05/Aug/2013
+  [6ee6727] Simplify ObjectManager and BitmapFont APIs:
+  * Replace template key type by 'void *' which was used exclusively
+  * Use ObjectManager references instead of pointers throughout API
+  * Needed for #83
+
+  To port, replace:
+  * eq::Window::ObjectManager* -> eq::util::ObjectManager&
+  * eq::Window::Font* -> eq::util::BitmapFont*
+
+-----------------------------------1.6-------------------------------------
+>>>>>>> 6be57981aa6f980336fe7f31019bfa9b9a2e3bff
 
 03/Dec/2012
   Remove ...,     fabric::View::getEqualizer()(::getTileSize( ))

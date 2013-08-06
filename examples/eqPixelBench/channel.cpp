@@ -136,7 +136,7 @@ void Channel::_testFormats( float applyZoom )
     const eq::Zoom zoom( applyZoom, applyZoom );
 
     lunchbox::Clock clock;
-    eq::Window::ObjectManager* glObjects = getObjectManager();
+    eq::util::ObjectManager& glObjects = getObjectManager();
 
     //----- test all default format/type combinations
     for( uint32_t i=0; _enums[i].internalFormatString; ++i )
@@ -174,7 +174,7 @@ void Channel::_testFormats( float applyZoom )
                 {
                     image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom,
                                           glObjects );
-                    image->finishReadback( zoom, glObjects->glewGetContext( ));
+                    image->finishReadback( zoom, glObjects.glewGetContext( ));
                     ++nLoops;
                 }
                 glFinish();
@@ -252,7 +252,7 @@ void Channel::_testTiledOperations()
     area.x() = pvp.w;
 
     lunchbox::Clock clock;
-    eq::Window::ObjectManager* glObjects = getObjectManager();
+    eq::util::ObjectManager& glObjects = getObjectManager();
     const GLEWContext* glewContext = glewGetContext();
 
     //----- test tiled assembly algorithms
@@ -287,7 +287,7 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext());
+            image->finishReadback( eq::Zoom::NONE, glObjects.glewGetContext( ));
             msec += clock.getTimef();
         }
 
@@ -317,7 +317,7 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext());
+            image->finishReadback( eq::Zoom::NONE, glObjects.glewGetContext( ));
             msec += clock.getTimef();
         }
         _sendEvent( READBACK, msec, area, formatType.str(), 0, 0 );
@@ -375,7 +375,7 @@ void Channel::_testDepthAssemble()
     area.x() = pvp.w;
 
     lunchbox::Clock clock;
-    eq::Window::ObjectManager* glObjects = getObjectManager();
+    eq::util::ObjectManager& glObjects = getObjectManager();
     const GLEWContext* glewContext = glewGetContext();
 
     //----- test depth-based assembly algorithms
@@ -408,7 +408,7 @@ void Channel::_testDepthAssemble()
 
         image->startReadback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
                               pvp, eq::Zoom::NONE, glObjects );
-        image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
+        image->finishReadback( eq::Zoom::NONE, glObjects.glewGetContext( ));
         LBASSERT( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
         LBASSERT( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
 

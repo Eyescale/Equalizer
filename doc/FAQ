@@ -18,3 +18,13 @@ A: The application is responsible for hiding the menu bar and
    application. You can change X11 to automatically hide the menu and
    dock using LSUIPresentationMode, see
    http://www.macosxhints.com/article.php?story=20070118003804854.
+
+Q: When I try to render with multiple nodes, the app node reports "Node
+   unreachable, all connections failed to connect", but everything seems
+   ok. What's up with this?
+A: When initializing a node, the Equalizer server tries to connect to
+   the node first, in case it was manually prelaunched. The underlying
+   Collage library warns that the connection fails, and the server
+   handles this situation by then launching the node process using the
+   launch command (default ssh). This is completely normal and not an
+   error.

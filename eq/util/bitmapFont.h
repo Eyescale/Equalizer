@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -18,19 +18,15 @@
 #ifndef EQUTIL_BITMAPFONT_H
 #define EQUTIL_BITMAPFONT_H
 
+#include <eq/util/objectManager.h> // used inline
 #include <eq/util/types.h>
-#include <eq/client/api.h>
-#include <eq/client/windowSystem.h> // enum used
-#include <lunchbox/types.h>
-
-#include <string>
 
 namespace eq
 {
 namespace util
 {
     /** A wrapper around AGL, WGL and GLX bitmap fonts. */
-    template< class OMT > class BitmapFont
+    class BitmapFont
     {
     public:
         /**
@@ -39,13 +35,13 @@ namespace util
          * Usually bitmap fonts are allocated using
          * ObjectManager::newEqBitmapFont, which provides the correct parameters
          * for this constructor.
-         * 
+         *
          * @param gl An ObjectManager to allocate display lists for the fonts
          * @param key A unique key to allocate OpenGL objects from the object
          *            manager.
          * @version 1.0
          */
-        EQ_API BitmapFont( ObjectManager< OMT >& gl, const OMT& key );
+        EQ_API BitmapFont( ObjectManager& gl, const void* key );
 
         /**
          * Destruct this bitmap font.
@@ -84,8 +80,8 @@ namespace util
         EQ_API void draw( const std::string& text ) const;
 
     private:
-        ObjectManager< OMT > _gl;
-        const OMT            _key;
+        ObjectManager _gl;
+        const void* _key;
     };
 }
 }

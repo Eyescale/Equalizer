@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -46,7 +46,7 @@ protected:
     virtual ~WindowSystemIF() {}
 
     /** @internal */
-    static uint32_t _setupLists( ObjectManager& gl, const void* key,
+    static uint32_t _setupLists( util::ObjectManager& gl, const void* key,
                                  const int num );
 
     /** @return the unique name of the window system. @version 1.6 */
@@ -75,7 +75,7 @@ protected:
      * @return true if the font was created, false otherwise.
      * @warning experimental, might not be supported in the future.
      */
-    virtual bool setupFont( ObjectManager& gl, const void* key,
+    virtual bool setupFont( util::ObjectManager& gl, const void* key,
                        const std::string& name, const uint32_t size ) const = 0;
 
     /** Perform per-process initialization for a Config. @version 1.6 */
@@ -129,7 +129,7 @@ public:
     EQ_API SystemWindow* createWindow( Window* window ) const;
     EQ_API SystemPipe* createPipe( Pipe* pipe ) const;
     EQ_API MessagePump* createMessagePump() const;
-    EQ_API bool setupFont( ObjectManager& gl, const void* key,
+    EQ_API bool setupFont( util::ObjectManager& gl, const void* key,
                            const std::string& name, const uint32_t size ) const;
 
     EQ_API bool operator == ( const WindowSystem& other ) const;

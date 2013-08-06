@@ -31,8 +31,8 @@ class AccumBufferObject;
 class FrameBufferObject;
 class PixelBufferObject;
 class Texture;
-template< class > class BitmapFont;
-template< class > class ObjectManager;
+class BitmapFont;
+class ObjectManager;
 
 /** A vector of pointers to eq::util::Texture */
 typedef std::vector< Texture* >  Textures;

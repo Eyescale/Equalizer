@@ -160,7 +160,7 @@ bool Resources::discover( ServerPtr server, Config* config,
             netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
     }
     else
-        netTypes = hwsd::NetInfo::TYPE_ALL;
+        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
 
     hwsd::FilterPtr netFilter = filter |
                           new hwsd::NetFilter( params.getPrefixes(), netTypes );

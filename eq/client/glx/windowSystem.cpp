@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2011 Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
+ *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -53,8 +53,8 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
-                    const uint32_t size ) const
+    bool setupFont( util::ObjectManager& gl, const void* key,
+                    const std::string& name, const uint32_t size ) const
     {
         Display* display = XGetCurrentDisplay();
         LBASSERT( display );

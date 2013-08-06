@@ -100,7 +100,7 @@ namespace detail { class Channel; struct RBStat; }
         EQ_API const GLEWContext* glewGetContext() const;
 
         /** @return the window's object manager instance. @version 1.0 */
-        EQ_API ObjectManager* getObjectManager();
+        EQ_API util::ObjectManager& getObjectManager();
 
         /** @return the channel's drawable config. @version 1.0 */
         EQ_API const DrawableConfig& getDrawableConfig() const;

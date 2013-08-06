@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Maxim Makhinya
+/* Copyright (c)      2009, Maxim Makhinya
  *               2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -42,6 +42,8 @@
 namespace eq
 {
 
+#define glewGetContext glObjects.glewGetContext
+
 // use to address one shader and program per shared context set
 static const char seeds = 42;
 static const char* shaderRBInfo = &seeds;
@@ -50,14 +52,13 @@ static const char* shaderRBInfo = &seeds;
 
 
 ROIFinder::ROIFinder()
-    : _glObjects( 0 )
 {
     _tmpAreas[0].pvp       = PixelViewport( 0, 0, 0, 0 );
     _tmpAreas[0].hole      = PixelViewport( 0, 0, 0, 0 );
     _tmpAreas[0].emptySize = 0;
 }
 
-void ROIFinder::_dumpDebug( const uint32_t stage )
+void ROIFinder::_dumpDebug( const GLEWContext* gl, const uint32_t stage )
 {
     static uint32_t counter = 0;
     std::ostringstream ss;
@@ -68,7 +69,7 @@ void ROIFinder::_dumpDebug( const uint32_t stage )
 
     _tmpImg.allocDownloader( Frame::BUFFER_COLOR,
                              EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR,
-                             glewGetContext( ));
+                             gl );
 
     _tmpImg.validatePixelData( Frame::BUFFER_COLOR );
 
@@ -535,11 +536,10 @@ const void* ROIFinder::_getInfoKey( ) const
 }
 
 
-void ROIFinder::_readbackInfo( )
+void ROIFinder::_readbackInfo( util::ObjectManager& glObjects )
 {
-    LBASSERT( _glObjects );
-    LBASSERT( _glObjects->supportsEqTexture( ));
-    LBASSERT( _glObjects->supportsEqFrameBufferObject( ));
+    LBASSERT( glObjects.supportsEqTexture( ));
+    LBASSERT( glObjects.supportsEqFrameBufferObject( ));
 
     PixelViewport pvp = _pvp;
     pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
@@ -551,7 +551,7 @@ void ROIFinder::_readbackInfo( )
     // copy frame buffer to texture
     const void* bufferKey = _getInfoKey( );
     util::Texture* texture =
-        _glObjects->obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
+        glObjects.obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
     texture->copyFromFrameBuffer( GL_DEPTH_COMPONENT, pvp );
@@ -561,7 +561,7 @@ void ROIFinder::_readbackInfo( )
 
     // draw zoomed quad into FBO
     const void*     fboKey = _getInfoKey( );
-    util::FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
+    util::FrameBufferObject* fbo = glObjects.getEqFrameBufferObject( fboKey );
 
     if( fbo )
     {
@@ -569,7 +569,7 @@ void ROIFinder::_readbackInfo( )
     }
     else
     {
-        fbo = _glObjects->newEqFrameBufferObject( fboKey );
+        fbo = glObjects.newEqFrameBufferObject( fboKey );
         LBCHECK( fbo->init( _pvp.w, _pvp.h, GL_RGBA32F, 0, 0 ));
     }
     fbo->bind();
@@ -583,16 +583,14 @@ void ROIFinder::_readbackInfo( )
     texture->applyZoomFilter( FILTER_LINEAR );
 
     // Enable shaders
-    //
-    GLuint program = _glObjects->getProgram( shaderRBInfo );
-
-    if( program == ObjectManager::INVALID )
+    GLuint program = glObjects.getProgram( shaderRBInfo );
+    if( program == util::ObjectManager::INVALID )
     {
         // Create fragment shader which reads depth values from
         // rectangular textures
-        const GLuint shader = _glObjects->newShader( shaderRBInfo,
+        const GLuint shader = glObjects.newShader( shaderRBInfo,
                                                         GL_FRAGMENT_SHADER );
-        LBASSERT( shader != ObjectManager::INVALID );
+        LBASSERT( shader != util::ObjectManager::INVALID );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
         const GLchar* fShaderPtr = roiFragmentShader_glsl.c_str();
@@ -608,7 +606,7 @@ void ROIFinder::_readbackInfo( )
             LBERROR << "Failed to compile fragment shader for ROI finder"
                     << std::endl;
 
-        program = _glObjects->newProgram( shaderRBInfo );
+        program = glObjects.newProgram( shaderRBInfo );
 
         EQ_GL_CALL( glAttachShader( program, shader ));
         EQ_GL_CALL( glLinkProgram( program ));
@@ -679,7 +677,7 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
                                        const Zoom&            zoom,
                                        const uint32_t         stage,
                                        const uint128_t&       frameID,
-                                       ObjectManager*         glObjects )
+                                       util::ObjectManager&   glObjects )
 {
     PixelViewports result;
     result.push_back( pvp );
@@ -694,8 +692,6 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
 for( int i = 0; i < 100; i++ ) {
 #endif
 
-    LBASSERT( glObjects );
-    LBASSERTINFO( !_glObjects, "Another readback in progress?" );
     LBLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
                             << ", buffers " << buffers
                             << std::endl;
@@ -719,20 +715,19 @@ for( int i = 0; i < 100; i++ ) {
 
     // go through depth buffer and check min/max/BG values
     // render to and read-back usefull info from FBO
-    _glObjects = glObjects;
-    _readbackInfo();
-    _glObjects = 0;
+    _readbackInfo( glObjects );
+    glObjects.clear();
 
     // Analyze readed back data and find regions of interest
     _init( );
-//    _dumpDebug( 0 );
+//    _dumpDebug( glewGetContext(), 0 );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
     _emptyFinder.setLimits( 200, 0.002f );
 
     result.clear();
     _findAreas( result );
-//    _dumpDebug( 1 );
+//    _dumpDebug( glewGetContext(), 1 );
 
 #ifdef EQ_ROI_USE_TRACKER
     _roiTracker.updateDelay( result, ticket );
@@ -761,12 +756,6 @@ for( int i = 0; i < 100; i++ ) {
 
 //    LBWARN << "Areas found: " << result.size() << std::endl;
     return result;
-}
-
-const GLEWContext* ROIFinder::glewGetContext() const
-{
-    LBASSERT( _glObjects );
-    return _glObjects->glewGetContext();
 }
 
 }

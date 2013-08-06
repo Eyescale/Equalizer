@@ -717,7 +717,7 @@ void Channel::_drawHelp()
 
     if( !message.empty( ))
     {
-        const eq::Window::Font* font = getWindow()->getMediumFont();
+        const eq::util::BitmapFont* font = getWindow()->getMediumFont();
 
         const float width = pvp.w / vp.w;
         const float xOffset = vp.x * width;
@@ -746,7 +746,7 @@ void Channel::_drawHelp()
 
     if( frameData.showHelp( ))
     {
-        const eq::Window::Font* font = getWindow()->getSmallFont();
+        const eq::util::BitmapFont* font = getWindow()->getSmallFont();
         std::string help = EqPly::getHelp();
         float y = height - 16.f;
 
