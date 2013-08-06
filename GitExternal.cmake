@@ -18,8 +18,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
     if(nok)
-      message(FATAL_ERROR
-        "${DIR} git clone failed: ${error}\n")
+      message(FATAL_ERROR "${DIR} git clone failed: ${error}\n")
     endif()
   endif()
 
