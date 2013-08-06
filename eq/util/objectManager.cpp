@@ -142,7 +142,7 @@ ObjectManager::SharedData::~SharedData()
 
 void ObjectManager::deleteAll()
 {
-    for( typename ObjectHash::const_iterator i = _data->lists.begin();
+    for( ObjectHash::const_iterator i = _data->lists.begin();
          i != _data->lists.end(); ++i )
     {
         const Object& object = i->second;
@@ -151,7 +151,7 @@ void ObjectManager::deleteAll()
     }
     _data->lists.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->textures.begin();
+    for( ObjectHash::const_iterator i = _data->textures.begin();
          i != _data->textures.end(); ++i )
     {
         const Object& object = i->second;
@@ -160,7 +160,7 @@ void ObjectManager::deleteAll()
     }
     _data->textures.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->buffers.begin();
+    for( ObjectHash::const_iterator i = _data->buffers.begin();
          i != _data->buffers.end(); ++i )
     {
         const Object& object = i->second;
@@ -169,7 +169,7 @@ void ObjectManager::deleteAll()
     }
     _data->buffers.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->programs.begin();
+    for( ObjectHash::const_iterator i = _data->programs.begin();
          i != _data->programs.end(); ++i )
     {
         const Object& object = i->second;
@@ -178,7 +178,7 @@ void ObjectManager::deleteAll()
     }
     _data->programs.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->shaders.begin();
+    for( ObjectHash::const_iterator i = _data->shaders.begin();
          i != _data->shaders.end(); ++i )
     {
         const Object& object = i->second;
@@ -187,7 +187,7 @@ void ObjectManager::deleteAll()
     }
     _data->shaders.clear();
 
-    for( typename TextureHash::const_iterator i = _data->eqTextures.begin();
+    for( TextureHash::const_iterator i = _data->eqTextures.begin();
          i != _data->eqTextures.end(); ++i )
     {
         Texture* texture = i->second;
@@ -198,7 +198,7 @@ void ObjectManager::deleteAll()
     }
     _data->eqTextures.clear();
 
-    for( typename FontHash::const_iterator i = _data->eqFonts.begin();
+    for( FontHash::const_iterator i = _data->eqFonts.begin();
          i != _data->eqFonts.end(); ++i )
     {
         util::BitmapFont* font = i->second;
@@ -209,7 +209,7 @@ void ObjectManager::deleteAll()
     }
     _data->eqFonts.clear();
 
-    for( typename FBOHash::const_iterator i =
+    for( FBOHash::const_iterator i =
              _data->eqFrameBufferObjects.begin();
          i != _data->eqFrameBufferObjects.end(); ++i )
     {
@@ -221,7 +221,7 @@ void ObjectManager::deleteAll()
     }
     _data->eqFrameBufferObjects.clear();
 
-    for( typename UploaderHash::const_iterator i = _data->eqUploaders.begin();
+    for( UploaderHash::const_iterator i = _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
     {
         lunchbox::Uploader* uploader = i->second;
@@ -237,7 +237,7 @@ void ObjectManager::deleteAll()
 
 GLuint ObjectManager::getList( const void* key ) const
 {
-    typename ObjectHash::const_iterator i = _data->lists.find( key );
+    ObjectHash::const_iterator i = _data->lists.find( key );
     if( i == _data->lists.end( ))
         return INVALID;
 
@@ -277,7 +277,7 @@ GLuint ObjectManager::obtainList( const void* key, const GLsizei num )
 
 void ObjectManager::deleteList( const void* key )
 {
-    typename ObjectHash::iterator i = _data->lists.find( key );
+    ObjectHash::iterator i = _data->lists.find( key );
     if( i == _data->lists.end( ))
         return;
 
@@ -290,7 +290,7 @@ void ObjectManager::deleteList( const void* key )
 
 GLuint ObjectManager::getTexture( const void* key ) const
 {
-    typename ObjectHash::const_iterator i = _data->textures.find( key );
+    ObjectHash::const_iterator i = _data->textures.find( key );
     if( i == _data->textures.end( ))
         return INVALID;
 
@@ -329,7 +329,7 @@ GLuint ObjectManager::obtainTexture( const void* key )
 
 void ObjectManager::deleteTexture( const void* key )
 {
-    typename ObjectHash::iterator i = _data->textures.find( key );
+    ObjectHash::iterator i = _data->textures.find( key );
     if( i == _data->textures.end( ))
         return;
 
@@ -347,7 +347,7 @@ bool ObjectManager::supportsBuffers() const
 
 GLuint ObjectManager::getBuffer( const void* key ) const
 {
-    typename ObjectHash::const_iterator i = _data->buffers.find( key );
+    ObjectHash::const_iterator i = _data->buffers.find( key );
     if( i == _data->buffers.end() )
         return INVALID;
 
@@ -393,7 +393,7 @@ GLuint ObjectManager::obtainBuffer( const void* key )
 
 void ObjectManager::deleteBuffer( const void* key )
 {
-    typename ObjectHash::iterator i = _data->buffers.find( key );
+    ObjectHash::iterator i = _data->buffers.find( key );
     if( i == _data->buffers.end() )
         return;
 
@@ -411,7 +411,7 @@ bool ObjectManager::supportsPrograms() const
 
 GLuint ObjectManager::getProgram( const void* key ) const
 {
-    typename ObjectHash::const_iterator i = _data->programs.find( key );
+    ObjectHash::const_iterator i = _data->programs.find( key );
     if( i == _data->programs.end() )
         return INVALID;
 
@@ -455,7 +455,7 @@ GLuint ObjectManager::obtainProgram( const void* key )
 
 void ObjectManager::deleteProgram( const void* key )
 {
-    typename ObjectHash::iterator i = _data->programs.find( key );
+    ObjectHash::iterator i = _data->programs.find( key );
     if( i == _data->programs.end() )
         return;
 
@@ -473,7 +473,7 @@ bool ObjectManager::supportsShaders() const
 
 GLuint ObjectManager::getShader( const void* key ) const
 {
-    typename ObjectHash::const_iterator i = _data->shaders.find( key );
+    ObjectHash::const_iterator i = _data->shaders.find( key );
     if( i == _data->shaders.end() )
         return INVALID;
 
@@ -518,7 +518,7 @@ GLuint ObjectManager::obtainShader( const void* key, const GLenum type )
 
 void ObjectManager::deleteShader( const void* key )
 {
-    typename ObjectHash::iterator i = _data->shaders.find( key );
+    ObjectHash::iterator i = _data->shaders.find( key );
     if( i == _data->shaders.end() )
         return;
 
@@ -529,7 +529,7 @@ void ObjectManager::deleteShader( const void* key )
 
 Accum* ObjectManager::getEqAccum( const void* key ) const
 {
-    typename AccumHash::const_iterator i = _data->accums.find( key );
+    AccumHash::const_iterator i = _data->accums.find( key );
     if( i == _data->accums.end( ))
         return 0;
 
@@ -559,7 +559,7 @@ Accum* ObjectManager::obtainEqAccum( const void* key )
 
 void ObjectManager::deleteEqAccum( const void* key )
 {
-    typename AccumHash::iterator i = _data->accums.find( key );
+    AccumHash::iterator i = _data->accums.find( key );
     if( i == _data->accums.end( ))
         return;
 
@@ -573,7 +573,7 @@ void ObjectManager::deleteEqAccum( const void* key )
 // eq::CompressorData object functions
 lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
 {
-    typename UploaderHash::const_iterator i = _data->eqUploaders.find( key );
+    UploaderHash::const_iterator i = _data->eqUploaders.find( key );
     if( i == _data->eqUploaders.end( ))
         return 0;
 
@@ -609,7 +609,7 @@ lunchbox::Uploader* ObjectManager::obtainEqUploader( const void* key )
 
 void ObjectManager::deleteEqUploader( const void* key )
 {
-    typename UploaderHash::iterator i = _data->eqUploaders.find( key );
+    UploaderHash::iterator i = _data->eqUploaders.find( key );
     if( i == _data->eqUploaders.end( ))
         return;
 
@@ -630,7 +630,7 @@ bool ObjectManager::supportsEqTexture() const
 
 Texture* ObjectManager::getEqTexture( const void* key ) const
 {
-    typename TextureHash::const_iterator i = _data->eqTextures.find( key );
+    TextureHash::const_iterator i = _data->eqTextures.find( key );
     if( i == _data->eqTextures.end( ))
         return 0;
 
@@ -660,7 +660,7 @@ Texture* ObjectManager::obtainEqTexture( const void* key, const GLenum target )
 
 void   ObjectManager::deleteEqTexture( const void* key )
 {
-    typename TextureHash::iterator i = _data->eqTextures.find( key );
+    TextureHash::iterator i = _data->eqTextures.find( key );
     if( i == _data->eqTextures.end( ))
         return;
 
@@ -674,7 +674,7 @@ void   ObjectManager::deleteEqTexture( const void* key )
 // eq::util::BitmapFont object functions
 util::BitmapFont* ObjectManager::getEqBitmapFont( const void* key ) const
 {
-    typename FontHash::const_iterator i = _data->eqFonts.find( key );
+    FontHash::const_iterator i = _data->eqFonts.find( key );
     if( i == _data->eqFonts.end( ))
         return 0;
 
@@ -704,7 +704,7 @@ util::BitmapFont* ObjectManager::obtainEqBitmapFont( const void* key )
 
 void ObjectManager::deleteEqBitmapFont( const void* key )
 {
-    typename FontHash::iterator i = _data->eqFonts.find( key );
+    FontHash::iterator i = _data->eqFonts.find( key );
     if( i == _data->eqFonts.end( ))
         return;
 
@@ -724,7 +724,7 @@ bool ObjectManager::supportsEqFrameBufferObject() const
 FrameBufferObject* ObjectManager::getEqFrameBufferObject( const void* key )
     const
 {
-    typename FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
+    FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
     if( i == _data->eqFrameBufferObjects.end( ))
         return 0;
 
@@ -757,7 +757,7 @@ FrameBufferObject* ObjectManager::obtainEqFrameBufferObject( const void* key )
 
 void ObjectManager::deleteEqFrameBufferObject( const void* key )
 {
-    typename FBOHash::iterator i = _data->eqFrameBufferObjects.find(key);
+    FBOHash::iterator i = _data->eqFrameBufferObjects.find(key);
     if( i == _data->eqFrameBufferObjects.end( ))
         return;
 
@@ -777,7 +777,7 @@ bool ObjectManager::supportsEqPixelBufferObject() const
 PixelBufferObject* ObjectManager::getEqPixelBufferObject( const void* key )
     const
 {
-    typename PBOHash::const_iterator i = _data->eqPixelBufferObjects.find(key);
+    PBOHash::const_iterator i = _data->eqPixelBufferObjects.find(key);
     if( i == _data->eqPixelBufferObjects.end( ))
         return 0;
 
@@ -819,7 +819,7 @@ PixelBufferObject* ObjectManager::obtainEqPixelBufferObject( const void* key,
 
 void ObjectManager::deleteEqPixelBufferObject( const void* key )
 {
-    typename PBOHash::iterator i = _data->eqPixelBufferObjects.find(key);
+    PBOHash::iterator i = _data->eqPixelBufferObjects.find(key);
     if( i == _data->eqPixelBufferObjects.end( ))
         return;
 
