@@ -30,6 +30,7 @@
 
 
 include(CMakePackageConfigHelpers)
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeInstallPath.cmake)
 
 # Write the ProjectConfig.cmake.in file for configure_package_config_file
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}Config.cmake.in
@@ -236,6 +237,10 @@ install(
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev)
 
 # create and install Project.pc
+if(NOT LIBRARY_DIR)
+  set(LIBRARY_DIR lib)
+endif()
+
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pkg/${CMAKE_PROJECT_NAME}.pc
   "prefix=${CMAKE_INSTALL_PREFIX}\n"
   "exec_prefix=\${prefix}\n"

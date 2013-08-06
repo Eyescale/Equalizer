@@ -33,7 +33,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
   if(CMAKE_COMPILER_IS_CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments -ferror-limit=5")
   endif()
 
   if(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
@@ -55,12 +55,50 @@ elseif(CMAKE_COMPILER_IS_INTEL)
 
 # xlc/BlueGene/PPC
 elseif(CMAKE_COMPILER_IS_XLCXX)
-  # Fix to link dynamically. On the next pass should add an if
-  # statement: if shared ...
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qstrict -qarch=qp -q64 -qnostaticlink -qnostaticlink=libgcc")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qstrict -qarch=qp -q64 -qnostaticlink -qnostaticlink=libgcc")
+  # default: Maintain code semantics Fix to link dynamically. On the
+  # next pass should add an if statement: 'if shared ...'.  Overriding
+  # default release flags since the default were '-O -NDEBUG'. By
+  # default, set flags for backend since this is the most common use
+  # case
+  OPTION(XLC_BACKEND "Compile for BlueGene compute nodes using XLC compilers"
+    ON)
+  if(XLC_BACKEND)
+    set(CMAKE_CXX_FLAGS_RELEASE
+      "-O3 -qtune=qp -qarch=qp -q64 -qstrict -qnohot -qnostaticlink -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+  else()
+    set(CMAKE_CXX_FLAGS_RELEASE
+      "-O3 -q64 -qstrict -qnostaticlink -qnostaticlink=libgcc -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+  endif()
+endif()
 
-  # adding -qnohot to avoid higher order optimization loops
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS} -qnohot")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -qnohot")
+# Visual Studio
+if(MSVC)
+  add_definitions(
+    /D_CRT_SECURE_NO_WARNINGS
+    /D_SCL_SECURE_NO_WARNINGS
+    /wd4068 # disable unknown pragma warnings
+    /wd4244 # conversion from X to Y, possible loss of data
+    /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
+    )
+
+  # By default, do not warn when built on machines using only VS Express
+  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
+  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+  endif()
+
+  # By default, do not warn when built on machines using only VS Express
+  # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
+  if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+  endif()
+
+  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
+  if(RELEASE_VERSION)
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
+  else()
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
+  endif()
 endif()

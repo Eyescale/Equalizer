@@ -1,3 +1,4 @@
+
 find_path(_udt_INCLUDE_DIR udt.h
   HINTS ${UDT_ROOT}/include
   PATHS /usr/include /usr/local/include /opt/local/include /usr/include/udt)
@@ -16,7 +17,7 @@ if(_udt_INCLUDE_DIR)
   file(STRINGS "${_udt_INCLUDE_DIR}/udt.h" UDT_HAS_RCVDATA REGEX UDT_RCVDATA)
 endif()
 
-if(UDT_FOUND)
+if(UDT_FOUND AND NOT UDT_FIND_QUIETLY)
   message(STATUS "Found UDT in ${UDT_INCLUDE_DIRS};${UDT_LIBRARIES}")
 endif()
 
