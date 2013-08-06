@@ -40,7 +40,6 @@ This file lists all changes in the public Equalizer API, latest on top:
   * eq::Window::Font* -> eq::util::BitmapFont*
 
 -----------------------------------1.6-------------------------------------
->>>>>>> 6be57981aa6f980336fe7f31019bfa9b9a2e3bff
 
 03/Dec/2012
   Remove ...,     fabric::View::getEqualizer()(::getTileSize( ))
