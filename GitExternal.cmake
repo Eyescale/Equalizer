@@ -27,9 +27,11 @@ function(GIT_EXTERNAL DIR REPO TAG)
     foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
       execute_process(
         COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
+        RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
       execute_process(
         COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
+        RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
     endforeach()
 
