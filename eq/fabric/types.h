@@ -28,6 +28,12 @@
 #include <lunchbox/uint128_t.h>
 #include <lunchbox/visitorResult.h>
 
+#ifdef _WIN32
+#  define EQ_DEFAULT_PORT (4242)
+#else
+#  define EQ_DEFAULT_PORT (4242 + getuid())
+#endif
+
 namespace eq
 {
 namespace fabric
