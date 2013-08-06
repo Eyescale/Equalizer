@@ -4,6 +4,11 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+if(NOT BUILDYARD)
+  include(Buildyard)
+  return()
+endif()
 
 option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
@@ -12,8 +17,6 @@ option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
-
-list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
 include(Revision)
 
