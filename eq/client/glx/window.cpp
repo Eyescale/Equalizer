@@ -801,7 +801,7 @@ bool Window::processEvent( const WindowEvent& event )
         if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
             getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW &&
             // If no other button was pressed already, capture the mouse
-            event.pointerButtonPress.buttons == event.pointerButtonPress.button )
+            event.pointerButtonPress.buttons == event.pointerButtonPress.button)
         {
             const unsigned int eventMask = ButtonPressMask | ButtonReleaseMask |
                                            ButtonMotionMask;

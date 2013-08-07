@@ -205,7 +205,6 @@
 %token EQTOKEN_TYPE
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SDP
-%token EQTOKEN_IB
 %token EQTOKEN_RSP
 %token EQTOKEN_RDMA
 %token EQTOKEN_UDT
@@ -538,7 +537,6 @@ global:
 connectionType:
     EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
     | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
-    | EQTOKEN_IB   { $$ = co::CONNECTIONTYPE_IB; }
     | EQTOKEN_PIPE { $$ = co::CONNECTIONTYPE_NAMEDPIPE; }
     | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
     | EQTOKEN_RDMA { $$ = co::CONNECTIONTYPE_RDMA; }
