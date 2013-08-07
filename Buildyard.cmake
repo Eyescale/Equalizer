@@ -31,3 +31,8 @@ update_file("${CMAKE_SOURCE_DIR}/CMake/depends.txt"
 set(BUILDYARD_TARGETS ${CMAKE_PROJECT_NAME})
 add_subdirectory("${CMAKE_BINARY_DIR}/Buildyard" # source
   "${CMAKE_BINARY_DIR}/Buildyard.bin" )          # binary
+if(MSVC)
+  message(STATUS "Build 00_Main->${CMAKE_PROJECT_NAME} to bootstrap and TBD after bootstrap")
+else()
+  message(STATUS "Use 'make -jN' to bootstrap and 'make -jN buildall' after bootstrap")
+endif()
