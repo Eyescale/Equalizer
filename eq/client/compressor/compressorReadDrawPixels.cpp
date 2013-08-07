@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
- *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
+ *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -464,7 +464,8 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
         }
         if( _warned < 10 )
         {
-            LBWARN << "Can't initialize PBO for async readback" << std::endl;
+            LBWARN << "Can't initialize PBO for async readback: "
+                   << _pbo->getError() << std::endl;
             ++_warned;
         }
 #else  // else async RB through texture

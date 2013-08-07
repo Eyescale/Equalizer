@@ -404,7 +404,7 @@ void Window::_setupObjectManager()
     _releaseObjectManager();
 
     Window* sharedWindow = getSharedContextWindow();
-    if( sharedWindow )
+    if( sharedWindow && sharedWindow != this )
         _objectManager = sharedWindow->_objectManager;
     else
     {

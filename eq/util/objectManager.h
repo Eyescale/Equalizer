@@ -177,7 +177,7 @@ private:
         SharedData( const GLEWContext* glewContext );
         virtual ~SharedData();
 
-        GLEWContext* const glewContext;
+        GLEWContext* glewContext;
         ObjectHash lists;
         ObjectHash textures;
         ObjectHash buffers;

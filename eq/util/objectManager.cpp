@@ -41,6 +41,7 @@ ObjectManager::ObjectManager( ObjectManager& shared )
         : _data( shared._data )
 {
     LBASSERT( _data );
+    LBASSERT( glewGetContext( ));
 }
 
 ObjectManager::~ObjectManager()
@@ -50,7 +51,9 @@ ObjectManager::~ObjectManager()
 
 ObjectManager& ObjectManager::operator = ( ObjectManager& rhs )
 {
-    _data = rhs._data;
+    if( this != &rhs )
+        _data = rhs._data;
+    LBASSERT( glewGetContext( ));
     return *this;
 }
 
@@ -60,12 +63,20 @@ void ObjectManager::clear()
 }
 
 ObjectManager::SharedData::SharedData( const GLEWContext* gl )
-        : glewContext( new GLEWContext )
+        : glewContext( 0 )
 {
     if( gl )
+    {
+        glewContext = new GLEWContext;
         memcpy( glewContext, gl, sizeof( GLEWContext ));
+    }
+#ifdef NDEBUG
     else
+    {
+        glewContext = new GLEWContext;
         lunchbox::setZero( glewContext, sizeof( GLEWContext ));
+    }
+#endif
 }
 
 ObjectManager::SharedData::~SharedData()
