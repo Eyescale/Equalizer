@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -119,7 +119,8 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 
     // build attribute list
     std::vector< int > attributes;
-    switch( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ))
+    const int32_t drawableHint = getIAttribute(eq::Window::IATTR_HINT_DRAWABLE);
+    switch( drawableHint )
     {
       case PBUFFER:
         attributes.push_back ( GLX_DRAWABLE_TYPE );
@@ -127,9 +128,8 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         break;
 
       default:
-        LBWARN << "Unknown drawable type "
-               << getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )
-               << ", using window" << std::endl;
+        LBWARN << "Unknown drawable type " << drawableHint << ", using window"
+               << std::endl;
         // no break;
       case UNDEFINED:
       case OFF: // needs fbConfig with visual for dummy window
@@ -142,7 +142,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
     int colorSize = getIAttribute( eq::Window::IATTR_PLANES_COLOR );
     if( colorSize != OFF )
     {
-        if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == FBO )
+        if( drawableHint == FBO || drawableHint == OFF )
             colorSize = 8; // Create FBO dummy window with 8bpp
         else switch( colorSize )
         {
@@ -232,7 +232,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         attributes.push_back( GLX_SAMPLES );
         attributes.push_back( samplesSize );
     }
-    
+
 #ifdef Darwin
     // WAR: glDrawBuffer( GL_BACK ) renders only to the left back buffer on a
     // stereo visual on Darwin which creates ugly flickering on mono configs
@@ -251,7 +251,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
     }
 #endif
     if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
+        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
           getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
     {
         attributes.push_back( GLX_DOUBLEBUFFER );
@@ -410,45 +410,45 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
         setError( ERROR_GLXWINDOW_NO_DISPLAY );
         return false;
     }
-    
+
     PixelViewport pvp = getWindow()->getPixelViewport();
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
-        const int screen = DefaultScreen( _xDisplay );    
+        const int screen = DefaultScreen( _xDisplay );
         pvp.h = DisplayHeight( _xDisplay, screen );
         pvp.w = DisplayWidth( _xDisplay, screen );
         pvp.x = 0;
         pvp.y = 0;
-        
+
         getWindow()->setPixelViewport( pvp );
     }
-    
+
     XID drawable = _createGLXWindow( fbConfig, pvp );
     if( !drawable )
         return false;
 
     // map and wait for MapNotify event
     XMapWindow( _xDisplay, drawable );
-    
+
     XEvent event;
     XIfEvent( _xDisplay, &event, WaitForNotify, (XPointer)(drawable) );
-    
+
     XMoveResizeWindow( _xDisplay, drawable, pvp.x, pvp.y, pvp.w, pvp.h );
     XFlush( _xDisplay );
-    
+
     // Grab keyboard focus in fullscreen mode
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON ||
         getIAttribute( eq::Window::IATTR_HINT_DECORATION ) == OFF )
     {
-        XGrabKeyboard( _xDisplay, drawable, True, GrabModeAsync, GrabModeAsync, 
+        XGrabKeyboard( _xDisplay, drawable, True, GrabModeAsync, GrabModeAsync,
                       CurrentTime );
     }
     setXDrawable( drawable );
-    
+
     LBVERB << "Created X11 drawable " << drawable << std::endl;
     return true;
 }
-    
+
 XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 {
     LBASSERT( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
@@ -493,10 +493,10 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
       case OFF:
           wa.override_redirect = True;
           break;
-        
+
       case AUTO:
       default:
-          wa.override_redirect = 
+          wa.override_redirect =
               getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON ?
               True : False;
           break;
@@ -504,7 +504,7 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 
     XID drawable = XCreateWindow( _xDisplay, parent, pvp.x, pvp.y, pvp.w, pvp.h,
                                   0, visInfo->depth, InputOutput,
-                                  visInfo->visual, 
+                                  visInfo->visual,
                                   CWBackPixmap | CWBorderPixel | CWEventMask |
                                   CWColormap | CWOverrideRedirect, &wa );
     XFree( visInfo );
@@ -512,7 +512,7 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
     {
         setError( ERROR_GLXWINDOW_CREATEWINDOW_FAILED );
         return 0;
-    }   
+    }
 
     std::stringstream windowTitle;
     const std::string& name = getWindow()->getName();
@@ -608,7 +608,7 @@ void Window::setXDrawable( XID drawable )
             glXQueryDrawable( _xDisplay, drawable, GLX_WIDTH,  &width );
             glXQueryDrawable( _xDisplay, drawable, GLX_HEIGHT, &height );
 
-            getWindow()->setPixelViewport( 
+            getWindow()->setPixelViewport(
                 PixelViewport( 0, 0, int32_t( width ), int32_t( height )));
             break;
         }
@@ -616,11 +616,11 @@ void Window::setXDrawable( XID drawable )
         {
             XWindowAttributes wa;
             XGetWindowAttributes( _xDisplay, drawable, &wa );
-    
+
             // position is relative to parent: translate to absolute coords
             ::Window root, parent, *children;
             unsigned nChildren;
-    
+
             XQueryTree( _xDisplay, drawable, &root, &parent, &children,
                         &nChildren );
             if( children != 0 )
@@ -665,12 +665,12 @@ void Window::_initSwapSync()
     else
         LBWARN << "GLX_SGI_swap_control not supported, ignoring window "
                << "swapsync hint " << IAttribute( swapSync ) << std::endl;
-}   
+}
 
 
 void Window::configExit()
 {
-    if( !_xDisplay ) 
+    if( !_xDisplay )
         return;
 
     leaveNVSwapBarrier();
@@ -738,7 +738,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
     const int screen = DefaultScreen( _xDisplay );
     uint32_t maxBarrier = 0;
     uint32_t maxGroup = 0;
-    
+
     glXQueryMaxSwapGroupsNV( _xDisplay, screen, &maxGroup, &maxBarrier );
 
     if( group > maxGroup )
@@ -770,7 +770,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         LBWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return;
     }
-    
+
     LBVERB << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 #else
@@ -786,7 +786,7 @@ void Window::leaveNVSwapBarrier()
 #if 1
     glXBindSwapBarrierNV( _xDisplay, _glXNVSwapGroup, 0 );
     glXJoinSwapGroupNV( _xDisplay, _xDrawable, 0 );
-    
+
     _glXNVSwapGroup = 0;
 #else
     LBUNIMPLEMENTED;

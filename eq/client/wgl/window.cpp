@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -69,7 +69,7 @@ void Window::swapBuffers()
 
 void Window::setWGLContext( HGLRC context )
 {
-    _wglContext = context; 
+    _wglContext = context;
 }
 
 void Window::setWGLWindowHandle( HWND handle )
@@ -154,7 +154,7 @@ void Window::setWGLDC( HDC dc, const WGLDCType type )
             LBASSERT( _wglDC );
             ReleaseDC( _wglWindow, _wglDC );
             break;
-            
+
         case WGL_DC_PBUFFER:
             LBASSERT( _wglPBuffer );
             LBASSERT( _wglDC );
@@ -165,7 +165,7 @@ void Window::setWGLDC( HDC dc, const WGLDCType type )
             LBASSERT( _wglDC );
             wglDeleteDCNV( _wglDC );
             break;
-                
+
         case WGL_DC_DISPLAY:
             LBASSERT( _wglDC );
             DeleteDC( _wglDC );
@@ -269,7 +269,7 @@ bool Window::configInitWGLFBO( int pixelFormat )
         const HDC dc = GetDC( _wglWindow );
         if( !dc )
             return false;
-        
+
         setWGLDC( dc, WGL_DC_WINDOW );
     }
 
@@ -295,14 +295,14 @@ bool Window::configInitWGLWindow( int pixelFormat )
     HWND hWnd = _createWGLWindow( pvp );
     if( !hWnd )
         return false;
-        
+
     HDC windowDC = GetDC( hWnd );
-    
+
     PIXELFORMATDESCRIPTOR pfd = {0};
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
 
-    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC, 
+    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC,
                          pixelFormat, sizeof(pfd), &pfd );
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
@@ -322,7 +322,7 @@ bool Window::configInitWGLWindow( int pixelFormat )
         SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 0, &_screenSaverActive,
                               0 );
         SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, FALSE, 0, 0 );
-        
+
         // Wake up monitor
         PostMessage( HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1 );
     }
@@ -337,18 +337,18 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
     const std::string& name = getWindow()->getName();
 
     std::ostringstream className;
-    className << (name.empty() ? std::string("Equalizer") : name) 
+    className << (name.empty() ? std::string("Equalizer") : name)
               << (void*)this;
     const std::string& classStr = className.str();
-                                  
+
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc = { 0 };
-    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC; 
-    wc.lpfnWndProc   = DefWindowProc;    
-    wc.hInstance     = instance; 
+    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wc.lpfnWndProc   = DefWindowProc;
+    wc.hInstance     = instance;
     wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
     wc.hCursor       = LoadCursor( 0, IDC_ARROW );
-    wc.lpszClassName = classStr.c_str();       
+    wc.lpszClassName = classStr.c_str();
 
     if( !RegisterClass( &wc ))
     {
@@ -372,7 +372,7 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
         deviceMode.dmSize = sizeof( DEVMODE );
         EnumDisplaySettings( 0, ENUM_CURRENT_SETTINGS, &deviceMode );
 
-        if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) != 
+        if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) !=
             DISP_CHANGE_SUCCESSFUL )
         {
             setError( ERROR_WGLWINDOW_FULLSCREEN_FAILED );
@@ -391,9 +391,9 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
     AdjustWindowRectEx( &rect, windowStyle, FALSE, windowStyleEx );
 
     HWND hWnd = CreateWindowEx( windowStyleEx,
-                                wc.lpszClassName, 
+                                wc.lpszClassName,
                                 name.empty() ? "Equalizer" : name.c_str(),
-                                windowStyle, rect.left, rect.top, 
+                                windowStyle, rect.left, rect.top,
                                 rect.right - rect.left, rect.bottom - rect.top,
                                 0, 0, // parent, menu
                                 instance, 0 );
@@ -477,14 +477,14 @@ void Window::_initSwapSync()
     else
         LBWARN << "WGL_EXT_swap_control not supported, ignoring window "
                << "swapsync hint " << swapSync << std::endl;
-}   
+}
 
 void Window::configExit( )
 {
     leaveNVSwapBarrier();
     configExitFBO();
     exitGLEW();
-    
+
     wglMakeCurrent( 0, 0 );
 
     HGLRC context        = getWGLContext();
@@ -504,9 +504,9 @@ void Window::configExit( )
     {
         // Re-enable screen saver
         if( getIAttribute( eq::Window::IATTR_HINT_SCREENSAVER ) != ON )
-            SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, _screenSaverActive, 
+            SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, _screenSaverActive,
                                   0, 0 );
-        
+
         char className[256] = {0};
         GetClassName( hWnd, className, 255 );
         DestroyWindow( hWnd );
@@ -542,7 +542,7 @@ int Window::chooseWGLPixelFormat()
     HDC screenDC = GetDC( 0 );
     HDC pfDC = _wglAffinityDC ? _wglAffinityDC : screenDC;
 
-    const int pixelFormat = (WGLEW_ARB_pixel_format) ? 
+    const int pixelFormat = (WGLEW_ARB_pixel_format) ?
         _chooseWGLPixelFormatARB( pfDC ) : _chooseWGLPixelFormat( pfDC );
 
     ReleaseDC( 0, screenDC );
@@ -553,7 +553,7 @@ int Window::chooseWGLPixelFormat()
         LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return 0;
     }
- 
+
     if( _wglAffinityDC ) // set pixel format on given device context
     {
         PIXELFORMATDESCRIPTOR pfd = {0};
@@ -568,7 +568,7 @@ int Window::chooseWGLPixelFormat()
             return 0;
         }
     }
-    
+
     return pixelFormat;
 }
 
@@ -605,14 +605,14 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
     int pf = ChoosePixelFormat( pfDC, &pfd );
 
     if( pf == 0 && window->getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO )
-    {        
+    {
         LBINFO << "Visual not available, trying mono visual" << std::endl;
         pfd.dwFlags |= PFD_STEREO_DONTCARE;
         pf = ChoosePixelFormat( pfDC, &pfd );
     }
 
     if( pf == 0 && stencilSize == AUTO )
-    {        
+    {
         LBINFO << "Visual not available, trying non-stencil visual"
                << std::endl;
         pfd.cStencilBits = 0;
@@ -621,8 +621,8 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
 
     if( pf == 0 &&
         window->getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-    {        
-        LBINFO << "Visual not available, trying single-buffered visual" 
+    {
+        LBINFO << "Visual not available, trying single-buffered visual"
                << std::endl;
         pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
         pf = ChoosePixelFormat( pfDC, &pfd );
@@ -642,9 +642,11 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( eq::Window::IATTR_PLANES_COLOR );
-    if( colorSize > 0 || colorSize == AUTO ||
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == FBO )
+    const int32_t drawableHint = getIAttribute(eq::Window::IATTR_HINT_DRAWABLE);
+    if( colorSize > 0 || colorSize == AUTO || drawableHint == FBO ||
+        drawableHint == OFF )
     {
+        // Create FBO dummy window with 8bpp
         const int colorBits = colorSize>0 ? colorSize : 8;
         attributes.push_back( WGL_RED_BITS_ARB );
         attributes.push_back( colorBits );
@@ -724,23 +726,22 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
     }
 
     if( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO && 
-          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
+        ( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO &&
+          drawableHint == WINDOW ))
     {
         attributes.push_back( WGL_STEREO_ARB );
         attributes.push_back( 1 );
     }
 
     if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
-          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
+        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
+          drawableHint == WINDOW ))
     {
         attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
         attributes.push_back( 1 );
     }
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == PBUFFER &&
-        WGLEW_ARB_pbuffer )
+    if( drawableHint == PBUFFER && WGLEW_ARB_pbuffer )
     {
         attributes.push_back( WGL_DRAW_TO_PBUFFER_ARB );
         attributes.push_back( 1 );
@@ -755,7 +756,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
     // build back off list, least important attribute last
     std::vector<int> backoffAttributes;
-    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW )
+    if( drawableHint == WINDOW )
     {
         if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
             backoffAttributes.push_back( WGL_DOUBLE_BUFFER_ARB );
@@ -789,7 +790,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
         const int attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
-        std::vector<GLint>::iterator iter = find( attributes.begin(), 
+        std::vector<GLint>::iterator iter = find( attributes.begin(),
             attributes.end(), attribute );
         LBASSERT( iter != attributes.end( ));
 
@@ -819,7 +820,7 @@ HGLRC Window::createWGLContext()
     if( sysWindow )
     {
         LBASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
-        const WindowIF* shareWGLWindow = 
+        const WindowIF* shareWGLWindow =
             dynamic_cast< const WindowIF* >( sysWindow );
         if( shareWGLWindow )
         {
@@ -940,7 +941,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         LBWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return;
     }
-    
+
     LBINFO << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 }

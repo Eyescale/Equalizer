@@ -483,7 +483,8 @@ bool Window::createTransferWindow()
     {
         if( !_transferWindow->configInit( ))
         {
-            LBWARN << "Transfer window initialization failed: " << std::endl;
+            LBWARN << "Transfer window initialization failed: "
+                   << _transferWindow->getError() << std::endl;
             delete _transferWindow;
             _transferWindow = 0;
         }
