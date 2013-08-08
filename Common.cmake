@@ -76,7 +76,7 @@ if(BIGENDIAN)
 endif()
 
 include(Compiler) # compiler-specific default options and warnings
-include(TestFinalOverride)
+include(TestCPP11)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
