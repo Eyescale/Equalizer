@@ -21,9 +21,8 @@
 #include "window.h"
 #include "pipe.h"
 #include "messagePump.h"
- #include "eventHandler.h"
+#include "eventHandler.h"
 
-#include <eq/client/glXTypes.h>
 #include <eq/fabric/gpuInfo.h>
 #include <lunchbox/scopedMutex.h>
 

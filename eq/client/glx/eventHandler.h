@@ -18,9 +18,9 @@
 #ifndef EQ_GLX_EVENTHANDLER_H
 #define EQ_GLX_EVENTHANDLER_H
 
+#include <eq/client/glx/types.h>
 #include <eq/client/eventHandler.h> // base class
-#include <eq/client/glXTypes.h>     // XEvent type
-#include <eq/client/types.h>        // basic typedefs
+#include <eq/client/types.h>
 
 #include <lunchbox/thread.h> // thread-safety macro
 
@@ -64,4 +64,3 @@ namespace glx
 }
 }
 #endif // EQ_GLX_EVENTHANDLER_H
-
