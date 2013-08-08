@@ -20,7 +20,6 @@
 #include "pipe.h"
 
 #include "../global.h"
-#include "../glXTypes.h"
 #include "../log.h"
 #include "../pipe.h"
 

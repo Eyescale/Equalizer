@@ -35,7 +35,7 @@ set(GLX_SOURCES
   glx/window.cpp
   glx/windowSystem.cpp
   glx/X11Connection.h
-  glXTypes.cpp
+  glx/types.cpp
 )
 
 if(SAGE_FOUND)
@@ -74,7 +74,6 @@ set(WGL_SOURCES
 
 set(CLIENT_HEADERS
   ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
-  aglTypes.h
   api.h
   base.h
   canvas.h
@@ -100,7 +99,6 @@ set(CLIENT_HEADERS
   gl.h
   glException.h
   glWindow.h
-  glXTypes.h
   global.h
   image.h
   init.h
@@ -123,7 +121,6 @@ set(CLIENT_HEADERS
   types.h
   view.h
   visitorResult.h
-  wglTypes.h
   window.h
   windowStatistics.h
   windowSystem.h
