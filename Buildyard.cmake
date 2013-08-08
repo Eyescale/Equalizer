@@ -32,7 +32,7 @@ set(BUILDYARD_TARGETS ${CMAKE_PROJECT_NAME})
 add_subdirectory("${CMAKE_BINARY_DIR}/Buildyard" # source
   "${CMAKE_BINARY_DIR}/Buildyard.bin" )          # binary
 if(MSVC)
-  message(STATUS "Build 00_Main->${CMAKE_PROJECT_NAME} to bootstrap and TBD after bootstrap\n")
+  message(STATUS "Build 00_Main->AllProjects to bootstrap and 00_Main->AllBuild after bootstrap\n")
 else()
-  message(STATUS "Use 'make -jN' to bootstrap and 'make -jN buildall' after bootstrap\n")
+  message(STATUS "Use 'make -jN' to bootstrap and 'make -jN AllBuild' after bootstrap\n")
 endif()
