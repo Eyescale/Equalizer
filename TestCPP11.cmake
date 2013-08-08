@@ -34,12 +34,37 @@ file(WRITE ${TEST_SRC} "int main()
 {
    int a = 2;
    auto foo = a;
-   foo
+   foo++;
    return 0;
 }
 ")
 try_compile(CXX_AUTO_SUPPORTED ${CMAKE_BINARY_DIR}/cpp11_auto_test
   ${TEST_SRC} OUTPUT_VARIABLE output)
+
+# Test nullptr keyword feature
+set(TEST_SRC ${CMAKE_BINARY_DIR}/cpp11_nullptr_test.cpp)
+file(WRITE ${TEST_SRC} "int main()
+{
+   int *ptr = nullptr;
+   ptr++;
+   return 0;
+}
+")
+try_compile( CXX_NULLPTR_SUPPORTED ${CMAKE_BINARY_DIR}/cpp11_nullptr_test        
+   ${TEST_SRC} OUTPUT_VARIABLE output )
+
+# Test array keyword feature
+set(TEST_SRC ${CMAKE_BINARY_DIR}/cpp11_array_test.cpp)
+file(WRITE ${TEST_SRC} "#include <array>
+int main()
+{
+   std::array<int, 3> a2 = {{1, 2, 3}};
+   a2[ 0 ] = 1;
+   return 0;
+}
+")
+try_compile( CXX_ARRAY_SUPPORTED ${CMAKE_BINARY_DIR}/cpp11_array_test        
+   ${TEST_SRC} OUTPUT_VARIABLE output )
 
 # Test for final and override
 set(TEST_SRC ${CMAKE_BINARY_DIR}/override_test.cpp)
