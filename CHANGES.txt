@@ -3,6 +3,14 @@ This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
 
+09/Aug/2013
+  [7890fa5] Remove deprecated functions:
+  * eq::ConfigParams type. Use eq::fabric::ConfigParams.
+  * eq::Frame::getData API. Use Frame::getFrameData.
+  * WindowSystemEnum. Use WindowSystem( name ).
+  * eq::COMMANDTYPE_EQ_CUSTOM. Use co::COMMANDTYPE_CUSTOM.
+  * eq::fabric::Serializable type. Use co::Serializable.
+
 08/Aug/2013
   [007e813] Remove deprecated window system types. Use their current
   counterpart in the eq::agl, eq::glx and eq::wgl namespaces. Moved
