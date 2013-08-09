@@ -1,6 +1,6 @@
 
 
-set(EQUALIZER_PACKAGE_VERSION 1.5.0)
+set(EQUALIZER_PACKAGE_VERSION 1.7.0)
 set(EQUALIZER_DEPENDS
   REQUIRED vmmlib Lunchbox Collage OpenGL Boost
   OPTIONAL X11 hwsd GLStats hwloc OpenSceneGraph OpenCV VRPN
@@ -17,6 +17,10 @@ set(EQUALIZER_REPO_URL https://github.com/Eyescale/Equalizer.git)
 set(EQUALIZER_REPO_TAG master)
 set(EQUALIZER_FORCE_BUILD ${CI_BUILD})
 
-set(EQUALIZER_REPO_TAG HEAD)
+if(CI_BUILD_COMMIT)
+  set(EQUALIZER_REPO_TAG ${CI_BUILD_COMMIT})
+else()
+  set(EQUALIZER_REPO_TAG master)
+endif()
 set(EQUALIZER_FORCE_BUILD ON)
 set(EQUALIZER_SOURCE ${CMAKE_SOURCE_DIR})

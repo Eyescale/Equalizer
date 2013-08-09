@@ -31,7 +31,8 @@
 #ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #else
-#  define EQ_DEFAULT_PORT (4242 + getuid())
+// #241: Avoid using privilege ports below 1024
+#  define EQ_DEFAULT_PORT ( (getuid() % 64511) + 1024 )
 #endif
 
 namespace eq

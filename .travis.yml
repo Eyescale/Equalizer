@@ -6,7 +6,7 @@ language: cpp
 script:
  - mkdir Build
  - cd Build
- - cmake ..
+ - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT
  - env TRAVIS=1 make -j8 Equalizer-test ARGS=-V
 before_install:
  - sudo apt-get update -qq
