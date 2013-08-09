@@ -183,7 +183,6 @@ set(CLIENT_SOURCES
   )
 
 if(NOT EQUALIZER_BUILD_2_0_API)
-  list(APPEND CLIENT_HEADERS configParams.h)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
 endif()
 

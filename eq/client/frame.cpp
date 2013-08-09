@@ -29,12 +29,11 @@ namespace detail
 class Frame
 {
 public:
-    FrameData* frameData; // Remove me in 2.0
-    FrameDataPtr frameDataPtr;
+    FrameDataPtr frameData;
 
     ZoomFilter zoomFilter; // texture filter
 
-    Frame() : frameData( 0 ), zoomFilter( FILTER_LINEAR ) {}
+    Frame() : zoomFilter( FILTER_LINEAR ) {}
     ~Frame()
     {
         if( frameData )
@@ -63,91 +62,63 @@ ZoomFilter Frame::getZoomFilter() const
     return _impl->zoomFilter;
 }
 
-#ifndef EQ_2_0_API
-void Frame::setData( FrameData* data )
-{
-    LBASSERTINFO( !_impl->frameDataPtr, "Don't mix deprecated with new API" );
-    _impl->frameData = data;
-}
-
-FrameData* Frame::getData()
-{
-    return _impl->frameData;
-}
-
-const FrameData* Frame::getData() const
-{
-    return _impl->frameData;
-}
-#endif
-
 void Frame::setFrameData( FrameDataPtr data )
 {
-    _impl->frameDataPtr = data;
-    _impl->frameData = data.get();
+    _impl->frameData = data;
 }
 
 FrameDataPtr Frame::getFrameData()
 {
-    return _impl->frameDataPtr;
+    return _impl->frameData;
 }
 
 ConstFrameDataPtr Frame::getFrameData() const
 {
-    return _impl->frameDataPtr;
+    return _impl->frameData;
 }
 
 uint32_t Frame::getBuffers() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getBuffers();
 }
 
 const Pixel& Frame::getPixel() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getPixel();
 }
 
 const SubPixel& Frame::getSubPixel() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getSubPixel();
 }
 
 const Range& Frame::getRange() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getRange();
 }
 
 uint32_t Frame::getPeriod() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getPeriod();
 }
 
 uint32_t Frame::getPhase() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getPhase();
 }
 
 const Images& Frame::getImages() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->getImages();
 }
 
 void Frame::clear()
 {
-    LBASSERT( _impl->frameData );
     _impl->frameData->clear();
 }
 
 void Frame::deleteGLObjects( util::ObjectManager& om )
 {
-    LBASSERT( _impl->frameData );
     if( _impl->frameData )
         _impl->frameData->deleteGLObjects( om );
 }
@@ -172,7 +143,6 @@ void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 
 void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& config )
 {
-    LBASSERT( _impl->frameData );
     const PixelViewport& pvp = _impl->frameData->getPixelViewport();
     const Images& images =
         _impl->frameData->startReadback( *this, glObjects, config,
@@ -184,7 +154,6 @@ void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& conf
 void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
-    LBASSERT( _impl->frameData );
     const Images& images =
         _impl->frameData->startReadback( *this, glObjects, config, regions );
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
@@ -195,43 +164,36 @@ Images Frame::startReadback( util::ObjectManager& glObjects,
                              const DrawableConfig& config,
                              const PixelViewports& regions )
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->startReadback( *this, glObjects, config, regions );
 }
 
 void Frame::setReady()
 {
-    LBASSERT( _impl->frameData );
     _impl->frameData->setReady();
 }
 
 bool Frame::isReady() const
 {
-    LBASSERT( _impl->frameData );
     return _impl->frameData->isReady();
 }
 
 void Frame::waitReady( const uint32_t timeout ) const
 {
-    LBASSERT( _impl->frameData );
     _impl->frameData->waitReady( timeout );
 }
 
 void Frame::disableBuffer( const Buffer buffer )
 {
-    LBASSERT( _impl->frameData );
     _impl->frameData->disableBuffer( buffer );
 }
 
 void Frame::addListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    LBASSERT( _impl->frameData );
     _impl->frameData->addListener( listener );
 }
 
 void Frame::removeListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    LBASSERT( _impl->frameData );
     _impl->frameData->removeListener( listener );
 }
 

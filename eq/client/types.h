@@ -248,10 +248,6 @@ using lunchbox::uint128_t;
 using lunchbox::UUID;
 
 /** @cond IGNORE */
-#ifndef EQ_2_0_API
-#define COMMANDTYPE_EQ_CUSTOM co::COMMANDTYPE_CUSTOM
-#endif
-
 typedef co::ObjectOCommand EventOCommand;
 
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp

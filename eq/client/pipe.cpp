@@ -289,13 +289,6 @@ void Pipe::setDirty( const uint64_t bits )
     Object::setDirty( bits );
 }
 
-#ifndef EQ_2_0_API
-bool Pipe::supportsWindowSystem( const WindowSystem ) const
-{
-    return true;
-}
-#endif
-
 WindowSystem Pipe::selectWindowSystem() const
 {
 #ifdef AGL

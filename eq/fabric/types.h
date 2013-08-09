@@ -99,19 +99,7 @@ struct WindowPath;
 using co::Strings;
 using co::StringsCIter;
 
-#ifndef EQ_2_0_API
-using co::Serializable;
-#endif
 }
 }
-
-#ifndef EQ_2_0_API
-namespace co
-{
-using eq::fabric::Error;
-using eq::fabric::ErrorRegistry;
-using eq::fabric::ERROR_NONE;
-}
-#endif
 
 #endif // EQFABRIC_TYPES_H
