@@ -37,6 +37,7 @@ class Client;
 class CommandQueue;
 class ComputeContext;
 class Config;
+class DcProxy;
 class EventICommand;
 class Frame;
 class FrameData;

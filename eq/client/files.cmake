@@ -52,6 +52,9 @@ if(DISPLAYCLUSTER_FOUND)
   set(DISPLAYCLUSTER_SOURCES
     dcProxy.h
     dcProxy.cpp
+    glx/dcEventHandler.h
+    glx/dcEventHandler.cpp
+    glx/dcConnection.h
   )
 endif()
 

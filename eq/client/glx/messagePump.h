@@ -65,6 +65,12 @@ namespace glx
         /** Deregister a SAGE connection from event dispatch. @version 1.5.2 */
         void deregister( SageProxy* sage );
 
+        /** Register a new DC connection for event dispatch. @version 1.7.1 */
+        void register_( DcProxy* dcProxy );
+
+        /** Deregister a DC connection from event dispatch. @version 1.7.1 */
+        void deregister( DcProxy* dcProxy );
+
     private:
         co::ConnectionSet _connections; //!< Registered Display connections
         stde::hash_map< void*, size_t > _referenced; //!< # of registrations
