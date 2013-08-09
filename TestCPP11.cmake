@@ -1,7 +1,7 @@
 # Copyright (c) 2013 ahmet.bilgili@epfl.ch
 #               2013 Stefan.Eilemann@epfl.ch
 
-set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override)
+set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map)
 
 file(WRITE ${CMAKE_BINARY_DIR}/cpp11_sharedptr.cpp
 "#include <memory>
@@ -61,6 +61,15 @@ class Bar : public Foo
 };
 
 int main() {}")
+
+file(WRITE ${CMAKE_BINARY_DIR}/cpp11_unordered_map.cpp
+"#include <unordered_map>
+int main()
+{
+   std::unordered_map< int, int > test;
+   test[ 42 ] = 17;
+   return 0;
+}")
 
 set(TEST_CPP11_PASSED)
 set(TEST_CPP11_FAILED)
