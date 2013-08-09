@@ -84,6 +84,7 @@ while(TESTS_CPP11)
 
   if(CXX_${TEST_CPP11_NAME}_SUPPORTED)
     set(TEST_CPP11_PASSED "${TEST_CPP11_PASSED} ${TEST_CPP11_name}")
+    add_definitions(-DCXX_${TEST_CPP11_NAME}_SUPPORTED)
   else()
     set(TEST_CPP11_FAILED "${TEST_CPP11_FAILED} ${TEST_CPP11_name}")
     #message("${TEST_CPP11_name} failed: ${output}")
