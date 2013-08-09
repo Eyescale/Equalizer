@@ -1,7 +1,7 @@
 # Copyright (c) 2013 ahmet.bilgili@epfl.ch
 #               2013 Stefan.Eilemann@epfl.ch
 
-set(TESTS_CPP11 sharedptr tuple auto nullptr array override)
+set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override)
 
 file(WRITE ${CMAKE_BINARY_DIR}/cpp11_sharedptr.cpp
 "#include <memory>
@@ -45,7 +45,7 @@ int main()
    return 0;
 }")
 
-file(WRITE ${CMAKE_BINARY_DIR}/cpp11_override.cpp
+file(WRITE ${CMAKE_BINARY_DIR}/cpp11_final_override.cpp
 "class Foo
 {
 public:
