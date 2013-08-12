@@ -16,9 +16,7 @@ if(NOT DPUT_EXECUTABLE)
   message(STATUS "dput not found")
   return()
 endif()
-if(CMAKE_BINARY_DIR MATCHES "${CMAKE_SOURCE_DIR}/")
-  message(STATUS "Build directory ${CMAKE_BINARY_DIR} is a sub-directory of "
-    "source directory ${CMAKE_SOURCE_DIR}, no PPA upload")
+if(NOT GIT_EXECUTABLE)
   return()
 endif()
 
@@ -59,9 +57,14 @@ function(UPLOAD_PPA UBUNTU_NAME)
   file(REMOVE_RECURSE ${DEBIAN_BASE_DIR})
   set(DEBIAN_SOURCE_DIR
     ${DEBIAN_BASE_DIR}/${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-source)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E
-    copy_directory ${CMAKE_SOURCE_DIR} ${DEBIAN_SOURCE_DIR}
-    )
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${DEBIAN_BASE_DIR})
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
+    --prefix ${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-source/
+    -o ${DEBIAN_BASE_DIR}.tar HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${DEBIAN_BASE_DIR}.tar
+    WORKING_DIRECTORY ${DEBIAN_BASE_DIR})
 
   file(MAKE_DIRECTORY ${DEBIAN_SOURCE_DIR}/debian)
   file(REMOVE_RECURSE ${DEBIAN_SOURCE_DIR}/.git)
