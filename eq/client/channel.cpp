@@ -68,9 +68,6 @@
 
 #include "detail/channel.ipp"
 
-#ifdef EQUALIZER_USE_SAGE
-#  include "sageProxy.h"
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
 #  include "dc/proxy.h"
 #endif
@@ -231,10 +228,6 @@ const GLEWContext* Channel::glewGetContext() const
 
 bool Channel::configExit()
 {
-#ifdef EQUALIZER_USE_SAGE
-    delete _impl->_sageProxy;
-    _impl->_sageProxy = 0;
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     delete _impl->_dcProxy;
     _impl->_dcProxy = 0;
@@ -247,13 +240,6 @@ bool Channel::configExit()
 
 bool Channel::configInit( const uint128_t& )
 {
-#ifdef EQUALIZER_USE_SAGE
-    if( getView() && !getView()->getSageConfig().empty( ))
-    {
-        LBASSERT( !_impl->_sageProxy );
-        _impl->_sageProxy = new SageProxy( this );
-    }
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     if( getView() && !getView()->getDisplayCluster().empty( ))
     {
@@ -486,18 +472,6 @@ void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 
 void Channel::frameViewFinish( const uint128_t& )
 {
-#ifdef EQUALIZER_USE_SAGE
-    if( _impl->_sageProxy )
-    {
-        if( !_impl->_sageProxy->isRunning( ))
-        {
-            delete _impl->_sageProxy;
-            _impl->_sageProxy = 0;
-        }
-        else
-            _impl->_sageProxy->swapBuffer();
-    }
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     if( _impl->_dcProxy )
     {
@@ -934,6 +908,8 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_POINTER_BUTTON_RELEASE:
         case Event::CHANNEL_POINTER_WHEEL:
         case Event::STATISTIC:
+        case Event::KEY_PRESS:
+        case Event::KEY_RELEASE:
             break;
 
         case Event::CHANNEL_RESIZE:

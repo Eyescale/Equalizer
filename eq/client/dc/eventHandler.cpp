@@ -124,6 +124,12 @@ void EventHandler::_processEvents( const Proxy* proxy )
 
         switch( state.type )
         {
+        case InteractionState::EVT_KEY_PRESS:
+        case InteractionState::EVT_KEY_RELEASE:
+            event.type = state.type == InteractionState::EVT_KEY_PRESS ?
+                                          Event::KEY_PRESS : Event::KEY_RELEASE;
+            event.keyPress.key = state.key;
+            break;
         case InteractionState::EVT_PRESS:
         case InteractionState::EVT_RELEASE:
             event.type = state.type == InteractionState::EVT_PRESS ?

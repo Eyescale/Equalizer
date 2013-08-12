@@ -47,7 +47,6 @@ class Node;
 class NodeFactory;
 class Observer;
 class Pipe;
-class SageProxy;
 class Segment;
 class Server;
 class SystemPipe;

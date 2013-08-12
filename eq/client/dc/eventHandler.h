@@ -34,7 +34,7 @@ namespace dc
         /** Construct a new DisplayCluster event handler. @version 1.7.1 */
         EventHandler( Proxy* proxy );
 
-        /** Destruct the SAGE event handler. @version 1.7.1 */
+        /** Destruct the DisplayCluster event handler. @version 1.7.1 */
         virtual ~EventHandler();
 
         /**
@@ -43,7 +43,7 @@ namespace dc
          * If no event handlers have been constructed by the calling thread,
          * this function does nothing. This function does not block on events.
          *
-         * @param sage if not 0, limit processing to the given sage instance.
+         * @param proxy if not 0, limit processing to the given dcProxy instance
          * @version 1.7.1
          */
         static void processEvents( const Proxy* proxy = 0 );
