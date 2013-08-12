@@ -525,7 +525,7 @@ void Channel::resetAssemblyState()
     Compositor::resetAssemblyState();
 }
 
-void Channel::_setRenderContext( RenderContext& context )
+void Channel::_overrideContext( RenderContext& context )
 {
     overrideContext( context );
     Window* window = getWindow();
@@ -1079,7 +1079,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
                            const UUID& queueID, const uint32_t tasks,
                            const co::ObjectVersions& frames )
 {
-    _setRenderContext( context );
+    _overrideContext( context );
 
     frameTilesStart( context.frameID );
 
@@ -1192,7 +1192,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     }
 
     frameTilesFinish( context.frameID );
-    resetRenderContext();
+    resetContext();
 }
 
 void Channel::_refFrame( const uint32_t frameNumber )
@@ -1710,7 +1710,7 @@ bool Channel::_cmdFrameStart( co::ICommand& cmd )
     LBASSERT( statistic.data.empty( ));
     statistic.used = 1;
 
-    resetRenderContext();
+    resetContext();
     return true;
 }
 
@@ -1726,7 +1726,7 @@ bool Channel::_cmdFrameFinish( co::ICommand& cmd )
 
     overrideContext( context );
     frameFinish( context.frameID, frameNumber );
-    resetRenderContext();
+    resetContext();
 
     _unrefFrame( frameNumber );
     return true;
@@ -1742,10 +1742,10 @@ bool Channel::_cmdFrameClear( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
                        << " " << context << std::endl;
 
-    _setRenderContext( context );
+    _overrideContext( context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( context.frameID );
-    resetRenderContext();
+    resetContext();
 
     return true;
 }
@@ -1759,7 +1759,7 @@ bool Channel::_cmdFrameDraw( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << command
                        << " " << context << std::endl;
 
-    _setRenderContext( context );
+    _overrideContext( context );
     const uint32_t frameNumber = getCurrentFrame();
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this, frameNumber,
                              finish ? NICEST : AUTO );
@@ -1771,7 +1771,7 @@ bool Channel::_cmdFrameDraw( co::ICommand& cmd )
     const size_t index = frameNumber % _impl->statistics->size();
     _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
-    resetRenderContext();
+    resetContext();
 
     return true;
 }
@@ -1802,7 +1802,7 @@ bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
         << "TASK assemble " << getName() <<  " " << command << " " << context
         << " nFrames " << frames.size() << std::endl;
 
-    _setRenderContext( context );
+    _overrideContext( context );
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
     for( size_t i=0; i < frames.size(); ++i )
     {
@@ -1816,7 +1816,7 @@ bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
     frameAssemble( context.frameID );
 
     _impl->inputFrames.clear();
-    resetRenderContext();
+    resetContext();
     return true;
 }
 
@@ -1829,9 +1829,9 @@ bool Channel::_cmdFrameReadback( co::ICommand& cmd )
                                       << command << " " << context<< " nFrames "
                                       << frames.size() << std::endl;
 
-    _setRenderContext( context );
+    _overrideContext( context );
     _frameReadback( context.frameID, frames );
-    resetRenderContext();
+    resetContext();
     return true;
 }
 
@@ -1938,9 +1938,9 @@ bool Channel::_cmdFrameViewStart( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << command
                        << " " << context << std::endl;
 
-    _setRenderContext( context );
+    _overrideContext( context );
     frameViewStart( context.frameID );
-    resetRenderContext();
+    resetContext();
 
     return true;
 }
@@ -1953,12 +1953,12 @@ bool Channel::_cmdFrameViewFinish( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << command
                        << " " << context << std::endl;
 
-    _setRenderContext( context );
+    _overrideContext( context );
     {
         ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
         frameViewFinish( context.frameID );
     }
-    resetRenderContext();
+    resetContext();
 
     return true;
 }
