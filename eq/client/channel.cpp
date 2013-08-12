@@ -908,6 +908,8 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_POINTER_BUTTON_RELEASE:
         case Event::CHANNEL_POINTER_WHEEL:
         case Event::STATISTIC:
+        case Event::KEY_PRESS:
+        case Event::KEY_RELEASE:
             break;
 
         case Event::CHANNEL_RESIZE:
