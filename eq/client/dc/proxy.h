@@ -20,7 +20,7 @@
 
 #include <eq/client/types.h>
 
-class InteractionState;
+struct InteractionState;
 
 namespace eq
 {
