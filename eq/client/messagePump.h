@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,33 +19,41 @@
 #define EQ_MESSAGEPUMP_H
 
 #include <eq/client/api.h>
+#include <eq/client/types.h>
 
 namespace eq
 {
-    /** An interface to process system messages or events. */
-    class MessagePump
-    {
-    public:
-        /** Construct a new message pump. @version 1.0 */
-        MessagePump() {}
+/** An interface to process system messages or events. */
+class MessagePump
+{
+public:
+    /** Construct a new message pump. @version 1.0 */
+    MessagePump() {}
 
-        /** Destruct this message pump. @version 1.0 */
-        virtual ~MessagePump() {}
+    /** Destruct this message pump. @version 1.0 */
+    virtual ~MessagePump() {}
 
-        /** Unblock dispatchOne(). @version 1.0 */
-        virtual void postWakeup() = 0;
+    /** Unblock dispatchOne(). @version 1.0 */
+    virtual void postWakeup() = 0;
 
-        /** Dispatch all pending system events, does not block. @version 1.0 */
-        virtual void dispatchAll() = 0;
+    /** Dispatch all pending system events, does not block. @version 1.0 */
+    virtual void dispatchAll() = 0;
 
-        /**
-         * Dispatch at least one pending system event, blocks potentially.
-         * @param timeout the time to wait for an event
-         * @version 1.0
-         */
-        virtual void dispatchOne( const uint32_t timeout =
-                                      LB_TIMEOUT_INDEFINITE ) = 0;
-    };
+    /**
+     * Dispatch at least one pending system event, blocks potentially.
+     * @param timeout the time to wait for an event
+     * @version 1.0
+     */
+    virtual void dispatchOne( const uint32_t timeout =
+                              LB_TIMEOUT_INDEFINITE ) = 0;
+
+    /** Register a new DC connection for event dispatch. @version 1.7.1 */
+    virtual void register_( dc::Proxy* dcProxy )
+        { LBWARN << "Missing message pump for DisplayCluster" << std::endl; }
+
+    /** Deregister a DC connection from event dispatch. @version 1.7.1 */
+    virtual void deregister( dc::Proxy* dcProxy ) { /*Not implemented*/ }
+};
 }
 
 #endif //EQ_MESSAGEPUMP_H

@@ -135,7 +135,7 @@ EventHandler::~EventHandler()
 }
 
 LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-                                           LPARAM lParam )
+                                        LPARAM lParam )
 {
     EventHandler* handler = getEventHandler( hWnd );
     if( !handler )

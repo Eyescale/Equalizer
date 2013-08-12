@@ -72,7 +72,7 @@
 #  include "sageProxy.h"
 #endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
-#  include "dcProxy.h"
+#  include "dc/proxy.h"
 #endif
 
 namespace eq
@@ -258,7 +258,7 @@ bool Channel::configInit( const uint128_t& )
     if( getView() && !getView()->getDisplayCluster().empty( ))
     {
         LBASSERT( !_impl->_dcProxy );
-        _impl->_dcProxy = new DcProxy( this );
+        _impl->_dcProxy = new dc::Proxy( this );
     }
 #endif
     return _configInitFBO();

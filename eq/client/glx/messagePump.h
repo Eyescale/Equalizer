@@ -66,10 +66,10 @@ namespace glx
         void deregister( SageProxy* sage );
 
         /** Register a new DC connection for event dispatch. @version 1.7.1 */
-        void register_( DcProxy* dcProxy );
+        void register_( dc::Proxy* dcProxy ) override;
 
         /** Deregister a DC connection from event dispatch. @version 1.7.1 */
-        void deregister( DcProxy* dcProxy );
+        void deregister( dc::Proxy* dcProxy ) override;
 
     private:
         co::ConnectionSet _connections; //!< Registered Display connections

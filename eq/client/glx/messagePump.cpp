@@ -25,8 +25,8 @@
 #  include "sageEventHandler.h"
 #endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
-#  include "dcConnection.h"
-#  include "dcEventHandler.h"
+#  include "../dc/connection.h"
+#  include "../dc/eventHandler.h"
 #endif
 
 #include <lunchbox/debug.h>
@@ -75,10 +75,10 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 #endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
             co::ConnectionPtr connection = _connections.getConnection();
-            const DcConnection* dcConnection =
-                dynamic_cast< const DcConnection* >( connection.get( ));
+            const dc::Connection* dcConnection =
+                dynamic_cast< const dc::Connection* >( connection.get( ));
             if( dcConnection )
-               DcEventHandler::processEvents( dcConnection->getDcProxy( ));
+               dc::EventHandler::processEvents( dcConnection->getProxy( ));
             else
 #endif
             EventHandler::dispatch();
@@ -106,7 +106,7 @@ void MessagePump::dispatchAll()
     SageEventHandler::processEvents();
 #endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
-    DcEventHandler::processEvents();
+    dc::EventHandler::processEvents();
 #endif
 }
 
@@ -168,15 +168,15 @@ void MessagePump::deregister( SageProxy* sage )
 #endif
 }
 
-void MessagePump::register_( DcProxy* dcProxy )
+void MessagePump::register_( dc::Proxy* dcProxy )
 {
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     if( ++_referenced[ dcProxy ] == 1 )
-        _connections.addConnection( new DcConnection( dcProxy ));
+        _connections.addConnection( new dc::Connection( dcProxy ));
 #endif
 }
 
-void MessagePump::deregister( DcProxy* dcProxy )
+void MessagePump::deregister( dc::Proxy* dcProxy )
 {
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     if( --_referenced[ dcProxy ] == 0 )
@@ -186,9 +186,9 @@ void MessagePump::deregister( DcProxy* dcProxy )
              i != connections.end(); ++i )
         {
             co::ConnectionPtr connection = *i;
-            const DcConnection* dcConnection =
-                dynamic_cast< const DcConnection* >( connection.get( ));
-            if( dcConnection && dcConnection->getDcProxy() == dcProxy )
+            const dc::Connection* dcConnection =
+                dynamic_cast< const dc::Connection* >( connection.get( ));
+            if( dcConnection && dcConnection->getProxy() == dcProxy )
             {
                 _connections.removeConnection( connection );
                 break;

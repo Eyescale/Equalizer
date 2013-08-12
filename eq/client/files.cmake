@@ -50,11 +50,11 @@ endif()
 
 if(DISPLAYCLUSTER_FOUND)
   set(DISPLAYCLUSTER_SOURCES
-    dcProxy.h
-    dcProxy.cpp
-    glx/dcEventHandler.h
-    glx/dcEventHandler.cpp
-    glx/dcConnection.h
+    dc/connection.h
+    dc/eventHandler.cpp
+    dc/eventHandler.h
+    dc/proxy.cpp
+    dc/proxy.h
   )
 endif()
 
@@ -201,3 +201,6 @@ endif()
 if(OpenCV_FOUND)
   list(APPEND CLIENT_SOURCES detail/cvTracker.h detail/cvTracker.cpp)
 endif()
+
+list(SORT CLIENT_SOURCES)
+list(SORT CLIENT_HEADERS)

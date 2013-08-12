@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "dcEventHandler.h"
+#include "eventHandler.h"
+#include "proxy.h"
 
-#include "messagePump.h"
+#include "../messagePump.h"
 #include "../channel.h"
 #include "../config.h"
 #include "../pipe.h"
-#include "../dcProxy.h"
 #include "../window.h"
 #include "../configEvent.h"
 
@@ -30,44 +30,42 @@
 
 namespace eq
 {
-namespace glx
+namespace dc
 {
 namespace
 {
-typedef std::vector< DcEventHandler* > EventHandlers;
+typedef std::vector< EventHandler* > EventHandlers;
 static lunchbox::PerThread< EventHandlers > _eventHandlers;
 }
 
-DcEventHandler::DcEventHandler( DcProxy* dcProxy )
-        : _dcProxy( dcProxy )
+EventHandler::EventHandler( Proxy* proxy )
+        : _proxy( proxy )
 {
-    LBASSERT( dcProxy );
+    LBASSERT( proxy );
 
     if( !_eventHandlers )
         _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
-    eq::Pipe* pipe = dcProxy->getChannel()->getPipe();
-    MessagePump* messagePump =
-        dynamic_cast< MessagePump* >( pipe->isThreaded() ?
-                                      pipe->getMessagePump() :
-                                      pipe->getConfig()->getMessagePump( ));
+    eq::Pipe* pipe = proxy->getChannel()->getPipe();
+    MessagePump* messagePump = pipe->isThreaded() ? pipe->getMessagePump() :
+                                            pipe->getConfig()->getMessagePump();
     if( messagePump )
-        messagePump->register_( dcProxy );
+        messagePump->register_( proxy );
     else
-        LBINFO << "Using glx::DcEventHandler without glx::MessagePump, "
+        LBINFO << "Using dc::EventHandler without MessagePump, "
                << "external event dispatch assumed" << std::endl;
 }
 
-DcEventHandler::~DcEventHandler()
+EventHandler::~EventHandler()
 {
-    eq::Pipe* pipe = _dcProxy->getChannel()->getPipe();
+    eq::Pipe* pipe = _proxy->getChannel()->getPipe();
     MessagePump* messagePump =
         dynamic_cast<MessagePump*>( pipe->isThreaded() ?
                                     pipe->getMessagePump() :
                                     pipe->getConfig()->getMessagePump( ));
     if( messagePump )
-        messagePump->deregister( _dcProxy );
+        messagePump->deregister( _proxy );
 
     EventHandlers::iterator i = stde::find( *_eventHandlers, this );
     LBASSERT( i != _eventHandlers->end( ));
@@ -79,7 +77,7 @@ DcEventHandler::~DcEventHandler()
     }
 }
 
-void DcEventHandler::processEvents( const DcProxy* dcProxy )
+void EventHandler::processEvents( const Proxy* proxy )
 {
     if( !_eventHandlers )
         return;
@@ -87,27 +85,27 @@ void DcEventHandler::processEvents( const DcProxy* dcProxy )
     for( EventHandlers::const_iterator i = _eventHandlers->begin();
          i != _eventHandlers->end(); ++i )
     {
-        (*i)->_processEvents( dcProxy );
+        (*i)->_processEvents( proxy );
     }
 }
 
-void DcEventHandler::_processEvents( const DcProxy* dcProxy )
+void EventHandler::_processEvents( const Proxy* proxy )
 {
     LB_TS_THREAD( _thread );
-    if( !_dcProxy || (dcProxy && _dcProxy != dcProxy ))
+    if( !_proxy || _proxy != proxy )
         return;
 
-    const PixelViewport& pvp = _dcProxy->getChannel()->getPixelViewport();
-    eq::Channel* channel = _dcProxy->getChannel();
+    const PixelViewport& pvp = _proxy->getChannel()->getPixelViewport();
+    eq::Channel* channel = _proxy->getChannel();
     eq::Window* window = channel->getWindow();
 
-    while( _dcProxy->hasNewInteractionState( ))
+    while( _proxy->hasNewInteractionState( ))
     {
-        const InteractionState& state = _dcProxy->getInteractionState();
+        const InteractionState& state = _proxy->getInteractionState();
 
         if( state.type == InteractionState::EVT_CLOSE )
         {
-            _dcProxy->stopRunning();
+            _proxy->stopRunning();
             ConfigEvent configEvent;
             configEvent.data.type = Event::EXIT;
             window->getConfig()->sendEvent( configEvent );

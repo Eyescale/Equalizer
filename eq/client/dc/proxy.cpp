@@ -15,33 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "dcProxy.h"
+#include "proxy.h"
+#include "eventHandler.h"
 
-#include "channel.h"
-#include "pipe.h"
-#include "view.h"
-#include "windowSystem.h"
+#include "../channel.h"
+#include "../pipe.h"
+#include "../view.h"
+#include "../windowSystem.h"
 #include <eq/fabric/drawableConfig.h>
 
 #include <dcStream.h>
 #include <GL/gl.h>
 
-#ifdef GLX
-#  include "glx/dcEventHandler.h"
-#endif
-
 namespace eq
+{
+namespace dc
 {
 namespace detail
 {
-class DcProxy
+class Proxy
 {
 public:
-    DcProxy( eq::Channel* channel )
+    Proxy( eq::Channel* channel )
         : _dcSocket( 0 )
-#ifdef GLX
         , _eventHandler( 0 )
-#endif
         , _channel( channel )
         , _buffer( 0 )
         , _size( 0 )
@@ -77,11 +74,9 @@ public:
         _isRunning = true;
     }
 
-    ~DcProxy()
+    ~Proxy()
     {
-#ifdef GLX
         delete _eventHandler;
-#endif
 
         dcStreamDisconnect( _dcSocket );
         delete _buffer;
@@ -118,9 +113,8 @@ public:
     }
 
     DcSocket* _dcSocket;
-#ifdef GLX
-    glx::DcEventHandler* _eventHandler;
-#endif
+
+    EventHandler* _eventHandler;
     eq::Channel* _channel;
     unsigned char* _buffer;
     size_t _size;
@@ -129,56 +123,52 @@ public:
 };
 }
 
-DcProxy::DcProxy( Channel* channel )
-    : _impl( new detail::DcProxy( channel ))
+Proxy::Proxy( Channel* channel )
+    : _impl( new detail::Proxy( channel ))
 {
-#ifdef GLX
-    if( _impl->_interaction &&
-        channel->getPipe()->getWindowSystem().getName() == "GLX" )
-    {
-        _impl->_eventHandler = new glx::DcEventHandler( this );
-    }
-#endif
+    if( _impl->_interaction )
+        _impl->_eventHandler = new EventHandler( this );
 }
 
-DcProxy::~DcProxy()
+Proxy::~Proxy()
 {
     delete _impl;
 }
 
-void DcProxy::swapBuffer()
+void Proxy::swapBuffer()
 {
     _impl->swapBuffer();
 }
 
-Channel* DcProxy::getChannel()
+Channel* Proxy::getChannel()
 {
     return _impl->_channel;
 }
 
-int DcProxy::getSocketDescriptor() const
+int Proxy::getSocketDescriptor() const
 {
     return dcSocketDescriptor( _impl->_dcSocket );
 }
 
-bool DcProxy::hasNewInteractionState()
+bool Proxy::hasNewInteractionState()
 {
     return dcHasNewInteractionState( _impl->_dcSocket );
 }
 
-bool DcProxy::isRunning() const
+bool Proxy::isRunning() const
 {
     return _impl->_isRunning;
 }
 
-void DcProxy::stopRunning()
+void Proxy::stopRunning()
 {
     _impl->_isRunning = false;
 }
 
-InteractionState DcProxy::getInteractionState() const
+InteractionState Proxy::getInteractionState() const
 {
     return dcStreamGetInteractionState( _impl->_dcSocket );
 }
 
+}
 }

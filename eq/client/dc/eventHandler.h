@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_GLX_DC_EVENTHANDLER_H
-#define EQ_GLX_DC_EVENTHANDLER_H
+#ifndef EQ_DC_EVENTHANDLER_H
+#define EQ_DC_EVENTHANDLER_H
 
 #include <eq/client/eventHandler.h> // base class
 #include <eq/client/types.h>        // basic typedefs
@@ -25,17 +25,17 @@
 
 namespace eq
 {
-namespace glx
+namespace dc
 {
     /** @internal The event handler for one DisplayCluster view. */
-    class DcEventHandler : public eq::EventHandler
+    class EventHandler : public eq::EventHandler
     {
     public:
         /** Construct a new DisplayCluster event handler. @version 1.7.1 */
-        DcEventHandler( DcProxy* dcProxy );
+        EventHandler( Proxy* proxy );
 
         /** Destruct the SAGE event handler. @version 1.7.1 */
-        virtual ~DcEventHandler();
+        virtual ~EventHandler();
 
         /**
          * Dispatch all pending events on the current thread.
@@ -46,17 +46,17 @@ namespace glx
          * @param sage if not 0, limit processing to the given sage instance.
          * @version 1.7.1
          */
-        static void processEvents( const DcProxy* dcProxy = 0 );
+        static void processEvents( const Proxy* proxy = 0 );
 
     private:
         /** The corresponding DisplayCluster proxy instance. */
-        DcProxy* const _dcProxy;
+        Proxy* const _proxy;
 
-        void _processEvents( const DcProxy* dcProxy );
+        void _processEvents( const Proxy* proxy );
 
         LB_TS_VAR( _thread );
     };
 }
 }
-#endif // EQ_GLX_DC_EVENTHANDLER_H
+#endif // EQ_DC_EVENTHANDLER_H
 

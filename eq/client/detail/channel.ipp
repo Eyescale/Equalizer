@@ -21,9 +21,6 @@ namespace eq
 #ifdef EQUALIZER_USE_SAGE
 class SageProxy;
 #endif
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
-class DcProxy;
-#endif
 
 namespace detail
 {
@@ -108,7 +105,7 @@ public:
     SageProxy* _sageProxy;
 #endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
-    DcProxy* _dcProxy;
+    dc::Proxy* _dcProxy;
 #endif
 };
 

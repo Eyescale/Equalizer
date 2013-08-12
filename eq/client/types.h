@@ -37,7 +37,6 @@ class Client;
 class CommandQueue;
 class ComputeContext;
 class Config;
-class DcProxy;
 class EventICommand;
 class Frame;
 class FrameData;
@@ -259,6 +258,8 @@ class InitVisitor; //!< @internal
 class ExitVisitor; //!< @internal
 class FrameVisitor; //!< @internal
 }
+
+namespace dc { class Proxy; }
 /** @endcond */
 }
 

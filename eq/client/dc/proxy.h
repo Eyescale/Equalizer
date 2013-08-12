@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_DCPROXY_H
-#define EQ_DCPROXY_H
+#ifndef EQ_DC_PROXY_H
+#define EQ_DC_PROXY_H
 
 #include <eq/client/types.h>
 
@@ -24,17 +24,19 @@ class InteractionState;
 
 namespace eq
 {
-namespace detail { class DcProxy; }
+namespace dc
+{
+namespace detail { class Proxy; }
 
 /** @internal */
-class DcProxy
+class Proxy
 {
 public:
     /** Construct a DisplayCluster proxy associated to a destination channel. */
-    DcProxy( Channel* channel );
+    Proxy( Channel* channel );
 
     /** Destruct the DisplayCluster proxy. */
-    ~DcProxy();
+    ~Proxy();
 
     /** Stream the pixel data of the currently bound buffer to DisplayCluster.
      *
@@ -67,8 +69,8 @@ public:
     InteractionState getInteractionState() const;
 
 private:
-    detail::DcProxy* const _impl;
+    detail::Proxy* const _impl;
 };
 }
-
-#endif // EQ_DCPROXY_H
+}
+#endif // EQ_DC_PROXY_H
