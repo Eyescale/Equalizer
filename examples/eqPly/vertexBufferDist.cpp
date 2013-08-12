@@ -192,8 +192,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         _right = new VertexBufferDist( _root, 0 );
         co::NodePtr from = is.getRemoteNode();
         co::LocalNodePtr to = is.getLocalNode();
-        co::Futureb leftSync = to->syncObject( _left, from, leftID );
-        co::Futureb rightSync = to->syncObject( _right, from, rightID );
+        co::f_bool_t leftSync = to->syncObject( _left, from, leftID );
+        co::f_bool_t rightSync = to->syncObject( _right, from, rightID );
 
         LBCHECK( leftSync.wait() && rightSync.wait( ));
 
