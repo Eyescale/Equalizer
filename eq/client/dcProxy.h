@@ -20,7 +20,7 @@
 
 #include <eq/client/types.h>
 
-class sail;
+class InteractionState;
 
 namespace eq
 {
@@ -42,8 +42,29 @@ public:
      */
     void swapBuffer();
 
+    /** @return the associated destination channel. */
+    Channel* getChannel();
+
+    /** @return the underlying socket descriptor. */
+    int getSocketDescriptor() const;
+
+    /** @return true if a new interaction state was sent by DisplayCluster. */
+    bool hasNewInteractionState();
+
     /** @return whether the application is running in DisplayCluster. */
     bool isRunning() const;
+
+    /**
+     * Signal the proxy to stop running.
+     *
+     * This is called if the application is closed in DisplayCluster.
+     */
+    void stopRunning();
+
+    /** @return the latest interaction state.
+     *  @sa hasNewInteractionState()
+     */
+    InteractionState getInteractionState() const;
 
 private:
     detail::DcProxy* const _impl;

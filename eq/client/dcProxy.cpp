@@ -18,11 +18,17 @@
 #include "dcProxy.h"
 
 #include "channel.h"
+#include "pipe.h"
 #include "view.h"
+#include "windowSystem.h"
 #include <eq/fabric/drawableConfig.h>
 
 #include <dcStream.h>
 #include <GL/gl.h>
+
+#ifdef GLX
+#  include "glx/dcEventHandler.h"
+#endif
 
 namespace eq
 {
@@ -32,10 +38,15 @@ class DcProxy
 {
 public:
     DcProxy( eq::Channel* channel )
-        : _channel( channel )
+        : _dcSocket( 0 )
+#ifdef GLX
+        , _eventHandler( 0 )
+#endif
+        , _channel( channel )
         , _buffer( 0 )
         , _size( 0 )
         , _isRunning( false )
+        , _interaction( false )
     {
         const DrawableConfig& dc = channel->getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -47,18 +58,31 @@ public:
         }
 
         const std::string& dcHost = channel->getView()->getDisplayCluster();
-        _dcSocket = dcStreamConnect( dcHost.c_str( ));
+        _dcSocket = dcStreamConnect( dcHost.c_str(), false );
         if( !_dcSocket )
         {
             LBWARN << "Could not connect to DisplayCluster host: " << dcHost
                    << std::endl;
             return;
         }
+
+        _interaction = dcStreamBindInteraction( _dcSocket,
+                                                _channel->getView()->getName());
+        if( !_interaction )
+        {
+            LBWARN << "Could not bind interaction events to DisplayCluster"
+                   << std::endl;
+        }
+
         _isRunning = true;
     }
 
     ~DcProxy()
     {
+#ifdef GLX
+        delete _eventHandler;
+#endif
+
         dcStreamDisconnect( _dcSocket );
         delete _buffer;
     }
@@ -86,7 +110,6 @@ public:
 
         const DcStreamParameters parameters =
                 dcStreamGenerateParameters( _channel->getView()->getName(),
-                                            0,  // TODO: get channel index wrt view
                                             offsX, offsY, pvp.w, pvp.h,
                                             width, height );
         dcStreamIncrementFrameIndex();
@@ -95,16 +118,27 @@ public:
     }
 
     DcSocket* _dcSocket;
+#ifdef GLX
+    glx::DcEventHandler* _eventHandler;
+#endif
     eq::Channel* _channel;
     unsigned char* _buffer;
     size_t _size;
     bool _isRunning;
+    bool _interaction;
 };
 }
 
 DcProxy::DcProxy( Channel* channel )
     : _impl( new detail::DcProxy( channel ))
 {
+#ifdef GLX
+    if( _impl->_interaction &&
+        channel->getPipe()->getWindowSystem().getName() == "GLX" )
+    {
+        _impl->_eventHandler = new glx::DcEventHandler( this );
+    }
+#endif
 }
 
 DcProxy::~DcProxy()
@@ -117,9 +151,34 @@ void DcProxy::swapBuffer()
     _impl->swapBuffer();
 }
 
+Channel* DcProxy::getChannel()
+{
+    return _impl->_channel;
+}
+
+int DcProxy::getSocketDescriptor() const
+{
+    return dcSocketDescriptor( _impl->_dcSocket );
+}
+
+bool DcProxy::hasNewInteractionState()
+{
+    return dcHasNewInteractionState( _impl->_dcSocket );
+}
+
 bool DcProxy::isRunning() const
 {
     return _impl->_isRunning;
+}
+
+void DcProxy::stopRunning()
+{
+    _impl->_isRunning = false;
+}
+
+InteractionState DcProxy::getInteractionState() const
+{
+    return dcStreamGetInteractionState( _impl->_dcSocket );
 }
 
 }

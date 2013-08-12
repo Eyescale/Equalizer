@@ -52,6 +52,9 @@ if(DISPLAYCLUSTER_FOUND)
   set(DISPLAYCLUSTER_SOURCES
     dcProxy.h
     dcProxy.cpp
+    glx/dcEventHandler.h
+    glx/dcEventHandler.cpp
+    glx/dcConnection.h
   )
 endif()
 
@@ -183,7 +186,6 @@ set(CLIENT_SOURCES
   )
 
 if(NOT EQUALIZER_BUILD_2_0_API)
-  list(APPEND CLIENT_HEADERS configParams.h)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
 endif()
 

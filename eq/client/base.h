@@ -113,7 +113,6 @@
 
 #ifndef EQ_2_0_API
 #  include <eq/client/configEvent.h>
-#  include <eq/client/configParams.h>
 #endif
 
 #ifdef EQ_SYSTEM_INCLUDES

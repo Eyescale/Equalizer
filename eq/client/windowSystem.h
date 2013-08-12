@@ -89,17 +89,6 @@ private:
     friend class WindowSystem;
 };
 
-#ifndef EQ_2_0_API
-enum WindowSystemEnum
-{
-    WINDOW_SYSTEM_NONE = 0, // must be first
-    WINDOW_SYSTEM_AGL,      //!< AGL/Carbon
-    WINDOW_SYSTEM_GLX,      //!< GLX/X11
-    WINDOW_SYSTEM_WGL,      //!< WGL/Win32
-    WINDOW_SYSTEM_ALL       // must be last
-};
-#endif
-
 /** @internal
  * Access to the instantiated window systems.
  * @sa Pipe::getWindowSystem()
@@ -109,15 +98,6 @@ class WindowSystem
 public:
     EQ_API WindowSystem();
     EQ_API WindowSystem( const std::string& name );
-
-#ifndef EQ_2_0_API
-    EQ_API WindowSystem( const WindowSystemEnum type );
-    ~WindowSystem() {}
-
-    EQ_API bool operator == ( const WindowSystemEnum other ) const;
-    EQ_API bool operator != ( const WindowSystemEnum other ) const;
-    EQ_API operator WindowSystemEnum() const;
-#endif
 
     static bool supports( std::string const& type );
 

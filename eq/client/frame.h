@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -98,16 +98,6 @@ namespace detail{ class Frame; }
         /** @return all images of this frame. @version 1.0 */
         EQ_API const Images& getImages() const;
 
-#ifndef EQ_2_0_API
-        /** Set the data for this frame. @deprecated */
-        EQ_API void setData( FrameData* data );
-
-        /** @return the frame's data. @deprecated */
-        EQ_API FrameData* getData();
-
-        /** @return the frame's data. @deprecated */
-        EQ_API const FrameData* getData() const;
-#endif
         /** Set the data for this frame. @version 1.3.2 */
         EQ_API void setFrameData( FrameDataPtr data );
 

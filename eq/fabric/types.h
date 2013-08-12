@@ -31,7 +31,8 @@
 #ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #else
-#  define EQ_DEFAULT_PORT (4242 + getuid())
+// #241: Avoid using privilege ports below 1024
+#  define EQ_DEFAULT_PORT ( (getuid() % 64511) + 1024 )
 #endif
 
 namespace eq
@@ -98,19 +99,7 @@ struct WindowPath;
 using co::Strings;
 using co::StringsCIter;
 
-#ifndef EQ_2_0_API
-using co::Serializable;
-#endif
 }
 }
-
-#ifndef EQ_2_0_API
-namespace co
-{
-using eq::fabric::Error;
-using eq::fabric::ErrorRegistry;
-using eq::fabric::ERROR_NONE;
-}
-#endif
 
 #endif // EQFABRIC_TYPES_H

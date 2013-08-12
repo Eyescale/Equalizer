@@ -24,6 +24,10 @@
 #  include "sageConnection.h"
 #  include "sageEventHandler.h"
 #endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#  include "dcConnection.h"
+#  include "dcEventHandler.h"
+#endif
 
 #include <lunchbox/debug.h>
 #include <lunchbox/log.h>
@@ -69,6 +73,14 @@ void MessagePump::dispatchOne( const uint32_t timeout )
                                                sageConnection->getSageProxy( ));
             else
 #endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+            co::ConnectionPtr connection = _connections.getConnection();
+            const DcConnection* dcConnection =
+                dynamic_cast< const DcConnection* >( connection.get( ));
+            if( dcConnection )
+               DcEventHandler::processEvents( dcConnection->getDcProxy( ));
+            else
+#endif
             EventHandler::dispatch();
             break;
         }
@@ -92,6 +104,9 @@ void MessagePump::dispatchAll()
     EventHandler::dispatch();
 #ifdef EQUALIZER_USE_SAGE
     SageEventHandler::processEvents();
+#endif
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    DcEventHandler::processEvents();
 #endif
 }
 
@@ -149,6 +164,37 @@ void MessagePump::deregister( SageProxy* sage )
             }
         }
         _referenced.erase( _referenced.find( sage ));
+    }
+#endif
+}
+
+void MessagePump::register_( DcProxy* dcProxy )
+{
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    if( ++_referenced[ dcProxy ] == 1 )
+        _connections.addConnection( new DcConnection( dcProxy ));
+#endif
+}
+
+void MessagePump::deregister( DcProxy* dcProxy )
+{
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    if( --_referenced[ dcProxy ] == 0 )
+    {
+        const co::Connections& connections = _connections.getConnections();
+        for( co::Connections::const_iterator i = connections.begin();
+             i != connections.end(); ++i )
+        {
+            co::ConnectionPtr connection = *i;
+            const DcConnection* dcConnection =
+                dynamic_cast< const DcConnection* >( connection.get( ));
+            if( dcConnection && dcConnection->getDcProxy() == dcProxy )
+            {
+                _connections.removeConnection( connection );
+                break;
+            }
+        }
+        _referenced.erase( _referenced.find( dcProxy ));
     }
 #endif
 }

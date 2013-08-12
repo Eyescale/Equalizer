@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -62,55 +62,6 @@ WindowSystem::WindowSystem( std::string const& type )
 {
     _chooseImpl( type );
 }
-
-#ifndef EQ_2_0_API
-static std::string _getName( const WindowSystemEnum type )
-{
-    switch( type )
-    {
-      case WINDOW_SYSTEM_AGL:
-          return "AGL";
-
-      case WINDOW_SYSTEM_GLX:
-          return "GLX";
-
-      case WINDOW_SYSTEM_WGL:
-          return "WGL";
-
-      default:
-          return "";
-    }
-}
-
-WindowSystem::WindowSystem( const WindowSystemEnum type )
-{
-    _chooseImpl( _getName( type ));
-}
-
-bool WindowSystem::operator == ( const WindowSystemEnum other) const
-{
-    LBASSERT( _impl );
-    return _impl->getName() == _getName( other );
-}
-
-bool WindowSystem::operator != ( const WindowSystemEnum other ) const
-{
-    LBASSERT( _impl );
-    return _impl->getName() != _getName( other );
-}
-
-WindowSystem::operator WindowSystemEnum() const
-{
-    LBASSERT( _impl );
-    if( _impl->getName() == "AGL" )
-        return WINDOW_SYSTEM_AGL;
-    if( _impl->getName() == "GLX" )
-        return WINDOW_SYSTEM_GLX;
-    if( _impl->getName() == "WGL" )
-        return WINDOW_SYSTEM_WGL;
-    return WINDOW_SYSTEM_NONE;
-}
-#endif
 
 void WindowSystem::_chooseImpl( const std::string& name )
 {
