@@ -353,7 +353,7 @@ namespace fabric
         void overrideContext( RenderContext& context ) { _context = &context; }
 
         /** @internal Re-set the channel's native render context. */
-        void resetRenderContext() { _context = &_data.nativeContext; }
+        void resetContext() { _context = &_data.nativeContext; }
 
         /** @internal @return the current render context. */
         const RenderContext& getContext() const { return *_context; }

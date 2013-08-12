@@ -570,7 +570,7 @@ namespace detail { class Channel; struct RBStat; }
 
         //-------------------- Methods --------------------
         /** Setup the current rendering context. */
-        void _setRenderContext( RenderContext& context );
+        void _overrideContext( RenderContext& context );
 
         /** Initialize the FBO */
         bool _configInitFBO();
