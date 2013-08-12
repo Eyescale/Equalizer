@@ -92,7 +92,7 @@ void EventHandler::processEvents( const Proxy* proxy )
 void EventHandler::_processEvents( const Proxy* proxy )
 {
     LB_TS_THREAD( _thread );
-    if( !_proxy || _proxy != proxy )
+    if( !_proxy || (proxy && _proxy != proxy ))
         return;
 
     const PixelViewport& pvp = _proxy->getChannel()->getPixelViewport();

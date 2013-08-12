@@ -113,7 +113,6 @@ public:
     }
 
     DcSocket* _dcSocket;
-
     EventHandler* _eventHandler;
     eq::Channel* _channel;
     unsigned char* _buffer;
