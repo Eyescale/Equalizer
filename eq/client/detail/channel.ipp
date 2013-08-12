@@ -18,10 +18,6 @@
 namespace eq
 {
 
-#ifdef EQUALIZER_USE_SAGE
-class SageProxy;
-#endif
-
 namespace detail
 {
 enum State
@@ -39,9 +35,6 @@ public:
             : state( STATE_STOPPED )
             , fbo( 0 )
             , initialSize( Vector2i::ZERO )
-#ifdef EQUALIZER_USE_SAGE
-            , _sageProxy( 0 )
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
             , _dcProxy( 0 )
 #endif
@@ -101,9 +94,6 @@ public:
     /** The number of the last finished frame. */
     lunchbox::Monitor< uint32_t > finishedFrame;
 
-#ifdef EQUALIZER_USE_SAGE
-    SageProxy* _sageProxy;
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     dc::Proxy* _dcProxy;
 #endif

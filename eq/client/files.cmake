@@ -38,16 +38,6 @@ set(GLX_SOURCES
   glx/types.cpp
 )
 
-if(SAGE_FOUND)
-  set(SAGE_SOURCES
-    sageProxy.h
-    sageProxy.cpp
-    glx/sageEventHandler.h
-    glx/sageEventHandler.cpp
-    glx/sageConnection.h
-  )
-endif()
-
 if(DISPLAYCLUSTER_FOUND)
   set(DISPLAYCLUSTER_SOURCES
     dc/connection.h
@@ -132,7 +122,6 @@ set(CLIENT_HEADERS
 
 set(CLIENT_SOURCES
   ${DISPLAYCLUSTER_SOURCES}
-  ${SAGE_SOURCES}
   detail/channel.ipp
   canvas.cpp
   channel.cpp

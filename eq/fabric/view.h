@@ -144,21 +144,6 @@ namespace fabric
          */
         EQFABRIC_INL float getModelUnit() const;
 
-        /**
-         * Set the SAGE configuration file for this view.
-         *
-         * The configuration file is used to setup a SAGE sail instance to
-         * create a SAGE application for this view including pixel data
-         * streaming and event handling on a SAGE-driven display.
-         *
-         * @param config the filepath of the SAGE configuration file
-         * @version 1.5.2
-         */
-        void setSageConfig( const std::string& config );
-
-        /** @return the SAGE configuration file of this view. @version 1.5.2 */
-        const std::string& getSageConfig() const;
-
         /** Set the DisplayCluster hostname for this view. @version 1.5.2 */
         void setDisplayCluster( const std::string& hostname );
 
@@ -247,14 +232,12 @@ namespace fabric
             DIRTY_EQUALIZER      = Object::DIRTY_CUSTOM << 8,
             DIRTY_EQUALIZERS     = Object::DIRTY_CUSTOM << 9,
             DIRTY_MODELUNIT      = Object::DIRTY_CUSTOM << 10,
-            DIRTY_SAGECONFIG     = Object::DIRTY_CUSTOM << 11,
-            DIRTY_DISPLAYCLUSTER = Object::DIRTY_CUSTOM << 12,
+            DIRTY_DISPLAYCLUSTER = Object::DIRTY_CUSTOM << 11,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
                 DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_EQUALIZER |
-                DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_SAGECONFIG |
-                DIRTY_DISPLAYCLUSTER
+                DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_DISPLAYCLUSTER
         };
 
     protected:
@@ -312,7 +295,6 @@ namespace fabric
         uint64_t _capabilities; //!< intersection of all active channel caps
         uint32_t _equalizers; //!< Active Equalizers
         float _modelUnit; //!< Scaling of scene in this view
-        std::string _sageConfig;
         std::string _displayCluster;
 
         struct BackupData

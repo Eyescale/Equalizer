@@ -59,12 +59,6 @@ namespace glx
         /** Deregister a Display connection from event dispatch. @version 1.0 */
         void deregister( Display* display );
 
-        /** Register a new SAGE connection for event dispatch. @version 1.5.2 */
-        void register_( SageProxy* sage );
-
-        /** Deregister a SAGE connection from event dispatch. @version 1.5.2 */
-        void deregister( SageProxy* sage );
-
         /** Register a new DC connection for event dispatch. @version 1.7.1 */
         void register_( dc::Proxy* dcProxy ) override;
 

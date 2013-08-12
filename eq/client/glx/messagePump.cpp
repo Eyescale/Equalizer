@@ -20,10 +20,6 @@
 #include "eventHandler.h"
 #include "X11Connection.h"
 
-#ifdef EQUALIZER_USE_SAGE
-#  include "sageConnection.h"
-#  include "sageEventHandler.h"
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
 #  include "../dc/connection.h"
 #  include "../dc/eventHandler.h"
@@ -64,15 +60,6 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 
         case co::ConnectionSet::EVENT_DATA:
         {
-#ifdef EQUALIZER_USE_SAGE
-            co::ConnectionPtr connection = _connections.getConnection();
-            const SageConnection* sageConnection =
-                dynamic_cast< const SageConnection* >( connection.get( ));
-            if( sageConnection )
-                SageEventHandler::processEvents(
-                                               sageConnection->getSageProxy( ));
-            else
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
             co::ConnectionPtr connection = _connections.getConnection();
             const dc::Connection* dcConnection =
@@ -102,9 +89,6 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 void MessagePump::dispatchAll()
 {
     EventHandler::dispatch();
-#ifdef EQUALIZER_USE_SAGE
-    SageEventHandler::processEvents();
-#endif
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     dc::EventHandler::processEvents();
 #endif
@@ -135,37 +119,6 @@ void MessagePump::deregister( Display* display )
         }
         _referenced.erase( _referenced.find( display ));
     }
-}
-
-void MessagePump::register_( SageProxy* sage )
-{
-#ifdef EQUALIZER_USE_SAGE
-    if( ++_referenced[ sage ] == 1 )
-        _connections.addConnection( new SageConnection( sage ));
-#endif
-}
-
-void MessagePump::deregister( SageProxy* sage )
-{
-#ifdef EQUALIZER_USE_SAGE
-    if( --_referenced[ sage ] == 0 )
-    {
-        const co::Connections& connections = _connections.getConnections();
-        for( co::Connections::const_iterator i = connections.begin();
-             i != connections.end(); ++i )
-        {
-            co::ConnectionPtr connection = *i;
-            const SageConnection* sageConnection =
-                dynamic_cast< const SageConnection* >( connection.get( ));
-            if( sageConnection && sageConnection->getSageProxy() == sage )
-            {
-                _connections.removeConnection( connection );
-                break;
-            }
-        }
-        _referenced.erase( _referenced.find( sage ));
-    }
-#endif
 }
 
 void MessagePump::register_( dc::Proxy* dcProxy )
