@@ -110,9 +110,9 @@ std::string Pipe::getXDisplayString()
     else if( device != LB_UNDEFINED_UINT32 )
         stringStream << ":0." << device;
 
-    return XDisplayName( stringStream.str().c_str( ));
+    const std::string name( XDisplayName( stringStream.str().c_str( )));
+    return name.empty() ? ":0" : name;
 }
-
 
 void Pipe::setXDisplay( Display* display )
 {
