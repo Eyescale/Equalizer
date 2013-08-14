@@ -43,7 +43,6 @@ public:
         , _buffer( 0 )
         , _size( 0 )
         , _isRunning( false )
-        , _interaction( false )
     {
         const DrawableConfig& dc = channel->getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -63,13 +62,8 @@ public:
             return;
         }
 
-        _interaction = dcStreamBindInteraction( _dcSocket,
-                                                _channel->getView()->getName());
-        if( !_interaction )
-        {
-            LBWARN << "Could not bind interaction events to DisplayCluster"
-                   << std::endl;
-        }
+        dcStreamBindInteraction( _dcSocket, _channel->getView()->getName(),
+                                 true );
 
         _isRunning = true;
     }
@@ -118,15 +112,12 @@ public:
     unsigned char* _buffer;
     size_t _size;
     bool _isRunning;
-    bool _interaction;
 };
 }
 
 Proxy::Proxy( Channel* channel )
     : _impl( new detail::Proxy( channel ))
 {
-    if( _impl->_interaction )
-        _impl->_eventHandler = new EventHandler( this );
 }
 
 Proxy::~Proxy()
@@ -137,6 +128,12 @@ Proxy::~Proxy()
 void Proxy::swapBuffer()
 {
     _impl->swapBuffer();
+
+    if( !_impl->_eventHandler && dcStreamGetBindReply( _impl->_dcSocket ) == 1 )
+    {
+        _impl->_eventHandler = new EventHandler( this );
+        LBINFO << "Installed event handler for DisplayCluster" << std::endl;
+    }
 }
 
 Channel* Proxy::getChannel()
