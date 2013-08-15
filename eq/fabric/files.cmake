@@ -13,7 +13,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   config.h
   configParams.h
   configVisitor.h
-  defines.h
   drawableConfig.h
   elementVisitor.h
   equalizer.h
@@ -96,3 +95,7 @@ set(EQ_FABRIC_SOURCES
   wall.cpp
   zoom.cpp
   )
+
+list(SORT EQ_FABRIC_HEADERS)
+list(SORT EQ_FABRIC_PUBLIC_HEADERS)
+list(SORT EQ_FABRIC_SOURCES)

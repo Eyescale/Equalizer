@@ -10,4 +10,4 @@ add_subdirectory(client)
 add_subdirectory(admin)
 add_subdirectory(server)
 
-install(FILES eq.h DESTINATION include/eq COMPONENT dev)
+install(FILES eq.h defines.h DESTINATION include/eq COMPONENT dev)

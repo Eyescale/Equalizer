@@ -100,10 +100,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
-if(CUDA_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/eqNBody")
+if(CUDA_FOUND)
   add_subdirectory(eqNBody)
 endif()
-if(OSG_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/osgScaleViewer")
+if(OPENSCENEGRAPH_FOUND)
   add_subdirectory(osgScaleViewer)
 endif()
 
