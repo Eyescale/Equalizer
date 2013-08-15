@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved.
    - Cleaned up code for 64 bit, little and big endian support
    - Added new ply data types (uint8, float32, int32)
@@ -72,7 +72,7 @@ void swap2Bytes( void* ptr );
 void swap4Bytes( void* ptr );
 void swap8Bytes( void* ptr );
 
-#ifdef EQ_LITTLE_ENDIAN
+#ifdef EQUALIZER_LITTLE_ENDIAN
 
 void swap2LE( void* );
 void swap2LE( short* );
@@ -98,7 +98,7 @@ void swap8BE( void* ptr );
 void swap8BE( unsigned long long* ptr );
 void swap8BE( double* ptr );
 
-#else // EQ_LITTLE_ENDIAN
+#else // EQUALIZER_LITTLE_ENDIAN
 
 void swap2LE( void* ptr );
 void swap2LE( short* ptr );
@@ -124,7 +124,7 @@ void swap8BE( long long* );
 void swap8BE( unsigned long long* );
 void swap8BE( double* );
 
-#endif // EQ_LITTLE_ENDIAN
+#endif // EQUALIZER_LITTLE_ENDIAN
 
 /* returns 1 if strings are equal, 0 if not */
 int equal_strings(const char *, const char *);
@@ -251,7 +251,7 @@ void swap8Bytes( void* ptr )
 
 }
 
-#ifdef EQ_LITTLE_ENDIAN
+#ifdef EQUALIZER_LITTLE_ENDIAN
 
 void swap2LE( void* ) {}
 void swap2LE( short* ) {}
@@ -277,7 +277,7 @@ void swap8BE( void* ptr ) { swap8Bytes(ptr); }
 void swap8BE( unsigned long long* ptr ) { swap8Bytes(ptr); }
 void swap8BE( double* ptr ) { swap8Bytes(ptr); }
 
-#else // EQ_LITTLE_ENDIAN
+#else // EQUALIZER_LITTLE_ENDIAN
 
 void swap2LE( void* ptr ) { swap2Bytes(ptr); }
 void swap2LE( short* ptr ) { swap2Bytes(ptr); }
@@ -303,7 +303,7 @@ void swap8BE( long long* ) {}
 void swap8BE( unsigned long long* ) {}
 void swap8BE( double* ) {}
 
-#endif // EQ_LITTLE_ENDIAN
+#endif // EQUALIZER_LITTLE_ENDIAN
 
 
 /*************/

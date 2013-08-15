@@ -1,9 +1,5 @@
 
-# Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  set(LINUX TRUE)
-endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+# Copyright (c) 2011-2013 Stefan Eilemann <eile@eyescale.ch>
 
 if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
@@ -20,14 +16,8 @@ if(APPLE)
   LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
 endif(APPLE)
 
-find_package(GLEW_MX)
-
 if(CUDA_FOUND)
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 endif(CUDA_FOUND)
 
-# OpenSceneGraph
-option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
-if(NOT EQUALIZER_USE_OSG)
-  set(OSG_FOUND)
-endif()
+

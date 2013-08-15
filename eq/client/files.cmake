@@ -80,7 +80,6 @@ set(CLIENT_HEADERS
   configEvent.h
   configStatistics.h
   cudaContext.h
-  defines.h
   error.h
   event.h
   eventICommand.h

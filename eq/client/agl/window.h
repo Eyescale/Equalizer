@@ -19,7 +19,7 @@
 #ifndef EQ_AGL_WINDOW_H
 #define EQ_AGL_WINDOW_H
 
-#include <eq/client/defines.h>
+#include <eq/defines.h>
 #ifdef AGL
 
 #include <eq/client/agl/types.h>

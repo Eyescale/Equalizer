@@ -41,12 +41,17 @@ else()
   set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
 endif()
 
+set(PROJECT_INCLUDE_NAME eq)
+if(EQUALIZER_BUILD_2_0_API)
+  list(APPEND FIND_PACKAGES_DEFINES EQ_2_0_API)
+else()
+  list(APPEND FIND_PACKAGES_DEFINES EQ_1_0_API)
+endif()
+
 include(Common)
 include(GitTargets)
 include(configure)
 include(UpdateFile)
-include(TestBigEndian)
-test_big_endian(EQ_BIG_ENDIAN)
 
 if(CMAKE_COMPILER_IS_CLANG)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual")
@@ -123,6 +128,7 @@ endif()
 
 install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
+install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)
 
 if(HWLOC_GL_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")

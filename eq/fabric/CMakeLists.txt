@@ -1,7 +1,6 @@
 
 # Copyright (c) 2011-2013 Stefan Eilemann <eile@eyescale.ch>
 
-include(configure.cmake)
 include(files.cmake)
 
 add_library(EqualizerFabric SHARED

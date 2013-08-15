@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer
-#               2010-2012, Stefan Eilemann <eile@eyescale.ch>
+#               2010-2013, Stefan Eilemann <eile@eyescale.ch>
 #
 # Change this number when adding tests to force a CMake run: 1
 
@@ -32,7 +32,7 @@ file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 set(ALL_TESTS)
 foreach(FILE ${TEST_FILES})
   set(THIS_BUILD ON)
-  if(EQ_BIG_ENDIAN)
+  if(BIGENDIAN)
     if( ${FILE} MATCHES "compressor/image.cpp" OR
         ${FILE} MATCHES "compositor/test.cpp" )
       set(THIS_BUILD OFF)
