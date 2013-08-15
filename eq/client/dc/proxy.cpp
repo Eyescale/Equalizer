@@ -62,8 +62,12 @@ public:
             return;
         }
 
-        dcStreamBindInteraction( _dcSocket, _channel->getView()->getName(),
-                                 true );
+        if( !dcStreamBindInteractionExclusive( _dcSocket,
+                                               _channel->getView()->getName( )))
+        {
+            LBWARN << "Could not bind interaction events to DisplayCluster"
+                   << std::endl;
+        }
 
         _isRunning = true;
     }
@@ -129,7 +133,8 @@ void Proxy::swapBuffer()
 {
     _impl->swapBuffer();
 
-    if( !_impl->_eventHandler && dcStreamGetBindReply( _impl->_dcSocket ) == 1 )
+    if( !_impl->_eventHandler &&
+        dcStreamHasInteraction( _impl->_dcSocket ) == 1 )
     {
         _impl->_eventHandler = new EventHandler( this );
         LBINFO << "Installed event handler for DisplayCluster" << std::endl;
