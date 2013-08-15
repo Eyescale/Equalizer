@@ -681,9 +681,16 @@ bool Config::_handleNewEvent( EventICommand& command )
     case Event::PIPE_ERROR:
     case Event::WINDOW_ERROR:
     case Event::CHANNEL_ERROR:
-        LBWARN << Error( command.get< uint32_t >( ));
-        while( command.hasData( ))
-            LBWARN << ": " << command.get< std::string >();
+    {
+        // TODO:
+        //     add originator ID
+        //     create ErrorOCommand with lexical_cast?
+        //     create Error type with operator!
+        const Error error = Error( command.get< uint32_t >( ));
+        LBWARN << error;
+        if( error < ERROR_CUSTOM )
+            while( command.hasData( ))
+                LBWARN << ": " << command.get< std::string >();
         LBWARN << std::endl;
         return false;
     }

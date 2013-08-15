@@ -339,7 +339,7 @@ public:
     /**
      * Send a channel error event to the application node.
      *
-     * @param error the error message.
+     * @param error the error code.
      * @version 1.7.1
      */
     EQ_API EventOCommand sendError( const uint32_t error );

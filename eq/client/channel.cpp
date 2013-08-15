@@ -585,7 +585,7 @@ void Channel::applyFrameBufferObject()
         const PixelViewport& pvp = getNativePixelViewport();
         const Error error = _impl->fbo->resize( pvp.w, pvp.h );
         if( error != ERROR_NONE )
-            LBWARN << error << std::endl;
+            sendError( error );
         _impl->fbo->bind();
     }
     else if( GLEW_EXT_framebuffer_object )

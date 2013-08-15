@@ -37,7 +37,7 @@ namespace agl
 {
 namespace
 {
-static std::string aglError() { return aglErrorString( aglGetError( )); }
+std::string aglError() { return aglErrorString( aglGetError( )); }
 }
 
 Window::Window( eq::Window* parent, CGDirectDisplayID displayID )

@@ -272,7 +272,7 @@ bool Node::launch()
             return true;
     }
 
-    sendError( ERROR_NODE_LAUNCH );
+    sendError( ERROR_NODE_LAUNCH ) << _host;
     return false;
 }
 
@@ -303,8 +303,8 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
         }
 
         lunchbox::sleep( 100 /*ms*/ );
-		if( timeOut != static_cast<int32_t>(LB_TIMEOUT_INDEFINITE) &&
-			clock.getTime64() > timeOut )
+        if( timeOut != static_cast<int32_t>(LB_TIMEOUT_INDEFINITE) &&
+            clock.getTime64() > timeOut )
         {
             LBASSERT( _node->getRefCount() == 1 );
             _node = 0;
@@ -317,8 +317,8 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
                 co::ConnectionDescriptionPtr desc = *i;
                 data << desc->getHostname() << ' ';
             }
-            sendError( ERROR_NODE_CONNECT );
 
+            sendError( ERROR_NODE_CONNECT ) << _host;
             _state = STATE_FAILED;
             return false;
         }
@@ -713,7 +713,7 @@ co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 
 EventOCommand Node::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( error, Event::NODE_ERROR );
+    return getConfig()->sendError( Event::NODE_ERROR, error );
 }
 
 void Node::flushSendBuffer()
