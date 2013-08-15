@@ -139,6 +139,9 @@ if(HWSD_FOUND)
   endforeach()
 endif()
 
+list(SORT HEADERS)
+list(SORT SOURCES)
+
 add_library(EqualizerServer SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(EqualizerServer ${SERVER_LIBRARIES})
 set_target_properties(EqualizerServer

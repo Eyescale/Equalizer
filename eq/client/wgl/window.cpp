@@ -186,7 +186,7 @@ bool Window::configInit()
 {
     if( !initWGLAffinityDC( ))
     {
-        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
+        sendError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
         return false;
     }
 
@@ -207,7 +207,7 @@ bool Window::configInit()
     {
         exitWGLAffinityDC();
         setWGLDC( 0, WGL_DC_NONE );
-        setError( ERROR_WGLWINDOW_NO_DRAWABLE );
+        sendError( ERROR_WGLWINDOW_NO_DRAWABLE );
         return false;
     }
 
@@ -280,8 +280,8 @@ bool Window::configInitWGLFBO( int pixelFormat )
     DescribePixelFormat( _wglDC, pixelFormat, sizeof( pfd ), &pfd );
     if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
     {
-        setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED )
+            << lunchbox::sysError();
         return false;
     }
 
@@ -307,8 +307,8 @@ bool Window::configInitWGLWindow( int pixelFormat )
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
         ReleaseDC( hWnd, windowDC );
-        setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED )
+            << lunchbox::sysError();
         return false;
     }
     ReleaseDC( hWnd, windowDC );
@@ -352,8 +352,8 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
 
     if( !RegisterClass( &wc ))
     {
-        setError( ERROR_WGLWINDOW_REGISTERCLASS_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLWINDOW_REGISTERCLASS_FAILED )
+            << lunchbox::sysError();
         return false;
     }
 
@@ -375,8 +375,8 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
         if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) !=
             DISP_CHANGE_SUCCESSFUL )
         {
-            setError( ERROR_WGLWINDOW_FULLSCREEN_FAILED );
-            LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+            sendError( ERROR_WGLWINDOW_FULLSCREEN_FAILED )
+                << lunchbox::sysError();
             return false;
         }
         windowStyle = WS_POPUP | WS_MAXIMIZE;
@@ -399,8 +399,8 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
                                 instance, 0 );
     if( !hWnd )
     {
-        setError( ERROR_WGLWINDOW_CREATEWINDOW_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLWINDOW_CREATEWINDOW_FAILED )
+            << lunchbox::sysError();
         return false;
     }
 
@@ -411,7 +411,7 @@ bool Window::configInitWGLPBuffer( int pf )
 {
     if( !WGLEW_ARB_pbuffer )
     {
-        setError( ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED );
+        sendError( ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED );
         return false;
     }
 
@@ -435,8 +435,8 @@ bool Window::configInitWGLPBuffer( int pf )
 
     if( !pBuffer )
     {
-        setError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED )
+            << lunchbox::sysError();
         return false;
     }
 
@@ -549,8 +549,8 @@ int Window::chooseWGLPixelFormat()
 
     if( pixelFormat == 0 )
     {
-        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND )
+            << lunchbox::sysError();
         return 0;
     }
 
@@ -563,8 +563,8 @@ int Window::chooseWGLPixelFormat()
         DescribePixelFormat( _wglAffinityDC, pixelFormat, sizeof(pfd), &pfd );
         if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
         {
-            setError( ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED );
-            LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+            sendError( ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED )
+                << lunchbox::sysError();
             return 0;
         }
     }
@@ -659,7 +659,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
     {
         if ( !WGLEW_ARB_pixel_format_float )
         {
-            setError( ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED );
+            sendError( ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED );
             return 0;
         }
 
@@ -775,8 +775,8 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
         if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
             &pixelFormat, &nFormats ))
         {
-            setError( ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED);
-            LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+            sendError( ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED)
+                << lunchbox::sysError();
             return 0;
         }
 
@@ -808,8 +808,8 @@ HGLRC Window::createWGLContext()
     HGLRC context = wglCreateContext( _wglAffinityDC ? _wglAffinityDC :_wglDC );
     if( !context )
     {
-        setError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED);
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED)
+            << lunchbox::sysError();
         return 0;
     }
 

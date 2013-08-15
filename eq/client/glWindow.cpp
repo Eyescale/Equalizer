@@ -99,7 +99,7 @@ bool GLWindow::configInitFBO()
     if( !_glewInitialized ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
-        setError( ERROR_FBO_UNSUPPORTED );
+        sendError( ERROR_FBO_UNSUPPORTED );
         return false;
     }
 
@@ -117,16 +117,18 @@ bool GLWindow::configInitFBO()
     if( stencilSize == AUTO )
         stencilSize = 1;
 
-    if( _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, stencilSize ))
+    Error error = _fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
+                              stencilSize );
+    if( error == ERROR_NONE )
         return true;
 
-    if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO &&
-        _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 ))
-    {
-        return true;
-    }
+    if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO )
+        error = _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
 
-    setError( _fbo->getError( ));
+    if( error == ERROR_NONE )
+        return true;
+
+    sendError( error );
     delete _fbo;
     _fbo = 0;
     return false;

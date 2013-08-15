@@ -294,10 +294,9 @@ bool Config::init( const uint128_t& initID )
     localNode->waitRequest( requestID, _impl->running );
     localNode->enableSendOnRegister();
 
-    if( _impl->running )
-        handleEvents();
-    else
-        LBWARN << "Config initialization failed: " << getError() << std::endl
+    handleEvents();
+    if( !_impl->running )
+        LBWARN << "Config initialization failed" << std::endl
                << "    Consult client log for further information" << std::endl;
     return _impl->running;
 }
@@ -355,6 +354,7 @@ bool Config::update()
     {
         sync( version );
         client->unregisterRequest( requestID );
+        handleEvents();
         return true;
     }
 
@@ -374,6 +374,7 @@ bool Config::update()
 #ifdef EQUALIZER_USE_GLSTATS
     _impl->statistics->clear();
 #endif
+    handleEvents();
     return result;
 }
 
@@ -612,6 +613,11 @@ EventOCommand Config::sendEvent( const uint32_t type )
     return cmd;
 }
 
+EventOCommand Config::sendError( const uint32_t type, const uint32_t error )
+{
+    return Super::sendError( getApplicationNode(), type, error );
+}
+
 EventICommand Config::getNextEvent( const uint32_t timeout ) const
 {
     if( timeout == 0 )
@@ -670,6 +676,16 @@ bool Config::_handleNewEvent( EventICommand& command )
             return observer->handleEvent( command );
         break;
     }
+
+    case Event::NODE_ERROR:
+    case Event::PIPE_ERROR:
+    case Event::WINDOW_ERROR:
+    case Event::CHANNEL_ERROR:
+        LBWARN << Error( command.get< uint32_t >( ));
+        while( command.hasData( ))
+            LBWARN << ": " << command.get< std::string >();
+        LBWARN << std::endl;
+        return false;
     }
     return false;
 }

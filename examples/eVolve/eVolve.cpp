@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -95,23 +95,16 @@ int EVolve::run()
         disconnectServer( server );
         return EXIT_FAILURE;
     }
-    else if( config->getError( ))
-        LBWARN << "Error during initialization: " << config->getError()
-               << std::endl;
-
     LBLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
                        << std::endl;
 
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
-    
+
     clock.reset();
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
-        if( config->getError( ))
-            LBWARN << "Error during frame start: " << config->getError()
-                   << std::endl;
         config->finishFrame();
     }
     const uint32_t frame = config->finishAllFrames();

@@ -18,7 +18,6 @@
 
 #include "pixelBufferObject.h"
 
-#include <eq/client/error.h>
 #include <eq/client/gl.h>
 #include <lunchbox/debug.h>
 #include <lunchbox/scopedMutex.h>
@@ -35,7 +34,6 @@ public:
     PixelBufferObject( const GLEWContext* glewContext,
                        const bool threadSafe )
         : lock_( threadSafe ? new lunchbox::Lock : 0 )
-        , error( eq::fabric::ERROR_NONE )
         , pboID( 0 )
         , size( 0 )
         , _glewContext( glewContext )
@@ -57,21 +55,17 @@ public:
 
     bool isInitialized() const { return pboID != 0; }
 
-    bool setup( const size_t newSize, const GLuint type )
+    Error setup( const size_t newSize, const GLuint type )
     {
         LBASSERT( _glewContext );
 
         if( !GLEW_ARB_pixel_buffer_object )
-        {
-            _setError( ERROR_PBO_UNSUPPORTED );
-            return false;
-        }
+            return ERROR_PBO_UNSUPPORTED;
 
         if( newSize == 0 )
         {
-            _setError( ERROR_PBO_SIZE_TOO_SMALL );
             destroy();
-            return false;
+            return ERROR_PBO_SIZE_TOO_SMALL;
         }
 
         if( pboID == 0 )
@@ -79,15 +73,12 @@ public:
             EQ_GL_CALL( glGenBuffersARB( 1, &pboID ));
         }
         if( pboID == 0 )
-        {
-            _setError( ERROR_PBO_NOT_INITIALIZED );
-            return false;
-        }
+            return ERROR_PBO_NOT_INITIALIZED;
 
         if( _type == type && size >= newSize )
         {
             bind();
-            return true;
+            return ERROR_NONE;
         }
 
         _type = type;
@@ -100,18 +91,17 @@ public:
             EQ_GL_CALL(
                 glBufferDataARB( GL_PIXEL_PACK_BUFFER_ARB, newSize, 0,
                                  GL_STREAM_READ_ARB ));
-            return true;
+            return ERROR_NONE;
 
         case GL_WRITE_ONLY_ARB:
             EQ_GL_CALL(
                 glBufferDataARB( GL_PIXEL_UNPACK_BUFFER_ARB, newSize, 0,
                                  GL_STREAM_DRAW_ARB ));
-            return true;
+            return ERROR_NONE;
 
         default:
-            _setError( ERROR_PBO_TYPE_UNSUPPORTED );
             destroy();
-            return false;
+            return ERROR_PBO_TYPE_UNSUPPORTED;
         }
     }
 
@@ -129,14 +119,8 @@ public:
 
     const void* mapRead() const
     {
-        if( !_testInitialized( ))
+        if( !isInitialized() || _type != GL_READ_ONLY_ARB )
             return 0;
-
-        if( _type != GL_READ_ONLY_ARB )
-        {
-            _setError( ERROR_PBO_WRITE_ONLY );
-            return 0;
-        }
 
         bind();
         return glMapBufferARB( _getName(), GL_READ_ONLY_ARB );
@@ -144,14 +128,8 @@ public:
 
     void* mapWrite()
     {
-        if( !_testInitialized( ))
+        if( !isInitialized() || _type != GL_WRITE_ONLY_ARB )
             return 0;
-
-        if( _type != GL_WRITE_ONLY_ARB )
-        {
-            _setError( ERROR_PBO_READ_ONLY );
-            return 0;
-        }
 
         bind();
         // cancel all draw operations on this buffer to prevent stalling
@@ -161,14 +139,14 @@ public:
 
     void unmap() const
     {
-        _testInitialized();
+        LBASSERT( isInitialized( ));
         EQ_GL_CALL( glUnmapBufferARB( _getName( )));
         unbind();
     }
 
     bool bind() const
     {
-        if( !_testInitialized( ))
+        if( !isInitialized( ))
             return false;
 
         EQ_GL_CALL( glBindBufferARB( _getName(), pboID ));
@@ -177,7 +155,7 @@ public:
 
     void unbind() const
     {
-        _testInitialized();
+        LBASSERT( isInitialized( ));
         EQ_GL_CALL( glBindBufferARB( _getName(), 0 ));
     }
 
@@ -185,7 +163,6 @@ public:
     void unlock() const { if( lock_ ) lock_->unset(); }
 
     mutable lunchbox::Lock* lock_;
-    mutable eq::fabric::Error error;   //!< The reason for the last error
     GLuint  pboID; //!< the PBO GL name
     size_t size;  //!< size of the allocated PBO buffer
 
@@ -193,22 +170,11 @@ private:
     const GLEWContext* const _glewContext;
     GLuint _type; //!< GL_READ_ONLY_ARB or GL_WRITE_ONLY_ARB
 
-    void _setError( const int32_t e ) const { error = eq::fabric::Error( e ); }
-
     GLuint _getName() const
-        {
-            return _type == GL_READ_ONLY_ARB ?
-                GL_PIXEL_PACK_BUFFER_ARB : GL_PIXEL_UNPACK_BUFFER_ARB;
-        }
-
-    bool _testInitialized() const
-        {
-            if( isInitialized( ))
-                return true;
-
-            _setError( ERROR_PBO_NOT_INITIALIZED );
-            return false;
-        }
+    {
+        return _type == GL_READ_ONLY_ARB ? GL_PIXEL_PACK_BUFFER_ARB :
+                                           GL_PIXEL_UNPACK_BUFFER_ARB;
+    }
 };
 }
 
@@ -223,7 +189,7 @@ PixelBufferObject::~PixelBufferObject()
     delete _impl;
 }
 
-bool PixelBufferObject::setup( const size_t size, const unsigned type )
+Error PixelBufferObject::setup( const size_t size, const unsigned type )
 {
     lunchbox::ScopedWrite mutex( _impl->lock_ );
     return _impl->setup( size, type );
@@ -268,11 +234,6 @@ void PixelBufferObject::unbind() const
 size_t PixelBufferObject::getSize() const
 {
     return _impl->size;
-}
-
-const eq::fabric::Error& PixelBufferObject::getError() const
-{
-    return _impl->error;
 }
 
 bool PixelBufferObject::isInitialized() const

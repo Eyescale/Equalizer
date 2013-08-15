@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +22,7 @@
 
 namespace eq
 {
+    using fabric::Error;
     using fabric::ERROR_NONE;
     using fabric::ERROR_FBO_UNSUPPORTED;
     using fabric::ERROR_FRAMEBUFFER_STATUS;
@@ -32,7 +33,6 @@ namespace eq
     using fabric::ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS;
     using fabric::ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
     using fabric::ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
-    using fabric::ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES;
     using fabric::ERROR_FRAMEBUFFER_INITIALIZED;
     using fabric::ERROR_CUDACONTEXT_DEVICE_NOTFOUND;
     using fabric::ERROR_CUDACONTEXT_INIT_FAILED;
@@ -89,8 +89,6 @@ namespace eq
     using fabric::ERROR_WGLWINDOW_CREATECONTEXT_FAILED;
     using fabric::ERROR_CHANNEL_WINDOW_NOTRUNNING;
     using fabric::ERROR_PBO_UNSUPPORTED;
-    using fabric::ERROR_PBO_READ_ONLY;
-    using fabric::ERROR_PBO_WRITE_ONLY;
     using fabric::ERROR_PBO_NOT_INITIALIZED;
     using fabric::ERROR_PBO_SIZE_TOO_SMALL;
     using fabric::ERROR_PBO_TYPE_UNSUPPORTED;

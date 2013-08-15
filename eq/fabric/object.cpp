@@ -33,7 +33,6 @@ namespace fabric
 Object::Object()
         : _userData( 0 )
         , _tasks( TASK_NONE )
-        , _error( ERROR_NONE )
         , _serial( CO_INSTANCE_INVALID )
 {}
 
@@ -137,8 +136,6 @@ void Object::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _data.userData;
     if( dirtyBits & DIRTY_TASKS )
         os << _tasks;
-    if( dirtyBits & DIRTY_ERROR )
-        os << _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
         LBASSERT( !isMaster() ||
@@ -164,8 +161,6 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     }
     if( dirtyBits & DIRTY_TASKS )
         is >> _tasks;
-    if( dirtyBits & DIRTY_ERROR )
-        is >> _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
         std::vector< UUID > removed;
@@ -277,14 +272,6 @@ void Object::setTasks( const uint32_t tasks )
         return;
     _tasks = tasks;
     setDirty( DIRTY_TASKS );
-}
-
-void Object::setError( const int32_t error )
-{
-    if( _error == error )
-        return;
-    _error = eq::fabric::Error( error );
-    setDirty( DIRTY_ERROR );
 }
 
 void Object::postRemove( Object* child )

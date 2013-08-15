@@ -39,6 +39,7 @@ namespace eq
 {
 namespace fabric
 {
+class Client;
 class ColorMask;
 class ConfigParams;
 class Equalizer;
@@ -55,17 +56,18 @@ class Tile;
 class Viewport;
 class Wall;
 class Zoom;
+struct CanvasPath;
+struct ChannelPath;
 struct DrawableConfig;
 struct GPUInfo;
+struct LayoutPath;
+struct NodePath;
+struct ObserverPath;
+struct PipePath;
+struct SegmentPath;
+struct ViewPath;
+struct WindowPath;
 
-using lunchbox::uint128_t;
-using lunchbox::UUID;
-using lunchbox::VisitorResult;
-using lunchbox::TRAVERSE_CONTINUE;
-using lunchbox::TRAVERSE_PRUNE;
-using lunchbox::TRAVERSE_TERMINATE;
-
-class Client;
 template< class, class > class Channel;
 template< class, class > class Observer;
 template< class, class, class > class Layout;
@@ -77,27 +79,25 @@ template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;
 template< class, class, class, class, class, class > class Server;
 template< class, class, class, class, class, class, class > class Config;
-template< class, class > class ElementVisitor;
+
 template< class > class LeafVisitor;
+template< class, class > class ElementVisitor;
 template< class, class, class, class, class> class ConfigVisitor;
 
+using co::Strings;
+using co::StringsCIter;
+typedef co::ObjectOCommand EventOCommand;
+
+using lunchbox::uint128_t;
+using lunchbox::UUID;
+using lunchbox::VisitorResult;
+using lunchbox::TRAVERSE_CONTINUE;
+using lunchbox::TRAVERSE_PRUNE;
+using lunchbox::TRAVERSE_TERMINATE;
 typedef lunchbox::RefPtr< Client > ClientPtr;
 typedef lunchbox::RefPtr< const Client > ConstClientPtr;
 typedef lunchbox::RefPtr< SwapBarrier > SwapBarrierPtr;
 typedef lunchbox::RefPtr< const SwapBarrier > SwapBarrierConstPtr;
-
-struct CanvasPath;
-struct ChannelPath;
-struct LayoutPath;
-struct NodePath;
-struct ObserverPath;
-struct PipePath;
-struct SegmentPath;
-struct ViewPath;
-struct WindowPath;
-
-using co::Strings;
-using co::StringsCIter;
 
 }
 }

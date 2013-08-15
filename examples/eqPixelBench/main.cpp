@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,7 +74,7 @@ int main( int argc, char** argv )
     eq::fabric::ConfigParams configParams;
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
-    
+
     if( !config )
     {
         LBERROR << "No matching config on server" << std::endl;
@@ -95,9 +95,6 @@ int main( int argc, char** argv )
         eq::exit();
         return EXIT_FAILURE;
     }
-    else if( config->getError( ))
-        LBWARN << "Error during initialization: " << config->getError()
-               << std::endl;
 
     LBLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << std::endl;

@@ -39,7 +39,7 @@ protected:
         {
             if( getName() != "fail" )
                 return eq::Node::configInit( initID );
-            setError( ERROR_NODE_INIT );
+            sendError( ERROR_NODE_INIT );
             return false;
         }
     virtual void frameStart( const eq::uint128_t& id, const uint32_t number )
@@ -58,7 +58,7 @@ protected:
         {
             if( getName() != "fail" )
                 return eq::Pipe::configInit( initID );
-            setError( ERROR_PIPE_INIT );
+            sendError( ERROR_PIPE_INIT );
             return false;
         }
     virtual void frameStart( const eq::uint128_t& id, const uint32_t number )
@@ -105,7 +105,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry =eq::fabric::Global::getErrorRegistry();
     registry.setString( ERROR_NODE_INIT, "Node init failed" );
     registry.setString( ERROR_PIPE_INIT, "Pipe init failed" );
 

@@ -237,6 +237,17 @@ struct Event
          */
         OBSERVER_MOTION,
 
+        /**
+         * Config error event. Contains the error code and 0-n Strings with
+         * additional information.
+         * @version 1.7.1
+         */
+        CONFIG_ERROR,
+        NODE_ERROR, //!< Node error event. @sa CONFIG_ERROR
+        PIPE_ERROR, //!< Pipe error event. @sa CONFIG_ERROR
+        WINDOW_ERROR, //!< Window error event. @sa CONFIG_ERROR
+        CHANNEL_ERROR, //!< Channel error event. @sa CONFIG_ERROR
+
         UNKNOWN,              //!< Event type not known by the event handler
         /** User-defined events have to be of this type or higher */
         USER = UNKNOWN + 5, // some buffer for binary-compatible patches

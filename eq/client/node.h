@@ -119,6 +119,14 @@ public:
     uint32_t getFinishedFrame() const { return _finishedFrame; }
 
     /**
+     * Send an error event to the application node.
+     *
+     * @param error the error message.
+     * @version 1.7.1
+     */
+    EQ_API EventOCommand sendError( const uint32_t error );
+
+    /**
      * Process a received event.
      *
      * The task of this method is to update the node as necessary, and transform

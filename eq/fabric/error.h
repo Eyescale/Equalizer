@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,7 +37,6 @@ namespace fabric
         ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS,
         ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER,
         ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
-        ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES,
         ERROR_FRAMEBUFFER_INITIALIZED,
         ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
         ERROR_CUDACONTEXT_INIT_FAILED,
@@ -94,8 +93,6 @@ namespace fabric
         ERROR_WGLWINDOW_CREATECONTEXT_FAILED,
         ERROR_CHANNEL_WINDOW_NOTRUNNING,
         ERROR_PBO_UNSUPPORTED,
-        ERROR_PBO_READ_ONLY,
-        ERROR_PBO_WRITE_ONLY,
         ERROR_PBO_NOT_INITIALIZED,
         ERROR_PBO_SIZE_TOO_SMALL,
         ERROR_PBO_TYPE_UNSUPPORTED,

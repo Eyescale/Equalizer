@@ -25,8 +25,8 @@
 
 #include <eq/fabric/gpuInfo.h>
 
-#include <sstream>
-#include <string>
+#include <boost/lexical_cast.hpp>
+using boost::lexical_cast;
 
 namespace eq
 {
@@ -53,30 +53,27 @@ Pipe::~Pipe( )
 //---------------------------------------------------------------------------
 bool Pipe::configInit()
 {
-    const std::string displayName  = getXDisplayString();
-    const char*       cDisplayName = ( displayName.empty() ?
-                                       0 : displayName.c_str( ));
-    Display*          xDisplay     = XOpenDisplay( cDisplayName );
+    const std::string displayName = getXDisplayString();
+    Display* xDisplay = XOpenDisplay( displayName.c_str( ));
 
     if( !xDisplay )
     {
-        setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
-        LBWARN << getError() << " '" << XDisplayName( displayName.c_str( ))
-               << "': " << lunchbox::sysError << std::endl;
+        sendError( ERROR_GLXPIPE_DEVICE_NOTFOUND )
+            << displayName << lunchbox::sysError();
         return false;
     }
 
     int major, event, error;
     if( !XQueryExtension( xDisplay, "GLX", &major, &event, &error ))
     {
-        setError( ERROR_GLXPIPE_GLX_NOTFOUND );
+        sendError( ERROR_GLXPIPE_GLX_NOTFOUND );
         XCloseDisplay( xDisplay );
         return false;
     }
 
     setXDisplay( xDisplay );
-    LBVERB << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
-           << xDisplay << ", device " << getPipe()->getDevice() << std::endl;
+    LBVERB << "Opened X display " << displayName << " @" << xDisplay
+           << ", device " << getPipe()->getDevice() << std::endl;
 
     return _configInitGLXEW();
 }
@@ -180,12 +177,12 @@ bool Pipe::_configInitGLXEW()
     attributes.push_back( GLX_RGBA );
     attributes.push_back( None );
 
-    const int    screen  = DefaultScreen( _xDisplay );
+    const int screen = DefaultScreen( _xDisplay );
     XVisualInfo *visualInfo = glXChooseVisual( _xDisplay, screen,
                                                &attributes.front( ));
     if( !visualInfo )
     {
-        setError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
+        sendError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
         return false;
     }
 
@@ -193,7 +190,7 @@ bool Pipe::_configInitGLXEW()
     GLXContext context = glXCreateContext( _xDisplay, visualInfo, 0, True );
     if( !context )
     {
-        setError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
+        sendError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
         return false;
     }
 
@@ -211,7 +208,7 @@ bool Pipe::_configInitGLXEW()
                                   &wa );
     if( !drawable )
     {
-        setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
+        sendError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
         return false;
     }
 
@@ -228,10 +225,8 @@ bool Pipe::_configInitGLXEW()
         success = configInitGL();
     }
     else
-    {
-        setError( ERROR_GLXPIPE_GLXEWINIT_FAILED );
-        LBWARN << getError() << ": " << result << std::endl;
-    }
+        sendError( ERROR_GLXPIPE_GLXEWINIT_FAILED )
+            << lexical_cast< std::string >( result );
 
     XSync( _xDisplay, False );
     glXDestroyContext( _xDisplay, context );

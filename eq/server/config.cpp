@@ -36,7 +36,6 @@
 #include "window.h"
 
 #include <eq/client/error.h>
-#include <eq/client/event.h>
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/iAttribute.h>
@@ -538,6 +537,11 @@ void Config::restore()
     Super::restore();
 }
 
+EventOCommand Config::sendError( const uint32_t error, const uint32_t type )
+{
+    return Super::sendError( findApplicationNetNode(), type, error );
+}
+
 //---------------------------------------------------------------------------
 // update running entities (init/exit/runtime change)
 //---------------------------------------------------------------------------
@@ -589,20 +593,14 @@ bool Config::_connectNodes()
             continue;
 
         if( !node->connect( ))
-        {
-            setError( node->getError( ));
             success = false;
-        }
     }
 
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive() && !node->syncLaunch( clock ))
-        {
-            setError( node->getError( ));
             success = false;
-        }
     }
 
     return success;
@@ -717,15 +715,11 @@ bool Config::_updateNodes()
     accept( syncUpdate );
 
     const bool result = syncUpdate.getResult();
-    if( !result )
-        setError( syncUpdate.getError( ));
 
     if( syncUpdate.needsSync( )) // init failure, call again (exit pending)
     {
         LBASSERT( !result );
         accept( syncUpdate );
-        if( !syncUpdate.getResult( ))
-            setError( syncUpdate.getError( ));
         LBASSERT( !syncUpdate.needsSync( ));
     }
 
@@ -984,7 +978,6 @@ bool Config::_cmdInit( co::ICommand& cmd )
     LBVERB << "handle config start init " << command << std::endl;
 
     sync();
-    setError( ERROR_NONE );
     commit();
 
     const uint128_t initID = command.get< uint128_t >();
@@ -995,22 +988,18 @@ bool Config::_cmdInit( co::ICommand& cmd )
         exit();
 
     sync();
-    LBINFO << "Config init " << (result ? "successful: ": "failed: ")
-           << getError() << std::endl;
+    LBINFO << "Config init " << (result ? "successful": "failed") << std::endl;
 
     const uint128_t version = commit();
     send( command.getNode(),
           fabric::CMD_CONFIG_INIT_REPLY ) << version << requestID << result;
-    setError( ERROR_NONE );
     return true;
 }
 
 bool Config::_cmdExit( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-
     LBVERB << "handle config exit " << command << std::endl;
-    setError( ERROR_NONE );
 
     bool result;
     if( _state == STATE_RUNNING )
@@ -1034,7 +1023,6 @@ bool Config::_cmdUpdate( co::ICommand& cmd )
     const uint32_t finishID = command.get< uint32_t >();
 
     sync();
-    setError( ERROR_NONE );
     commit();
 
     co::NodePtr node = command.getNode();
@@ -1059,8 +1047,7 @@ bool Config::_cmdUpdate( co::ICommand& cmd )
     const bool result = _updateRunning();
     if( !result && getIAttribute( IATTR_ROBUSTNESS ) == OFF )
     {
-        LBWARN << "Config update failed, exiting config: " << getError()
-               << std::endl;
+        LBWARN << "Config update failed, exiting config" << std::endl;
         exit();
     }
 

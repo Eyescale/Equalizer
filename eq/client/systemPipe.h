@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -58,26 +58,20 @@ namespace eq
         /** @return the parent Pipe. @version 1.0 */
         const Pipe* getPipe() const { return _pipe; }
 
-        /** @return the last error. @version 1.0 */
-        EQ_API eq::fabric::Error getError() const;
-
     protected:
         /** @name Error information. */
         //@{
         /**
-         * Set an error code why the last operation failed.
+         * Send a pipe error event to the application node.
          * @param error the error code.
-         * @version 1.0
+         * @version 1.7.1
          */
-        EQ_API void setError( const uint32_t error );
+        EQ_API EventOCommand sendError( const uint32_t error );
         //@}
 
     private:
         /** The parent eq::Pipe. */
         Pipe* const _pipe;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

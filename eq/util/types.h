@@ -19,6 +19,7 @@
 #define EQUTIL_TYPES_H
 
 #include <eq/client/types.h>
+#include <eq/client/error.h>
 #include <vector>
 
 namespace eq

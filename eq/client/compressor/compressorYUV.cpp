@@ -7,12 +7,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -105,7 +105,7 @@ void CompressorYUV::_initShader( const GLEWContext* glewContext,
         return ;
     }
 
-    // Create fragment shader which reads depth values from 
+    // Create fragment shader which reads depth values from
     // rectangular textures
     const GLuint shader = glCreateShader( GL_FRAGMENT_SHADER );
 
@@ -131,7 +131,7 @@ void CompressorYUV::_initShader( const GLEWContext* glewContext,
 
 
 void CompressorYUV::_compress( const GLEWContext* glewContext,
-                               const eq_uint64_t inDims[4], 
+                               const eq_uint64_t inDims[4],
                                      eq_uint64_t outDims[4] )
 {
     /* save the current FBO ID for bind it at the end of the compression */
@@ -140,13 +140,14 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 
     if ( _fbo )
     {
-        LBCHECK( _fbo->resize( outDims[1], outDims[3] ));
+        LBCHECK( _fbo->resize( outDims[1], outDims[3] ) == ERROR_NONE );
         _fbo->bind();
     }
     else
     {
         _fbo = new util::FrameBufferObject( glewContext );
-        LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
+        LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0,
+                             0 ) == ERROR_NONE);
     }
 
     _texture->bind();
@@ -216,7 +217,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         _texture->init( GL_RGBA, outDims[1]*2, outDims[3] );
         _texture->copyFromFrameBuffer( GL_RGBA, pvp );
 
-        // compress data 
+        // compress data
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
         _download( buffer.getData( ));
@@ -249,7 +250,7 @@ void CompressorYUV::_decompress( const GLEWContext* glewContext,
 
     const GLint colorParam = glGetUniformLocation( _program, "color" );
     glUniform1i( colorParam, 0 );
-    
+
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
@@ -279,11 +280,11 @@ void CompressorYUV::_decompress( const GLEWContext* glewContext,
     glDepthMask( true );
 }
 
-void CompressorYUV::upload( const GLEWContext* glewContext, 
+void CompressorYUV::upload( const GLEWContext* glewContext,
                             const void*        data,
                             const eq_uint64_t  inDims[4],
                             const eq_uint64_t  flags,
-                            const eq_uint64_t  outDims[4],  
+                            const eq_uint64_t  outDims[4],
                             const unsigned     destination )
 {
     glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
@@ -295,7 +296,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     }
 
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
-    {    
+    {
         _texture->upload( inDims[1], inDims[3], data );
         _decompress( glewContext, outDims );
     }
@@ -304,7 +305,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
         /* save the current FBO ID for bind it at the end of the compression */
         GLint oldFBO = 0;
         glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, &oldFBO );
-        
+
         if ( !_fbo )
             _fbo = new util::FrameBufferObject( glewContext );
 
@@ -317,14 +318,17 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
             texture->bindToFBO( GL_COLOR_ATTACHMENT0, outDims[1], outDims[3] );
         }
         else
-            _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 );
+        {
+            LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0,
+                                 0 ) == ERROR_NONE );
+        }
 
         _texture->upload( inDims[1], inDims[3], data );
         _decompress( glewContext, outDims );
-        
+
         /* apply the initial fbo */
         EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, oldFBO ));
-        
+
         texture->flushNoDelete();
     }
     else

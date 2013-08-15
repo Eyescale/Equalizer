@@ -377,6 +377,12 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
     }
 }
 
+
+EventOCommand Node::sendError( const uint32_t error )
+{
+    return getConfig()->sendError( Event::NODE_ERROR, error );
+}
+
 bool Node::processEvent( const Event& event )
 {
     ConfigEvent configEvent( event );
@@ -501,7 +507,6 @@ bool Node::_cmdConfigInit( co::ICommand& cmd )
     _setAffinity();
 
     transmitter.start();
-    setError( ERROR_NONE );
     const uint64_t result = configInit( initID );
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )

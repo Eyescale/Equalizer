@@ -22,6 +22,7 @@
 
 #include <eq/client/defines.h>
 #include <eq/util/types.h>
+#include <eq/fabric/commands.h>
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/atomic.h>
@@ -225,10 +226,12 @@ using fabric::Vector4f;   //!< A four-component float vector
 using fabric::Vector3ub;  //!< A three-component byte vector
 using fabric::Frustumf;   //!< A frustum definition
 
+using fabric::EventOCommand;
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;
 using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
 using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
+using fabric::CMD_CONFIG_EVENT;
 
 using fabric::Strings;      //!< A vector of std::strings
 using fabric::StringsCIter; //!< A const_iterator over a std::string vector
@@ -247,7 +250,6 @@ using lunchbox::uint128_t;
 using lunchbox::UUID;
 
 /** @cond IGNORE */
-typedef co::ObjectOCommand EventOCommand;
 
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
 

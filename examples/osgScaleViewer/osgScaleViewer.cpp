@@ -2,8 +2,8 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@eyescale.ch>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *   2010-2013, Stefan Eilemann <eile@eyescale.ch>
+ *        2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -70,9 +70,6 @@ int OSGScaleViewer::run()
         disconnectServer( server );
         return EXIT_FAILURE;
     }
-    else if( config->getError( ))
-        LBWARN << "Error during initialization: " << config->getError()
-               << std::endl;
 
     // 4. run main loop
     while( config->isRunning( ))

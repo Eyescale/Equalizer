@@ -1,5 +1,5 @@
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,7 +44,8 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
     _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
     _texture->init( textureFormat, pvp.w, pvp.h );
 
-    if( FrameBufferObject::init( pvp.w, pvp.h, GL_RGBA32F, 0, 0 ))
+    if( FrameBufferObject::init( pvp.w, pvp.h, GL_RGBA32F, 0,
+                                 0 ) == ERROR_NONE )
     {
         unbind();
         return true;
@@ -115,7 +116,7 @@ bool AccumBufferObject::resize( const PixelViewport& pvp )
         return false;
 
     _pvp = pvp;
-    return FrameBufferObject::resize( pvp.w, pvp.h );
+    return FrameBufferObject::resize( pvp.w, pvp.h ) == ERROR_NONE;
 }
 
 void AccumBufferObject::_setup( const PixelViewport& pvp )
