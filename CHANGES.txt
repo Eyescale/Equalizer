@@ -3,6 +3,16 @@ This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
 
+[c36ea6b] Close #237: Replace setError with error events
+* replace setError/getError with sendEvent and default
+  Config::handleEvent implementation
+* FrameBufferObject, PixelBufferObject:
+** remove setError/getError
+** Incompatible return value change from bool to Error for FBO::init,
+   FBO::resize, PBO::setup
+* Internal error events have an arbitrary number of std::string appended
+* add handleEvents() in Config::init and Config::update
+
 [7890fa5] Remove deprecated functions:
 * eq::ConfigParams type. Use eq::fabric::ConfigParams.
 * eq::Frame::getData API. Use Frame::getFrameData.
