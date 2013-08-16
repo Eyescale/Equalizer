@@ -4,9 +4,13 @@ notifications:
     on_success: never
 language: cpp
 script:
- - mkdir Build
- - cd Build
- - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT
+ - mkdir Debug
+ - cd Debug
+ - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Debug
+ - env TRAVIS=1 make -j8 Equalizer-test ARGS=-V
+ - mkdir ../Release
+ - cd ../Release
+ - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Release
  - env TRAVIS=1 make -j8 Equalizer-test ARGS=-V
 before_install:
  - sudo apt-get update -qq
