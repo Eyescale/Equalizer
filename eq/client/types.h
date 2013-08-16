@@ -20,7 +20,7 @@
 #ifndef EQ_TYPES_H
 #define EQ_TYPES_H
 
-#include <eq/client/defines.h>
+#include <eq/defines.h>
 #include <eq/util/types.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/focusMode.h>
