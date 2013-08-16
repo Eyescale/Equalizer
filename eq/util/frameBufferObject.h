@@ -67,10 +67,9 @@ public:
      * @sa resize()
      * @version 1.0
      */
-    EQ_API eq::fabric::Error init( const int32_t width, const int32_t height,
-                                   const unsigned colorFormat,
-                                   const int32_t depthSize,
-                                   const int32_t stencilSize );
+    EQ_API Error init( const int32_t width, const int32_t height,
+                       const unsigned colorFormat, const int32_t depthSize,
+                       const int32_t stencilSize );
 
     /** De-initialize the Frame Buffer Object. @version 1.0 */
     EQ_API void exit();

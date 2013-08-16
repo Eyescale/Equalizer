@@ -182,4 +182,3 @@ private:
 
 
 #endif // EQ_SYSTEM_WINDOW_H
-

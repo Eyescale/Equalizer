@@ -23,6 +23,7 @@
 namespace eq
 {
     using fabric::Error;
+    using fabric::ErrorCode;
     using fabric::ERROR_NONE;
     using fabric::ERROR_FBO_UNSUPPORTED;
     using fabric::ERROR_FRAMEBUFFER_STATUS;
