@@ -17,16 +17,17 @@ if(BUILDYARD)
   message(FATAL_ERROR "Running from within Buildyard, don't use me here")
 endif()
 
-if(RELEASE_VERSION)
-  option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" ON)
-else()
-  option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" OFF)
-endif()
-
+option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" OFF)
 if(DISABLE_BUILDYARD)
   return()
 endif()
 
+include(FindRequired)
+if(FOUND_REQUIRED)
+  return()
+endif()
+
+message(STATUS "Bootstrap Buildyard for missing${FIND_REQUIRED_FAILED}")
 include(GitExternal)
 include(UpdateFile)
 
