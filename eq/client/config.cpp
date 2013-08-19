@@ -684,8 +684,6 @@ bool Config::_handleNewEvent( EventICommand& command )
     case Event::WINDOW_ERROR:
     case Event::CHANNEL_ERROR:
     {
-        // TODO:
-        //     create ErrorOCommand with lexical_cast?
         const Error error = Error( command.get< uint32_t >( ));
         const uint128_t& originator = command.get< uint128_t >();
         LBWARN << error << " from " << originator;
