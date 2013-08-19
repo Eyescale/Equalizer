@@ -708,13 +708,12 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     if( fbo )
     {
-        LBCHECK( fbo->resize( pvp.w, pvp.h ) == ERROR_NONE );
+        LBCHECK( fbo->resize( pvp.w, pvp.h ));
     }
     else
     {
         fbo = glObjects.newEqFrameBufferObject( fboKey );
-        LBCHECK( fbo->init( pvp.w, pvp.h, getInternalFormat( buffer ), 24,
-                            0 ) == ERROR_NONE );
+        LBCHECK( fbo->init( pvp.w, pvp.h, getInternalFormat( buffer ), 24, 0 ));
     }
     fbo->bind();
     texture->bind();

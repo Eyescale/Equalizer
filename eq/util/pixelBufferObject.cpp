@@ -60,12 +60,12 @@ public:
         LBASSERT( _glewContext );
 
         if( !GLEW_ARB_pixel_buffer_object )
-            return ERROR_PBO_UNSUPPORTED;
+            return Error( ERROR_PBO_UNSUPPORTED );
 
         if( newSize == 0 )
         {
             destroy();
-            return ERROR_PBO_SIZE_TOO_SMALL;
+            return Error( ERROR_PBO_SIZE_TOO_SMALL );
         }
 
         if( pboID == 0 )
@@ -73,12 +73,12 @@ public:
             EQ_GL_CALL( glGenBuffersARB( 1, &pboID ));
         }
         if( pboID == 0 )
-            return ERROR_PBO_NOT_INITIALIZED;
+            return Error( ERROR_PBO_NOT_INITIALIZED );
 
         if( _type == type && size >= newSize )
         {
             bind();
-            return ERROR_NONE;
+            return Error( ERROR_NONE );
         }
 
         _type = type;
@@ -91,17 +91,17 @@ public:
             EQ_GL_CALL(
                 glBufferDataARB( GL_PIXEL_PACK_BUFFER_ARB, newSize, 0,
                                  GL_STREAM_READ_ARB ));
-            return ERROR_NONE;
+            return Error( ERROR_NONE );
 
         case GL_WRITE_ONLY_ARB:
             EQ_GL_CALL(
                 glBufferDataARB( GL_PIXEL_UNPACK_BUFFER_ARB, newSize, 0,
                                  GL_STREAM_DRAW_ARB ));
-            return ERROR_NONE;
+            return Error( ERROR_NONE );
 
         default:
             destroy();
-            return ERROR_PBO_TYPE_UNSUPPORTED;
+            return Error( ERROR_PBO_TYPE_UNSUPPORTED );
         }
     }
 

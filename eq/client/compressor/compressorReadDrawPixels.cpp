@@ -429,7 +429,7 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
         _pbo = new util::PixelBufferObject( glewContext, true );
 
     const Error error = _pbo->setup( size, GL_READ_ONLY_ARB );
-    if( error == ERROR_NONE )
+    if( !error )
         return true;
 
     if( _warned < 10 )

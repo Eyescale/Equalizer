@@ -287,7 +287,7 @@ bool Channel::_configInitFBO()
     const Error error = _impl->fbo->init( pvp.w, pvp.h,
                                           window->getColorFormat(), depthSize,
                                           stencilSize );
-    if( error == ERROR_NONE )
+    if( !error )
         return true;
 
     sendError( error );
@@ -584,7 +584,7 @@ void Channel::applyFrameBufferObject()
     {
         const PixelViewport& pvp = getNativePixelViewport();
         const Error error = _impl->fbo->resize( pvp.w, pvp.h );
-        if( error != ERROR_NONE )
+        if( error )
             sendError( error );
         _impl->fbo->bind();
     }

@@ -140,14 +140,13 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 
     if ( _fbo )
     {
-        LBCHECK( _fbo->resize( outDims[1], outDims[3] ) == ERROR_NONE );
+        LBCHECK( _fbo->resize( outDims[1], outDims[3] ));
         _fbo->bind();
     }
     else
     {
         _fbo = new util::FrameBufferObject( glewContext );
-        LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0,
-                             0 ) == ERROR_NONE);
+        LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
     }
 
     _texture->bind();
@@ -319,8 +318,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
         }
         else
         {
-            LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0,
-                                 0 ) == ERROR_NONE );
+            LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
         }
 
         _texture->upload( inDims[1], inDims[3], data );

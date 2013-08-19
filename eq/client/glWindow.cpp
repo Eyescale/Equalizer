@@ -119,13 +119,13 @@ bool GLWindow::configInitFBO()
 
     Error error = _fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
                               stencilSize );
-    if( error == ERROR_NONE )
+    if( !error )
         return true;
 
     if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO )
         error = _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
 
-    if( error == ERROR_NONE )
+    if( !error )
         return true;
 
     sendError( error );

@@ -155,13 +155,14 @@ void _exitErrors()
 std::ostream& operator << ( std::ostream& os, const Error& error )
 {
     const ErrorRegistry& registry = Global::getErrorRegistry();
-    const std::string& text = registry.getString( error );
-    if( text.empty( ))
-        os << "error 0x" << std::hex << uint32_t( error ) << std::dec;
-    else
-        os << text << " (0x" << std::hex << uint32_t(error) << std::dec << ")";
+    const std::string& text = registry.getString( error.getCode( ));
 
-    return os;
+    if( text.empty( ))
+        return os << "error 0x" << std::hex << uint32_t( error.getCode( ))
+                  << std::dec;
+
+    return os << text << " (0x" << std::hex << uint32_t( error.getCode( ))
+              << std::dec << ")";
 }
 
 }

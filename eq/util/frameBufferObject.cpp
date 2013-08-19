@@ -72,7 +72,7 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
     LB_TS_THREAD( _thread );
 
     if( _fboID )
-        return ERROR_FRAMEBUFFER_INITIALIZED;
+        return Error( ERROR_FRAMEBUFFER_INITIALIZED );
 
     // generate and bind the framebuffer
     glGenFramebuffersEXT( 1, &_fboID );
@@ -96,7 +96,7 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
     }
 
     const Error error = _checkStatus();
-    if( error != ERROR_NONE )
+    if( error )
         exit();
     return error;
 }
@@ -127,37 +127,37 @@ Error FrameBufferObject::_checkStatus()
     {
     case GL_FRAMEBUFFER_COMPLETE_EXT:
         _valid = true;
-        return ERROR_NONE;
+        return Error( ERROR_NONE );
 
     case 0: // error?!
         EQ_GL_ERROR( "glCheckFramebufferStatusEXT" );
-        return ERROR_FRAMEBUFFER_STATUS;
+        return Error( ERROR_FRAMEBUFFER_STATUS );
 
     case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-        return ERROR_FRAMEBUFFER_UNSUPPORTED;
+        return Error( ERROR_FRAMEBUFFER_UNSUPPORTED );
 
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-        return ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT );
 
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-        return ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT );
 
     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        return ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS );
 
     case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        return ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS;
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS );
 
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-        return ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER );
 
     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-        return ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
 
     default:
         LBWARN << "Unhandled frame buffer status 0x" << std::hex
                << status << std::dec << std::endl;
-        return ERROR_FRAMEBUFFER_STATUS;
+        return Error( ERROR_FRAMEBUFFER_STATUS );
     }
 }
 
@@ -182,7 +182,7 @@ Error FrameBufferObject::resize( const int32_t width, const int32_t height )
     Texture* color = _colors.front();
 
     if( color->getWidth() == width && color->getHeight() == height && _valid )
-       return ERROR_NONE;
+        return Error( ERROR_NONE );
 
     for( size_t i = 0; i < _colors.size(); ++i )
         _colors[i]->resize( width, height );

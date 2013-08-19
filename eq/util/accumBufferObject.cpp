@@ -44,8 +44,7 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
     _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
     _texture->init( textureFormat, pvp.w, pvp.h );
 
-    if( FrameBufferObject::init( pvp.w, pvp.h, GL_RGBA32F, 0,
-                                 0 ) == ERROR_NONE )
+    if( FrameBufferObject::init( pvp.w, pvp.h, GL_RGBA32F, 0, 0 ))
     {
         unbind();
         return true;
@@ -116,7 +115,7 @@ bool AccumBufferObject::resize( const PixelViewport& pvp )
         return false;
 
     _pvp = pvp;
-    return FrameBufferObject::resize( pvp.w, pvp.h ) == ERROR_NONE;
+    return FrameBufferObject::resize( pvp.w, pvp.h );
 }
 
 void AccumBufferObject::_setup( const PixelViewport& pvp )
@@ -182,4 +181,3 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
 
 }
 }
-
