@@ -73,6 +73,8 @@ include(TestBigEndian)
 test_big_endian(BIGENDIAN)
 if(BIGENDIAN)
   add_definitions(-D${UPPER_PROJECT_NAME}_BIGENDIAN)
+else()
+  add_definitions(-D${UPPER_PROJECT_NAME}_LITTLEENDIAN)
 endif()
 
 include(Compiler) # compiler-specific default options and warnings
