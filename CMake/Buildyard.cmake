@@ -17,6 +17,16 @@ if(BUILDYARD)
   message(FATAL_ERROR "Running from within Buildyard, don't use me here")
 endif()
 
+if(RELEASE_VERSION)
+  option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" ON)
+else()
+  option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" OFF)
+endif()
+
+if(DISABLE_BUILDYARD)
+  return()
+endif()
+
 include(GitExternal)
 include(UpdateFile)
 
