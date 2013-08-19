@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,12 +27,21 @@
 #include "../pipe.h"
 #include "../window.h"
 
-#define AGLERROR std::string( (const char*)( aglErrorString( aglGetError( ))))
+#include <boost/lexical_cast.hpp>
+using boost::lexical_cast;
+
 
 namespace eq
 {
 namespace agl
 {
+namespace
+{
+std::string aglError()
+{
+    return (const char*)( aglErrorString( aglGetError( )));
+}
+}
 
 Window::Window( eq::Window* parent, CGDirectDisplayID displayID )
     : WindowIF( parent )
@@ -304,7 +313,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     }
 
     if( !pixelFormat )
-        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
+        sendError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
 
     Global::leaveCarbon();
     return pixelFormat;
@@ -324,7 +333,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
 {
     if( !pixelFormat )
     {
-        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
+        sendError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
@@ -343,8 +352,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
 
     if( !context )
     {
-        setError( ERROR_AGLWINDOW_CREATECONTEXT_FAILED );
-        LBWARN << getError() << ": " << AGLERROR << std::endl;
+        sendError( ERROR_AGLWINDOW_CREATECONTEXT_FAILED ) << aglError();
         Global::leaveCarbon();
         return 0;
     }
@@ -391,7 +399,7 @@ bool Window::configInitAGLPBuffer()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        setError( ERROR_AGLWINDOW_NO_CONTEXT );
+        sendError( ERROR_AGLWINDOW_NO_CONTEXT );
         return false;
     }
 
@@ -401,16 +409,14 @@ bool Window::configInitAGLPBuffer()
     if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
                            0, &pbuffer ))
     {
-        setError( ERROR_AGLWINDOW_CREATEPBUFFER_FAILED );
-        LBWARN << getError() << ": " << AGLERROR << std::endl;
+        sendError( ERROR_AGLWINDOW_CREATEPBUFFER_FAILED ) << aglError();
         return false;
     }
 
     // attach to context
     if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
     {
-        setError( ERROR_AGLWINDOW_SETPBUFFER_FAILED );
-        LBWARN << getError() << ": " << AGLERROR << std::endl;
+        sendError( ERROR_AGLWINDOW_SETPBUFFER_FAILED ) << aglError();
         return false;
     }
 
@@ -423,7 +429,7 @@ bool Window::configInitAGLFullscreen()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        setError( ERROR_AGLWINDOW_NO_CONTEXT );
+        sendError( ERROR_AGLWINDOW_NO_CONTEXT );
         return false;
     }
 
@@ -436,7 +442,7 @@ bool Window::configInitAGLFullscreen()
     const PixelViewport& pvp       = pipePVP.isValid() ? pipePVP : windowPVP;
 
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
-        LBWARN << "aglSetFullScreen to " << pvp << " failed: " << AGLERROR
+        LBWARN << "aglSetFullScreen to " << pvp << " failed: " << aglError()
                << std::endl;
 
     // Do focus hell
@@ -457,7 +463,7 @@ bool Window::configInitAGLWindow()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        setError( ERROR_AGLWINDOW_NO_CONTEXT );
+        sendError( ERROR_AGLWINDOW_NO_CONTEXT );
         return false;
     }
 
@@ -485,8 +491,8 @@ bool Window::configInitAGLWindow()
                                              &windowRect, &windowRef );
     if( status != noErr )
     {
-        setError( ERROR_AGLWINDOW_CREATEWINDOW_FAILED );
-        LBWARN << getError() << ": " << status << std::endl;
+        sendError( ERROR_AGLWINDOW_CREATEWINDOW_FAILED )
+            << lexical_cast< std::string >( status );
         Global::leaveCarbon();
         return false;
     }
@@ -513,8 +519,7 @@ bool Window::configInitAGLWindow()
 
     if( !aglSetWindowRef( context, windowRef ))
     {
-        setError( ERROR_AGLWINDOW_SETWINDOW_FAILED );
-        LBWARN << getError() << ": " << AGLERROR << std::endl;
+        sendError( ERROR_AGLWINDOW_SETWINDOW_FAILED ) << aglError();
         Global::leaveCarbon();
         return false;
     }

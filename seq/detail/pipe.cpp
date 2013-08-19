@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -83,7 +83,7 @@ bool Pipe::configInit( const uint128_t& initID )
     if( !_renderer )
     {
         LBASSERT( _renderer );
-        setError( ERROR_SEQUEL_CREATERENDERER_FAILED );
+        sendError( ERROR_SEQUEL_CREATERENDERER_FAILED );
         return false;
     }
     getRendererImpl()->setPipe( this );
@@ -91,7 +91,7 @@ bool Pipe::configInit( const uint128_t& initID )
     if( _mapData( initID ))
         return true;
 
-    setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
+    sendError( ERROR_SEQUEL_MAPOBJECT_FAILED );
     return false;
 }
 

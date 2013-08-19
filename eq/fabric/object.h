@@ -65,23 +65,6 @@ namespace fabric
         const co::Object* getUserData() const { return _userData; }
         //@}
 
-        /** @name Error Information. */
-        //@{
-        /**
-         * Set an error code why the last operation failed.
-         *
-         * The error will be transmitted to the originator of the request, for
-         * example to Config::init when set from within configInit().
-         *
-         * @param error the error message.
-         * @version 1.0
-         */
-        EQFABRIC_API void setError( const int32_t error );
-
-        /** @return the error from the last failed operation. @version 1.0 */
-        eq::fabric::Error getError() const { return _error; }
-        //@}
-
         /** @name Data Access */
         //@{
         /**
@@ -120,13 +103,12 @@ namespace fabric
         {
             DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0, // 1
             DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1, // 2
-            DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2, // 4
-            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3, // 8
-            DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 4, // 16
-            DIRTY_SERIAL     = Serializable::DIRTY_CUSTOM << 5, // 32
+            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 2, // 4
+            DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 3, // 8
+            DIRTY_SERIAL     = Serializable::DIRTY_CUSTOM << 4, // 16
             // Leave room for binary-compatible patches
             DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6, // 64
-            DIRTY_OBJECT_BITS = DIRTY_NAME | DIRTY_USERDATA | DIRTY_ERROR
+            DIRTY_OBJECT_BITS = DIRTY_NAME | DIRTY_USERDATA
         };
 
     protected:
@@ -225,9 +207,6 @@ namespace fabric
 
         /** Worst-case set of tasks. */
         uint32_t _tasks;
-
-        /** The reason for the last error. */
-        eq::fabric::Error _error;
 
         /** Server-unique serial number. */
         uint32_t _serial;

@@ -1,17 +1,17 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -71,7 +71,7 @@ bool Pipe::configInit()
             pvp.x = rect.left;
             pvp.y = rect.top;
             pvp.w = rect.right  - rect.left;
-            pvp.h = rect.bottom - rect.top; 
+            pvp.h = rect.bottom - rect.top;
         }
         else
         {
@@ -128,8 +128,7 @@ bool Pipe::createWGLAffinityDC( HDC& affinityDC )
     affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
     {
-        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGL_CREATEAFFINITYDC_FAILED ) << lunchbox::sysError();
         return false;
     }
 
@@ -147,16 +146,14 @@ HDC Pipe::createWGLDisplayDC()
 
     if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
     {
-        setError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED ) << lunchbox::sysError();
         return 0;
     }
 
     const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
     if( !displayDC )
     {
-        setError( ERROR_WGLPIPE_CREATEDC_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLPIPE_CREATEDC_FAILED ) << lunchbox::sysError();
         return 0;
     }
 
@@ -180,8 +177,7 @@ bool Pipe::_getGPUHandle( HGPUNV& handle )
 
     if( !wglEnumGpusNV( device, &handle ))
     {
-        setError( ERROR_WGLPIPE_ENUMGPUS_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLPIPE_ENUMGPUS_FAILED ) << lunchbox::sysError();
         return false;
     }
 
@@ -196,19 +192,18 @@ bool Pipe::_configInitWGLEW()
     std::ostringstream className;
     className << "TMP" << (void*)this;
     const std::string& classStr = className.str();
-                                  
+
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc       = { 0 };
     wc.lpfnWndProc   = DefWindowProc;
-    wc.hInstance     = instance; 
+    wc.hInstance     = instance;
     wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
     wc.hCursor       = LoadCursor( 0, IDC_ARROW );
-    wc.lpszClassName = classStr.c_str();       
+    wc.lpszClassName = classStr.c_str();
 
     if( !RegisterClass( &wc ))
     {
-        setError( ERROR_WGLPIPE_REGISTERCLASS_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLPIPE_REGISTERCLASS_FAILED ) << lunchbox::sysError();
         return false;
     }
 
@@ -224,8 +219,8 @@ bool Pipe::_configInitWGLEW()
 
     if( !hWnd )
     {
-        setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED )
+            << lunchbox::sysError();
         UnregisterClass( classStr.c_str(),  instance );
         return false;
     }
@@ -240,17 +235,16 @@ bool Pipe::_configInitWGLEW()
     int pf = ChoosePixelFormat( dc, &pfd );
     if( pf == 0 )
     {
-        setError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND )
+            << lunchbox::sysError();
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return false;
     }
- 
+
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
-        setError( ERROR_WGLPIPE_SETPF_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_WGLPIPE_SETPF_FAILED ) << lunchbox::sysError();
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -261,8 +255,8 @@ bool Pipe::_configInitWGLEW()
     HGLRC context = wglCreateContext( dc );
     if( !context )
     {
-        setError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
-        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
+        sendError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED )
+            << lunchbox::sysError();
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -282,10 +276,8 @@ bool Pipe::_configInitWGLEW()
         success = configInitGL();
     }
     else
-    {
-        setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
-        LBWARN << getError() << ": " << result << std::endl;
-    }
+        sendError( ERROR_WGLPIPE_WGLEWINIT_FAILED )
+            << lexical_cast< std::string >( result );
 
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );

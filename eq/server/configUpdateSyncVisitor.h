@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,7 +37,6 @@ public:
         {
             _result = true;
             _sync = false;
-            _error = ERROR_NONE;
             return TRAVERSE_CONTINUE;
         }
 
@@ -67,12 +66,10 @@ public:
 
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
-    eq::fabric::Error getError() const { return _error; }
 
 private:
     bool _result; // success or failure
     bool _sync;   // call again after init failure
-    eq::fabric::Error _error; // error message
 
     template< class T > VisitorResult _updateDown( T* entity ) const
         {
@@ -108,12 +105,10 @@ private:
                     if( !entity->syncConfigInit( ))
                     {
                         entity->sync();
-                        _error = entity->getError();
                         _result = false;
                         _sync = true;
                         LBWARN << lunchbox::className( entity )
-                               << " initialization failed: " << _error
-                               << std::endl;
+                               << " initialization failed" << std::endl;
                     }
                     else
                         entity->sync();
@@ -125,7 +120,6 @@ private:
                     if( !entity->syncConfigExit( ))
                     {
                         entity->sync();
-                        _error = entity->getError();
                         _result = false;
                     }
                     else

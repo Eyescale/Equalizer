@@ -369,7 +369,7 @@ bool Window::configInit( const uint128_t& initID )
 {
     if( !getPixelViewport().isValid( ))
     {
-        setError( ERROR_WINDOW_PVP_INVALID );
+        sendError( ERROR_WINDOW_PVP_INVALID );
         return false;
     }
 
@@ -386,8 +386,7 @@ bool Window::configInitSystemWindow( const uint128_t& )
     LBASSERT( systemWindow );
     if( !systemWindow->configInit( ))
     {
-        LBWARN << "System window initialization failed: " << getError()
-               << std::endl;
+        LBWARN << "System window initialization failed" << std::endl;
         delete systemWindow;
         return false;
     }
@@ -483,8 +482,7 @@ bool Window::createTransferWindow()
     {
         if( !_transferWindow->configInit( ))
         {
-            LBWARN << "Transfer window initialization failed: "
-                   << _transferWindow->getError() << std::endl;
+            LBWARN << "Transfer window initialization failed" << std::endl;
             delete _transferWindow;
             _transferWindow = 0;
         }
@@ -608,8 +606,13 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 
 
 //======================================================================
-// event-handler methods
+// event methods
 //======================================================================
+
+EventOCommand Window::sendError( const uint32_t error )
+{
+    return getConfig()->sendError( Event::WINDOW_ERROR, getID(), error );
+}
 
 bool Window::processEvent( const Event& event )
 {
@@ -793,8 +796,6 @@ bool Window::_cmdConfigInit( co::ICommand& cmd )
 
     LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
 
-    setError( ERROR_NONE );
-
     bool result = false;
     if( getPipe()->isRunning( ))
     {
@@ -804,7 +805,7 @@ bool Window::_cmdConfigInit( co::ICommand& cmd )
             _state = STATE_RUNNING;
     }
     else
-        setError( ERROR_WINDOW_PIPE_NOTRUNNING );
+        sendError( ERROR_WINDOW_PIPE_NOTRUNNING );
 
     LBLOG( LOG_INIT ) << "TASK window config init reply " << std::endl;
 

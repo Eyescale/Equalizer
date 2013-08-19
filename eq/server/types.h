@@ -103,14 +103,15 @@ typedef Windows::iterator WindowsIter;
 typedef lunchbox::RefPtr< Server > ServerPtr;
 typedef lunchbox::RefPtr< const Server > ConstServerPtr;
 
+using fabric::EventOCommand;
 using fabric::Frustumf;
 using fabric::Matrix4f;
 using fabric::PixelViewport;
 using fabric::Projection;
 using fabric::RenderContext;
 using fabric::SwapBarrier;
-using fabric::SwapBarrierPtr;
 using fabric::SwapBarrierConstPtr;
+using fabric::SwapBarrierPtr;
 using fabric::Vector3f;
 using fabric::Vector3ub;
 using fabric::Vector4i;

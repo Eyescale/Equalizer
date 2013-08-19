@@ -558,6 +558,17 @@ void Config< S, C, O, L, CV, N, V >::setAppNodeID( const co::NodeID& nodeID )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+EventOCommand Config< S, C, O, L, CV, N, V >::sendError( co::NodePtr node,
+    const uint32_t event, const uint128_t& originator, const uint32_t error )
+{
+    LBWARN << "Emit " << Error( error ) << " at "
+           << lunchbox::backtrace( 2 /*cut boring stack frames*/ ) << std::endl;
+    EventOCommand cmd( send( node, CMD_CONFIG_EVENT ));
+    cmd << event << originator << error;
+    return cmd;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::restore()
 {
     Object::restore();

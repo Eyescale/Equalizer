@@ -25,6 +25,9 @@
 #include "../global.h"
 #include "../pipe.h"
 
+#include <boost/lexical_cast.hpp>
+using boost::lexical_cast;
+
 namespace eq
 {
 namespace glx
@@ -73,7 +76,7 @@ bool Window::configInit()
     GLXFBConfig* fbConfig = chooseGLXFBConfig();
     if( !fbConfig )
     {
-        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
+        sendError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
         return false;
     }
 
@@ -90,8 +93,7 @@ bool Window::configInit()
 
     if( !success || !_xDrawable )
     {
-        if( getError() == ERROR_NONE )
-            setError( ERROR_GLXWINDOW_NO_DRAWABLE );
+        sendError( ERROR_GLXWINDOW_NO_DRAWABLE );
         return false;
     }
 
@@ -108,12 +110,12 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 {
     if( !_xDisplay )
     {
-        setError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
         return 0;
     }
     if( !GLXEW_VERSION_1_3 && !GLXEW_SGIX_fbconfig )
     {
-        setError( ERROR_GLXWINDOW_FBCONFIG_REQUIRED );
+        sendError( ERROR_GLXWINDOW_FBCONFIG_REQUIRED );
         return 0;
     }
 
@@ -150,7 +152,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
           case RGBA32F:
             if( !GLXEW_ARB_fbconfig_float )
             {
-                setError( ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED );
+                sendError( ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED );
                 return 0;
             }
             attributes.push_back( GLX_RENDER_TYPE );
@@ -303,12 +305,12 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
 {
     if( !_xDisplay )
     {
-        setError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
         return 0;
     }
     if( !fbConfig )
     {
-        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
+        sendError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
@@ -359,7 +361,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
             visInfo = glXChooseVisual( _xDisplay, screen, &attributes.front( ));
             if( !visInfo )
             {
-                setError( ERROR_GLXWINDOW_NO_VISUAL );
+                sendError( ERROR_GLXWINDOW_NO_VISUAL );
                 return 0;
             }
         }
@@ -371,7 +373,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
 
     if( !context )
     {
-        setError( ERROR_GLXWINDOW_CREATECONTEXT_FAILED );
+        sendError( ERROR_GLXWINDOW_CREATECONTEXT_FAILED );
         return 0;
     }
     return context;
@@ -407,7 +409,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
 {
     if( !_xDisplay )
     {
-        setError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
         return false;
     }
 
@@ -455,12 +457,12 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 
     if( !_xDisplay )
     {
-        setError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
         return 0;
     }
     if( !fbConfig )
     {
-        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
+        sendError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
@@ -469,7 +471,7 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
                            glXGetVisualFromFBConfigSGIX(_xDisplay, fbConfig[0]);
     if( !visInfo )
     {
-        setError( ERROR_GLXWINDOW_NO_VISUAL );
+        sendError( ERROR_GLXWINDOW_NO_VISUAL );
         return 0;
     }
 
@@ -510,7 +512,7 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
     XFree( visInfo );
     if( !drawable )
     {
-        setError( ERROR_GLXWINDOW_CREATEWINDOW_FAILED );
+        sendError( ERROR_GLXWINDOW_CREATEWINDOW_FAILED );
         return 0;
     }
 
@@ -540,17 +542,17 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
 {
     if( !_xDisplay )
     {
-        setError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
         return false;
     }
     if( !fbConfig )
     {
-        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
+        sendError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return false;
     }
     if( !GLXEW_VERSION_1_3 )
     {
-        setError( ERROR_GLXWINDOW_GLX_1_3_REQUIRED );
+        sendError( ERROR_GLXWINDOW_GLX_1_3_REQUIRED );
         return false;
     }
 
@@ -568,7 +570,7 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
     XID pbuffer = glXCreatePbuffer( _xDisplay, fbConfig[ 0 ], attributes );
     if ( !pbuffer )
     {
-        setError( ERROR_GLXWINDOW_CREATEPBUFFER_FAILED );
+        sendError( ERROR_GLXWINDOW_CREATEPBUFFER_FAILED );
         return false;
     }
 

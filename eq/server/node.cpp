@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -28,6 +28,7 @@
 #include "server.h"
 #include "window.h"
 
+#include <eq/client/event.h>
 #include <eq/client/error.h>
 
 #include <eq/fabric/commands.h>
@@ -271,7 +272,7 @@ bool Node::launch()
             return true;
     }
 
-    setError( ERROR_NODE_LAUNCH );
+    sendError( ERROR_NODE_LAUNCH ) << _host;
     return false;
 }
 
@@ -302,8 +303,8 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
         }
 
         lunchbox::sleep( 100 /*ms*/ );
-		if( timeOut != static_cast<int32_t>(LB_TIMEOUT_INDEFINITE) &&
-			clock.getTime64() > timeOut )
+        if( timeOut != static_cast<int32_t>(LB_TIMEOUT_INDEFINITE) &&
+            clock.getTime64() > timeOut )
         {
             LBASSERT( _node->getRefCount() == 1 );
             _node = 0;
@@ -316,9 +317,8 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
                 co::ConnectionDescriptionPtr desc = *i;
                 data << desc->getHostname() << ' ';
             }
-            setError( ERROR_NODE_CONNECT );
-            LBWARN << getError() << std::endl;
 
+            sendError( ERROR_NODE_CONNECT ) << _host;
             _state = STATE_FAILED;
             return false;
         }
@@ -490,7 +490,7 @@ bool Node::syncConfigInit()
         return true;
     }
 
-    LBWARN << "Node initialization failed: " << getError() << std::endl;
+    LBWARN << "Node initialization failed" << std::endl;
     configExit();
     return false;
 }
@@ -709,6 +709,11 @@ co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 {
     return co::ObjectOCommand( co::Connections( 1, _bufferedTasks ), cmd,
                                co::COMMANDTYPE_OBJECT, id, CO_INSTANCE_ALL );
+}
+
+EventOCommand Node::sendError( const uint32_t error )
+{
+    return getConfig()->sendError( Event::NODE_ERROR, getID(), error );
 }
 
 void Node::flushSendBuffer()

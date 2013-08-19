@@ -45,7 +45,7 @@ bool Node::configInit( const eq::uint128_t& initID )
     Config* config = static_cast< Config* >( getConfig( ));
     if( !isApplicationNode() && !config->loadInitData( initID ))
     {
-        setError( ERROR_EVOLVE_MAPOBJECT_FAILED );
+        sendError( ERROR_EVOLVE_MAPOBJECT_FAILED );
         return false;
     }
     return true;

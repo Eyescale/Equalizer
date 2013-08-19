@@ -26,6 +26,7 @@
 #include "state.h"         // enum
 #include "visitorResult.h" // enum
 
+#include <eq/client/event.h>
 #include <eq/fabric/config.h> // base class
 #include <lunchbox/monitor.h> // member
 
@@ -166,7 +167,11 @@ namespace server
 
         virtual void restore();
 
-        /** Return the initID for late initialization  */
+        EventOCommand sendError( const uint32_t type,
+                                 const uint128_t& originator,
+                                 const uint32_t error );
+
+        /** Return the initID, used for late initialization  */
         uint128_t getInitID(){ return _initID; }
 
         /** Activate the given canvas after it is complete (dest channels). */

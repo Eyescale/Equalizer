@@ -224,6 +224,12 @@ namespace fabric
         /** @internal */
         const co::NodeID& getAppNodeID() const { return _appNodeID; }
 
+        /** @internal */
+        EQFABRIC_API EventOCommand sendError( co::NodePtr node,
+                                              const uint32_t event,
+                                              const uint128_t& originator,
+                                              const uint32_t error );
+
         virtual void changeLatency( const uint32_t ) { /* NOP */ }//!< @internal
         virtual bool mapViewObjects() const { return false; } //!< @internal
         virtual bool mapNodeObjects() const { return false; } //!< @internal

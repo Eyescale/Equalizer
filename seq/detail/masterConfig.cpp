@@ -55,12 +55,10 @@ bool MasterConfig::init()
 
     if( !eq::Config::init( _objects->getID( )))
     {
-        LBWARN << "Error during initialization: " << getError() << std::endl;
+        LBWARN << "Error during initialization" << std::endl;
         exit();
         return false;
     }
-    if( getError( ))
-        LBWARN << "Error during initialization: " << getError() << std::endl;
 
     _redraw = true;
     return true;
@@ -90,8 +88,6 @@ bool MasterConfig::run( co::Object* frameData )
     while( isRunning( ))
     {
         startFrame();
-        if( getError( ))
-            LBWARN << "Error during frame start: " << getError() << std::endl;
         finishFrame();
 
         while( !needRedraw( )) // wait for an event requiring redraw

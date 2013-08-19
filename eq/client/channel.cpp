@@ -260,7 +260,7 @@ bool Channel::_configInitFBO()
     if( !window->getSystemWindow()  ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
-        setError( ERROR_FBO_UNSUPPORTED );
+        sendError( ERROR_FBO_UNSUPPORTED );
         return false;
     }
 
@@ -284,14 +284,13 @@ bool Channel::_configInitFBO()
     }
 
     const PixelViewport& pvp = getNativePixelViewport();
-    if( _impl->fbo->init( pvp.w, pvp.h, window->getColorFormat(), depthSize,
-                          stencilSize ))
-    {
+    const Error error = _impl->fbo->init( pvp.w, pvp.h,
+                                          window->getColorFormat(), depthSize,
+                                          stencilSize );
+    if( !error )
         return true;
-    }
-    // else
 
-    setError( _impl->fbo->getError( ));
+    sendError( error );
     delete _impl->fbo;
     _impl->fbo = 0;
     return false;
@@ -584,7 +583,9 @@ void Channel::applyFrameBufferObject()
     if( _impl->fbo )
     {
         const PixelViewport& pvp = getNativePixelViewport();
-        _impl->fbo->resize( pvp.w, pvp.h );
+        const Error error = _impl->fbo->resize( pvp.w, pvp.h );
+        if( error )
+            sendError( error );
         _impl->fbo->bind();
     }
     else if( GLEW_EXT_framebuffer_object )
@@ -894,6 +895,11 @@ PixelViewport Channel::getRegion() const
 const PixelViewports& Channel::getRegions() const
 {
     return _impl->regions;
+}
+
+EventOCommand Channel::sendError( const uint32_t error )
+{
+    return getConfig()->sendError( Event::CHANNEL_ERROR, getID(), error );
 }
 
 bool Channel::processEvent( const Event& event )
@@ -1614,8 +1620,6 @@ bool Channel::_cmdConfigInit( co::ICommand& cmd )
     const Config* config = getConfig();
     changeLatency( config->getLatency( ));
 
-    setError( ERROR_NONE );
-
     bool result = false;
     const Window* window = getWindow();
     if( window->isRunning( ))
@@ -1637,7 +1641,7 @@ bool Channel::_cmdConfigInit( co::ICommand& cmd )
         }
     }
     else
-        setError( ERROR_CHANNEL_WINDOW_NOTRUNNING );
+        sendError( ERROR_CHANNEL_WINDOW_NOTRUNNING );
 
     LBLOG( LOG_INIT ) << "TASK channel config init reply " << result
                       << std::endl;

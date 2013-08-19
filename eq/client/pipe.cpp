@@ -755,6 +755,11 @@ WindowSystem Pipe::getWindowSystem() const
     return _impl->windowSystem;
 }
 
+EventOCommand Pipe::sendError( const uint32_t error )
+{
+    return getConfig()->sendError( Event::PIPE_ERROR, getID(), error );
+}
+
 bool Pipe::processEvent( const Event& event )
 {
     ConfigEvent configEvent( event );
@@ -786,9 +791,8 @@ bool Pipe::configInit( const uint128_t& initID )
 
         if( !computeCtx->configInit() )
         {
-            LBASSERT( getError() != ERROR_NONE );
-            LBWARN << "GPU Computing context initialization failed: "
-                   << getError() << std::endl;
+            LBWARN << "GPU Computing context initialization failed "
+                   << std::endl;
             delete computeCtx;
             return false;
         }
@@ -806,9 +810,7 @@ bool Pipe::configInitSystemPipe( const uint128_t& )
 
     if( !systemPipe->configInit( ))
     {
-        LBASSERT( getError() != ERROR_NONE );
-        LBERROR << "System pipe context initialization failed: "
-                << getError() << std::endl;
+        LBERROR << "System pipe context initialization failed" << std::endl;
         delete systemPipe;
         return false;
     }
@@ -1062,8 +1064,6 @@ bool Pipe::_cmdConfigInit( co::ICommand& cmd )
         _setupCommandQueue();
     }
 
-    setError( ERROR_NONE );
-
     Node* node = getNode();
     LBASSERT( node );
     node->waitInitialized();
@@ -1082,7 +1082,7 @@ bool Pipe::_cmdConfigInit( co::ICommand& cmd )
             _impl->state = STATE_RUNNING;
     }
     else
-        setError( ERROR_PIPE_NODE_NOTRUNNING );
+        sendError( ERROR_PIPE_NODE_NOTRUNNING );
 
     LBLOG( LOG_INIT ) << "TASK pipe config init reply result " << result
                       << std::endl;

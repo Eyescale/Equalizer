@@ -139,9 +139,9 @@ public:
      * initialization data.
      *
      * The initialization fails if at least one of the configInit task methods
-     * fails. The application can use setErrorMessage on the render client to
-     * pass an error string to the application process, which it can query it
-     * using getError().
+     * fails. The application can use sendError() on the render client to pass
+     * an error string to the application process, which is received by the
+     * normal event processing.
      *
      * @param initID an identifier to be passed to all init methods.
      * @return true if the initialization was successful, false if not.
@@ -390,6 +390,17 @@ public:
      */
     EQ_API EventOCommand sendEvent( const uint32_t type );
 
+    /**
+     * Send an error event to the application node.
+     *
+     * @param type the error event type
+     * @param originator the object identifier of the originator.
+     * @param error the error message.
+     * @version 1.7.1
+     */
+    EQ_API EventOCommand sendError( const uint32_t type,
+                                    const uint128_t& originator,
+                                    const uint32_t error );
     /**
      * Get the next event.
      *

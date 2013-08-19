@@ -52,17 +52,17 @@ bool Window::configInitGL( const eq::uint128_t& initID )
 
     if( !GLEW_ARB_shader_objects )
     {
-        setError( ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING );
+        sendError( ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING );
         return false;
     }
     if( !GLEW_EXT_blend_func_separate )
     {
-        setError( ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING );
+        sendError( ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING );
         return false;
     }
     if( !GLEW_ARB_multitexture )
     {
-        setError( ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING );
+        sendError( ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING );
         return false;
     }
 
@@ -76,7 +76,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
 
     if( !renderer->loadShaders( ))
     {
-        setError( ERROR_EVOLVE_LOADSHADERS_FAILED );
+        sendError( ERROR_EVOLVE_LOADSHADERS_FAILED );
         return false;
     }
 

@@ -428,7 +428,17 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     if( !_pbo )
         _pbo = new util::PixelBufferObject( glewContext, true );
 
-    return _pbo->setup( size, GL_READ_ONLY_ARB );
+    const Error error = _pbo->setup( size, GL_READ_ONLY_ARB );
+    if( !error )
+        return true;
+
+    if( _warned < 10 )
+    {
+        LBWARN << "Can't initialize PBO for async readback: " << error
+               << std::endl;
+        ++_warned;
+    }
+    return false;
 }
 
 void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
@@ -461,12 +471,6 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
             _pbo->unbind();
             glFlush(); // Fixes https://github.com/Eyescale/Equalizer/issues/118
             return;
-        }
-        if( _warned < 10 )
-        {
-            LBWARN << "Can't initialize PBO for async readback: "
-                   << _pbo->getError() << std::endl;
-            ++_warned;
         }
 #else  // else async RB through texture
         const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
@@ -519,7 +523,7 @@ void CompressorReadDrawPixels::finishDownload( const GLEWContext* glewContext,
         }
         else
         {
-            LBERROR << "Can't map PBO: " << _pbo->getError()<< std::endl;
+            LBERROR << "Can't map PBO" << std::endl;
             EQ_GL_ERROR( "PixelBufferObject::mapRead()" );
         }
     }

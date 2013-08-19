@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,16 +107,10 @@ int EqPly::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        LBWARN << "Error during initialization: " << config->getError()
-               << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
     }
-    if( config->getError( ))
-        LBWARN << "Error during initialization: " << config->getError()
-               << std::endl;
-
     LBLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
                        << std::endl;
 
@@ -128,9 +122,6 @@ int EqPly::run()
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
-        if( config->getError( ))
-            LBWARN << "Error during frame start: " << config->getError()
-                   << std::endl;
         config->finishFrame();
 
         if( config->getAnimationFrame() == 1 )

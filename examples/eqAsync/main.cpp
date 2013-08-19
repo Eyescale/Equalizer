@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ int main( const int argc, char** argv )
         LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
-    
+
     // 2. get a configuration
     bool        error  = false;
     eq::Config* config = eq::getConfig( argc, argv );
@@ -64,10 +64,6 @@ int main( const int argc, char** argv )
         // 3. init config
         if( config->init( 0 ))
         {
-            if( config->getError( ))
-                LBWARN << "Error during initialization: " << config->getError()
-                       << std::endl;
-
             // 4. run main loop
             eq::uint128_t spin = 0;
             while( config->isRunning( ))
@@ -75,7 +71,7 @@ int main( const int argc, char** argv )
                 config->startFrame( ++spin );
                 config->finishFrame();
             }
-        
+
             // 5. exit config
             config->exit();
         }
@@ -89,7 +85,7 @@ int main( const int argc, char** argv )
     {
         LBERROR << "Cannot get config" << std::endl;
         error = true;
-    }    
+    }
 
     // 7. exit
     eq::exit();

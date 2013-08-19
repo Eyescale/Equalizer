@@ -8,7 +8,7 @@ server
     {
         appNode
         {
-            pipe 
+            pipe
             {
                 device 0
                 window
@@ -17,7 +17,7 @@ server
                     channel { name "channel1" }
                 }
             }
-            pipe 
+            pipe
             {
                 device 1
                 window
@@ -50,5 +50,5 @@ server
             }
             inputframe { name "frame.channel2" }
         }
-    }    
+    }
 }

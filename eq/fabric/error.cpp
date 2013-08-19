@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -49,8 +49,6 @@ ErrorData _errors[] = {
       "Framebuffer incomplete, missing draw buffer" },
     { ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
       "Framebuffer incomplete, missing read buffer" },
-    { ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES,
-      "Too many color textures, can't add another one" },
     { ERROR_FRAMEBUFFER_INITIALIZED, "FBO already initialized" },
 
     { ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
@@ -132,8 +130,6 @@ ErrorData _errors[] = {
     { ERROR_CHANNEL_WINDOW_NOTRUNNING, "Window not running" },
 
     { ERROR_PBO_UNSUPPORTED, "Pixel Buffer Objects not supported" },
-    { ERROR_PBO_READ_ONLY, "Trying to write to read-only PBO" },
-    { ERROR_PBO_WRITE_ONLY, "Trying to read from write-only PBO" },
     { ERROR_PBO_NOT_INITIALIZED, "PBO is not initialized" },
     { ERROR_PBO_SIZE_TOO_SMALL, "PBO size is too small, it has to be > 0" },
     { ERROR_PBO_TYPE_UNSUPPORTED, "Unsupported PBO type" },
@@ -144,16 +140,14 @@ ErrorData _errors[] = {
 
 void _initErrors()
 {
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
-
+    eq::fabric::ErrorRegistry& registry =eq::fabric::Global::getErrorRegistry();
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
 }
 
 void _exitErrors()
 {
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
-
+    eq::fabric::ErrorRegistry& registry =eq::fabric::Global::getErrorRegistry();
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );
 }
@@ -161,13 +155,14 @@ void _exitErrors()
 std::ostream& operator << ( std::ostream& os, const Error& error )
 {
     const ErrorRegistry& registry = Global::getErrorRegistry();
-    const std::string& text = registry.getString( error );
-    if( text.empty( ))
-        os << "error 0x" << std::hex << uint32_t( error ) << std::dec;
-    else
-        os << text << " (0x" << std::hex << uint32_t(error) << std::dec << ")";
+    const std::string& text = registry.getString( error.getCode( ));
 
-    return os;
+    if( text.empty( ))
+        return os << "error 0x" << std::hex << uint32_t( error.getCode( ))
+                  << std::dec;
+
+    return os << text << " (0x" << std::hex << uint32_t( error.getCode( ))
+              << std::dec << ")";
 }
 
 }

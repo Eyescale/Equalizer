@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -169,6 +169,7 @@ namespace server
 
         co::ObjectOCommand send( const uint32_t cmd );
         co::ObjectOCommand send( const uint32_t cmd, const UUID& id );
+        EventOCommand sendError( const uint32_t error );
 
         void flushSendBuffer();
 

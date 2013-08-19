@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,6 @@
 
 #include "frameBufferObject.h"
 
-#include <eq/client/error.h>
 #include <eq/client/gl.h>
 #include <eq/fabric/pixelViewport.h>
 
@@ -36,7 +35,6 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
-    , _error( eq::fabric::ERROR_NONE )
     , _valid( false )
 {
     LBASSERT( GLEW_EXT_framebuffer_object );
@@ -53,39 +51,28 @@ FrameBufferObject::~FrameBufferObject()
     }
 }
 
-void FrameBufferObject::_setError( const int32_t error )
-{
-    _error = eq::fabric::Error( error );
-}
-
 bool FrameBufferObject::addColorTexture()
 {
     if( _colors.size() >= 16 )
     {
-        _setError( ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES );
-        LBERROR << _error << std::endl;
+        LBWARN << "Too many color textures, can't add another one" << std::endl;
         return false;
     }
 
-    _colors.push_back( new Texture( _colors.front()->getTarget(),
-                                    _glewContext ));
+    _colors.push_back( new Texture(_colors.front()->getTarget(), _glewContext));
     _valid = false;
     return true;
 }
 
-bool FrameBufferObject::init( const int32_t width, const int32_t height,
-                              const GLuint colorFormat,
-                              const int32_t depthSize,
-                              const int32_t stencilSize )
+Error FrameBufferObject::init( const int32_t width, const int32_t height,
+                               const GLuint colorFormat,
+                               const int32_t depthSize,
+                               const int32_t stencilSize )
 {
     LB_TS_THREAD( _thread );
 
     if( _fboID )
-    {
-        _setError( ERROR_FRAMEBUFFER_INITIALIZED );
-        LBWARN << _error << std::endl;
-        return false;
-    }
+        return Error( ERROR_FRAMEBUFFER_INITIALIZED );
 
     // generate and bind the framebuffer
     glGenFramebuffersEXT( 1, &_fboID );
@@ -108,12 +95,10 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
     }
 
-    if( _checkStatus( ))
-        return true;
-    // else
-
-    exit();
-    return false;
+    const Error error = _checkStatus();
+    if( error )
+        exit();
+    return error;
 }
 
 void FrameBufferObject::exit()
@@ -133,51 +118,47 @@ void FrameBufferObject::exit()
     _valid = false;
 }
 
-bool FrameBufferObject::_checkStatus()
+Error FrameBufferObject::_checkStatus()
 {
+    _valid = false;
+
     const GLenum status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
     switch( status )
     {
-        case GL_FRAMEBUFFER_COMPLETE_EXT:
-            LBVERB << "FBO supported and complete" << std::endl;
-            _valid = true;
-            return true;
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+        _valid = true;
+        return Error( ERROR_NONE );
 
-        case 0: // error?!
-            EQ_GL_ERROR( "glCheckFramebufferStatusEXT" );
-            _setError( ERROR_FRAMEBUFFER_STATUS );
-            break;
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            _setError( ERROR_FRAMEBUFFER_UNSUPPORTED );
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT );
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT );
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS );
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS );
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER );
-            break;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
-            break;
+    case 0: // error?!
+        EQ_GL_ERROR( "glCheckFramebufferStatusEXT" );
+        return Error( ERROR_FRAMEBUFFER_STATUS );
 
-        default:
-            LBWARN << "Unhandled frame buffer status 0x" << std::hex
-                   << status << std::dec << std::endl;
-            break;
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+        return Error( ERROR_FRAMEBUFFER_UNSUPPORTED );
+
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT );
+
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT );
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS );
+
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS );
+
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER );
+
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
+
+    default:
+        LBWARN << "Unhandled frame buffer status 0x" << std::hex
+               << status << std::dec << std::endl;
+        return Error( ERROR_FRAMEBUFFER_STATUS );
     }
-
-    LBWARN << _error << std::endl;
-    _valid = false;
-    return false;
 }
 
 void FrameBufferObject::bind()
@@ -192,7 +173,7 @@ void FrameBufferObject::unbind()
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ));
 }
 
-bool FrameBufferObject::resize( const int32_t width, const int32_t height )
+Error FrameBufferObject::resize( const int32_t width, const int32_t height )
 {
     LB_TS_THREAD( _thread );
     LBASSERT( width > 0 && height > 0 );
@@ -201,7 +182,7 @@ bool FrameBufferObject::resize( const int32_t width, const int32_t height )
     Texture* color = _colors.front();
 
     if( color->getWidth() == width && color->getHeight() == height && _valid )
-       return true;
+        return Error( ERROR_NONE );
 
     for( size_t i = 0; i < _colors.size(); ++i )
         _colors[i]->resize( width, height );
