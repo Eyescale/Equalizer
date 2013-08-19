@@ -132,10 +132,10 @@ public:
     bool operator != ( const Error& rhs ) const { return code_ != rhs.code_; }
 
     /** @return true if the two errors have the same value. @version 1.7.1*/
-    bool operator == ( const ErrorCode code ) const { return code_ == code; }
+    bool operator == ( const uint32_t code ) const { return code_ == code; }
 
     /** @return true if the two errors have different values. @version 1.7.1*/
-    bool operator != ( const ErrorCode code ) const { return code_ != code; }
+    bool operator != ( const uint32_t code ) const { return code_ != code; }
 
 private:
     uint32_t code_;
