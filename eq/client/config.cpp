@@ -613,9 +613,11 @@ EventOCommand Config::sendEvent( const uint32_t type )
     return cmd;
 }
 
-EventOCommand Config::sendError( const uint32_t type, const uint32_t error )
+EventOCommand Config::sendError( const uint32_t type,
+                                 const uint128_t& originator,
+                                 const uint32_t error )
 {
-    return Super::sendError( getApplicationNode(), type, error );
+    return Super::sendError( getApplicationNode(), type, originator, error );
 }
 
 EventICommand Config::getNextEvent( const uint32_t timeout ) const
@@ -683,14 +685,16 @@ bool Config::_handleNewEvent( EventICommand& command )
     case Event::CHANNEL_ERROR:
     {
         // TODO:
-        //     add originator ID
         //     create ErrorOCommand with lexical_cast?
-        //     create Error type with operator!
         const Error error = Error( command.get< uint32_t >( ));
-        LBWARN << error;
+        const uint128_t& originator = command.get< uint128_t >();
+        LBWARN << error << " from " << originator;
         if( error < ERROR_CUSTOM )
             while( command.hasData( ))
-                LBWARN << ": " << command.get< std::string >();
+            {
+                const std::string& text = command.get< std::string >();
+                LBWARN << ": " << text;
+            }
         LBWARN << std::endl;
         return false;
     }

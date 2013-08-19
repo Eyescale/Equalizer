@@ -611,7 +611,7 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 
 EventOCommand Window::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::WINDOW_ERROR, error );
+    return getConfig()->sendError( Event::WINDOW_ERROR, getID(), error );
 }
 
 bool Window::processEvent( const Event& event )

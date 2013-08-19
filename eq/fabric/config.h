@@ -227,6 +227,7 @@ namespace fabric
         /** @internal */
         EQFABRIC_API EventOCommand sendError( co::NodePtr node,
                                               const uint32_t event,
+                                              const uint128_t& originator,
                                               const uint32_t error );
 
         virtual void changeLatency( const uint32_t ) { /* NOP */ }//!< @internal

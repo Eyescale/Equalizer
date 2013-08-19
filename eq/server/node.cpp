@@ -713,7 +713,7 @@ co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 
 EventOCommand Node::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::NODE_ERROR, error );
+    return getConfig()->sendError( Event::NODE_ERROR, getID(), error );
 }
 
 void Node::flushSendBuffer()

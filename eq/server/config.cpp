@@ -537,9 +537,11 @@ void Config::restore()
     Super::restore();
 }
 
-EventOCommand Config::sendError( const uint32_t type, const uint32_t error )
+EventOCommand Config::sendError( const uint32_t type,
+                                 const uint128_t& originator,
+                                 const uint32_t error )
 {
-    return Super::sendError( findApplicationNetNode(), type, error );
+    return Super::sendError( findApplicationNetNode(), type, originator, error);
 }
 
 //---------------------------------------------------------------------------

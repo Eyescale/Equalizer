@@ -394,11 +394,13 @@ public:
      * Send an error event to the application node.
      *
      * @param type the error event type
+     * @param originator the object identifier of the originator.
      * @param error the error message.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t type, const uint32_t error );
-
+    EQ_API EventOCommand sendError( const uint32_t type,
+                                    const uint128_t& originator,
+                                    const uint32_t error );
     /**
      * Get the next event.
      *

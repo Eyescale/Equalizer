@@ -238,8 +238,8 @@ struct Event
         OBSERVER_MOTION,
 
         /**
-         * Config error event. Contains the error code and 0-n Strings with
-         * additional information.
+         * Config error event. Contains the originator id, the error code and
+         * 0-n Strings with additional information.
          * @version 1.7.1
          */
         CONFIG_ERROR,

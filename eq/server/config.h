@@ -167,7 +167,9 @@ namespace server
 
         virtual void restore();
 
-        EventOCommand sendError( const uint32_t type, const uint32_t error );
+        EventOCommand sendError( const uint32_t type,
+                                 const uint128_t& originator,
+                                 const uint32_t error );
 
         /** Return the initID, used for late initialization  */
         uint128_t getInitID(){ return _initID; }

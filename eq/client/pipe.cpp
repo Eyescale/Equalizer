@@ -757,7 +757,7 @@ WindowSystem Pipe::getWindowSystem() const
 
 EventOCommand Pipe::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::PIPE_ERROR, error );
+    return getConfig()->sendError( Event::PIPE_ERROR, getID(), error );
 }
 
 bool Pipe::processEvent( const Event& event )
