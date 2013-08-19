@@ -694,6 +694,7 @@ bool Config::_handleNewEvent( EventICommand& command )
         LBWARN << std::endl;
         return false;
     }
+    }
     return false;
 }
 
