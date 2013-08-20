@@ -181,11 +181,8 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     attributes.push_back( AGL_ACCELERATED );
     attributes.push_back( GL_TRUE );
 
-    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON &&
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER )
-    {
+    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
         attributes.push_back( AGL_FULLSCREEN );
-    }
 
     attributes.push_back( AGL_DISPLAY_MASK );
     attributes.push_back( glDisplayMask );
