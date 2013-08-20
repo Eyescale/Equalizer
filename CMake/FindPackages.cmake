@@ -267,10 +267,10 @@ file(WRITE ${DEFINES_FILE_IN}
   "#define ${CMAKE_PROJECT_NAME}_DEFINES_${SYSTEM}_H\n\n")
 file(WRITE ${OPTIONS_CMAKE} "# Optional modules enabled during build\n")
 foreach(DEF ${FIND_PACKAGES_DEFINES})
-  add_definitions(-D${DEF}=1)
+  add_definitions(-D${DEF})
   file(APPEND ${DEFINES_FILE_IN}
   "#ifndef ${DEF}\n"
-  "#  define ${DEF} 1\n"
+  "#  define ${DEF}\n"
   "#endif\n")
 if(NOT DEF STREQUAL SYSTEM)
   file(APPEND ${OPTIONS_CMAKE} "set(${DEF} ON)\n")
