@@ -24,13 +24,12 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
-#include <co/commandQueue.h>
 #include <co/types.h>
-#include <lunchbox/monitor.h>          // member
-#include <lunchbox/mtQueue.h>          // member
 
 namespace eq
 {
+namespace detail { class Node; }
+
 /**
  * A Node represents a single computer in the cluster.
  *
@@ -63,9 +62,10 @@ public:
 
     EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
+    co::CommandQueue* getTransmitterQueue(); //!< @internal
 
     /** @internal node thread only. */
-    uint32_t getCurrentFrame() const { return _currentFrame.get(); }
+    uint32_t getCurrentFrame() const;
 
     /**
      * @internal
@@ -116,7 +116,7 @@ public:
     EQ_API void waitFrameStarted( const uint32_t frameNumber ) const;
 
     /** @internal @return the number of the last finished frame. */
-    uint32_t getFinishedFrame() const { return _finishedFrame; }
+    uint32_t getFinishedFrame() const;
 
     /**
      * Send an error event to the application node.
@@ -138,23 +138,6 @@ public:
      * @version 1.5.2
      */
     EQ_API virtual bool processEvent( const Event& event );
-
-    /** @internal */
-    class TransmitThread : public lunchbox::Thread
-    {
-    public:
-        TransmitThread( Node* parent ) : _node( parent ) {}
-        virtual ~TransmitThread() {}
-
-        co::CommandQueue& getQueue() { return _queue; }
-
-    protected:
-        virtual void run();
-
-    private:
-        co::CommandQueue     _queue;
-        Node* const           _node;
-    } transmitter;
 
     /** @internal @sa Serializable::setDirty() */
     EQ_API virtual void setDirty( const uint64_t bits );
@@ -278,38 +261,7 @@ protected:
     //@}
 
 private:
-    enum State
-    {
-        STATE_STOPPED,
-        STATE_INITIALIZING,
-        STATE_INIT_FAILED,
-        STATE_RUNNING,
-        STATE_FAILED
-    };
-    /** The configInit/configExit state. */
-    lunchbox::Monitor< State > _state;
-
-    /** The number of the last started frame. */
-    lunchbox::Monitor< uint32_t > _currentFrame;
-
-    /** The number of the last finished frame. */
-    uint32_t _finishedFrame;
-
-    /** The number of the last locally released frame. */
-    uint32_t _unlockedFrame;
-
-    typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
-    /** All barriers mapped by the node. */
-    lunchbox::Lockable< BarrierHash > _barriers;
-
-    typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
-    typedef FrameDataHash::const_iterator FrameDataHashCIter;
-    typedef FrameDataHash::iterator FrameDataHashIter;
-    /** All frame datas used by the node during rendering. */
-    lunchbox::Lockable< FrameDataHash > _frameDatas;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    detail::Node* const impl_;
 
     void _setAffinity();
 
@@ -333,7 +285,6 @@ private:
     bool _cmdSetAffinity( co::ICommand& command );
 
     LB_TS_VAR( _nodeThread );
-    LB_TS_VAR( _commandThread );
 };
 }
 
