@@ -14,15 +14,16 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
 
+set(COMMON_GCC_FLAGS "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
+
 # GCC (+clang)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   include(${CMAKE_CURRENT_LIST_DIR}/CompilerVersion.cmake)
-  COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
+  compiler_dumpversion(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
-  set(COMMON_GCC_FLAGS "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS} ")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo")
   if(GCC_COMPILER_VERSION VERSION_GREATER 4.1)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
@@ -49,7 +50,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
 
 # icc
 elseif(CMAKE_COMPILER_IS_INTEL)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unknown-pragmas")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -std=c++11 -Wno-deprecated -Wno-unknown-pragmas -Wshadow -fno-strict-aliasing -Wuninitialized -Wsign-promo -Wnon-virtual-dtor")
 
   # Release: automatically generate instructions for the highest
   # supported compilation host
@@ -63,7 +65,7 @@ elseif(CMAKE_COMPILER_IS_XLCXX)
   # default release flags since the default were '-O -NDEBUG'. By
   # default, set flags for backend since this is the most common use
   # case
-  OPTION(XLC_BACKEND "Compile for BlueGene compute nodes using XLC compilers"
+  option(XLC_BACKEND "Compile for BlueGene compute nodes using XLC compilers"
     ON)
   if(XLC_BACKEND)
     set(CMAKE_CXX_FLAGS_RELEASE
@@ -89,13 +91,13 @@ if(MSVC)
   # By default, do not warn when built on machines using only VS Express
   # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
   if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
   endif()
 
   # By default, do not warn when built on machines using only VS Express
   # http://cmake.org/gitweb?p=cmake.git;a=commit;h=fa4a3b04d0904a2e93242c0c3dd02a357d337f77
   if(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
-      SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
   endif()
 
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
