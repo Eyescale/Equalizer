@@ -119,7 +119,8 @@ update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
 execute_process(COMMAND "${GIT_EXECUTABLE}" add images ${ENTRIES}
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
-if(VERSION_MAJOR) # hack to detect that not invoked as script
+ # hack to detect that not invoked as script and not under CI
+if(VERSION_MAJOR AND NOT $ENV{TRAVIS})
   foreach(FOLDER ${GIT_DOCUMENTATION_INSTALL})
     install(DIRECTORY ${FOLDER} DESTINATION share/${CMAKE_PROJECT_NAME}
       CONFIGURATIONS Release)
