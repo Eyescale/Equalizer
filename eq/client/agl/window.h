@@ -48,8 +48,11 @@ namespace agl
         /** @return the AGL PBuffer object. @version 1.0 */
         EQ_API virtual AGLPbuffer getAGLPBuffer() const = 0;
 
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Woverloaded-virtual"
         /** Process the given event. @version 1.0 */
         EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
+#  pragma clang diagnostic pop
 
     private:
         struct Private;
