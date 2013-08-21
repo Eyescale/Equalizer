@@ -388,7 +388,7 @@ void Channel::_testDepthAssemble()
 
     area.y() = pvp.h;
 
-    for( unsigned i = 0; i < NUM_IMAGES; ++i )
+    for( uint64_t i = 0; i < NUM_IMAGES; ++i )
     {
         _draw( co::uint128_t( i ) );
 
