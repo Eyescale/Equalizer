@@ -27,8 +27,8 @@ namespace fabric
 {
 struct ToNodes
 {
-    std::vector< uint128_t > inputNodes;
-    std::vector< uint128_t > inputNetNodes;
+    std::vector< UUID > inputNodes;
+    std::vector< co::NodeID > inputNetNodes;
 };
 
 namespace detail
@@ -50,7 +50,7 @@ public:
         os << name << offset << zoom;
 
         for( unsigned i = 0; i < NUM_EYES; ++i )
-            os << frameDataVersion[i] << toNodes[i].inputNodes 
+            os << frameDataVersion[i] << toNodes[i].inputNodes
                << toNodes[i].inputNetNodes;
     }
 
@@ -123,22 +123,22 @@ const co::ObjectVersion& Frame::getDataVersion( const Eye eye ) const
     return _impl->frameDataVersion[ lunchbox::getIndexOfLastBit( eye )];
 }
 
-const std::vector< uint128_t >& Frame::getInputNodes( const Eye eye ) const
+const std::vector< UUID >& Frame::getInputNodes( const Eye eye ) const
 {
     return _impl->toNodes[ lunchbox::getIndexOfLastBit( eye )].inputNodes;
 }
 
-const std::vector< uint128_t >& Frame::getInputNetNodes(const Eye eye) const
+const std::vector< co::NodeID >& Frame::getInputNetNodes(const Eye eye) const
 {
     return _impl->toNodes[ lunchbox::getIndexOfLastBit( eye )].inputNetNodes;
 }
 
-std::vector< uint128_t >& Frame::_getInputNodes( const unsigned i )
+std::vector< UUID >& Frame::_getInputNodes( const unsigned i )
 {
     return _impl->toNodes[ i ].inputNodes;
 }
 
-std::vector< uint128_t >& Frame::_getInputNetNodes( const unsigned i )
+std::vector< co::NodeID >& Frame::_getInputNetNodes( const unsigned i )
 {
     return _impl->toNodes[ i ].inputNetNodes;
 }
@@ -159,11 +159,11 @@ std::ostream& operator << ( std::ostream& os, const Frame& frame )
 std::ostream& operator << ( std::ostream& os, const Frame::Type type )
 {
     os << "type     ";
-    if ( type == Frame::TYPE_TEXTURE ) 
+    if ( type == Frame::TYPE_TEXTURE )
         os << " texture" << std::endl;
-    else if ( type == Frame::TYPE_MEMORY ) 
+    else if ( type == Frame::TYPE_MEMORY )
         os << " memory" << std::endl;
-        
+
     return os;
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ void View::Proxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void View::setModelID( const lunchbox::uint128_t& id )
+void View::setModelID( const lunchbox::UUID& id )
 {
     if( _modelID == id )
         return;

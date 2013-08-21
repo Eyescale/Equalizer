@@ -73,7 +73,7 @@ bool Config::init()
     return true;
 }
 
-bool Config::loadInitData( const eq::uint128_t& id )
+bool Config::loadInitData( const eq::UUID& id )
 {
     LBASSERT( !_initData.isAttached( ));
     return getClient()->syncObject( &_initData, getApplicationNode(), id );
@@ -261,7 +261,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( canvases.empty( ))
                 return true;
 
-            _frameData.setCurrentViewID( 0 );
+            _frameData.setCurrentViewID( co::uint128_t( ));
 
             if( !_currentCanvas )
             {
@@ -315,7 +315,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
             ++i;
             if( i == views.end( ))
-                _frameData.setCurrentViewID( 0 );
+                _frameData.setCurrentViewID( co::uint128_t( ));
             else
                 _frameData.setCurrentViewID( (*i)->getID( ));
             return true;
@@ -338,7 +338,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( 0 );
+    _frameData.setCurrentViewID( co::uint128_t( ));
 
     size_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

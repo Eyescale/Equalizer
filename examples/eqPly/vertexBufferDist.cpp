@@ -112,7 +112,7 @@ void VertexBufferDist::deregisterTree()
 
 mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
                                                      co::LocalNodePtr localNode,
-                                                  const eq::uint128_t& modelID )
+                                                     const eq::UUID& modelID )
 {
     LBASSERT( !_root && !_node );
 

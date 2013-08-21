@@ -574,7 +574,7 @@ const Model* Channel::_getModel()
     const FrameData& frameData = _getFrameData();
     LBASSERT( !view || dynamic_cast< const View* >( getView( )));
 
-    eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
+    eq::UUID id = view ? view->getModelID() : frameData.getModelID();
     if( id == 0 )
         id = frameData.getModelID();
     if( id != _modelID )

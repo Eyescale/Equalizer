@@ -223,13 +223,13 @@ void Config::_deregisterData()
     _frameData.setModelID( eq::UUID( ));
 }
 
-bool Config::loadInitData( const eq::uint128_t& id )
+bool Config::loadInitData( const eq::UUID& id )
 {
     LBASSERT( !_initData.isAttached( ));
     return getClient()->syncObject( &_initData, getApplicationNode(), id );
 }
 
-const Model* Config::getModel( const eq::uint128_t& modelID )
+const Model* Config::getModel( const eq::UUID& modelID )
 {
     if( modelID == 0 )
         return 0;
@@ -853,7 +853,7 @@ void Config::_switchModel()
 
     // current model of current view
     View* view = _getCurrentView();
-    const eq::uint128_t& currentID = view ? view->getModelID() :
+    const eq::UUID& currentID = view ? view->getModelID() :
                                             _frameData.getModelID();
     // next model
     ModelDistsCIter i;
@@ -869,7 +869,7 @@ void Config::_switchModel()
         i = _modelDist.begin(); // wrap around
 
     // set identifier on view or frame data (default model)
-    const eq::uint128_t& modelID = (*i)->getID();
+    const eq::UUID& modelID = (*i)->getID();
     if( view )
         view->setModelID( modelID );
     else

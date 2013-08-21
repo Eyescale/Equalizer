@@ -87,7 +87,7 @@ int main( int argc, char** argv )
     // 4. init config
     lunchbox::Clock clock;
 
-    if( !config->init( 0 ))
+    if( !config->init( co::uint128_t( )))
     {
         server->releaseConfig( config );
         client->disconnectServer( server );
@@ -103,7 +103,7 @@ int main( int argc, char** argv )
     clock.reset();
     for( uint32_t i = 0; i < 3; ++i )
     {
-        config->startFrame( 0 );
+        config->startFrame( co::uint128_t( ));
         config->finishAllFrames();
     }
     LBLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("

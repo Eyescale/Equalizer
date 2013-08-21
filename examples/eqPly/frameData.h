@@ -47,13 +47,13 @@ class FrameData : public co::Serializable
 public:
     FrameData();
 
-    virtual ~FrameData() {};
+    virtual ~FrameData() {}
 
     void reset();
 
     /** @name Rendering flags. */
     //*{
-    void setModelID( const eq::uint128_t& id );
+    void setModelID( const eq::UUID& id );
 
     void setColorMode( const ColorMode color );
     void setRenderMode( const mesh::RenderMode mode );
@@ -69,7 +69,7 @@ public:
     void toggleRenderMode();
     void toggleCompression();
 
-    eq::uint128_t getModelID() const { return _modelID; }
+    eq::UUID getModelID() const { return _modelID; }
     ColorMode getColorMode() const { return _colorMode; }
     float getQuality() const { return _quality; }
     bool useOrtho() const { return _ortho; }
@@ -127,7 +127,7 @@ protected:
         DIRTY_CAMERA  = co::Serializable::DIRTY_CUSTOM << 0,
         DIRTY_FLAGS   = co::Serializable::DIRTY_CUSTOM << 1,
         DIRTY_VIEW    = co::Serializable::DIRTY_CUSTOM << 2,
-        DIRTY_MESSAGE = co::Serializable::DIRTY_CUSTOM << 3,
+        DIRTY_MESSAGE = co::Serializable::DIRTY_CUSTOM << 3
     };
 
 private:
@@ -135,7 +135,7 @@ private:
     eq::Matrix4f _modelRotation;
     eq::Vector3f _position;
 
-    eq::uint128_t _modelID;
+    eq::UUID         _modelID;
     mesh::RenderMode _renderMode;
     ColorMode        _colorMode;
     float            _quality;
