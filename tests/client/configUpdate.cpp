@@ -42,7 +42,7 @@ int main( const int argc, char** argv )
     {
         eq::Config* config = server->chooseConfig( configParams );
         TEST( config );
-        TEST( config->init( 0 ));
+        TEST( config->init( co::uint128_t( )));
 
         size_t nLoops = 0;
         const lunchbox::Clock clock;

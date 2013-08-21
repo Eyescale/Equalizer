@@ -598,8 +598,8 @@ private:
 
     /** Transmit one image of a frame to one node. */
     void _transmitImage( const co::ObjectVersion& frameDataVersion,
-                         const uint128_t& nodeID,
-                         const uint128_t& netNodeID,
+                         const UUID& nodeID,
+                         const co::NodeID& netNodeID,
                          const uint64_t imageIndex,
                          const uint32_t frameNumber,
                          const uint32_t taskID );
@@ -610,25 +610,25 @@ private:
                           const uint64_t imageIndex,
                           const uint32_t frameNumber,
                           const uint32_t taskID,
-                          const std::vector< uint128_t >& nodes,
-                          const std::vector< uint128_t >& netNodes );
+                          const std::vector< UUID >& nodes,
+                          const std::vector< co::NodeID >& netNodes );
 
     bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 
     void _asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
                          const uint64_t image,
-                         const std::vector<uint128_t>& nodes,
-                         const std::vector< uint128_t >& netNodes,
+                         const std::vector< UUID >& nodes,
+                         const std::vector< co::NodeID >& netNodes,
                          const uint32_t taskID );
 
     void _setReady( const bool async, detail::RBStat* stat );
     void _asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
-                         const std::vector< uint128_t >& nodes,
-                         const std::vector< uint128_t >& netNodes );
+                         const std::vector< UUID >& nodes,
+                         const std::vector< co::NodeID >& netNodes );
 
     void _setReady( FrameDataPtr frame, detail::RBStat* stat,
-                    const std::vector< uint128_t >& nodes,
-                    const std::vector< uint128_t >& netNodes );
+                    const std::vector< UUID >& nodes,
+                    const std::vector< co::NodeID >& netNodes );
 
     /** Get the channel's current input queue. */
     co::QueueSlave* _getQueue( const UUID& queueID );

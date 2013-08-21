@@ -61,7 +61,7 @@ namespace seqPly
         virtual seq::Renderer* createRenderer();
         virtual co::Object* createObject( const uint32_t type );
 
-        const Model* getModel( const eq::uint128_t& modelID );
+        const Model* getModel( const eq::UUID& modelID );
 
     private:
         FrameData _frameData;

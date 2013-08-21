@@ -43,7 +43,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
     Config* config = static_cast< Config* >( getConfig( ));
-    if( !isApplicationNode() && !config->loadInitData( initID ))
+    if( !isApplicationNode() && !config->loadInitData( eq::UUID( initID )))
     {
         sendError( ERROR_EVOLVE_MAPOBJECT_FAILED );
         return false;
