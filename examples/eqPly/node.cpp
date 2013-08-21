@@ -43,7 +43,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         return false;
 
     Config* config = static_cast< Config* >( getConfig( ));
-    if( !isApplicationNode() && !config->loadInitData( initID ))
+    if( !isApplicationNode() && !config->loadInitData( eq::UUID( initID )))
     {
         sendError( ERROR_EQPLY_MAPOBJECT_FAILED );
         return false;

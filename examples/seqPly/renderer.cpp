@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,7 +61,7 @@ void Renderer::draw( co::Object* frameDataObj )
 {
     const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
     Application& application = static_cast< Application& >( getApplication( ));
-    const eq::uint128_t id = frameData->getModelID();
+    const eq::UUID id = frameData->getModelID();
     const Model* model = application.getModel( id );
     if( !model )
         return;
@@ -93,7 +93,7 @@ void Renderer::draw( co::Object* frameDataObj )
     _state->setProjectionModelViewMatrix( pmv );
     _state->setRange( &context.range.start );
     _state->setColors( model->hasColors( ));
-    
+
     model->cullDraw( *_state );
 }
 

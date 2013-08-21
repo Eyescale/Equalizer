@@ -34,12 +34,12 @@
 namespace osgScaleViewer
 {
 
-void InitData::setFrameDataID( const eq::uint128_t& id )
+void InitData::setFrameDataID( const eq::UUID& id )
 {
     _frameDataID = id;
 }
 
-const eq::uint128_t& InitData::getFrameDataID() const
+const eq::UUID& InitData::getFrameDataID() const
 {
     return _frameDataID;
 }
@@ -102,7 +102,7 @@ std::string InitData::_parseCommandLineParam( int argc, char** argv,
     {
         if( strcmp( argv[i], param.c_str( )) == 0 )
         {
-	    ++i;
+            ++i;
             if( i < argc )
                 return argv[i];
         }

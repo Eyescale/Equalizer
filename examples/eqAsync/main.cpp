@@ -62,10 +62,10 @@ int main( const int argc, char** argv )
     if( config )
     {
         // 3. init config
-        if( config->init( 0 ))
+        if( config->init( co::uint128_t( )))
         {
             // 4. run main loop
-            eq::uint128_t spin = 0;
+            eq::uint128_t spin;
             while( config->isRunning( ))
             {
                 config->startFrame( ++spin );

@@ -50,7 +50,7 @@ namespace eqPly
 
         mesh::VertexBufferRoot* loadModel( co::NodePtr master,
                                            co::LocalNodePtr localNode,
-                                           const eq::uint128_t& modelID );
+                                           const eq::UUID& modelID );
 
     protected:
         VertexBufferDist( mesh::VertexBufferRoot* root,
