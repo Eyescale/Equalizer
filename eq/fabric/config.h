@@ -225,7 +225,7 @@ namespace fabric
         const co::NodeID& getAppNodeID() const { return _appNodeID; }
 
         /** @internal */
-        EQFABRIC_API EventOCommand sendError( co::NodePtr node,
+        EQFABRIC_INL EventOCommand sendError( co::NodePtr node,
                                               const uint32_t event,
                                               const uint128_t& originator,
                                               const uint32_t error );

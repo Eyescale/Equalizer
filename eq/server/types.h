@@ -23,7 +23,6 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/refPtr.h>
-#include <lunchbox/uuid.h>
 #include <vector>
 
 namespace eq

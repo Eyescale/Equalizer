@@ -24,6 +24,8 @@
 #include "../global.h"
 #include "../pipe.h"
 
+#include <boost/lexical_cast.hpp>
+
 namespace eq
 {
 namespace wgl
@@ -277,7 +279,7 @@ bool Pipe::_configInitWGLEW()
     }
     else
         sendError( ERROR_WGLPIPE_WGLEWINIT_FAILED )
-            << lexical_cast< std::string >( result );
+            << boost::lexical_cast< std::string >( result );
 
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );

@@ -212,7 +212,7 @@ void Config::notifyAttached()
 {
     fabric::Object::notifyAttached();
     LBASSERT( !_impl->appNode )
-    LBASSERT( getAppNodeID().isGenerated() )
+    LBASSERT( getAppNodeID().isUUID() )
     co::LocalNodePtr localNode = getLocalNode();
     _impl->appNode = localNode->connect( getAppNodeID( ));
     if( !_impl->appNode )
