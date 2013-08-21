@@ -41,11 +41,6 @@ else()
   set_target_properties(${GLEW_LIBRARY} PROPERTIES
                         FOLDER "Libraries" VERSION ${GLEW_VERSION})
 
-  if(EQ_GLX_USED)
-    add_definitions(-DGLEW_APPLE_GLX=1)
-  endif(EQ_GLX_USED)
-
   install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT dev)
   message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked statically to Equalizer.")
 endif()
-

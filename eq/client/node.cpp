@@ -42,6 +42,74 @@
 
 namespace eq
 {
+namespace
+{
+typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
+typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
+typedef FrameDataHash::const_iterator FrameDataHashCIter;
+typedef FrameDataHash::iterator FrameDataHashIter;
+
+enum State
+{
+    STATE_STOPPED,
+    STATE_INITIALIZING,
+    STATE_INIT_FAILED,
+    STATE_RUNNING,
+    STATE_FAILED
+};
+}
+
+namespace detail
+{
+class TransmitThread : public lunchbox::Thread
+{
+public:
+    TransmitThread( eq::Node* parent ) : _node( parent ) {}
+    virtual ~TransmitThread() {}
+
+    co::CommandQueue& getQueue() { return _queue; }
+
+protected:
+    virtual void run();
+
+private:
+    co::CommandQueue _queue;
+    eq::Node* const _node;
+};
+
+class Node
+{
+public:
+    Node( eq::Node* parent )
+        : state( STATE_STOPPED )
+        , finishedFrame( 0 )
+        , unlockedFrame( 0 )
+        , transmitter( parent )
+    {}
+
+    /** The configInit/configExit state. */
+    lunchbox::Monitor< State > state;
+
+    /** The number of the last started frame. */
+    lunchbox::Monitor< uint32_t > currentFrame;
+
+    /** The number of the last finished frame. */
+    uint32_t finishedFrame;
+
+    /** The number of the last locally released frame. */
+    uint32_t unlockedFrame;
+
+    /** All barriers mapped by the node. */
+    lunchbox::Lockable< BarrierHash > barriers;
+
+    /** All frame datas used by the node during rendering. */
+    lunchbox::Lockable< FrameDataHash > frameDatas;
+
+    TransmitThread transmitter;
+};
+
+}
+
 /** @cond IGNORE */
 typedef co::CommandFunc<Node> NodeFunc;
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
@@ -51,17 +119,16 @@ Node::Node( Config* parent )
         : Super( parent )
 #pragma warning(push)
 #pragma warning(disable: 4355)
-        , transmitter( this )
+        , impl_( new detail::Node( this ))
 #pragma warning(pop)
-        , _state( STATE_STOPPED )
-        , _finishedFrame( 0 )
-        , _unlockedFrame( 0 )
+
 {
 }
 
 Node::~Node()
 {
     LBASSERT( getPipes().empty( ));
+    delete impl_;
 }
 
 void Node::attach( const UUID& id, const uint32_t instanceID )
@@ -70,7 +137,7 @@ void Node::attach( const UUID& id, const uint32_t instanceID )
 
     co::CommandQueue* queue = getMainThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
-    co::CommandQueue* transmitQ = &transmitter.getQueue();
+    co::CommandQueue* transmitQ = getTransmitterQueue();
 
     registerCommand( fabric::CMD_NODE_CREATE_PIPE,
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
@@ -127,10 +194,25 @@ co::CommandQueue* Node::getCommandThreadQueue()
     return getConfig()->getCommandThreadQueue();
 }
 
+co::CommandQueue* Node::getTransmitterQueue()
+{
+    return &impl_->transmitter.getQueue();
+}
+
+uint32_t Node::getCurrentFrame() const
+{
+    return impl_->currentFrame.get();
+}
+
+uint32_t Node::getFinishedFrame() const
+{
+    return impl_->finishedFrame;
+}
+
 co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
 {
-    lunchbox::ScopedMutex<> mutex( _barriers );
-    co::Barrier* netBarrier = _barriers.data[ barrier.identifier ];
+    lunchbox::ScopedMutex<> mutex( impl_->barriers );
+    co::Barrier* netBarrier = impl_->barriers.data[ barrier.identifier ];
 
     if( netBarrier )
         netBarrier->sync( barrier.version );
@@ -141,7 +223,7 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
         netBarrier = new co::Barrier;
         LBCHECK( client->mapObject( netBarrier, barrier ));
 
-        _barriers.data[ barrier.identifier ] = netBarrier;
+        impl_->barriers.data[ barrier.identifier ] = netBarrier;
     }
 
     return netBarrier;
@@ -149,14 +231,14 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
 
 FrameDataPtr Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
-    lunchbox::ScopedWrite mutex( _frameDatas );
-    FrameDataPtr data = _frameDatas.data[ frameDataVersion.identifier ];
+    lunchbox::ScopedWrite mutex( impl_->frameDatas );
+    FrameDataPtr data = impl_->frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
     {
         data = new FrameData;
         data->setID( frameDataVersion.identifier );
-        _frameDatas.data[ frameDataVersion.identifier ] = data;
+        impl_->frameDatas.data[ frameDataVersion.identifier ] = data;
     }
 
     LBASSERT( frameDataVersion.version.high() == 0 );
@@ -166,28 +248,28 @@ FrameDataPtr Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 
 void Node::releaseFrameData( FrameDataPtr data )
 {
-    lunchbox::ScopedWrite mutex( _frameDatas );
-    FrameDataHashIter i = _frameDatas->find( data->getID( ));
-    LBASSERT( i != _frameDatas->end( ));
-    if( i == _frameDatas->end( ))
+    lunchbox::ScopedWrite mutex( impl_->frameDatas );
+    FrameDataHashIter i = impl_->frameDatas->find( data->getID( ));
+    LBASSERT( i != impl_->frameDatas->end( ));
+    if( i == impl_->frameDatas->end( ))
         return;
 
-    _frameDatas->erase( i );
+    impl_->frameDatas->erase( i );
 }
 
 void Node::waitInitialized() const
 {
-    _state.waitGE( STATE_INIT_FAILED );
+    impl_->state.waitGE( STATE_INIT_FAILED );
 }
 
 bool Node::isRunning() const
 {
-    return (_state == STATE_RUNNING);
+    return impl_->state == STATE_RUNNING;
 }
 
 bool Node::isStopped() const
 {
-    return (_state == STATE_STOPPED);
+    return impl_->state == STATE_STOPPED;
 }
 
 bool Node::configInit( const uint128_t& )
@@ -227,12 +309,12 @@ void Node::_setAffinity()
 
 void Node::waitFrameStarted( const uint32_t frameNumber ) const
 {
-    _currentFrame.waitGE( frameNumber );
+    impl_->currentFrame.waitGE( frameNumber );
 }
 
 void Node::startFrame( const uint32_t frameNumber )
 {
-    _currentFrame = frameNumber;
+    impl_->currentFrame = frameNumber;
 }
 
 void Node::frameFinish( const uint128_t&, const uint32_t frameNumber )
@@ -260,14 +342,14 @@ void Node::_frameFinish( const uint128_t& frameID,
     LBLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber
                        << std::endl;
 
-    if( _unlockedFrame < frameNumber )
+    if( impl_->unlockedFrame < frameNumber )
     {
         LBWARN << "Finished frame was not locally unlocked, enforcing unlock"
                << std::endl;
         releaseFrameLocal( frameNumber );
     }
 
-    if( _finishedFrame < frameNumber )
+    if( impl_->finishedFrame < frameNumber )
     {
         LBWARN << "Finished frame was not released, enforcing unlock"
                << std::endl;
@@ -277,12 +359,13 @@ void Node::_frameFinish( const uint128_t& frameID,
 
 void Node::releaseFrame( const uint32_t frameNumber )
 {
-    LBASSERTINFO( _currentFrame >= frameNumber,
-                  "current " << _currentFrame << " release " << frameNumber );
+    LBASSERTINFO( impl_->currentFrame >= frameNumber,
+                  "current " << impl_->currentFrame << " release " <<
+                  frameNumber );
 
-    if( _finishedFrame >= frameNumber )
+    if( impl_->finishedFrame >= frameNumber )
         return;
-    _finishedFrame = frameNumber;
+    impl_->finishedFrame = frameNumber;
 
     Config* config = getConfig();
     ServerPtr server = config->getServer();
@@ -292,15 +375,15 @@ void Node::releaseFrame( const uint32_t frameNumber )
 
 void Node::releaseFrameLocal( const uint32_t frameNumber )
 {
-    LBASSERT( _unlockedFrame <= frameNumber );
-    _unlockedFrame = frameNumber;
+    LBASSERT( impl_->unlockedFrame <= frameNumber );
+    impl_->unlockedFrame = frameNumber;
 
     Config* config = getConfig();
     LBASSERT( config->getNodes().size() == 1 );
     LBASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
 
-    LBLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
+    LBLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << impl_->unlockedFrame
                        << std::endl;
 }
 
@@ -394,29 +477,29 @@ void Node::_flushObjects()
 {
     ClientPtr client = getClient();
     {
-        lunchbox::ScopedMutex<> mutex( _barriers );
-        for( BarrierHash::const_iterator i =_barriers->begin();
-             i != _barriers->end(); ++ i )
+        lunchbox::ScopedMutex<> mutex( impl_->barriers );
+        for( BarrierHash::const_iterator i = impl_->barriers->begin();
+             i != impl_->barriers->end(); ++ i )
         {
             co::Barrier* barrier = i->second;
             client->unmapObject( barrier );
             delete barrier;
         }
-        _barriers->clear();
+        impl_->barriers->clear();
     }
 
-    lunchbox::ScopedMutex<> mutex( _frameDatas );
-    for( FrameDataHashCIter i = _frameDatas->begin();
-         i != _frameDatas->end(); ++i )
+    lunchbox::ScopedMutex<> mutex( impl_->frameDatas );
+    for( FrameDataHashCIter i = impl_->frameDatas->begin();
+         i != impl_->frameDatas->end(); ++i )
     {
         FrameDataPtr frameData = i->second;
         frameData->resetPlugins();
         client->unmapObject( frameData.get( ));
     }
-    _frameDatas->clear();
+    impl_->frameDatas->clear();
 }
 
-void Node::TransmitThread::run()
+void detail::TransmitThread::run()
 {
     lunchbox::Thread::setName( std::string( "Trm " ) +
                                lunchbox::className( _node ));
@@ -438,8 +521,8 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    transmitter.getQueue().push( co::ICommand( )); // wake up to exit
-    transmitter.join();
+    getTransmitterQueue()->push( co::ICommand( )); // wake up to exit
+    impl_->transmitter.join();
 }
 
 //---------------------------------------------------------------------------
@@ -448,7 +531,7 @@ void Node::dirtyClientExit()
 bool Node::_cmdCreatePipe( co::ICommand& cmd )
 {
     LB_TS_THREAD( _nodeThread );
-    LBASSERT( _state >= STATE_INIT_FAILED );
+    LBASSERT( impl_->state >= STATE_INIT_FAILED );
 
     co::ObjectICommand command( cmd );
     const UUID pipeID = command.get< UUID >();
@@ -496,23 +579,23 @@ bool Node::_cmdConfigInit( co::ICommand& cmd )
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Init node " << command << std::endl;
 
-    _state = STATE_INITIALIZING;
+    impl_->state = STATE_INITIALIZING;
 
     const uint128_t initID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
-    _currentFrame  = frameNumber;
-    _unlockedFrame = frameNumber;
-    _finishedFrame = frameNumber;
+    impl_->currentFrame  = frameNumber;
+    impl_->unlockedFrame = frameNumber;
+    impl_->finishedFrame = frameNumber;
     _setAffinity();
 
-    transmitter.start();
+    impl_->transmitter.start();
     const uint64_t result = configInit( initID );
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
 
-    _state = result ? STATE_RUNNING : STATE_INIT_FAILED;
+    impl_->state = result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     commit();
     send( command.getNode(), fabric::CMD_NODE_CONFIG_INIT_REPLY ) << result;
@@ -533,9 +616,9 @@ bool Node::_cmdConfigExit( co::ICommand& cmd )
         pipe->waitExited();
     }
 
-    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.getQueue().push( co::ICommand( )); // wake up to exit
-    transmitter.join();
+    impl_->state = configExit() ? STATE_STOPPED : STATE_FAILED;
+    getTransmitterQueue()->push( co::ICommand( )); // wake up to exit
+    impl_->transmitter.join();
     _flushObjects();
 
     getConfig()->send( getLocalNode(),
@@ -556,7 +639,7 @@ bool Node::_cmdFrameStart( co::ICommand& cmd )
     LBVERB << "handle node frame start " << command << " frame " << frameNumber
            << " id " << frameID << std::endl;
 
-    LBASSERT( _currentFrame == frameNumber-1 );
+    LBASSERT( impl_->currentFrame == frameNumber-1 );
 
     LBLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
@@ -570,7 +653,7 @@ bool Node::_cmdFrameStart( co::ICommand& cmd )
     config->_frameStart();
     frameStart( frameID, frameNumber );
 
-    LBASSERTINFO( _currentFrame >= frameNumber,
+    LBASSERTINFO( impl_->currentFrame >= frameNumber,
                   "Node::frameStart() did not start frame " << frameNumber );
     return true;
 }

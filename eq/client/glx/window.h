@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -42,8 +42,11 @@ namespace glx
         /** @return X11 display connection. @version 1.0 */
         virtual Display* getXDisplay() = 0;
 
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Woverloaded-virtual"
         /** Process the given event. @version 1.5.1 */
         EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
+#  pragma clang diagnostic pop
     };
 
     /** Equalizer default implementation of a glX window */
@@ -66,13 +69,13 @@ namespace glx
 
         /** @name GLX/X11 initialization */
         //@{
-        /** 
+        /**
          * Initialize this window for the glX window system.
          *
          * This method first call chooseGLXFBConfig(), then createGLXContext()
          * with the chosen framebuffer config, and finally creates a drawable
          * using configInitGLXDrawable().
-         * 
+         *
          * @return true if the initialization was successful, false otherwise.
          * @version 1.0
          */
@@ -81,19 +84,19 @@ namespace glx
         /** @version 1.0 */
         virtual void configExit();
 
-        /** 
+        /**
          * Choose a GLX framebuffer config based on the window's attributes.
-         * 
+         *
          * The returned FB config has to be freed using XFree().
-         *  
+         *
          * @return a pixel format, or 0 if no pixel format was found.
          * @version 1.0
          */
         virtual GLXFBConfig* chooseGLXFBConfig();
 
-        /** 
+        /**
          * Create a glX context.
-         * 
+         *
          * This method does not set the window's glX context.
          *
          * @param fbConfig the framebuffer config for the context.
@@ -102,34 +105,34 @@ namespace glx
          */
         virtual GLXContext createGLXContext( GLXFBConfig* fbConfig );
 
-        /** 
+        /**
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
          * bind the glX context.
          *
          * Sets the window's X11 drawable on success
-         * 
+         *
          * @param fbConfig the framebuffer config for the context.
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
         virtual bool configInitGLXDrawable( GLXFBConfig* fbConfig );
-        
-        /** 
+
+        /**
          * Initialize the window with a window and bind the glX context.
          *
          * Sets the window's X11 drawable on success
-         * 
+         *
          * @param fbConfig the framebuffer config for the context.
          * @return true if the window was created, false otherwise.
          * @version 1.0
          */
         virtual bool configInitGLXWindow( GLXFBConfig* fbConfig );
 
-        /** 
+        /**
          * Initialize the window with a PBuffer and bind the glX context.
          *
          * Sets the window's X11 drawable on success
-         * 
+         *
          * @param fbConfig the framebuffer config for the context.
          * @return true if the PBuffer was created, false otherwise.
          * @version 1.0
@@ -163,10 +166,10 @@ namespace glx
         /** @return the GLXEW context. @version 1.0*/
         GLXEWContext* glxewGetContext() { return _glxewContext; }
 
-        /** 
+        /**
          * Set the X11 drawable ID for this window.
-         * 
-         * This function should only be called from configInit() or 
+         *
+         * This function should only be called from configInit() or
          * configExit().
          *
          * @param drawable the X11 drawable ID.
@@ -174,9 +177,9 @@ namespace glx
          */
         virtual void setXDrawable( XID drawable );
 
-        /** 
+        /**
          * Set the glX rendering context for this window.
-         * 
+         *
          * This function should only be called from configInit() or
          * configExit().
          * The context has to be set to 0 before it is destroyed.
@@ -234,4 +237,3 @@ namespace glx
 }
 }
 #endif // EQ_GLX_OS_WINDOW_H
-

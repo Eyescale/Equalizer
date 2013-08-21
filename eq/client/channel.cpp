@@ -98,7 +98,7 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
     co::CommandQueue* queue = getPipeThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
-    co::CommandQueue* tmitQ = &getNode()->transmitter.getQueue();
+    co::CommandQueue* tmitQ = getNode()->getTransmitterQueue();
     co::CommandQueue* transferQ = getPipe()->getTransferThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT,

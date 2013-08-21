@@ -6,27 +6,29 @@
 # CMakeLists.txt:
 #   project(Foo)
 #   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-#   if(NOT BUILDYARD)
-#     include(Buildyard)
+#   include(Buildyard)
+#   if(BUILDYARD_STOP)
 #     return()
 #   endif()
 #   ...
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(BUILDYARD)
-  message(FATAL_ERROR "Running from within Buildyard, don't use me here")
+  # Running from within Buildyard, no need for me
+  return()
 endif()
 
-if(RELEASE_VERSION)
-  option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" ON)
-else()
-  option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" OFF)
-endif()
-
+option(DISABLE_BUILDYARD "Disable bootstrapping using Buildyard" OFF)
 if(DISABLE_BUILDYARD)
   return()
 endif()
 
+include(FindRequired)
+if(FOUND_REQUIRED)
+  return()
+endif()
+
+message(STATUS "Bootstrap Buildyard for missing${FIND_REQUIRED_FAILED}")
 include(GitExternal)
 include(UpdateFile)
 
@@ -46,3 +48,4 @@ if(MSVC)
 else()
   message(STATUS "Use 'make -jN' to bootstrap and 'make -jN AllBuild' after bootstrap\n")
 endif()
+set(BUILDYARD_STOP TRUE)
