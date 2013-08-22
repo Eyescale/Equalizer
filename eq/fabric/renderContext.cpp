@@ -28,7 +28,7 @@ RenderContext::RenderContext()
         , ortho( Frustumf::DEFAULT )
         , headTransform( Matrix4f::IDENTITY )
         , orthoTransform( Matrix4f::IDENTITY )
-        , frameID( 0ul )
+        , frameID( 0 )
         , overdraw( Vector4i::ZERO )
         , offset( Vector2i::ZERO )
         , buffer( 0x0405 ) // GL_BACK
