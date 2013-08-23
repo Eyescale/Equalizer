@@ -51,60 +51,53 @@ if(DOXYGIT_PROJECT_EXTRA)
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "<th>Status</th>")
 endif()
 
+macro(DOXYGIT_WRITE_ROW)
+  # start row
+  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
+    "    <tr><th><a href=\"https://github.com/${CMAKE_PROJECT_NAME}/${LAST_PROJECT}\">${LAST_PROJECT}</a></th>${CONTENT}")
+
+  # fill unused versions
+  math(EXPR FILL_VERSIONS "${MAX_VERSIONS} - ${VERSIONS}")
+  if(FILL_VERSIONS)
+    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
+      "<th colspan=\"${FILL_VERSIONS}\"></th>")
+  endif()
+
+  # CI status
+  if(DOXYGIT_PROJECT_EXTRA AND LAST_PROJECT)
+    string(REPLACE "[PROJECT]" "${LAST_PROJECT}" DOXYGIT_PROJECT_EXTRA_
+      ${DOXYGIT_PROJECT_EXTRA})
+    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
+      "<th>${DOXYGIT_PROJECT_EXTRA_}</th>")
+  endif()
+
+  # finish row
+  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "</tr>\n")
+endmacro()
+
 foreach(ENTRY ${ENTRIES})
   string(REGEX REPLACE "^(.+)-.+$" "\\1" PROJECT ${ENTRY})
   string(REGEX REPLACE "^.+-(.+)$" "\\1" VERSION ${ENTRY})
 
   if(NOT PROJECT STREQUAL LAST_PROJECT) # finish and start new table row
     if(LAST_PROJECT)
-      # fill unused versions
-      math(EXPR FILL_VERSIONS "${MAX_VERSIONS} - ${VERSIONS}")
-      if(FILL_VERSIONS)
-        file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-          "<th colspan=\"${FILL_VERSIONS}\"></th>")
-      endif()
-
-      # CI status
-      if(DOXYGIT_PROJECT_EXTRA AND LAST_PROJECT)
-        string(REPLACE "[PROJECT]" "${LAST_PROJECT}" DOXYGIT_PROJECT_EXTRA_
-          ${DOXYGIT_PROJECT_EXTRA})
-        file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-          "<th>${DOXYGIT_PROJECT_EXTRA_}</th>")
-      endif()
+      doxygit_write_row()
     endif()
-
-    # next row
-    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-      "</tr>\n"
-      "    <tr><th><a href=\"https://github.com/${CMAKE_PROJECT_NAME}/${PROJECT}\">${PROJECT}</a></th>")
-
+    # reset
     set(VERSIONS 0)
     set(LAST_PROJECT ${PROJECT})
+    set(CONTENT)
   endif()
 
   math(EXPR VERSIONS "${VERSIONS} + 1")
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-    "<td><a href=\"${ENTRY}/index.html\">${VERSION}</a></td>")
+  set(CONTENT
+    "<td><a href=\"${ENTRY}/index.html\">${VERSION}</a></td>${CONTENT}")
   list(APPEND GIT_DOCUMENTATION_INSTALL ${ENTRY})
 endforeach()
 
-# fill unused versions
-math(EXPR FILL_VERSIONS "${MAX_VERSIONS} - ${VERSIONS}")
-if(FILL_VERSIONS)
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-    "<th colspan=\"${FILL_VERSIONS}\"></th>")
-endif()
-
-# CI status
-if(DOXYGIT_PROJECT_EXTRA AND LAST_PROJECT)
-  string(REPLACE "[PROJECT]" "${LAST_PROJECT}" DOXYGIT_PROJECT_EXTRA_
-    ${DOXYGIT_PROJECT_EXTRA})
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-    "<th>${DOXYGIT_PROJECT_EXTRA_}</th>")
-endif()
+doxygit_write_row()
 
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
-"</tr>\n"
 "  </table>\n"
 "  <h1>Project Dependencies</h1>"
 "  <a href=\"images/all.png\"><img src=\"images/all.png\" width=100%></a>"
