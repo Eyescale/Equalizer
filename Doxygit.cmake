@@ -48,7 +48,7 @@ set(VERSIONS 0)
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
   "    <tr><th>Project</th><th colspan=\"${MAX_VERSIONS}\">Versions</th>")
 if(DOXYGIT_PROJECT_EXTRA)
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "<th>Status</th></tr>")
+  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html" "<th>Status</th></tr>\n")
 endif()
 
 macro(DOXYGIT_WRITE_ROW)
