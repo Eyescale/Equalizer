@@ -22,7 +22,10 @@
 #include "../pipe.h"
 #include "../view.h"
 #include "../windowSystem.h"
+
 #include <eq/fabric/drawableConfig.h>
+#include <eq/util/objectManager.h>
+#include <eq/util/texture.h>
 
 #include <dcStream.h>
 #include <GL/gl.h>
@@ -43,6 +46,7 @@ public:
         , _buffer( 0 )
         , _size( 0 )
         , _isRunning( false )
+        , _texture( GL_TEXTURE_RECTANGLE_ARB, channel->getObjectManager().glewGetContext( ))
     {
         const DrawableConfig& dc = channel->getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -91,9 +95,8 @@ public:
             _size = newSize;
         }
 
-        glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        glReadPixels( pvp.x, pvp.y, pvp.w, pvp.h, GL_RGBA, GL_UNSIGNED_BYTE,
-                      _buffer );
+        _texture.copyFromFrameBuffer( GL_RGBA, pvp );
+        _texture.download( _buffer );
 
         const Viewport& vp = _channel->getViewport();
         const int32_t width = pvp.w / vp.w;
@@ -116,6 +119,7 @@ public:
     unsigned char* _buffer;
     size_t _size;
     bool _isRunning;
+    util::Texture _texture;
 };
 }
 
