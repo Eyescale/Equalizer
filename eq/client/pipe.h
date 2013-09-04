@@ -146,6 +146,9 @@ namespace detail { class Pipe; class RenderThread; class ThreadAffinityVisitor; 
          */
         EQ_API void waitFrameFinished( const uint32_t frameNumber ) const;
 
+		/** @internal terminate frames for client exit. */
+        void terminateAllFrames() const;
+
         /**
          * @internal
          * Wait for a frame to be released locally.

@@ -374,6 +374,11 @@ void Channel::waitFrameFinished( const uint32_t frame ) const
     _impl->finishedFrame.waitGE( frame );
 }
 
+void Channel::terminateAllFrames()
+{
+    _impl->finishedFrame = LB_UNDEFINED_UINT32;
+}
+
 void Channel::frameClear( const uint128_t& )
 {
     resetRegions();

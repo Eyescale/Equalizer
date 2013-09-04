@@ -423,6 +423,7 @@ void Node::dirtyClientExit()
     for( PipesCIter i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
+        pipe->terminateAllFrames();
         pipe->cancelThread();
     }
     transmitter.getQueue().push( co::ICommand( )); // wake up to exit

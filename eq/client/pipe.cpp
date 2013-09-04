@@ -732,6 +732,16 @@ public:
 private:
     const uint32_t _frame;
 };
+
+class TerminateFrameVisitor : public PipeVisitor
+{
+public:
+    virtual VisitorResult visit( Channel* channel )
+    {
+        channel->terminateAllFrames();
+        return TRAVERSE_CONTINUE;
+    }
+};
 }
 
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
@@ -739,6 +749,12 @@ void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
     _impl->finishedFrame.waitGE( frameNumber );
     WaitFinishedVisitor waiter( frameNumber );
     accept( waiter );
+}
+
+void Pipe::terminateAllFrames() const
+{
+    TerminateFrameVisitor terminator;
+    accept( terminator );
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
