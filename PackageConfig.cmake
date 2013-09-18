@@ -195,11 +195,15 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     set(_FIND_VERSION)
   endif()
   list(APPEND DEPENDENTS
+    "set(_library_backups \${${${_dependent}_name}_LIBRARIES})\n"
     "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
-    "if(${${_dependent}_name}_FOUND)\n")
+    "if(${${_dependent}_name}_FOUND)\n"
+    "list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
+    "list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
+    )
   if(_FIND_VERSION)
     list(APPEND DEPENDENTS
-      "  if(\"${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
+      "  if(\"\${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
       "    if(CMAKE_MATCH_1 VERSION_GREATER ${_FIND_VERSION})\n"
       "      message(FATAL_ERROR \"${${_dependent}_name} ${${${_dependent}_name}_VERSION} not compatible with ${_FIND_VERSION}\")\n"
       "    endif()\n"
