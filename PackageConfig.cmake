@@ -199,7 +199,9 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
     "if(${${_dependent}_name}_FOUND)\n"
     "list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
-    "list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
+    "if(${${_dependent}_name}_LIBRARIES)\n"
+    "  list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
+    "endif()\n"
     )
   if(_FIND_VERSION)
     list(APPEND DEPENDENTS
