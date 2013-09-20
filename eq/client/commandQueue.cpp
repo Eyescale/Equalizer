@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,9 +30,10 @@ namespace
 static lunchbox::Clock _clock;
 }
 
-CommandQueue::CommandQueue()
-        : _messagePump( 0 )
-        , _waitTime( 0 )
+CommandQueue::CommandQueue( const size_t maxSize )
+    : co::CommandQueue( maxSize )
+    , _messagePump( 0 )
+    , _waitTime( 0 )
 {}
 
 CommandQueue::~CommandQueue()

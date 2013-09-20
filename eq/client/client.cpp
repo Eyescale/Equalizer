@@ -53,7 +53,8 @@ class Client
 {
 public:
     Client()
-        : running( false )
+        : queue( co::Global::getCommandQueueLimit( ))
+        , running( false )
         , modelUnit( EQ_UNDEFINED_UNIT )
     {}
 
