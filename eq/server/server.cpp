@@ -64,6 +64,7 @@ typedef fabric::Server< co::Node, Server, Config, NodeFactory, co::LocalNode,
 
 Server::Server()
         : Super( &_nf )
+        , _mainThreadQueue( co::Global::getCommandQueueLimit( ))
         , _running( false )
 {
     lunchbox::Log::setClock( &_clock );

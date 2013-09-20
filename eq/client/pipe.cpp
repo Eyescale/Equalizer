@@ -47,6 +47,7 @@
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/task.h>
 
+#include <co/global.h>
 #include <co/objectICommand.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
@@ -93,7 +94,10 @@ namespace detail
 class RenderThread : public eq::Worker
 {
 public:
-    RenderThread( eq::Pipe* pipe ) : _pipe( pipe ) {}
+    RenderThread( eq::Pipe* pipe )
+        : eq::Worker( co::Global::getCommandQueueLimit( ))
+        , _pipe( pipe )
+    {}
 
 protected:
     virtual void run();
@@ -109,7 +113,10 @@ private:
 class TransferThread : public co::Worker
 {
 public:
-    TransferThread() : co::Worker(), _running( true ){}
+    TransferThread()
+        : co::Worker( co::Global::getCommandQueueLimit( ))
+        , _running( true )
+    {}
 
     virtual bool init()
         {

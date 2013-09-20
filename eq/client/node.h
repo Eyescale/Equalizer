@@ -26,6 +26,7 @@
 
 #include <co/commandQueue.h>
 #include <co/types.h>
+#include <co/global.h>
 #include <lunchbox/monitor.h>          // member
 #include <lunchbox/mtQueue.h>          // member
 
@@ -122,7 +123,7 @@ namespace eq
         class TransmitThread : public lunchbox::Thread
         {
         public:
-            TransmitThread( Node* parent ) : _node( parent ) {}
+			TransmitThread ( Node* parent ) : _queue( co::Global::getCommandQueueLimit( ) ), _node( parent ) {}
             virtual ~TransmitThread() {}
 
             co::CommandQueue& getQueue() { return _queue; }
@@ -255,7 +256,7 @@ namespace eq
         EQ_API virtual void frameTasksFinish( const uint128_t& frameID, 
                                               const uint32_t frameNumber );
         //@}
-
+		//TransmitThread transmitter;
     private:
         enum State
         {

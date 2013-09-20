@@ -100,10 +100,11 @@ class Config
 {
 public:
     Config()
-            : currentFrame( 0 )
-            , unlockedFrame( 0 )
-            , finishedFrame( 0 )
-            , running( false )
+        : eventQueue( co::Global::getCommandQueueLimit( ))
+        , currentFrame( 0 )
+        , unlockedFrame( 0 )
+        , finishedFrame( 0 )
+        , running( false )
     {
         lunchbox::Log::setClock( &clock );
     }

@@ -47,6 +47,7 @@ typedef co::CommandFunc<Node> NodeFunc;
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 /** @endcond */
 
+
 Node::Node( Config* parent )
         : Super( parent )
 #pragma warning(push)
@@ -58,6 +59,8 @@ Node::Node( Config* parent )
         , _unlockedFrame( 0 )
 {
 }
+
+
 
 Node::~Node()
 {
