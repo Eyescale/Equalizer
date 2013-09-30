@@ -37,6 +37,7 @@
 
 #include <co/barrier.h>
 #include <co/connection.h>
+#include <co/global.h>
 #include <co/objectICommand.h>
 #include <lunchbox/scopedMutex.h>
 
@@ -64,7 +65,10 @@ namespace detail
 class TransmitThread : public lunchbox::Thread
 {
 public:
-    TransmitThread( eq::Node* parent ) : _node( parent ) {}
+    TransmitThread( eq::Node* parent )
+        : _queue( co::Global::getCommandQueueLimit( ))
+        , _node( parent )
+    {}
     virtual ~TransmitThread() {}
 
     co::CommandQueue& getQueue() { return _queue; }
