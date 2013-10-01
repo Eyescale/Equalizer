@@ -109,8 +109,8 @@ public:
                                             offsX, offsY, pvp.w, pvp.h,
                                             width, height );
         dcStreamIncrementFrameIndex();
-        _isRunning = dcStreamSend( _dcSocket, _buffer, offsX, offsY, pvp.w, 0,
-                                   pvp.h, RGBA, parameters );
+        _isRunning = dcStreamSend( _dcSocket, _buffer, _size, offsX, offsY,
+                                   pvp.w, 0, pvp.h, RGBA, parameters );
     }
 
     DcSocket* _dcSocket;
