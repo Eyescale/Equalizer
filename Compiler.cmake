@@ -14,7 +14,8 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_COMPILER_IS_GNUCXX_PURE ON)
 endif()
 
-set(COMMON_GCC_FLAGS "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter")
+set(COMMON_GCC_FLAGS
+  "-Wall -Wextra -Winvalid-pch -Winit-self -Wno-unknown-pragmas")
 
 # GCC (+clang)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
