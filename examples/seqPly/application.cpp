@@ -99,11 +99,13 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
                             eq::Version::getString( ));
     TCLAP::ValueArg<std::string> modelArg( "m", "model", "ply model file name",
                                            false, "", "string", command );
-    TCLAP::VariableSwitchArg ignoreEqArgs( "eq", "Ignored Equalizer options",
-                                           command );
     TCLAP::UnlabeledMultiArg< std::string >
         ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
                     command );
+
+#ifdef TCPLAP_HAS_IGNOREUNMATCHED
+    command.ignoreUnmatched( true );
+#endif
     command.parse( argc, argv );
 
     eq::Strings filenames;

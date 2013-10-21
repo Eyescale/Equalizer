@@ -104,13 +104,13 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                    command, false );
         TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
                                             false, "auto", "string", command );
-        TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
-                                               "Ignored Equalizer options",
-                                               command );
         TCLAP::UnlabeledMultiArg< std::string >
             ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
                         command );
 
+#ifdef TCPLAP_HAS_IGNOREUNMATCHED
+        command.ignoreUnmatched( true );
+#endif
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
