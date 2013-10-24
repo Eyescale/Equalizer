@@ -20,7 +20,7 @@ find_path(LibJpegTurbo_INCLUDE_DIR
 
 # Finally the library itself
 find_library(LibJpegTurbo_LIBRARY
-  NAMES turbojpeg
+  NAMES libturbojpeg.so turbojpeg.dll libturbojpeg.dylib
   PATHS ${LibJpegTurbo_PKGCONF_LIBRARY_DIRS} /opt/libjpeg-turbo/lib
 )
 
