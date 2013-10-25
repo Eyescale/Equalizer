@@ -215,7 +215,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
-    "  set(_fail TRUE)\n"
+    "  set(_fail \"${_dependent} not found\")\n"
     "endif()\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
