@@ -6,7 +6,7 @@ include(Revision)
 
 if(GIT_ROOT_URL)
   set(_git_origin_url ${GIT_ROOT_URL})
-elif(GIT_ORIGIN_URL)
+elseif(GIT_ORIGIN_URL)
   set(_git_origin_url ${GIT_ORIGIN_URL})
 endif()
 
