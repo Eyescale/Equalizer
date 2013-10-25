@@ -172,11 +172,10 @@ set(DEPENDENTS
   "endif()\n\n"
 )
 foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
+  string(TOUPPER ${_dependent} _DEPENDENT)
   if(${_dependent}_FOUND)
     set(${_dependent}_name ${_dependent})
-  endif()
-  string(TOUPPER ${_dependent} _DEPENDENT)
-  if(${_DEPENDENT}_FOUND)
+  elseif(${_DEPENDENT}_FOUND)
     set(${_dependent}_name ${_DEPENDENT})
   endif()
   if(NOT ${_dependent}_name)
@@ -198,10 +197,10 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "set(_library_backups \${${${_dependent}_name}_LIBRARIES})\n"
     "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
     "if(${${_dependent}_name}_FOUND)\n"
-    "list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
-    "if(${${_dependent}_name}_LIBRARIES)\n"
-    "  list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
-    "endif()\n"
+    "  list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
+    "  if(${${_dependent}_name}_LIBRARIES)\n"
+    "    list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
+    "  endif()\n"
     )
   if(_FIND_VERSION)
     list(APPEND DEPENDENTS
@@ -215,7 +214,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
-    "  set(_fail TRUE)\n"
+    "  set(_fail \"${_dependent} not found\")\n"
     "endif()\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})
