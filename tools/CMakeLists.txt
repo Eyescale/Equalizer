@@ -77,7 +77,7 @@ eq_add_tool(eVolveConverter
 
 eq_add_tool(eqWindowAdmin
   SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES EqualizerAdmin
+  LINK_LIBRARIES EqualizerAdmin ${LUNCHBOX_LIBRARIES}
   )
 
 eq_add_tool(eqServer
