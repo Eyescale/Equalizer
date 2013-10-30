@@ -120,6 +120,12 @@ namespace server
             { _channelIAttributes[attr] = value; }
         int32_t getChannelIAttribute( const Channel::IAttribute attr ) const
             { return _channelIAttributes[attr]; }
+
+        void setChannelSAttribute( const Channel::SAttribute attr,
+                                   const std::string& value )
+            { _channelSAttributes[attr] = value; }
+        const std::string& getChannelSAttribute( const Channel::SAttribute attr) const
+            { return _channelSAttributes[attr]; }
         //@}
 
         /** @name Compound Attributes. */  
@@ -149,6 +155,7 @@ namespace server
         int32_t     _windowIAttributes[Window::IATTR_ALL];
 
         int32_t     _channelIAttributes[Channel::IATTR_ALL];
+        std::string _channelSAttributes[Channel::SATTR_ALL];
         
         int32_t     _compoundIAttributes[Compound::IATTR_ALL];
 

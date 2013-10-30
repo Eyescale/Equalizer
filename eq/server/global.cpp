@@ -122,6 +122,7 @@ void Global::_setupDefaults()
     _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = fabric::NICEST;
 #endif
     _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = fabric::OFF;
+    _channelSAttributes[Channel::SATTR_DUMP_IMAGE_PREFIX] = "";
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
@@ -221,6 +222,16 @@ void Global::_readEnvironment()
         
         if( envValue )
             _channelIAttributes[i] = atol( envValue );
+    }
+    for( uint32_t i=0; i < Channel::SATTR_LAST; ++i )
+    {
+        const std::string& name = Channel::getSAttributeString(
+            (Channel::SAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+
+        if( envValue ){
+            _channelSAttributes[i] = envValue;
+        }
     }
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
     {
@@ -376,6 +387,18 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             static_cast<Channel::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
+    }
+
+    for( uint32_t i=0; i<Channel::SATTR_ALL; ++i )
+    {
+        const std::string value = global->_channelSAttributes[i];
+        if( value == reference._channelSAttributes[i] )
+            continue;
+
+        const std::string& name = Channel::getSAttributeString(
+            static_cast<Channel::SAttribute>( i ));
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "\"" << value << "\"" << std::endl;
     }
 
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +35,11 @@ namespace
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CHANNEL_") + #attr )
 static std::string _iAttributeStrings[] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
-    MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN ),
+    MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN )
+};
+
+static std::string _sAttributeStrings[] = {
+    MAKE_ATTR_STRING( SATTR_DUMP_IMAGE_PREFIX )
 };
 }
 
@@ -63,6 +68,8 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
+    for( int i = 0; i < SATTR_ALL; ++i )
+        _sAttributes[i] = from._sAttributes[i];
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
@@ -115,7 +122,8 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
               getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os << co::Array< int32_t >( _iAttributes, IATTR_ALL );
+        os << co::Array< int32_t >( _iAttributes, IATTR_ALL )
+           << _sAttributes[SATTR_DUMP_IMAGE_PREFIX];
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.nativeContext.vp << _data.nativeContext.pvp 
            << _data.fixedVP << _maxSize;
@@ -134,7 +142,8 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is >> co::Array< int32_t >( _iAttributes, IATTR_ALL );
+        is >> co::Array< int32_t >( _iAttributes, IATTR_ALL )
+           >> _sAttributes[SATTR_DUMP_IMAGE_PREFIX];
     if( dirtyBits & DIRTY_VIEWPORT )
     {
         // Ignore data from master (server) if we have local changes
@@ -344,9 +353,22 @@ int32_t Channel< W, C >::getIAttribute( const IAttribute attr ) const
 }
 
 template< class W, class C >
+std::string Channel< W, C >::getSAttribute( const SAttribute attr ) const
+{
+    LBASSERT( attr < SATTR_ALL );
+    return _sAttributes[ attr ];
+}
+
+template< class W, class C >
 const std::string& Channel< W, C >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
+}
+
+template< class W, class C >
+const std::string& Channel< W, C >::getSAttributeString( const SAttribute attr )
+{
+    return _sAttributeStrings[attr];
 }
 
 template< class W, class C >

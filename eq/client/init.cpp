@@ -69,11 +69,18 @@ static std::ofstream* _logFile = 0;
 static lunchbox::a_int32_t _initialized;
 }
 
+const char EQ_HELP[] = "eq-help";
+const char EQ_LOGFILE[] = "eq-logfile";
+const char EQ_SERVER[] = "eq-server";
+const char EQ_CLIENT[] = "eq-client";
+const char EQ_CONFIG[] = "eq-config";
+const char EQ_CONFIG_FLAGS[] = "eq-config-flags";
+const char EQ_CONFIG_PREFIXES[] = "eq-config-prefixes";
+const char EQ_RENDER_CLIENT[] = "eq-render-client";
+
 static bool _parseArguments( const int argc, char** argv );
 static void _initPlugins();
 static void _exitPlugins();
-//extern void _initErrors();
-//extern void _exitErrors();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
@@ -97,7 +104,6 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
                << std::endl;
         return true;
     }
-//    _initErrors();
 
 #ifdef AGL
     GetCurrentEventQueue();
@@ -184,18 +190,18 @@ bool _parseArguments( const int argc, char** argv )
 
     arg::options_description options( "Equalizer library options" );
     options.add_options()
-        ( "eq-help", "Display usage information and exit" )
-        ( "eq-logfile", arg::value< std::string >(),
+        ( EQ_HELP, "Display usage information and exit" )
+        ( EQ_LOGFILE, arg::value< std::string >(),
           "Redirect log output to given file" )
-        ( "eq-server", arg::value< std::string >(), "The server address" )
-        ( "eq-config", arg::value< std::string >(),
+        ( EQ_SERVER, arg::value< std::string >(), "The server address" )
+        ( EQ_CONFIG, arg::value< std::string >(),
           "The config filename or autoconfig session name" )
-        ( "eq-config-flags", arg::value< Strings >()->multitoken(),
+        ( EQ_CONFIG_FLAGS, arg::value< Strings >()->multitoken(),
           "The autoconfig flags" )
-        ( "eq-config-prefixes", arg::value< Strings >()->multitoken(),
+        ( EQ_CONFIG_PREFIXES, arg::value< Strings >()->multitoken(),
           "The network prefix filter(s) in CIDR notation for autoconfig "
           "(white-space separated)" )
-        ( "eq-render-client", arg::value< std::string >(),
+        ( EQ_RENDER_CLIENT, arg::value< std::string >(),
           "The render client executable filename" )
     ;
 
@@ -218,13 +224,13 @@ bool _parseArguments( const int argc, char** argv )
         return false;
     }
 
-    if( vm.count( "eq-help" ))
+    if( vm.count( EQ_HELP ))
     {
         std::cout << options << std::endl;
         return false;
     }
 
-    if( vm.count( "eq-logfile" ))
+    if( vm.count( EQ_LOGFILE ))
     {
         const std::string& newFile = vm["eq-logfile"].as< std::string >();
         std::ofstream* oldLog = _logFile;
@@ -253,15 +259,15 @@ bool _parseArguments( const int argc, char** argv )
         }
     }
 
-    if( vm.count( "eq-server" ))
-        Global::setServer( vm["eq-server"].as< std::string >( ));
+    if( vm.count( EQ_SERVER ))
+        Global::setServer( vm[EQ_SERVER].as< std::string >( ));
 
-    if( vm.count( "eq-config" ))
-        Global::setConfigFile( vm["eq-config"].as< std::string >( ));
+    if( vm.count( EQ_CONFIG ))
+        Global::setConfigFile( vm[EQ_CONFIG].as< std::string >( ));
 
-    if( vm.count( "eq-config-flags" ))
+    if( vm.count( EQ_CONFIG_FLAGS ))
     {
-        const Strings& flagStrings = vm["eq-config-flags"].as< Strings >( );
+        const Strings& flagStrings = vm[EQ_CONFIG_FLAGS].as< Strings >( );
         uint32_t flags = Global::getFlags();
         for( StringsCIter i = flagStrings.begin(); i != flagStrings.end(); ++i )
         {
@@ -275,15 +281,15 @@ bool _parseArguments( const int argc, char** argv )
         Global::setFlags( flags );
     }
 
-    if( vm.count( "eq-config-prefixes" ))
+    if( vm.count( EQ_CONFIG_PREFIXES ))
     {
-        const Strings& prefixes = vm["eq-config-prefixes"].as< Strings >( );
+        const Strings& prefixes = vm[EQ_CONFIG_PREFIXES].as< Strings >( );
         Global::setPrefixes( prefixes );
     }
 
-    if( vm.count( "eq-client" ))
+    if( vm.count( EQ_CLIENT ))
     {
-        const std::string& renderClient = vm["eq-client"].as< std::string >();
+        const std::string& renderClient = vm[EQ_CLIENT].as< std::string >();
         Global::setProgramName( renderClient );
         Global::setWorkDir( lunchbox::getDirname( renderClient ));
     }

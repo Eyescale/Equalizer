@@ -65,7 +65,7 @@ set(WGL_SOURCES
   wgl/windowSystem.cpp
 )
 
-set(CLIENT_HEADERS
+set(CLIENT_PUBLIC_HEADERS
   ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
   api.h
   base.h
@@ -74,9 +74,6 @@ set(CLIENT_HEADERS
   channelStatistics.h
   client.h
   commandQueue.h
-  compositor.h
-  computeContext.h
-  config.h
   configEvent.h
   configStatistics.h
   cudaContext.h
@@ -119,6 +116,13 @@ set(CLIENT_HEADERS
   zoomFilter.h
   )
 
+set(CLIENT_HEADERS
+  compositor.h
+  computeContext.h
+  config.h
+  fileFrameWriter.h
+  )
+
 set(CLIENT_SOURCES
   ${DISPLAYCLUSTER_SOURCES}
   detail/channel.ipp
@@ -138,6 +142,7 @@ set(CLIENT_SOURCES
   exitVisitor.h
   frame.cpp
   frameData.cpp
+  fileFrameWriter.cpp
   gl.cpp
   glException.cpp
   glWindow.cpp
@@ -192,3 +197,4 @@ endif()
 
 list(SORT CLIENT_SOURCES)
 list(SORT CLIENT_HEADERS)
+list(SORT CLIENT_PUBLIC_HEADERS)

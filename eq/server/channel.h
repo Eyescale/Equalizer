@@ -136,6 +136,8 @@ namespace server
 
         void setIAttribute( const IAttribute attr, const int32_t value )
             { fabric::Channel< Window, Channel >::setIAttribute( attr, value );}
+        void setSAttribute( const SAttribute attr, const std::string& value )
+            { fabric::Channel< Window, Channel >::setSAttribute( attr, value );}
         void setDrawable( const uint32_t drawable )
             { fabric::Channel< Window, Channel >::setDrawable( drawable ); }
         //@}
