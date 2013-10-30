@@ -24,7 +24,7 @@
 
 using namespace eq::server;
 
-int main( int argc, char **argv )
+int main( int, char** )
 {
     FrustumData data;
     const Wall wall( Vector3f( -.8f, -.5f, -1.f ),

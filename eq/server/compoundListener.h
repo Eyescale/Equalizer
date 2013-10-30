@@ -39,8 +39,8 @@ public:
      * @param compound the root compound of the tree to be updated.
      * @param frameNumber the new frame number.
      */
-    virtual void notifyUpdatePre( Compound* compound,
-                                  const uint32_t frameNumber ) {}
+    virtual void notifyUpdatePre( Compound* compound LB_UNUSED,
+                                  const uint32_t frameNumber LB_UNUSED ) {}
 
     /**
      * Notify that the compound has a new child.
@@ -48,7 +48,8 @@ public:
      * @param compound the parent compound.
      * @param child the child compound.
      */
-    virtual void notifyChildAdded( Compound* compound, Compound* child ){}
+    virtual void notifyChildAdded( Compound* compound LB_UNUSED,
+                                   Compound* child LB_UNUSED ){}
 
     /**
      * Notify that the compound is about to remove a child.
@@ -56,7 +57,8 @@ public:
      * @param compound the parent compound.
      * @param child the child compound.
      */
-    virtual void notifyChildRemove( Compound* compound, Compound* child ){}
+    virtual void notifyChildRemove( Compound* compound LB_UNUSED,
+                                    Compound* child LB_UNUSED ){}
 };
 }
 }

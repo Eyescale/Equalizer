@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -55,7 +55,7 @@ TreeEqualizer::~TreeEqualizer()
 }
 
 void TreeEqualizer::notifyUpdatePre( Compound* compound,
-                                     const uint32_t frameNumber )
+                                     const uint32_t /*frame*/ )
 {
     if( isFrozen() || !compound->isActive( ) || !isActive( ))
         return;
@@ -136,9 +136,9 @@ void TreeEqualizer::_clearTree( Node* node )
 }
 
 void TreeEqualizer::notifyLoadData( Channel* channel,
-                                    const uint32_t frameNumber,
+                                    const uint32_t /*frame*/,
                                     const Statistics& statistics,
-                                    const Viewport& region )
+                                    const Viewport& /*region*/ )
 {
     _notifyLoadData( _tree, channel, statistics );
 }

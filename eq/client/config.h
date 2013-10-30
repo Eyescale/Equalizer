@@ -483,11 +483,8 @@ private:
     bool _handleEvent( const Event& event );
     const ConfigEvent* _convertEvent( co::ObjectICommand command );
 
-    /**
-     * Update statistics for the finished frame, push it to the local node
-     * for visualization.
-     */
-    void _updateStatistics( const uint32_t finishedFrame );
+    /** Update statistics for the last finished frame */
+    void _updateStatistics();
 
     /** Release all deregistered buffered objects after their latency is
         done. */

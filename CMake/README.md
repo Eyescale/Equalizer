@@ -33,6 +33,6 @@ Update:
     ../GITHUB_ORGANIZATION/Project-M.m/.
 - **GNUModules**: *module* target to create a
     [GNU module](http://modules.sourceforge.net/). See file for details.
-- [GitTargets documentation](CMake/blob/master/doc/GitTargets.md)
+- [GitTargets documentation](doc/GitTargets.md)
 - **UpdateFile**: *update_file* CMake function which uses configure_file
     but leaves target untouched if unchanged.

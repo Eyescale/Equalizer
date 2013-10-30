@@ -69,7 +69,7 @@ const Matrix4f& Renderer::getModelMatrix() const
     return _impl->getModelMatrix();
 }
 
-bool Renderer::initContext( co::Object* initData )
+bool Renderer::initContext( co::Object* /*initData*/ )
 {
     return _impl->initContext();
 }
@@ -79,7 +79,7 @@ bool Renderer::exitContext()
     return _impl->exitContext();
 }
 
-void Renderer::clear( co::Object* frameData )
+void Renderer::clear( co::Object* /*frameData*/ )
 {
     _impl->clear();
 }

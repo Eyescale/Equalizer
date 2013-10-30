@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,7 +28,7 @@
 
 // Tests the functionality of the compositor and computes the performance.
 
-int main( int argc, char **argv )
+int main( int, char **argv )
 {
     eq::NodeFactory nodeFactory;
     TEST( eq::init( 0, 0, &nodeFactory ));
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
     image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
     TEST( image->readImage( "Image_3_color.rgb", eq::Frame::BUFFER_COLOR ));
     TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
-    
+
     eq::Frames frames;
     lunchbox::Clock clock;
     float time;
@@ -62,7 +62,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": 2D first op:  " << time << " ms (" 
+    std::cout << argv[0] << ": 2D first op:  " << time << " ms ("
          << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
 
     clock.reset();
@@ -70,7 +70,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": 2D second op: " << time << " ms (" 
+    std::cout << argv[0] << ": 2D second op: " << time << " ms ("
          << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
 
     result->writeImages( "Result_2D" );
@@ -85,7 +85,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": 2D 15 images: " << time << " ms (" 
+    std::cout << argv[0] << ": 2D 15 images: " << time << " ms ("
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
 
     // 2) DB assembly test
@@ -117,7 +117,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": DB first op:  " << time << " ms (" 
+    std::cout << argv[0] << ": DB first op:  " << time << " ms ("
               << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)"
               << std::endl;
 
@@ -126,7 +126,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": DB second op: " << time << " ms (" 
+    std::cout << argv[0] << ": DB second op: " << time << " ms ("
               << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)"
               << std::endl;
 
@@ -142,7 +142,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": DB 15 images: " << time << " ms (" 
+    std::cout << argv[0] << ": DB 15 images: " << time << " ms ("
               << 5000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)"
               << std::endl;
 
@@ -167,7 +167,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": Alpha first op:  " << time << " ms (" 
+    std::cout << argv[0] << ": Alpha first op:  " << time << " ms ("
          << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
 
     clock.reset();
@@ -175,7 +175,7 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": Alpha second op: " << time << " ms (" 
+    std::cout << argv[0] << ": Alpha second op: " << time << " ms ("
          << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
 
     result->writeImages( "Result_Alpha" );
@@ -190,9 +190,9 @@ int main( int argc, char **argv )
     time = clock.getTimef();
     TEST( result );
 
-    std::cout << argv[0] << ": Alpha 15 images: " << time << " ms (" 
+    std::cout << argv[0] << ": Alpha 15 images: " << time << " ms ("
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
-    
+
     TEST( eq::exit( ));
 
     return EXIT_SUCCESS;

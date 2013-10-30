@@ -46,13 +46,9 @@ struct SliceClipper
 
     typedef eq::Vector3f float3;
 
-    void updatePerFrameInfo
-    (
-        const eq::Matrix4d&   modelviewM,
-        const eq::Matrix3d&   modelviewITM,
-        const double            sliceDistance,
-        const eq::Range&        range
-    );
+    void updatePerFrameInfo( const eq::Matrix4d& modelviewM,
+                             const double sliceDistance,
+                             const eq::Range& range );
 
     eq::Vector3f getPosition
     (

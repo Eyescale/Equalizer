@@ -170,7 +170,7 @@ void TileEqualizer::_destroyQueues( Compound* compound )
 }
 
 void TileEqualizer::notifyUpdatePre( Compound* compound,
-                                     const uint32_t frameNumber )
+                                     const uint32_t /*frame*/ )
 {
     if( isActive() && !_created )
         _createQueues( compound );

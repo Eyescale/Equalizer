@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ namespace eVolve
         virtual bool configInit( const eq::uint128_t& initID );
         virtual bool configExit();
 
-        virtual void frameStart( const eq::uint128_t& frameID, 
+        virtual void frameStart( const eq::uint128_t& frameID,
                                  const uint32_t frameNumber );
 
         virtual void frameDraw(       const eq::uint128_t& frameID );
@@ -68,8 +68,7 @@ namespace eVolve
 
         void _orderFrames( eq::Frames& frames );
 
-        void _calcMVandITMV( eq::Matrix4f& modelviewM, 
-                             eq::Matrix3f& modelviewITM ) const;
+        eq::Matrix4f _computeModelView() const;
 
         const FrameData& _getFrameData() const;
 

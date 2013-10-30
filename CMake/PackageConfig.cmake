@@ -172,12 +172,11 @@ set(DEPENDENTS
   "endif()\n\n"
 )
 foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
-  if(${_dependent}_FOUND)
-    set(${_dependent}_name ${_dependent})
-  endif()
   string(TOUPPER ${_dependent} _DEPENDENT)
   if(${_DEPENDENT}_FOUND)
     set(${_dependent}_name ${_DEPENDENT})
+  elseif(${_dependent}_FOUND)
+    set(${_dependent}_name ${_dependent})
   endif()
   if(NOT ${_dependent}_name)
     message(FATAL_ERROR "Dependent library ${_dependent} was not properly resolved")
@@ -195,11 +194,17 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     set(_FIND_VERSION)
   endif()
   list(APPEND DEPENDENTS
+    "set(_library_backups \${${${_dependent}_name}_LIBRARIES})\n"
     "find_package(${_dependent} ${_FIND_VERSION} \${_req} \${_quiet})\n"
-    "if(${${_dependent}_name}_FOUND)\n")
+    "if(${${_dependent}_name}_FOUND)\n"
+    "  list(APPEND ${${_dependent}_name}_LIBRARIES \${_library_backups})\n"
+    "  if(${${_dependent}_name}_LIBRARIES)\n"
+    "    list(REMOVE_DUPLICATES ${${_dependent}_name}_LIBRARIES)\n"
+    "  endif()\n"
+    )
   if(_FIND_VERSION)
     list(APPEND DEPENDENTS
-      "  if(\"${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
+      "  if(\"\${${${_dependent}_name}_VERSION}\" MATCHES \"^([0-9]+\\\\.[0-9]+)\")\n"
       "    if(CMAKE_MATCH_1 VERSION_GREATER ${_FIND_VERSION})\n"
       "      message(FATAL_ERROR \"${${_dependent}_name} ${${${_dependent}_name}_VERSION} not compatible with ${_FIND_VERSION}\")\n"
       "    endif()\n"
@@ -209,7 +214,7 @@ foreach(_dependent ${${UPPER_PROJECT_NAME}_DEPENDENT_LIBRARIES})
     "  list(APPEND ${UPPER_PROJECT_NAME}_LIBRARIES \${${${_dependent}_name}_LIBRARIES})\n"
     "  list(APPEND ${UPPER_PROJECT_NAME}_INCLUDE_DIRS \${${${_dependent}_name}_INCLUDE_DIRS})\n"
     "else()\n"
-    "  set(_fail TRUE)\n"
+    "  set(_fail \"${_dependent} not found\")\n"
     "endif()\n\n")
 endforeach()
 string(REGEX REPLACE ";" " " DEPENDENTS ${DEPENDENTS})

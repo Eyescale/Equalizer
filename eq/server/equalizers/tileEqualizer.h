@@ -48,9 +48,8 @@ public:
     virtual uint32_t getType() const { return fabric::TILE_EQUALIZER; }
 
 protected:
-
-    virtual void notifyChildAdded( Compound* compound, Compound* child ) {}
-    virtual void notifyChildRemove( Compound* compound, Compound* child ) {}
+    void notifyChildAdded( Compound*, Compound* ) override {}
+    void notifyChildRemove( Compound*, Compound* ) override {}
 
 private:
     std::string _getQueueName() const;

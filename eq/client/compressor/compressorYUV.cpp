@@ -1,7 +1,7 @@
 
 /* Copyright (c)      2009, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2009, Maxim Makhinya
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -61,7 +61,7 @@ static bool _register()
     return true;
 }
 
-static bool _initialized = _register();
+static bool _initialized LB_UNUSED = _register();
 }
 
 /** Construct a new compressor Yuv */
@@ -95,8 +95,7 @@ bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
              GLEW_EXT_framebuffer_object );
 }
 
-void CompressorYUV::_initShader( const GLEWContext* glewContext,
-                           const char* fShaderPtr )
+void CompressorYUV::_initShader( const GLEWContext*, const char* fShaderPtr )
 {
     if ( _program )
     {
@@ -131,8 +130,8 @@ void CompressorYUV::_initShader( const GLEWContext* glewContext,
 
 
 void CompressorYUV::_compress( const GLEWContext* glewContext,
-                               const eq_uint64_t inDims[4],
-                                     eq_uint64_t outDims[4] )
+                               const eq_uint64_t* /*inDims*/,
+                               eq_uint64_t outDims[4] )
 {
     /* save the current FBO ID for bind it at the end of the compression */
     GLint oldFBO = 0;

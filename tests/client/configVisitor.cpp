@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,13 +40,13 @@ public:
         {}
     virtual ~TestVisitor() {}
 
-    virtual VisitorResult visitPre( Config* config )
+    virtual VisitorResult visitPre( Config* )
         {
             ++nConfigs;
             return TRAVERSE_CONTINUE;
         }
 
-    virtual VisitorResult visitPre( Node* node )
+    virtual VisitorResult visitPre( Node* )
         {
             ++nNodes;
             if( nNodes == 1 )
@@ -54,7 +54,7 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual VisitorResult visitPre( Pipe* pipe )
+    virtual VisitorResult visitPre( Pipe* )
         {
             ++nPipes;
             if( nPipes == 5 )
@@ -62,13 +62,13 @@ public:
             return TRAVERSE_CONTINUE;
         }
 
-    virtual VisitorResult visitPre( eq::Window* window )
+    virtual VisitorResult visitPre( eq::Window* )
         {
             ++nWindows;
             return TRAVERSE_CONTINUE;
         }
 
-    virtual VisitorResult visit( Channel* channel )
+    virtual VisitorResult visit( Channel* )
         {
             ++nChannels;
             return TRAVERSE_PRUNE;

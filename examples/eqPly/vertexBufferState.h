@@ -69,7 +69,7 @@ namespace mesh
 
         void resetRegion();
         void updateRegion( const BoundingBox& box );
-        virtual void declareRegion( const Vector4f& region ) {}
+        virtual void declareRegion( const Vector4f& ) {}
         Vector4f getRegion() const;
 
         virtual GLuint getDisplayList( const void* key ) = 0;

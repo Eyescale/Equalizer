@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -69,8 +69,7 @@ void DFREqualizer::attach( Compound* compound )
     }
 }
 
-void DFREqualizer::notifyUpdatePre( Compound* compound,
-                                    const uint32_t frameNumber )
+void DFREqualizer::notifyUpdatePre( Compound* compound, const uint32_t/*frame*/)
 {
     LBASSERT( compound == getCompound( ));
 
@@ -114,7 +113,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
 
 void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
                                    const Statistics& statistics,
-                                   const Viewport& region )
+                                   const Viewport& /*region*/ )
 {
     // gather and notify load data
     int64_t endTime = 0;

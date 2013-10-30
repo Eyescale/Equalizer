@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,12 +59,12 @@ int main( const int argc, char** argv )
 
     if( app->init( argc, argv, 0 ) && app->run( 0 ) && app->exit( ))
         return EXIT_SUCCESS;
-    
+
     return EXIT_FAILURE;
 }
 
 /** The rendering routine, a.k.a., glutDisplayFunc() */
-void eqHello::Renderer::draw( co::Object* frameData )
+void eqHello::Renderer::draw( co::Object* /*frameData*/ )
 {
     applyRenderContext(); // set up OpenGL State
 

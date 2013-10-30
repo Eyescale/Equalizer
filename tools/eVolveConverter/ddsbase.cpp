@@ -4,16 +4,16 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * From the V^3 volume renderer <http://stereofx.org/volume.html>, license
  * change to LGPL with kind permission from Stefan Roettger
  */
@@ -856,7 +856,8 @@ void convfloat(unsigned char *data,unsigned int bytes)
 // helper functions for quantize:
 
 inline int DDS_get(unsigned short int *volume,
-                   unsigned int width,unsigned int height,unsigned int depth,
+                   unsigned int width,unsigned int height,
+                   unsigned int /*depth*/,
                    unsigned int i,unsigned int j,unsigned int k)
    {return(volume[i+(j+k*height)*width]);}
 

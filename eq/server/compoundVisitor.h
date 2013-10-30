@@ -57,11 +57,11 @@ public:
     virtual VisitorResult visitLeaf( const Compound* compound )
         { return visit( compound ); }
     /** Visit a non-leaf compound on the up traversal. */
-    virtual VisitorResult visitPost( const Compound* compound )
+    virtual VisitorResult visitPost( const Compound* )
         { return TRAVERSE_CONTINUE; }
 
     /** Visit every compound on the down traversal. */
-    virtual VisitorResult visit( const Compound* compound )
+    virtual VisitorResult visit( const Compound* )
         { return TRAVERSE_CONTINUE; }
 };
 }

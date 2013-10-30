@@ -36,7 +36,7 @@ namespace eVolve
 {
 
 
-RawVolumeModelRenderer::RawVolumeModelRenderer( const std::string& filename, 
+RawVolumeModelRenderer::RawVolumeModelRenderer( const std::string& filename,
                                                 const uint32_t     precision )
         : _rawModel(  filename  )
         , _precision( precision )
@@ -77,7 +77,7 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
     GLhandleARB shader = _shaders.getProgram();
     LBASSERT( shader );
 
-    const DataInTextureDimensions& TD = volumeInfo.TD; 
+    const DataInTextureDimensions& TD = volumeInfo.TD;
 
     GLint tParamNameGL;
 
@@ -135,7 +135,7 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
     glUniform1iARB( tParamNameGL, normalsQuality ); //f-shader
 
     // rotate viewPosition in the opposite direction of model rotation
-    // to keep light position constant but not recalculate normals 
+    // to keep light position constant but not recalculate normals
     // in the fragment shader
     // viewPosition = invRotationM * eq::Vector4f( 0, 0, 1, 0 );
     tParamNameGL = glGetUniformLocationARB(  shader,  "viewVec"       );
@@ -145,15 +145,11 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
 }
 
 
-bool RawVolumeModelRenderer::render
-(
-    const eq::Range&      range,
-    const eq::Matrix4d&   modelviewM,
-    const eq::Matrix3d&   modelviewITM,
-    const eq::Matrix4f&   invRotationM,
-    const eq::Vector4f&   taintColor,
-    const int             normalsQuality
-)
+bool RawVolumeModelRenderer::render( const eq::Range& range,
+                                     const eq::Matrix4d& modelviewM,
+                                     const eq::Matrix4f& invRotationM,
+                                     const eq::Vector4f& taintColor,
+                                     const int normalsQuality )
 {
     VolumeInfo volumeInfo;
 
@@ -170,7 +166,7 @@ bool RawVolumeModelRenderer::render
     // Enable shaders
     glUseProgramObjectARB( _shaders.getProgram( ));
 
-    // Calculate and put necessary data to shaders 
+    // Calculate and put necessary data to shaders
 
     const uint32_t resolution    = _rawModel.getResolution();
     const double   sliceDistance = 3.6 / ( resolution * _precision );
@@ -178,8 +174,7 @@ bool RawVolumeModelRenderer::render
     _putVolumeDataToShader( volumeInfo, float( sliceDistance ),
                             invRotationM, taintColor, normalsQuality );
 
-    _sliceClipper.updatePerFrameInfo( modelviewM, modelviewITM,
-                                      sliceDistance, range );
+    _sliceClipper.updatePerFrameInfo( modelviewM, sliceDistance, range );
 
     //Render slices
     glEnable( GL_BLEND );

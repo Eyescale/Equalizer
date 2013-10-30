@@ -92,8 +92,7 @@ void MonitorEqualizer::attach( Compound* compound )
     Equalizer::attach( compound );
 }
 
-void MonitorEqualizer::notifyUpdatePre( Compound* compound,
-                                        const uint32_t frameNumber )
+void MonitorEqualizer::notifyUpdatePre( Compound*, const uint32_t )
 {
     _updateViewports();
     _updateZoomAndOffset();

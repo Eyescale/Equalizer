@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,37 +40,23 @@ public:
     static void* getNewDecompressor( const unsigned name )
         { return new CompressorReadDrawPixels( name ); }
 
-    virtual void compress( const void* const inData,
-                           const eq_uint64_t nPixels,
-                           const bool        useAlpha )
+    virtual void compress( const void* const, const uint64_t, const bool )
         { LBDONTCALL; }
 
-    static bool isCompatible( const GLEWContext* glewContext );
+    static bool isCompatible( const GLEWContext* );
 
-    virtual void download( const GLEWContext* glewContext,
-                           const eq_uint64_t  inDims[4],
-                           const unsigned     source,
-                           const eq_uint64_t  flags,
-                                 eq_uint64_t  outDims[4],
-                           void**             out );
+    void download( const GLEWContext*, const eq_uint64_t*, const unsigned,
+                   const eq_uint64_t, eq_uint64_t*, void** ) override;
 
-    virtual void upload( const GLEWContext* glewContext,
-                         const void*        buffer,
-                         const eq_uint64_t  inDims[4],
-                         const eq_uint64_t  flags,
-                         const eq_uint64_t  outDims[4],
-                         const unsigned     destination );
+    void upload( const GLEWContext*, const void*, const eq_uint64_t*,
+                 const eq_uint64_t, const eq_uint64_t*,
+                 const unsigned ) override;
 
-    virtual void startDownload( const GLEWContext* glewContext,
-                                const eq_uint64_t  inDims[4],
-                                const unsigned     source,
-                                const eq_uint64_t  flags );
+    void startDownload( const GLEWContext*, const eq_uint64_t*, const unsigned,
+                        const eq_uint64_t) override;
 
-    virtual void finishDownload( const GLEWContext* glewContext,
-                                 const eq_uint64_t  inDims[4],
-                                 const eq_uint64_t  flags,
-                                 eq_uint64_t        outDims[4],
-                                 void**             out );
+    void finishDownload( const GLEWContext*, const eq_uint64_t*,
+                         const eq_uint64_t, eq_uint64_t*, void** ) override;
 
 protected:
     lunchbox::Bufferb _buffer;
@@ -82,13 +68,12 @@ protected:
     unsigned    _type;           //!< the GL type
     const unsigned _depth;       //!< the size of one output token
 
-    void _resizeBuffer( const eq_uint64_t size );
-    void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags);
-    void _initAsyncTexture( const GLEWContext* glewContext, const eq_uint64_t w,
-                            const eq_uint64_t h );
-    bool _initPBO( const GLEWContext* glewContext, const eq_uint64_t size );
-    void _initDownload( const GLEWContext* glewContext,
-                        const eq_uint64_t inDims[4], eq_uint64_t outDims[4] );
+    void _resizeBuffer( const eq_uint64_t );
+    void _initTexture( const GLEWContext*, const eq_uint64_t );
+    void _initAsyncTexture( const GLEWContext*, const eq_uint64_t,
+                            const eq_uint64_t );
+    bool _initPBO( const GLEWContext*, const eq_uint64_t );
+    void _initDownload( const GLEWContext*, const eq_uint64_t*, eq_uint64_t* );
 };
 
 }

@@ -58,7 +58,7 @@ namespace eVolve
         1, 0, 1, 4,
         0, 2, 5, 5,
         2, 0, 2, 5,
-        0, 3, 6, 6, 
+        0, 3, 6, 6,
         3, 0, 3, 6 };
 
     const float SliceClipper::v2[24] = {
@@ -70,12 +70,9 @@ namespace eVolve
         4, 3, 6, 7 };
 
 
-void SliceClipper::updatePerFrameInfo
-(
-    const eq::Matrix4d&   modelviewM,
-    const eq::Matrix3d&   modelviewITM,
-    const double            newSliceDistance,
-    const eq::Range&        range
+void SliceClipper::updatePerFrameInfo( const eq::Matrix4d& modelviewM,
+                                       const double newSliceDistance,
+                                       const eq::Range& range
 )
 {
     double zRs = -1+2.*range.start;
@@ -137,7 +134,7 @@ eq::Vector3f SliceClipper::getPosition
 
     for( int e = 0; e < 4; e++ )
     {
-        int vidx1 = 3*static_cast<int>( sequence[ 
+        int vidx1 = 3*static_cast<int>( sequence[
                         static_cast<int>(frontIndex * 8 + v1[vertexNum*4+e])]);
         int vidx2 = 3*static_cast<int>( sequence[
                         static_cast<int>(frontIndex * 8 + v2[vertexNum*4+e])]);

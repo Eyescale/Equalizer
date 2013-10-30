@@ -86,7 +86,7 @@ namespace mesh
             os.write( reinterpret_cast< char* >( &_range ), sizeof( Range ) );
         }
 
-        virtual void fromMemory( char** addr, VertexBufferData& globalData )
+        virtual void fromMemory( char** addr, VertexBufferData& /*globalData*/ )
         {
             memRead( reinterpret_cast< char* >( &_boundingSphere ), addr,
                      sizeof( BoundingSphere ) );

@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -34,7 +34,7 @@ ConfigUpdateDataVisitor::ConfigUpdateDataVisitor()
 {}
 
 
-VisitorResult ConfigUpdateDataVisitor::visitPre( Node* node )
+VisitorResult ConfigUpdateDataVisitor::visitPre( Node* )
 {
     _lastDrawPipe = 0;
     return TRAVERSE_CONTINUE;
@@ -45,7 +45,7 @@ VisitorResult ConfigUpdateDataVisitor::visitPost( Node* node )
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ConfigUpdateDataVisitor::visitPre( Pipe* pipe )
+VisitorResult ConfigUpdateDataVisitor::visitPre( Pipe* )
 {
     _lastDrawWindow = 0;
     return TRAVERSE_CONTINUE;
@@ -58,7 +58,7 @@ VisitorResult ConfigUpdateDataVisitor::visitPost( Pipe* pipe )
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ConfigUpdateDataVisitor::visitPre( Window* window )
+VisitorResult ConfigUpdateDataVisitor::visitPre( Window* )
 {
     _lastDrawChannel = 0;
     return TRAVERSE_CONTINUE;
@@ -78,6 +78,6 @@ VisitorResult ConfigUpdateDataVisitor::visit( Channel* channel )
 
     return TRAVERSE_CONTINUE;
 }
- 
+
 }
 }

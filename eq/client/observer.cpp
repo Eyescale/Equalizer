@@ -189,7 +189,7 @@ bool Observer::configExit()
     return true;
 }
 
-void Observer::frameStart( const uint32_t frameNumber )
+void Observer::frameStart( const uint32_t /*frame*/ )
 {
 #ifdef EQUALIZER_USE_VRPN
     if( impl_->vrpnTracker )
