@@ -152,7 +152,8 @@ void EqCompressorGetResult( void* const ptr, const unsigned /*name*/,
 }
 
 
-void EqCompressorDecompress( void* const decompressor, const unsigned name,
+void EqCompressorDecompress( void* const decompressor LB_UNUSED,
+                             const unsigned name,
                              const void* const* in,
                              const eq_uint64_t* const inSizes,
                              const unsigned nInputs,

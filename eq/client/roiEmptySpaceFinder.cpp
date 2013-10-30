@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2009, Maxim Makhinya
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -70,21 +70,16 @@ void ROIEmptySpaceFinder::update( const uint8_t* mask,
 }
 
 
-inline uint16_t ROIEmptySpaceFinder::getArea(
-                                    const int32_t x, const int32_t y,
-                                    const int32_t w, const int32_t h ) const
+inline uint16_t ROIEmptySpaceFinder::_getArea( const int32_t x, const int32_t y,
+                                              const int32_t w, const int32_t h )
+    const
 {
-    return  getArea( x, y, w, h, &_data[0] + y * _w + x );
+    return _getArea( w, h, &_data[0] + y * _w + x );
 }
 
-inline uint16_t ROIEmptySpaceFinder::getArea(
-                                    const int32_t x, const int32_t y,
-                                    const int32_t w, const int32_t h,
-                                    const uint16_t* data ) const
+inline uint16_t ROIEmptySpaceFinder::_getArea( const int32_t w, const int32_t h,
+                                              const uint16_t* data ) const
 {
-    LBASSERT( x >= 0 && w > 0 && x+w < _w );
-    LBASSERT( y >= 0 && h > 0 && y+h < _h );
-
     const uint16_t* data_ = data + h*_w;
     return  *data - data[ w ] - *data_ + data_[ w ];
 }
@@ -103,7 +98,7 @@ bool ROIEmptySpaceFinder::_updateMaximalEmptyRegion(
 
     // find biggest diagonal
     int32_t cwh = 2;
-    while( cwh <= w && cwh <= h && getArea( x, y, cwh, cwh, data ) == 0 )
+    while( cwh <= w && cwh <= h && _getArea( cwh, cwh, data ) == 0 )
         cwh++;
 
     cwh--;
@@ -122,7 +117,7 @@ bool ROIEmptySpaceFinder::_updateMaximalEmptyRegion(
         int32_t ch = cwh;
         for( int32_t cw = cwh+1; cw <= w; cw++ )
         {
-            while( getArea( x, y, cw, ch, data ) != 0 )
+            while( _getArea( cw, ch, data ) != 0 )
             {
                 ch--;
                 if( ch == 0 )
@@ -146,7 +141,7 @@ bool ROIEmptySpaceFinder::_updateMaximalEmptyRegion(
         int32_t cw = cwh;
         for( int32_t ch = cwh+1; ch <= h; ch++ )
         {
-            while( getArea( x, y, cw, ch, data ) != 0 )
+            while( _getArea( cw, ch, data ) != 0 )
             {
                 cw--;
                 if( cw == 0 )
@@ -176,14 +171,14 @@ const
 {
     LBASSERT(   pvp.x >= 0    && pvp.w > 0 &&
                 pvp.y >= 0    && pvp.h > 0 &&
-                pvp.x + pvp.w < _w && 
+                pvp.x + pvp.w < _w &&
                 pvp.y + pvp.h < _h );
 
     LBASSERT( _mask );
 
     PixelViewport res( pvp.x, pvp.y, 0, 0 );
 
-          uint16_t maxArea = getArea( pvp.x, pvp.y, pvp.w, pvp.h );
+          uint16_t maxArea = _getArea( pvp.x, pvp.y, pvp.w, pvp.h );
     const uint16_t minRel  = static_cast<uint16_t>( pvp.w * pvp.h * _limRel );
 
     // totally empty
@@ -207,7 +202,7 @@ const
     for( int y=pvp.y, h=pvp.h; h > 0; y++, h-- )
     {
         // skeep if found area bigger than the rest of image
-        if( h * pvp.w - getArea( pvp.x, y, pvp.w, h ) <= maxArea )
+        if( h * pvp.w - _getArea( pvp.x, y, pvp.w, h ) <= maxArea )
             break;
 
         for( int x=pvp.x, w=pvp.w; w > 0; x++, w-- )
@@ -217,7 +212,7 @@ const
                 continue;
 
             // skeep if found area bigger than the rest of image
-            if( w*h - getArea( x, y, w, h, data + x ) <= maxArea )
+            if( w*h - _getArea( w, h, data + x ) <= maxArea )
             {
                 w = 0;
                 continue;

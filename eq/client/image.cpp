@@ -965,7 +965,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
     if( downloader.uses( name ))
         return true;
 
-    if( !downloader.setup( co::Global::getPluginRegistry(), name ))
+    if( !downloader.setup( co::Global::getPluginRegistry(), name, gl ))
         return false;
 
     const EqCompressorInfo& info = downloader.getInfo();
