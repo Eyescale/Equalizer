@@ -243,7 +243,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 
 void FramerateEqualizer::LoadListener::notifyLoadData(
     Channel* channel, const uint32_t frameNumber, const Statistics& statistics,
-        const Viewport& region  )
+    const Viewport& /*region*/  )
 {
     // gather required load data
     int64_t startTime = std::numeric_limits< int64_t >::max();

@@ -42,7 +42,7 @@ bool Window::configInit( const eq::uint128_t& initID )
     return eq::Window::configInit( initID );
 }
 
-bool Window::configInitGL( const eq::uint128_t& initID )
+bool Window::configInitGL( const eq::uint128_t& )
 {
     Pipe*     pipe     = static_cast<Pipe*>( getPipe() );
     Renderer* renderer = pipe->getRenderer();

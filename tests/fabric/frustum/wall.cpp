@@ -23,7 +23,7 @@ using namespace eq::fabric;
 
 // Tests the wall description
 
-int main( int argc, char **argv )
+int main( int, char** )
 {
     const Wall wall( Vector3f( -.5f, -.5f, -.5f ),
                      Vector3f( 1.f,  1.f,  -.5f ),

@@ -69,7 +69,7 @@ void Window::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
     eq::Window::frameFinish( frameID, frameNumber );
 }
 
-bool Window::configInitGL( const uint128_t& initID )
+bool Window::configInitGL( const uint128_t& )
 {
     Renderer* rendererImpl = getRendererImpl();
     rendererImpl->setWindow( this );

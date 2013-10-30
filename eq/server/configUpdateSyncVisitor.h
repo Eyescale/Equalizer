@@ -33,36 +33,34 @@ public:
     ConfigUpdateSyncVisitor() : _result( true ), _sync( false ) {}
     virtual ~ConfigUpdateSyncVisitor() {}
 
-    virtual VisitorResult visitPre( Config* config )
-        {
-            _result = true;
-            _sync = false;
-            return TRAVERSE_CONTINUE;
-        }
+    VisitorResult visitPre( Config* )
+    {
+        _result = true;
+        _sync = false;
+        return TRAVERSE_CONTINUE;
+    }
 
-    virtual VisitorResult visitPre( Node* node )
+    VisitorResult visitPre( Node* node ) override
         { return _updateDown( node ); }
-    virtual VisitorResult visitPost( Node* node )
-        {
-            const VisitorResult& result = _updateUp( node, "node" );
-            node->flushSendBuffer();
-            return result;
-        }
+    VisitorResult visitPost( Node* node ) override
+    {
+        const VisitorResult& result = _updateUp( node );
+        node->flushSendBuffer();
+        return result;
+    }
 
-    virtual VisitorResult visitPre( Pipe* pipe )
+    VisitorResult visitPre( Pipe* pipe ) override
         { return _updateDown( pipe ); }
-    virtual VisitorResult visitPost( Pipe* pipe )
-        { return _updateUp( pipe, "pipe" ); }
+    VisitorResult visitPost( Pipe* pipe ) override
+        { return _updateUp( pipe ); }
 
-    virtual VisitorResult visitPre( Window* window )
+    VisitorResult visitPre( Window* window ) override
         { return _updateDown( window ); }
-    virtual VisitorResult visitPost( Window* window )
-        { return _updateUp( window, "window" ); }
+    VisitorResult visitPost( Window* window ) override
+        { return _updateUp( window ); }
 
-    virtual VisitorResult visit( Channel* channel )
-        {
-            return _updateUp( channel, "channel" );
-        }
+    VisitorResult visit( Channel* channel ) override
+        { return _updateUp( channel ); }
 
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
@@ -93,8 +91,7 @@ private:
             return TRAVERSE_PRUNE;
         }
 
-    template< class T >
-    VisitorResult _updateUp( T* entity, const std::string& name )
+    template< class T > VisitorResult _updateUp( T* entity )
         {
             const uint32_t state = entity->getState() & ~STATE_DELETE;
             switch( state )

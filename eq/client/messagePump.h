@@ -48,11 +48,11 @@ public:
                               LB_TIMEOUT_INDEFINITE ) = 0;
 
     /** Register a new DC connection for event dispatch. @version 1.7.1 */
-    virtual void register_( dc::Proxy* dcProxy )
+    virtual void register_( dc::Proxy* )
         { LBWARN << "Missing message pump for DisplayCluster" << std::endl; }
 
     /** Deregister a DC connection from event dispatch. @version 1.7.1 */
-    virtual void deregister( dc::Proxy* dcProxy ) { /*Not implemented*/ }
+    virtual void deregister( dc::Proxy* ) { /*Not implemented*/ }
 };
 }
 

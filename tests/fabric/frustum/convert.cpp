@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder
-                 2009-2010, Stefan Eilemann <eilemann@equalizergraphics.com>
+                 2009-2013, Stefan Eilemann <eilemann@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +22,7 @@
 
 using namespace eq::fabric;
 
-int main( int argc, char **argv )
+int main( int, char** )
 {
     // Test for same default values
     Projection projection;
@@ -34,7 +34,7 @@ int main( int argc, char **argv )
     TESTINFO( projection == projection2,
               projection << std::endl << projection2 );
 #endif
-    // Test 1 
+    // Test 1
     projection.distance = 3;
     projection.fov[0] = 90;
     projection.fov[1] = 90;

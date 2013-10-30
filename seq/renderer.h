@@ -43,7 +43,7 @@ namespace seq
         /**
          * Initialize the renderer.
          *
-         * Called once per renderer with an OpenGL context current before the
+         * Called once per renderer with a rendering context current before the
          * first call to initContext().
          *
          * @param initData a per-renderer instance of the object passed to
@@ -51,7 +51,8 @@ namespace seq
          * @return true on success, false otherwise.
          * @version 1.0
          */
-        SEQ_API virtual bool init( co::Object* initData ) { return true; }
+        SEQ_API virtual bool init( co::Object* initData LB_UNUSED )
+            { return true; }
 
         /**
          * De-initialize the renderer.
@@ -65,7 +66,7 @@ namespace seq
         SEQ_API virtual bool exit() { return true; }
 
         /**
-         * Initialize an OpenGL context.
+         * Initialize a rendering context.
          *
          * Called for each window handled by this renderer, after the context
          * has been created and made current.
@@ -78,7 +79,7 @@ namespace seq
         SEQ_API virtual bool initContext( co::Object* initData );
 
         /**
-         * De-initialize an OpenGL context.
+         * De-initialize a rendering context.
          *
          * Called just before the context will be destroyed.
          * @return true on success, false otherwise.
@@ -105,7 +106,7 @@ namespace seq
         virtual void draw( co::Object* frameData ) = 0;
 
         /**
-         * Apply the current rendering parameters to OpenGL.
+         * Apply the current rendering parameters to the rendering context.
          *
          * This method sets the draw buffer, color mask, viewport as well as the
          * projection and view matrix.
@@ -119,7 +120,7 @@ namespace seq
         SEQ_API const RenderContext& getRenderContext() const;
 
         /**
-         * Apply the current model matrix to OpenGL.
+         * Apply the current model matrix to the rendering context.
          *
          * This method is not included in applyRenderContext() since ligthing
          * parameters are often applied before positioning the model.

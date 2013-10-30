@@ -74,8 +74,8 @@ public:
 
 protected:
     virtual ChangeType getChangeType() const { return _changeType; }
-    virtual void getInstanceData( co::DataOStream& os ){ LBDONTCALL }
-    virtual void applyInstanceData( co::DataIStream& is ){ LBDONTCALL }
+    virtual void getInstanceData( co::DataOStream& ){ LBDONTCALL }
+    virtual void applyInstanceData( co::DataIStream& ){ LBDONTCALL }
     virtual uint32_t chooseCompressor() const { return _compressor; }
 
 private:
@@ -461,7 +461,7 @@ uint32_t Config::finishFrame()
     }
 
     handleEvents();
-    _updateStatistics( frameToFinish );
+    _updateStatistics();
     _releaseObjects();
 
     LBLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
@@ -492,7 +492,7 @@ uint32_t Config::finishAllFrames()
         }
     }
     handleEvents();
-    _updateStatistics( _impl->currentFrame );
+    _updateStatistics();
     _releaseObjects();
     LBLOG( lunchbox::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _impl->currentFrame;
@@ -914,7 +914,7 @@ bool Config::_needsLocalSync() const
     return true;
 }
 
-void Config::_updateStatistics( const uint32_t finishedFrame )
+void Config::_updateStatistics()
 {
 #ifdef EQUALIZER_USE_GLSTATS
     // keep statistics for three frames

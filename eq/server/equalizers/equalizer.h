@@ -40,9 +40,9 @@ namespace server
     {
     public:
         Equalizer();
-        Equalizer( const fabric::Equalizer& from );
-        Equalizer( const Equalizer& from );
-        Equalizer& operator=( const fabric::Equalizer& from );
+        Equalizer( const fabric::Equalizer& );
+        Equalizer( const Equalizer& );
+        Equalizer& operator=( const fabric::Equalizer& );
         virtual ~Equalizer();
 
         /** Output to a stream. */
@@ -56,18 +56,18 @@ namespace server
         const Config* getConfig() const;
 
         /** Attach to a compound and detach the previous compound. */
-        virtual void attach( Compound* compound );
+        virtual void attach( Compound* );
 
-        virtual void setActive( bool flag ) { _active = flag; }
-        virtual bool isActive() const { return _active; }
+        void setActive( bool flag ) { _active = flag; }
+        bool isActive() const { return _active; }
 
         virtual uint32_t getType() const = 0;
 
     private:
         // override in sub-classes to handle dynamic compounds.
-        virtual void notifyChildAdded( Compound* compound, Compound* child )
+        void notifyChildAdded( Compound*, Compound* ) override
             { LBUNIMPLEMENTED }
-        virtual void notifyChildRemove( Compound* compound, Compound* child )
+        void notifyChildRemove( Compound*, Compound* ) override
             { LBUNIMPLEMENTED }
 
         Compound* _compound;       //!< The attached compound

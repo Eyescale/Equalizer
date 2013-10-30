@@ -19,8 +19,9 @@ update_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h
 
 add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
-set(EQ_LIBRARIES ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  EqualizerFabric)
+set(EQ_LIBRARIES EqualizerFabric
+  ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${GLEW_LIBRARY})
+
 if(MAGELLAN_FOUND)
   include_directories(${MAGELLAN_INCLUDE_DIR})
   list(APPEND EQ_LIBRARIES ${MAGELLAN_LIBRARY})
@@ -85,7 +86,7 @@ set_source_files_properties(${AGL_SOURCES}
 
 add_library(Equalizer SHARED ${CLIENT_HEADERS} ${UTIL_HEADERS}
   ${CLIENT_SOURCES} ${UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES})
-target_link_libraries(Equalizer ${GLEW_LIBRARY} ${EQ_LIBRARIES})
+target_link_libraries(Equalizer ${EQ_LIBRARIES})
 set_target_properties(Equalizer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 

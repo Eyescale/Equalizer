@@ -96,7 +96,7 @@ void Channel::frameStart( const eq::uint128_t& frameID,
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
-void Channel::frameDraw( const eq::uint128_t& frameID )
+void Channel::frameDraw( const eq::uint128_t& )
 {
     //----- setup GL state
     applyBuffer();

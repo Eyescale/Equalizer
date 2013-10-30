@@ -153,9 +153,9 @@ public:
     UpdateEqualizersVisitor() {}
 
     // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+    VisitorResult visitPre( Node* ) override { return TRAVERSE_PRUNE; }
 
-    virtual VisitorResult visit( Compound* compound )
+    VisitorResult visit( Compound* compound ) override
     {
         Channel* dest = compound->getInheritChannel();
         if( !dest )

@@ -62,7 +62,6 @@ namespace eVolve
 
         bool render( const eq::Range&     range,
                      const eq::Matrix4d&  modelviewM,
-                     const eq::Matrix3d&  modelviewITM,
                      const eq::Matrix4f&  invRotationM,
                      const eq::Vector4f&  taintColor,
                      const int            normalsQuality );

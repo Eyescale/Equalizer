@@ -18,6 +18,7 @@ before_install:
  - sudo apt-get install -qq automake || /bin/true
  - sudo apt-get install -qq bison || /bin/true
  - sudo apt-get install -qq cmake || /bin/true
+ - sudo apt-get install -qq doxygen || /bin/true
  - sudo apt-get install -qq flex || /bin/true
  - sudo apt-get install -qq freeglut3-dev || /bin/true
  - sudo apt-get install -qq git || /bin/true

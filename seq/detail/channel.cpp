@@ -96,14 +96,14 @@ void Channel::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
     eq::Channel::frameFinish( frameID, frameNumber );
 }
 
-void Channel::frameClear( const uint128_t& frameID )
+void Channel::frameClear( const uint128_t& )
 {
     seq::Renderer* const renderer = getRenderer();
     co::Object* const frameData = renderer->getFrameData();
     renderer->clear( frameData );
 }
 
-void Channel::frameDraw( const uint128_t& frameID )
+void Channel::frameDraw( const uint128_t& )
 {
     seq::Renderer* const renderer = getRenderer();
     co::Object* const frameData = renderer->getFrameData();

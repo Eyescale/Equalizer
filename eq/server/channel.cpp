@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -295,7 +295,7 @@ void Channel::addTasks( const uint32_t tasks )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
+void Channel::configInit( const uint128_t& initID, const uint32_t /*frame*/ )
 {
     LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;

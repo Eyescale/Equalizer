@@ -140,9 +140,9 @@ public:
     UseEqualizerVisitor( const View* view ) : _view( view ) {}
 
     // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+    VisitorResult visitPre( Node* ) override { return TRAVERSE_PRUNE; }
 
-    virtual VisitorResult visit( Compound* compound )
+    VisitorResult visit( Compound* compound ) override
     {
         const Channel* dest = compound->getInheritChannel();
         if( !dest )
@@ -173,9 +173,9 @@ public:
     UpdateEqualizersVisitor( const View* view ) : _view( view ) {}
 
     // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+    VisitorResult visitPre( Node* ) override { return TRAVERSE_PRUNE; }
 
-    virtual VisitorResult visit( Compound* compound )
+    VisitorResult visit( Compound* compound ) override
     {
         const Channel* dest = compound->getInheritChannel();
         if( !dest )

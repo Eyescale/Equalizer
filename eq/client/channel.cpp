@@ -1982,7 +1982,7 @@ bool Channel::_cmdDeleteTransferContext( co::ICommand& cmd )
 
 namespace lunchbox
 {
-template<> inline void byteswap( eq::detail::RBStat*& value ) { /*NOP*/ }
+template<> inline void byteswap( eq::detail::RBStat*& ) { /*NOP*/ }
 }
 
 #include "../fabric/channel.ipp"

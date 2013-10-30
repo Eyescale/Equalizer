@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -58,9 +58,9 @@ namespace server
         virtual uint32_t getType() const { return fabric::LOAD_EQUALIZER; }
 
     protected:
-        virtual void notifyChildAdded( Compound* compound, Compound* child )
+        void notifyChildAdded( Compound*, Compound* ) override
             { LBASSERT( !_tree ); }
-        virtual void notifyChildRemove( Compound* compound, Compound* child )
+        void notifyChildRemove( Compound*, Compound* ) override
             { LBASSERT( !_tree ); }
 
     private:

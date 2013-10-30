@@ -87,7 +87,7 @@ bool Channel::configExit()
     return eq::Channel::configExit();
 }
 
-void Channel::frameClear( const eq::uint128_t& frameID )
+void Channel::frameClear( const eq::uint128_t& /*frameID*/ )
 {
     if( stopRendering( ))
         return;

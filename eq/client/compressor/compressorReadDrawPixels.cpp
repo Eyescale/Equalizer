@@ -73,7 +73,7 @@ static stde::hash_map< unsigned, unsigned > _depths;
         return true;                                                    \
     }                                                                   \
                                                                         \
-    static bool _initialized ## in ## out = _register ## in ## out();
+static bool _initialized ## in ## out LB_UNUSED = _register ## in ## out();
 
 REGISTER_TRANSFER( RGBA, RGBA, 4, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA, BGRA, 4, 1., 1., 2., false );
@@ -289,7 +289,7 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
     }
 }
 
-bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
+bool CompressorReadDrawPixels::isCompatible( const GLEWContext* )
 {
     return true;
 }
@@ -301,8 +301,7 @@ namespace
         memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
     }
 
-    void _initPackAlignment( const GLEWContext* glewContext,
-                             const eq_uint64_t width )
+    void _initPackAlignment( const eq_uint64_t width )
     {
         if( (width % 4) == 0 )
             glPixelStorei( GL_PACK_ALIGNMENT, 4 );
@@ -312,8 +311,7 @@ namespace
             glPixelStorei( GL_PACK_ALIGNMENT, 1 );
     }
 
-    void _initUnpackAlignment( const GLEWContext* glewContext,
-                               const eq_uint64_t width )
+    void _initUnpackAlignment( const eq_uint64_t width )
     {
         if( (width % 4) == 0 )
             glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
@@ -338,14 +336,14 @@ void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
 #endif
 }
 
-void CompressorReadDrawPixels::_initDownload( const GLEWContext* glewContext,
+void CompressorReadDrawPixels::_initDownload( const GLEWContext*,
                                               const eq_uint64_t inDims[4],
                                               eq_uint64_t outDims[4] )
 {
     _copy4( outDims, inDims );
     const size_t size = inDims[1] * inDims[3] * _depth;
     _resizeBuffer( size );
-    _initPackAlignment( glewContext, outDims[1] );
+    _initPackAlignment( outDims[1] );
 }
 
 void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
@@ -402,7 +400,7 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
                                        const eq_uint64_t  outDims[4],
                                        const unsigned     destination )
 {
-    _initUnpackAlignment( glewContext, inDims[1] );
+    _initUnpackAlignment( inDims[1] );
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
@@ -459,7 +457,7 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
 {
     const eq_uint64_t size = dims[1] * dims[3] * _depth;
 
-    _initPackAlignment( glewContext, dims[1] );
+    _initPackAlignment( dims[1] );
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
@@ -499,14 +497,12 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
 }
 
 
-void CompressorReadDrawPixels::finishDownload( const GLEWContext* glewContext,
-                                               const eq_uint64_t  inDims[4],
-                                               const eq_uint64_t  flags,
-                                               eq_uint64_t        outDims[4],
-                                               void**             out )
+void CompressorReadDrawPixels::finishDownload(
+    const GLEWContext* glewContext LB_UNUSED, const eq_uint64_t inDims[4],
+    const eq_uint64_t flags, eq_uint64_t outDims[4], void** out )
 {
     _copy4( outDims, inDims );
-    _initPackAlignment( glewContext, outDims[1] );
+    _initPackAlignment( outDims[1] );
 
 #ifdef EQ_ASYNC_PBO
     if( (flags & EQ_COMPRESSOR_USE_FRAMEBUFFER) &&

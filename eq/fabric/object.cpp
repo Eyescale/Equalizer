@@ -290,7 +290,7 @@ void Object::postRemove( Object* child )
     localNode->releaseObject( child );
 }
 
-bool Object::_cmdSync( co::ICommand& command )
+bool Object::_cmdSync( co::ICommand& )
 {
     LBASSERT( isMaster( ));
     sync( co::VERSION_HEAD );

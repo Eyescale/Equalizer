@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,7 +54,7 @@ namespace admin
         const Channel* findChannel( const std::string& name ) const
             { return find< Channel >( name ); }
 
-        void output( std::ostream& os ) const {} //!< @internal
+        void output( std::ostream& ) const {} //!< @internal
         virtual bool mapViewObjects() const { return true; } //!< @internal
         virtual bool mapNodeObjects() const { return true; } //!< @internal
 

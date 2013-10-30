@@ -92,7 +92,7 @@ void Channel::frameStart( const eq::uint128_t& frameID,
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
-void Channel::frameClear( const eq::uint128_t& frameID )
+void Channel::frameClear( const eq::uint128_t& )
 {
     applyBuffer();
     applyViewport();
@@ -143,7 +143,7 @@ static eq::Vector4f _getTaintColor( const ColorMode colorMode,
     return taintColor;
 }
 
-void Channel::frameDraw( const eq::uint128_t& frameID )
+void Channel::frameDraw( const eq::uint128_t& )
 {
     // Setup frustum
     EQ_GL_CALL( applyBuffer( ));
@@ -175,9 +175,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     Renderer* renderer = pipe->getRenderer();
     LBASSERT( renderer );
 
-    eq::Matrix4f  modelviewM;     // modelview matrix
-    eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix
-    _calcMVandITMV( modelviewM, modelviewITM );
+    const eq::Matrix4f& modelview = _computeModelView();
 
     // set fancy data colors
     const eq::Vector4f taintColor = _getTaintColor( frameData.getColorMode(),
@@ -185,8 +183,8 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     const int normalsQuality = _getFrameData().getNormalsQuality();
 
     const eq::Range& range = getRange();
-    renderer->render( range, modelviewM, modelviewITM, invRotationM,
-                      taintColor, normalsQuality );
+    renderer->render( range, modelview, invRotationM, taintColor,
+                      normalsQuality );
     checkError( "error during rendering " );
 
     _drawRange = range;
@@ -208,13 +206,12 @@ const FrameData& Channel::_getFrameData() const
     return pipe->getFrameData();
 }
 
-void Channel::_calcMVandITMV(
-                            eq::Matrix4f& modelviewM,
-                            eq::Matrix3f& modelviewITM ) const
+eq::Matrix4f Channel::_computeModelView() const
 {
     const FrameData& frameData = _getFrameData();
     const Pipe*      pipe      = static_cast< const Pipe* >( getPipe( ));
     const Renderer*  renderer  = pipe->getRenderer();
+    eq::Matrix4f modelView( eq::Matrix4f::IDENTITY );
 
     if( renderer )
     {
@@ -226,15 +223,10 @@ void Channel::_calcMVandITMV(
         scale.at(2,2) = volScaling.D;
         scale.at(3,3) = 1.f;
 
-        modelviewM = scale * frameData.getRotation();
+        modelView = scale * frameData.getRotation();
     }
-    modelviewM.set_translation( frameData.getTranslation( ));
-    modelviewM = getHeadTransform() * modelviewM;
-
-    //calculate inverse transposed matrix
-    eq::Matrix4f modelviewIM;
-    modelviewM.inverse( modelviewIM );
-    eq::Matrix3f( modelviewIM ).transpose_to(  modelviewITM  );
+    modelView.set_translation( frameData.getTranslation( ));
+    return getHeadTransform() * modelView;
 }
 
 
@@ -269,19 +261,23 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 
 void Channel::_orderFrames( eq::Frames& frames )
 {
-    eq::Matrix4f        modelviewM;   // modelview matrix
-    eq::Matrix3f        modelviewITM; // modelview inversed transposed matrix
     const FrameData&    frameData = _getFrameData();
     const eq::Matrix4f& rotation  = frameData.getRotation();
 
-    if( !useOrtho( ))
-        _calcMVandITMV( modelviewM, modelviewITM );
+    const eq::Matrix4f& modelView = useOrtho() ? eq::Matrix4f::IDENTITY :
+                                                 _computeModelView();
 
-    orderFrames( frames, modelviewM, modelviewITM, rotation, useOrtho( ));
+    //calculate modelview inversed transposed matrix
+    eq::Matrix3f modelviewITM;
+    eq::Matrix4f modelviewIM;
+    modelView.inverse( modelviewIM );
+    eq::Matrix3f( modelviewIM ).transpose_to( modelviewITM );
+
+    orderFrames( frames, modelView, modelviewITM, rotation, useOrtho( ));
 }
 
 
-void Channel::frameAssemble( const eq::uint128_t& frameID )
+void Channel::frameAssemble( const eq::uint128_t& )
 {
     const bool composeOnly = (_drawRange == eq::Range::ALL);
 
