@@ -259,7 +259,7 @@ namespace server { class FrameData; }
         void setReady();
 
         /** @return true if the frame data is ready. @version 1.0 */
-        bool isReady() const   { return _readyVersion.get() >= _version; }
+        bool isReady() const { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
         void waitReady( const uint32_t timeout = LB_TIMEOUT_INDEFINITE ) const;

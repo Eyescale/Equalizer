@@ -68,7 +68,7 @@ void ViewEqualizer::attach( Compound* compound )
     Equalizer::attach( compound );
 }
 
-void ViewEqualizer::notifyUpdatePre( Compound* compound,
+void ViewEqualizer::notifyUpdatePre( Compound* compound LB_UNUSED,
                                      const uint32_t frameNumber )
 {
     LBASSERT( compound == getCompound( ));

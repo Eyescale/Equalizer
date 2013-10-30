@@ -403,6 +403,10 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
                           const uint32_t buffers_, const bool useAlpha,
                           uint8_t* data )
 {
+    LBASSERT( _readyVersion < frameDataVersion.version.low( ));
+    if( _readyVersion >= frameDataVersion.version.low( ))
+        return false;
+
     Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig(),
                                 false /* set quality */ );
 
@@ -460,7 +464,6 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
         }
     }
 
-    LBASSERT( _readyVersion < frameDataVersion.version.low( ));
     _pendingImages.push_back( image );
     return true;
 }
