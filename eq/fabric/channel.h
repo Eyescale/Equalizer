@@ -318,7 +318,7 @@ public:
     /** String attributes. */
     enum SAttribute
     {
-        SATTR_DUMP_IMAGE_PREFIX,
+        SATTR_DUMP_IMAGE,
         SATTR_LAST,
         SATTR_ALL = SATTR_LAST + 5
     };

@@ -542,8 +542,8 @@ void Channel::output( std::ostream& os ) const
 
         std::string attrStr;
         switch(i) {
-        case SATTR_DUMP_IMAGE_PREFIX:
-            attrStr = "dump_image_file_prefix    ";
+        case SATTR_DUMP_IMAGE:
+            attrStr = "dump_image    ";
             break;
         default:
             attrStr = "ERROR";

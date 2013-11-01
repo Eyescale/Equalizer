@@ -42,7 +42,7 @@ void eq::FileFrameWriter::write( Channel *channel )
 
 std::string eq::FileFrameWriter::_buildFileName( const eq::Channel * channel )
 {
-    std::string prefix = channel->getSAttribute(channel->SATTR_DUMP_IMAGE_PREFIX);
+    std::string prefix = channel->getSAttribute(channel->SATTR_DUMP_IMAGE);
     std::stringstream name;
     name << prefix << channel->getPipe( )->getCurrentFrame( ) << ".rgb";
     return name.str();

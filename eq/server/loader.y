@@ -303,7 +303,7 @@
 %token EQTOKEN_CORE
 %token EQTOKEN_SOCKET
 %token EQTOKEN_DISPLAYCLUSTER
-%token EQTOKEN_DUMP_IMAGE_FILE_PREFIX
+%token EQTOKEN_DUMP_IMAGE
 
 %union{
     const char*             _string;
@@ -537,7 +537,7 @@ global:
      | EQTOKEN_CHANNEL_SATTR_DUMP_IMAGE STRING
      {
         eq::server::Global::instance()->setChannelSAttribute(
-            eq::server::Channel::SATTR_DUMP_IMAGE_PREFIX, $2 );
+            eq::server::Channel::SATTR_DUMP_IMAGE, $2 );
      }
 
 
@@ -763,8 +763,8 @@ channelAttribute:
     | EQTOKEN_HINT_SENDTOKEN IATTR
         { channel->setIAttribute( eq::server::Channel::IATTR_HINT_SENDTOKEN,
                                   $2 ); }
-    | EQTOKEN_DUMP_IMAGE_FILE_PREFIX STRING
-        { channel->setSAttribute( eq::server::Channel::SATTR_DUMP_IMAGE_PREFIX,
+    | EQTOKEN_DUMP_IMAGE STRING
+        { channel->setSAttribute( eq::server::Channel::SATTR_DUMP_IMAGE,
                                   $2 ); }
 observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer( config );}
             observerFields '}' { observer = 0; }

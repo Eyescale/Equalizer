@@ -123,7 +123,7 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os << co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           << _sAttributes[SATTR_DUMP_IMAGE_PREFIX];
+           << _sAttributes[SATTR_DUMP_IMAGE];
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.nativeContext.vp << _data.nativeContext.pvp 
            << _data.fixedVP << _maxSize;
@@ -143,7 +143,7 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is >> co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           >> _sAttributes[SATTR_DUMP_IMAGE_PREFIX];
+           >> _sAttributes[SATTR_DUMP_IMAGE];
     if( dirtyBits & DIRTY_VIEWPORT )
     {
         // Ignore data from master (server) if we have local changes

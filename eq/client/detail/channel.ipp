@@ -112,7 +112,7 @@ public:
 
     void frameViewFinish( eq::Channel * channel )
     {
-        if ( channel->getSAttribute(channel->SATTR_DUMP_IMAGE_PREFIX) != "" )
+        if ( channel->getSAttribute(channel->SATTR_DUMP_IMAGE) != "" )
             frameWriter.write( channel );
 
     #ifdef EQUALIZER_USE_DISPLAYCLUSTER

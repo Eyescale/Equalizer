@@ -122,7 +122,7 @@ void Global::_setupDefaults()
     _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = fabric::NICEST;
 #endif
     _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = fabric::OFF;
-    _channelSAttributes[Channel::SATTR_DUMP_IMAGE_PREFIX] = "";
+    _channelSAttributes[Channel::SATTR_DUMP_IMAGE] = "";
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
