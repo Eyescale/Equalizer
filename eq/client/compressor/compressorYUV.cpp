@@ -94,7 +94,8 @@ bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
              GLEW_EXT_framebuffer_object );
 }
 
-void CompressorYUV::_initShader( const GLEWContext* glewContext, const char* fShaderPtr )
+void CompressorYUV::_initShader( const GLEWContext* glewContext LB_UNUSED,
+                                 const char* fShaderPtr )
 {
     if ( _program )
     {
