@@ -1,4 +1,3 @@
-
 /* Copyright (c)      2009, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2009, Maxim Makhinya
  *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
@@ -95,7 +94,7 @@ bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
              GLEW_EXT_framebuffer_object );
 }
 
-void CompressorYUV::_initShader( const GLEWContext*, const char* fShaderPtr )
+void CompressorYUV::_initShader( const GLEWContext* glewContext, const char* fShaderPtr )
 {
     if ( _program )
     {
