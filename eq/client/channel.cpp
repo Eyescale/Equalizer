@@ -2,6 +2,7 @@
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ * 				      2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,6 +42,7 @@
 #include "server.h"
 #include "systemWindow.h"
 #include "view.h"
+#include "fileFrameWriter.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
@@ -469,20 +471,9 @@ void Channel::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 
 void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 
-void Channel::frameViewFinish( const uint128_t& )
+void Channel::frameViewFinish(const uint128_t&)
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
-    if( _impl->_dcProxy )
-    {
-        if( !_impl->_dcProxy->isRunning( ))
-        {
-            delete _impl->_dcProxy;
-            _impl->_dcProxy = 0;
-        }
-        else
-            _impl->_dcProxy->swapBuffer();
-    }
-#endif
+    _impl->frameViewFinish( this );
 }
 
 void Channel::setupAssemblyState()

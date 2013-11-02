@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
+ *               2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -14,6 +15,13 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+#include <eq/client/channel.h>
+#include <eq/client/fileFrameWriter.h>
+
+#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#  include "../dc/proxy.h"
+#endif
 
 namespace eq
 {
@@ -38,6 +46,7 @@ public:
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
             , _dcProxy( 0 )
 #endif
+            , frameWriter( )
         {
             lunchbox::RNG rng;
             color.r() = rng.get< uint8_t >();
@@ -97,6 +106,28 @@ public:
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     dc::Proxy* _dcProxy;
 #endif
+
+    /** Used to dump images when the channel is configured to do so */
+    eq::FileFrameWriter frameWriter;
+
+    void frameViewFinish( eq::Channel * channel )
+    {
+        if ( channel->getSAttribute(channel->SATTR_DUMP_IMAGE) != "" )
+            frameWriter.write( channel );
+
+    #ifdef EQUALIZER_USE_DISPLAYCLUSTER
+        if( _dcProxy )
+        {
+            if( !_dcProxy->isRunning( ))
+            {
+                delete _dcProxy;
+                _dcProxy = 0;
+            }
+            else
+                _dcProxy->swapBuffer();
+        }
+    #endif
+    }
 };
 
 }

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *					  2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -94,6 +95,11 @@ Channel::Channel( Window* parent )
     {
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getChannelIAttribute( attr ));
+    }
+    for( unsigned i = 0; i < SATTR_ALL; ++i )
+    {
+        const SAttribute attr = static_cast< SAttribute >( i );
+        setSAttribute( attr, global->getChannelSAttribute( attr ));
     }
 }
 
@@ -504,11 +510,47 @@ void Channel::output( std::ostream& os ) const
             attrPrinted = true;
         }
 
-        os << ( i==IATTR_HINT_STATISTICS ?
-                "hint_statistics   " :
-                i==IATTR_HINT_SENDTOKEN ?
-                    "hint_sendtoken    " : "ERROR" )
+        std::string attrStr;
+        switch(i) {
+        case IATTR_HINT_STATISTICS:
+            attrStr = "hint_statistics    ";
+            break;
+        case IATTR_HINT_SENDTOKEN:
+            attrStr = "hint_sendtoken    ";
+            break;
+        default:
+            attrStr = "ERROR";
+        }
+
+        os << attrStr
            << static_cast< fabric::IAttribute >( value ) << std::endl;
+    }
+    for( SAttribute i = static_cast<SAttribute>( 0 );
+         i < SATTR_LAST;
+         i = static_cast<SAttribute>( static_cast<uint32_t>(i)+1 ))
+    {
+        const std::string & value = getSAttribute( i );
+        if( value == Global::instance()->getChannelSAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << lunchbox::indent;
+            attrPrinted = true;
+        }
+
+        std::string attrStr;
+        switch(i) {
+        case SATTR_DUMP_IMAGE:
+            attrStr = "dump_image    ";
+            break;
+        default:
+            attrStr = "ERROR";
+        }
+
+        os << attrStr
+           << "\"" << value << "\"" << std::endl;
     }
 
     if( attrPrinted )

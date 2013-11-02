@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *					  2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -314,11 +315,27 @@ public:
         IATTR_ALL = IATTR_LAST + 5
     };
 
+    /** String attributes. */
+    enum SAttribute
+    {
+        SATTR_DUMP_IMAGE,
+        SATTR_LAST,
+        SATTR_ALL = SATTR_LAST + 5
+    };
+
     /** @return the value of an integer attribute. @version 1.0 */
     EQFABRIC_INL int32_t getIAttribute( const IAttribute attr ) const;
+
+    /** @return the value of an string attribute. @version 1.0 */
+    EQFABRIC_INL std::string getSAttribute( const SAttribute attr ) const;
+
     /** @return the name of an integer attribute. @version 1.0 */
     EQFABRIC_INL static const std::string& getIAttributeString(
         const IAttribute attr );
+
+    /** @return the name of an string attribute. @version 1.0 */
+    EQFABRIC_INL static const std::string& getSAttributeString(
+        const SAttribute attr );
     //@}
 
     virtual bool omitOutput() const { return false; } //!< @internal
@@ -367,6 +384,10 @@ protected:
         { _iAttributes[attr] = value; setDirty( DIRTY_ATTRIBUTES ); }
 
     /** @internal */
+    void setSAttribute( const SAttribute attr, const std::string& value )
+        { _sAttributes[attr] = value; setDirty( DIRTY_ATTRIBUTES ); }
+
+    /** @internal */
     virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     enum DirtyBits
@@ -411,6 +432,9 @@ private:
 
     /** Integer attributes. */
     int32_t _iAttributes[IATTR_ALL];
+
+    /** String attributes. */
+    std::string _sAttributes[SATTR_ALL];
 
     /** An alternate drawable config. */
     uint32_t _drawable;
