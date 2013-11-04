@@ -32,7 +32,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   endif()
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
-      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5")
+      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
