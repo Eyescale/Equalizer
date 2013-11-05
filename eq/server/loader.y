@@ -102,6 +102,7 @@
 %token EQTOKEN_GLOBAL
 %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
 %token EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN
+%token EQTOKEN_CHANNEL_SATTR_DUMP_IMAGE
 %token EQTOKEN_COMPOUND_IATTR_STEREO_MODE
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK
@@ -302,6 +303,7 @@
 %token EQTOKEN_CORE
 %token EQTOKEN_SOCKET
 %token EQTOKEN_DISPLAYCLUSTER
+%token EQTOKEN_DUMP_IMAGE
 
 %union{
     const char*             _string;
@@ -532,6 +534,12 @@ global:
          LBWARN << "ignoring removed attribute EQ_COMPOUND_IATTR_UPDATE_FOV"
                 << std::endl;
      }
+     | EQTOKEN_CHANNEL_SATTR_DUMP_IMAGE STRING
+     {
+        eq::server::Global::instance()->setChannelSAttribute(
+            eq::server::Channel::SATTR_DUMP_IMAGE, $2 );
+     }
+
 
 connectionType:
     EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
@@ -755,8 +763,9 @@ channelAttribute:
     | EQTOKEN_HINT_SENDTOKEN IATTR
         { channel->setIAttribute( eq::server::Channel::IATTR_HINT_SENDTOKEN,
                                   $2 ); }
-
-
+    | EQTOKEN_DUMP_IMAGE STRING
+        { channel->setSAttribute( eq::server::Channel::SATTR_DUMP_IMAGE,
+                                  $2 ); }
 observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer( config );}
             observerFields '}' { observer = 0; }
 observerFields: /*null*/ | observerFields observerField

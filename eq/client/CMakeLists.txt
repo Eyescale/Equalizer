@@ -76,7 +76,7 @@ source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
 source_group(downloader FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
-source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
+source_group(client FILES eq.h ${CLIENT_PUBLIC_HEADERS} ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 
 source_group(agl FILES ${AGL_HEADERS} ${AGL_SOURCES})
 source_group(glx FILES ${GLX_HEADERS} ${GLX_SOURCES})
@@ -84,13 +84,13 @@ source_group(wgl FILES ${WGL_HEADERS} ${WGL_SOURCES})
 set_source_files_properties(${AGL_SOURCES}
   PROPERTIES COMPILE_FLAGS "-Wno-multichar")
 
-add_library(Equalizer SHARED ${CLIENT_HEADERS} ${UTIL_HEADERS}
+add_library(Equalizer SHARED ${CLIENT_PUBLIC_HEADERS} ${CLIENT_HEADERS} ${UTIL_HEADERS}
   ${CLIENT_SOURCES} ${UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES})
 target_link_libraries(Equalizer ${EQ_LIBRARIES})
 set_target_properties(Equalizer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-install_files(include/eq/client FILES ${CLIENT_HEADERS}  COMPONENT dev)
+install_files(include/eq/client FILES ${CLIENT_PUBLIC_HEADERS}  COMPONENT dev)
 install_files(include/eq/util FILES ${UTIL_HEADERS} COMPONENT dev)
 
 if (MSVC)
@@ -115,5 +115,5 @@ install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq
 option(EQUALIZER_OLD_CLIENT_LAYOUT
   "Install header files as in v1.0 directory layout" OFF)
 if(EQUALIZER_OLD_CLIENT_LAYOUT)
-  install(FILES ${CLIENT_HEADERS} DESTINATION include/eq/ COMPONENT dev)
+  install(FILES ${CLIENT_PUBLIC_HEADERS} DESTINATION include/eq/ COMPONENT dev)
 endif()
