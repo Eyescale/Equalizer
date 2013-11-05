@@ -122,7 +122,6 @@ void Global::_setupDefaults()
     _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = fabric::NICEST;
 #endif
     _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = fabric::OFF;
-    _channelSAttributes[Channel::SATTR_DUMP_IMAGE] = "";
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
@@ -391,7 +390,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
 
     for( uint32_t i=0; i<Channel::SATTR_ALL; ++i )
     {
-        const std::string value = global->_channelSAttributes[i];
+        const std::string& value = global->_channelSAttributes[i];
         if( value == reference._channelSAttributes[i] )
             continue;
 

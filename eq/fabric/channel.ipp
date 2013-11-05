@@ -123,7 +123,7 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os << co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           << _sAttributes[SATTR_DUMP_IMAGE];
+           << _sAttributes[SATTR_DUMP_IMAGE]; TT
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.nativeContext.vp << _data.nativeContext.pvp 
            << _data.fixedVP << _maxSize;

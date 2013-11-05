@@ -505,24 +505,14 @@ void Channel::output( std::ostream& os ) const
 
         if( !attrPrinted )
         {
-            os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << lunchbox::indent;
+            os << std::endl << "attributes" << std::endl
+               << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
 
-        std::string attrStr;
-        switch(i) {
-        case IATTR_HINT_STATISTICS:
-            attrStr = "hint_statistics    ";
-            break;
-        case IATTR_HINT_SENDTOKEN:
-            attrStr = "hint_sendtoken    ";
-            break;
-        default:
-            attrStr = "ERROR";
-        }
-
-        os << attrStr
+        os << ( i==IATTR_HINT_STATISTICS ? "hint_statistics   " :
+                i==IATTR_HINT_SENDTOKEN ?  "hint_sendtoken    " :
+                                           "ERROR " )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     for( SAttribute i = static_cast<SAttribute>( 0 );
@@ -535,21 +525,12 @@ void Channel::output( std::ostream& os ) const
 
         if( !attrPrinted )
         {
-            os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << lunchbox::indent;
+            os << std::endl << "attributes" << std::endl
+               << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
 
-        std::string attrStr;
-        switch(i) {
-        case SATTR_DUMP_IMAGE:
-            attrStr = "dump_image    ";
-            break;
-        default:
-            attrStr = "ERROR";
-        }
-
-        os << attrStr
+        os << ( i == SATTR_DUMP_IMAGE : "dump_image        " : "ERROR " )
            << "\"" << value << "\"" << std::endl;
     }
 

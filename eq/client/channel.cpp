@@ -28,6 +28,7 @@
 #  include "configEvent.h"
 #endif
 #include "error.h"
+#include "fileFrameWriter.h"
 #include "frame.h"
 #include "frameData.h"
 #include "gl.h"
@@ -42,7 +43,6 @@
 #include "server.h"
 #include "systemWindow.h"
 #include "view.h"
-#include "fileFrameWriter.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>

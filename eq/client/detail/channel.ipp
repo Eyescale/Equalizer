@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/client/channel.h>
-#include <eq/client/fileFrameWriter.h>
+#include "../channel.h"
+#include "fileFrameWriter.h"
 
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
 #  include "../dc/proxy.h"
@@ -46,7 +46,6 @@ public:
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
             , _dcProxy( 0 )
 #endif
-            , frameWriter( )
         {
             lunchbox::RNG rng;
             color.r() = rng.get< uint8_t >();
@@ -59,6 +58,25 @@ public:
             statistics->clear();
             LBASSERT( !fbo );
         }
+
+    void frameViewFinish( eq::Channel * channel )
+    {
+        if( !channel->getSAttribute(channel->SATTR_DUMP_IMAGE).empty( ))
+            frameWriter.write( channel );
+
+    #ifdef EQUALIZER_USE_DISPLAYCLUSTER
+        if( _dcProxy )
+        {
+            if( !_dcProxy->isRunning( ))
+            {
+                delete _dcProxy;
+                _dcProxy = 0;
+            }
+            else
+                _dcProxy->swapBuffer();
+        }
+    #endif
+    }
 
     /** The channel's drawable config (FBO). */
     DrawableConfig drawableConfig;
@@ -107,27 +125,8 @@ public:
     dc::Proxy* _dcProxy;
 #endif
 
-    /** Used to dump images when the channel is configured to do so */
+    /** Dumps images when the channel is configured to do so */
     eq::FileFrameWriter frameWriter;
-
-    void frameViewFinish( eq::Channel * channel )
-    {
-        if ( channel->getSAttribute(channel->SATTR_DUMP_IMAGE) != "" )
-            frameWriter.write( channel );
-
-    #ifdef EQUALIZER_USE_DISPLAYCLUSTER
-        if( _dcProxy )
-        {
-            if( !_dcProxy->isRunning( ))
-            {
-                delete _dcProxy;
-                _dcProxy = 0;
-            }
-            else
-                _dcProxy->swapBuffer();
-        }
-    #endif
-    }
 };
 
 }

@@ -74,6 +74,9 @@ set(CLIENT_PUBLIC_HEADERS
   channelStatistics.h
   client.h
   commandQueue.h
+  compositor.h
+  computeContext.h
+  config.h
   configEvent.h
   configStatistics.h
   cudaContext.h
@@ -117,15 +120,15 @@ set(CLIENT_PUBLIC_HEADERS
   )
 
 set(CLIENT_HEADERS
-  compositor.h
-  computeContext.h
-  config.h
-  fileFrameWriter.h
+  detail/fileFrameWriter.h
+  exitVisitor.h
+  half.h
+  initVisitor.h
+  transferFinder.h
   )
 
 set(CLIENT_SOURCES
   ${DISPLAYCLUSTER_SOURCES}
-  detail/channel.ipp
   canvas.cpp
   channel.cpp
   channelStatistics.cpp
@@ -136,22 +139,20 @@ set(CLIENT_SOURCES
   config.cpp
   configStatistics.cpp
   cudaContext.cpp
+  detail/channel.ipp
+  detail/fileFrameWriter.cpp
   event.cpp
-  eventICommand.cpp
   eventHandler.cpp
-  exitVisitor.h
+  eventICommand.cpp
   frame.cpp
   frameData.cpp
-  fileFrameWriter.cpp
   gl.cpp
   glException.cpp
   glWindow.cpp
   global.cpp
-  half.h
   half.cpp
   image.cpp
   init.cpp
-  initVisitor.h
   jitter.cpp
   layout.cpp
   node.cpp
@@ -169,7 +170,6 @@ set(CLIENT_SOURCES
   statistic.cpp
   systemPipe.cpp
   systemWindow.cpp
-  transferFinder.h
   version.cpp
   view.cpp
   window.cpp
