@@ -1,7 +1,8 @@
 # Copyright (c) 2013 ahmet.bilgili@epfl.ch
 #               2013 Stefan.Eilemann@epfl.ch
 
-set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map)
+set(TESTS_CPP11 sharedptr tuple auto nullptr array final_override unordered_map
+  template_alias)
 
 file(WRITE ${CMAKE_BINARY_DIR}/cpp11_sharedptr.cpp
 "#include <memory>
@@ -69,6 +70,15 @@ int main()
    std::unordered_map< int, int > test;
    test[ 42 ] = 17;
    return 0;
+}")
+
+file(WRITE ${CMAKE_BINARY_DIR}/cpp11_template_alias.cpp
+"#include <vector>
+template <typename T> using FooVector = std::vector< T >;
+int main()
+{
+    FooVector< int > foo;
+    return 0;
 }")
 
 set(TEST_CPP11_PASSED)
