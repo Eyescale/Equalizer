@@ -32,7 +32,7 @@ namespace detail
  *
  * It simply persists the contents of the COLOR buffer associated
  * with a channel to a file in the current working  directory. The name of
- * the file is frame<frameNumber>.rgb
+ * the file is Channel::SATTR_DUMP_IMAGE.rgb
  */
 class FileFrameWriter
 {
