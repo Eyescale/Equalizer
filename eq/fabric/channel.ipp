@@ -1,17 +1,17 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -83,7 +83,7 @@ void Channel< W, C >::init()
 
 template< class W, class C >
 Channel< W, C >::~Channel()
-{  
+{
     _window->_removeChannel( static_cast< C* >( this ));
 }
 
@@ -118,14 +118,14 @@ void Channel< W, C >::restore()
 template< class W, class C >
 void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    LBASSERT( dirtyBits == DIRTY_ALL || 
+    LBASSERT( dirtyBits == DIRTY_ALL ||
               getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os << co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           << _sAttributes[SATTR_DUMP_IMAGE]; TT
+           << co::Array< std::string >( _sAttributes, SATTR_ALL );
     if( dirtyBits & DIRTY_VIEWPORT )
-        os << _data.nativeContext.vp << _data.nativeContext.pvp 
+        os << _data.nativeContext.vp << _data.nativeContext.pvp
            << _data.fixedVP << _maxSize;
     if( dirtyBits & DIRTY_MEMBER )
         os << _drawable << _data.nativeContext.view
@@ -143,7 +143,7 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is >> co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           >> _sAttributes[SATTR_DUMP_IMAGE];
+           >> co::Array< std::string >( _sAttributes, SATTR_ALL );
     if( dirtyBits & DIRTY_VIEWPORT )
     {
         // Ignore data from master (server) if we have local changes
@@ -154,8 +154,8 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) + 
-                                   sizeof( _data.nativeContext.pvp ) + 
+            is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) +
+                                   sizeof( _data.nativeContext.pvp ) +
                                    sizeof( _data.fixedVP ) + sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
@@ -204,7 +204,7 @@ void Channel< W, C >::setViewport( const Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
-    
+
     _data.fixedVP = true;
 
     if( _data.nativeContext.vp == vp && _data.nativeContext.pvp.hasArea( ))
@@ -278,8 +278,8 @@ void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
 }
 
 template< class W, class C >
-void Channel< W, C >::setDrawable( const uint32_t drawable ) 
-{ 
+void Channel< W, C >::setDrawable( const uint32_t drawable )
+{
     _drawable = drawable;
     setDirty( DIRTY_MEMBER );
 }
@@ -406,21 +406,21 @@ std::ostream& operator << ( std::ostream& os,
     if( drawable != C::FB_WINDOW )
     {
         os << "drawable [";
-        
+
         if ((drawable & C::FBO_COLOR) != 0 )
         {
            os << " FBO_COLOR";
         }
-        
+
         if ((drawable & C::FBO_DEPTH) != 0)
         {
-           os << " FBO_DEPTH"; 
-        } 
-        if ((drawable & C::FBO_STENCIL) != 0) 
-        {
-           os << " FBO_STENCIL";  
+           os << " FBO_DEPTH";
         }
-        
+        if ((drawable & C::FBO_STENCIL) != 0)
+        {
+           os << " FBO_STENCIL";
+        }
+
         os << " ]" << std::endl;
     }
     os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
