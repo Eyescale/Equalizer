@@ -15,7 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/client/fileFrameWriter.h>
+#include "fileFrameWriter.h"
+
 #include <eq/client/channel.h>
 #include <eq/client/image.h>
 #include <eq/client/gl.h>
@@ -27,7 +28,7 @@
 
 namespace
 {
-std::string _buildFileName( const eq::Channel * channel )
+std::string _buildFileName( const eq::Channel* channel )
 {
     std::stringstream name;
     name << channel->getSAttribute( eq::Channel::SATTR_DUMP_IMAGE )
@@ -43,18 +44,18 @@ namespace detail
 FileFrameWriter::FileFrameWriter()
 {
     _image.setAlphaUsage( true );
-    _image.setQuality( Frame::BUFFER_COLOR, 1.0f );
-    _image.setStorageType( Frame::TYPE_MEMORY );
-    _image.setInternalFormat( Frame::BUFFER_COLOR, GL_RGBA );
+    _image.setQuality( eq::Frame::BUFFER_COLOR, 1.0f );
+    _image.setStorageType( eq::Frame::TYPE_MEMORY );
+    _image.setInternalFormat( eq::Frame::BUFFER_COLOR, GL_RGBA );
 }
 
-void FileFrameWriter::write( const Channel *channel )
+void FileFrameWriter::write( eq::Channel* channel )
 {
-    if( _image.readback( Frame::BUFFER_COLOR, channel->getPixelViewport(),
+    if( _image.readback( eq::Frame::BUFFER_COLOR, channel->getPixelViewport(),
                           channel->getZoom(), channel->getObjectManager( )))
     {
         const std::string& fileName = _buildFileName( channel );
-        if( !_image.writeImage( fileName, Frame::BUFFER_COLOR ))
+        if( !_image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
             LBWARN << "Could not write file " << fileName << std::endl;
     }
     else

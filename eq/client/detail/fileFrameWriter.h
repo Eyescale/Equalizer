@@ -37,10 +37,10 @@ namespace detail
 class FileFrameWriter
 {
 public:
-    FileFrameWriter()
+    FileFrameWriter();
     ~FileFrameWriter() {}
 
-    void write( const eq::Channel* channel );
+    void write( eq::Channel* channel );
 
 private:
     eq::Image _image;

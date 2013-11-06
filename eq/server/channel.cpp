@@ -530,7 +530,7 @@ void Channel::output( std::ostream& os ) const
             attrPrinted = true;
         }
 
-        os << ( i == SATTR_DUMP_IMAGE : "dump_image        " : "ERROR " )
+        os << ( i == SATTR_DUMP_IMAGE ? "dump_image        " : "ERROR " )
            << "\"" << value << "\"" << std::endl;
     }
 
