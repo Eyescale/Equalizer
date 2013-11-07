@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *					  2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+ *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -519,7 +519,7 @@ void Channel::output( std::ostream& os ) const
          i < SATTR_LAST;
          i = static_cast<SAttribute>( static_cast<uint32_t>(i)+1 ))
     {
-        const std::string & value = getSAttribute( i );
+        const std::string& value = getSAttribute( i );
         if( value == Global::instance()->getChannelSAttribute( i ))
             continue;
 
