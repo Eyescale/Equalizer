@@ -746,7 +746,8 @@ bool Config::_handleEvent( const Event& event )
     return false;
 }
 
-void Config::addStatistic( const uint32_t originator, const Statistic& stat )
+void Config::addStatistic( const uint32_t originator LB_UNUSED,
+                           const Statistic& stat LB_UNUSED )
 {
 #ifdef EQUALIZER_USE_GLSTATS
     const uint32_t frame = stat.frameNumber;
