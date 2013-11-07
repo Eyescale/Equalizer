@@ -32,7 +32,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
   endif()
   if(CMAKE_COMPILER_IS_CLANG)
     set(COMMON_GCC_FLAGS
-      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5")
+      "${COMMON_GCC_FLAGS} -Qunused-arguments -ferror-limit=5 -ftemplate-depth-1024")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_GCC_FLAGS}")
@@ -40,6 +40,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     "${CMAKE_CXX_FLAGS} ${COMMON_GCC_FLAGS} -Wnon-virtual-dtor -Wsign-promo")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
+  set(CMAKE_CXX_FLAGS_DEBUG
+    "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+  set(CMAKE_C_FLAGS_DEBUG
+    "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 
   if(NOT GCC_COMPILER_VERSION VERSION_LESS 4.3)
     if(GCC_COMPILER_VERSION VERSION_LESS 4.7)
