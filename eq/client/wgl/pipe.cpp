@@ -85,12 +85,30 @@ bool Pipe::configInit()
     }
     else // ... using Win32 API
     {
-        HDC dc = createWGLDisplayDC();
-
         pvp.x = 0;
         pvp.y = 0;
+
+        HDC dc = createWGLDisplayDC();
         if( dc )
         {
+            uint32_t device = getPipe()->getDevice();
+            if( device == LB_UNDEFINED_UINT32 )
+                device = 0;
+
+            DISPLAY_DEVICE devInfo;
+            devInfo.cb = sizeof( devInfo );
+            if( EnumDisplayDevices( 0, device, &devInfo, 0 ))
+            {
+                DEVMODE devMode;
+                devMode.dmSize = sizeof( devMode );
+                if( EnumDisplaySettings( devInfo.DeviceName,
+                                         ENUM_CURRENT_SETTINGS, &devMode ))
+                {
+                    pvp.x = devMode.dmPosition.x;
+                    pvp.y = devMode.dmPosition.y;
+                }
+            }
+
             pvp.w = GetDeviceCaps( dc, HORZRES );
             pvp.h = GetDeviceCaps( dc, VERTRES );
             DeleteDC( dc );
