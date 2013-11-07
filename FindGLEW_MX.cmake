@@ -18,7 +18,7 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
   set(TEST_SRC ${CMAKE_BINARY_DIR}/glew_test.cpp)
   file(WRITE ${TEST_SRC}
     "#include <GL/glew.h>\n"
-    "int main(int argc, char* argv[])\n"
+    "int main( )\n"
     "{\n"
     "  glewContextInit(0);\n"
     "}\n"
@@ -40,7 +40,7 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
   elseif(X11_FOUND)
     file(WRITE ${TEST_SRC}
       "#include <GL/glxew.h>\n"
-      "int main(int argc, char* argv[])\n"
+      "int main( )\n"
       "{\n"
       "  glxewContextInit(0);\n"
       "}\n"
