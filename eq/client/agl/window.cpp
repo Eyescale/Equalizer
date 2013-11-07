@@ -126,7 +126,7 @@ void Window::swapBuffers()
     aglSwapBuffers( _aglContext );
 }
 
-void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
+void Window::joinNVSwapBarrier( const uint32_t, const uint32_t )
 {
     LBWARN << "NV_swap_group not supported on AGL" << std::endl;
 }

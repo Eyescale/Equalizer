@@ -548,7 +548,7 @@ namespace
 static uint16_t _magellanID = 0;
 static Node*    _magellanNode = 0;
 
-void _magellanEventHandler( io_connect_t connection, natural_t messageType,
+void _magellanEventHandler( io_connect_t, natural_t messageType,
                             void *messageArgument )
 {
     switch( messageType )

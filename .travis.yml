@@ -7,11 +7,13 @@ script:
  - mkdir Debug
  - cd Debug
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Debug
- - env TRAVIS=1 make -j8 tests ARGS=-V
+ - make -j8
+ - env TRAVIS=1 make test ARGS=-V
  - mkdir ../Release
  - cd ../Release
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Release
- - env TRAVIS=1 make -j8 tests ARGS=-V
+ - make -j8
+ - env TRAVIS=1 make test ARGS=-V
 before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq autoconf || /bin/true
