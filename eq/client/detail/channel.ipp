@@ -126,7 +126,7 @@ public:
 #endif
 
     /** Dumps images when the channel is configured to do so */
-    eq::FileFrameWriter frameWriter;
+    FileFrameWriter frameWriter;
 };
 
 }

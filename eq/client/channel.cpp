@@ -27,8 +27,8 @@
 #ifndef EQ_2_0_API
 #  include "configEvent.h"
 #endif
+#include "detail/fileFrameWriter.h"
 #include "error.h"
-#include "fileFrameWriter.h"
 #include "frame.h"
 #include "frameData.h"
 #include "gl.h"
