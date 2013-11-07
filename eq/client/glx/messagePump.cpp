@@ -121,7 +121,7 @@ void MessagePump::deregister( Display* display )
     }
 }
 
-void MessagePump::register_( dc::Proxy* dcProxy LB_UNUSED)
+void MessagePump::register_( dc::Proxy* dcProxy LB_UNUSED )
 {
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     if( ++_referenced[ dcProxy ] == 1 )
@@ -129,7 +129,7 @@ void MessagePump::register_( dc::Proxy* dcProxy LB_UNUSED)
 #endif
 }
 
-void MessagePump::deregister( dc::Proxy* dcProxy )
+void MessagePump::deregister( dc::Proxy* dcProxy LB_UNUSED  )
 {
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
     if( --_referenced[ dcProxy ] == 0 )
