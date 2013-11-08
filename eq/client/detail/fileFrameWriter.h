@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,11 +27,8 @@ namespace detail
 {
 
 /**
- * The FileFrameWriter class
- *
- * It simply persists the contents of the COLOR buffer associated
- * with a channel to a file in the current working  directory. The name of
- * the file is Channel::SATTR_DUMP_IMAGE.rgb
+ * Persist the color buffer of a channel to a file. 
+ * The name of the file is Channel::SATTR_DUMP_IMAGE.rgb
  */
 class FileFrameWriter
 {

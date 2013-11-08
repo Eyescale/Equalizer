@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
@@ -471,7 +470,7 @@ void Channel::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 
 void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 
-void Channel::frameViewFinish(const uint128_t&)
+void Channel::frameViewFinish( const uint128_t& )
 {
     _impl->frameViewFinish( this );
 }
