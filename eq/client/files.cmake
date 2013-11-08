@@ -65,7 +65,7 @@ set(WGL_SOURCES
   wgl/windowSystem.cpp
 )
 
-set(CLIENT_HEADERS
+set(CLIENT_PUBLIC_HEADERS
   ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
   api.h
   base.h
@@ -119,9 +119,16 @@ set(CLIENT_HEADERS
   zoomFilter.h
   )
 
+set(CLIENT_HEADERS
+  detail/fileFrameWriter.h
+  exitVisitor.h
+  half.h
+  initVisitor.h
+  transferFinder.h
+  )
+
 set(CLIENT_SOURCES
   ${DISPLAYCLUSTER_SOURCES}
-  detail/channel.ipp
   canvas.cpp
   channel.cpp
   channelStatistics.cpp
@@ -132,21 +139,20 @@ set(CLIENT_SOURCES
   config.cpp
   configStatistics.cpp
   cudaContext.cpp
+  detail/channel.ipp
+  detail/fileFrameWriter.cpp
   event.cpp
-  eventICommand.cpp
   eventHandler.cpp
-  exitVisitor.h
+  eventICommand.cpp
   frame.cpp
   frameData.cpp
   gl.cpp
   glException.cpp
   glWindow.cpp
   global.cpp
-  half.h
   half.cpp
   image.cpp
   init.cpp
-  initVisitor.h
   jitter.cpp
   layout.cpp
   node.cpp
@@ -164,7 +170,6 @@ set(CLIENT_SOURCES
   statistic.cpp
   systemPipe.cpp
   systemWindow.cpp
-  transferFinder.h
   version.cpp
   view.cpp
   window.cpp
@@ -192,3 +197,4 @@ endif()
 
 list(SORT CLIENT_SOURCES)
 list(SORT CLIENT_HEADERS)
+list(SORT CLIENT_PUBLIC_HEADERS)

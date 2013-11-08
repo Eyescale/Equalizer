@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -121,69 +122,27 @@ co::ConnectionDescriptions _findConnections( const lunchbox::UUID& id,
 }
 static lunchbox::a_int32_t _frameCounter;
 
+static void _configureHwsdModules( );
+static void _disposeHwsdModules( );
+static uint32_t _configureNetworkTypes( const fabric::ConfigParams& params );
+static hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
+                              hwsd::FilterPtr filter );
+static const hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
+                                                 hwsd::FilterPtr filter );
+
 bool Resources::discover( ServerPtr server, Config* config,
                           const std::string& session,
                           const fabric::ConfigParams& params )
 {
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
-    hwsd::gpu::cgl::Module::use();
-#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
-    hwsd::gpu::glx::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
-    hwsd::gpu::wgl::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
-    hwsd::gpu::dns_sd::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
-    hwsd::net::sys::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
-    hwsd::net::dns_sd::Module::use();
-#endif
+    _configureHwsdModules( );
 
     hwsd::FilterPtr filter = hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
                              new hwsd::SessionFilter( session );
 
-    hwsd::FilterPtr gpuFilter = filter | new hwsd::MirrorFilter |
-                                new hwsd::GPUFilter( params.getGPUFilter( ));
+    hwsd::GPUInfos gpuInfos = _discoverGPUs( params, filter );
+    const hwsd::NetInfos& netInfos = _discoverNetworkInterfaces( params, filter );
 
-    hwsd::GPUInfos gpuInfos = hwsd::discoverGPUInfos( gpuFilter );
-
-    uint32_t netTypes = 0;
-    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
-    {
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
-            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
-            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
-    }
-    else
-        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
-
-    hwsd::FilterPtr netFilter = filter |
-                          new hwsd::NetFilter( params.getPrefixes(), netTypes );
-
-    const hwsd::NetInfos& netInfos = hwsd::discoverNetInfos( netFilter );
-
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
-    hwsd::gpu::cgl::Module::dispose();
-#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
-    hwsd::gpu::glx::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
-    hwsd::gpu::wgl::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
-    hwsd::gpu::dns_sd::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
-    hwsd::net::sys::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
-    hwsd::net::dns_sd::Module::dispose();
-#endif
+    _disposeHwsdModules( );
 
     if( gpuInfos.empty( ))
     {
@@ -342,6 +301,84 @@ bool Resources::discover( ServerPtr server, Config* config,
     }
 
     return true;
+}
+
+hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
+                              hwsd::FilterPtr filter )
+{
+    hwsd::FilterPtr gpuFilter = filter | new hwsd::MirrorFilter |
+                                new hwsd::GPUFilter( params.getGPUFilter( ) );
+
+   return hwsd::discoverGPUInfos( gpuFilter );
+}
+
+const hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
+                                                 hwsd::FilterPtr filter )
+{
+
+    hwsd::FilterPtr netFilter = filter |
+                          new hwsd::NetFilter( params.getPrefixes(),
+                                               _configureNetworkTypes( params ) );
+
+    return hwsd::discoverNetInfos( netFilter );
+}
+
+void _configureHwsdModules( )
+{
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+    hwsd::gpu::cgl::Module::use();
+#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
+    hwsd::gpu::glx::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+    hwsd::gpu::wgl::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+    hwsd::gpu::dns_sd::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_sys
+    hwsd::net::sys::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+    hwsd::net::dns_sd::Module::use();
+#endif
+}
+
+void _disposeHwsdModules( )
+{
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+    hwsd::gpu::cgl::Module::dispose();
+#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
+    hwsd::gpu::glx::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+    hwsd::gpu::wgl::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+    hwsd::gpu::dns_sd::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_sys
+    hwsd::net::sys::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+    hwsd::net::dns_sd::Module::dispose();
+#endif
+}
+
+uint32_t _configureNetworkTypes( const fabric::ConfigParams& params )
+{
+    uint32_t netTypes = 0;
+    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
+    {
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
+            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
+            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
+    }
+    else
+        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
+
+    return netTypes;
 }
 
 namespace
