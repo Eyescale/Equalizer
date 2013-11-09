@@ -74,7 +74,7 @@ foreach(FILE ${TEST_FILES})
 endforeach(FILE ${TEST_FILES})
 
 add_custom_target(runtests
-  COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS ${ALL_TESTS}
+  COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_TESTS}
   COMMENT "Running all unit tests")
 
 if(COVERAGE)
