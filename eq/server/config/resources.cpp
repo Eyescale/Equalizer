@@ -146,6 +146,11 @@ bool Resources::discover( ServerPtr server, Config* config,
 
     if( gpuInfos.empty( ))
     {
+        if( session == "local" )
+        {
+            LBWARN << "No local GPUs found, abort configuration" << std::endl;
+            return false;
+        }
         LBINFO << "No resources found for session " << session
                << ", using default config" << std::endl;
         gpuInfos.push_back( hwsd::GPUInfo( ));
