@@ -88,7 +88,7 @@ if(COVERAGE)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS runtests)
   add_custom_target(lcov-remove
-    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' --output-file lcov2.info
+    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' --output-file lcov2.info
     COMMENT "Cleaning up code coverage counters"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS lcov-gather)
