@@ -16,8 +16,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
       ${LCOV_VERSION})
   endif()
   if( GCC_COMPILER_VERSION VERSION_GREATER 4.6.99 AND
-      LCOV_VERSION VERSION_LESS 1.10)
+      LCOV_VERSION VERSION_LESS 1.10 )
     message(STATUS "Need lcov >= 1.10 for gcc ${GCC_COMPILER_VERSION}, found lcov ${LCOV_VERSION}")
+    set(LCOV)
+  endif()
+  if($ENV{TRAVIS})
+    message(STATUS "Disable code coverage on Travis, causes build timeouts")
     set(LCOV)
   endif()
 
