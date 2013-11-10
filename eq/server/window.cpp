@@ -495,8 +495,9 @@ bool Window::_cmdConfigInitReply( co::ICommand& cmd )
     return true;
 }
 
-bool Window::_cmdConfigExitReply( co::ICommand& command )
+bool Window::_cmdConfigExitReply( co::ICommand& cmd )
 {
+    co::ObjectICommand command( cmd );
     LBVERB << "handle window configExit reply " << command << std::endl;
 
     if( command.get< bool >( ))
