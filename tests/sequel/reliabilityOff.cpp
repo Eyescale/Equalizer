@@ -67,5 +67,5 @@ int main( const int argc, char** argv )
     TEST( app->exit( ));
 
     TEST( clock.getTime64() > 22000 );
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
