@@ -464,8 +464,9 @@ bool Channel::_cmdConfigInitReply( co::ICommand& cmd )
     return true;
 }
 
-bool Channel::_cmdConfigExitReply( co::ICommand& command )
+bool Channel::_cmdConfigExitReply( co::ICommand& cmd )
 {
+    co::ObjectICommand command( cmd );
     LBLOG( LOG_INIT ) << "handle channel configExit reply " << command
                       << std::endl;
 
