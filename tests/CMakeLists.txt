@@ -1,78 +1,19 @@
-# Copyright (c) 2010 Daniel Pfeifer
-#               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+
+# Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
 #
 # Change this number when adding tests to force a CMake run: 1
 
-option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
-option(EQUALIZER_RUN_GPU_TESTS "Run Equalizer unit tests using a GPU." OFF)
-if(NOT EQUALIZER_BUILD_TESTS)
-  return()
-endif(NOT EQUALIZER_BUILD_TESTS)
-
-if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/tests)
-endif()
-
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
-file(GLOB TEST_CONFIGS server/reliability/*.eqc)
 file(COPY compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
-  ${COMPOSITOR_IMAGES} ${TEST_CONFIGS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  ${COMPOSITOR_IMAGES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/examples/include # test need tclap from examples
-  )
+file(GLOB TEST_CONFIGS server/reliability/*.eqc)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/reliability)
+file(COPY ${TEST_CONFIGS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/reliability)
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
 
-file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-
-set(ALL_TESTS)
-foreach(FILE ${TEST_FILES})
-  set(THIS_BUILD ON)
-  if(BIGENDIAN)
-    if( ${FILE} MATCHES "compressor/image.cpp" OR
-        ${FILE} MATCHES "compositor/test.cpp" )
-      set(THIS_BUILD OFF)
-    endif()
-  endif()
-
-  if(THIS_BUILD)
-    string(REGEX REPLACE ".cpp" "" NAME ${FILE})
-    string(REGEX REPLACE "[./]" "_" NAME ${NAME})
-    source_group(\\ FILES ${FILE})
-    add_executable(${NAME} ${FILE})
-    set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
-
-    target_link_libraries(${NAME} Equalizer)
-    if(${NAME} MATCHES "server_.*")
-      target_link_libraries(${NAME} EqualizerServer)
-    endif()
-    if(${NAME} MATCHES "fabric_.*")
-      target_link_libraries(${NAME} EqualizerFabric)
-    endif()
-    if(${NAME} MATCHES "sequel_.*")
-      target_link_libraries(${NAME} Sequel)
-    endif()
-
-    if(EQUALIZER_RUN_GPU_TESTS OR NOT ${NAME} MATCHES ".*_gpu")
-      get_target_property(EXECUTABLE ${NAME} LOCATION)
-      STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
-             EXECUTABLE "${EXECUTABLE}")
-
-      add_test(${NAME} ${EXECUTABLE})
-      if(APPLE)
-        set_property(TEST ${NAME} PROPERTY ENVIRONMENT
-          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIRS}:$ENV{DYLD_LIBRARY_PATH}"
-          )
-      endif()
-    endif()
-    list(APPEND ALL_TESTS ${NAME})
-  endif()
-endforeach(FILE ${TEST_FILES})
-
-# workaround bug that tests won't get built
-add_custom_target(tests COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS ${ALL_TESTS})
-set_target_properties(tests PROPERTIES FOLDER "Tests")
+set(TEST_LIBRARIES Equalizer EqualizerServer EqualizerFabric Sequel)
+include(CommonCTest)
