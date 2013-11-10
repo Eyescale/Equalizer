@@ -783,8 +783,8 @@ bool Window::_cmdDestroyChannel( co::ICommand& cmd )
     const bool stopped = channel->isStopped();
     Config* config = getConfig();
     config->unmapObject( channel );
-    channel->send( getServer(),
-                   fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY ) << stopped;
+    channel->send( getServer(), fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY )
+        << stopped;
     Global::getNodeFactory()->releaseChannel( channel );
 
     return true;

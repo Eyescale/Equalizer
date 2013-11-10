@@ -34,7 +34,7 @@ namespace seq
 {
 
 Application::Application()
-        : _impl( 0 )
+    : _impl( 0 )
 {
 }
 

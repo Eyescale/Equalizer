@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -44,19 +44,31 @@ namespace server
         STATE_DELETE = LB_BIT16       //!< additional modifier
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const State& state_ )
+    inline std::ostream& operator << ( std::ostream& os, const State& state )
     {
-        const uint32_t state = state_ & ~STATE_DELETE;
+        if( state & STATE_UNUSED )
+            os << "unused";
+        if( state & STATE_STOPPED )
+            os << "stopped";
+        if( state & STATE_INITIALIZING )
+            os << "initializing";
+        if( state & STATE_INIT_SUCCESS )
+            os << "init successful";
+        if( state & STATE_INIT_FAILED )
+            os << "failed";
+        if( state & STATE_RUNNING )
+            os << "running";
+        if( state & STATE_EXITING )
+            os << "exiting";
+        if( state & STATE_EXIT_SUCCESS )
+            os << "exit successful";
+        if( state & STATE_EXIT_FAILED )
+            os << "exit failed";
+        if( state & STATE_FAILED )
+            os << "failed";
+        if( state & STATE_DELETE )
+            os << "scheduled for deletion";
 
-        os << ( state == STATE_STOPPED ? "stopped" :
-                state == STATE_INITIALIZING ? "initializing" :
-                state == STATE_INIT_SUCCESS ? "init ok" :
-                state == STATE_INIT_FAILED ? "init failed" :
-                state == STATE_RUNNING ? "running" :
-                state == STATE_EXITING ? "exiting" :
-                state == STATE_EXIT_SUCCESS ? "exit ok" :
-                state == STATE_EXIT_FAILED ? "exit failed" :
-                state == STATE_FAILED ? "failed" : "ERROR" );
         return os;
     }
 }

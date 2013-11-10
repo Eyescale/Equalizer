@@ -477,7 +477,6 @@ bool Channel::_cmdConfigExitReply( co::ICommand& cmd )
 bool Channel::_cmdFrameFinishReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-
     const Viewport region = command.get< Viewport >();
     const uint32_t frameNumber = command.get< uint32_t >();
     const Statistics statistics = command.get< Statistics >();
