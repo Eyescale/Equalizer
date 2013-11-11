@@ -20,6 +20,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
     message(STATUS "Need lcov >= 1.10 for gcc ${GCC_COMPILER_VERSION}, found lcov ${LCOV_VERSION}")
     set(LCOV)
   endif()
+  if($ENV{TRAVIS})
+    message(STATUS "Disable code coverage on Travis, causes build timeouts")
+    set(LCOV)
+  endif()
 
   if(LCOV AND GENHTML)
     set(COVERAGE ON)
@@ -74,7 +78,7 @@ foreach(FILE ${TEST_FILES})
 endforeach(FILE ${TEST_FILES})
 
 add_custom_target(runtests
-  COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS ${ALL_TESTS}
+  COMMAND ${CMAKE_CTEST_COMMAND} \${ARGS} DEPENDS ${ALL_TESTS}
   COMMENT "Running all unit tests")
 
 if(COVERAGE)
@@ -84,7 +88,7 @@ if(COVERAGE)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS runtests)
   add_custom_target(lcov-remove
-    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' --output-file lcov2.info
+    COMMAND ${LCOV} -q --remove lcov.info 'tests/*' '/usr/*' '/opt/*' '*.l' 'CMake/test/*' '*/install/*' '/Applications/Xcode.app/*' '${CMAKE_BINARY_DIR}/*' --output-file lcov2.info
     COMMENT "Cleaning up code coverage counters"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS lcov-gather)
