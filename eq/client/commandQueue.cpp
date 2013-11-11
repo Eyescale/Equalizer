@@ -30,9 +30,9 @@ namespace
 static lunchbox::Clock _clock;
 }
 
-CommandQueue::CommandQueue( const size_t maxSize )
+CommandQueue::CommandQueue()
 #if CO_VERSION_GE( 1,1,0 )
-    : co::CommandQueue( maxSize )
+    : co::CommandQueue( ULONG_MAX )
 #else
     : co::CommandQueue()
 #endif
