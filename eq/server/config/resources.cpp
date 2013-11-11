@@ -119,30 +119,136 @@ co::ConnectionDescriptions _findConnections( const lunchbox::UUID& id,
     }
     return result;
 }
-}
-static lunchbox::a_int32_t _frameCounter;
 
-static void _configureHwsdModules( );
-static void _disposeHwsdModules( );
-static uint32_t _configureNetworkTypes( const fabric::ConfigParams& params );
-static hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
-                              hwsd::FilterPtr filter );
-static const hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
-                                                 hwsd::FilterPtr filter );
+uint32_t _configureNetworkTypes( const fabric::ConfigParams& params )
+{
+    uint32_t netTypes = 0;
+    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
+    {
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
+            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
+            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
+    }
+    else
+        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
+
+    return netTypes;
+}
+
+hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
+                              hwsd::FilterPtr filter )
+{
+    hwsd::FilterPtr gpuFilter = filter | new hwsd::MirrorFilter |
+                                new hwsd::GPUFilter( params.getGPUFilter( ));
+
+    return hwsd::discoverGPUInfos( gpuFilter );
+}
+
+hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
+                                           hwsd::FilterPtr filter )
+{
+
+    hwsd::FilterPtr netFilter = filter |
+                          new hwsd::NetFilter( params.getPrefixes(),
+                                              _configureNetworkTypes( params ));
+
+    return hwsd::discoverNetInfos( netFilter );
+}
+
+void _configureHwsdModules()
+{
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+    hwsd::gpu::cgl::Module::use();
+#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
+    hwsd::gpu::glx::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+    hwsd::gpu::wgl::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+    hwsd::gpu::dns_sd::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_sys
+    hwsd::net::sys::Module::use();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+    hwsd::net::dns_sd::Module::use();
+#endif
+}
+
+void _disposeHwsdModules()
+{
+#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+    hwsd::gpu::cgl::Module::dispose();
+#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
+    hwsd::gpu::glx::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+    hwsd::gpu::wgl::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+    hwsd::gpu::dns_sd::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_sys
+    hwsd::net::sys::Module::dispose();
+#endif
+#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+    hwsd::net::dns_sd::Module::dispose();
+#endif
+}
+
+class AddSourcesVisitor : public ConfigVisitor
+{
+public:
+    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
+
+    virtual VisitorResult visitPre( Pipe* pipe )
+    {
+        const Node* node = pipe->getNode();
+        if( node->isApplicationNode() && node->getPipes().front() == pipe )
+        {
+            // display window has discrete 'affinity' GPU
+            if( pipe->getName() != "display mt mp" )
+                _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
+            return TRAVERSE_CONTINUE;
+        }
+
+        Window* window = new Window( pipe );
+        if( !pipe->getPixelViewport().isValid( ))
+            window->setPixelViewport( _pvp );
+        window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
+        window->setName( pipe->getName() + " source window" );
+
+        _channels.push_back( new Channel( window ));
+        _channels.back()->setName( pipe->getName() + " source channel" );
+        return TRAVERSE_CONTINUE;
+    }
+
+    const Channels& getChannels() const { return _channels; }
+private:
+    const PixelViewport& _pvp;
+    Channels _channels;
+};
+
+} // unnamed namespace
+
+static lunchbox::a_int32_t _frameCounter;
 
 bool Resources::discover( ServerPtr server, Config* config,
                           const std::string& session,
                           const fabric::ConfigParams& params )
 {
-    _configureHwsdModules( );
+    _configureHwsdModules();
 
     hwsd::FilterPtr filter = hwsd::FilterPtr( new hwsd::DuplicateFilter ) |
                              new hwsd::SessionFilter( session );
 
     hwsd::GPUInfos gpuInfos = _discoverGPUs( params, filter );
-    const hwsd::NetInfos& netInfos = _discoverNetworkInterfaces( params, filter );
+    const hwsd::NetInfos& netInfos = _discoverNetworkInterfaces( params,
+                                                                 filter );
 
-    _disposeHwsdModules( );
+    _disposeHwsdModules();
 
     if( gpuInfos.empty( ))
     {
@@ -301,120 +407,6 @@ bool Resources::discover( ServerPtr server, Config* config,
     }
 
     return true;
-}
-
-hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
-                              hwsd::FilterPtr filter )
-{
-    hwsd::FilterPtr gpuFilter = filter | new hwsd::MirrorFilter |
-                                new hwsd::GPUFilter( params.getGPUFilter( ) );
-
-   return hwsd::discoverGPUInfos( gpuFilter );
-}
-
-const hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
-                                                 hwsd::FilterPtr filter )
-{
-
-    hwsd::FilterPtr netFilter = filter |
-                          new hwsd::NetFilter( params.getPrefixes(),
-                                               _configureNetworkTypes( params ) );
-
-    return hwsd::discoverNetInfos( netFilter );
-}
-
-void _configureHwsdModules( )
-{
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
-    hwsd::gpu::cgl::Module::use();
-#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
-    hwsd::gpu::glx::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
-    hwsd::gpu::wgl::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
-    hwsd::gpu::dns_sd::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
-    hwsd::net::sys::Module::use();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
-    hwsd::net::dns_sd::Module::use();
-#endif
-}
-
-void _disposeHwsdModules( )
-{
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
-    hwsd::gpu::cgl::Module::dispose();
-#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
-    hwsd::gpu::glx::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
-    hwsd::gpu::wgl::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
-    hwsd::gpu::dns_sd::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
-    hwsd::net::sys::Module::dispose();
-#endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
-    hwsd::net::dns_sd::Module::dispose();
-#endif
-}
-
-uint32_t _configureNetworkTypes( const fabric::ConfigParams& params )
-{
-    uint32_t netTypes = 0;
-    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
-    {
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
-            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
-            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
-    }
-    else
-        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
-
-    return netTypes;
-}
-
-namespace
-{
-class AddSourcesVisitor : public ConfigVisitor
-{
-public:
-    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
-
-    virtual VisitorResult visitPre( Pipe* pipe )
-    {
-        const Node* node = pipe->getNode();
-        if( node->isApplicationNode() && node->getPipes().front() == pipe )
-        {
-            // display window has discrete 'affinity' GPU
-            if( pipe->getName() != "display mt mp" )
-                _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
-            return TRAVERSE_CONTINUE;
-        }
-
-        Window* window = new Window( pipe );
-        if( !pipe->getPixelViewport().isValid( ))
-            window->setPixelViewport( _pvp );
-        window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
-        window->setName( pipe->getName() + " source window" );
-
-        _channels.push_back( new Channel( window ));
-        _channels.back()->setName( pipe->getName() + " source channel" );
-        return TRAVERSE_CONTINUE;
-    }
-
-    const Channels& getChannels() const { return _channels; }
-private:
-    const PixelViewport& _pvp;
-    Channels _channels;
-};
 }
 
 Channels Resources::configureSourceChannels( Config* config )
