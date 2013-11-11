@@ -296,8 +296,9 @@ bool Pipe::_cmdConfigInitReply( co::ICommand& cmd )
     return true;
 }
 
-bool Pipe::_cmdConfigExitReply( co::ICommand& command )
+bool Pipe::_cmdConfigExitReply( co::ICommand& cmd )
 {
+    co::ObjectICommand command( cmd );
     LBVERB << "handle pipe configExit reply " << command << std::endl;
 
     _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;

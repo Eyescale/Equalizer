@@ -9,6 +9,8 @@ Welcome to Equalizer, the standard middleware to create and deploy
 parallel, scalable OpenGL applications. This release introduces major
 new features, most notably integrated head tracking using VRPN or OpenCV.
 
+Equalizer 1.6.1 is a bugfix release over 1.6, fixing critical bugs.
+
 Equalizer 1.6 is a feature release extending the 1.0 API, distilling
 over eight years of development and decades of experience into a
 feature-rich, high-performance and mature parallel rendering
@@ -85,6 +87,13 @@ since the last release:
 * Expanded content in the Equalizer Programming and User Guide
 
 ## Bug Fixes {#Fixes}
+
+Equalizer 1.6.1 includes the following bugfixes over the 1.6 release:
+
+* [258](https://github.com/Eyescale/Equalizer/issues/258): Config::exit
+  return value wrong
+* [245](https://github.com/Eyescale/Equalizer/issues/245):
+  PackageConfig.cmake writes incorrect Equalizer.pc file
 
 Equalizer 1.6 includes various bugfixes over the 1.4 release, including
 the following:

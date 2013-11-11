@@ -18,21 +18,13 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 include(Revision)
 
 set(RELEASE_VERSION 160) # OFF or 'Mm0' ABI version
-set(LAST_RELEASE 1.6.0)
+set(LAST_RELEASE 1.6.1)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "6")
-set(VERSION_PATCH "0")
-
-if(CMAKE_OSX_DEPLOYMENT_TARGET)
-  set(EQ_OSX_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
-else()
-  set(EQ_OSX_VERSION 10.6)
-endif()
+set(VERSION_PATCH "1")
 
 if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
-  set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX${EQ_OSX_VERSION}.sdk
-      CACHE PATH "" FORCE)
   set(VERSION_ABI ${RELEASE_VERSION})
 else()
   set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
@@ -66,8 +58,6 @@ endif()
 if(APPLE)
   add_definitions(-DDarwin)
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-  set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
 endif(APPLE)
 
 if(EQ_GLX_USED)

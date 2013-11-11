@@ -70,7 +70,7 @@ int main( int argc, char **argv )
                 eq::Config* config = server->chooseConfig( configParams );
                 if( config )
                 {
-                    if( config->init( 0 ))
+                    if( config->init( eq::uint128_t( 0 )))
                     {
                         eq::detail::ThreadAffinityVisitor visitor;
                         config->accept( visitor );

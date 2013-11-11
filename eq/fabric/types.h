@@ -24,9 +24,21 @@
 #include <eq/fabric/error.h>
 #include <eq/fabric/vmmlib.h>
 #include <co/types.h>
+#include <co/version.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/uint128_t.h>
 #include <lunchbox/visitorResult.h>
+
+#if CO_VERSION_GE( 1, 1, 0 )
+#  ifdef _WIN32
+#    define EQ_DEFAULT_PORT (4242)
+#  else
+    // #241: Avoid using privilege ports below 1024
+#    define EQ_DEFAULT_PORT ( (getuid() % 64511) + 1024 )
+#  endif
+#  define EQ_INSTANCE_INVALID CO_INSTANCE_INVALID
+#  define EQ_INSTANCE_ALL CO_INSTANCE_ALL
+#endif
 
 namespace eq
 {

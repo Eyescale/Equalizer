@@ -270,7 +270,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( canvases.empty( ))
                 return true;
 
-            _frameData.setCurrentViewID( 0 );
+            _frameData.setCurrentViewID( eq::uint128_t( 0 ));
 
             if( !_currentCanvas )
             {
@@ -324,7 +324,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
             ++i;
             if( i == views.end( ))
-                _frameData.setCurrentViewID( 0 );
+                _frameData.setCurrentViewID( eq::uint128_t( 0 ));
             else
                 _frameData.setCurrentViewID( (*i)->getID( ));
             return true;
@@ -347,7 +347,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( 0 );
+    _frameData.setCurrentViewID( eq::uint128_t( 0 ));
 
     size_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

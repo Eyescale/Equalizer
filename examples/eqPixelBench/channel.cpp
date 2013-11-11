@@ -154,7 +154,7 @@ void Channel::_testFormats( float applyZoom )
         for( std::vector< uint32_t >::const_iterator j = names.begin();
              j != names.end(); ++j )
         {
-            _draw( 0 );
+            _draw( eq::uint128_t( 0 ));
 
             image->allocDownloader( eq::Frame::BUFFER_COLOR, *j, glewContext );
             image->setPixelViewport( pvp );
@@ -267,7 +267,7 @@ void Channel::_testTiledOperations()
 
     for( unsigned tiles = 0; tiles < NUM_IMAGES; ++tiles )
     {
-        EQ_GL_CALL( _draw( 0 ));
+        EQ_GL_CALL( _draw( eq::uint128_t( )));
         area.y() = subPVP.h * (tiles+1);
 
         //---- readback of 'tiles' depth images
@@ -388,9 +388,9 @@ void Channel::_testDepthAssemble()
 
     area.y() = pvp.h;
 
-    for( unsigned i = 0; i < NUM_IMAGES; ++i )
+    for( uint64_t i = 0; i < NUM_IMAGES; ++i )
     {
-        _draw( i );
+        _draw( eq::uint128_t( i ));
 
         // fill depth & color image
         image = images[ i ];

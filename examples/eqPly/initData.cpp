@@ -56,7 +56,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( 0 );
+    setFrameDataID( eq::uint128_t( ));
 }
 
 void InitData::getInstanceData( co::DataOStream& os )
