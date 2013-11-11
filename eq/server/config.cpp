@@ -990,7 +990,7 @@ bool Config::_cmdInit( co::ICommand& cmd )
         exit();
 
     sync();
-    LBINFO << "Config init " << (result ? "successful": "failed") << std::endl;
+    LBINFO << "Config init " << (result ? "successful" : "failed") << std::endl;
 
     const uint128_t version = commit();
     send( command.getNode(),
@@ -1007,9 +1007,12 @@ bool Config::_cmdExit( co::ICommand& cmd )
     if( _state == STATE_RUNNING )
         result = exit();
     else
+    {
+        LBINFO << "Exit of non-running config?" << std::endl;
         result = false;
+    }
 
-    LBINFO << "config exit result: " << result << std::endl;
+    LBINFO << "Config exit " << (result ? "successful" : "failed") << std::endl;
     send( command.getNode(), fabric::CMD_CONFIG_EXIT_REPLY )
             << command.get< uint32_t >() << result;
     return true;
@@ -1109,15 +1112,15 @@ bool Config::_cmdCreateReply( co::ICommand& cmd )
     return true;
 }
 
-bool Config::_cmdCheckFrame( co::ICommand& command )
+bool Config::_cmdCheckFrame( co::ICommand& cmd )
 {
     const int64_t lastInterval = getServer()->getTime() - _lastCheck;
     _lastCheck = getServer()->getTime();
 
-    co::ObjectICommand cmd( command );
-    LBVERB << "Check nodes for frame finish " << cmd << std::endl;
+    co::ObjectICommand command( cmd );
+    LBVERB << "Check nodes for frame finish " << command << std::endl;
 
-    const uint32_t frameNumber = cmd.get< uint32_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
     const uint32_t timeout = getTimeout();
 
     bool retry = false;

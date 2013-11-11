@@ -127,8 +127,8 @@ static void _disposeHwsdModules( );
 static uint32_t _configureNetworkTypes( const fabric::ConfigParams& params );
 static hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
                               hwsd::FilterPtr filter );
-static const hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
-                                                 hwsd::FilterPtr filter );
+static hwsd::NetInfos _discoverNetwork( const fabric::ConfigParams& params,
+                                        hwsd::FilterPtr filter );
 
 bool Resources::discover( ServerPtr server, Config* config,
                           const std::string& session,
@@ -140,12 +140,17 @@ bool Resources::discover( ServerPtr server, Config* config,
                              new hwsd::SessionFilter( session );
 
     hwsd::GPUInfos gpuInfos = _discoverGPUs( params, filter );
-    const hwsd::NetInfos& netInfos = _discoverNetworkInterfaces( params, filter );
+    const hwsd::NetInfos& netInfos = _discoverNetwork( params, filter );
 
     _disposeHwsdModules( );
 
     if( gpuInfos.empty( ))
     {
+        if( session == "local" )
+        {
+            LBWARN << "No local GPUs found, abort configuration" << std::endl;
+            return false;
+        }
         LBINFO << "No resources found for session " << session
                << ", using default config" << std::endl;
         gpuInfos.push_back( hwsd::GPUInfo( ));
@@ -312,8 +317,8 @@ hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
    return hwsd::discoverGPUInfos( gpuFilter );
 }
 
-const hwsd::NetInfos _discoverNetworkInterfaces( const fabric::ConfigParams& params,
-                                                 hwsd::FilterPtr filter )
+hwsd::NetInfos _discoverNetwork( const fabric::ConfigParams& params,
+                                 hwsd::FilterPtr filter )
 {
 
     hwsd::FilterPtr netFilter = filter |

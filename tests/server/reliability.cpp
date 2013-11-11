@@ -93,6 +93,7 @@ public:
         { return new Channel( parent ); }
 };
 
+bool _checkGPU( eq::ClientPtr client );
 void _testConfig( eq::ClientPtr client, const std::string& filename );
 
 int main( const int argc, char** argv )
@@ -117,21 +118,23 @@ int main( const int argc, char** argv )
     client->addConnectionDescription( desc );
     TEST( client->initLocal( argc, argv ));
 
-    lunchbox::Strings configs = lunchbox::searchDirectory( ".", ".*\\.eqc" );
-    stde::usort( configs ); // have a predictable order
-
-    if( argc == 2 )
+    if( _checkGPU( client ))
     {
-        configs.clear();
-        configs.push_back( argv[1] );
-    }
+        lunchbox::Strings configs = lunchbox::searchDirectory( "reliability",
+                                                               ".*\\.eqc" );
+        stde::usort( configs ); // have a predictable order
 
-    for( lunchbox::Strings::const_iterator i = configs.begin();
-        i != configs.end(); ++i )
-    {
-        const std::string config = "./" + *i;
-        if( config != "./testOutput.eqc" )
+        if( argc == 2 )
+        {
+            configs.clear();
+            configs.push_back( argv[1] );
+        }
+
+        for( eq::StringsCIter i = configs.begin(); i != configs.end(); ++i )
+        {
+            const std::string config = "./reliability/" + *i;
             _testConfig( client, config );
+        }
     }
 
     // 7. exit
@@ -142,6 +145,26 @@ int main( const int argc, char** argv )
 
     eq::exit();
     return EXIT_SUCCESS;
+}
+
+bool _checkGPU( eq::ClientPtr client )
+{
+    eq::ServerPtr server = new eq::Server;
+    eq::Global::setConfigFile( "local" );
+    TEST( client->connectServer( server ));
+
+    eq::fabric::ConfigParams configParams;
+    eq::Config* config = server->chooseConfig( configParams );
+    if( config )
+    {
+        server->releaseConfig( config );
+        client->disconnectServer( server );
+        return true;
+    }
+
+    std::cerr << "Can't get configuration - no GPU available?" << std::endl;
+    client->disconnectServer( server );
+    return false;
 }
 
 void _testConfig( eq::ClientPtr client, const std::string& filename )

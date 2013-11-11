@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EQ_TEST_RUNTIME 1200 // seconds
+#define TEST_RUNTIME 1200 // seconds
 #include <test.h>
 
 #include <eq/client/frame.h>    // enum Eye

@@ -56,10 +56,16 @@ int main( const int argc, char** argv )
     ApplicationPtr app = new Application;
     lunchbox::Clock clock;
 
-    if( app->init( argc, argv, 0 ) && app->run( 0 ) && app->exit( ))
+    if( !app->init( argc, argv, 0 ))
+    {
+        std::cerr << "Can't initialize application - no GPU available?"
+                  << std::endl;
         return EXIT_SUCCESS;
+    }
 
-    TEST( clock.getTime64() > 20000 );
+    TEST( app->run( 0 ));
+    TEST( app->exit( ));
+
     TEST( clock.getTime64() > 22000 );
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
