@@ -129,15 +129,15 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                               false, "", "string", command );
         TCLAP::SwitchArg overlayArg( "o", "noOverlay", "Disable overlay logo",
                                      command, false );
-        TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
-                                               "Ignored Equalizer options",
-                                               command );
         TCLAP::UnlabeledMultiArg< std::string >
             ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
                         command );
         TCLAP::SwitchArg roiArg( "d", "disableROI", "Disable ROI", command,
                                  false );
 
+#ifdef TCPLAP_HAS_IGNOREUNMATCHED
+        command.ignoreUnmatched( true );
+#endif
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))

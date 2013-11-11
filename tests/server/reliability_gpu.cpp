@@ -179,14 +179,14 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     // 3. init config
     TESTINFO( config->getIAttribute( eq::Config::IATTR_ROBUSTNESS ) == eq::ON,
               filename );
-    TESTINFO( config->init( 0 ), filename );
+    TESTINFO( config->init( eq::uint128_t( )), filename );
 
     // 4. run main loop
-    config->startFrame( 0 );
+    config->startFrame( eq::uint128_t( ));
     config->finishFrame();
-    config->startFrame( 0 );
+    config->startFrame( eq::uint128_t( ));
     config->finishFrame();
-    config->startFrame( 0 );
+    config->startFrame( eq::uint128_t( ));
     config->finishAllFrames();
 
     TESTINFO( nDraw == drawCalls,

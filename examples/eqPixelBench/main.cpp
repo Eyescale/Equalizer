@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,7 +74,7 @@ int main( int argc, char** argv )
     eq::fabric::ConfigParams configParams;
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
-    
+
     if( !config )
     {
         LBERROR << "No matching config on server" << std::endl;
@@ -87,7 +87,7 @@ int main( int argc, char** argv )
     // 4. init config
     lunchbox::Clock clock;
 
-    if( !config->init( 0 ))
+    if( !config->init( eq::uint128_t( )))
     {
         server->releaseConfig( config );
         client->disconnectServer( server );
@@ -106,7 +106,7 @@ int main( int argc, char** argv )
     clock.reset();
     for( uint32_t i = 0; i < 3; ++i )
     {
-        config->startFrame( 0 );
+        config->startFrame( eq::uint128_t( ));
         config->finishAllFrames();
     }
     LBLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("

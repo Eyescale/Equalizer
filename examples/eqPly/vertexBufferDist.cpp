@@ -25,7 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
+
  *
  * co::Object to distribute a model. Has a VertexBufferBase node.
  */
@@ -34,7 +34,7 @@
 
 #include "vertexBufferLeaf.h"
 
-namespace eqPly 
+namespace eqPly
 {
 
 VertexBufferDist::VertexBufferDist()
@@ -59,7 +59,7 @@ VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root )
         _right = new VertexBufferDist( root, root->getRight( ));
 }
 
-VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root, 
+VertexBufferDist::VertexBufferDist( const mesh::VertexBufferRoot* root,
                                     const mesh::VertexBufferBase* node )
         : _root( root )
         , _node( node )
@@ -92,7 +92,7 @@ void VertexBufferDist::registerTree( co::LocalNodePtr node )
 
     if( _left )
         _left->registerTree( node );
-    
+
     if( _right )
         _right->registerTree( node );
 }
@@ -154,8 +154,8 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         {
             LBASSERT( _root );
             const mesh::VertexBufferData& data = _root->_data;
-            
-            os << data.vertices << data.colors << data.normals << data.indices 
+
+            os << data.vertices << data.colors << data.normals << data.indices
                << _root->_name;
         }
     }
@@ -164,7 +164,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         os << co::UUID() << co::UUID();
 
         LBASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
-        const mesh::VertexBufferLeaf* leaf = 
+        const mesh::VertexBufferLeaf* leaf =
             static_cast< const mesh::VertexBufferLeaf* >( _node );
 
         os << leaf->_boundingBox[0] << leaf->_boundingBox[1]
@@ -208,7 +208,11 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         _left  = new VertexBufferDist( _root, 0 );
         _right = new VertexBufferDist( _root, 0 );
         co::LocalNodePtr to = getLocalNode();
+#if CO_VERSION_GE( 1,1,0 )
+        co::NodePtr from = is.getRemoteNode();
+#else
         co::NodePtr from = is.getMaster();
+#endif
         const uint32_t sync1 = to->mapObjectNB( _left, leftID,
                                                 co::VERSION_OLDEST, from );
         const uint32_t sync2 = to->mapObjectNB( _right, rightID,
@@ -223,7 +227,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
     else
     {
         LBASSERT( !_isRoot );
-        mesh::VertexBufferData& data = 
+        mesh::VertexBufferData& data =
             const_cast< mesh::VertexBufferData& >( _root->_data );
         mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
 
