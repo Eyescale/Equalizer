@@ -146,7 +146,7 @@ bool Resources::discover( ServerPtr server, Config* config,
 
     if( gpuInfos.empty( ))
     {
-        if( session == "local" )
+        if( hwsd::NodeInfo::isLocal( session ))
         {
             LBWARN << "No local GPUs found, abort configuration" << std::endl;
             return false;
@@ -163,7 +163,7 @@ bool Resources::discover( ServerPtr server, Config* config,
 
     const bool multiProcess = flags & (fabric::ConfigParams::FLAG_MULTIPROCESS |
                                    fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
-    const bool multiNode = session != "local" ||
+    const bool multiNode = !hwsd::NodeInfo::isLocal( session ) ||
                            ( multiProcess && gpuInfos.size() > 1 );
     size_t gpuCounter = 0;
     lunchbox::UUID appNodeID;

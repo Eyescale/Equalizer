@@ -7,13 +7,11 @@ script:
  - mkdir Debug
  - cd Debug
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Debug
- - make -j8
- - make test ARGS=-V
+ - env TRAVIS=1 make -j8 tests ARGS=-V
  - mkdir ../Release
  - cd ../Release
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Release
- - make -j8
- - make test ARGS=-V
+ - env TRAVIS=1 make -j8 tests ARGS=-V
 before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq autoconf || /bin/true
@@ -26,6 +24,7 @@ before_install:
  - sudo apt-get install -qq git || /bin/true
  - sudo apt-get install -qq git-review || /bin/true
  - sudo apt-get install -qq git-svn || /bin/true
+ - sudo apt-get install -qq lcov || /bin/true
  - sudo apt-get install -qq libavahi-compat-libdnssd-dev || /bin/true
  - sudo apt-get install -qq libavcodec-dev || /bin/true
  - sudo apt-get install -qq libavformat-dev || /bin/true

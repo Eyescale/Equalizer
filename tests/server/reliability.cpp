@@ -150,7 +150,6 @@ int main( const int argc, char** argv )
 bool _checkGPU( eq::ClientPtr client )
 {
     eq::ServerPtr server = new eq::Server;
-    eq::Global::setConfigFile( "local" );
     TEST( client->connectServer( server ));
 
     eq::fabric::ConfigParams configParams;

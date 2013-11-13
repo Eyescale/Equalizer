@@ -20,6 +20,9 @@
 #include "global.h"
 
 #include "nodeFactory.h"
+#ifdef EQUALIZER_USE_HWSD
+#  include <hwsd/nodeInfo.h>
+#endif
 #include <lunchbox/lock.h>
 
 namespace eq
@@ -27,7 +30,12 @@ namespace eq
 std::string _programName;
 std::string _workDir;
 NodeFactory* Global::_nodeFactory = 0;
-std::string Global::_configFile = "local";
+
+#ifdef EQUALIZER_USE_HWSD
+std::string Global::_configFile = hwsd::NodeInfo::getLocalSession();
+#else
+std::string Global::_configFile = "config.eqc";
+#endif
 
 #ifdef AGL
 static lunchbox::Lock _carbonLock;
