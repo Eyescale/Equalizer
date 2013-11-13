@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -141,7 +141,7 @@ EventHandler::~EventHandler()
         messagePump->deregister( display );
     }
 
-    EventHandlers::iterator i = stde::find( *_eventHandlers, this );
+    EventHandlers::iterator i = lunchbox::find( *_eventHandlers, this );
     LBASSERT( i != _eventHandlers->end( ));
     _eventHandlers->erase( i );
     if( _eventHandlers->empty( ))

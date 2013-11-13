@@ -372,7 +372,7 @@ bool Server::_cmdMap( co::ICommand& command )
 bool Server::_cmdUnmap( co::ICommand& command )
 {
     co::NodePtr node = command.getNode();
-    co::Nodes::iterator i = stde::find( _admins, node );
+    co::Nodes::iterator i = lunchbox::find( _admins, node );
 
     LBASSERT( i != _admins.end( ));
     if( i != _admins.end( ))

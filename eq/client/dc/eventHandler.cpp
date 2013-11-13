@@ -67,7 +67,7 @@ EventHandler::~EventHandler()
     if( messagePump )
         messagePump->deregister( _proxy );
 
-    EventHandlers::iterator i = stde::find( *_eventHandlers, this );
+    EventHandlers::iterator i = lunchbox::find( *_eventHandlers, this );
     LBASSERT( i != _eventHandlers->end( ));
     _eventHandlers->erase( i );
     if( _eventHandlers->empty( ))

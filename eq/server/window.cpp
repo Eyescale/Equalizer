@@ -224,7 +224,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
         return barrier;
     }
 
-    co::BarriersCIter i = stde::find( _swapBarriers, barrier );
+    co::BarriersCIter i = lunchbox::find( _swapBarriers, barrier );
     if( i != _swapBarriers.end( )) // Issue #39: window already has this barrier
         return barrier;
 
@@ -243,7 +243,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
         }
 
         co::Barriers& barriers = window->_swapBarriers;
-        co::BarriersIter k = stde::find( barriers, barrier );
+        co::BarriersIter k = lunchbox::find( barriers, barrier );
         if( k == barriers.end( ))
             continue;
 

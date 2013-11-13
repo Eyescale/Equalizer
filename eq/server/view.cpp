@@ -276,7 +276,7 @@ void View::addChannel( Channel* channel )
 
 bool View::removeChannel( Channel* channel )
 {
-    Channels::iterator i = stde::find( _channels, channel );
+    Channels::iterator i = lunchbox::find( _channels, channel );
 
     LBASSERT( i != _channels.end( ));
     if( i == _channels.end( ))

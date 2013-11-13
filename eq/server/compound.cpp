@@ -166,7 +166,7 @@ void Compound::_addChild( Compound* child )
 
 bool Compound::_removeChild( Compound* child )
 {
-    Compounds::iterator i = stde::find( _children, child );
+    Compounds::iterator i = lunchbox::find( _children, child );
     if( i == _children.end( ))
         return false;
 

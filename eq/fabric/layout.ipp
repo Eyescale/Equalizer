@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -207,7 +207,7 @@ void Layout< C, L, V >::_addChild( V* view )
 template< class C, class L, class V >
 bool Layout< C, L, V >::_removeChild( V* view )
 {
-    typename Views::iterator i = stde::find( _views, view );
+    typename Views::iterator i = lunchbox::find( _views, view );
     if( i == _views.end( ))
         return false;
 
