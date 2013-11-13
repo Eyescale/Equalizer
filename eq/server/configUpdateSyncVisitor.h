@@ -70,67 +70,69 @@ private:
     bool _sync;   // call again after init failure
 
     template< class T > VisitorResult _updateDown( T* entity ) const
+    {
+        const uint32_t state = entity->getState() & ~STATE_DELETE;
+        switch( state )
         {
-            const uint32_t state = entity->getState() & ~STATE_DELETE;
-            switch( state )
-            {
-                case STATE_INITIALIZING:
-                case STATE_INIT_FAILED:
-                case STATE_INIT_SUCCESS:
-                case STATE_EXITING:
-                case STATE_EXIT_FAILED:
-                case STATE_EXIT_SUCCESS:
-                case STATE_RUNNING:
-                    return TRAVERSE_CONTINUE;
+            case STATE_INITIALIZING:
+            case STATE_INIT_FAILED:
+            case STATE_INIT_SUCCESS:
+            case STATE_EXITING:
+            case STATE_EXIT_FAILED:
+            case STATE_EXIT_SUCCESS:
+            case STATE_RUNNING:
+                return TRAVERSE_CONTINUE;
 
-                case STATE_STOPPED:
-                case STATE_FAILED:
-                    return TRAVERSE_PRUNE;
-            }
-            LBUNREACHABLE;
-            return TRAVERSE_PRUNE;
+            case STATE_STOPPED:
+            case STATE_FAILED:
+                return TRAVERSE_PRUNE;
         }
+        LBUNREACHABLE;
+        return TRAVERSE_PRUNE;
+    }
 
     template< class T > VisitorResult _updateUp( T* entity )
+    {
+        const uint32_t state = entity->getState() & ~STATE_DELETE;
+        switch( state )
         {
-            const uint32_t state = entity->getState() & ~STATE_DELETE;
-            switch( state )
-            {
-                case STATE_INITIALIZING:
-                case STATE_INIT_FAILED:
-                case STATE_INIT_SUCCESS:
-                    if( !entity->syncConfigInit( ))
-                    {
-                        entity->sync();
-                        _result = false;
-                        _sync = true;
-                        LBWARN << lunchbox::className( entity )
-                               << " initialization failed" << std::endl;
-                    }
-                    else
-                        entity->sync();
-                    return TRAVERSE_CONTINUE;
+            case STATE_INITIALIZING:
+            case STATE_INIT_FAILED:
+            case STATE_INIT_SUCCESS:
+                if( !entity->syncConfigInit( ))
+                {
+                    entity->sync();
+                    _result = false;
+                    _sync = true;
+                    LBWARN << lunchbox::className( entity ) << " init failed"
+                           << std::endl;
+                }
+                else
+                    entity->sync();
+                return TRAVERSE_CONTINUE;
 
-                case STATE_EXITING:
-                case STATE_EXIT_FAILED:
-                case STATE_EXIT_SUCCESS:
-                    if( !entity->syncConfigExit( ))
-                    {
-                        entity->sync();
-                        _result = false;
-                    }
-                    else
-                        entity->sync();
-                    return TRAVERSE_CONTINUE;
+            case STATE_EXITING:
+            case STATE_EXIT_FAILED:
+            case STATE_EXIT_SUCCESS:
+                if( !entity->syncConfigExit( ))
+                {
+                    entity->sync();
+                    _result = false;
+                    LBWARN << lunchbox::className( entity ) << " exit failed"
+                           << std::endl;
+                }
+                else
+                    entity->sync();
+                return TRAVERSE_CONTINUE;
 
-                case STATE_RUNNING:
-                case STATE_STOPPED:
-                case STATE_FAILED:
-                    return TRAVERSE_CONTINUE;
-            }
-            LBUNREACHABLE;
-            return TRAVERSE_PRUNE;
+            case STATE_RUNNING:
+            case STATE_STOPPED:
+            case STATE_FAILED:
+                return TRAVERSE_CONTINUE;
         }
+        LBUNREACHABLE;
+        return TRAVERSE_PRUNE;
+    }
 };
 
 }

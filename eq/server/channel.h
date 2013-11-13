@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -36,204 +36,204 @@ namespace eq
 {
 namespace server
 {
-    class ChannelListener;
-    class Window;
+class ChannelListener;
+class Window;
 
-    class Channel : public fabric::Channel< Window, Channel >
-    {
-    public:
-        /** Construct a new channel. */
-        EQSERVER_API Channel( Window* parent );
+class Channel : public fabric::Channel< Window, Channel >
+{
+public:
+    /** Construct a new channel. */
+    EQSERVER_API Channel( Window* parent );
 
-        /** Construct a copy of a channel. */
-        Channel( const Channel& from );
+    /** Construct a copy of a channel. */
+    Channel( const Channel& from );
 
-        /** Destruct this channel. */
-        virtual ~Channel();
+    /** Destruct this channel. */
+    virtual ~Channel();
 
-        /** @return the state of this channel. */
-        State getState()    const { return _state.get(); }
+    /** @return the state of this channel. */
+    State getState() const { return _state.get(); }
 
-        /** @internal */
-        void setState( const State state ) { _state = state; }
+    /** @internal */
+    void setState( const State state ) { _state = state; }
 
-        /**
-         * @name Data Access
-         */
-        //@{
-        Config* getConfig();
-        const Config* getConfig() const;
+    /**
+     * @name Data Access
+     */
+    //@{
+    Config* getConfig();
+    const Config* getConfig() const;
 
-        EQSERVER_API Node* getNode();
-        EQSERVER_API const Node* getNode() const;
+    EQSERVER_API Node* getNode();
+    EQSERVER_API const Node* getNode() const;
 
-        Pipe* getPipe();
-        const Pipe* getPipe() const;
+    Pipe* getPipe();
+    const Pipe* getPipe() const;
 
-        /** @return the parent server. @version 1.0 */
-        ServerPtr getServer();
+    /** @return the parent server. @version 1.0 */
+    ServerPtr getServer();
 
-        const Compounds& getCompounds() const;
+    const Compounds& getCompounds() const;
 
-        co::CommandQueue* getMainThreadQueue();
-        co::CommandQueue* getCommandThreadQueue();
+    co::CommandQueue* getMainThreadQueue();
+    co::CommandQueue* getCommandThreadQueue();
 
-        /** Increase channel activition count. */
-        void activate();
+    /** Increase channel activition count. */
+    void activate();
 
-        /** Decrease channel activition count. */
-        void deactivate();
+    /** Decrease channel activition count. */
+    void deactivate();
 
-        /** @return if this channel is actively used for rendering. */
-        bool isActive() const { return (_active != 0); }
+    /** @return if this channel is actively used for rendering. */
+    bool isActive() const { return (_active != 0); }
 
-        /** @return if this window is running. */
-        bool isRunning() const { return _state == STATE_RUNNING; }
+    /** @return if this window is running. */
+    bool isRunning() const { return _state == STATE_RUNNING; }
 
-        /** Schedule deletion of this channel. */
-        void postDelete();
+    /** Schedule deletion of this channel. */
+    void postDelete();
 
-        /**
-         * Add additional tasks this channel, and all its parents, might
-         * potentially execute.
-         */
-        void addTasks( const uint32_t tasks );
+    /**
+     * Add additional tasks this channel, and all its parents, might
+     * potentially execute.
+     */
+    void addTasks( const uint32_t tasks );
 
-        /** Set the output view and segment for this channel. */
-        void setOutput( View* view, Segment* segment );
+    /** Set the output view and segment for this channel. */
+    void setOutput( View* view, Segment* segment );
 
-        /** Unset the output view and segment for this channel. */
-        void unsetOutput();
+    /** Unset the output view and segment for this channel. */
+    void unsetOutput();
 
-        /** @return the channel's view. */
-        const View* getView() const { return _view; }
+    /** @return the channel's view. */
+    const View* getView() const { return _view; }
 
-        /** @return the channel's canvas. */
-        const Canvas* getCanvas() const;
+    /** @return the channel's canvas. */
+    const Canvas* getCanvas() const;
 
-        /** @return the channel's view. */
-        View* getView() { return _view; }
+    /** @return the channel's view. */
+    View* getView() { return _view; }
 
-        /**
-         * @return true if this channel supports the capabilities needed for
-         *         the view.
-         */
-        bool supportsView( const View* view ) const;
+    /**
+     * @return true if this channel supports the capabilities needed for
+     *         the view.
+     */
+    bool supportsView( const View* view ) const;
 
-        /** @return the channel's layout. */
-        EQSERVER_API const Layout* getLayout() const;
+    /** @return the channel's layout. */
+    EQSERVER_API const Layout* getLayout() const;
 
-        /** @return the channel's segment. */
-        const Segment* getSegment() const { return _segment; }
+    /** @return the channel's segment. */
+    const Segment* getSegment() const { return _segment; }
 
-        /** @return the channel's segment. */
-        Segment* getSegment() { return _segment; }
+    /** @return the channel's segment. */
+    Segment* getSegment() { return _segment; }
 
-        /** The last drawing compound for this entity. */
-        void setLastDrawCompound( const Compound* compound )
-            { _lastDrawCompound = compound; }
-        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
+    /** The last drawing compound for this entity. */
+    void setLastDrawCompound( const Compound* compound )
+        { _lastDrawCompound = compound; }
+    const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
 
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { fabric::Channel< Window, Channel >::setIAttribute( attr, value );}
-        void setSAttribute( const SAttribute attr, const std::string& value )
-            { fabric::Channel< Window, Channel >::setSAttribute( attr, value );}
-        void setDrawable( const uint32_t drawable )
-            { fabric::Channel< Window, Channel >::setDrawable( drawable ); }
-        //@}
+    void setIAttribute( const IAttribute attr, const int32_t value )
+        { fabric::Channel< Window, Channel >::setIAttribute( attr, value );}
+    void setSAttribute( const SAttribute attr, const std::string& value )
+        { fabric::Channel< Window, Channel >::setSAttribute( attr, value );}
+    void setDrawable( const uint32_t drawable )
+        { fabric::Channel< Window, Channel >::setDrawable( drawable ); }
+    //@}
 
-        /**
-         * @name Operations
-         */
-        //@{
-        /** Start initializing this entity. */
-        void configInit( const uint128_t& initID, const uint32_t frameNumber );
+    /**
+     * @name Operations
+     */
+    //@{
+    /** Start initializing this entity. */
+    void configInit( const uint128_t& initID, const uint32_t frameNumber );
 
-        /** Sync initialization of this entity. */
-        bool syncConfigInit();
+    /** Sync initialization of this entity. */
+    bool syncConfigInit();
 
-        /** Start exiting this entity. */
-        void configExit();
+    /** Start exiting this entity. */
+    void configExit();
 
-        /** Sync exit of this entity. */
-        bool syncConfigExit();
+    /** Sync exit of this entity. */
+    bool syncConfigExit();
 
-        /**
-         * Update one frame.
-         *
-         * @param frameID a per-frame identifier passed to all rendering
-         *                methods.
-         * @param frameNumber the number of the frame.
-         * @return true if at least one rendering task was sent.
-         */
-        bool update( const uint128_t& frameID, const uint32_t frameNumber );
+    /**
+     * Update one frame.
+     *
+     * @param frameID a per-frame identifier passed to all rendering
+     *                methods.
+     * @param frameNumber the number of the frame.
+     * @return true if at least one rendering task was sent.
+     */
+    bool update( const uint128_t& frameID, const uint32_t frameNumber );
 
-        co::ObjectOCommand send( const uint32_t cmd );
-        //@}
+    co::ObjectOCommand send( const uint32_t cmd );
+    //@}
 
-        /** @name Channel listener interface. */
-        //@{
-        /** Register a channel listener. */
-        void addListener( ChannelListener* listener );
-        /** Deregister a channel listener. */
-        void removeListener( ChannelListener* listener );
-        /** @return true if the channel has listeners */
-        bool hasListeners() const { return !_listeners.empty(); }
-        //@}
+    /** @name Channel listener interface. */
+    //@{
+    /** Register a channel listener. */
+    void addListener( ChannelListener* listener );
+    /** Deregister a channel listener. */
+    void removeListener( ChannelListener* listener );
+    /** @return true if the channel has listeners */
+    bool hasListeners() const { return !_listeners.empty(); }
+    //@}
 
-        bool omitOutput() const; //!< @internal
-        void output( std::ostream& ) const; //!< @internal
+    bool omitOutput() const; //!< @internal
+    void output( std::ostream& ) const; //!< @internal
 
-    protected:
-        /** @sa net::Object::attach. */
-        virtual void attach( const UUID& id, const uint32_t instanceID );
+protected:
+    /** @sa net::Object::attach. */
+    virtual void attach( const UUID& id, const uint32_t instanceID );
 
-    private:
-        //-------------------- Members --------------------
-        /** Number of activations for this channel. */
-        uint32_t _active;
+private:
+    //-------------------- Members --------------------
+    /** Number of activations for this channel. */
+    uint32_t _active;
 
-        /** The view used by this channel. */
-        View* _view;
+    /** The view used by this channel. */
+    View* _view;
 
-        /** The segment used by this channel. */
-        Segment* _segment;
+    /** The segment used by this channel. */
+    Segment* _segment;
 
-        Vector4i _overdraw;
+    Vector4i _overdraw;
 
-        /** The current state for state change synchronization. */
-        lunchbox::Monitor< State > _state;
+    /** The current state for state change synchronization. */
+    lunchbox::Monitor< State > _state;
 
-        /** The last draw compound for this entity */
-        const Compound* _lastDrawCompound;
+    /** The last draw compound for this entity */
+    const Compound* _lastDrawCompound;
 
-        typedef std::vector< ChannelListener* > ChannelListeners;
-        ChannelListeners _listeners;
+    typedef std::vector< ChannelListener* > ChannelListeners;
+    ChannelListeners _listeners;
 
-        LB_TS_VAR( _serverThread );
+    LB_TS_VAR( _serverThread );
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        //-------------------- Methods --------------------
-        Vector3ub _getUniqueColor() const;
+    //-------------------- Methods --------------------
+    Vector3ub _getUniqueColor() const;
 
-        void _setupRenderContext( const uint128_t& frameID,
-                                  RenderContext& context );
+    void _setupRenderContext( const uint128_t& frameID,
+                              RenderContext& context );
 
-        void _fireLoadData( const uint32_t frameNumber,
-                            const Statistics& statistics,
-                            const Viewport& region );
+    void _fireLoadData( const uint32_t frameNumber,
+                        const Statistics& statistics,
+                        const Viewport& region );
 
-        /* command handler functions. */
-        bool _cmdConfigInitReply( co::ICommand& command );
-        bool _cmdConfigExitReply( co::ICommand& command );
-        bool _cmdFrameFinishReply( co::ICommand& command );
-        bool _cmdNop( co::ICommand& /*command*/ )
-            { return true; }
+    /* command handler functions. */
+    bool _cmdConfigInitReply( co::ICommand& command );
+    bool _cmdConfigExitReply( co::ICommand& command );
+    bool _cmdFrameFinishReply( co::ICommand& command );
+    bool _cmdNop( co::ICommand& /*command*/ )
+        { return true; }
 
-        virtual void updateCapabilities();
-    };
+    virtual void updateCapabilities();
+};
 }
 }
 #endif // EQSERVER_CHANNEL_H
