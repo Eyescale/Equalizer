@@ -120,22 +120,6 @@ co::ConnectionDescriptions _findConnections( const lunchbox::UUID& id,
     return result;
 }
 
-uint32_t _configureNetworkTypes( const fabric::ConfigParams& params )
-{
-    uint32_t netTypes = 0;
-    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
-    {
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
-            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
-        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
-            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
-    }
-    else
-        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
-
-    return netTypes;
-}
-
 static void _configureHwsdModules( );
 static void _disposeHwsdModules( );
 static uint32_t _configureNetworkTypes( const fabric::ConfigParams& params );
@@ -199,6 +183,22 @@ void _disposeHwsdModules()
 #ifdef EQUALIZER_USE_HWSD_net_dns_sd
     hwsd::net::dns_sd::Module::dispose();
 #endif
+}
+
+uint32_t _configureNetworkTypes( const fabric::ConfigParams& params )
+{
+    uint32_t netTypes = 0;
+    if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ALL )
+    {
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_ETHERNET )
+            netTypes |= hwsd::NetInfo::TYPE_ETHERNET;
+        if( params.getFlags() & fabric::ConfigParams::FLAG_NETWORK_INFINIBAND )
+            netTypes |= hwsd::NetInfo::TYPE_INFINIBAND;
+    }
+    else
+        netTypes = hwsd::NetInfo::TYPE_ALL ^ hwsd::NetInfo::TYPE_UNKNOWN;
+
+    return netTypes;
 }
 
 } // unnamed namespace
