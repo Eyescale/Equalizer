@@ -136,9 +136,6 @@ uint32_t _configureNetworkTypes( const fabric::ConfigParams& params )
     return netTypes;
 }
 
-static void _configureHwsdModules( );
-static void _disposeHwsdModules( );
-static uint32_t _configureNetworkTypes( const fabric::ConfigParams& params );
 hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
                               hwsd::FilterPtr filter )
 {
