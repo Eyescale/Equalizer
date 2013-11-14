@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -69,14 +69,14 @@ template< class CL, class S, class CFG, class NF, class N, class V >
 void Server< CL, S, CFG, NF, N, V >::_addConfig( CFG* config )
 {
     LBASSERT( config->getServer() == static_cast< S* >( this ));
-    LBASSERT( stde::find( _configs, config ) == _configs.end( ));
+    LBASSERT( lunchbox::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 bool Server< CL, S, CFG, NF, N, V >::_removeConfig( CFG* config )
 {
-    typename Configs::iterator i = stde::find( _configs, config );
+    typename Configs::iterator i = lunchbox::find( _configs, config );
     if( i == _configs.end( ))
         return false;
 

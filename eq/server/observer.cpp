@@ -75,13 +75,13 @@ ServerPtr Observer::getServer()
 
 void Observer::addView( View* view )
 {
-    LBASSERT( stde::find( _views, view ) == _views.end( ));
+    LBASSERT( lunchbox::find( _views, view ) == _views.end( ));
     _views.push_back( view );
 }
 
 void Observer::removeView( View* view )
 {
-    ViewsIter i = stde::find( _views, view );
+    ViewsIter i = lunchbox::find( _views, view );
     LBASSERT( i != _views.end( ));
     if( i != _views.end( ))
         _views.erase( i );

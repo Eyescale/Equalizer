@@ -1200,7 +1200,7 @@ void Channel::_setOutputFrames( const co::ObjectVersions& frames )
     {
         Pipe*  pipe  = getPipe();
         Frame* frame = pipe->getFrame( frames[i], getEye(), true );
-        LBASSERTINFO( stde::find( _impl->outputFrames, frame ) ==
+        LBASSERTINFO( lunchbox::find( _impl->outputFrames, frame ) ==
                       _impl->outputFrames.end(),
                       "frame " << i << " " << frames[i] );
 

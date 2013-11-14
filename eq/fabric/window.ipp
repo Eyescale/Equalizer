@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -262,7 +262,7 @@ void Window< P, W, C >::_addChannel( C* channel )
 template< class P, class W, class C >
 bool Window< P, W, C >::_removeChannel( C* channel )
 {
-    typename Channels::iterator i = stde::find( _channels, channel );
+    typename Channels::iterator i = lunchbox::find( _channels, channel );
     if( i == _channels.end( ))
         return false;
 

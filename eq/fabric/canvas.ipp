@@ -212,7 +212,7 @@ void Canvas< CFG, C, S, L >::_addChild( S* segment )
 template< class CFG, class C, class S, class L >
 bool Canvas< CFG, C, S, L >::_removeChild( S* segment )
 {
-    typename Segments::iterator i = stde::find( _segments, segment );
+    typename Segments::iterator i = lunchbox::find( _segments, segment );
     if( i == _segments.end( ))
         return false;
 
@@ -266,7 +266,7 @@ const S* Canvas< CFG, C, S, L >::findSegment( const std::string& name ) const
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::addLayout( L* layout )
 {
-    LBASSERT( stde::find( _layouts, layout ) == _layouts.end( ));
+    LBASSERT( lunchbox::find( _layouts, layout ) == _layouts.end( ));
 
     // dest channel creation is done be Config::addCanvas
     _layouts.push_back( layout );
@@ -276,7 +276,7 @@ void Canvas< CFG, C, S, L >::addLayout( L* layout )
 template< class CFG, class C, class S, class L >
 bool Canvas< CFG, C, S, L >::removeLayout( L* layout )
 {
-    typename Layouts::iterator i = stde::find( _layouts, layout );
+    typename Layouts::iterator i = lunchbox::find( _layouts, layout );
     if( i == _layouts.end( ))
         return false;
 

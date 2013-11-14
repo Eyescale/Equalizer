@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -52,7 +52,7 @@ public:
     const eq::admin::Segments& getResult() const { return _segments; }
 
 private:
-    eq::admin::Channel* const _channel; 
+    eq::admin::Channel* const _channel;
     eq::admin::Segments _segments;
 };
 
@@ -85,13 +85,13 @@ public:
             else if( canvas != _canvas && _layout )
             {
                 const eq::admin::Layouts& layouts = canvas->getLayouts();
-                if( stde::find( layouts, _layout ) != layouts.end( ))
+                if( lunchbox::find( layouts, _layout ) != layouts.end( ))
                     return eq::admin::TRAVERSE_TERMINATE; // layout used by this canvas
             }
             return eq::admin::TRAVERSE_CONTINUE;
         }
 
-    const eq::admin::Layouts& getResult() const { return _layouts; } 
+    const eq::admin::Layouts& getResult() const { return _layouts; }
 
 private:
     const eq::admin::Canvas* const _canvas;
@@ -129,7 +129,7 @@ public:
             return eq::admin::TRAVERSE_CONTINUE;
         }
 
-    const eq::admin::Observers& getResult() const { return _observers; } 
+    const eq::admin::Observers& getResult() const { return _observers; }
 
 private:
     const eq::admin::Layout* const _layout;
@@ -173,7 +173,7 @@ inline bool removeWindow( eq::admin::ServerPtr server )
             eq::admin::Segment* segment = *j;
             eq::admin::Canvas* canvas = segment->getCanvas();
             delete segment;
-            
+
             // delete now-empty canvases
             if( !canvas->getSegments().empty( ))
                 continue;
@@ -189,7 +189,7 @@ inline bool removeWindow( eq::admin::ServerPtr server )
                 FindLayoutObservers layoutObservers( layout );
                 config->accept( layoutObservers );
                 eq::admin::Observers observers = layoutObservers.getResult();
-                stde::usort( observers );
+                lunchbox::usort( observers );
 
                 for( eq::admin::Observers::const_iterator l = observers.begin();
                      l != observers.end(); ++l )

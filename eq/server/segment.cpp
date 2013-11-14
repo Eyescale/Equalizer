@@ -122,7 +122,7 @@ void Segment::addDestinationChannel( Channel* channel )
 
 bool Segment::removeDestinationChannel( Channel* channel )
 {
-    Channels::iterator i = stde::find( _destinationChannels, channel );
+    Channels::iterator i = lunchbox::find( _destinationChannels, channel );
 
     LBASSERT( i !=  _destinationChannels.end( ));
     if( i == _destinationChannels.end( ))
@@ -130,8 +130,7 @@ bool Segment::removeDestinationChannel( Channel* channel )
 
     _destinationChannels.erase( i );
 
-    LBASSERT( std::find( _destinationChannels.begin(),
-                         _destinationChannels.end(), channel ) ==
+    LBASSERT( lunchbox::find( _destinationChannels, channel ) ==
               _destinationChannels.end( ));
     return true;
 }

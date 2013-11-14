@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -43,7 +43,7 @@ std::string _iAttributeStrings[] = {
 }
 
 template< class C, class N, class P, class V >
-Node< C, N, P, V >::Node( C* parent )  
+Node< C, N, P, V >::Node( C* parent )
         : _config( parent )
         , _isAppNode( false )
 {
@@ -171,7 +171,7 @@ void Node< C, N, P, V >::notifyDetach()
 template< class C, class N, class P, class V >
 void Node< C, N, P, V >::create( P** pipe )
 {
-    *pipe = _config->getServer()->getNodeFactory()->createPipe( 
+    *pipe = _config->getServer()->getNodeFactory()->createPipe(
         static_cast< N* >( this ));
 }
 
@@ -191,7 +191,7 @@ VisitorResult _accept( N* node, V& visitor )
         return result;
 
     const typename N::Pipes& pipes = node->getPipes();
-    for( typename N::Pipes::const_iterator i = pipes.begin(); 
+    for( typename N::Pipes::const_iterator i = pipes.begin();
          i != pipes.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -202,7 +202,7 @@ VisitorResult _accept( N* node, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -216,7 +216,7 @@ VisitorResult _accept( N* node, V& visitor )
 
         case TRAVERSE_PRUNE:
             return TRAVERSE_PRUNE;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -243,7 +243,7 @@ NodePath Node< C, N, P, V >::getPath() const
 {
     const C* config = static_cast< const N* >( this )->getConfig( );
     LBASSERT( config );
-    
+
     const typename std::vector< N* >& nodes = config->getNodes();
     typename std::vector< N* >::const_iterator i =
         std::find( nodes.begin(), nodes.end(), this );
@@ -294,7 +294,7 @@ void Node< C, N, P, V >::_addPipe( P* pipe )
 template< class C, class N, class P, class V >
 bool Node< C, N, P, V >::_removePipe( P* pipe )
 {
-    typename Pipes::iterator i = stde::find( _pipes, pipe );
+    typename Pipes::iterator i = lunchbox::find( _pipes, pipe );
     if( i == _pipes.end( ))
         return false;
 

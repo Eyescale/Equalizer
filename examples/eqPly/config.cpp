@@ -803,7 +803,7 @@ void Config::_switchCanvas()
         return;
     }
 
-    eq::CanvasesCIter i = stde::find( canvases, _currentCanvas );
+    eq::CanvasesCIter i = lunchbox::find( canvases, _currentCanvas );
     LBASSERT( i != canvases.end( ));
 
     ++i;

@@ -208,7 +208,7 @@ co::NodePtr Config::findApplicationNetNode()
 void Config::activateCanvas( Canvas* canvas )
 {
     LBASSERT( canvas->isStopped( ));
-    LBASSERT( stde::find( getCanvases(), canvas ) != getCanvases().end( ));
+    LBASSERT( lunchbox::find( getCanvases(), canvas ) != getCanvases().end( ));
 
     const Layouts& layouts = canvas->getLayouts();
     const Segments& segments = canvas->getSegments();
@@ -404,7 +404,7 @@ void Config::addCompound( Compound* compound )
 bool Config::removeCompound( Compound* compound )
 {
     LBASSERT( compound->_config == this );
-    Compounds::iterator i = stde::find( _compounds, compound );
+    Compounds::iterator i = lunchbox::find( _compounds, compound );
     if( i == _compounds.end( ))
         return false;
 
