@@ -62,5 +62,10 @@ void FileFrameWriter::write( eq::Channel* channel )
         LBWARN << "Could not read frame buffer" << std::endl;
 }
 
+FileFrameWriter::~FileFrameWriter()
+{
+	_image.flush();
+}
+
 }
 }
