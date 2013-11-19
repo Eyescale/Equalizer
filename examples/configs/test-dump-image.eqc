@@ -1,0 +1,42 @@
+#Equalizer 1.2 ascii
+
+# one-pipe fullscreen configuration
+# dumps view to a png image
+
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_CHANNEL_SATTR_DUMP_IMAGE "prefix_"
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    channel 
+                    {
+                        name "channel"
+                        attributes
+                        {
+                            dump_image "prefix_"
+                        } 
+                    }
+                }
+            }
+        }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall {}
+            segment { channel "channel" }
+        }
+    }
+}

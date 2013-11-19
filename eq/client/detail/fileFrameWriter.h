@@ -34,7 +34,7 @@ class FileFrameWriter
 {
 public:
     FileFrameWriter();
-    ~FileFrameWriter() {}
+    ~FileFrameWriter();
 
     void write( eq::Channel* channel );
 

@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -32,7 +31,7 @@ std::string _buildFileName( const eq::Channel* channel )
 {
     std::stringstream name;
     name << channel->getSAttribute( eq::Channel::SATTR_DUMP_IMAGE )
-         << channel->getPipe()->getCurrentFrame( ) << ".rgb";
+         << channel->getPipe()->getCurrentFrame() << ".rgb";
     return name.str();
 }
 }
@@ -52,7 +51,7 @@ FileFrameWriter::FileFrameWriter()
 void FileFrameWriter::write( eq::Channel* channel )
 {
     if( _image.readback( eq::Frame::BUFFER_COLOR, channel->getPixelViewport(),
-                          channel->getZoom(), channel->getObjectManager( )))
+                         channel->getZoom(), channel->getObjectManager( )))
     {
         const std::string& fileName = _buildFileName( channel );
         if( !_image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
@@ -60,6 +59,11 @@ void FileFrameWriter::write( eq::Channel* channel )
     }
     else
         LBWARN << "Could not read frame buffer" << std::endl;
+}
+
+FileFrameWriter::~FileFrameWriter()
+{
+    _image.flush();
 }
 
 }
