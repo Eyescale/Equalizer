@@ -26,6 +26,9 @@
 
 int main( const int argc, char** argv )
 {
+#ifndef Darwin
+    ::setenv( "EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/ );
+#endif
     eq::NodeFactory nodeFactory;
     TEST( eq::init( argc, argv, &nodeFactory ));
 

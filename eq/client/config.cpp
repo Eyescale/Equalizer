@@ -381,16 +381,16 @@ bool Config::update()
 
 uint32_t Config::startFrame( const uint128_t& frameID )
 {
+    // Update
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
     detail::FrameVisitor visitor( _impl->currentFrame + 1 );
     accept( visitor );
-
     update();
 
-    // Request new frame
+    // New frame
+    ++_impl->currentFrame;
     send( getServer(), fabric::CMD_CONFIG_START_FRAME ) << frameID;
 
-    ++_impl->currentFrame;
     LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- "
                                << _impl->currentFrame << std::endl;
     stat.event.data.statistic.frameNumber = _impl->currentFrame;

@@ -18,12 +18,10 @@
 #include <eq/fabric/channel.h>
 
 #include <lunchbox/memoryMap.h>
-
+#include <boost/filesystem.hpp>
 #include <cstdio>
 #include <fstream>
 #include <string>
-
-#include "../../eq/server/global.h"
 
 static const unsigned int WIDTH = 200;
 static const unsigned int HEIGHT = 100;
@@ -34,13 +32,6 @@ static const size_t EXPECTED_SIZE = ( WIDTH * HEIGHT * BYTES_PER_PIXEL )
 
 static const std::string PREFIX = "prefix_";
 static const std::string GENERATED_FILENAME = PREFIX + "1.rgb";
-
-void setupDumpImage();
-void deleteFile( const std::string& filename );
-bool verifyFileExists( const std::string& filename );
-void tearDown( eq::ServerPtr& server, eq::ClientPtr& client,
-               eq::Config* config );
-size_t getFileSize( const std::string& filename );
 
 namespace
 {
@@ -76,7 +67,10 @@ public:
 int main( const int argc, char** argv )
 {
     // 1.- Prepare test
-    setupDumpImage();
+    ::setenv( "EQ_CHANNEL_SATTR_DUMP_IMAGE", PREFIX.c_str(), 1 /*overwrite*/ );
+#ifndef Darwin
+    ::setenv( "EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/ );
+#endif
 
     // 2.- Start application
     TestNodeFactory nodeFactory;
@@ -98,49 +92,19 @@ int main( const int argc, char** argv )
     config->finishFrame();
 
     // 4.- Make sure EQ is properly shut down
-    tearDown( server, client, config );
-
-    // 5.- Verify results
-    TEST( verifyFileExists( GENERATED_FILENAME ));
-    TEST( EXPECTED_SIZE == getFileSize( GENERATED_FILENAME ));
-
-    // 6.- Remove generated file
-    deleteFile( GENERATED_FILENAME );
-
-    return EXIT_SUCCESS;
-}
-
-void setupDumpImage()
-{
-    eq::server::Global * global = eq::server::Global::instance();
-    global->setChannelSAttribute( eq::server::Channel::SATTR_DUMP_IMAGE,
-                                  PREFIX );
-    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE, 0 );
-}
-
-void deleteFile( const std::string& filename )
-{
-    remove( filename.c_str( ));
-}
-
-bool verifyFileExists( const std::string& filename )
-{
-    std::ifstream ifile( filename );
-    return ifile.is_open();
-}
-
-void tearDown( eq::ServerPtr& server, eq::ClientPtr& client,
-               eq::Config* config )
-{
     config->exit();
     server->releaseConfig( config );
     client->disconnectServer( server );
     client->exitLocal();
     eq::exit();
-}
 
-size_t getFileSize( const std::string& filename )
-{
-    lunchbox::MemoryMap file( filename );
-    return file.getSize();
+    // 5.- Verify results
+    TESTINFO( boost::filesystem::exists( GENERATED_FILENAME ),
+              GENERATED_FILENAME );
+    TEST( EXPECTED_SIZE == boost::filesystem::file_size( GENERATED_FILENAME ));
+
+    // 6.- Remove generated file
+    ::remove( GENERATED_FILENAME.c_str( ));
+
+    return EXIT_SUCCESS;
 }

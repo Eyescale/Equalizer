@@ -5,12 +5,13 @@ set(EQUALIZER_DEPENDS
   REQUIRED vmmlib Lunchbox Collage OpenGL Boost tclap
   OPTIONAL X11 hwsd GLStats hwloc OpenSceneGraph OpenCV VRPN
   DisplayCluster MAGELLAN GLEW_MX)
-set(EQUALIZER_DEB_DEPENDS bison flex libboost-program-options-dev
+set(EQUALIZER_DEB_DEPENDS bison flex
+  libboost-program-options-dev libboost-filesystem-dev libboost-system-dev
   libx11-dev libgl1-mesa-dev libglewmx1.6-dev libspnav-dev
   libopenscenegraph-dev libopencv-dev libtclap-dev)
 set(EQUALIZER_PORT_DEPENDS boost opencv tclap)
 
-set(EQUALIZER_BOOST_COMPONENTS "program_options")
+set(EQUALIZER_BOOST_COMPONENTS "program_options filesystem system")
 set(EQUALIZER_OPENSCENEGRAPH_COMPONENTS "osgDB osgUtil")
 
 set(EQUALIZER_ROOT_VAR EQ_ROOT)
