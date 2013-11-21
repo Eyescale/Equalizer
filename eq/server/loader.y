@@ -1461,6 +1461,7 @@ void Loader::_parse()
 
     loader::server = 0;
     config = 0;
+    yylineno = 0;
 
     const std::string oldLocale = setlocale( LC_NUMERIC, "C" );
     const bool error = ( eqLoader_parse() != 0 );
