@@ -106,9 +106,11 @@ void Server::init()
         LBWARN << "No configurations loaded" << std::endl;
 #endif
 
-    LBINFO << lunchbox::disableFlush << "Running server: " << std::endl
+    LBINFO << lunchbox::disableFlush << lunchbox::disableHeader
+           << "Running server: " << std::endl
            << lunchbox::indent << Global::instance() << *this
-           << lunchbox::exdent << lunchbox::enableFlush << std::endl;
+           << lunchbox::exdent << lunchbox::enableHeader
+           << lunchbox::enableFlush << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->register_();
@@ -194,7 +196,11 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
         if( config )
         {
             config->register_();
-            LBINFO << "Configured\n" << *this << std::endl;
+            LBINFO << lunchbox::disableFlush << lunchbox::disableHeader
+                   << "Configured:" << std::endl
+                   << lunchbox::indent << Global::instance() << *this
+                   << lunchbox::exdent << lunchbox::enableHeader
+                   << lunchbox::enableFlush << std::endl;
         }
     }
 #endif

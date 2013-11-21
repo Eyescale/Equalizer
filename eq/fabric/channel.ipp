@@ -39,7 +39,7 @@ static std::string _iAttributeStrings[] = {
 };
 
 static std::string _sAttributeStrings[] = {
-    MAKE_ATTR_STRING( SATTR_DUMP_IMAGE_PREFIX )
+    MAKE_ATTR_STRING( SATTR_DUMP_IMAGE )
 };
 }
 

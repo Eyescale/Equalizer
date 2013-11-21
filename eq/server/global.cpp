@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -29,7 +29,7 @@ static Global *_instance = 0;
 
 Global* Global::instance()
 {
-    if( !_instance ) 
+    if( !_instance )
         _instance = new Global();
 
     return _instance;
@@ -53,7 +53,7 @@ void Global::_setupDefaults()
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
         _connectionIAttributes[i] = fabric::UNDEFINED;
 
-    _connectionIAttributes[ ConnectionDescription::IATTR_TYPE ] = 
+    _connectionIAttributes[ ConnectionDescription::IATTR_TYPE ] =
         co::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ ConnectionDescription::IATTR_PORT ] = 0;
     _connectionIAttributes[ ConnectionDescription::IATTR_BANDWIDTH ] = 0;
@@ -111,7 +111,7 @@ void Global::_setupDefaults()
 #else
     _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = fabric::NICEST;
 #endif
-    
+
     // channel
     for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
         _channelIAttributes[i] = fabric::UNDEFINED;
@@ -135,7 +135,7 @@ void Global::_readEnvironment()
         const std::string& name = ConnectionDescription::getSAttributeString(
             (ConnectionDescription::SAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _connectionSAttributes[i] = envValue;
     }
@@ -144,7 +144,7 @@ void Global::_readEnvironment()
         const std::string& name = ConnectionDescription::getIAttributeString(
             (ConnectionDescription::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _connectionIAttributes[i] = atol( envValue );
     }
@@ -154,7 +154,7 @@ void Global::_readEnvironment()
         const std::string& name = Config::getFAttributeString(
             (Config::FAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _configFAttributes[i] = atof( envValue );
     }
@@ -163,7 +163,7 @@ void Global::_readEnvironment()
         const std::string& name = Config::getIAttributeString(
             (Config::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _configIAttributes[i] = atol( envValue );
     }
@@ -173,7 +173,7 @@ void Global::_readEnvironment()
         const std::string& name = Node::getSAttributeString(
             (Node::SAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _nodeSAttributes[i] = envValue;
     }
@@ -182,7 +182,7 @@ void Global::_readEnvironment()
         const std::string& name = Node::getCAttributeString(
             (Node::CAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _nodeCAttributes[i] = envValue[0];
     }
@@ -191,7 +191,7 @@ void Global::_readEnvironment()
         const std::string& name     = Node::getIAttributeString(
             (Node::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _nodeIAttributes[i] = atol( envValue );
     }
@@ -200,7 +200,7 @@ void Global::_readEnvironment()
         const std::string& name     = Pipe::getIAttributeString(
             (Pipe::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _pipeIAttributes[i] = atol( envValue );
     }
@@ -209,7 +209,7 @@ void Global::_readEnvironment()
         const std::string& name     = Window::getIAttributeString(
             (Window::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _windowIAttributes[i] = atol( envValue );
     }
@@ -218,7 +218,7 @@ void Global::_readEnvironment()
         const std::string& name = Channel::getIAttributeString(
             (Channel::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _channelIAttributes[i] = atol( envValue );
     }
@@ -228,16 +228,15 @@ void Global::_readEnvironment()
             (Channel::SAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
 
-        if( envValue ){
+        if( envValue )
             _channelSAttributes[i] = envValue;
-        }
     }
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
     {
         const std::string& name     = Compound::getIAttributeString(
             (Compound::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
-        
+
         if( envValue )
             _compoundIAttributes[i] = atol( envValue );
     }
@@ -262,12 +261,12 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._connectionIAttributes[i] )
             continue;
 
-        const std::string& name = ConnectionDescription::getIAttributeString( 
+        const std::string& name = ConnectionDescription::getIAttributeString(
             static_cast<ConnectionDescription::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
-                
+
         switch( i )
-        { 
+        {
             case ConnectionDescription::IATTR_TYPE:
                 os << static_cast< co::ConnectionType >( value );
                 break;
@@ -283,7 +282,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._connectionSAttributes[i] )
             continue;
 
-        const std::string& name = ConnectionDescription::getSAttributeString( 
+        const std::string& name = ConnectionDescription::getSAttributeString(
             static_cast<ConnectionDescription::SAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "\"" << value << "\"" << std::endl;
@@ -298,7 +297,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._configFAttributes[i] )
             continue;
 
-        const std::string& name = Config::getFAttributeString( 
+        const std::string& name = Config::getFAttributeString(
             static_cast<Config::FAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << std::endl;
@@ -310,7 +309,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._configIAttributes[i] )
             continue;
 
-        const std::string& name = Config::getIAttributeString( 
+        const std::string& name = Config::getIAttributeString(
             static_cast<Config::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
@@ -322,7 +321,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._nodeSAttributes[i] )
             continue;
 
-        const std::string& name = Node::getSAttributeString( 
+        const std::string& name = Node::getSAttributeString(
             static_cast<Node::SAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "\"" << value << "\"" << std::endl;
@@ -334,7 +333,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._nodeCAttributes[i] )
             continue;
 
-        const std::string& name = Node::getCAttributeString( 
+        const std::string& name = Node::getCAttributeString(
             static_cast<Node::CAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "'" << value << "'" << std::endl;
@@ -346,7 +345,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._nodeIAttributes[i] )
             continue;
 
-        const std::string& name = Node::getIAttributeString( 
+        const std::string& name = Node::getIAttributeString(
             static_cast<Node::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
@@ -358,7 +357,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._pipeIAttributes[i] )
             continue;
 
-        const std::string& name = Pipe::getIAttributeString( 
+        const std::string& name = Pipe::getIAttributeString(
             static_cast<Pipe::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
@@ -370,7 +369,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         if( value == reference._windowIAttributes[i] )
             continue;
 
-        const std::string& name = Window::getIAttributeString( 
+        const std::string& name = Window::getIAttributeString(
             static_cast<Window::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;

@@ -26,6 +26,9 @@
 
 int main( const int argc, char** argv )
 {
+#ifndef Darwin
+    ::setenv( "EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/ );
+#endif
     eq::NodeFactory nodeFactory;
     TEST( eq::init( argc, argv, &nodeFactory ));
 
@@ -41,7 +44,9 @@ int main( const int argc, char** argv )
     for( size_t i=0; i < LOOPS; ++i )
     {
         eq::Config* config = server->chooseConfig( configParams );
-        TEST( config );
+        if( !config ) // Autoconfig failed, likely because there are no GPUs
+            continue;
+
         TEST( config->init( co::uint128_t( )));
 
         size_t nLoops = 0;

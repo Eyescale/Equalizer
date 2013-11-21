@@ -54,7 +54,7 @@ else()
 endif()
 
 if(PKG_CONFIG_EXECUTABLE)
-  find_package(Boost 1.41.0 COMPONENTS program_options)
+  find_package(Boost 1.41.0 COMPONENTS program_options filesystem system)
   if((NOT Boost_FOUND) AND (NOT BOOST_FOUND))
     pkg_check_modules(Boost Boost>=1.41.0)
   endif()
@@ -62,7 +62,7 @@ if(PKG_CONFIG_EXECUTABLE)
     message(FATAL_ERROR "Could not find Boost")
   endif()
 else()
-  find_package(Boost 1.41.0  REQUIRED program_options)
+  find_package(Boost 1.41.0  REQUIRED program_options filesystem system)
 endif()
 
 if(PKG_CONFIG_EXECUTABLE)
@@ -428,7 +428,7 @@ if(GLEW_MX_name)
   endif()
 endif()
 
-set(EQUALIZER_BUILD_DEBS autoconf;automake;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;git-svn;lcov;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libboost-date-time-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libtclap-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;ninja-build;pkg-config;subversion)
+set(EQUALIZER_BUILD_DEBS autoconf;automake;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;git-svn;lcov;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libtclap-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;ninja-build;pkg-config;subversion)
 
 set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;tclap;X11;hwsd;GLStats;hwloc;OpenSceneGraph;OpenCV;VRPN;DisplayCluster;MAGELLAN;GLEW_MX)
 
