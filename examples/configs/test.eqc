@@ -1,72 +1,107 @@
-#Equalizer 1.1 ascii
-# two-node software-framelocked config
+# Equalizer 1.2 ascii
+# test input file for parser and output
 
+#Equalizer 1.2 ascii
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_CONNECTION_SATTR_HOSTNAME             "localhost"
+    EQ_CONNECTION_IATTR_TYPE                 TCPIP
+    EQ_CONNECTION_IATTR_PORT                 0
+    EQ_CONNECTION_SATTR_PIPE_FILENAME        "foo"
+    EQ_CONFIG_FATTR_EYE_BASE                 0.042
+    EQ_CONFIG_IATTR_ROBUSTNESS               OFF
+    EQ_NODE_SATTR_LAUNCH_COMMAND             "%c"
+    EQ_NODE_CATTR_LAUNCH_COMMAND_QUOTE       '"'
+    EQ_NODE_IATTR_THREAD_MODEL               ASYNC
+    EQ_NODE_IATTR_THREAD_MODEL               DRAW_SYNC
+    EQ_NODE_IATTR_THREAD_MODEL               LOCAL_SYNC
+    EQ_NODE_IATTR_LAUNCH_TIMEOUT             30000
+    EQ_PIPE_IATTR_HINT_THREAD                ON
+    EQ_PIPE_IATTR_HINT_AFFINITY              AUTO
+    EQ_WINDOW_IATTR_HINT_STEREO              OFF
+    EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER        ON
+    EQ_WINDOW_IATTR_HINT_DECORATION          ON
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN          OFF
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC            OFF
+    EQ_WINDOW_IATTR_HINT_DRAWABLE            window
+    EQ_WINDOW_IATTR_HINT_DRAWABLE            pbuffer
+    EQ_WINDOW_IATTR_HINT_DRAWABLE            FBO
+    EQ_WINDOW_IATTR_HINT_STATISTICS          OFF
+    EQ_WINDOW_IATTR_HINT_GRAB_POINTER        OFF
+    EQ_WINDOW_IATTR_PLANES_COLOR             8
+    EQ_WINDOW_IATTR_PLANES_ALPHA             8
+    EQ_WINDOW_IATTR_PLANES_DEPTH             24
+    EQ_WINDOW_IATTR_PLANES_STENCIL           8
+    EQ_WINDOW_IATTR_PLANES_ACCUM             0
+    EQ_WINDOW_IATTR_PLANES_ACCUM_ALPHA       0
+    EQ_WINDOW_IATTR_PLANES_SAMPLES           4
+    EQ_CHANNEL_IATTR_HINT_STATISTICS         FASTEST
+    EQ_CHANNEL_SATTR_DUMP_IMAGE              "prefix_"
+    EQ_COMPOUND_IATTR_STEREO_MODE            PASSIVE
+    EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK   [ RED  ]
+    EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK  [ GREEN BLUE ]
 }
 
 server
 {
-    connection { hostname "node02" }
     config
     {
-        appNode
+        latency 2
+        attributes
         {
-            connection { hostname "node02" }
-            connection { type RSP port 4242 }
-            pipe 
-            {
-#                device 0
-                window
-                {
-                    viewport [ .25 .25 .5 .5 ]
-                    channel { name "channel1" }
-                }
-            }
-        }
-        node
-        {
-            connection { hostname "node03" }
-            connection { type RSP port 4242 }
-            pipe 
-            {
-                device 0
-                window
-                {
-                    viewport [ .25 .25 .5 .5 ]
-                    channel { name "channel2" }
-                }
-            }
+            eye_base       .02
+            robustness     OFF
         }
 
-        layout { view { }}
+        appNode
+        {
+            name "Application Process"
+            pipe
+            {
+                name "GPU 1"
+                window
+                {
+                    name "Main Window"
+                    attributes
+                    {
+                        hint_stereo         AUTO
+                        hint_doublebuffer   AUTO
+                        hint_decoration     ON
+                        hint_fullscreen     OFF
+                        hint_swapsync       OFF
+                        hint_drawable       pbuffer
+                        hint_statistics     NICEST
+                        hint_grab_pointer   OFF
+                        planes_color        4
+                        planes_alpha        4
+                        planes_depth        16
+                        planes_stencil      OFF
+                        planes_accum        OFF
+                        planes_accum_alpha  OFF
+                        planes_samples      OFF
+                    }
+                    channel
+                    {
+                        name "channel"
+                        attributes
+                        {
+                            dump_image "prefix_"
+                        }
+                    }
+                }
+            }
+        }
+        observer
+        {
+            focus_distance 1.
+            focus_mode     relative_to_observer
+        }
+        layout{ view { observer 0 }}
         canvas
         {
             layout 0
-            wall
-            {
-                bottom_left  [ -1.6 -.5 -1 ]
-                bottom_right [  1.6 -.5 -1 ]
-                top_left     [ -1.6  .5 -1 ]
-            }
-
-            segment { viewport [ 0  0 .5 1 ] channel "channel1" }
-            segment { viewport [ .5 0 .5 1 ] channel "channel2" }
+            wall {}
+            segment { channel "channel" }
         }
-
-        compound
-        {
-            compound 
-            {
-                channel ( view 0 segment 0 )
-                swapbarrier {}
-            }
-            compound 
-            {
-                channel ( view 0 segment 1 )
-                swapbarrier {}
-            }
-        }
-    }    
+    }
 }
