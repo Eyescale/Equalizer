@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// https://github.com/Eyescale/Equalizer/issues/130
+// https://github.com/Eyescale/Equalizer/issues/270
 
 #include <test.h>
 #include <eq/eq.h>
