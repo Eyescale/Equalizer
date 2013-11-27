@@ -90,10 +90,7 @@ Config* Server::chooseConfig( const fabric::ConfigParams& p )
         params.setGPUFilter( client->getGPUFilter( ));
 
     if( params.getRenderClient().empty( ))
-    {
         LBWARN << "No render client in ConfigParams specified" << std::endl;
-        return 0;
-    }
 
     const uint32_t requestID =  client->registerRequest();
 
