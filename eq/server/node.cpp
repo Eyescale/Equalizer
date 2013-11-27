@@ -395,8 +395,13 @@ bool Node::_launch( const std::string& hostname ) const
 
 std::string Node::_createRemoteCommand() const
 {
-    std::ostringstream stringStream;
-    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
+    const Config* config = getConfig();
+    std::string program = config->getRenderClient();
+    if( program.empty( ))
+    {
+        LBWARN << "No render client name, auto-launch will fail" << std::endl;
+        return std::string();
+    }
 
     //----- environment
 #ifndef WIN32
@@ -406,10 +411,13 @@ std::string Node::_createRemoteCommand() const
     const char libPath[] = "LD_LIBRARY_PATH";
 #  endif
 
+    std::ostringstream stringStream;
     stringStream << "env "; // XXX
     char* env = getenv( libPath );
     if( env )
         stringStream << libPath << "=" << env << " ";
+
+    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     for( int i=0; environ[i] != 0; ++i )
     {
         if( strlen( environ[i] ) > 2 &&
@@ -427,8 +435,6 @@ std::string Node::_createRemoteCommand() const
 #endif // WIN32
 
     //----- program + args
-    const Config* config = getConfig();
-    std::string program = config->getRenderClient();
     const std::string& workDir = config->getWorkDir();
 #ifdef WIN32
     LBASSERT( program.length() > 2 );
