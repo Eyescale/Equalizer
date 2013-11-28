@@ -27,18 +27,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <plylib/vertexBufferState.h>
+
+#include <fstream>
+#include <sstream>
 
 #include "window.h"
-
 #include "config.h"
 #include "pipe.h"
 #include "vertexBufferState.h"
 
 #include "fragmentShader.glsl.h"
 #include "vertexShader.glsl.h"
-
-#include <fstream>
-#include <sstream>
 
 namespace eqPly
 {

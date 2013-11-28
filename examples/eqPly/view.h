@@ -33,6 +33,8 @@
 #include <eq/eq.h>
 
 #include "vertexBufferState.h"
+#include <plylib/vertexBufferState.h>
+
 #include <string>
 
 namespace eqPly

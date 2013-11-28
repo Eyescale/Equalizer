@@ -27,7 +27,7 @@
  */
 
 #include <eq/eq.h>
-#include <vertexBufferRoot.h>
+#include <plylib/vertexBufferRoot.h>
 
 namespace
 {

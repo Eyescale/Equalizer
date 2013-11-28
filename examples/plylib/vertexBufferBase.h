@@ -34,7 +34,7 @@
 #ifndef MESH_VERTEXBUFFERBASE_H
 #define MESH_VERTEXBUFFERBASE_H
 
-
+#include "api.h"
 #include "typedefs.h"
 #include <fstream>
 
@@ -56,9 +56,9 @@ namespace mesh
     public:
         virtual ~VertexBufferBase() {};
 
-        virtual void draw( VertexBufferState& state ) const = 0;
-        void drawBoundingSphere( VertexBufferState& state ) const;
-        virtual Index getNumberOfVertices() const = 0;
+        PLYLIB_API virtual void draw( VertexBufferState& state ) const = 0;
+        PLYLIB_API void drawBoundingSphere( VertexBufferState& state ) const;
+        PLYLIB_API virtual Index getNumberOfVertices() const = 0;
 
         const BoundingSphere& getBoundingSphere() const
             { return _boundingSphere; }
@@ -70,7 +70,7 @@ namespace mesh
         virtual VertexBufferBase* getLeft() { return 0; }
         virtual VertexBufferBase* getRight() { return 0; }
 
-        virtual const BoundingSphere& updateBoundingSphere() = 0;
+        PLYLIB_API virtual const BoundingSphere& updateBoundingSphere() = 0;
 
     protected:
         VertexBufferBase() : _boundingSphere( 0.0f )
@@ -99,7 +99,7 @@ namespace mesh
                                 const size_t depth,
                                 VertexBufferData& globalData ) = 0;
 
-        virtual void updateRange() = 0;
+        PLYLIB_API virtual void updateRange() = 0;
 
         BoundingSphere  _boundingSphere;
         Range           _range;
