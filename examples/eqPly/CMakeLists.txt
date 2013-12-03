@@ -5,7 +5,7 @@ if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/examples)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 eq_add_example(eqPly
   HEADERS

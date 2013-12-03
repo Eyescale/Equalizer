@@ -1,8 +1,8 @@
 
 /* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -767,7 +767,7 @@ void Channel::_drawHelp()
     resetAssemblyState();
 }
 
-void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
+void Channel::_updateNearFar( const plylib::BoundingSphere& boundingSphere )
 {
     // compute dynamic near/far plane of whole model
     const FrameData& frameData = _getFrameData();

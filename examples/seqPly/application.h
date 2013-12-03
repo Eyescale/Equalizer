@@ -43,9 +43,9 @@
 /** The Sequel polygonal rendering example. */
 namespace seqPly
 {
-    typedef mesh::VertexBufferRoot        Model;
-    typedef eqPly::VertexBufferDist       ModelDist;
-    typedef mesh::VertexBufferStateSimple State;
+    typedef plylib::VertexBufferRoot      Model;
+    typedef plylib::VertexBufferDist      ModelDist;
+    typedef plylib::VertexBufferStateSimple State;
     using eqPly::FrameData;
 
     class Application : public seq::Application

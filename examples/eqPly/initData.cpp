@@ -47,7 +47,7 @@ InitData::InitData()
 #else
         , _windowSystem()
 #endif
-        , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
+        , _renderMode( plylib::RENDER_MODE_DISPLAY_LIST )
         , _useGLSL( false )
         , _invFaces( false )
         , _logo( true )

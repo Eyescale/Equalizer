@@ -40,7 +40,7 @@
 #   include <sys/mman.h>
 #endif
 
-namespace mesh
+namespace plylib
 {
 
 typedef vmml::frustum_culler< float >  FrustumCuller;
@@ -97,7 +97,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
     culler.setup( state.getProjectionModelViewMatrix( ));
 
     // start with root node
-    std::vector< const mesh::VertexBufferBase* > candidates;
+    std::vector< const plylib::VertexBufferBase* > candidates;
     candidates.push_back( this );
 
     while( !candidates.empty() )
@@ -105,7 +105,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
         if( state.stopRendering( ))
             return;
 
-        const mesh::VertexBufferBase* treeNode = candidates.back();
+        const plylib::VertexBufferBase* treeNode = candidates.back();
         candidates.pop_back();
             
         // completely out of range check
@@ -137,8 +137,8 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 
             case vmml::VISIBILITY_PARTIAL:
             {
-                const mesh::VertexBufferBase* left  = treeNode->getLeft();
-                const mesh::VertexBufferBase* right = treeNode->getRight();
+                const plylib::VertexBufferBase* left  = treeNode->getLeft();
+                const plylib::VertexBufferBase* right = treeNode->getRight();
             
                 if( !left && !right )
                 {
@@ -173,7 +173,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 
 #ifdef LOGCULL
     const size_t verticesTotal = model->getNumberOfVertices();
-    MESHINFO
+    PLYLIBINFO
         << getName() << " rendered " << verticesRendered * 100 / verticesTotal
         << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal
         << "%" << std::endl;
@@ -262,14 +262,14 @@ std::string getArchitectureFilename( const std::string& filename )
 /*  Functions extracted out of readFromFile to enhance readability.  */
 bool VertexBufferRoot::_constructFromPly( const std::string& filename )
 {
-    MESHINFO << "Constructing new from PLY file." << std::endl;
+    PLYLIBINFO << "Constructing new from PLY file." << std::endl;
     
     VertexData data;
     if( _invertFaces )
         data.useInvertedFaces();
     if( !data.readPlyFile( filename ) )
     {
-        MESHERROR << "Unable to load PLY file." << std::endl;
+        PLYLIBERROR << "Unable to load PLY file." << std::endl;
         return false;
     }
 
@@ -277,7 +277,7 @@ bool VertexBufferRoot::_constructFromPly( const std::string& filename )
     data.scale( 2.0f );
     setupTree( data );
     if( !writeToFile( filename ))
-        MESHWARN << "Unable to write binary representation." << std::endl;
+        PLYLIBWARN << "Unable to write binary representation." << std::endl;
     
     return true;
 }
@@ -297,7 +297,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
     if( file == INVALID_HANDLE_VALUE )
         return false;
     
-    MESHINFO << "Reading cached binary representation." << std::endl;
+    PLYLIBINFO << "Reading cached binary representation." << std::endl;
     
     // create a file mapping
     HANDLE map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, 
@@ -305,7 +305,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
     CloseHandle( file );
     if( !map )
     {
-        MESHERROR << "Unable to read binary file, file mapping failed." 
+        PLYLIBERROR << "Unable to read binary file, file mapping failed." 
                   << std::endl;
         return false;
     }
@@ -324,14 +324,14 @@ bool VertexBufferRoot::_readBinary( std::string filename )
         }
         catch( const std::exception& e )
         {
-            MESHERROR << "Unable to read binary file, an exception occured:  "
+            PLYLIBERROR << "Unable to read binary file, an exception occured:  "
                       << e.what() << std::endl;
         }
         UnmapViewOfFile( addr );
     }
     else
     {
-        MESHERROR << "Unable to read binary file, memory mapping failed."
+        PLYLIBERROR << "Unable to read binary file, memory mapping failed."
                   << std::endl;
         return false;
     }
@@ -362,14 +362,14 @@ bool VertexBufferRoot::_readBinary( std::string filename )
         }
         catch( const std::exception& e )
         {
-            MESHERROR << "Unable to read binary file, an exception occured:  "
+            PLYLIBERROR << "Unable to read binary file, an exception occured:  "
                       << e.what() << std::endl;
         }
         munmap( addr, status.st_size );
     }
     else
     {
-        MESHERROR << "Unable to read binary file, memory mapping failed."
+        PLYLIBERROR << "Unable to read binary file, memory mapping failed."
                   << std::endl;
     }
     
@@ -412,14 +412,14 @@ bool VertexBufferRoot::writeToFile( const std::string& filename )
         }
         catch( const std::exception& e )
         {
-            MESHERROR << "Unable to write binary file, an exception "
+            PLYLIBERROR << "Unable to write binary file, an exception "
                       << "occured:  " << e.what() << std::endl;
         }
         output.close();
     }
     else
     {
-        MESHERROR << "Unable to create binary file." << std::endl;
+        PLYLIBERROR << "Unable to create binary file." << std::endl;
     }
     
     return result;

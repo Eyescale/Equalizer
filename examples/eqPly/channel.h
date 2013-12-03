@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ namespace eqPly
         void _drawModel( const Model* model );
         void _drawOverlay();
         void _drawHelp();
-        void _updateNearFar( const mesh::BoundingSphere& boundingSphere );
+        void _updateNearFar( const plylib::BoundingSphere& boundingSphere );
 
         bool _isDone() const;
 

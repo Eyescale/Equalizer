@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ namespace eqPly
 
         eq::UUID getFrameDataID() const  { return _frameDataID; }
         eq::WindowSystem   getWindowSystem() const  { return _windowSystem; }
-        mesh::RenderMode   getRenderMode() const    { return _renderMode; }
+        plylib::RenderMode getRenderMode() const    { return _renderMode; }
         bool               useGLSL() const          { return _useGLSL; }
         bool               useInvertedFaces() const { return _invFaces; }
         bool               showLogo() const         { return _logo; }
@@ -57,7 +57,7 @@ namespace eqPly
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }
-        void setRenderMode( const mesh::RenderMode renderMode )
+        void setRenderMode( const plylib::RenderMode renderMode )
             { _renderMode = renderMode; }
         void enableGLSL()          { _useGLSL  = true; }
         void enableInvertedFaces() { _invFaces = true; }
@@ -67,7 +67,7 @@ namespace eqPly
     private:
         eq::UUID         _frameDataID;
         eq::WindowSystem _windowSystem;
-        mesh::RenderMode _renderMode;
+        plylib::RenderMode _renderMode;
         bool             _useGLSL;
         bool             _invFaces;
         bool             _logo;

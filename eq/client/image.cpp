@@ -1405,18 +1405,19 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         return false;
     }
 
-    const uint8_t bpc     = header.bytesPerChannel;
-    const size_t  depth   = nChannels * bpc;
-    const size_t  nPixels = header.width * header.height;
-    const size_t  nComponents = nPixels * nChannels;
-    const size_t  nBytes  = nComponents * bpc;
+    const uint8_t bpc = header.bytesPerChannel;
+    const size_t depth = nChannels * bpc;
+    const size_t nPixels = header.width * header.height;
+    const size_t nComponents = nPixels * nChannels;
+    const size_t nBytes = nComponents * bpc;
 
     if( size < sizeof( RGBHeader ) + nBytes )
     {
         LBERROR << "Image " << filename << " too small" << std::endl;
         return false;
     }
-    LBASSERT( size == sizeof( RGBHeader ) + nBytes );
+    LBASSERTINFO( size == sizeof( RGBHeader ) + nBytes,
+                  "delta " << size - sizeof( RGBHeader ) - nBytes );
 
     switch( buffer )
     {

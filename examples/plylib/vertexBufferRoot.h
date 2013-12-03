@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
+ *               2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,52 +28,51 @@
  */
 
 
-#ifndef MESH_VERTEXBUFFERROOT_H
-#define MESH_VERTEXBUFFERROOT_H
+#ifndef PLYLIB_VERTEXBUFFERROOT_H
+#define PLYLIB_VERTEXBUFFERROOT_H
 
 #include"api.h"
 #include "vertexBufferData.h"
 #include "vertexBufferNode.h"
 
 
-namespace mesh
+namespace plylib
 {
-    /*  The class for kd-tree root nodes.  */
-    class VertexBufferRoot : public VertexBufferNode
-    {
-    public:
-        PLYLIB_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
+/*  The class for kd-tree root nodes.  */
+class VertexBufferRoot : public VertexBufferNode
+{
+public:
+    PLYLIB_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
 
-        PLYLIB_API virtual void cullDraw( VertexBufferState& state ) const;
-        PLYLIB_API virtual void draw( VertexBufferState& state ) const;
+    PLYLIB_API virtual void cullDraw( VertexBufferState& state ) const;
+    PLYLIB_API virtual void draw( VertexBufferState& state ) const;
 
-        PLYLIB_API void setupTree( VertexData& data );
-        PLYLIB_API bool writeToFile( const std::string& filename );
-        PLYLIB_API bool readFromFile( const std::string& filename );
-        bool hasColors() const { return _data.colors.size() > 0; }
+    PLYLIB_API void setupTree( VertexData& data );
+    PLYLIB_API bool writeToFile( const std::string& filename );
+    PLYLIB_API bool readFromFile( const std::string& filename );
+    bool hasColors() const { return _data.colors.size() > 0; }
 
-        void useInvertedFaces() { _invertFaces = true; }
+    void useInvertedFaces() { _invertFaces = true; }
 
-        const std::string& getName() const { return _name; }
+    const std::string& getName() const { return _name; }
 
-    protected:
-        PLYLIB_API virtual void toStream( std::ostream& os );
-        PLYLIB_API virtual void fromMemory( char* start );
+protected:
+    PLYLIB_API virtual void toStream( std::ostream& os );
+    PLYLIB_API virtual void fromMemory( char* start );
 
-    private:
-        bool _constructFromPly( const std::string& filename );
-        bool _readBinary( std::string filename );
+private:
+    bool _constructFromPly( const std::string& filename );
+    bool _readBinary( std::string filename );
 
-        void _beginRendering( VertexBufferState& state ) const;
-        void _endRendering( VertexBufferState& state ) const;
+    void _beginRendering( VertexBufferState& state ) const;
+    void _endRendering( VertexBufferState& state ) const;
 
-        VertexBufferData _data;
-        bool             _invertFaces;
-        std::string      _name;
-
-        friend class eqPly::VertexBufferDist;
-    };
+    friend class VertexBufferDist;
+    VertexBufferData _data;
+    bool             _invertFaces;
+    std::string      _name;
+};
 }
 
 
-#endif // MESH_VERTEXBUFFERROOT_H
+#endif // PLYLIB_VERTEXBUFFERROOT_H

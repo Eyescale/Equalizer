@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,54 +33,53 @@
 #include <eq/eq.h>
 
 #include "vertexBufferState.h"
-#include <plylib/vertexBufferState.h>
 
 #include <string>
 
 namespace eqPly
 {
-    class View : public eq::View
+class View : public eq::View
+{
+public:
+    View( eq::Layout* parent );
+    virtual ~View();
+
+    void setModelID( const eq::UUID& id );
+    eq::UUID getModelID() const { return _modelID; }
+
+    void setIdleSteps( const int32_t steps );
+    int32_t getIdleSteps() const { return _idleSteps; }
+
+    void toggleEqualizer();
+
+private:
+    class Proxy : public co::Serializable
     {
     public:
-        View( eq::Layout* parent );
-        virtual ~View();
+        Proxy( View* view ) : _view( view ) {}
 
-        void setModelID( const eq::UUID& id );
-        eq::UUID getModelID() const { return _modelID; }
-
-        void setIdleSteps( const int32_t steps );
-        int32_t getIdleSteps() const { return _idleSteps; }
-
-        void toggleEqualizer();
-
-    private:
-        class Proxy : public co::Serializable
+    protected:
+        /** The changed parts of the view. */
+        enum DirtyBits
         {
-        public:
-            Proxy( View* view ) : _view( view ) {}
-
-        protected:
-            /** The changed parts of the view. */
-            enum DirtyBits
-            {
-                DIRTY_MODEL = co::Serializable::DIRTY_CUSTOM << 0,
-                DIRTY_IDLE  = co::Serializable::DIRTY_CUSTOM << 1
-            };
-
-            virtual void serialize( co::DataOStream&, const uint64_t );
-            virtual void deserialize( co::DataIStream&, const uint64_t );
-            virtual void notifyNewVersion() { sync(); }
-
-        private:
-            View* const _view;
-            friend class eqPly::View;
+            DIRTY_MODEL = co::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_IDLE  = co::Serializable::DIRTY_CUSTOM << 1
         };
 
-        Proxy _proxy;
-        friend class Proxy;
-        eq::UUID _modelID;
-        int32_t _idleSteps;
+        virtual void serialize( co::DataOStream&, const uint64_t );
+        virtual void deserialize( co::DataIStream&, const uint64_t );
+        virtual void notifyNewVersion() { sync(); }
+
+    private:
+        View* const _view;
+        friend class eqPly::View;
     };
+
+    Proxy _proxy;
+    friend class Proxy;
+    eq::UUID _modelID;
+    int32_t _idleSteps;
+};
 }
 
 #endif // EQ_PLY_VIEW_H

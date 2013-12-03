@@ -169,11 +169,11 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                        (int(*)(int))std::tolower );
 
             if( mode == "immediate" )
-                setRenderMode( mesh::RENDER_MODE_IMMEDIATE );
+                setRenderMode( plylib::RENDER_MODE_IMMEDIATE );
             else if( mode == "displaylist" )
-                setRenderMode( mesh::RENDER_MODE_DISPLAY_LIST );
+                setRenderMode( plylib::RENDER_MODE_DISPLAY_LIST );
             else if( mode == "vbo" )
-                setRenderMode( mesh::RENDER_MODE_BUFFER_OBJECT );
+                setRenderMode( plylib::RENDER_MODE_BUFFER_OBJECT );
         }
 
         if( pathArg.isSet( ))

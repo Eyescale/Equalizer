@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,8 +43,8 @@ namespace eqPly
 {
     class LocalInitData;
 
-    typedef mesh::VertexBufferRoot    Model;
-    typedef VertexBufferDist          ModelDist;
+    typedef plylib::VertexBufferRoot  Model;
+    typedef plylib::VertexBufferDist  ModelDist;
 
     typedef std::vector< Model* > Models;
     typedef std::vector< ModelDist* > ModelDists;
@@ -94,4 +94,3 @@ template<> inline void byteswap( eqPly::ColorMode& value )
     { byteswap( reinterpret_cast< uint32_t& >( value )); }
 }
 #endif // EQ_PLY_H
-

@@ -28,46 +28,45 @@
  */
 
 
-#ifndef EQ_PLY_VERTEXBUFFERDIST_H
-#define EQ_PLY_VERTEXBUFFERDIST_H
+#ifndef PLYLIB_VERTEXBUFFERDIST_H
+#define PLYLIB_VERTEXBUFFERDIST_H
 
 #include "api.h"
-#include "vertexBufferRoot.h"
+#include "typedefs.h"
 
-#include <eq/eq.h>
+#include <co/co.h>
 
-namespace eqPly
+namespace plylib
 {
-    /** co::Object to distribute a model, holds a VertexBufferBase node. */
-    class VertexBufferDist : public co::Object
-    {
-    public:
-        PLYLIB_API VertexBufferDist();
-        PLYLIB_API VertexBufferDist( mesh::VertexBufferRoot* root );
-        PLYLIB_API virtual ~VertexBufferDist();
+/** Uses co::Object to distribute a model, holds a VertexBufferBase node. */
+class VertexBufferDist : public co::Object
+{
+public:
+    PLYLIB_API VertexBufferDist();
+    PLYLIB_API VertexBufferDist( plylib::VertexBufferRoot* root );
+    PLYLIB_API virtual ~VertexBufferDist();
 
-        PLYLIB_API void registerTree( co::LocalNodePtr node );
-        PLYLIB_API void deregisterTree();
+    PLYLIB_API void registerTree( co::LocalNodePtr node );
+    PLYLIB_API void deregisterTree();
 
-        PLYLIB_API mesh::VertexBufferRoot* loadModel( co::NodePtr master,
-                                           co::LocalNodePtr localNode,
-                                           const eq::UUID& modelID );
+    PLYLIB_API plylib::VertexBufferRoot* loadModel( co::NodePtr master,
+                                                    co::LocalNodePtr localNode,
+                                                    const eq::UUID& modelID );
+protected:
+    PLYLIB_API VertexBufferDist( VertexBufferRoot* root,
+                                 VertexBufferBase* node );
 
-    protected:
-        PLYLIB_API VertexBufferDist( mesh::VertexBufferRoot* root,
-                          mesh::VertexBufferBase* node );
+    PLYLIB_API virtual void getInstanceData( co::DataOStream& os );
+    PLYLIB_API virtual void applyInstanceData( co::DataIStream& is );
 
-        PLYLIB_API virtual void getInstanceData( co::DataOStream& os );
-        PLYLIB_API virtual void applyInstanceData( co::DataIStream& is );
-
-    private:
-        mesh::VertexBufferRoot* _root;
-        mesh::VertexBufferBase* _node;
-        VertexBufferDist* _left;
-        VertexBufferDist* _right;
-        bool _isRoot;
-    };
+private:
+    VertexBufferRoot* _root;
+    VertexBufferBase* _node;
+    VertexBufferDist* _left;
+    VertexBufferDist* _right;
+    bool _isRoot;
+};
 }
 
 
-#endif // EQ_PLY_VERTEXBUFFERDIST_H
+#endif // PLYLIB_VERTEXBUFFERDIST_H

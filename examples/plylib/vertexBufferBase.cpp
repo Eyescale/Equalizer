@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
 #include "vertexBufferBase.h"
 #include "vertexBufferState.h"
 
-namespace mesh
+namespace plylib
 {
 void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
 {
@@ -51,7 +51,6 @@ void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
         const float z2 = z + _boundingSphere.w();
         const float size = _boundingSphere.w();
 
-//        glDisable( GL_LIGHTING );
         glBegin( GL_QUADS );
             glNormal3f( 1.0f, 0.0f, 0.0f );
             glVertex3f( x1, y - size, z - size );
@@ -86,7 +85,6 @@ void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
             glVertex3f( x + size, y + size, z1 );
             glVertex3f( x - size, y + size, z1 );
         glEnd();
-//        glEnable( GL_LIGHTING );
 
         glEndList();
     }

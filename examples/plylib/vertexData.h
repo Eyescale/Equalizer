@@ -28,8 +28,8 @@
 */
 
 
-#ifndef MESH_VERTEXDATA_H
-#define MESH_VERTEXDATA_H
+#ifndef PLYLIB_VERTEXDATA_H
+#define PLYLIB_VERTEXDATA_H
 
 #include "api.h"
 #include "typedefs.h"
@@ -39,7 +39,7 @@
 // defined elsewhere
 struct PlyFile;
 
-namespace mesh 
+namespace plylib 
 {
     /*  Holds the flat data and offers routines to read, scale and sort it.  */
     class VertexData
@@ -73,4 +73,4 @@ namespace mesh
 }
 
 
-#endif // MESH_VERTEXDATA_H
+#endif // PLYLIB_VERTEXDATA_H

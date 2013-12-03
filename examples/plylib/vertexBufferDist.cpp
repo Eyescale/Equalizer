@@ -25,32 +25,30 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-
- *
- * co::Object to distribute a model. Has a VertexBufferBase node.
  */
 
 #include "vertexBufferDist.h"
 
 #include "vertexBufferLeaf.h"
+#include "vertexBufferRoot.h"
 
-namespace eqPly
+namespace plylib
 {
 
 VertexBufferDist::VertexBufferDist()
-        : _root( 0 )
-        , _node( 0 )
-        , _left( 0 )
-        , _right( 0 )
-        , _isRoot( false )
+    : _root( 0 )
+    , _node( 0 )
+    , _left( 0 )
+    , _right( 0 )
+    , _isRoot( false )
 {}
 
-VertexBufferDist::VertexBufferDist( mesh::VertexBufferRoot* root )
-        : _root( root )
-        , _node( root )
-        , _left( 0 )
-        , _right( 0 )
-        , _isRoot( true )
+VertexBufferDist::VertexBufferDist( VertexBufferRoot* root )
+    : _root( root )
+    , _node( root )
+    , _left( 0 )
+    , _right( 0 )
+    , _isRoot( true )
 {
     if( root->getLeft( ))
         _left = new VertexBufferDist( root, root->getLeft( ));
@@ -59,8 +57,8 @@ VertexBufferDist::VertexBufferDist( mesh::VertexBufferRoot* root )
         _right = new VertexBufferDist( root, root->getRight( ));
 }
 
-VertexBufferDist::VertexBufferDist( mesh::VertexBufferRoot* root,
-                                    mesh::VertexBufferBase* node )
+VertexBufferDist::VertexBufferDist( VertexBufferRoot* root,
+                                    VertexBufferBase* node )
         : _root( root )
         , _node( node )
         , _left( 0 )
@@ -110,7 +108,7 @@ void VertexBufferDist::deregisterTree()
         _right->deregisterTree();
 }
 
-mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
+VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
                                                      co::LocalNodePtr localNode,
                                                      const eq::UUID& modelID )
 {
@@ -136,7 +134,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         if( _isRoot )
         {
             LBASSERT( _root );
-            const mesh::VertexBufferData& data = _root->_data;
+            const VertexBufferData& data = _root->_data;
 
             os << data.vertices << data.colors << data.normals << data.indices
                << _root->_name;
@@ -146,9 +144,9 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
     {
         os << co::UUID() << co::UUID();
 
-        LBASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
-        const mesh::VertexBufferLeaf* leaf =
-            static_cast< const mesh::VertexBufferLeaf* >( _node );
+        LBASSERT( dynamic_cast< const VertexBufferLeaf* >( _node ));
+        const VertexBufferLeaf* leaf =
+            static_cast< const VertexBufferLeaf* >( _node );
 
         os << leaf->_boundingBox[0] << leaf->_boundingBox[1]
            << uint64_t( leaf->_vertexStart ) << uint64_t( leaf->_indexStart )
@@ -162,8 +160,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
 {
     LBASSERT( !_node );
 
-    mesh::VertexBufferNode* node = 0;
-    mesh::VertexBufferBase* base = 0;
+    VertexBufferNode* node = 0;
+    VertexBufferBase* base = 0;
 
     lunchbox::UUID leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
@@ -172,8 +170,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
     {
         if( _isRoot )
         {
-            mesh::VertexBufferRoot* root = new mesh::VertexBufferRoot;
-            mesh::VertexBufferData& data = root->_data;
+            VertexBufferRoot* root = new VertexBufferRoot;
+            VertexBufferData& data = root->_data;
 
             is >> data.vertices >> data.colors >> data.normals >> data.indices
                >> root->_name;
@@ -184,7 +182,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         else
         {
             LBASSERT( _root );
-            node = new mesh::VertexBufferNode;
+            node = new VertexBufferNode;
         }
 
         base   = node;
@@ -203,8 +201,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
     else
     {
         LBASSERT( !_isRoot );
-        mesh::VertexBufferData& data = _root->_data;
-        mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
+        VertexBufferData& data = _root->_data;
+        VertexBufferLeaf* leaf = new VertexBufferLeaf( data );
 
         uint64_t i1, i2, i3;
         is >> leaf->_boundingBox[0] >> leaf->_boundingBox[1]

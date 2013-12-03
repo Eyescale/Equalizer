@@ -34,7 +34,7 @@
 #include "vertexData.h"
 #include <map>
 
-namespace mesh
+namespace plylib
 {
 
 /*  Finish partial setup - sort, reindex and merge into global data.  */
@@ -63,7 +63,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
             {
                 newIndex[i] = _vertexLength++;
                 // assert number of vertices does not exceed SmallIndex range
-                MESHASSERT( _vertexLength );
+                PLYLIBASSERT( _vertexLength );
                 globalData.vertices.push_back( data.vertices[i] );
                 if( hasColors )
                     globalData.colors.push_back( data.colors[i] );
@@ -75,7 +75,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     }
 
 #ifndef NDEBUG
-    MESHINFO << "setupTree" << "( " << _indexStart << ", " << _indexLength
+    PLYLIBINFO << "setupTree" << "( " << _indexStart << ", " << _indexLength
              << "; start " << _vertexStart << ", " << _vertexLength
              << " vertices)." << std::endl;
 #endif
@@ -177,7 +177,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.w() = radius;
 
 #ifndef NDEBUG
-    MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )."
+    PLYLIBINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )."
              << std::endl;
 #endif
 
@@ -192,7 +192,7 @@ void VertexBufferLeaf::updateRange()
     _range[1] = _range[0] + 1.0f * _indexLength / _globalData.indices.size();
 
 #ifndef NDEBUG
-    MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
+    PLYLIBINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
              << " )." << std::endl;
 #endif
 }

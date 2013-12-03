@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+ *               2013, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,14 +19,20 @@
 #ifndef PLYLIB_API_H
 #define PLYLIB_API_H
 
-#include <eq/defines.h>
+#if defined(_MSC_VER) || defined(__declspec)
+#  define PLYLIB_DLLEXPORT __declspec(dllexport)
+#  define PLYLIB_DLLIMPORT __declspec(dllimport)
+#else // _MSC_VER
+#  define PLYLIB_DLLEXPORT
+#  define PLYLIB_DLLIMPORT
+#endif // _MSC_VER
 
-#if defined(EQUALIZER_STATIC)
+#if defined(PLYLIB_STATIC)
 #  define PLYLIB_API
-#elif defined(EQUALIZER_SHARED)
-#  define PLYLIB_API LB_DLLEXPORT
+#elif defined(PLYLIB_SHARED)
+#  define PLYLIB_API PLYLIB_DLLEXPORT
 #else
-#  define PLYLIB_API LB_DLLIMPORT
+#  define PLYLIB_API PLYLIB_DLLIMPORT
 #endif
 
 #endif /* PLYLIB_API_H */

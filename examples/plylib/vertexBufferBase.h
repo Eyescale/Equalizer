@@ -25,14 +25,11 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-
-
-    Header file of the abstract VertexBufferBase class.
 */
 
 
-#ifndef MESH_VERTEXBUFFERBASE_H
-#define MESH_VERTEXBUFFERBASE_H
+#ifndef PLYLIB_VERTEXBUFFERBASE_H
+#define PLYLIB_VERTEXBUFFERBASE_H
 
 #include "api.h"
 #include "typedefs.h"
@@ -40,53 +37,48 @@
 
 namespace eqPly
 {
-    class VertexBufferDist;
+class VertexBufferDist;
 }
 
-namespace mesh
+namespace plylib
 {
-    // defined elsewhere
-    class VertexData;
-    class VertexBufferData;
-    class VertexBufferState;
+/*  The abstract base class for all kinds of kd-tree nodes.  */
+class VertexBufferBase
+{
+public:
+    virtual ~VertexBufferBase() {};
 
-    /*  The abstract base class for all kinds of kd-tree nodes.  */
-    class VertexBufferBase
-    {
-    public:
-        virtual ~VertexBufferBase() {};
+    PLYLIB_API virtual void draw( VertexBufferState& state ) const = 0;
+    PLYLIB_API void drawBoundingSphere( VertexBufferState& state ) const;
+    PLYLIB_API virtual Index getNumberOfVertices() const = 0;
 
-        PLYLIB_API virtual void draw( VertexBufferState& state ) const = 0;
-        PLYLIB_API void drawBoundingSphere( VertexBufferState& state ) const;
-        PLYLIB_API virtual Index getNumberOfVertices() const = 0;
+    const BoundingSphere& getBoundingSphere() const
+        { return _boundingSphere; }
 
-        const BoundingSphere& getBoundingSphere() const
-            { return _boundingSphere; }
+    const float* getRange() const { return &_range[0]; }
 
-        const float* getRange() const { return &_range[0]; }
+    virtual const VertexBufferBase* getLeft() const { return 0; }
+    virtual const VertexBufferBase* getRight() const { return 0; }
+    virtual VertexBufferBase* getLeft() { return 0; }
+    virtual VertexBufferBase* getRight() { return 0; }
 
-        virtual const VertexBufferBase* getLeft() const { return 0; }
-        virtual const VertexBufferBase* getRight() const { return 0; }
-        virtual VertexBufferBase* getLeft() { return 0; }
-        virtual VertexBufferBase* getRight() { return 0; }
+    PLYLIB_API virtual const BoundingSphere& updateBoundingSphere() = 0;
 
-        PLYLIB_API virtual const BoundingSphere& updateBoundingSphere() = 0;
-
-    protected:
-        VertexBufferBase() : _boundingSphere( 0.0f )
+protected:
+    VertexBufferBase() : _boundingSphere( 0.0f )
         {
             _range[0] = 0.0f;
             _range[1] = 1.0f;
         }
 
-        virtual void toStream( std::ostream& os )
+    virtual void toStream( std::ostream& os )
         {
             os.write( reinterpret_cast< char* >( &_boundingSphere ),
                       sizeof( BoundingSphere ) );
             os.write( reinterpret_cast< char* >( &_range ), sizeof( Range ) );
         }
 
-        virtual void fromMemory( char** addr, VertexBufferData& /*globalData*/ )
+    virtual void fromMemory( char** addr, VertexBufferData& /*globalData*/ )
         {
             memRead( reinterpret_cast< char* >( &_boundingSphere ), addr,
                      sizeof( BoundingSphere ) );
@@ -94,19 +86,17 @@ namespace mesh
                      sizeof( Range ) );
         }
 
-        virtual void setupTree( VertexData& data, const Index start,
-                                const Index length, const Axis axis,
-                                const size_t depth,
-                                VertexBufferData& globalData ) = 0;
+    virtual void setupTree( VertexData& data, const Index start,
+                            const Index length, const Axis axis,
+                            const size_t depth,
+                            VertexBufferData& globalData ) = 0;
 
-        PLYLIB_API virtual void updateRange() = 0;
+    virtual void updateRange() = 0;
 
-        BoundingSphere  _boundingSphere;
-        Range           _range;
-        friend class eqPly::VertexBufferDist;
-
-    private:
-    };
+    friend class VertexBufferDist;
+    BoundingSphere  _boundingSphere;
+    Range           _range;
+};
 }
 
-#endif // MESH_VERTEXBUFFERBASE_H
+#endif // PLYLIB_VERTEXBUFFERBASE_H

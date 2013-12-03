@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *           2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
+ *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,61 +25,52 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Header file of the VertexBufferLeaf class.
 */
 
-
-#ifndef MESH_VERTEXBUFFERLEAF_H
-#define MESH_VERTEXBUFFERLEAF_H
-
+#ifndef PLYLIB_VERTEXBUFFERLEAF_H
+#define PLYLIB_VERTEXBUFFERLEAF_H
 
 #include "vertexBufferBase.h"
 
-
-namespace mesh 
+namespace plylib
 {
-    /*  The class for kd-tree leaf nodes.  */
-    class VertexBufferLeaf : public VertexBufferBase
-    {
-    public:
-        VertexBufferLeaf( VertexBufferData& data )
-            : _globalData( data ), _vertexStart( 0 ),
-              _indexStart( 0 ), _indexLength( 0 ) {}
-        virtual ~VertexBufferLeaf() {}
-        
-        virtual void draw( VertexBufferState& state ) const;
-        virtual Index getNumberOfVertices() const { return _indexLength; }
-        
-    protected:
-        virtual void toStream( std::ostream& os );
-        virtual void fromMemory( char** addr, VertexBufferData& globalData );
-        
-        virtual void setupTree( VertexData& data, const Index start,
-                                const Index length, const Axis axis,
-                                const size_t depth,
-                                VertexBufferData& globalData );
-        virtual const BoundingSphere& updateBoundingSphere();
-        virtual void updateRange();
-        
-    private:
-        void setupRendering( VertexBufferState& state, GLuint* data ) const;
-        void renderImmediate( VertexBufferState& state ) const;
-        void renderDisplayList( VertexBufferState& state ) const;
-        void renderBufferObject( VertexBufferState& state ) const;
-        
-        VertexBufferData&   _globalData;
-        BoundingBox         _boundingBox;
-        Index               _vertexStart;
-        Index               _indexStart;
-        Index               _indexLength;
-        ShortIndex          _vertexLength;
-        friend class eqPly::VertexBufferDist;
-    };
-    
-    
+/*  The class for kd-tree leaf nodes.  */
+class VertexBufferLeaf : public VertexBufferBase
+{
+public:
+    VertexBufferLeaf( VertexBufferData& data )
+        : _globalData( data ), _vertexStart( 0 ),
+          _indexStart( 0 ), _indexLength( 0 ) {}
+    virtual ~VertexBufferLeaf() {}
+
+    virtual void draw( VertexBufferState& state ) const;
+    virtual Index getNumberOfVertices() const { return _indexLength; }
+
+protected:
+    virtual void toStream( std::ostream& os );
+    virtual void fromMemory( char** addr, VertexBufferData& globalData );
+
+    virtual void setupTree( VertexData& data, const Index start,
+                            const Index length, const Axis axis,
+                            const size_t depth,
+                            VertexBufferData& globalData );
+    virtual const BoundingSphere& updateBoundingSphere();
+    virtual void updateRange();
+
+private:
+    void setupRendering( VertexBufferState& state, GLuint* data ) const;
+    void renderImmediate( VertexBufferState& state ) const;
+    void renderDisplayList( VertexBufferState& state ) const;
+    void renderBufferObject( VertexBufferState& state ) const;
+
+    friend class VertexBufferDist;
+    VertexBufferData&   _globalData;
+    BoundingBox         _boundingBox;
+    Index               _vertexStart;
+    Index               _indexStart;
+    Index               _indexLength;
+    ShortIndex          _vertexLength;
+};
 }
 
-
-#endif // MESH_VERTEXBUFFERLEAF_H
+#endif // PLYLIB_VERTEXBUFFERLEAF_H

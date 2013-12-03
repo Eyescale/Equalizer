@@ -40,7 +40,7 @@ using __gnu_parallel::sort;
 using std::sort;
 #endif
 
-using namespace mesh;
+using namespace plylib;
 
 /*  Contructor.  */
 VertexData::VertexData()
@@ -128,7 +128,7 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
     for( int i = 0; i < nFaces; ++i )
     {
         ply_get_element( file, static_cast< void* >( &face ) );
-        MESHASSERT( face.vertices != 0 );
+        PLYLIBASSERT( face.vertices != 0 );
         if( face.nVertices != 3 )
         {
             free( face.vertices );
@@ -159,14 +159,14 @@ bool VertexData::readPlyFile( const std::string& filename )
                                           &fileType, &version );
     if( !file )
     {
-        MESHERROR << "Unable to open PLY file " << filename
+        PLYLIBERROR << "Unable to open PLY file " << filename
                   << " for reading." << std::endl;
         return result;
     }
-    MESHASSERT( elemNames != 0 );
+    PLYLIBASSERT( elemNames != 0 );
 
     #ifndef NDEBUG
-    MESHINFO << filename << ": " << nPlyElems << " elements, file type = "
+    PLYLIBINFO << filename << ": " << nPlyElems << " elements, file type = "
              << fileType << ", version = " << version << std::endl;
     #endif
 
@@ -177,15 +177,15 @@ bool VertexData::readPlyFile( const std::string& filename )
 
         PlyProperty** props = ply_get_element_description( file, elemNames[i],
                                                            &nElems, &nProps );
-        MESHASSERT( props != 0 );
+        PLYLIBASSERT( props != 0 );
 
         #ifndef NDEBUG
-        MESHINFO << "element " << i << ": name = " << elemNames[i] << ", "
+        PLYLIBINFO << "element " << i << ": name = " << elemNames[i] << ", "
                  << nProps << " properties, " << nElems << " elements"
                  << std::endl;
         for( int j = 0; j < nProps; ++j )
         {
-            MESHINFO << "element " << i << ", property " << j << ": "
+            PLYLIBINFO << "element " << i << ", property " << j << ": "
                      << "name = " << props[j]->name << std::endl;
         }
         #endif
@@ -199,22 +199,22 @@ bool VertexData::readPlyFile( const std::string& filename )
                     hasColors = true;
 
             readVertices( file, nElems, hasColors );
-            MESHASSERT( vertices.size() == static_cast< size_t >( nElems ) );
+            PLYLIBASSERT( vertices.size() == static_cast< size_t >( nElems ) );
             if( hasColors )
             {
-                MESHASSERT( colors.size() == static_cast< size_t >( nElems ));
+                PLYLIBASSERT( colors.size() == static_cast< size_t >( nElems ));
             }
         }
         else if( equal_strings( elemNames[i], "face" ) )
         try
         {
             readTriangles( file, nElems );
-            MESHASSERT( triangles.size() == static_cast< size_t >( nElems ) );
+            PLYLIBASSERT( triangles.size() == static_cast< size_t >( nElems ) );
             result = true;
         }
         catch( const std::exception& e )
         {
-            MESHERROR << "Unable to read PLY file, an exception occured:  "
+            PLYLIBERROR << "Unable to read PLY file, an exception occured:  "
                       << e.what() << std::endl;
             // stop for loop by setting the loop variable to break condition
             // this way resources still get released even on error cases
@@ -279,7 +279,7 @@ void VertexData::calculateNormals()
 
 #ifndef NDEBUG
     if( wrongNormals > 0 )
-        MESHINFO << wrongNormals << " faces have no valid normal." << std::endl;
+        PLYLIBINFO << wrongNormals << " faces have no valid normal." << std::endl;
 #endif
 }
 
@@ -418,8 +418,8 @@ struct _TriangleSort
 /*  Sort the index data from start to start + length along the given axis.  */
 void VertexData::sort( const Index start, const Index length, const Axis axis )
 {
-    MESHASSERT( length > 0 );
-    MESHASSERT( start + length <= triangles.size() );
+    PLYLIBASSERT( length > 0 );
+    PLYLIBASSERT( start + length <= triangles.size() );
 
     ::sort( triangles.begin() + start, triangles.begin() + start + length,
             _TriangleSort( *this, axis ) );

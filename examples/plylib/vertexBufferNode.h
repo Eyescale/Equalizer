@@ -25,53 +25,48 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ */
 
-
-    Header file of the VertexBufferNode class.
-*/
-
-
-#ifndef MESH_VERTEXBUFFERNODE_H
-#define MESH_VERTEXBUFFERNODE_H
+#ifndef PLYLIB_VERTEXBUFFERNODE_H
+#define PLYLIB_VERTEXBUFFERNODE_H
 
 #include "api.h"
 #include "vertexBufferBase.h"
 
-namespace mesh
+namespace plylib
 {
-    /*  The class for regular (non-leaf) kd-tree nodes.  */
-    class VertexBufferNode : public VertexBufferBase
-    {
-    public:
-        VertexBufferNode() : _left( 0 ), _right( 0 ) {}
-        PLYLIB_API virtual ~VertexBufferNode();
+/* The class for regular (non-leaf) kd-tree nodes.  */
+class VertexBufferNode : public VertexBufferBase
+{
+public:
+    VertexBufferNode() : _left( 0 ), _right( 0 ) {}
+    PLYLIB_API virtual ~VertexBufferNode();
 
-        PLYLIB_API void draw( VertexBufferState& state ) const override;
-        Index getNumberOfVertices() const override
-            {return _left->getNumberOfVertices()+_right->getNumberOfVertices();}
+    PLYLIB_API void draw( VertexBufferState& state ) const override;
+    Index getNumberOfVertices() const override
+        { return _left->getNumberOfVertices()+_right->getNumberOfVertices(); }
 
-        const VertexBufferBase* getLeft() const override { return _left; }
-        const VertexBufferBase* getRight() const override { return _right; }
-        VertexBufferBase* getLeft() override { return _left; }
-        VertexBufferBase* getRight() override { return _right; }
+    const VertexBufferBase* getLeft() const override { return _left; }
+    const VertexBufferBase* getRight() const override { return _right; }
+    VertexBufferBase* getLeft() override { return _left; }
+    VertexBufferBase* getRight() override { return _right; }
 
-    protected:
-        PLYLIB_API void toStream( std::ostream& os ) override;
-        PLYLIB_API void fromMemory( char** addr, VertexBufferData& globalData ) override;
+protected:
+    PLYLIB_API void toStream( std::ostream& os ) override;
+    PLYLIB_API void fromMemory( char** addr, VertexBufferData& globalData )
+        override;
 
-        PLYLIB_API void setupTree( VertexData& data, const Index start,
-                                const Index length, const Axis axis,
-                                const size_t depth,
-                                VertexBufferData& globalData ) override;
-        PLYLIB_API const BoundingSphere& updateBoundingSphere() override;
-        PLYLIB_API void updateRange() override;
+    PLYLIB_API void setupTree( VertexData& data, const Index start,
+                               const Index length, const Axis axis,
+                               const size_t depth,
+                               VertexBufferData& globalData ) override;
+    PLYLIB_API const BoundingSphere& updateBoundingSphere() override;
+    PLYLIB_API void updateRange() override;
 
-    private:
-        VertexBufferBase*   _left;
-        VertexBufferBase*   _right;
-        friend class eqPly::VertexBufferDist;
-    };
+private:
+    friend class VertexBufferDist;
+    VertexBufferBase*   _left;
+    VertexBufferBase*   _right;
+};
 }
-
-
-#endif // MESH_VERTEXBUFFERNODE_H
+#endif // PLYLIB_VERTEXBUFFERNODE_H

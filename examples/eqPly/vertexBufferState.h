@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,78 +27,73 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#ifndef EQ_MESH_VERTEXBUFFERSTATE_H
-#define EQ_MESH_VERTEXBUFFERSTATE_H
-
-
-
-#include <map>
-
-#include <eq/eq.h>
-#include <plylib/vertexBufferState.h>
+#ifndef EQPLY_VERTEXBUFFERSTATE_H
+#define EQPLY_VERTEXBUFFERSTATE_H
 
 #include "channel.h"
 
+#include <plylib/vertexBufferState.h>
+#include <eq/eq.h>
+
 namespace eqPly
 {
-    /*  State for Equalizer usage, uses Eq's Object Manager.  */
-    class VertexBufferState : public mesh::VertexBufferState
-    {
-    public:
-        VertexBufferState( eq::util::ObjectManager& objectManager )
-                : mesh::VertexBufferState( objectManager.glewGetContext( ))
-                , _objectManager( objectManager )
-                , _channel( 0 )
-            {}
+/*  State for Equalizer usage, uses Eq's Object Manager.  */
+class VertexBufferState : public plylib::VertexBufferState
+{
+public:
+    VertexBufferState( eq::util::ObjectManager& objectManager )
+        : plylib::VertexBufferState( objectManager.glewGetContext( ))
+        , _objectManager( objectManager )
+        , _channel( 0 )
+    {}
 
-        virtual ~VertexBufferState(){};
+    virtual ~VertexBufferState() {};
 
-        virtual GLuint getDisplayList( const void* key )
-            { return _objectManager.getList( key ); }
+    virtual GLuint getDisplayList( const void* key )
+        { return _objectManager.getList( key ); }
 
-        virtual GLuint newDisplayList( const void* key )
-            { return _objectManager.newList( key ); }
+    virtual GLuint newDisplayList( const void* key )
+        { return _objectManager.newList( key ); }
 
-        virtual GLuint getTexture( const void* key )
-            { return _objectManager.getTexture( key ); }
+    virtual GLuint getTexture( const void* key )
+        { return _objectManager.getTexture( key ); }
 
-        virtual GLuint newTexture( const void* key )
-            { return _objectManager.newTexture( key ); }
+    virtual GLuint newTexture( const void* key )
+        { return _objectManager.newTexture( key ); }
 
-        virtual GLuint getBufferObject( const void* key )
-            { return _objectManager.getBuffer( key ); }
+    virtual GLuint getBufferObject( const void* key )
+        { return _objectManager.getBuffer( key ); }
 
-        virtual GLuint newBufferObject( const void* key )
-            { return _objectManager.newBuffer( key ); }
+    virtual GLuint newBufferObject( const void* key )
+        { return _objectManager.newBuffer( key ); }
 
-        virtual GLuint getProgram( const void* key )
-            { return _objectManager.getProgram( key ); }
+    virtual GLuint getProgram( const void* key )
+        { return _objectManager.getProgram( key ); }
 
-        virtual GLuint newProgram( const void* key )
-            { return _objectManager.newProgram( key ); }
+    virtual GLuint newProgram( const void* key )
+        { return _objectManager.newProgram( key ); }
 
-        virtual GLuint getShader( const void* key )
-            { return _objectManager.getShader( key ); }
+    virtual GLuint getShader( const void* key )
+        { return _objectManager.getShader( key ); }
 
-        virtual GLuint newShader( const void* key, GLenum type )
-            { return _objectManager.newShader( key, type ); }
+    virtual GLuint newShader( const void* key, GLenum type )
+        { return _objectManager.newShader( key, type ); }
 
-        virtual void deleteAll() { _objectManager.deleteAll(); }
-        bool isShared() const { return _objectManager.isShared(); }
+    virtual void deleteAll() { _objectManager.deleteAll(); }
+    bool isShared() const { return _objectManager.isShared(); }
 
-        void setChannel( Channel* channel ) { _channel = channel; }
+    void setChannel( Channel* channel ) { _channel = channel; }
 
-        virtual bool stopRendering( ) const
-            { return _channel ? _channel->stopRendering() : false; }
+    virtual bool stopRendering( ) const
+        { return _channel ? _channel->stopRendering() : false; }
 
-        virtual void declareRegion( const mesh::Vector4f& region )
-            { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
+    virtual void declareRegion( const plylib::Vector4f& region )
+        { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
 
-    private:
-        eq::util::ObjectManager& _objectManager;
-        Channel* _channel;
-    };
+private:
+    eq::util::ObjectManager& _objectManager;
+    Channel* _channel;
+};
 } // namespace eqPly
 
 #endif // EQ_MESH_VERTEXBUFFERSTATE_H

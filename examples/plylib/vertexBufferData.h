@@ -27,8 +27,8 @@
  */
 
 
-#ifndef MESH_VERTEXBUFFERDATA_H
-#define MESH_VERTEXBUFFERDATA_H
+#ifndef PLYLIB_VERTEXBUFFERDATA_H
+#define PLYLIB_VERTEXBUFFERDATA_H
 
 
 #include "typedefs.h"
@@ -36,7 +36,7 @@
 #include <fstream>
 
 
-namespace mesh 
+namespace plylib 
 {    
     /** Holds the final kd-tree data, sorted and reindexed.  */
     class VertexBufferData
@@ -107,4 +107,4 @@ namespace mesh
 }
 
 
-#endif // MESH_VERTEXBUFFERDATA_H
+#endif // PLYLIB_VERTEXBUFFERDATA_H

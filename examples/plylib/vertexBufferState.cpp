@@ -29,7 +29,7 @@
 
 #include "vertexBufferState.h"
 
-namespace mesh 
+namespace plylib 
 {
 VertexBufferState::VertexBufferState( const GLEWContext* glewContext ) 
         : _pmvMatrix( Matrix4f::IDENTITY )
@@ -41,7 +41,7 @@ VertexBufferState::VertexBufferState( const GLEWContext* glewContext )
     _range[0] = 0.f;
     _range[1] = 1.f;
     resetRegion();
-    MESHASSERT( glewContext );
+    PLYLIBASSERT( glewContext );
 } 
 
 void VertexBufferState::setRenderMode( const RenderMode mode ) 
@@ -54,7 +54,7 @@ void VertexBufferState::setRenderMode( const RenderMode mode )
     // Check if VBO funcs available, else fall back to display lists
     if( _renderMode == RENDER_MODE_BUFFER_OBJECT && !GLEW_VERSION_1_5 )
     {
-        MESHINFO << "VBO not available, using display lists" << std::endl;
+        PLYLIBINFO << "VBO not available, using display lists" << std::endl;
         _renderMode = RENDER_MODE_DISPLAY_LIST;
     }
 }

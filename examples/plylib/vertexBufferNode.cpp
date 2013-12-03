@@ -34,7 +34,7 @@
 #include "vertexData.h"
 #include <set>
 
-namespace mesh
+namespace plylib
 {
 
 /*  Destructor, clears up children as well.  */
@@ -58,7 +58,7 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
                                   VertexBufferData& globalData )
 {
 #ifndef NDEBUG
-    MESHINFO << "setupTree"
+    PLYLIBINFO << "setupTree"
              << "( " << start << ", " << length << ", " << axis << ", " 
              << depth << " )." << std::endl;
 #endif
@@ -124,7 +124,7 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     _boundingSphere.w() = Vertex( outer1 - outer2 ).length() * 0.5f;
     
 #ifndef NDEBUG
-    MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )." 
+    PLYLIBINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )." 
              << std::endl;
 #endif
     
@@ -144,7 +144,7 @@ void VertexBufferNode::updateRange()
     _range[1] = std::max( _left->getRange()[1], _right->getRange()[1] );
     
 #ifndef NDEBUG
-    MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
+    PLYLIBINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
              << " )." << std::endl;
 #endif
 }
