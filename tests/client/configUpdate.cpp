@@ -21,6 +21,11 @@
 #include <test.h>
 #include <eq/eq.h>
 
+#ifdef _WIN32
+#  define setenv( name, value, overwrite ) \
+    SetEnvironmentVariable( name, value )
+#endif
+
 #define LOOPS 5
 #define LOOPTIME 200 // ms
 

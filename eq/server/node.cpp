@@ -404,6 +404,9 @@ std::string Node::_createRemoteCommand() const
     }
 
     //----- environment
+    std::ostringstream stringStream;
+    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
+
 #ifndef WIN32
 #  ifdef Darwin
     const char libPath[] = "DYLD_LIBRARY_PATH";
@@ -411,13 +414,11 @@ std::string Node::_createRemoteCommand() const
     const char libPath[] = "LD_LIBRARY_PATH";
 #  endif
 
-    std::ostringstream stringStream;
     stringStream << "env "; // XXX
     char* env = getenv( libPath );
     if( env )
         stringStream << libPath << "=" << env << " ";
 
-    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     for( int i=0; environ[i] != 0; ++i )
     {
         if( strlen( environ[i] ) > 2 &&
