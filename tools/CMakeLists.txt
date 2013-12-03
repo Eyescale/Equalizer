@@ -16,7 +16,7 @@ macro(EQ_ADD_TOOL NAME)
 endmacro(EQ_ADD_TOOL NAME)
 
 include_directories(${CMAKE_SOURCE_DIR}/examples/include
-  ${CMAKE_SOURCE_DIR}/examples/eqPly)
+  ${CMAKE_SOURCE_DIR}/examples)
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
 
 if(GLEW_MX_FOUND)
@@ -45,23 +45,8 @@ eq_add_tool(eqThreadAffinity SOURCES threadAffinity/threadAffinity.cpp
 
 eq_add_tool(eqPlyConverter
   HEADERS
-    ../examples/eqPly/ply.h
-    ../examples/eqPly/vertexBufferBase.h
-    ../examples/eqPly/vertexBufferData.h
-    ../examples/eqPly/vertexBufferLeaf.h
-    ../examples/eqPly/vertexBufferNode.h
-    ../examples/eqPly/vertexBufferRoot.h
-    ../examples/eqPly/vertexBufferState.h
-    ../examples/eqPly/vertexData.h
   SOURCES eqPlyConverter/main.cpp
-    ../examples/eqPly/plyfile.cpp
-    ../examples/eqPly/vertexBufferBase.cpp
-    ../examples/eqPly/vertexBufferLeaf.cpp
-    ../examples/eqPly/vertexBufferNode.cpp
-    ../examples/eqPly/vertexBufferRoot.cpp
-    ../examples/eqPly/vertexBufferState.cpp
-    ../examples/eqPly/vertexData.cpp
-  LINK_LIBRARIES Equalizer
+  LINK_LIBRARIES Equalizer plylib
   )
 
 eq_add_tool(eVolveConverter

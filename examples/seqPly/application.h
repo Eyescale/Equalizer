@@ -32,9 +32,9 @@
 #include <seq/sequel.h>
 
 #include <frameData.h>
-#include <vertexBufferDist.h>
-#include <vertexBufferRoot.h>
-#include <vertexBufferState.h>
+#include <plylib/vertexBufferDist.h>
+#include <plylib/vertexBufferRoot.h>
+#include <plylib/vertexBufferState.h>
 
 #ifndef M_PI_2
 #  define M_PI_2 1.57079632679489661923

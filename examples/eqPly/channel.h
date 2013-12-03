@@ -32,8 +32,6 @@
 
 #include "eqPly.h"
 
-#include "typedefs.h"
-
 #include <eq/eq.h>
 
 

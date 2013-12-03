@@ -4,33 +4,13 @@ if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../eqPly/)
-
-set(KD_HEADERS
-    ../eqPly/ply.h
-    ../eqPly/vertexBufferBase.h
-    ../eqPly/vertexBufferData.h
-    ../eqPly/vertexBufferDist.h
-    ../eqPly/vertexBufferLeaf.h
-    ../eqPly/vertexBufferNode.h
-    ../eqPly/vertexBufferRoot.h
-    ../eqPly/vertexBufferState.h
-    ../eqPly/vertexData.h
-)
-set(KD_SOURCES
-    ../eqPly/plyfile.cpp
-    ../eqPly/vertexBufferBase.cpp
-    ../eqPly/vertexBufferDist.cpp
-    ../eqPly/vertexBufferLeaf.cpp
-    ../eqPly/vertexBufferNode.cpp
-    ../eqPly/vertexBufferRoot.cpp
-    ../eqPly/vertexBufferState.cpp
-    ../eqPly/vertexData.cpp
-)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+					${CMAKE_CURRENT_BINARY_DIR}
+                    ${CMAKE_SOURCE_DIR}/examples
+                    ${CMAKE_SOURCE_DIR}/examples/eqPly)
 
 eq_add_example(seqPly
   HEADERS
-    ${KD_HEADERS}
   SOURCES
     application.cpp
     application.h
@@ -39,9 +19,7 @@ eq_add_example(seqPly
     renderer.h
     ../eqPly/frameData.h
     ../eqPly/frameData.cpp
-    ${KD_SOURCES}
   LINK_LIBRARIES
     ${EQUALIZER_SEQUEL_LIBRARY}
+    plylib
   )
-
-source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})

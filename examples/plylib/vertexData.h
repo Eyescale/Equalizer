@@ -31,7 +31,7 @@
 #ifndef MESH_VERTEXDATA_H
 #define MESH_VERTEXDATA_H
 
-
+#include "api.h"
 #include "typedefs.h"
 #include <vector>
 
@@ -45,15 +45,15 @@ namespace mesh
     class VertexData
     {
     public:
-        VertexData();
+        PLYLIB_API VertexData();
 
-        bool readPlyFile( const std::string& file );
-        void sort( const Index start, const Index length, const Axis axis );
-        void scale( const float baseSize = 2.0f );
-        void calculateNormals();
-        void calculateBoundingBox();
+        PLYLIB_API bool readPlyFile( const std::string& file );
+        PLYLIB_API void sort( const Index start, const Index length, const Axis axis );
+        PLYLIB_API void scale( const float baseSize = 2.0f );
+        PLYLIB_API void calculateNormals();
+        PLYLIB_API void calculateBoundingBox();
         const BoundingBox& getBoundingBox() const { return _boundingBox; }
-        Axis getLongestAxis( const size_t start, const size_t elements ) const;
+        PLYLIB_API Axis getLongestAxis( const size_t start, const size_t elements ) const;
 
         void useInvertedFaces() { _invertFaces = true; }
 

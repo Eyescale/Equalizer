@@ -34,7 +34,7 @@
 #ifndef MESH_VERTEXBUFFERNODE_H
 #define MESH_VERTEXBUFFERNODE_H
 
-
+#include "api.h"
 #include "vertexBufferBase.h"
 
 namespace mesh
@@ -44,9 +44,9 @@ namespace mesh
     {
     public:
         VertexBufferNode() : _left( 0 ), _right( 0 ) {}
-        virtual ~VertexBufferNode();
+        PLYLIB_API virtual ~VertexBufferNode();
 
-        void draw( VertexBufferState& state ) const override;
+        PLYLIB_API void draw( VertexBufferState& state ) const override;
         Index getNumberOfVertices() const override
             {return _left->getNumberOfVertices()+_right->getNumberOfVertices();}
 
@@ -56,15 +56,15 @@ namespace mesh
         VertexBufferBase* getRight() override { return _right; }
 
     protected:
-        void toStream( std::ostream& os ) override;
-        void fromMemory( char** addr, VertexBufferData& globalData ) override;
+        PLYLIB_API void toStream( std::ostream& os ) override;
+        PLYLIB_API void fromMemory( char** addr, VertexBufferData& globalData ) override;
 
-        void setupTree( VertexData& data, const Index start,
+        PLYLIB_API void setupTree( VertexData& data, const Index start,
                                 const Index length, const Axis axis,
                                 const size_t depth,
                                 VertexBufferData& globalData ) override;
-        const BoundingSphere& updateBoundingSphere() override;
-        void updateRange() override;
+        PLYLIB_API const BoundingSphere& updateBoundingSphere() override;
+        PLYLIB_API void updateRange() override;
 
     private:
         VertexBufferBase*   _left;

@@ -5,30 +5,7 @@ if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-set(KD_HEADERS
-    ply.h
-    vertexBufferBase.h
-    vertexBufferData.h
-    vertexBufferDist.h
-    vertexBufferLeaf.h
-    vertexBufferNode.h
-    vertexBufferRoot.h
-    vertexBufferState.h
-    vertexData.h
-)
-set(KD_SOURCES
-    plyfile.cpp
-    vertexBufferBase.cpp
-    vertexBufferDist.cpp
-    vertexBufferLeaf.cpp
-    vertexBufferNode.cpp
-    vertexBufferRoot.cpp
-    vertexBufferState.cpp
-    vertexData.cpp
-)
-source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/examples)
 
 eq_add_example(eqPly
   HEADERS
@@ -45,10 +22,9 @@ eq_add_example(eqPly
     node.h
     node.h
     pipe.h
-    typedefs.h
+    vertexBufferState.h
     view.h
     window.h
-    ${KD_HEADERS}
   SOURCES
     cameraAnimation.cpp
     channel.cpp
@@ -63,12 +39,11 @@ eq_add_example(eqPly
     pipe.cpp
     view.cpp
     window.cpp
-    ${KD_SOURCES}
   SHADERS
     vertexShader.glsl
     fragmentShader.glsl
   LINK_LIBRARIES
-    ${EQUALIZER_ADMIN_LIBRARY}
+    ${EQUALIZER_ADMIN_LIBRARY} plylib
   )
 
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)

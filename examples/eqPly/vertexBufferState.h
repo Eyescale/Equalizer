@@ -28,98 +28,18 @@
  */
 
 
-#ifndef MESH_VERTEXBUFFERSTATE_H
-#define MESH_VERTEXBUFFERSTATE_H
+#ifndef EQ_MESH_VERTEXBUFFERSTATE_H
+#define EQ_MESH_VERTEXBUFFERSTATE_H
 
-#include "typedefs.h"
+
+
 #include <map>
 
-#ifdef EQUALIZER
-#  include <eq/eq.h>
-#  include "channel.h"
-#endif // EQUALIZER
+#include <eq/eq.h>
+#include <plylib/vertexBufferState.h>
 
-namespace mesh
-{
-    /*  The abstract base class for kd-tree rendering state.  */
-    class VertexBufferState
-    {
-    public:
-        enum
-        {
-            INVALID = 0 //<! return value for failed operations.
-        };
+#include "channel.h"
 
-        virtual bool useColors() const { return _useColors; }
-        virtual void setColors( const bool colors ) { _useColors = colors; }
-        virtual bool stopRendering() const { return false; }
-        virtual RenderMode getRenderMode() const { return _renderMode; }
-        virtual void setRenderMode( const RenderMode mode );
-        virtual bool useFrustumCulling() const { return _useFrustumCulling; }
-        virtual void setFrustumCulling( const bool frustumCullingState )
-            { _useFrustumCulling = frustumCullingState; }
-
-        void setProjectionModelViewMatrix( const Matrix4f& pmv )
-            { _pmvMatrix = pmv; }
-        const Matrix4f& getProjectionModelViewMatrix() const
-            { return _pmvMatrix; }
-
-        void setRange( const Range& range ) { _range = range; }
-        const Range& getRange() const { return _range; }
-
-        void resetRegion();
-        void updateRegion( const BoundingBox& box );
-        virtual void declareRegion( const Vector4f& ) {}
-        Vector4f getRegion() const;
-
-        virtual GLuint getDisplayList( const void* key ) = 0;
-        virtual GLuint newDisplayList( const void* key ) = 0;
-        virtual GLuint getBufferObject( const void* key ) = 0;
-        virtual GLuint newBufferObject( const void* key ) = 0;
-        virtual void deleteAll() = 0;
-
-        const GLEWContext* glewGetContext() const { return _glewContext; }
-
-    protected:
-        VertexBufferState( const GLEWContext* glewContext );
-        virtual ~VertexBufferState() {}
-
-        Matrix4f      _pmvMatrix; //!< projection * modelView matrix
-        Range         _range; //!< normalized [0,1] part of the model to draw
-        const GLEWContext* const _glewContext;
-        RenderMode    _renderMode;
-        Vector4f      _region; //!< normalized x1 y1 x2 y2 region from cullDraw
-        bool          _useColors;
-        bool          _useFrustumCulling;
-
-    private:
-    };
-
-
-    /*  Simple state for stand-alone single-pipe usage.  */
-    class VertexBufferStateSimple : public VertexBufferState
-    {
-    private:
-        typedef std::map< const void*, GLuint > GLMap;
-        typedef GLMap::const_iterator GLMapCIter;
-
-    public:
-        VertexBufferStateSimple( const GLEWContext* glewContext )
-            : VertexBufferState( glewContext ) {}
-
-        virtual GLuint getDisplayList( const void* key );
-        virtual GLuint newDisplayList( const void* key );
-        virtual GLuint getBufferObject( const void* key );
-        virtual GLuint newBufferObject( const void* key );
-        virtual void deleteAll();
-
-    private:
-        GLMap  _displayLists;
-        GLMap  _bufferObjects;
-    };
-} // namespace mesh
-
-#ifdef EQUALIZER
 namespace eqPly
 {
     /*  State for Equalizer usage, uses Eq's Object Manager.  */
@@ -129,7 +49,10 @@ namespace eqPly
         VertexBufferState( eq::util::ObjectManager& objectManager )
                 : mesh::VertexBufferState( objectManager.glewGetContext( ))
                 , _objectManager( objectManager )
+                , _channel( 0 )
             {}
+
+        virtual ~VertexBufferState(){};
 
         virtual GLuint getDisplayList( const void* key )
             { return _objectManager.getList( key ); }
@@ -177,7 +100,5 @@ namespace eqPly
         Channel* _channel;
     };
 } // namespace eqPly
-#endif // EQUALIZER
 
-
-#endif // MESH_VERTEXBUFFERSTATE_H
+#endif // EQ_MESH_VERTEXBUFFERSTATE_H

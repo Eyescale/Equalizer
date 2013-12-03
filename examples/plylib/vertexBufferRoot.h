@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,45 +28,52 @@
  */
 
 
-#ifndef EQ_PLY_VERTEXBUFFERDIST_H
-#define EQ_PLY_VERTEXBUFFERDIST_H
+#ifndef MESH_VERTEXBUFFERROOT_H
+#define MESH_VERTEXBUFFERROOT_H
 
-#include "vertexBufferRoot.h"
+#include"api.h"
+#include "vertexBufferData.h"
+#include "vertexBufferNode.h"
 
-#include <eq/eq.h>
 
-namespace eqPly
+namespace mesh
 {
-    /** co::Object to distribute a model, holds a VertexBufferBase node. */
-    class VertexBufferDist : public co::Object
+    /*  The class for kd-tree root nodes.  */
+    class VertexBufferRoot : public VertexBufferNode
     {
     public:
-        VertexBufferDist();
-        VertexBufferDist( mesh::VertexBufferRoot* root );
-        virtual ~VertexBufferDist();
+        PLYLIB_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
 
-        void registerTree( co::LocalNodePtr node );
-        void deregisterTree();
+        PLYLIB_API virtual void cullDraw( VertexBufferState& state ) const;
+        PLYLIB_API virtual void draw( VertexBufferState& state ) const;
 
-        mesh::VertexBufferRoot* loadModel( co::NodePtr master,
-                                           co::LocalNodePtr localNode,
-                                           const eq::UUID& modelID );
+        PLYLIB_API void setupTree( VertexData& data );
+        PLYLIB_API bool writeToFile( const std::string& filename );
+        PLYLIB_API bool readFromFile( const std::string& filename );
+        bool hasColors() const { return _data.colors.size() > 0; }
+
+        void useInvertedFaces() { _invertFaces = true; }
+
+        const std::string& getName() const { return _name; }
 
     protected:
-        VertexBufferDist( mesh::VertexBufferRoot* root,
-                          mesh::VertexBufferBase* node );
-
-        virtual void getInstanceData( co::DataOStream& os );
-        virtual void applyInstanceData( co::DataIStream& is );
+        PLYLIB_API virtual void toStream( std::ostream& os );
+        PLYLIB_API virtual void fromMemory( char* start );
 
     private:
-        mesh::VertexBufferRoot* _root;
-        mesh::VertexBufferBase* _node;
-        VertexBufferDist* _left;
-        VertexBufferDist* _right;
-        bool _isRoot;
+        bool _constructFromPly( const std::string& filename );
+        bool _readBinary( std::string filename );
+
+        void _beginRendering( VertexBufferState& state ) const;
+        void _endRendering( VertexBufferState& state ) const;
+
+        VertexBufferData _data;
+        bool             _invertFaces;
+        std::string      _name;
+
+        friend class eqPly::VertexBufferDist;
     };
 }
 
 
-#endif // EQ_PLY_VERTEXBUFFERDIST_H
+#endif // MESH_VERTEXBUFFERROOT_H
