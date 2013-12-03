@@ -23,6 +23,11 @@
 #include <fstream>
 #include <string>
 
+#ifdef _WIN32
+#  define setenv( name, value, overwrite ) \
+    SetEnvironmentVariable( name, value )
+#endif
+
 static const unsigned int WIDTH = 200;
 static const unsigned int HEIGHT = 100;
 static const unsigned int BYTES_PER_PIXEL = 1;
