@@ -89,7 +89,13 @@ int main( const int argc, char** argv )
 
     eq::fabric::ConfigParams configParams;
     eq::Config* config = server->chooseConfig( configParams );
-    TEST( config );
+
+    if( !config ) // Most probably no GPUs present, tests in meaningless
+    {
+        client->disconnectServer( server );
+        client->exitLocal();
+        return EXIT_SUCCESS;
+    }
     TEST( config->init( co::uint128_t( )));
 
     // 3.- Force frame generation
