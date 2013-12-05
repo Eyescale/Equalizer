@@ -24,123 +24,123 @@
 
 namespace seq
 {
-    /** The main application object. */
-    class Application : public eq::Client, public co::ObjectFactory
-    {
-    public:
-        /** Construct a new application instance. @version 1.0 */
-        SEQ_API Application();
+/** The main application object. */
+class Application : public eq::Client, public co::ObjectFactory
+{
+public:
+    /** Construct a new application instance. @version 1.0 */
+    SEQ_API Application();
 
-        /** Destruct this application instance. @version 1.0 */
-        SEQ_API virtual ~Application();
+    /** Destruct this application instance. @version 1.0 */
+    SEQ_API virtual ~Application();
 
-        /** @name Data Access */
-        //@{
-        /** @return the node running the main instance. @version 1.3.1 */
-        SEQ_API co::NodePtr getMasterNode();
-        //@}
+    /** @name Data Access */
+    //@{
+    /** @return the node running the main instance. @version 1.3.1 */
+    SEQ_API co::NodePtr getMasterNode();
+    //@}
 
-        /** @name Operations */
-        //@{
-        /**
-         * Initialize the application instance.
-         *
-         * The initData object is registered and is passed to all initialization
-         * callbacks on all processes. The object may be 0, if the application
-         * does not want to use an object during initialization.
-         *
-         * @param argc the command line argument count.
-         * @param argv the command line arguments.
-         * @param initData a distributable object for initialization data.
-         * @return true on success, false otherwise.
-         * @version 1.0
-         */
-        SEQ_API virtual bool init( const int argc, char** argv,
-                                   co::Object* initData );
+    /** @name Operations */
+    //@{
+    /**
+     * Initialize the application instance.
+     *
+     * The initData object is registered and is passed to all initialization
+     * callbacks on all processes. The object may be 0, if the application does
+     * not want to use an object during initialization.
+     *
+     * @param argc the command line argument count.
+     * @param argv the command line arguments.
+     * @param initData a distributable object for initialization data.
+     * @return true on success, false otherwise.
+     * @version 1.0
+     */
+    SEQ_API virtual bool init( const int argc, char** argv,
+                               co::Object* initData );
 
-        /**
-         * Run the application main loop.
-         *
-         * The frameData object is registered and is passed to all rendering
-         * callbacks on all processes. It is automatically committed at the
-         * beginning of each frame. The instance passed to the render callbacks
-         * is automatically synchronized to the version belonging to the frame
-         * rendered. The object may be 0, if the application does not want to
-         * use a per-frame object.
-         *
-         * @return true on success, false otherwise.
-         * @param frameData a distributed object holding frame-specific data.
-         * @version 1.0
-         */
-        SEQ_API virtual bool run( co::Object* frameData );
+    /**
+     * Run the application main loop.
+     *
+     * The frameData object is registered and is passed to all rendering
+     * callbacks on all processes. It is automatically committed at the
+     * beginning of each frame. The instance passed to the render callbacks is
+     * automatically synchronized to the version belonging to the frame
+     * rendered. The object may be 0, if the application does not want to use a
+     * per-frame object.
+     *
+     * @return true on success, false otherwise.
+     * @param frameData a distributed object holding frame-specific data.
+     * @version 1.0
+     */
+    SEQ_API virtual bool run( co::Object* frameData );
 
-        /**
-         * Exit this application instance.
-         *
-         * @return true on success, false otherwise.
-         * @version 1.0
-         */
-        SEQ_API virtual bool exit();
+    /**
+     * Exit this application instance.
+     *
+     * @return true on success, false otherwise.
+     * @version 1.0
+     */
+    SEQ_API virtual bool exit();
 
-        /** Request that the application leaves its run loop. @version 1.1.6 */
-        SEQ_API void stopRunning();
-        //@}
+    /** Request that the application leaves its run loop. @version 1.1.6 */
+    SEQ_API void stopRunning();
+    //@}
 
-        /** @name Callbacks */
-        //@{
-        /**
-         * Initialize a render client.
-         *
-         * Also called on the master application node if it contributes to the
-         * rendering.
-         *
-         * @param initData A slave instance of the object passed to init().
-         * @return true on success, false on error.
-         * @version 1.0
-         */
-        virtual bool clientInit( co::Object* initData LB_UNUSED )
-            { return true; }
+    /** @name Callbacks */
+    //@{
+    /**
+     * Initialize a render client.
+     *
+     * Also called on the master application node if it contributes to the
+     * rendering.
+     *
+     * @param initData A slave instance of the object passed to init().
+     * @return true on success, false on error.
+     * @version 1.0
+     */
+    virtual bool clientInit( co::Object* initData LB_UNUSED )
+        { return true; }
 
-        /** Exit a render client. @version 1.0 */
-        virtual bool clientExit() { return true; }
+    /** Exit a render client. @version 1.0 */
+    virtual bool clientExit() { return true; }
 
-        /**
-         * Create a new renderer instance.
-         *
-         * Called once per rendering thread, potentially in parallel, during
-         * initialization.
-         * @return the new renderer
-         * @version 1.0
-         */
-        virtual Renderer* createRenderer() = 0;
+    /**
+     * Create a new renderer instance.
+     *
+     * Called once per rendering thread, potentially in parallel, during
+     * initialization.
+     *
+     * @return the new renderer
+     * @version 1.0
+     */
+    virtual Renderer* createRenderer() = 0;
 
-        /** Delete the given renderer. @version 1.0 */
-        SEQ_API virtual void destroyRenderer( Renderer* renderer );
+    /** Delete the given renderer. @version 1.0 */
+    SEQ_API virtual void destroyRenderer( Renderer* renderer );
 
-        /**
-         * Create a new per-view data instance.
-         *
-         * Called once for each view in the current configuration. Creates the
-         * view data objects used by the application to set parameters for the
-         * renderers.
-         *
-         * @return the new view data
-         * @version 1.0
-         */
-        SEQ_API virtual ViewData* createViewData();
+    /**
+     * Create a new per-view data instance.
+     *
+     * Called once for each view in the current configuration. Creates the view
+     * data objects used by the application to set parameters for the renderers.
+     *
+     * @return the new view data
+     * @version 1.0
+     */
+    SEQ_API virtual ViewData* createViewData();
 
-        /** Delete the given view data. @version 1.0 */
-        SEQ_API virtual void destroyViewData( ViewData* viewData );
-        //@}
+    /** Delete the given view data. @version 1.0 */
+    SEQ_API virtual void destroyViewData( ViewData* viewData );
+    //@}
 
-        /** @name Internal */
-        //@{
-        SEQ_API eq::Config* getConfig(); //!< @internal
-        detail::Application* getImpl() { return _impl; } //!< @internal
-        //@}
+    /** @name Internal */
+    //@{
+    SEQ_API eq::Config* getConfig(); //!< @internal
+    detail::Application* getImpl() { return _impl; } //!< @internal
+    //@}
 
-    private:
-        detail::Application* _impl;
-    };
+private:
+    detail::Application* _impl;
+};
 }
 #endif // EQSEQUEL_APPLICATION_H
