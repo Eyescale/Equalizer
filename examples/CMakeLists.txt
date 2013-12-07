@@ -65,7 +65,7 @@ function(EQ_ADD_EXAMPLE NAME)
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
                  ${SHADERS})
   target_link_libraries(${THIS_TARGET} ${EQUALIZER_LIBRARIES}
-    ${THIS_LINK_LIBRARIES} ${OPENGL_gl_LIBRARY})
+    ${THIS_LINK_LIBRARIES} ${OPENGL_gl_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")
@@ -84,6 +84,7 @@ endfunction(EQ_ADD_EXAMPLE NAME)
 
 include_directories(include ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
+add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK) # Fix for windows and shared boost.
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()

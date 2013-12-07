@@ -48,7 +48,6 @@ before_install:
  - sudo apt-get install -qq librdmacm-dev || /bin/true
  - sudo apt-get install -qq libspnav-dev || /bin/true
  - sudo apt-get install -qq libswscale-dev || /bin/true
- - sudo apt-get install -qq libtclap-dev || /bin/true
  - sudo apt-get install -qq libturbojpeg || /bin/true
  - sudo apt-get install -qq libudt-dev || /bin/true
  - sudo apt-get install -qq libx11-dev || /bin/true
