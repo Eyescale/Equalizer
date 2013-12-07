@@ -33,7 +33,9 @@
 #ifndef MIN
 #  define MIN LB_MIN
 #endif
-#include <tclap/CmdLine.h>
+
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 namespace seqPly
 {
@@ -95,18 +97,42 @@ static bool _isPlyfile( const std::string& filename )
 
 eq::Strings Application::_parseArguments( const int argc, char** argv )
 {
-    TCLAP::CmdLine command( "seqPly - Sequel polygonal rendering example", ' ',
-                            eq::Version::getString( ));
-    TCLAP::ValueArg<std::string> modelArg( "m", "model", "ply model file name",
-                                           false, "", "string", command );
-    TCLAP::UnlabeledMultiArg< std::string >
-        ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
-                    command );
+	std::string userDefinedModelPath("");
 
-#ifdef TCPLAP_HAS_IGNOREUNMATCHED
-    command.ignoreUnmatched( true );
-#endif
-    command.parse( argc, argv );
+	try //parse command line arguments
+	{
+		po::options_description programDescription( 
+			std::string("seqPly - Sequel polygonal rendering example ") 
+			+ eq::Version::getString( ) );
+
+		bool showHelp(false);
+
+		programDescription.add_options()
+			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
+			"produce help message" )
+			( "model,m",           po::value<std::string>(&userDefinedModelPath),
+				"ply model file name" )
+			;
+
+		//parse program options, ignore all non related options instead of throwing error
+		po::variables_map variableMap;
+		po::store(
+			po::command_line_parser(argc,argv).options(programDescription).allow_unregistered().run(),
+				variableMap
+		);
+		po::notify(variableMap);
+
+		// Evaluate parsed command line options
+		if (showHelp)
+		{
+			LBWARN << programDescription << std::endl;
+		}
+	} catch( std::exception& exception )
+	{
+		LBERROR << "Error parsing command line: " << exception.what() 
+			<< std::endl;
+	}
+
 
     eq::Strings filenames;
 #ifdef EQ_RELEASE
@@ -122,10 +148,10 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
                          std::string( "examples/eqPly" ));
 #endif
 
-    if( modelArg.isSet( ))
+    if( !userDefinedModelPath.empty( ))
     {
         filenames.clear();
-        filenames.push_back( modelArg.getValue( ));
+        filenames.push_back( userDefinedModelPath );
     }
     return filenames;
 }

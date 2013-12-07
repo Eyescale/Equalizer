@@ -36,7 +36,9 @@
 #ifndef MIN
 #  define MIN LB_MIN
 #endif
-#include <tclap/CmdLine.h>
+
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 namespace eVolve
 {
@@ -77,72 +79,79 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         wsHelp += ")";
 
         std::string desc = EVolve::getHelp();
+		bool showHelp(false);
+		uint32_t userDefinedPrecision(2);
+		float userDefinedBrightness(1.0f);
+		float userDefinedAlpha(1.0f);
+		std::string userDefinedModelPath("");
+		std::string userDefinedWindowSystem("");
+		
+		po::options_description programDescription( 
+			desc + eq::Version::getString( ) );
 
-        TCLAP::CmdLine command( desc, ' ', eq::Version::getString( ));
-        TCLAP::ValueArg<std::string> modelArg( "m", "model",
-                                               "raw model file name",
-                                               false, "Bucky32x32x32.raw",
-                                               "string", command );
-        TCLAP::SwitchArg residentArg( "r", "resident",
-           "Keep client resident (see resident node documentation on website)",
-                                      command, false );
-        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames",
-                                           "Maximum number of rendered frames",
-                                             false, 0xffffffffu, "unsigned",
-                                             command );
-        TCLAP::ValueArg<uint32_t> precisionArg( "p", "precision",
-                "Rendering precision (default 2, bigger is better and slower)",
-                                                false, 2, "unsigned",
-                                                command );
-        TCLAP::ValueArg<float> brightnessArg( "b", "brightness",
-                                              "brightness factor", false, 1.0f,
-                                              "float", command );
-        TCLAP::ValueArg<float> alphaArg( "a", "alpha", "alpha attenuation",
-                                         false, 1.0f, "float", command );
-        TCLAP::SwitchArg orthoArg( "o", "ortho",
-                                   "use orthographic projection",
-                                   command, false );
-        TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
-                                            false, "auto", "string", command );
-        TCLAP::UnlabeledMultiArg< std::string >
-            ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
-                        command );
+		programDescription.add_options()
+			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
+				"produce help message" )
+			( "model,m",           po::value<std::string>(&userDefinedModelPath),
+				"raw model file name, e.g. Bucky32x32x32.raw" )
+			( "resident,r",        po::bool_switch(&_isResident)->default_value(false),
+				"Keep client resident (see resident mode documentation on website)" )
+			( "numFrames,n",       po::value<uint32_t>(&_maxFrames)->default_value(0xffffffffu),
+				"Maximum number of rendered frames")
+			( "precision,p",       po::value<uint32_t>(&userDefinedPrecision)->default_value(2),
+				"Rendering precision (default 2, bigger is better and slower)")
+			( "brightness,b",      po::value<float>(&userDefinedBrightness)->default_value(1.0f),
+				"brightness factor" )
+			( "alpha,a",           po::value<float>(&userDefinedAlpha)->default_value(1.0f),
+				"alpha attenuation" )
+			( "ortho,o",           po::bool_switch(&_ortho)->default_value(false),
+				"use orthographic projection" )
+			( "windowSystem,w",    po::value<std::string>(&userDefinedWindowSystem),
+				wsHelp.c_str() )
+			;
 
-#ifdef TCPLAP_HAS_IGNOREUNMATCHED
-        command.ignoreUnmatched( true );
-#endif
-        command.parse( argc, argv );
+		// parse program options, ignore all non related options instead of throwing error
+		po::variables_map variableMap;
+		po::store(
+			po::command_line_parser(argc,argv).options(programDescription).allow_unregistered().run(),
+			variableMap
+			);
+		po::notify(variableMap);
 
-        if( modelArg.isSet( ))
-            setFilename( modelArg.getValue( ));
-        if( wsArg.isSet( ))
-        {
-            std::string windowSystem = wsArg.getValue();
-            transform( windowSystem.begin(), windowSystem.end(),
-                       windowSystem.begin(), (int(*)(int))std::toupper );
+		// Evaluate parsed command line options
+		if(showHelp)
+		{
+			LBWARN << programDescription << std::endl;
+			::exit( EXIT_SUCCESS )
+		}
 
-            setWindowSystem( windowSystem );
-        }
+		if ( variableMap.count("model") > 0 )
+			setFilename( userDefinedModelPath );
 
-        if( framesArg.isSet( ))
-            _maxFrames = framesArg.getValue();
-        if( precisionArg.isSet( ))
-            setPrecision( precisionArg.getValue( ));
-        if( brightnessArg.isSet( ))
-            setBrightness( brightnessArg.getValue( ));
-        if( alphaArg.isSet( ))
-            setAlpha( alphaArg.getValue( ));
-        if( residentArg.isSet( ))
-            _isResident = true;
-        if( orthoArg.isSet( ))
-            _ortho = true;
-    }
-    catch( const TCLAP::ArgException& exception )
-    {
-        LBERROR << "Command line parse error: " << exception.error()
-                << " for argument " << exception.argId() << std::endl;
-        ::exit( EXIT_FAILURE );
-    }
+		if( variableMap.count("windowSystem") > 0 )
+		{
+			transform( userDefinedWindowSystem.begin(), userDefinedWindowSystem.end(),
+				userDefinedWindowSystem.begin(), (int(*)(int))std::toupper );
+
+			setWindowSystem( userDefinedWindowSystem );
+		}
+
+
+		if( variableMap.count("precision") > 0 )
+			setPrecision( userDefinedPrecision );
+		if( variableMap.count("brightness") > 0 )
+			setBrightness( userDefinedBrightness );
+		if( variableMap.count("alpha") > 0 )
+			setAlpha( userDefinedAlpha );
+
+
+	} catch( std::exception& exception )
+	{
+		LBERROR << "Error parsing command line: " << exception.what() 
+			<< std::endl;
+		::exit( EXIT_FAILURE );
+	}
 }
+
 }
 

@@ -16,6 +16,8 @@ option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
+option(EQUALIZER_BUILD_RUNTESTS_COMPILETIME 
+  "If enabled, runtests will be executed on compile time as seperate project build by ALL BUILD" ON)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
@@ -108,7 +110,7 @@ add_subdirectory(tools) # before examples, they depend on it
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
-if(EXISTS "${Equalizer_SOURCE_DIR}/tests/CMakeLists.txt")
+if(EQUALIZER_BUILD_RUNTESTS_COMPILETIME AND EXISTS "${Equalizer_SOURCE_DIR}/tests/CMakeLists.txt")
   add_subdirectory(tests)
 endif()
 
