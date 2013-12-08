@@ -27,7 +27,9 @@
 #ifndef MIN
 #  define MIN EQ_MIN
 #endif
-#include <tclap/CmdLine.h>
+
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 #include "eVolveConverter.h"
 #include "hlp.h"
@@ -59,109 +61,132 @@ static int lFailed( const char* msg, int result=1 )
 
 int RawConverter::parseArguments( int argc, char** argv )
 {
-    try
-    {
-        TCLAP::CmdLine command( "eVolveConverter - eVolve file converter",
-                                ' ', QUOTE( EQUALIZER_VERSION ));
-        TCLAP::ValueArg<double> sclXArg( "", "sW", "scale factor for width",
-                                         false, 1.0  , "double", command );
-        TCLAP::ValueArg<double> sclYArg( "", "sH", "scale factor for height",
-                                         false, 1.0  , "double", command );
-        TCLAP::ValueArg<double> sclZArg( "", "sD", "scale factor for depth",
-                                         false, 1.0  , "double", command );
-        TCLAP::ValueArg<double> sclArg( "", "sA", "common scale factor",
-                                        false, 1.0  , "double", command );
-        TCLAP::SwitchArg recArg( "e", "rec",
-                                 "recalculate derivatives in raw+der",
-                                 command, false );
-        TCLAP::SwitchArg cmpArg( "m", "cmp", "compare two raw+derivations+vhf",
-                                 command, false );
-        TCLAP::SwitchArg dscArg( "c", "dsc", "dsc->vhf file converter",
-                                 command, false );
-        TCLAP::SwitchArg savArg( "v", "sav",
-                                 "sav->vhf transfer function converter",
-                                 command, false );
-        TCLAP::SwitchArg derArg( "r", "der", "raw->raw + derivatives",
-                                 command, false );
-        TCLAP::SwitchArg rawArg( "w", "raw", "raw + derivatives->raw",
-                                 command, false );
-        TCLAP::SwitchArg pvmArg( "p", "pvm", "pvm[+sav]->raw+derivatives+vhf",
-                                 command, false );
-        TCLAP::ValueArg<string> dstArg( "d", "dst", "destination file", true,
-                                        "Bucky32x32x32_d.raw", "string",
-                                        command );
-        TCLAP::ValueArg<string> srcArg( "s", "src", "source file", true,
-                                        "Bucky32x32x32.raw", "string",
-                                        command );
-        command.parse( argc, argv );
+	try // command line parsing
+	{
+		po::options_description programDescription( 
+			std::string("eVolveConverter - eVolve file converter ") 
+			+ QUOTE( EQUALIZER_VERSION ) );
 
-        if( rawArg.isSet() ) // raw + derivatives -> raw
-            return RawConverter::RawPlusDerivativesToRawConverter(
-                        srcArg.getValue( ), dstArg.getValue( ));
+		bool showHelp(false);
+		double scaleX = 1.0;
+		double scaleY = 1.0;
+		double scaleZ = 1.0;
 
-        if( derArg.isSet() ) // raw -> raw + derivatives
-            return RawConverter::RawToRawPlusDerivativesConverter(
-                        srcArg.getValue( ), dstArg.getValue( ));
+		bool recalcDerivates(false);
+		bool cmpRawDerivVhf(false);
+		bool dscToVhf(false);
+		bool savToVhf(false);
+		bool derToRaw(false);
+		bool rawToRaw(false);
+		bool pvmToRaw(false);
+		std::string sourcePath("");
+		std::string destinationPath("");
 
-        if( savArg.isSet() ) // sav -> vhf
-            return RawConverter::SavToVhfConverter(
-                        srcArg.getValue( ), dstArg.getValue( ));
+		programDescription.add_options()
+			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
+			"produce help message" )
+			( "sW",                po::value<double>(&scaleX),
+				"scale factor for width")
+			( "sH",                po::value<double>(&scaleY),
+				"scale factor for height" )
+			( "sD",                po::value<double>(&scaleZ),
+				"scale factor for depth" )
+			( "sA",                po::value<double>(),
+				"common scale factor")
+			( "rec,e",             po::bool_switch(&recalcDerivates)->default_value(false),
+				"recalculate derivatives in raw+der")
+			( "cmp,m",             po::bool_switch(&cmpRawDerivVhf)->default_value(false),
+				"compare raw+derivations+vhf")
+			( "dsc,c",             po::bool_switch(&dscToVhf)->default_value(false),
+				"dsc -> vhf file converter")
+			( "sav,v",             po::bool_switch(&savToVhf)->default_value(false),
+				"sav -> vhf transfer function converter")
+			( "der,r",             po::bool_switch(&derToRaw)->default_value(false),
+				"raw -> raw+derivatives")
+			( "raw,w",             po::bool_switch(&rawToRaw)->default_value(false),
+				"raw+derivatives -> raw")
+			( "pvm,p",             po::bool_switch(&pvmToRaw)->default_value(false),
+				"pvm[+sav] -> raw+derivatives+vhf")
+			( "dst,d",             po::value<std::string>(&destinationPath),
+				"destination file, e.g. Bucky32x32x32_d.raw"),
+			( "src,s",             po::value<std::string>(&sourcePath),
+				"source file, e.g. Bucky32x32x32.raw")
+			;
 
-        if( dscArg.isSet() ) // dsc -> vhf
-            return RawConverter::DscToVhfConverter(
-                        srcArg.getValue( ), dstArg.getValue( ));
+		//parse program options
+		po::variables_map variableMap;
+		po::store(po::parse_command_line(argc, argv, programDescription), variableMap);
+		po::notify(variableMap);
 
-        if( pvmArg.isSet() ) // pvm -> raw
-            return RawConverter::PvmSavToRawDerVhfConverter(
-                        srcArg.getValue( ), dstArg.getValue( ));
+		if (showHelp)
+		{
+			LBWARN << programDescription << std::endl;
+			return EXIT_SUCCESS;
+		}
 
-        if( cmpArg.isSet() ) // cmp raw+derivations+vhf
-            return RawConverter::CompareTwoRawDerVhf(
-                        srcArg.getValue( ), dstArg.getValue( ));
-
-        if( recArg.isSet() ) // recalculate derivatives
-            return RawConverter::RecalculateDerivatives(
-                        srcArg.getValue( ), dstArg.getValue( ));
-
-        bool scale = false;
-        double scaleX = 1.0;
-        double scaleY = 1.0;
-        double scaleZ = 1.0;
-        if( sclArg.isSet() ) // scale volume common
-        {
-            scaleX = scaleY = scaleZ = sclArg.getValue( );
-            scale  = true;
-        }
-        if( sclXArg.isSet() ) // scale volume X
-        {
-            scaleX = sclXArg.getValue( );
-            scale  = true;
-        }
-        if( sclYArg.isSet() ) // scale volume Y
-        {
-            scaleY = sclYArg.getValue( );
-            scale  = true;
-        }
-        if( sclZArg.isSet() ) // scale volume Z
-        {
-            scaleZ = sclZArg.getValue( );
-            scale  = true;
-        }
-
-        if( scale )
-            return RawConverter::ScaleRawDerFile(
-                        srcArg.getValue( ), dstArg.getValue( ),
-                        scaleX, scaleY, scaleZ                  );
+		if ( variableMap.count("dst") != 1 )
+			throw std::runtime_error( "You must specify one destination path" );
+		if ( variableMap.count("src") != 1 )
+			throw std::runtime_error( "You must specify a source path" );
 
 
-        LBERROR << "Converter options were not specified completely." << endl;
-    }
-    catch( TCLAP::ArgException& exception )
-    {
-        LBERROR << " Command line parse error: " << exception.error()
-                << " for argument " << exception.argId() << endl;
-    }
-    return 1;
+		if( rawToRaw ) // raw + derivatives -> raw
+			return RawConverter::RawPlusDerivativesToRawConverter(
+				sourcePath, destinationPath );
+
+		if( derToRaw ) // raw -> raw + derivatives
+			return RawConverter::RawToRawPlusDerivativesConverter(
+				sourcePath, destinationPath	);
+
+		if( savToVhf ) // sav -> vhf
+			return RawConverter::SavToVhfConverter(
+				sourcePath, destinationPath );
+
+		if( dscToVhf ) // dsc -> vhf
+			return RawConverter::DscToVhfConverter(
+				sourcePath, destinationPath );
+
+		if( pvmToRaw ) // pvm -> raw
+			return RawConverter::PvmSavToRawDerVhfConverter(
+				sourcePath, destinationPath );
+
+		if( cmpRawDerivVhf ) // cmp raw+derivations+vhf
+			return RawConverter::CompareTwoRawDerVhf(
+				sourcePath, destinationPath );
+
+		if( recalcDerivates ) // recalculate derivatives
+			return RawConverter::RecalculateDerivatives(
+				sourcePath, destinationPath );
+
+
+		// Scale model
+		if ( variableMap.count("sA") == 1 )
+		{
+			double scaleVal = variableMap["sA"].as<double>();
+			if (variableMap.count("sW") == 0)
+				scaleX = scaleVal;
+			if (variableMap.count("sH") == 0)
+				scaleY = scaleVal;
+			if (variableMap.count("sD") == 0)
+				scaleZ = scaleVal;
+		}
+		if ( ( variableMap.count("sW") + variableMap.count("sH") 
+			+ variableMap.count("sD") + variableMap.count("sA") ) >= 1 )
+		{
+			// At least one scale parameter is set, so scale...
+			return RawConverter::ScaleRawDerFile(
+				sourcePath, destinationPath,
+				scaleX, scaleY, scaleZ );
+		}
+		throw std::runtime_error("Converter options were not specified completely.");
+	}
+	catch( std::exception& exception )
+	{
+		LBERROR << "Command line parse error: " << exception.what() 
+			<< std::endl;
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 

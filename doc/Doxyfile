@@ -694,8 +694,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE = @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples/include/tclap \
-          @CMAKE_INSTALL_PREFIX@/include/eq/admin \
+EXCLUDE = @CMAKE_INSTALL_PREFIX@/include/eq/admin \
           @CMAKE_INSTALL_PREFIX@/include/GL
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or

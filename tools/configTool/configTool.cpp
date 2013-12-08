@@ -44,7 +44,8 @@
 #  define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#include <tclap/CmdLine.h>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 #include <iostream>
 #include <fstream>
@@ -83,107 +84,93 @@ ConfigTool::ConfigTool()
 
 bool ConfigTool::parseArguments( int argc, char** argv )
 {
-    try
-    {
-        TCLAP::CmdLine command( "configTool - Equalizer config file generator",
-                                ' ', eq::Version::getString( ));
-        TCLAP::SwitchArg fullScreenArg( "f", "fullScreen",
-                                        "Full screen rendering", command, 
-                                        false );
-        TCLAP::ValueArg<std::string> modeArg( "m", "mode",
-                                              "Compound mode (default 2D)",
-                                              false, "2D",
-                                             "2D|DB|DB_ds|DB_stream|DPlex|Wall",
-                                              command );
-        TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
-                                         "Number of pipes per node (default 1)",
-                                           false, 1, "unsigned", command );
-        TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
-                                         "Total number of channels (default 4)",
-                                              false, 4, "unsigned", command );
-        TCLAP::ValueArg<unsigned> columnsArg( "C", "columns", 
-                                          "number of columns in a display wall",
-                                              false, 3, "unsigned", command );
-        TCLAP::ValueArg<unsigned> rowsArg( "R", "rows",
-                                           "number of rows in a display wall",
-                                           false, 2, "unsigned", command );
-        TCLAP::SwitchArg destArg( "a", "assembleOnly", 
-                         "Destination channel does not contribute to rendering",
-                                  command, false );
-        TCLAP::ValueArg<std::string> nodesArg( "n", "nodes", 
-                                               "file with list of node-names",
-                                               false, "", "filename", command );
-        TCLAP::MultiArg<unsigned> resArg( "r", "resolution",
-                                          "output window resolution", 
-                                          false, "unsigned", command );
-        TCLAP::ValueArg<std::string> descrArg( "d", "descr",
-                                      "file with channels per-node description",
-                                               false, "", "filename", command );
-        command.parse( argc, argv );
+	try 
+	{
+		po::options_description programDescription( 
+			std::string("configTool - Equalizer config file generator ") 
+			+ eq::Version::getString( ) );
 
-        if( nodesArg.isSet( ))
-        {
-            _nodesFile = nodesArg.getValue();
-        }
+		bool showHelp(false);
+		bool assembleOnly(false);
+		std::string compoundMode("");
+		std::vector<unsigned> resolutions;
 
-        if( resArg.isSet( ))
-        {
-            _resX = resArg.getValue()[0];
+		programDescription.add_options()
+			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
+				"produce help message" )
+			( "fullScreen,f",      po::bool_switch(&_fullScreen)->default_value(false),
+				"Full screen rendering" )
+			( "mode,m",            po::value<std::string>(&compoundMode), 
+				"Compound mode (default 2D). Allowed: 2D|DB|DB_ds|DB_stream|DPlex|Wall")
+			( "numPipes,p",        po::value<unsigned>(&_nPipes)->default_value(1),
+				"Number of pipes per node (default 1)" )
+			( "numChannels,c",     po::value<unsigned>(&_nChannels)->default_value(4),
+				"Total number of channels (default 4)" )
+			( "columns,C",         po::value<unsigned>(&_columns)->default_value(3),
+				"number of columns in a display wall" )
+			( "rows,R",            po::value<unsigned>(&_rows)->default_value(2),
+				"number of rows in a display wall" )
+			( "assembleOnly,a",    po::bool_switch(&assembleOnly)->default_value(false),
+				"Destination channel does not contribute to rendering" )
+			( "nodes,n",           po::value<std::string>(&_nodesFile),
+				"file with list of node-names" )
+			( "resolution,r",      po::value<std::vector<unsigned> >(&resolutions),
+				"output window resolution")
+			( "descr,d",           po::value<std::string>(&_descrFile),
+				"file with channels per-node description" )
+			;
 
-            if( resArg.getValue().size() > 1 )
-                _resY = resArg.getValue()[1];
-        }
+		//parse program options
+		po::variables_map variableMap;
+		po::store(po::parse_command_line(argc, argv, programDescription), variableMap);
+		po::notify(variableMap);
 
-        if( pipeArg.isSet( ))
-            _nPipes = pipeArg.getValue();
-        if( channelArg.isSet( ))
-            _nChannels = channelArg.getValue();
+		// Evaluate parsed command line options
+		if (showHelp)
+		{
+			LBWARN << programDescription << std::endl;
+			::exit(EXIT_SUCCESS);
+		}
 
-        if( columnsArg.isSet( ))
-            _columns = columnsArg.getValue();
-        if( rowsArg.isSet( ))
-            _rows = rowsArg.getValue();
+		if(!resolutions.empty())
+		{
+			_resX = resolutions[0];
+			if (resolutions.size() > 1)
+				_resY = resolutions[1];
+		}
 
-        _useDestination = !destArg.isSet();
-        _fullScreen     = fullScreenArg.isSet();
+		_useDestination = !assembleOnly;
 
-        if( modeArg.isSet( ))
-        {
-            const std::string& mode = modeArg.getValue();
-            if( mode == "2D" )
-                _mode = MODE_2D;
-            else if( mode == "DB" )
-                _mode = MODE_DB;
-            else if( mode == "DB_ds" )
-                _mode = MODE_DB_DS;
-            else if( mode == "DB_stream" )
-                _mode = MODE_DB_STREAM;
-            else if( mode == "DPlex" )
-                _mode = MODE_DPLEX;
-            else if( mode == "Wall" )
-            {
-                _mode   = MODE_WALL;
-                _nChannels = _columns * _rows;
-            }
-            else
-            {
-                std::cerr << "Unknown mode " << mode << std::endl;
-                return false;
-            }
-        }
-
-        if( descrArg.isSet( ))
-        {
-            _descrFile = descrArg.getValue();
-        }
-    }
-    catch( TCLAP::ArgException& exception )
-    {
-        std::cerr << "Command line parse error: " << exception.error() 
-             << " for argument " << exception.argId() << std::endl;
-        return false;
-    }
-    return true;
+		if( variableMap.count("mode") == 1 )
+		{
+			
+			if( compoundMode == "2D" )
+				_mode = MODE_2D;
+			else if( compoundMode == "DB" )
+				_mode = MODE_DB;
+			else if( compoundMode == "DB_ds" )
+				_mode = MODE_DB_DS;
+			else if( compoundMode == "DB_stream" )
+				_mode = MODE_DB_STREAM;
+			else if( compoundMode == "DPlex" )
+				_mode = MODE_DPLEX;
+			else if( compoundMode == "Wall" )
+			{
+				_mode   = MODE_WALL;
+				_nChannels = _columns * _rows;
+			}
+			else 
+			{
+				throw std::runtime_error("Unknown compound mode: " + compoundMode);
+			}
+		}
+	} catch( std::exception& exception )
+	{
+		LBERROR << "Error parsing command line: " << exception.what() 
+			<< std::endl;
+		return false;
+	}
+	return true;
 }
 
 static Strings readNodenames( const std::string &filename )
