@@ -46,10 +46,10 @@ namespace eqPly
 
         void parseArguments( const int argc, char** argv );
 
-        const std::string& getPathFilename()const { return _pathFilename; }
-        uint32_t           getMaxFrames()   const { return _maxFrames; }
-        bool               useColor()       const { return _color; }
-        bool               isResident()     const { return _isResident; }
+        const std::string& getPathFilename() const { return _pathFilename; }
+        uint32_t           getMaxFrames()    const { return _maxFrames; }
+        bool               useColor()        const { return _color; }
+        bool               isResident()      const { return _isResident; }
 
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }

@@ -29,17 +29,16 @@
 #include "application.h"
 
 #include "renderer.h"
+#include <boost/program_options.hpp>
 
 #ifndef MIN
 #  define MIN LB_MIN
 #endif
 
-#include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
 namespace seqPly
 {
-
 bool Application::init( const int argc, char** argv )
 {
     const eq::Strings& models = _parseArguments( argc, argv );
@@ -97,41 +96,40 @@ static bool _isPlyfile( const std::string& filename )
 
 eq::Strings Application::_parseArguments( const int argc, char** argv )
 {
-	std::string userDefinedModelPath("");
+    std::string userDefinedModelPath("");
 
-	try //parse command line arguments
-	{
-		po::options_description programDescription( 
-			std::string("seqPly - Sequel polygonal rendering example ") 
-			+ eq::Version::getString( ) );
+    try //parse command line arguments
+    {
+        po::options_description options(
+            std::string("seqPly - Sequel polygonal rendering example ")
+            + eq::Version::getString( ));
+        bool showHelp(false);
 
-		bool showHelp(false);
+        options.add_options()
+            ( "help,h", po::bool_switch(&showHelp)->default_value(false),
+              "produce help message" )
+            ( "model,m", po::value<std::string>(&userDefinedModelPath),
+              "ply model file name" );
 
-		programDescription.add_options()
-			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
-			"produce help message" )
-			( "model,m",           po::value<std::string>(&userDefinedModelPath),
-				"ply model file name" )
-			;
+        // parse program options, ignore all non related options
+        po::variables_map variableMap;
+        po::store( po::command_line_parser( argc, argv ).options(
+                       options ).allow_unregistered().run(),
+                   variableMap );
+        po::notify( variableMap );
 
-		//parse program options, ignore all non related options instead of throwing error
-		po::variables_map variableMap;
-		po::store(
-			po::command_line_parser(argc,argv).options(programDescription).allow_unregistered().run(),
-				variableMap
-		);
-		po::notify(variableMap);
-
-		// Evaluate parsed command line options
-		if (showHelp)
-		{
-			LBWARN << programDescription << std::endl;
-		}
-	} catch( std::exception& exception )
-	{
-		LBERROR << "Error parsing command line: " << exception.what() 
-			<< std::endl;
-	}
+        // Evaluate parsed command line options
+        if( showHelp )
+        {
+            LBWARN << options << std::endl;
+            ::exit( EXIT_SUCCESS );
+        }
+    }
+    catch( std::exception& exception )
+    {
+        LBERROR << "Error parsing command line: " << exception.what()
+            << std::endl;
+    }
 
 
     eq::Strings filenames;

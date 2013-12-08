@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2007, Maxim Makhinya
  *
@@ -13,11 +14,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
  */
 
+#include "eVolveConverter.h"
 #include "ddsbase.h"
+#include "hlp.h"
 
+#include <boost/program_options.hpp>
 #include <math.h>
 #ifndef _MSC_VER
 #  include <stdint.h>
@@ -28,11 +31,7 @@
 #  define MIN EQ_MIN
 #endif
 
-#include <boost/program_options.hpp>
 namespace po = boost::program_options;
-
-#include "eVolveConverter.h"
-#include "hlp.h"
 
 #define QUOTE( string ) STRINGIFY( string )
 #define STRINGIFY( foo ) #foo
@@ -44,149 +43,139 @@ int main( int argc, char** argv )
 
 namespace eVolve
 {
-
 using namespace std;
 using hlpFuncs::clip;
 using hlpFuncs::min;
 using hlpFuncs::hFile;
 
-
-#define LBERROR cerr
-#define LBWARN  cout
-
-
 static int lFailed( const char* msg, int result=1 )
-{ LBERROR << msg << endl; return result; }
-
+{
+    std::cerr << msg << endl;
+    return result;
+}
 
 int RawConverter::parseArguments( int argc, char** argv )
 {
-	try // command line parsing
-	{
-		po::options_description programDescription( 
-			std::string("eVolveConverter - eVolve file converter ") 
-			+ QUOTE( EQUALIZER_VERSION ) );
+    try // command line parsing
+    {
+        po::options_description options(
+            std::string( "eVolveConverter - eVolve file converter " ) +
+            QUOTE( EQUALIZER_VERSION ) );
 
-		bool showHelp(false);
-		double scaleX = 1.0;
-		double scaleY = 1.0;
-		double scaleZ = 1.0;
+        bool showHelp(false);
+        double scaleX = 1.0;
+        double scaleY = 1.0;
+        double scaleZ = 1.0;
 
-		bool recalcDerivates(false);
-		bool cmpRawDerivVhf(false);
-		bool dscToVhf(false);
-		bool savToVhf(false);
-		bool derToRaw(false);
-		bool rawToRaw(false);
-		bool pvmToRaw(false);
-		std::string sourcePath("");
-		std::string destinationPath("");
+        bool recalcDerivates(false);
+        bool cmpRawDerivVhf(false);
+        bool dscToVhf(false);
+        bool savToVhf(false);
+        bool derToRaw(false);
+        bool rawToRaw(false);
+        bool pvmToRaw(false);
+        std::string sourcePath("");
+        std::string destinationPath("");
 
-		programDescription.add_options()
-			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
-			"produce help message" )
-			( "sW",                po::value<double>(&scaleX),
-				"scale factor for width")
-			( "sH",                po::value<double>(&scaleY),
-				"scale factor for height" )
-			( "sD",                po::value<double>(&scaleZ),
-				"scale factor for depth" )
-			( "sA",                po::value<double>(),
-				"common scale factor")
-			( "rec,e",             po::bool_switch(&recalcDerivates)->default_value(false),
-				"recalculate derivatives in raw+der")
-			( "cmp,m",             po::bool_switch(&cmpRawDerivVhf)->default_value(false),
-				"compare raw+derivations+vhf")
-			( "dsc,c",             po::bool_switch(&dscToVhf)->default_value(false),
-				"dsc -> vhf file converter")
-			( "sav,v",             po::bool_switch(&savToVhf)->default_value(false),
-				"sav -> vhf transfer function converter")
-			( "der,r",             po::bool_switch(&derToRaw)->default_value(false),
-				"raw -> raw+derivatives")
-			( "raw,w",             po::bool_switch(&rawToRaw)->default_value(false),
-				"raw+derivatives -> raw")
-			( "pvm,p",             po::bool_switch(&pvmToRaw)->default_value(false),
-				"pvm[+sav] -> raw+derivatives+vhf")
-			( "dst,d",             po::value<std::string>(&destinationPath),
-				"destination file, e.g. Bucky32x32x32_d.raw"),
-			( "src,s",             po::value<std::string>(&sourcePath),
-				"source file, e.g. Bucky32x32x32.raw")
-			;
+        options.add_options()
+            ( "help,h", po::bool_switch(&showHelp)->default_value(false),
+              "produce help message" )
+            ( "sW", po::value<double>(&scaleX), "scale factor for width")
+            ( "sH", po::value<double>(&scaleY), "scale factor for height" )
+            ( "sD", po::value<double>(&scaleZ), "scale factor for depth" )
+            ( "sA", po::value<double>(), "common scale factor")
+            ( "rec,e", po::bool_switch(&recalcDerivates)->default_value(false),
+              "recalculate derivatives in raw+der")
+            ( "cmp,m", po::bool_switch(&cmpRawDerivVhf)->default_value(false),
+              "compare raw+derivations+vhf")
+            ( "dsc,c", po::bool_switch(&dscToVhf)->default_value(false),
+              "dsc -> vhf file converter")
+            ( "sav,v", po::bool_switch(&savToVhf)->default_value(false),
+              "sav -> vhf transfer function converter")
+            ( "der,r", po::bool_switch(&derToRaw)->default_value(false),
+              "raw -> raw+derivatives")
+            ( "raw,w", po::bool_switch(&rawToRaw)->default_value(false),
+              "raw+derivatives -> raw")
+            ( "pvm,p", po::bool_switch(&pvmToRaw)->default_value(false),
+              "pvm[+sav] -> raw+derivatives+vhf" )
+            ( "dst,d", po::value<std::string>(&destinationPath),
+              "destination file, e.g. Bucky32x32x32_d.raw" )
+            ( "src,s", po::value<std::string>(&sourcePath),
+              "source file, e.g. Bucky32x32x32.raw" );
 
-		//parse program options
-		po::variables_map variableMap;
-		po::store(po::parse_command_line(argc, argv, programDescription), variableMap);
-		po::notify(variableMap);
+        //parse program options
+        po::variables_map variableMap;
+        po::store( po::parse_command_line( argc, argv, options ), variableMap );
+        po::notify( variableMap );
 
-		if (showHelp)
-		{
-			LBWARN << programDescription << std::endl;
-			return EXIT_SUCCESS;
-		}
+        if (showHelp)
+        {
+            std::cout << options << std::endl;
+            return EXIT_SUCCESS;
+        }
 
-		if ( variableMap.count("dst") != 1 )
-			throw std::runtime_error( "You must specify one destination path" );
-		if ( variableMap.count("src") != 1 )
-			throw std::runtime_error( "You must specify a source path" );
+        if ( variableMap.count( "dst" ) != 1 )
+            throw std::runtime_error( "You must specify one destination path" );
+        if ( variableMap.count( "src" ) != 1 )
+            throw std::runtime_error( "You must specify a source path" );
 
+        if( rawToRaw ) // raw + derivatives -> raw
+            return RawConverter::RawPlusDerivativesToRawConverter(
+                sourcePath, destinationPath );
 
-		if( rawToRaw ) // raw + derivatives -> raw
-			return RawConverter::RawPlusDerivativesToRawConverter(
-				sourcePath, destinationPath );
+        if( derToRaw ) // raw -> raw + derivatives
+            return RawConverter::RawToRawPlusDerivativesConverter(
+                sourcePath, destinationPath );
 
-		if( derToRaw ) // raw -> raw + derivatives
-			return RawConverter::RawToRawPlusDerivativesConverter(
-				sourcePath, destinationPath	);
+        if( savToVhf ) // sav -> vhf
+            return RawConverter::SavToVhfConverter(
+                sourcePath, destinationPath );
 
-		if( savToVhf ) // sav -> vhf
-			return RawConverter::SavToVhfConverter(
-				sourcePath, destinationPath );
+        if( dscToVhf ) // dsc -> vhf
+            return RawConverter::DscToVhfConverter(
+                sourcePath, destinationPath );
 
-		if( dscToVhf ) // dsc -> vhf
-			return RawConverter::DscToVhfConverter(
-				sourcePath, destinationPath );
+        if( pvmToRaw ) // pvm -> raw
+            return RawConverter::PvmSavToRawDerVhfConverter(
+                sourcePath, destinationPath );
 
-		if( pvmToRaw ) // pvm -> raw
-			return RawConverter::PvmSavToRawDerVhfConverter(
-				sourcePath, destinationPath );
+        if( cmpRawDerivVhf ) // cmp raw+derivations+vhf
+            return RawConverter::CompareTwoRawDerVhf(
+                sourcePath, destinationPath );
 
-		if( cmpRawDerivVhf ) // cmp raw+derivations+vhf
-			return RawConverter::CompareTwoRawDerVhf(
-				sourcePath, destinationPath );
-
-		if( recalcDerivates ) // recalculate derivatives
-			return RawConverter::RecalculateDerivatives(
-				sourcePath, destinationPath );
+        if( recalcDerivates ) // recalculate derivatives
+            return RawConverter::RecalculateDerivatives(
+                sourcePath, destinationPath );
 
 
-		// Scale model
-		if ( variableMap.count("sA") == 1 )
-		{
-			double scaleVal = variableMap["sA"].as<double>();
-			if (variableMap.count("sW") == 0)
-				scaleX = scaleVal;
-			if (variableMap.count("sH") == 0)
-				scaleY = scaleVal;
-			if (variableMap.count("sD") == 0)
-				scaleZ = scaleVal;
-		}
-		if ( ( variableMap.count("sW") + variableMap.count("sH") 
-			+ variableMap.count("sD") + variableMap.count("sA") ) >= 1 )
-		{
-			// At least one scale parameter is set, so scale...
-			return RawConverter::ScaleRawDerFile(
-				sourcePath, destinationPath,
-				scaleX, scaleY, scaleZ );
-		}
-		throw std::runtime_error("Converter options were not specified completely.");
-	}
-	catch( std::exception& exception )
-	{
-		LBERROR << "Command line parse error: " << exception.what() 
-			<< std::endl;
-		return EXIT_FAILURE;
-	}
-	return EXIT_SUCCESS;
+        // Scale model
+        if ( variableMap.count("sA") == 1 )
+        {
+            double scaleVal = variableMap["sA"].as<double>();
+            if (variableMap.count("sW") == 0)
+                scaleX = scaleVal;
+            if (variableMap.count("sH") == 0)
+                scaleY = scaleVal;
+            if (variableMap.count("sD") == 0)
+                scaleZ = scaleVal;
+        }
+        if ( ( variableMap.count("sW") + variableMap.count("sH")
+            + variableMap.count("sD") + variableMap.count("sA") ) >= 1 )
+        {
+            // At least one scale parameter is set, so scale...
+            return RawConverter::ScaleRawDerFile(
+                sourcePath, destinationPath,
+                scaleX, scaleY, scaleZ );
+        }
+        throw std::runtime_error("Converter options were not specified completely.");
+    }
+    catch( std::exception& exception )
+    {
+        std::cerr << "Command line parse error: " << exception.what()
+            << std::endl;
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
 
 
@@ -276,7 +265,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
         ::exit( EXIT_FAILURE );
 
     if( TFSize!=256  )
-        LBWARN << "Wrong size of transfer function, should be 256" << endl;
+        std::cout << "Wrong size of transfer function, should be 256" << endl;
 
     TFSize = clip<int>( TFSize, 1, 256 );
 
@@ -294,7 +283,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
         TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
-            LBERROR << "Failed to read entity #" << i
+            std::cerr << "Failed to read entity #" << i
                     << " of TF from first header file" << endl;
             return i;
         }
@@ -350,7 +339,7 @@ static int writeVHF( const string&  filename,
 int RawConverter::CompareTwoRawDerVhf( const string& src1,
                                        const string& src2 )
 {
-    LBWARN << "Comparing two raw+derivatives+vhf" << endl;
+    std::cout << "Comparing two raw+derivatives+vhf" << endl;
     unsigned  w1,  h1,  d1;
     unsigned  w2,  h2,  d2;
     float    sw1, sh1, sd1;
@@ -392,13 +381,13 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
     if( h1!=h2 ) return lFailed(" Heights are not equal ");
     if( d1!=d2 ) return lFailed(" Depths are not equal ");
 
-    if( sw1!=sw2 ) LBWARN << " Widths'  scales are not equal " << endl;
-    if( sh1!=sh2 ) LBWARN << " Heights' scales are not equal " << endl;
-    if( sd1!=sd2 ) LBWARN << " Depths'  scales are not equal " << endl;
+    if( sw1!=sw2 ) std::cout << " Widths'  scales are not equal " << endl;
+    if( sh1!=sh2 ) std::cout << " Heights' scales are not equal " << endl;
+    if( sd1!=sd2 ) std::cout << " Depths'  scales are not equal " << endl;
 
-    if( tfSize1!=tfSize2 ) LBWARN << " TF sizes are not equal" << endl;
+    if( tfSize1!=tfSize2 ) std::cout << " TF sizes are not equal" << endl;
 
-    LBWARN << "done" << endl;
+    std::cout << "done" << endl;
     return 0;
 }
 
@@ -417,13 +406,13 @@ int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    LBWARN << "Dropping derivatives from raw+derivatives model: "
+    std::cout << "Dropping derivatives from raw+derivatives model: "
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model
     vector<unsigned char> volume( w*h*d*4, 0 );
 
-    LBWARN << "Reading model" << endl;
+    std::cout << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -465,7 +454,7 @@ int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
 
         file.close();
     }
-    LBWARN << "done" << endl;
+    std::cout << "done" << endl;
     return 0;
 }
 
@@ -484,13 +473,13 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    LBWARN << "Creating derivatives for raw model: "
+    std::cout << "Creating derivatives for raw model: "
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model
     vector<unsigned char> volume( w*h*d, 0 );
 
-    LBWARN << "Reading model" << endl;
+    std::cout << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -514,7 +503,7 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 
         if( result ) return result;
     }
-    LBWARN << "done" << endl;
+    std::cout << "done" << endl;
     return 0;
 }
 
@@ -533,13 +522,13 @@ int RawConverter::RecalculateDerivatives( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    LBWARN << "Creating derivatives for raw model: "
+    std::cout << "Creating derivatives for raw model: "
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model
     vector<unsigned char> volume( w*h*d*4, 0 );
 
-    LBWARN << "Reading model" << endl;
+    std::cout << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -575,7 +564,7 @@ int RawConverter::RecalculateDerivatives( const string& src,
 
         if( result ) return result;
     }
-    LBWARN << "done" << endl;
+    std::cout << "done" << endl;
     return 0;
 }
 
@@ -610,7 +599,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 
         if( file==NULL )
         {
-            LBWARN << "Can't open source sav file." << endl
+            std::cout << "Can't open source sav file." << endl
                    << "Using predefined transfer functions and parameters."
                    << endl;
 
@@ -682,7 +671,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
                     ::exit( EXIT_FAILURE );
                 if( fscanf( file, "ba=%f\n", &tga ) !=1 )
                 {
-                    LBERROR << "Failed to read entity #"
+                    std::cerr << "Failed to read entity #"
                             << i << " of sav file" << endl;
                     return 1;
                 }
@@ -696,7 +685,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
     int result = writeVHF( dst, w, h, d, wScale, hScale, dScale, TF );
     if( result ) return result;
 
-    LBWARN << "file " << src.c_str() << " > " << dst.c_str()
+    std::cout << "file " << src.c_str() << " > " << dst.c_str()
            << " converted" << endl;
 
     return 0;
@@ -705,7 +694,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 
 int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 {
-    LBWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
+    std::cout << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
 
     //Read Description file
     unsigned w=1;
@@ -749,7 +738,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
         writeDimensionsToSav( file, w, h, d );
         writeScalesToSav( file, wScale, hScale, dScale );
     }
-    LBWARN << "succeed" << endl;
+    std::cout << "succeed" << endl;
     return 0;
 }
 
@@ -757,7 +746,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
                                                   const string& dst  )
 {
-    LBWARN << "Converting " << src << " -> " << dst << endl;
+    std::cout << "Converting " << src << " -> " << dst << endl;
 
     // reading pvm volume
     unsigned char*  volume = 0;
@@ -774,7 +763,7 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     if( components != 1 )
         return lFailed( "The only 8-bits models are supported" );
 
-    LBWARN  << "dimensions: "
+    std::cout  << "dimensions: "
             << width << " x " << height << " x " << depth << endl
             << "scales: " << scaleX << " x " << scaleY << " x " << scaleZ
             << endl;
@@ -789,7 +778,7 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     //converting transfer function
     SavToVhfConverter( src+".sav", dst+".vhf" );
 
-    LBWARN << "done" << endl;
+    std::cout << "done" << endl;
 
     return 0;
 }
@@ -801,15 +790,15 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                                                           double scaleY,
                                                           double scaleZ  )
 {
-    LBWARN << "scaleW: " << scaleX << endl;
-    LBWARN << "scaleH: " << scaleY << endl;
-    LBWARN << "scaleD: " << scaleZ << endl;
+    std::cout << "scaleW: " << scaleX << endl;
+    std::cout << "scaleH: " << scaleY << endl;
+    std::cout << "scaleD: " << scaleZ << endl;
 
     if( scaleX < 0.0001 ) lFailed( "Scale for width  is too small" );
     if( scaleY < 0.0001 ) lFailed( "Scale for height is too small" );
     if( scaleZ < 0.0001 ) lFailed( "Scale for depth  is too small" );
 
-    LBWARN << "Scaling raw+derivatives+vhf" << endl;
+    std::cout << "Scaling raw+derivatives+vhf" << endl;
     unsigned wS, hS, dS;
     float    sw, sh, sd;
 
@@ -840,13 +829,13 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                                                      sw, sh, sd, TF );
         if( result ) return result;
     }
-    LBWARN << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
-    LBWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
+    std::cout << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
+    std::cout << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
 
     //read volume
     vector<unsigned char> sVol( wS*hS*dS*4, 0 );
 
-    LBWARN << "Reading model" << endl;
+    std::cout << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -863,7 +852,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
 
         file.close();
     }
-    LBWARN << "Scaling model" << endl;
+    std::cout << "Scaling model" << endl;
     //scale volume
     vector<unsigned char> dVol( wD*hD*dD*4, 0 );
     {
@@ -939,7 +928,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
     }
 
     //write new volume
-    LBWARN << "Writing model" << endl;
+    std::cout << "Writing model" << endl;
     {
         ofstream file ( dst.c_str(),
                         ifstream::out | ifstream::binary | ifstream::trunc );
@@ -951,7 +940,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
         file.close();
     }
 
-    LBWARN << "Done" << endl;
+    std::cout << "Done" << endl;
     return 0;
 }
 
@@ -962,7 +951,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                                         const unsigned h,
                                         const unsigned d  )
 {
-    LBWARN << "Calculating derivatives" << endl;
+    std::cout << "Calculating derivatives" << endl;
     ofstream file ( dst.c_str(),
                     ifstream::out | ifstream::binary | ifstream::trunc );
 
@@ -1032,7 +1021,7 @@ static int calculateAndSaveDerivatives( const string& dst,
         }
     }
 
-    LBWARN << "Writing derivatives: "
+    std::cout << "Writing derivatives: "
            << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
 
     file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
@@ -1089,7 +1078,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
     {
         case 0:  //spheres
 
-            LBWARN << "transfer: spheres" << endl;
+            std::cout << "transfer: spheres" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]   = 115;
                 transfer[(i*4)+1] = 186;
@@ -1100,7 +1089,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 1:// fuel
 
-            LBWARN << "transfer: fuel" << endl;
+            std::cout << "transfer: fuel" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 255;
@@ -1130,7 +1119,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 2: //neghip
 
-            LBWARN << "transfer: neghip" << endl;
+            std::cout << "transfer: neghip" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 0;
@@ -1157,7 +1146,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 3: //bucky
 
-            LBWARN << "transfer: bucky" << endl;
+            std::cout << "transfer: bucky" << endl;
             for (i=20; i<99; i++) {
                 transfer[(i*4)]  =  200;
                 transfer[(i*4)+1] = 200;
@@ -1183,7 +1172,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 4: //hydrogen
 
-            LBWARN << "transfer: hydrogen" << endl;
+            std::cout << "transfer: hydrogen" << endl;
             for (i=4; i<20; i++) {
                 transfer[(i*4)] = 137;
                 transfer[(i*4)+1] = 187;
@@ -1201,7 +1190,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 5: //engine
 
-            LBWARN << "transfer: engine" << endl;
+            std::cout << "transfer: engine" << endl;
             for (i=100; i<200; i++) {
                 transfer[(i*4)] =     44;
                 transfer[(i*4)+1] = 44;
@@ -1224,7 +1213,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 6: //skull
 
-            LBWARN << "transfer: skull" << endl;
+            std::cout << "transfer: skull" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]  =  128;
                 transfer[(i*4)+1] = 128;
@@ -1235,7 +1224,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 7: //vertebra
 
-            LBWARN << "transfer: vertebra" << endl;
+            std::cout << "transfer: vertebra" << endl;
             for (i=40; i<255; i++) {
                 int k = i*2;
                 if (k > 255) k = 255;
@@ -1247,7 +1236,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
             break;
 
         default:
-        LBWARN << "transfer: linear (default)" << endl;
+        std::cout << "transfer: linear (default)" << endl;
             for (i=0; i<255; i++) {
                 transfer[(i*4)]   = i;
                 transfer[(i*4)+1] = i;
@@ -1259,5 +1248,3 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
 
 }
-
-

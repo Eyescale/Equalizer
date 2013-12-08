@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -34,17 +34,16 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 
+#include <boost/program_options.hpp>
 #ifndef WIN32
 #  include <sys/param.h>
 #endif
-
 #include <math.h>
 
 #ifndef MIN
 #  define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
 #include <iostream>
@@ -84,93 +83,96 @@ ConfigTool::ConfigTool()
 
 bool ConfigTool::parseArguments( int argc, char** argv )
 {
-	try 
-	{
-		po::options_description programDescription( 
-			std::string("configTool - Equalizer config file generator ") 
-			+ eq::Version::getString( ) );
+    try
+    {
+        po::options_description options(
+            std::string( "configTool - Equalizer config file generator " )
+            + eq::Version::getString( ));
 
-		bool showHelp(false);
-		bool assembleOnly(false);
-		std::string compoundMode("");
-		std::vector<unsigned> resolutions;
+        bool showHelp(false);
+        bool assembleOnly(false);
+        std::string compoundMode("");
+        std::vector<unsigned> resolutions;
 
-		programDescription.add_options()
-			( "help,h",            po::bool_switch(&showHelp)->default_value(false), 
-				"produce help message" )
-			( "fullScreen,f",      po::bool_switch(&_fullScreen)->default_value(false),
-				"Full screen rendering" )
-			( "mode,m",            po::value<std::string>(&compoundMode), 
-				"Compound mode (default 2D). Allowed: 2D|DB|DB_ds|DB_stream|DPlex|Wall")
-			( "numPipes,p",        po::value<unsigned>(&_nPipes)->default_value(1),
-				"Number of pipes per node (default 1)" )
-			( "numChannels,c",     po::value<unsigned>(&_nChannels)->default_value(4),
-				"Total number of channels (default 4)" )
-			( "columns,C",         po::value<unsigned>(&_columns)->default_value(3),
-				"number of columns in a display wall" )
-			( "rows,R",            po::value<unsigned>(&_rows)->default_value(2),
-				"number of rows in a display wall" )
-			( "assembleOnly,a",    po::bool_switch(&assembleOnly)->default_value(false),
-				"Destination channel does not contribute to rendering" )
-			( "nodes,n",           po::value<std::string>(&_nodesFile),
-				"file with list of node-names" )
-			( "resolution,r",      po::value<std::vector<unsigned> >(&resolutions),
-				"output window resolution")
-			( "descr,d",           po::value<std::string>(&_descrFile),
-				"file with channels per-node description" )
-			;
+        options.add_options()
+            ( "help,h", po::bool_switch(&showHelp)->default_value(false),
+              "produce help message" )
+            ( "fullScreen,f",
+              po::bool_switch(&_fullScreen)->default_value(false),
+              "Full screen rendering" )
+            ( "mode,m", po::value<std::string>(&compoundMode),
+        "Compound mode (default 2D). Allowed: 2D|DB|DB_ds|DB_stream|DPlex|Wall")
+            ( "numPipes,p", po::value<unsigned>(&_nPipes)->default_value(1),
+              "Number of pipes per node (default 1)" )
+            ( "numChannels,c",
+              po::value<unsigned>(&_nChannels)->default_value(4),
+              "Total number of channels (default 4)" )
+            ( "columns,C", po::value<unsigned>(&_columns)->default_value(3),
+              "number of columns in a display wall" )
+            ( "rows,R", po::value<unsigned>(&_rows)->default_value(2),
+              "number of rows in a display wall" )
+            ( "assembleOnly,a",
+              po::bool_switch(&assembleOnly)->default_value(false),
+              "Destination channel does not contribute to rendering" )
+            ( "nodes,n", po::value<std::string>(&_nodesFile),
+              "file with list of node-names" )
+            ( "resolution,r", po::value<std::vector<unsigned> >(&resolutions),
+              "output window resolution")
+            ( "descr,d", po::value<std::string>(&_descrFile),
+              "file with channels per-node description" );
 
-		//parse program options
-		po::variables_map variableMap;
-		po::store(po::parse_command_line(argc, argv, programDescription), variableMap);
-		po::notify(variableMap);
+        //parse program options
+        po::variables_map variableMap;
+        po::store( po::parse_command_line( argc, argv, options ), variableMap );
+        po::notify( variableMap );
 
-		// Evaluate parsed command line options
-		if (showHelp)
-		{
-			LBWARN << programDescription << std::endl;
-			::exit(EXIT_SUCCESS);
-		}
+        // Evaluate parsed command line options
+        if (showHelp)
+        {
+            LBWARN << options << std::endl;
+            ::exit(EXIT_SUCCESS);
+        }
 
-		if(!resolutions.empty())
-		{
-			_resX = resolutions[0];
-			if (resolutions.size() > 1)
-				_resY = resolutions[1];
-		}
+        if( !resolutions.empty( ))
+        {
+            _resX = resolutions[0];
+            if (resolutions.size() > 1)
+                _resY = resolutions[1];
+        }
 
-		_useDestination = !assembleOnly;
+        _useDestination = !assembleOnly;
 
-		if( variableMap.count("mode") == 1 )
-		{
-			
-			if( compoundMode == "2D" )
-				_mode = MODE_2D;
-			else if( compoundMode == "DB" )
-				_mode = MODE_DB;
-			else if( compoundMode == "DB_ds" )
-				_mode = MODE_DB_DS;
-			else if( compoundMode == "DB_stream" )
-				_mode = MODE_DB_STREAM;
-			else if( compoundMode == "DPlex" )
-				_mode = MODE_DPLEX;
-			else if( compoundMode == "Wall" )
-			{
-				_mode   = MODE_WALL;
-				_nChannels = _columns * _rows;
-			}
-			else 
-			{
-				throw std::runtime_error("Unknown compound mode: " + compoundMode);
-			}
-		}
-	} catch( std::exception& exception )
-	{
-		LBERROR << "Error parsing command line: " << exception.what() 
-			<< std::endl;
-		return false;
-	}
-	return true;
+        if( variableMap.count("mode") == 1 )
+        {
+            if( compoundMode == "2D" )
+                _mode = MODE_2D;
+            else if( compoundMode == "DB" )
+                _mode = MODE_DB;
+            else if( compoundMode == "DB_ds" )
+                _mode = MODE_DB_DS;
+            else if( compoundMode == "DB_stream" )
+                _mode = MODE_DB_STREAM;
+            else if( compoundMode == "DPlex" )
+                _mode = MODE_DPLEX;
+            else if( compoundMode == "Wall" )
+            {
+                _mode   = MODE_WALL;
+                _nChannels = _columns * _rows;
+            }
+            else
+            {
+                throw std::runtime_error( "Unknown compound mode: " +
+                                          compoundMode );
+            }
+        }
+    }
+    catch( std::exception& exception )
+    {
+        LBERROR << "Error parsing command line: " << exception.what()
+                << std::endl;
+        return false;
+    }
+    return true;
 }
 
 static Strings readNodenames( const std::string &filename )
@@ -246,7 +248,7 @@ void ConfigTool::_writeResources( Config* config,
         node->setHost( nodeName.str( ));
         node->setName( nodeName.str( ));
 
-        co::ConnectionDescriptionPtr connectionDescription = 
+        co::ConnectionDescriptionPtr connectionDescription =
             new co::ConnectionDescription;
         connectionDescription->setHostname( nodeName.str( ));
         node->addConnectionDescription( connectionDescription );
@@ -259,7 +261,7 @@ void ConfigTool::_writeResources( Config* config,
             pipeName << "pipe" << p << "n" << n;
             pipe->setName( pipeName.str( ));
             pipe->setDevice( p );
-            
+
             eq::server::Window* window = new eq::server::Window( pipe );
 
             std::ostringstream windowName;
@@ -269,13 +271,13 @@ void ConfigTool::_writeResources( Config* config,
             if( c == 0 ) // destination window
             {
                 if( !_fullScreen && _mode != MODE_WALL )
-                    window->setIAttribute( 
+                    window->setIAttribute(
                         eq::server::Window::IATTR_HINT_FULLSCREEN,
                         eq::fabric::OFF );
-                window->setIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE, 
+                window->setIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
                                        eq::fabric::WINDOW );
                 window->setIAttribute(
-                    eq::server::Window::IATTR_HINT_DOUBLEBUFFER, 
+                    eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
                     eq::fabric::ON );
             }
 
@@ -295,7 +297,7 @@ void ConfigTool::_writeResources( Config* config,
             channelName << "channel" << c;
             channel->setName( channelName.str( ));
 
-            ++c;            
+            ++c;
         }
     }
 }
@@ -385,7 +387,7 @@ void ConfigTool::_write2D( Config* config ) const
         Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
-        
+
         Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
@@ -393,14 +395,14 @@ void ConfigTool::_write2D( Config* config ) const
         {
             if( y!=0 ) // more than one channel
             {
-                child->setViewport( 
+                child->setViewport(
                     eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
                                   1.f,
                                   static_cast< float >( 100000-y )/100000.f ));
             }
         }
         else
-            child->setViewport( 
+            child->setViewport(
                 eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
                               1.f, static_cast< float >( step )/100000.f ));
 
@@ -412,7 +414,7 @@ void ConfigTool::_write2D( Config* config ) const
             child->addOutputFrame(   ::Frame::create( frameName ));
             compound->addInputFrame( ::Frame::create( frameName ));
         }
- 
+
         y += step;
     }
 }
@@ -434,7 +436,7 @@ void ConfigTool::_writeDB( Config* config ) const
         Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
-        
+
         Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
@@ -459,7 +461,7 @@ void ConfigTool::_writeDB( Config* config ) const
             child->addOutputFrame(   ::Frame::create( frameName ));
             compound->addInputFrame( ::Frame::create( frameName ));
         }
- 
+
         start += step;
     }
 }
@@ -481,7 +483,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
         Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i-1;
-        
+
         Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
@@ -501,14 +503,14 @@ void ConfigTool::_writeDBStream( Config* config ) const
             child->addInputFrame( ::Frame::create( frameName ));
         }
 
-        if( i != 1 ) 
+        if( i != 1 )
         {
             std::ostringstream frameName;
             frameName << "frame.channel" << i-1;
 
             child->addOutputFrame( ::Frame::create( frameName ));
         }
- 
+
         start += step;
     }
     if( !_useDestination )
@@ -528,7 +530,7 @@ void ConfigTool::_writeDS( Config* config ) const
         Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
-        
+
         Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
@@ -543,7 +545,7 @@ void ConfigTool::_writeDS( Config* config ) const
             drawChild->setRange(
                 eq::Range( static_cast< float >( start )/100000.f,
                            static_cast< float >( start + step )/100000.f ));
-        
+
         unsigned y = 0;
         for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
         {
@@ -574,7 +576,7 @@ void ConfigTool::_writeDS( Config* config ) const
 
             y += step;
         }
- 
+
         // assembled color tile output, if not already in place
         if( i != 0 )
         {
@@ -604,7 +606,7 @@ void ConfigTool::_writeDPlex( Config* config ) const
     Compound* compound = _addSingleSegment( config );
     compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
     compound->addEqualizer( new FramerateEqualizer );
-    
+
     const unsigned period = _nChannels - 1;
     unsigned       phase  = 0;
     for( unsigned i = 1; i<_nChannels; ++i )
@@ -612,7 +614,7 @@ void ConfigTool::_writeDPlex( Config* config ) const
         Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
-        
+
         Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
@@ -657,10 +659,10 @@ void ConfigTool::_writeWall( Config* config ) const
                                                 width, height ));
             std::ostringstream channelName;
             channelName << "channel" << column + row * _columns;
-            Channel* segmentChannel = 
+            Channel* segmentChannel =
                 config->find< Channel >( channelName.str( ));
             segment->setChannel( segmentChannel );
         }
     }
-    config->activateCanvas( canvas );    
+    config->activateCanvas( canvas );
 }
