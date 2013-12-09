@@ -20,7 +20,9 @@
 #include "ddsbase.h"
 #include "hlp.h"
 
+#pragma warning( disable: 4275 )
 #include <boost/program_options.hpp>
+#pragma warning( default: 4275 )
 #include <math.h>
 #ifndef _MSC_VER
 #  include <stdint.h>

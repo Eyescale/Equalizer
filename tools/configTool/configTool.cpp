@@ -34,7 +34,9 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 
+#pragma warning( disable: 4275 )
 #include <boost/program_options.hpp>
+#pragma warning( default: 4275 )
 #ifndef WIN32
 #  include <sys/param.h>
 #endif
