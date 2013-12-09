@@ -185,11 +185,11 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                             (int(*)(int))std::tolower );
 
             if( userDefinedRenderMode == "immediate" )
-                setRenderMode( plylib::RENDER_MODE_IMMEDIATE );
+                setRenderMode( ply::RENDER_MODE_IMMEDIATE );
             else if( userDefinedRenderMode == "displaylist" )
-                setRenderMode( plylib::RENDER_MODE_DISPLAY_LIST );
+                setRenderMode( ply::RENDER_MODE_DISPLAY_LIST );
             else if( userDefinedRenderMode == "vbo" )
-                setRenderMode( plylib::RENDER_MODE_BUFFER_OBJECT );
+                setRenderMode( ply::RENDER_MODE_BUFFER_OBJECT );
         }
 
         if( userDefinedUseGLSL )

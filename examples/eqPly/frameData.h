@@ -56,7 +56,7 @@ public:
     void setModelID( const eq::UUID& id );
 
     void setColorMode( const ColorMode color );
-    void setRenderMode( const plylib::RenderMode mode );
+    void setRenderMode( const ply::RenderMode mode );
     void setIdle( const bool idleMode );
 
     void toggleOrtho();
@@ -78,7 +78,7 @@ public:
     bool useWireframe() const { return _wireframe; }
     bool usePilotMode() const { return _pilotMode; }
     bool isIdle() const { return _idle; }
-    plylib::RenderMode getRenderMode() const { return _renderMode; }
+    ply::RenderMode getRenderMode() const { return _renderMode; }
     bool useCompression() const { return _compression; }
     //*}
 
@@ -136,7 +136,7 @@ private:
     eq::Vector3f _position;
 
     eq::UUID         _modelID;
-    plylib::RenderMode _renderMode;
+    ply::RenderMode _renderMode;
     ColorMode        _colorMode;
     float            _quality;
     bool             _ortho;

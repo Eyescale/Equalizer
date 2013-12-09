@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,48 +25,52 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 
-#ifndef PLYLIB_VERTEXBUFFERDIST_H
-#define PLYLIB_VERTEXBUFFERDIST_H
+#ifndef PLYLIB_VERTEXDATA_H
+#define PLYLIB_VERTEXDATA_H
 
 #include "api.h"
 #include "typedefs.h"
+#include <vector>
 
-#include <co/co.h>
 
-namespace plylib
+// defined elsewhere
+struct PlyFile;
+
+namespace ply 
 {
-/** Uses co::Object to distribute a model, holds a VertexBufferBase node. */
-class VertexBufferDist : public co::Object
-{
-public:
-    PLYLIB_API VertexBufferDist();
-    PLYLIB_API VertexBufferDist( plylib::VertexBufferRoot* root );
-    PLYLIB_API virtual ~VertexBufferDist();
+    /*  Holds the flat data and offers routines to read, scale and sort it.  */
+    class VertexData
+    {
+    public:
+        PLYLIB_API VertexData();
 
-    PLYLIB_API void registerTree( co::LocalNodePtr node );
-    PLYLIB_API void deregisterTree();
+        PLYLIB_API bool readPlyFile( const std::string& file );
+        PLYLIB_API void sort( const Index start, const Index length, const Axis axis );
+        PLYLIB_API void scale( const float baseSize = 2.0f );
+        PLYLIB_API void calculateNormals();
+        PLYLIB_API void calculateBoundingBox();
+        const BoundingBox& getBoundingBox() const { return _boundingBox; }
+        PLYLIB_API Axis getLongestAxis( const size_t start, const size_t elements ) const;
 
-    PLYLIB_API plylib::VertexBufferRoot* loadModel( co::NodePtr master,
-                                                    co::LocalNodePtr localNode,
-                                                    const eq::UUID& modelID );
-protected:
-    PLYLIB_API VertexBufferDist( VertexBufferRoot* root,
-                                 VertexBufferBase* node );
+        void useInvertedFaces() { _invertFaces = true; }
 
-    PLYLIB_API virtual void getInstanceData( co::DataOStream& os );
-    PLYLIB_API virtual void applyInstanceData( co::DataIStream& is );
+        std::vector< Vertex >   vertices;
+        std::vector< Color >    colors;
+        std::vector< Normal >   normals;
+        std::vector< Triangle > triangles;
 
-private:
-    VertexBufferRoot* _root;
-    VertexBufferBase* _node;
-    VertexBufferDist* _left;
-    VertexBufferDist* _right;
-    bool _isRoot;
-};
+    private:
+        void readVertices( PlyFile* file, const int nVertices, 
+                           const bool readColors );
+        void readTriangles( PlyFile* file, const int nFaces );
+
+        BoundingBox _boundingBox;
+        bool        _invertFaces;
+    };
 }
 
 
-#endif // PLYLIB_VERTEXBUFFERDIST_H
+#endif // PLYLIB_VERTEXDATA_H

@@ -32,7 +32,7 @@
 #include "vertexBufferLeaf.h"
 #include "vertexBufferRoot.h"
 
-namespace plylib
+namespace ply
 {
 
 VertexBufferDist::VertexBufferDist()

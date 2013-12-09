@@ -29,7 +29,7 @@
 #include "vertexBufferBase.h"
 #include "vertexBufferState.h"
 
-namespace plylib
+namespace ply
 {
 void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
 {

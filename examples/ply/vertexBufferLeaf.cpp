@@ -34,7 +34,7 @@
 #include "vertexData.h"
 #include <map>
 
-namespace plylib
+namespace ply
 {
 
 /*  Finish partial setup - sort, reindex and merge into global data.  */
