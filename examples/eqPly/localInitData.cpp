@@ -29,7 +29,10 @@
 #include "localInitData.h"
 #include "frameData.h"
 
+#pragma warning( disable: 4275 )
 #include <boost/program_options.hpp>
+#pragma warning( default: 4275 )
+
 #include <algorithm>
 #include <cctype>
 #include <functional>
