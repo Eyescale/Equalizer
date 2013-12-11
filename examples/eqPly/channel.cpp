@@ -771,25 +771,23 @@ void Channel::_updateNearFar( const ply::BoundingSphere& boundingSphere )
 {
     // compute dynamic near/far plane of whole model
     const FrameData& frameData = _getFrameData();
+    const eq::Matrix4f& rotation = frameData.getCameraRotation();
+    const eq::Matrix4f& view = getHeadTransform() * rotation;
 
-    const eq::Matrix4f& rotation     = frameData.getCameraRotation();
-    const eq::Matrix4f headTransform = getHeadTransform() * rotation;
+    eq::Matrix4f viewInv;
+    compute_inverse( view, viewInv );
 
-    eq::Matrix4f modelInv;
-    compute_inverse( headTransform, modelInv );
-
-    const eq::Vector3f zero  = modelInv * eq::Vector3f::ZERO;
-    eq::Vector3f       front = modelInv * eq::Vector3f( 0.0f, 0.0f, -1.0f );
+    const eq::Vector3f& zero  = viewInv * eq::Vector3f::ZERO;
+    eq::Vector3f        front = viewInv * eq::Vector3f( 0.0f, 0.0f, -1.0f );
 
     front -= zero;
     front.normalize();
     front *= boundingSphere.w();
 
-    const eq::Vector3f center =
-        frameData.getCameraPosition().get_sub_vector< 3 >() -
-        boundingSphere.get_sub_vector< 3 >();
-    const eq::Vector3f nearPoint  = headTransform * ( center - front );
-    const eq::Vector3f farPoint   = headTransform * ( center + front );
+    const eq::Vector3f& center = frameData.getCameraPosition() -
+                                 boundingSphere.get_sub_vector< 3 >();
+    const eq::Vector3f nearPoint  = view * ( center - front );
+    const eq::Vector3f farPoint   = view * ( center + front );
 
     if( useOrtho( ))
     {
