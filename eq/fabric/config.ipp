@@ -45,6 +45,9 @@ std::string _fAttributeStrings[] =
 std::string _iAttributeStrings[] =
 {
     MAKE_ATTR_STRING( IATTR_ROBUSTNESS ),
+    MAKE_ATTR_STRING( IATTR_TCP_RECV_BUFFER_SIZE ),
+    MAKE_ATTR_STRING( IATTR_TCP_SEND_BUFFER_SIZE ),
+    MAKE_ATTR_STRING( IATTR_READ_THREAD_COUNT )
 };
 }
 
@@ -900,6 +903,12 @@ std::ostream& operator << ( std::ostream& os,
     os << "attributes" << std::endl << "{" << std::endl << lunchbox::indent
        << "robustness "
        << IAttribute( config.getIAttribute( C::IATTR_ROBUSTNESS )) << std::endl
+       << "tcp_recv_buffer_size "
+       << IAttribute( config.getIAttribute( C::IATTR_TCP_RECV_BUFFER_SIZE )) << std::endl
+       << "tcp_send_buffer_size "
+       << IAttribute( config.getIAttribute( C::IATTR_TCP_SEND_BUFFER_SIZE )) << std::endl
+       << "read_thread_count "
+       << IAttribute( config.getIAttribute( C::IATTR_READ_THREAD_COUNT )) << std::endl
        << "eye_base   " << config.getFAttribute( C::FATTR_EYE_BASE )
        << std::endl
        << lunchbox::exdent << "}" << std::endl;

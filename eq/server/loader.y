@@ -114,6 +114,9 @@
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
 %token EQTOKEN_CONFIG_FATTR_FOCUS_DISTANCE
 %token EQTOKEN_CONFIG_IATTR_ROBUSTNESS
+%token EQTOKEN_CONFIG_IATTR_TCP_RECV_BUFFER_SIZE
+%token EQTOKEN_CONFIG_IATTR_TCP_SEND_BUFFER_SIZE
+%token EQTOKEN_CONFIG_IATTR_READ_THREAD_COUNT
 %token EQTOKEN_CONFIG_IATTR_FOCUS_MODE
 %token EQTOKEN_NODE_SATTR_LAUNCH_COMMAND
 %token EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE
@@ -233,6 +236,9 @@
 %token EQTOKEN_FOCUS_MODE
 %token EQTOKEN_OPENCV_CAMERA
 %token EQTOKEN_ROBUSTNESS
+%token EQTOKEN_TCP_RECV_BUFFER_SIZE
+%token EQTOKEN_TCP_SEND_BUFFER_SIZE
+%token EQTOKEN_READ_THREAD_COUNT
 %token EQTOKEN_THREAD_MODEL
 %token EQTOKEN_ASYNC
 %token EQTOKEN_DRAW_SYNC
@@ -376,6 +382,21 @@ global:
      {
          eq::server::Global::instance()->setConfigIAttribute(
              eq::server::Config::IATTR_ROBUSTNESS, $2 );
+     }
+     | EQTOKEN_CONFIG_IATTR_TCP_RECV_BUFFER_SIZE IATTR
+     {
+         eq::server::Global::instance()->setConfigIAttribute(
+             eq::server::Config::IATTR_TCP_RECV_BUFFER_SIZE, $2 );
+     }
+     | EQTOKEN_CONFIG_IATTR_TCP_SEND_BUFFER_SIZE IATTR
+     {
+         eq::server::Global::instance()->setConfigIAttribute(
+             eq::server::Config::IATTR_TCP_SEND_BUFFER_SIZE, $2 );
+     }
+     | EQTOKEN_CONFIG_IATTR_READ_THREAD_COUNT IATTR
+     {
+         eq::server::Global::instance()->setConfigIAttribute(
+             eq::server::Config::IATTR_READ_THREAD_COUNT, $2 );
      }
      | EQTOKEN_NODE_SATTR_LAUNCH_COMMAND STRING
      {
@@ -584,6 +605,12 @@ configAttribute:
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
     | EQTOKEN_ROBUSTNESS IATTR { config->setIAttribute(
                                  eq::server::Config::IATTR_ROBUSTNESS, $2 ); }
+    | EQTOKEN_TCP_RECV_BUFFER_SIZE IATTR { config->setIAttribute(
+                                 eq::server::Config::IATTR_TCP_RECV_BUFFER_SIZE, $2 ); }
+    | EQTOKEN_TCP_SEND_BUFFER_SIZE IATTR { config->setIAttribute(
+                                 eq::server::Config::IATTR_TCP_SEND_BUFFER_SIZE, $2 ); }
+    | EQTOKEN_READ_THREAD_COUNT IATTR { config->setIAttribute(
+                                 eq::server::Config::IATTR_READ_THREAD_COUNT, $2 ); }
 
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' {

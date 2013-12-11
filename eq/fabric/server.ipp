@@ -166,6 +166,12 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::ICommand& command )
 
     co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS,
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
+	co::Global::setIAttribute( co::Global::IATTR_TCP_RECV_BUFFER_SIZE,
+                               config->getIAttribute( CFG::IATTR_TCP_RECV_BUFFER_SIZE ));
+    co::Global::setIAttribute( co::Global::IATTR_TCP_SEND_BUFFER_SIZE,
+                               config->getIAttribute( CFG::IATTR_TCP_SEND_BUFFER_SIZE ));                        
+    co::Global::setIAttribute( co::Global::IATTR_READ_THREAD_COUNT,
+                               config->getIAttribute( CFG::IATTR_READ_THREAD_COUNT ));
     if( requestID != LB_UNDEFINED_UINT32 )
         config->send( command.getNode(), CMD_CONFIG_CREATE_REPLY ) << requestID;
 

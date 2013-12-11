@@ -97,6 +97,9 @@ EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
 EQ_CONFIG_FATTR_FOCUS_DISTANCE   { return EQTOKEN_CONFIG_FATTR_FOCUS_DISTANCE; }
 EQ_CONFIG_IATTR_ROBUSTNESS       { return EQTOKEN_CONFIG_IATTR_ROBUSTNESS; }
+EQ_CONFIG_IATTR_TCP_RECV_BUFFER_SIZE  { return EQTOKEN_CONFIG_IATTR_TCP_RECV_BUFFER_SIZE; }
+EQ_CONFIG_IATTR_TCP_SEND_BUFFER_SIZE  { return EQTOKEN_CONFIG_IATTR_TCP_SEND_BUFFER_SIZE; }
+EQ_CONFIG_IATTR_READ_THREAD_COUNT       { return EQTOKEN_CONFIG_IATTR_READ_THREAD_COUNT; }
 EQ_CONFIG_IATTR_FOCUS_MODE       { return EQTOKEN_CONFIG_IATTR_FOCUS_MODE; }
 EQ_NODE_SATTR_LAUNCH_COMMAND     { return EQTOKEN_NODE_SATTR_LAUNCH_COMMAND; }
 EQ_NODE_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE; }
@@ -230,6 +233,9 @@ focus_distance                  { return EQTOKEN_FOCUS_DISTANCE; }
 focus_mode                      { return EQTOKEN_FOCUS_MODE; }
 opencv_camera                   { return EQTOKEN_OPENCV_CAMERA; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }
+tcp_recv_buffer_size            { return EQTOKEN_TCP_RECV_BUFFER_SIZE; }
+tcp_send_buffer_size            { return EQTOKEN_TCP_SEND_BUFFER_SIZE; }
+read_thread_count               { return EQTOKEN_READ_THREAD_COUNT; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }
 DRAW                            { return EQTOKEN_DRAW; }

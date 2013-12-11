@@ -137,8 +137,11 @@ namespace fabric
         enum IAttribute
         {
             IATTR_ROBUSTNESS, //!< Tolerate resource failures
+            IATTR_TCP_RECV_BUFFER_SIZE,
+            IATTR_TCP_SEND_BUFFER_SIZE,
+            IATTR_READ_THREAD_COUNT,
             IATTR_LAST,
-            IATTR_ALL = IATTR_LAST + 5
+            IATTR_ALL = IATTR_LAST + 2
         };
 
         /** @internal */

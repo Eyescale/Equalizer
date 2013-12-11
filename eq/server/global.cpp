@@ -67,6 +67,9 @@ void Global::_setupDefaults()
 
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
     _configIAttributes[Config::IATTR_ROBUSTNESS]       = fabric::AUTO;
+    _configIAttributes[Config::IATTR_TCP_RECV_BUFFER_SIZE] = 65536;
+    _configIAttributes[Config::IATTR_TCP_SEND_BUFFER_SIZE] = 131072;
+    _configIAttributes[Config::IATTR_READ_THREAD_COUNT]    = 4;
 
     // node
     for( uint32_t i=0; i < Node::CATTR_ALL; ++i )
