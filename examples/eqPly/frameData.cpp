@@ -80,7 +80,7 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _message;
 }
 
-void FrameData::setModelID( const eq::UUID& id )
+void FrameData::setModelID( const eq::uint128_t& id )
 {
     if( _modelID == id )
         return;

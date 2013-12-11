@@ -87,7 +87,7 @@ void Pipe< N, P, W, V >::restore()
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::attach( const UUID& id,
+void Pipe< N, P, W, V >::attach( const uint128_t& id,
                                  const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -332,7 +332,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 }
 
 template< class N, class P, class W, class V >
-W* Pipe< N, P, W, V >::_findWindow( const UUID& id )
+W* Pipe< N, P, W, V >::_findWindow( const uint128_t& id )
 {
     for( typename Windows::const_iterator i = _windows.begin();
          i != _windows.end(); ++i )
@@ -404,7 +404,7 @@ Pipe< N, P, W, V >::_cmdNewWindowReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
-    const UUID result = command.get< UUID >();
+    const uint128_t& result = command.get< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

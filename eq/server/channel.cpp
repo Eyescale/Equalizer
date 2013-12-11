@@ -114,7 +114,7 @@ Channel::Channel( const Channel& from )
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }
 
-void Channel::attach( const UUID& id, const uint32_t instanceID )
+void Channel::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 

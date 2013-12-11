@@ -145,7 +145,7 @@ bool Server::shutdown()
 bool Server::_cmdChooseConfigReply( co::ICommand& command )
 {
     co::LocalNodePtr  localNode = command.getLocalNode();
-    const UUID configID = command.get< UUID >();
+    const uint128_t& configID = command.get< uint128_t >();
     const uint32_t requestID = command.get< uint32_t >();
 
     LBVERB << "Handle choose config reply " << command << " req " << requestID

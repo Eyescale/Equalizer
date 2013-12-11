@@ -49,7 +49,7 @@ namespace detail
         virtual void frameStart( const uint128_t& frameID,
                                  const uint32_t frameNumber );
     private:
-        bool _mapData( const UUID& initID );
+        bool _mapData( const uint128_t& initID );
         void _syncData( const uint128_t& version );
         void _unmapData();
 

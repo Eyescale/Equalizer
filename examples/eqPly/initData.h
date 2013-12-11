@@ -40,10 +40,10 @@ namespace eqPly
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const eq::UUID& id )
+        void setFrameDataID( const eq::uint128_t& id )
             { _frameDataID = id; }
 
-        eq::UUID getFrameDataID() const  { return _frameDataID; }
+        eq::uint128_t getFrameDataID() const  { return _frameDataID; }
         eq::WindowSystem   getWindowSystem() const  { return _windowSystem; }
         ply::RenderMode getRenderMode() const       { return _renderMode; }
         bool               useGLSL() const          { return _useGLSL; }
@@ -65,7 +65,7 @@ namespace eqPly
         void disableROI()          { _roi      = false; }
 
     private:
-        eq::UUID         _frameDataID;
+        eq::uint128_t    _frameDataID;
         eq::WindowSystem _windowSystem;
         ply::RenderMode  _renderMode;
         bool             _useGLSL;

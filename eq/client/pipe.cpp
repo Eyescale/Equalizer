@@ -257,7 +257,7 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attach( const UUID& id, const uint32_t instanceID )
+void Pipe::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -554,7 +554,7 @@ void Pipe::flushFrames( util::ObjectManager& om )
     _impl->outputFrameDatas.clear();
 }
 
-co::QueueSlave* Pipe::getQueue( const UUID& queueID )
+co::QueueSlave* Pipe::getQueue( const uint128_t& queueID )
 {
     LB_TS_THREAD( _pipeThread );
     if( queueID == 0 )
@@ -996,7 +996,7 @@ ComputeContext* Pipe::getComputeContext()
 bool Pipe::_cmdCreateWindow( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const UUID windowID = command.get< UUID >();
+    const uint128_t& windowID = command.get< uint128_t >();
 
     LBLOG( LOG_INIT ) << "Create window " << command << " id " << windowID
                       << std::endl;
@@ -1016,7 +1016,7 @@ bool Pipe::_cmdDestroyWindow( co::ICommand& cmd )
 
     LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
 
-    Window* window = _findWindow( command.get< UUID >( ));
+    Window* window = _findWindow( command.get< uint128_t >( ));
     LBASSERT( window );
 
     // re-set shared windows accordingly

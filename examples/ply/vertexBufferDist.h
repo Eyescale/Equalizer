@@ -51,7 +51,7 @@ public:
 
     PLYLIB_API ply::VertexBufferRoot* loadModel( co::NodePtr master,
                                                     co::LocalNodePtr localNode,
-                                                    const eq::UUID& modelID );
+                                                    const eq::uint128_t& modelID );
 protected:
     PLYLIB_API VertexBufferDist( VertexBufferRoot* root,
                                  VertexBufferBase* node );

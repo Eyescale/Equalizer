@@ -219,17 +219,17 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::UUID( ));
-    _frameData.setModelID( eq::UUID( ));
+    _initData.setFrameDataID( eq::uint128_t( ));
+    _frameData.setModelID( eq::uint128_t( ));
 }
 
-bool Config::loadInitData( const eq::UUID& id )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
     return getClient()->syncObject( &_initData, getApplicationNode(), id );
 }
 
-const Model* Config::getModel( const eq::UUID& modelID )
+const Model* Config::getModel( const eq::uint128_t& modelID )
 {
     if( modelID == 0 )
         return 0;
@@ -795,7 +795,7 @@ void Config::_switchCanvas()
     if( canvases.empty( ))
         return;
 
-    _frameData.setCurrentViewID( eq::UUID( ));
+    _frameData.setCurrentViewID( eq::uint128_t( ));
 
     if( !_currentCanvas )
     {
@@ -841,7 +841,7 @@ void Config::_switchView()
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
-        _frameData.setCurrentViewID( eq::UUID( ));
+        _frameData.setCurrentViewID( eq::uint128_t( ));
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
@@ -853,7 +853,7 @@ void Config::_switchModel()
 
     // current model of current view
     View* view = _getCurrentView();
-    const eq::UUID& currentID = view ? view->getModelID() :
+    const eq::uint128_t& currentID = view ? view->getModelID() :
                                             _frameData.getModelID();
     // next model
     ModelDistsCIter i;
@@ -869,7 +869,7 @@ void Config::_switchModel()
         i = _modelDist.begin(); // wrap around
 
     // set identifier on view or frame data (default model)
-    const eq::UUID& modelID = (*i)->getID();
+    const eq::uint128_t& modelID = (*i)->getID();
     if( view )
         view->setModelID( modelID );
     else
@@ -976,7 +976,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::UUID( ));
+    _frameData.setCurrentViewID( eq::uint128_t( ));
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

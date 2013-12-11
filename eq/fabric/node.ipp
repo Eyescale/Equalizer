@@ -303,7 +303,7 @@ bool Node< C, N, P, V >::_removePipe( P* pipe )
 }
 
 template< class C, class N, class P, class V >
-P* Node< C, N, P, V >::findPipe( const UUID& id )
+P* Node< C, N, P, V >::findPipe( const uint128_t& id )
 {
     for( typename Pipes::const_iterator i = _pipes.begin();
          i != _pipes.end(); ++i )

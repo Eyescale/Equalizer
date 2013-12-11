@@ -53,7 +53,7 @@ public:
 
     /** @name Rendering flags. */
     //*{
-    void setModelID( const eq::UUID& id );
+    void setModelID( const eq::uint128_t& id );
 
     void setColorMode( const ColorMode color );
     void setRenderMode( const ply::RenderMode mode );
@@ -69,7 +69,7 @@ public:
     void toggleRenderMode();
     void toggleCompression();
 
-    eq::UUID getModelID() const { return _modelID; }
+    eq::uint128_t getModelID() const { return _modelID; }
     ColorMode getColorMode() const { return _colorMode; }
     float getQuality() const { return _quality; }
     bool useOrtho() const { return _ortho; }
@@ -135,8 +135,8 @@ private:
     eq::Matrix4f _modelRotation;
     eq::Vector3f _position;
 
-    eq::UUID         _modelID;
-    ply::RenderMode _renderMode;
+    eq::uint128_t    _modelID;
+    ply::RenderMode  _renderMode;
     ColorMode        _colorMode;
     float            _quality;
     bool             _ortho;

@@ -88,7 +88,7 @@ namespace server
         void flush();
         //@}
 
-        const UUID getQueueMasterID( const Eye eye ) const;
+        uint128_t getQueueMasterID( const Eye eye ) const;
 
     protected:
         EQSERVER_API virtual ChangeType getChangeType() const

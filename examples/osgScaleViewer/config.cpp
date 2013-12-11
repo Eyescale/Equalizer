@@ -96,7 +96,7 @@ bool Config::exit()
 {
     bool ret = eq::Config::exit();
 
-    _initData.setFrameDataID( co::UUID( ));
+    _initData.setFrameDataID( eq::uint128_t( ));
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
     return ret;
@@ -158,7 +158,7 @@ const InitData& Config::getInitData() const
     return _initData;
 }
 
-bool Config::loadInitData( const eq::UUID& id )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
     return getClient()->syncObject( &_initData, getApplicationNode(), id );

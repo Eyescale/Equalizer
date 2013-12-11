@@ -89,7 +89,7 @@ namespace fabric
         EQFABRIC_INL virtual ~Layout();
 
         /** @internal */
-        EQFABRIC_INL virtual void attach( const UUID& id,
+        EQFABRIC_INL virtual void attach( const uint128_t& id,
                                           const uint32_t instanceID );
 
         /** @internal */

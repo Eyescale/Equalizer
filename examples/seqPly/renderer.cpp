@@ -61,7 +61,7 @@ void Renderer::draw( co::Object* frameDataObj )
 {
     const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
     Application& application = static_cast< Application& >( getApplication( ));
-    const eq::UUID id = frameData->getModelID();
+    const eq::uint128_t& id = frameData->getModelID();
     const Model* model = application.getModel( id );
     if( !model )
         return;

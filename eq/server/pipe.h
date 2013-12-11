@@ -122,10 +122,10 @@ namespace server
     protected:
 
         /** @sa co::Object::attachToSession. */
-        virtual void attach( const UUID& id, const uint32_t instanceID );
+        virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const UUID& id );
+        virtual void removeChild( const uint128_t& id );
 
     private:
         /** Number of activations for this pipe. */

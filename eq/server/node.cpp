@@ -92,7 +92,7 @@ Node::~Node()
 {
 }
 
-void Node::attach( const UUID& id, const uint32_t instanceID )
+void Node::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -712,7 +712,7 @@ co::ObjectOCommand Node::send( const uint32_t cmd )
     return send( cmd, getID( ));
 }
 
-co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
+co::ObjectOCommand Node::send( const uint32_t cmd, const uint128_t& id )
 {
     return co::ObjectOCommand( co::Connections( 1, _bufferedTasks ), cmd,
                                co::COMMANDTYPE_OBJECT, id, CO_INSTANCE_ALL );

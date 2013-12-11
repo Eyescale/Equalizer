@@ -73,7 +73,7 @@ void View::Proxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void View::setModelID( const lunchbox::UUID& id )
+void View::setModelID( const eq::uint128_t& id )
 {
     if( _modelID == id )
         return;

@@ -110,7 +110,7 @@ void VertexBufferDist::deregisterTree()
 
 VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
                                                      co::LocalNodePtr localNode,
-                                                     const eq::UUID& modelID )
+                                                     const eq::uint128_t& modelID )
 {
     LBASSERT( !_root && !_node );
 
@@ -142,7 +142,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
     }
     else
     {
-        os << co::UUID() << co::UUID();
+        os << eq::uint128_t() << eq::uint128_t();
 
         LBASSERT( dynamic_cast< const VertexBufferLeaf* >( _node ));
         const VertexBufferLeaf* leaf =
@@ -163,7 +163,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
     VertexBufferNode* node = 0;
     VertexBufferBase* base = 0;
 
-    lunchbox::UUID leftID, rightID;
+    eq::uint128_t leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
 
     if( leftID != 0 && rightID != 0 )

@@ -135,7 +135,7 @@ Node::~Node()
     delete impl_;
 }
 
-void Node::attach( const UUID& id, const uint32_t instanceID )
+void Node::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -538,7 +538,7 @@ bool Node::_cmdCreatePipe( co::ICommand& cmd )
     LBASSERT( impl_->state >= STATE_INIT_FAILED );
 
     co::ObjectICommand command( cmd );
-    const UUID pipeID = command.get< UUID >();
+    const uint128_t pipeID = command.get< uint128_t >();
     const bool threaded = command.get< bool >();
 
     LBLOG( LOG_INIT ) << "Create pipe " << command << " id " << pipeID
@@ -562,7 +562,7 @@ bool Node::_cmdDestroyPipe( co::ICommand& cmd )
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
-    Pipe* pipe = findPipe( command.get< UUID >( ));
+    Pipe* pipe = findPipe( command.get< uint128_t >( ));
     LBASSERT( pipe );
     pipe->exitThread();
 

@@ -80,7 +80,7 @@ void Canvas< CFG, C, S, L >::restore()
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::attach( const UUID& id,
+void Canvas< CFG, C, S, L >::attach( const uint128_t& id,
                                      const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -154,7 +154,7 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
         for( co::ObjectVersions::const_iterator i = layouts.begin();
              i != layouts.end(); ++i )
         {
-            const UUID& id = (*i).identifier;
+            const uint128_t& id = (*i).identifier;
 
             if( id == 0 )
                 _layouts.push_back( 0 );
@@ -458,7 +458,7 @@ Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
-    const UUID result = command.get< UUID >();
+    const uint128_t& result = command.get< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

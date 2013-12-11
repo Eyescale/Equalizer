@@ -186,7 +186,7 @@ public:
 
 protected:
     /** @sa net::Object::attach. */
-    virtual void attach( const UUID& id, const uint32_t instanceID );
+    virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
 private:
     //-------------------- Members --------------------

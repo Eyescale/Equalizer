@@ -67,10 +67,10 @@ namespace eqPly
         const InitData& getInitData() const { return _initData; }
 
         /** Map per-config data to the local node process */
-        bool loadInitData( const eq::UUID& initDataID );
+        bool loadInitData( const eq::uint128_t& initDataID );
 
         /** @return the requested, default model or 0. */
-        const Model* getModel( const eq::UUID& id );
+        const Model* getModel( const eq::uint128_t& id );
 
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );

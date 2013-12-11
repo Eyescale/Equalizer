@@ -56,7 +56,7 @@ namespace fabric
 
         /** @internal @return the index path to this node. */
         EQFABRIC_INL NodePath getPath() const;
-        P* findPipe( const UUID& id ); //!< @internal
+        P* findPipe( const uint128_t& id ); //!< @internal
 
         /**
          * Perform a depth-first traversal of this node.

@@ -197,10 +197,10 @@ namespace server
 
     protected:
         /** @internal */
-        virtual void attach( const UUID& id, const uint32_t instanceID );
+        virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const UUID& id );
+        virtual void removeChild( const uint128_t& id );
 
     private:
         Config( const Config& from );
@@ -270,7 +270,7 @@ namespace server
         virtual void releaseCanvas( Canvas* canvas );
 
         /** @internal Post deletion for the given child, returns true if found*/
-        template< class T > bool _postDelete( const UUID& id );
+        template< class T > bool _postDelete( const uint128_t& id );
 
         /** The command functions. */
         bool _cmdInit( co::ICommand& command );

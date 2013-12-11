@@ -67,7 +67,7 @@ namespace config
 {
 namespace
 {
-co::ConnectionDescriptions _findConnections( const lunchbox::UUID& id,
+co::ConnectionDescriptions _findConnections( const lunchbox::uint128_t& id,
                                              const hwsd::NetInfos& netInfos,
                                              const uint16_t port = 0 )
 {
@@ -228,7 +228,7 @@ bool Resources::discover( ServerPtr server, Config* config,
         gpuInfos.push_back( hwsd::GPUInfo( ));
     }
 
-    typedef stde::hash_map< lunchbox::UUID, Node* > NodeMap;
+    typedef stde::hash_map< uint128_t, Node* > NodeMap;
     NodeMap nodes;
 
     const uint32_t flags = params.getFlags();
@@ -238,7 +238,7 @@ bool Resources::discover( ServerPtr server, Config* config,
     const bool multiNode = !hwsd::NodeInfo::isLocal( session ) ||
                            ( multiProcess && gpuInfos.size() > 1 );
     size_t gpuCounter = 0;
-    lunchbox::UUID appNodeID;
+    uint128_t appNodeID;
 
     for( hwsd::GPUInfosCIter i = gpuInfos.begin(); i != gpuInfos.end(); ++i )
     {
