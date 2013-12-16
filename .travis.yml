@@ -44,6 +44,7 @@ before_install:
  - sudo apt-get install -qq libopencv-dev || /bin/true
  - sudo apt-get install -qq libopenmpi-dev || /bin/true
  - sudo apt-get install -qq libopenscenegraph-dev || /bin/true
+ - sudo apt-get install -qq libpoppler-dev || /bin/true
  - sudo apt-get install -qq libqt4-dev || /bin/true
  - sudo apt-get install -qq librdmacm-dev || /bin/true
  - sudo apt-get install -qq libspnav-dev || /bin/true
