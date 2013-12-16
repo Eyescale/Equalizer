@@ -42,9 +42,9 @@ namespace eVolve
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const co::UUID& id )   { _frameDataID = id; }
+        void setFrameDataID( const eq::uint128_t& id )   { _frameDataID = id; }
 
-        lunchbox::UUID     getFrameDataID()  const { return _frameDataID;  }
+        eq::uint128_t      getFrameDataID()  const { return _frameDataID;  }
         eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
         uint32_t           getPrecision()    const { return _precision;    }
         float              getBrightness()   const { return _brightness;   }
@@ -63,7 +63,7 @@ namespace eVolve
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
-        lunchbox::UUID   _frameDataID;
+        eq::uint128_t    _frameDataID;
         eq::WindowSystem _windowSystem;
         uint32_t         _precision;
         float            _brightness;

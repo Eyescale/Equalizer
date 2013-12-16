@@ -58,7 +58,7 @@ Pipe::~Pipe()
 {
 }
 
-void Pipe::attach( const UUID& id, const uint32_t instanceID )
+void Pipe::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -71,7 +71,7 @@ void Pipe::attach( const UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
 }
 
-void Pipe::removeChild( const UUID& id )
+void Pipe::removeChild( const uint128_t& id )
 {
     LBASSERT( getConfig()->isRunning( ));
 

@@ -68,7 +68,7 @@ typedef std::vector< Segment* >      Segments;
 typedef std::vector< View* >         Views;
 
 using lunchbox::uint128_t;
-using lunchbox::UUID;
+using lunchbox::uint128_t;
 using lunchbox::Strings;
 using lunchbox::StringsCIter;
 

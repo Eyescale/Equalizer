@@ -32,17 +32,17 @@
 
 #include "channel.h"
 
-#include <plylib/vertexBufferState.h>
+#include <ply/vertexBufferState.h>
 #include <eq/eq.h>
 
 namespace eqPly
 {
 /*  State for Equalizer usage, uses Eq's Object Manager.  */
-class VertexBufferState : public plylib::VertexBufferState
+class VertexBufferState : public ply::VertexBufferState
 {
 public:
     VertexBufferState( eq::util::ObjectManager& objectManager )
-        : plylib::VertexBufferState( objectManager.glewGetContext( ))
+        : ply::VertexBufferState( objectManager.glewGetContext( ))
         , _objectManager( objectManager )
         , _channel( 0 )
     {}
@@ -87,7 +87,7 @@ public:
     virtual bool stopRendering( ) const
         { return _channel ? _channel->stopRendering() : false; }
 
-    virtual void declareRegion( const plylib::Vector4f& region )
+    virtual void declareRegion( const ply::Vector4f& region )
         { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
 
 private:

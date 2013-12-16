@@ -36,7 +36,7 @@
 #include <fstream>
 
 
-namespace plylib 
+namespace ply 
 {    
     /** Holds the final kd-tree data, sorted and reindexed.  */
     class VertexBufferData

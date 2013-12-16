@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,11 +61,12 @@ void Renderer::draw( co::Object* frameDataObj )
 {
     const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
     Application& application = static_cast< Application& >( getApplication( ));
-    const eq::UUID id = frameData->getModelID();
+    const eq::uint128_t& id = frameData->getModelID();
     const Model* model = application.getModel( id );
     if( !model )
         return;
 
+    updateNearFar( model->getBoundingSphere( ));
     applyRenderContext();
 
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
@@ -98,4 +99,3 @@ void Renderer::draw( co::Object* frameDataObj )
 }
 
 }
-

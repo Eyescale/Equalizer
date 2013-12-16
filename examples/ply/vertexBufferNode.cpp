@@ -34,7 +34,7 @@
 #include "vertexData.h"
 #include <set>
 
-namespace plylib
+namespace ply
 {
 
 /*  Destructor, clears up children as well.  */

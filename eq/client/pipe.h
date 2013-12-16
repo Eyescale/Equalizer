@@ -125,7 +125,7 @@ public:
                      const Eye eye, const bool output );
 
     /** @internal @return the queue for the given identifier and version. */
-    co::QueueSlave* getQueue( const UUID& queueID );
+    co::QueueSlave* getQueue( const uint128_t& queueID );
 
     /** @internal Clear the frame cache and delete all frames. */
     void flushFrames( util::ObjectManager& om );
@@ -370,7 +370,7 @@ protected:
                                          const uint32_t frameNumber );
 
     /** @internal */
-    EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
+    EQ_API virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
 private:
     detail::Pipe* const _impl;

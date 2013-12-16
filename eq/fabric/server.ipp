@@ -178,7 +178,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::ICommand& command )
     LBVERB << "Handle destroy config " << command << std::endl;
 
     co::LocalNodePtr localNode = command.getLocalNode();
-    const UUID configID = command.get< UUID >();
+    const uint128_t& configID = command.get< uint128_t >();
     const uint32_t requestID = command.get< uint32_t >();
 
     CFG* config = 0;

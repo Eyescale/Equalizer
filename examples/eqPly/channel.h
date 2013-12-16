@@ -76,7 +76,7 @@ namespace eqPly
         void _drawModel( const Model* model );
         void _drawOverlay();
         void _drawHelp();
-        void _updateNearFar( const plylib::BoundingSphere& boundingSphere );
+        void _updateNearFar( const ply::BoundingSphere& boundingSphere );
 
         bool _isDone() const;
 

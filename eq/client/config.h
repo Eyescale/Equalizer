@@ -219,16 +219,16 @@ public:
      * local client node.
      * @version 1.0
      */
-    EQ_API virtual bool mapObject( co::Object* object, const UUID& id,
+    EQ_API virtual bool mapObject( co::Object* object, const uint128_t& id,
                                 const uint128_t& version = co::VERSION_OLDEST );
 
 
     /** Start mapping a distributed object. @version 1.0 */
-    EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id,
+    EQ_API virtual uint32_t mapObjectNB( co::Object* object, const uint128_t& id,
                                 const uint128_t& version = co::VERSION_OLDEST );
 
     /** Start mapping a distributed object from a known master. @version 1.0 */
-    EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id,
+    EQ_API virtual uint32_t mapObjectNB( co::Object* object, const uint128_t& id,
                                          const uint128_t& version,
                                          co::NodePtr master );
 
@@ -462,7 +462,7 @@ public:
 
 protected:
     /** @internal */
-    EQ_API virtual void attach( const UUID& id,
+    EQ_API virtual void attach( const uint128_t& id,
                                 const uint32_t instanceID );
 
     EQ_API virtual void notifyAttached(); //!< @internal

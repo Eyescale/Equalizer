@@ -54,7 +54,7 @@ namespace eVolve
         const InitData& getInitData() const { return _initData; }
 
         /** Map per-config data to the local node process */
-        bool loadInitData( const eq::UUID& initDataID );
+        bool loadInitData( const eq::uint128_t& initDataID );
 
     protected:
         virtual ~Config();

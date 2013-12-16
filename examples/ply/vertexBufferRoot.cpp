@@ -40,7 +40,7 @@
 #   include <sys/mman.h>
 #endif
 
-namespace plylib
+namespace ply
 {
 
 typedef vmml::frustum_culler< float >  FrustumCuller;
@@ -97,7 +97,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
     culler.setup( state.getProjectionModelViewMatrix( ));
 
     // start with root node
-    std::vector< const plylib::VertexBufferBase* > candidates;
+    std::vector< const ply::VertexBufferBase* > candidates;
     candidates.push_back( this );
 
     while( !candidates.empty() )
@@ -105,7 +105,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
         if( state.stopRendering( ))
             return;
 
-        const plylib::VertexBufferBase* treeNode = candidates.back();
+        const ply::VertexBufferBase* treeNode = candidates.back();
         candidates.pop_back();
             
         // completely out of range check
@@ -137,8 +137,8 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 
             case vmml::VISIBILITY_PARTIAL:
             {
-                const plylib::VertexBufferBase* left  = treeNode->getLeft();
-                const plylib::VertexBufferBase* right = treeNode->getRight();
+                const ply::VertexBufferBase* left  = treeNode->getLeft();
+                const ply::VertexBufferBase* right = treeNode->getRight();
             
                 if( !left && !right )
                 {

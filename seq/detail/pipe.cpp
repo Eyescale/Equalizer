@@ -88,7 +88,7 @@ bool Pipe::configInit( const uint128_t& initID )
     }
     getRendererImpl()->setPipe( this );
 
-    if( _mapData( UUID( initID )))
+    if( _mapData( initID ))
         return true;
 
     sendError( ERROR_SEQUEL_MAPOBJECT_FAILED );
@@ -115,7 +115,7 @@ void Pipe::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
     return eq::Pipe::frameStart( frameID, frameNumber );
 }
 
-bool Pipe::_mapData( const UUID& initID )
+bool Pipe::_mapData( const uint128_t& initID )
 {
     LBASSERT( !_objects );
     LBASSERT( _renderer );

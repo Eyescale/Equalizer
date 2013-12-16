@@ -64,7 +64,7 @@ Window::~Window()
 {
 }
 
-void Window::attach( const UUID& id, const uint32_t instanceID )
+void Window::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -77,7 +77,7 @@ void Window::attach( const UUID& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdConfigExitReply ), cmdQ );
 }
 
-void Window::removeChild( const UUID& id )
+void Window::removeChild( const uint128_t& id )
 {
     LBASSERT( getConfig()->isRunning( ));
 

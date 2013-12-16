@@ -65,6 +65,19 @@ const Matrix4f& Renderer::getModelMatrix() const
     return _channel ? _channel->getModelMatrix() : Matrix4f::IDENTITY;
 }
 
+bool Renderer::useOrtho() const
+{
+    LBASSERT( _channel );
+    return _channel ? _channel->useOrtho() : false;
+}
+
+void Renderer::setNearFar( const float nearPlane, const float farPlane )
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->setNearFar( nearPlane, farPlane );
+}
+
 void Renderer::setWindow( Window* window )
 {
     _window = window;

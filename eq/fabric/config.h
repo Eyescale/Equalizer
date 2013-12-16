@@ -203,7 +203,7 @@ namespace fabric
         EQFABRIC_INL virtual ~Config();
 
         /** @internal */
-        EQFABRIC_INL virtual void attach( const UUID& id,
+        EQFABRIC_INL virtual void attach( const uint128_t& id,
                                           const uint32_t instanceID );
 
         /** @internal */
@@ -214,7 +214,7 @@ namespace fabric
         EQFABRIC_INL virtual void notifyDetach();
 
         /** @internal Execute the slave remove request. */
-        virtual void _removeChild( const UUID& )
+        virtual void _removeChild( const uint128_t& )
             { LBUNIMPLEMENTED; }
 
         template< class, class, class, class, class, class >

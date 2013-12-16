@@ -29,7 +29,7 @@
 
 #include "vertexBufferState.h"
 
-namespace plylib 
+namespace ply 
 {
 VertexBufferState::VertexBufferState( const GLEWContext* glewContext ) 
         : _pmvMatrix( Matrix4f::IDENTITY )

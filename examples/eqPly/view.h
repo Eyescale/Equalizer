@@ -44,8 +44,8 @@ public:
     View( eq::Layout* parent );
     virtual ~View();
 
-    void setModelID( const eq::UUID& id );
-    eq::UUID getModelID() const { return _modelID; }
+    void setModelID( const eq::uint128_t& id );
+    const eq::uint128_t& getModelID() const { return _modelID; }
 
     void setIdleSteps( const int32_t steps );
     int32_t getIdleSteps() const { return _idleSteps; }
@@ -77,7 +77,7 @@ private:
 
     Proxy _proxy;
     friend class Proxy;
-    eq::UUID _modelID;
+    eq::uint128_t _modelID;
     int32_t _idleSteps;
 };
 }

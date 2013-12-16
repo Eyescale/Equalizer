@@ -177,7 +177,7 @@ Config::~Config()
     delete _impl;
 }
 
-void Config::attach( const UUID& id, const uint32_t instanceID )
+void Config::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -1065,19 +1065,19 @@ void Config::deregisterObject( co::Object* object )
     client->waitRequest( requestID );
 }
 
-bool Config::mapObject( co::Object* object, const UUID& id,
+bool Config::mapObject( co::Object* object, const uint128_t& id,
                         const uint128_t& version )
 {
     return mapObjectSync( mapObjectNB( object, id, version ));
 }
 
-uint32_t Config::mapObjectNB( co::Object* object, const UUID& id,
+uint32_t Config::mapObjectNB( co::Object* object, const uint128_t& id,
                               const uint128_t& version )
 {
     return getClient()->mapObjectNB( object, id, version );
 }
 
-uint32_t Config::mapObjectNB( co::Object* object, const UUID& id,
+uint32_t Config::mapObjectNB( co::Object* object, const uint128_t& id,
                               const uint128_t& version, co::NodePtr master )
 {
     return getClient()->mapObjectNB( object, id, version, master );
@@ -1131,7 +1131,7 @@ bool Config::_cmdCreateNode( co::ICommand& cmd )
     LBVERB << "Handle create node " << command << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    LBCHECK( mapObject( node, command.get< UUID >( )));
+    LBCHECK( mapObject( node, command.get< uint128_t >( )));
     return true;
 }
 
@@ -1141,7 +1141,7 @@ bool Config::_cmdDestroyNode( co::ICommand& cmd )
 
     LBVERB << "Handle destroy node " << command << std::endl;
 
-    Node* node = _findNode( command.get< UUID >( ));
+    Node* node = _findNode( command.get< uint128_t >( ));
     LBASSERT( node );
     if( !node )
         return true;

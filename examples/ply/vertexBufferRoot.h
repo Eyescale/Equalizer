@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,52 +25,54 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
-#ifndef PLYLIB_VERTEXBUFFERLEAF_H
-#define PLYLIB_VERTEXBUFFERLEAF_H
 
-#include "vertexBufferBase.h"
+#ifndef PLYLIB_VERTEXBUFFERROOT_H
+#define PLYLIB_VERTEXBUFFERROOT_H
 
-namespace plylib
+#include"api.h"
+#include "vertexBufferData.h"
+#include "vertexBufferNode.h"
+
+
+namespace ply
 {
-/*  The class for kd-tree leaf nodes.  */
-class VertexBufferLeaf : public VertexBufferBase
+/*  The class for kd-tree root nodes.  */
+class VertexBufferRoot : public VertexBufferNode
 {
 public:
-    VertexBufferLeaf( VertexBufferData& data )
-        : _globalData( data ), _vertexStart( 0 ),
-          _indexStart( 0 ), _indexLength( 0 ) {}
-    virtual ~VertexBufferLeaf() {}
+    PLYLIB_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
 
-    virtual void draw( VertexBufferState& state ) const;
-    virtual Index getNumberOfVertices() const { return _indexLength; }
+    PLYLIB_API virtual void cullDraw( VertexBufferState& state ) const;
+    PLYLIB_API virtual void draw( VertexBufferState& state ) const;
+
+    PLYLIB_API void setupTree( VertexData& data );
+    PLYLIB_API bool writeToFile( const std::string& filename );
+    PLYLIB_API bool readFromFile( const std::string& filename );
+    bool hasColors() const { return _data.colors.size() > 0; }
+
+    void useInvertedFaces() { _invertFaces = true; }
+
+    const std::string& getName() const { return _name; }
 
 protected:
-    virtual void toStream( std::ostream& os );
-    virtual void fromMemory( char** addr, VertexBufferData& globalData );
-
-    virtual void setupTree( VertexData& data, const Index start,
-                            const Index length, const Axis axis,
-                            const size_t depth,
-                            VertexBufferData& globalData );
-    virtual const BoundingSphere& updateBoundingSphere();
-    virtual void updateRange();
+    PLYLIB_API virtual void toStream( std::ostream& os );
+    PLYLIB_API virtual void fromMemory( char* start );
 
 private:
-    void setupRendering( VertexBufferState& state, GLuint* data ) const;
-    void renderImmediate( VertexBufferState& state ) const;
-    void renderDisplayList( VertexBufferState& state ) const;
-    void renderBufferObject( VertexBufferState& state ) const;
+    bool _constructFromPly( const std::string& filename );
+    bool _readBinary( std::string filename );
+
+    void _beginRendering( VertexBufferState& state ) const;
+    void _endRendering( VertexBufferState& state ) const;
 
     friend class VertexBufferDist;
-    VertexBufferData&   _globalData;
-    BoundingBox         _boundingBox;
-    Index               _vertexStart;
-    Index               _indexStart;
-    Index               _indexLength;
-    ShortIndex          _vertexLength;
+    VertexBufferData _data;
+    bool             _invertFaces;
+    std::string      _name;
 };
 }
 
-#endif // PLYLIB_VERTEXBUFFERLEAF_H
+
+#endif // PLYLIB_VERTEXBUFFERROOT_H

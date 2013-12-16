@@ -36,22 +36,22 @@
 
 #include <co/co.h>
 
-namespace plylib
+namespace ply
 {
 /** Uses co::Object to distribute a model, holds a VertexBufferBase node. */
 class VertexBufferDist : public co::Object
 {
 public:
     PLYLIB_API VertexBufferDist();
-    PLYLIB_API VertexBufferDist( plylib::VertexBufferRoot* root );
+    PLYLIB_API VertexBufferDist( ply::VertexBufferRoot* root );
     PLYLIB_API virtual ~VertexBufferDist();
 
     PLYLIB_API void registerTree( co::LocalNodePtr node );
     PLYLIB_API void deregisterTree();
 
-    PLYLIB_API plylib::VertexBufferRoot* loadModel( co::NodePtr master,
+    PLYLIB_API ply::VertexBufferRoot* loadModel( co::NodePtr master,
                                                     co::LocalNodePtr localNode,
-                                                    const eq::UUID& modelID );
+                                                    const eq::uint128_t& modelID );
 protected:
     PLYLIB_API VertexBufferDist( VertexBufferRoot* root,
                                  VertexBufferBase* node );

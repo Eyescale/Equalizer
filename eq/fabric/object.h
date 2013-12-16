@@ -149,7 +149,7 @@ protected:
     EQFABRIC_API void postRemove( Object* child );
 
     /** @internal Execute the slave remove request. @sa postRemove */
-    virtual void removeChild( const UUID& ) { LBUNIMPLEMENTED; }
+    virtual void removeChild( const uint128_t& ) { LBUNIMPLEMENTED; }
 
     /** @internal commit, register child slave instance with the server. */
     template< class C, class S >
@@ -212,7 +212,7 @@ private:
     uint32_t _serial;
 
     /** The identifiers of removed children since the last slave commit. */
-    std::vector< UUID > _removedChildren;
+    std::vector< uint128_t > _removedChildren;
 
     struct Private;
     Private* _private; // placeholder for binary-compatible changes
@@ -234,8 +234,7 @@ Object::commitChild( C* child, S* sender, uint32_t cmd,
 
         uint128_t identifier;
         localNode->waitRequest( requestID, identifier );
-        LBCHECK( localNode->mapObject( child, co::UUID( identifier ),
-                                       co::VERSION_NONE ));
+        LBCHECK( localNode->mapObject( child, identifier, co::VERSION_NONE ));
     }
     child->commit( incarnation );
 }

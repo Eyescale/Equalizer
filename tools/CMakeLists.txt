@@ -47,7 +47,7 @@ eq_add_tool(eqThreadAffinity SOURCES threadAffinity/threadAffinity.cpp
 eq_add_tool(eqPlyConverter
   HEADERS
   SOURCES eqPlyConverter/main.cpp
-  LINK_LIBRARIES Equalizer plylib
+  LINK_LIBRARIES Equalizer ply
   )
 
 eq_add_tool(eVolveConverter

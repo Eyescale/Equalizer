@@ -92,7 +92,7 @@ Config::~Config()
     }
 }
 
-void Config::attach( const UUID& id, const uint32_t instanceID )
+void Config::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -373,7 +373,7 @@ void Config::releaseCanvas( Canvas* canvas )
     delete canvas;
 }
 
-template< class T > bool Config::_postDelete( const UUID& id )
+template< class T > bool Config::_postDelete( const uint128_t& id )
 {
     T* child = find< T >( id );
     if( !child )
@@ -383,7 +383,7 @@ template< class T > bool Config::_postDelete( const UUID& id )
     return true;
 }
 
-void Config::removeChild( const UUID& id )
+void Config::removeChild( const uint128_t& id )
 {
     LBASSERT( isRunning( ));
 
@@ -424,7 +424,7 @@ void Config::setApplicationNetNode( co::NodePtr netNode )
     {
         LBASSERT( _state == STATE_STOPPED );
         _state = STATE_UNUSED;
-        setAppNodeID( UUID( ));
+        setAppNodeID( uint128_t( ));
     }
 
     Node* node = findApplicationNode();
