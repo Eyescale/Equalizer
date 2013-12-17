@@ -94,6 +94,7 @@ int main( const int argc, char** argv )
     {
         client->disconnectServer( server );
         client->exitLocal();
+        eq::exit();
         return EXIT_SUCCESS;
     }
     TEST( config->init( co::uint128_t( )));
