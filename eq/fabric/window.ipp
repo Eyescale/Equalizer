@@ -97,7 +97,7 @@ void Window< P, W, C >::init()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::attach( const UUID& id,
+void Window< P, W, C >::attach( const uint128_t& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -274,7 +274,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 }
 
 template< class P, class W, class C >
-C* Window< P, W, C >::_findChannel( const UUID& id )
+C* Window< P, W, C >::_findChannel( const uint128_t& id )
 {
     for( typename Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
@@ -466,7 +466,7 @@ bool Window< P, W, C >::_cmdNewChannelReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
-    const UUID result = command.get< UUID >();
+    const uint128_t& result = command.get< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

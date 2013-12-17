@@ -25,48 +25,52 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
-#ifndef PLYLIB_VERTEXBUFFERNODE_H
-#define PLYLIB_VERTEXBUFFERNODE_H
+#ifndef PLYLIB_VERTEXBUFFERLEAF_H
+#define PLYLIB_VERTEXBUFFERLEAF_H
 
-#include "api.h"
 #include "vertexBufferBase.h"
 
-namespace plylib
+namespace ply
 {
-/* The class for regular (non-leaf) kd-tree nodes.  */
-class VertexBufferNode : public VertexBufferBase
+/*  The class for kd-tree leaf nodes.  */
+class VertexBufferLeaf : public VertexBufferBase
 {
 public:
-    VertexBufferNode() : _left( 0 ), _right( 0 ) {}
-    PLYLIB_API virtual ~VertexBufferNode();
+    VertexBufferLeaf( VertexBufferData& data )
+        : _globalData( data ), _vertexStart( 0 ),
+          _indexStart( 0 ), _indexLength( 0 ) {}
+    virtual ~VertexBufferLeaf() {}
 
-    PLYLIB_API void draw( VertexBufferState& state ) const override;
-    Index getNumberOfVertices() const override
-        { return _left->getNumberOfVertices()+_right->getNumberOfVertices(); }
-
-    const VertexBufferBase* getLeft() const override { return _left; }
-    const VertexBufferBase* getRight() const override { return _right; }
-    VertexBufferBase* getLeft() override { return _left; }
-    VertexBufferBase* getRight() override { return _right; }
+    virtual void draw( VertexBufferState& state ) const;
+    virtual Index getNumberOfVertices() const { return _indexLength; }
 
 protected:
-    PLYLIB_API void toStream( std::ostream& os ) override;
-    PLYLIB_API void fromMemory( char** addr, VertexBufferData& globalData )
-        override;
+    virtual void toStream( std::ostream& os );
+    virtual void fromMemory( char** addr, VertexBufferData& globalData );
 
-    PLYLIB_API void setupTree( VertexData& data, const Index start,
-                               const Index length, const Axis axis,
-                               const size_t depth,
-                               VertexBufferData& globalData ) override;
-    PLYLIB_API const BoundingSphere& updateBoundingSphere() override;
-    PLYLIB_API void updateRange() override;
+    virtual void setupTree( VertexData& data, const Index start,
+                            const Index length, const Axis axis,
+                            const size_t depth,
+                            VertexBufferData& globalData );
+    virtual const BoundingSphere& updateBoundingSphere();
+    virtual void updateRange();
 
 private:
+    void setupRendering( VertexBufferState& state, GLuint* data ) const;
+    void renderImmediate( VertexBufferState& state ) const;
+    void renderDisplayList( VertexBufferState& state ) const;
+    void renderBufferObject( VertexBufferState& state ) const;
+
     friend class VertexBufferDist;
-    VertexBufferBase*   _left;
-    VertexBufferBase*   _right;
+    VertexBufferData&   _globalData;
+    BoundingBox         _boundingBox;
+    Index               _vertexStart;
+    Index               _indexStart;
+    Index               _indexLength;
+    ShortIndex          _vertexLength;
 };
 }
-#endif // PLYLIB_VERTEXBUFFERNODE_H
+
+#endif // PLYLIB_VERTEXBUFFERLEAF_H

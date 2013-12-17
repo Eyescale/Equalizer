@@ -163,12 +163,12 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _tasks;
     if( dirtyBits & DIRTY_REMOVED )
     {
-        std::vector< UUID > removed;
+        std::vector< uint128_t > removed;
         is >> removed;
         if( !removed.empty( ))
         {
             LBASSERT( isMaster( ));
-            std::vector< UUID >::const_iterator i = removed.begin();
+            std::vector< uint128_t >::const_iterator i = removed.begin();
             for( ; i != removed.end(); ++i )
             {
                 removeChild( *i );

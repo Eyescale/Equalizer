@@ -210,7 +210,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
     if( !config )
     {
         node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY )
-            << UUID() << requestID;
+            << uint128_t() << requestID;
         return true;
     }
 
@@ -253,7 +253,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
 
 bool Server::_cmdReleaseConfig( co::ICommand& command )
 {
-    UUID configID = command.get< UUID >();
+    uint128_t configID = command.get< uint128_t >();
     uint32_t requestID = command.get< uint32_t >();
 
     LBVERB << "Handle release config " << command << " config " << configID

@@ -36,7 +36,7 @@ FrameData::FrameData()
         : _rotation( eq::Matrix4f::ZERO )
         , _modelRotation( eq::Matrix4f::ZERO )
         , _position( eq::Vector3f::ZERO )
-        , _renderMode( plylib::RENDER_MODE_DISPLAY_LIST )
+        , _renderMode( ply::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
         , _ortho( false )
@@ -80,7 +80,7 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _message;
 }
 
-void FrameData::setModelID( const eq::UUID& id )
+void FrameData::setModelID( const eq::uint128_t& id )
 {
     if( _modelID == id )
         return;
@@ -95,7 +95,7 @@ void FrameData::setColorMode( const ColorMode mode )
     setDirty( DIRTY_FLAGS );
 }
 
-void FrameData::setRenderMode( const plylib::RenderMode mode )
+void FrameData::setRenderMode( const ply::RenderMode mode )
 {
     _renderMode = mode;
     setDirty( DIRTY_FLAGS );
@@ -157,8 +157,8 @@ void FrameData::togglePilotMode()
 
 void FrameData::toggleRenderMode()
 {
-    _renderMode = static_cast< plylib::RenderMode >(
-        ( _renderMode + 1) % plylib::RENDER_MODE_ALL );
+    _renderMode = static_cast< ply::RenderMode >(
+        ( _renderMode + 1) % ply::RENDER_MODE_ALL );
 
     LBINFO << "Switched to " << _renderMode << std::endl;
     setDirty( DIRTY_FLAGS );

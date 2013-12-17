@@ -31,8 +31,9 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/paths.h>
-
 #include <co/objectICommand.h>
+
+#include <boost/foreach.hpp>
 
 namespace eq
 {
@@ -64,7 +65,7 @@ Window::~Window()
 {
 }
 
-void Window::attach( const UUID& id, const uint32_t instanceID )
+void Window::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -77,7 +78,7 @@ void Window::attach( const UUID& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdConfigExitReply ), cmdQ );
 }
 
-void Window::removeChild( const UUID& id )
+void Window::removeChild( const uint128_t& id )
 {
     LBASSERT( getConfig()->isRunning( ));
 
@@ -198,15 +199,14 @@ void Window::_resetSwapBarriers()
     Node* node = getNode();
     LBASSERT( node );
 
-    for( std::vector< co::Barrier* >::iterator i = _masterSwapBarriers.begin();
-         i != _masterSwapBarriers.end(); ++i )
+    BOOST_FOREACH( co::Barrier* barrier, _masterBarriers )
     {
-        node->releaseBarrier( *i );
+        node->releaseBarrier( barrier );
     }
 
     _nvNetBarrier = 0;
-    _masterSwapBarriers.clear();
-    _swapBarriers.clear();
+    _masterBarriers.clear();
+    _barriers.clear();
 }
 
 co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
@@ -219,13 +219,13 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
         barrier = node->getBarrier();
         barrier->increase();
 
-        _masterSwapBarriers.push_back( barrier );
-        _swapBarriers.push_back( barrier );
+        _masterBarriers.push_back( barrier );
+        _barriers.push_back( barrier );
         return barrier;
     }
 
-    co::BarriersCIter i = lunchbox::find( _swapBarriers, barrier );
-    if( i != _swapBarriers.end( )) // Issue #39: window already has this barrier
+    co::BarriersCIter i = lunchbox::find( _barriers, barrier );
+    if( i != _barriers.end( )) // Issue #39: window already has this barrier
         return barrier;
 
     LBASSERT( getPipe() );
@@ -242,7 +242,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
             continue;
         }
 
-        co::Barriers& barriers = window->_swapBarriers;
+        co::Barriers& barriers = window->_barriers;
         co::BarriersIter k = lunchbox::find( barriers, barrier );
         if( k == barriers.end( ))
             continue;
@@ -252,13 +252,13 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
 
         // else we will do the barrier, remove from later window
         barriers.erase( k );
-        _swapBarriers.push_back( barrier );
+        _barriers.push_back( barrier );
         return barrier;
     }
 
     // No other window on this pipe does the barrier yet
     barrier->increase();
-    _swapBarriers.push_back( barrier );
+    _barriers.push_back( barrier );
     return barrier;
 }
 
@@ -276,11 +276,11 @@ co::Barrier* Window::joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
     {
         Node* node = getNode();
         _nvNetBarrier = node->getBarrier();
-        _masterSwapBarriers.push_back( _nvNetBarrier );
+        _masterBarriers.push_back( _nvNetBarrier );
     }
 
     _nvNetBarrier->increase();
-    _swapBarriers.push_back( _nvNetBarrier );
+    _barriers.push_back( _nvNetBarrier );
     return _nvNetBarrier;
 }
 
@@ -434,8 +434,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         _maxFPS = std::numeric_limits< float >::max();
     }
 
-    for( co::BarriersCIter i = _swapBarriers.begin();
-         i != _swapBarriers.end(); ++i )
+    for( co::BarriersCIter i = _barriers.begin(); i != _barriers.end(); ++i )
     {
         const co::Barrier* barrier = *i;
         if( barrier->getHeight() <= 1 )
@@ -462,7 +461,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
             LBASSERT( _nvSwapBarrier );
             LBASSERT( _nvSwapBarrier->isNvSwapBarrier( ));
             // Entering the NV_swap_group. The _nvNetBarrier is also part of
-            // _swapBarriers, which means that the pre-join was already sync'ed
+            // _barriers, which means that the pre-join was already sync'ed
             // with a barrier.
 
             // Now enter the swap group and post-sync with the barrier again.

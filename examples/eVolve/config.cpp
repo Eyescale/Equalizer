@@ -73,7 +73,7 @@ bool Config::init()
     return true;
 }
 
-bool Config::loadInitData( const eq::UUID& id )
+bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
     return getClient()->syncObject( &_initData, getApplicationNode(), id );
@@ -92,7 +92,7 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( co::UUID( ));
+    _initData.setFrameDataID( co::uint128_t( ));
 }
 
 
@@ -100,7 +100,7 @@ uint32_t Config::startFrame()
 {
     // update database
     _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
-    const lunchbox::uint128_t& version = _frameData.commit();
+    const eq::uint128_t& version = _frameData.commit();
 
     _resetMessage();
 
@@ -128,7 +128,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
-            const lunchbox::UUID& viewID = event->data.context.view.identifier;
+            const eq::uint128_t& viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == 0 )
             {

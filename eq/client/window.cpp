@@ -83,7 +83,7 @@ Window::~Window()
     LBASSERT( getChannels().empty( ));
 }
 
-void Window::attach( const UUID& id, const uint32_t instanceID )
+void Window::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -590,6 +590,8 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
                              << std::endl;
     Node* node = getNode();
     co::Barrier* netBarrier = node->getBarrier( barrier );
+    if( !netBarrier )
+        return;
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     Config* config = getConfig();
@@ -757,7 +759,7 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 bool Window::_cmdCreateChannel( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const UUID channelID = command.get< UUID >();
+    const uint128_t& channelID = command.get< uint128_t >();
 
     LBLOG( LOG_INIT ) << "Create channel " << command  << " id " << channelID
                       << std::endl;
@@ -777,7 +779,7 @@ bool Window::_cmdDestroyChannel( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
 
-    Channel* channel = _findChannel( command.get< UUID >( ));
+    Channel* channel = _findChannel( command.get< uint128_t >( ));
     LBASSERT( channel );
 
     const bool stopped = channel->isStopped();

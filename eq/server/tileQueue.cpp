@@ -135,13 +135,13 @@ void TileQueue::unsetData()
     }
 }
 
-const UUID TileQueue::getQueueMasterID( const Eye eye ) const
+uint128_t TileQueue::getQueueMasterID( const Eye eye ) const
 {
     uint32_t index = lunchbox::getIndexOfLastBit(eye);
     LatencyQueue* queue = _queueMaster[ index ];
     if ( queue )
         return queue->_queue.getID();
-    return UUID();
+    return uint128_t();
 }
 
 std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )

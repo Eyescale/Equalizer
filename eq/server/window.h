@@ -173,10 +173,10 @@ namespace server
     protected:
 
         /** @sa net::Object::attach. */
-        virtual void attach( const UUID& id, const uint32_t instanceID );
+        virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const UUID& id );
+        virtual void removeChild( const uint128_t& id );
 
     private:
 
@@ -190,9 +190,9 @@ namespace server
         float _maxFPS;
 
         /** The list of master swap barriers for the current frame. */
-        co::Barriers _masterSwapBarriers;
+        co::Barriers _masterBarriers;
         /** The list of slave swap barriers for the current frame. */
-        co::Barriers _swapBarriers;
+        co::Barriers _barriers;
 
         /** The hardware swap barrier to use. */
         SwapBarrierConstPtr _nvSwapBarrier;

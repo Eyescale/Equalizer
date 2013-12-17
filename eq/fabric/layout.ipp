@@ -60,7 +60,7 @@ Layout< C, L, V >::~Layout()
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::attach( const UUID& id,
+void Layout< C, L, V >::attach( const uint128_t& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -311,7 +311,7 @@ Layout< C, L, V >::_cmdNewViewReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
     const uint32_t requestID = command.get< uint32_t >();
-    const UUID result = command.get< UUID >();
+    const uint128_t& result = command.get< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

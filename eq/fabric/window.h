@@ -182,7 +182,7 @@ namespace fabric
 
         EQFABRIC_INL virtual ~Window(); //!< @internal
         /** @internal */
-        virtual void attach( const UUID& id,
+        virtual void attach( const uint128_t& id,
                              const uint32_t instanceID );
 
         /** @internal */
@@ -203,7 +203,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-        C* _findChannel( const UUID& id ); //!< @internal
+        C* _findChannel( const uint128_t& id ); //!< @internal
 
         /** @internal */
         enum DirtyBits

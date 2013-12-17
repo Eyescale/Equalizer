@@ -92,7 +92,7 @@ Node::~Node()
 {
 }
 
-void Node::attach( const UUID& id, const uint32_t instanceID )
+void Node::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -655,13 +655,18 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 co::Barrier* Node::getBarrier()
 {
-    if( _barriers.empty() )
-        return new co::Barrier( _node );
+    if( _barriers.empty( ))
+    {
+        co::Barrier* barrier = new co::Barrier( getServer(),
+                                                _node->getNodeID( ));
+        barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
+        return barrier;
+    }
     // else
 
     co::Barrier* barrier = _barriers.back();
     _barriers.pop_back();
-    barrier->setHeight(0);
+    barrier->setHeight( 0 );
     return barrier;
 }
 
@@ -682,13 +687,8 @@ void Node::releaseBarrier( co::Barrier* barrier )
 
 void Node::_flushBarriers()
 {
-    for( std::vector< co::Barrier* >::const_iterator i =_barriers.begin();
-         i != _barriers.end(); ++ i )
-    {
-        co::Barrier* barrier = *i;
-        getServer()->deregisterObject( barrier );
-        delete barrier;
-    }
+    for( co::BarriersCIter i =_barriers.begin(); i != _barriers.end(); ++i )
+        delete *i;
     _barriers.clear();
 }
 
@@ -712,7 +712,7 @@ co::ObjectOCommand Node::send( const uint32_t cmd )
     return send( cmd, getID( ));
 }
 
-co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
+co::ObjectOCommand Node::send( const uint32_t cmd, const uint128_t& id )
 {
     return co::ObjectOCommand( co::Connections( 1, _bufferedTasks ), cmd,
                                co::COMMANDTYPE_OBJECT, id, CO_INSTANCE_ALL );

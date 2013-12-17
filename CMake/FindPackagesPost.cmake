@@ -2,9 +2,6 @@
 # Copyright (c) 2013 Stefan Eilemann <eile@eyescale.ch>
 
 # additional compile-time definitions
-if(HWLOC_GL_FOUND)
-  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_HWLOC_GL)
-endif()
 
 list(APPEND FIND_PACKAGES_DEFINES GLEW_MX) # always define GLEW_MX
 list(APPEND FIND_PACKAGES_DEFINES GLEW_NO_GLU)
@@ -54,7 +51,14 @@ if(MAGELLAN_FOUND AND NOT EQ_AGL_USED)
   list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_MAGELLAN_GLX)
 endif()
 
-option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
 if(NOT EQUALIZER_USE_OSG)
   set(OPENSCENEGRAPH_FOUND)
+endif()
+
+if(NOT EQUALIZER_USE_HWLOC)
+  set(HWLOC_FOUND)
+  set(HWLOC_GL_FOUND)
+endif()
+if(HWLOC_GL_FOUND)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_HWLOC_GL)
 endif()

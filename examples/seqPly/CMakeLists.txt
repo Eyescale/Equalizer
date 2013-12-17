@@ -20,5 +20,5 @@ eq_add_example(seqPly
     ../eqPly/frameData.cpp
   LINK_LIBRARIES
     ${EQUALIZER_SEQUEL_LIBRARY}
-    plylib
+    ply
   )

@@ -40,12 +40,12 @@ namespace eqPly
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const eq::UUID& id )
+        void setFrameDataID( const eq::uint128_t& id )
             { _frameDataID = id; }
 
-        eq::UUID getFrameDataID() const  { return _frameDataID; }
+        eq::uint128_t getFrameDataID() const  { return _frameDataID; }
         eq::WindowSystem   getWindowSystem() const  { return _windowSystem; }
-        plylib::RenderMode getRenderMode() const    { return _renderMode; }
+        ply::RenderMode getRenderMode() const       { return _renderMode; }
         bool               useGLSL() const          { return _useGLSL; }
         bool               useInvertedFaces() const { return _invFaces; }
         bool               showLogo() const         { return _logo; }
@@ -57,7 +57,7 @@ namespace eqPly
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }
-        void setRenderMode( const plylib::RenderMode renderMode )
+        void setRenderMode( const ply::RenderMode renderMode )
             { _renderMode = renderMode; }
         void enableGLSL()          { _useGLSL  = true; }
         void enableInvertedFaces() { _invFaces = true; }
@@ -65,9 +65,9 @@ namespace eqPly
         void disableROI()          { _roi      = false; }
 
     private:
-        eq::UUID         _frameDataID;
+        eq::uint128_t    _frameDataID;
         eq::WindowSystem _windowSystem;
-        plylib::RenderMode _renderMode;
+        ply::RenderMode  _renderMode;
         bool             _useGLSL;
         bool             _invFaces;
         bool             _logo;

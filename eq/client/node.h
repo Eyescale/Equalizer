@@ -74,7 +74,7 @@ public:
      * @param barrier the barrier identifier and version.
      * @return the barrier.
      */
-    co::Barrier* getBarrier( const co::ObjectVersion barrier );
+    co::Barrier* getBarrier( const co::ObjectVersion& barrier );
 
     /**
      * @internal
@@ -147,7 +147,7 @@ public:
 
 protected:
     /** @internal */
-    EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
+    EQ_API virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
     /** @name Actions */
     //@{

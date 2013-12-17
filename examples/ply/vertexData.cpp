@@ -40,7 +40,7 @@ using __gnu_parallel::sort;
 using std::sort;
 #endif
 
-using namespace plylib;
+using namespace ply;
 
 /*  Contructor.  */
 VertexData::VertexData()

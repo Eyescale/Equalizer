@@ -29,7 +29,7 @@ namespace detail
     public:
         SlaveConfig( eq::ServerPtr parent ) : Config( parent ) {}
 
-        virtual bool mapData( const UUID& initID );
+        virtual bool mapData( const uint128_t& initID );
         virtual void syncData( const uint128_t& version );
         virtual void unmapData();
 

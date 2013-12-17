@@ -257,7 +257,7 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attach( const UUID& id, const uint32_t instanceID )
+void Pipe::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -344,12 +344,16 @@ int32_t Pipe::_getAutoAffinity() const
         device = 0;
 
     hwloc_topology_t topology;
-    hwloc_topology_init( &topology );
+    if( hwloc_topology_init( &topology ) < 0 )
+    {
+        LBINFO << "Automatic pipe thread placement failed: "
+               << "hwloc_topology_init() failed" << std::endl;
+        return lunchbox::Thread::NONE;
+    }
 
-    // Flags used for loading the I/O devices,  bridges and their relevant info
+    // Load I/O devices, bridges and their relevant info
     const unsigned long loading_flags = HWLOC_TOPOLOGY_FLAG_IO_BRIDGES |
                                         HWLOC_TOPOLOGY_FLAG_IO_DEVICES;
-    // Set discovery flags
     if( hwloc_topology_set_flags( topology, loading_flags ) < 0 )
     {
         LBINFO << "Automatic pipe thread placement failed: "
@@ -378,7 +382,7 @@ int32_t Pipe::_getAutoAffinity() const
     }
 
     const hwloc_obj_t pcidev = osdev->parent;
-    const hwloc_obj_t parent = hwloc_get_non_io_ancestor_obj( topology, pcidev );
+    const hwloc_obj_t parent = hwloc_get_non_io_ancestor_obj( topology, pcidev);
     const int numCpus =
         hwloc_get_nbobjs_inside_cpuset_by_type( topology, parent->cpuset,
                                                 HWLOC_OBJ_SOCKET );
@@ -554,7 +558,7 @@ void Pipe::flushFrames( util::ObjectManager& om )
     _impl->outputFrameDatas.clear();
 }
 
-co::QueueSlave* Pipe::getQueue( const UUID& queueID )
+co::QueueSlave* Pipe::getQueue( const uint128_t& queueID )
 {
     LB_TS_THREAD( _pipeThread );
     if( queueID == 0 )
@@ -996,7 +1000,7 @@ ComputeContext* Pipe::getComputeContext()
 bool Pipe::_cmdCreateWindow( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const UUID windowID = command.get< UUID >();
+    const uint128_t& windowID = command.get< uint128_t >();
 
     LBLOG( LOG_INIT ) << "Create window " << command << " id " << windowID
                       << std::endl;
@@ -1016,7 +1020,7 @@ bool Pipe::_cmdDestroyWindow( co::ICommand& cmd )
 
     LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
 
-    Window* window = _findWindow( command.get< UUID >( ));
+    Window* window = _findWindow( command.get< uint128_t >( ));
     LBASSERT( window );
 
     // re-set shared windows accordingly

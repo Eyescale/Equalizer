@@ -46,8 +46,8 @@ namespace detail
                                   const uint64_t dirtyBits );
 
     private:
-        UUID _initData;
-        UUID _frameData;
+        uint128_t _initData;
+        uint128_t _frameData;
 
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits

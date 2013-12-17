@@ -97,7 +97,7 @@ Config< S, C, O, L, CV, N, V >::~Config()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::attach( const UUID& id,
+void Config< S, C, O, L, CV, N, V >::attach( const uint128_t& id,
                                              const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -886,7 +886,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
-    const UUID result = command.get< UUID >();
+    const uint128_t& result = command.get< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

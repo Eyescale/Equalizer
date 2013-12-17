@@ -99,8 +99,7 @@ public:
      * @param farPlane the far plane.
      * @version 1.0
      */
-    EQFABRIC_INL void setNearFar( const float nearPlane,
-                                  const float farPlane);
+    EQFABRIC_INL void setNearFar( const float nearPlane, const float farPlane );
 
     /**
      * @return the channel's framebuffer attachment configuration.

@@ -39,6 +39,9 @@ namespace detail
         const Frustumf& getFrustum() const;
         const Matrix4f& getViewMatrix() const;
         const Matrix4f& getModelMatrix() const;
+
+        bool useOrtho() const;
+        void setNearFar( const float nearPlane, const float farPlane );
         //@}
 
         /** @name Current context. */

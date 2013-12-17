@@ -108,7 +108,7 @@ if(OPENSCENEGRAPH_FOUND)
   add_subdirectory(osgScaleViewer)
 endif()
 
-add_subdirectory(plylib)
+add_subdirectory(ply)
 add_subdirectory(eVolve)
 add_subdirectory(eqAsync)
 add_subdirectory(eqHello)

@@ -54,7 +54,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         return false;
 
     Config* config = static_cast<Config*>( getConfig( ));
-    if( !isApplicationNode() && !config->loadInitData( co::UUID( initID )))
+    if( !isApplicationNode() && !config->loadInitData( initID ))
         return false;
 
     _frameStamp = new osg::FrameStamp;

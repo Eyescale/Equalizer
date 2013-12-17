@@ -43,7 +43,7 @@ eq_add_example(eqPly
     vertexShader.glsl
     fragmentShader.glsl
   LINK_LIBRARIES
-    ${EQUALIZER_ADMIN_LIBRARY} plylib
+    ${EQUALIZER_ADMIN_LIBRARY} ply
   )
 
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)

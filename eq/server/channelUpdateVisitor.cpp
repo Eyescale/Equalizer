@@ -252,7 +252,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
     {
         const TileQueue* inputQueue = *i;
         const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
-        const UUID& id = outputQueue->getQueueMasterID( context.eye );
+        const uint128_t& id = outputQueue->getQueueMasterID( context.eye );
         LBASSERT( id != 0 );
 
         const bool isLocal = (_channel == destChannel);

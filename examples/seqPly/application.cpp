@@ -206,7 +206,7 @@ void Application::_unloadModel()
     _model = 0;
 }
 
-const Model* Application::getModel( const eq::UUID& modelID )
+const Model* Application::getModel( const eq::uint128_t& modelID )
 {
     if( modelID == 0 )
         return 0;

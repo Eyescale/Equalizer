@@ -27,7 +27,7 @@ namespace fabric
 {
 struct ToNodes
 {
-    std::vector< UUID > inputNodes;
+    std::vector< uint128_t > inputNodes;
     std::vector< co::NodeID > inputNetNodes;
 };
 
@@ -123,7 +123,7 @@ const co::ObjectVersion& Frame::getDataVersion( const Eye eye ) const
     return _impl->frameDataVersion[ lunchbox::getIndexOfLastBit( eye )];
 }
 
-const std::vector< UUID >& Frame::getInputNodes( const Eye eye ) const
+const std::vector< uint128_t >& Frame::getInputNodes( const Eye eye ) const
 {
     return _impl->toNodes[ lunchbox::getIndexOfLastBit( eye )].inputNodes;
 }
@@ -133,7 +133,7 @@ const std::vector< co::NodeID >& Frame::getInputNetNodes(const Eye eye) const
     return _impl->toNodes[ lunchbox::getIndexOfLastBit( eye )].inputNetNodes;
 }
 
-std::vector< UUID >& Frame::_getInputNodes( const unsigned i )
+std::vector< uint128_t >& Frame::_getInputNodes( const unsigned i )
 {
     return _impl->toNodes[ i ].inputNodes;
 }

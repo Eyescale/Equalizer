@@ -56,7 +56,7 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
 void ObjectMap::setInitData( co::Object* object )
 {
-    const UUID identifier = object ? object->getID() : UUID();
+    const uint128_t identifier = object ? object->getID() : uint128_t();
     if( _initData == identifier )
         return;
 
@@ -66,7 +66,7 @@ void ObjectMap::setInitData( co::Object* object )
 
 void ObjectMap::setFrameData( co::Object* object )
 {
-    const UUID identifier = object ? object->getID() : UUID();
+    const uint128_t identifier = object ? object->getID() : uint128_t();
     if( _frameData == identifier )
         return;
 

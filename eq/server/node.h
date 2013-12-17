@@ -168,7 +168,7 @@ namespace server
         //@}
 
         co::ObjectOCommand send( const uint32_t cmd );
-        co::ObjectOCommand send( const uint32_t cmd, const UUID& id );
+        co::ObjectOCommand send( const uint32_t cmd, const uint128_t& id );
         EventOCommand sendError( const uint32_t error );
 
         void flushSendBuffer();
@@ -237,7 +237,7 @@ namespace server
     protected:
 
         /** @sa co::Object::attach. */
-        virtual void attach( const UUID& id, const uint32_t instanceID );
+        virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
     private:
         /** String attributes. */

@@ -135,7 +135,7 @@ Node::~Node()
     delete impl_;
 }
 
-void Node::attach( const UUID& id, const uint32_t instanceID )
+void Node::attach( const uint128_t& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -213,7 +213,7 @@ uint32_t Node::getFinishedFrame() const
     return impl_->finishedFrame;
 }
 
-co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
+co::Barrier* Node::getBarrier( const co::ObjectVersion& barrier )
 {
     lunchbox::ScopedMutex<> mutex( impl_->barriers );
     co::Barrier* netBarrier = impl_->barriers.data[ barrier.identifier ];
@@ -224,9 +224,14 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
     {
         ClientPtr client = getClient();
 
-        netBarrier = new co::Barrier;
-        LBCHECK( client->mapObject( netBarrier, barrier ));
-
+        netBarrier = new co::Barrier( client, barrier );
+        if( !netBarrier->isGood( ))
+        {
+            LBCHECK( netBarrier->isGood( ));
+            LBWARN << "Could not map swap barrier" << std::endl;
+            delete netBarrier;
+            return 0;
+        }
         impl_->barriers.data[ barrier.identifier ] = netBarrier;
     }
 
@@ -483,11 +488,9 @@ void Node::_flushObjects()
     {
         lunchbox::ScopedMutex<> mutex( impl_->barriers );
         for( BarrierHash::const_iterator i = impl_->barriers->begin();
-             i != impl_->barriers->end(); ++ i )
+             i != impl_->barriers->end(); ++i )
         {
-            co::Barrier* barrier = i->second;
-            client->unmapObject( barrier );
-            delete barrier;
+            delete i->second;
         }
         impl_->barriers->clear();
     }
@@ -538,7 +541,7 @@ bool Node::_cmdCreatePipe( co::ICommand& cmd )
     LBASSERT( impl_->state >= STATE_INIT_FAILED );
 
     co::ObjectICommand command( cmd );
-    const UUID pipeID = command.get< UUID >();
+    const uint128_t pipeID = command.get< uint128_t >();
     const bool threaded = command.get< bool >();
 
     LBLOG( LOG_INIT ) << "Create pipe " << command << " id " << pipeID
@@ -562,7 +565,7 @@ bool Node::_cmdDestroyPipe( co::ICommand& cmd )
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
-    Pipe* pipe = findPipe( command.get< UUID >( ));
+    Pipe* pipe = findPipe( command.get< uint128_t >( ));
     LBASSERT( pipe );
     pipe->exitThread();
 

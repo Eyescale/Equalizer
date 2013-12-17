@@ -57,7 +57,7 @@ bool Pipe::configInit( const eq::uint128_t& initID )
 
     Config*         config      = static_cast<Config*>( getConfig( ));
     const InitData& initData    = config->getInitData();
-    const lunchbox::UUID  frameDataID = initData.getFrameDataID();
+    const eq::uint128_t frameDataID = initData.getFrameDataID();
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     LBASSERT( mapped );

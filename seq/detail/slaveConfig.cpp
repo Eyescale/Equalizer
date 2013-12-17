@@ -26,7 +26,7 @@ namespace seq
 namespace detail
 {
 
-bool SlaveConfig::mapData( const UUID& initID )
+bool SlaveConfig::mapData( const uint128_t& initID )
 {
     LBASSERT( !_objects );
 
