@@ -371,7 +371,7 @@ void Compound::_fireChildRemove( Compound* child )
 //---------------------------------------------------------------------------
 void Compound::setSwapBarrier( SwapBarrierPtr barrier )
 {
-    if( barrier.isValid() && barrier->getName().empty( ))
+    if( barrier && barrier->getName().empty( ))
     {
         const Compound* root = getRoot();
         const std::string& rootName = root->getName();
@@ -1194,16 +1194,9 @@ void Compound::update( const uint32_t frameNumber )
     for( BarrierMapCIter i = swapBarriers.begin(); i != swapBarriers.end(); ++i)
     {
         co::Barrier* barrier = i->second;
-        if( barrier->isAttached( ))
-        {
-            if( barrier->getHeight() > 1 )
-                barrier->commit();
-        }
-        else
-        {
-            getServer()->registerObject( barrier );
-            barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
-        }
+        LBASSERT( barrier->isGood( ));
+        if( barrier->getHeight() > 1 )
+            barrier->commit();
     }
 }
 

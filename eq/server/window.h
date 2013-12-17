@@ -190,9 +190,9 @@ namespace server
         float _maxFPS;
 
         /** The list of master swap barriers for the current frame. */
-        co::Barriers _masterSwapBarriers;
+        co::Barriers _masterBarriers;
         /** The list of slave swap barriers for the current frame. */
-        co::Barriers _swapBarriers;
+        co::Barriers _barriers;
 
         /** The hardware swap barrier to use. */
         SwapBarrierConstPtr _nvSwapBarrier;

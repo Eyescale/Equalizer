@@ -74,7 +74,7 @@ public:
      * @param barrier the barrier identifier and version.
      * @return the barrier.
      */
-    co::Barrier* getBarrier( const co::ObjectVersion barrier );
+    co::Barrier* getBarrier( const co::ObjectVersion& barrier );
 
     /**
      * @internal

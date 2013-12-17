@@ -590,6 +590,8 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
                              << std::endl;
     Node* node = getNode();
     co::Barrier* netBarrier = node->getBarrier( barrier );
+    if( !netBarrier )
+        return;
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     Config* config = getConfig();

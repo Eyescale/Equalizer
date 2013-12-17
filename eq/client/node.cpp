@@ -213,7 +213,7 @@ uint32_t Node::getFinishedFrame() const
     return impl_->finishedFrame;
 }
 
-co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
+co::Barrier* Node::getBarrier( const co::ObjectVersion& barrier )
 {
     lunchbox::ScopedMutex<> mutex( impl_->barriers );
     co::Barrier* netBarrier = impl_->barriers.data[ barrier.identifier ];
@@ -224,9 +224,14 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
     {
         ClientPtr client = getClient();
 
-        netBarrier = new co::Barrier;
-        LBCHECK( client->mapObject( netBarrier, barrier ));
-
+        netBarrier = new co::Barrier( client, barrier );
+        if( !netBarrier->isGood( ))
+        {
+            LBCHECK( netBarrier->isGood( ));
+            LBWARN << "Could not map swap barrier" << std::endl;
+            delete netBarrier;
+            return 0;
+        }
         impl_->barriers.data[ barrier.identifier ] = netBarrier;
     }
 
@@ -483,11 +488,9 @@ void Node::_flushObjects()
     {
         lunchbox::ScopedMutex<> mutex( impl_->barriers );
         for( BarrierHash::const_iterator i = impl_->barriers->begin();
-             i != impl_->barriers->end(); ++ i )
+             i != impl_->barriers->end(); ++i )
         {
-            co::Barrier* barrier = i->second;
-            client->unmapObject( barrier );
-            delete barrier;
+            delete i->second;
         }
         impl_->barriers->clear();
     }
