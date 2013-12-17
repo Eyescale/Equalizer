@@ -9,6 +9,7 @@ script:
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Debug -DTRAVIS=1
  - env TRAVIS=1 make -j8 tests ARGS=-V
  - mkdir ../Release
+ - git status
  - cd ../Release
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Release -DTRAVIS=1
  - env TRAVIS=1 make -j8 tests ARGS=-V
