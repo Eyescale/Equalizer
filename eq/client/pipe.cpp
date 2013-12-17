@@ -344,12 +344,16 @@ int32_t Pipe::_getAutoAffinity() const
         device = 0;
 
     hwloc_topology_t topology;
-    hwloc_topology_init( &topology );
+    if( hwloc_topology_init( &topology ) < 0 )
+    {
+        LBINFO << "Automatic pipe thread placement failed: "
+               << "hwloc_topology_init() failed" << std::endl;
+        return lunchbox::Thread::NONE;
+    }
 
-    // Flags used for loading the I/O devices,  bridges and their relevant info
+    // Load I/O devices, bridges and their relevant info
     const unsigned long loading_flags = HWLOC_TOPOLOGY_FLAG_IO_BRIDGES |
                                         HWLOC_TOPOLOGY_FLAG_IO_DEVICES;
-    // Set discovery flags
     if( hwloc_topology_set_flags( topology, loading_flags ) < 0 )
     {
         LBINFO << "Automatic pipe thread placement failed: "
@@ -378,7 +382,7 @@ int32_t Pipe::_getAutoAffinity() const
     }
 
     const hwloc_obj_t pcidev = osdev->parent;
-    const hwloc_obj_t parent = hwloc_get_non_io_ancestor_obj( topology, pcidev );
+    const hwloc_obj_t parent = hwloc_get_non_io_ancestor_obj( topology, pcidev);
     const int numCpus =
         hwloc_get_nbobjs_inside_cpuset_by_type( topology, parent->cpuset,
                                                 HWLOC_OBJ_SOCKET );
