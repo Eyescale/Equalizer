@@ -29,7 +29,10 @@
 #include "application.h"
 
 #include "renderer.h"
+
+#pragma warning( disable: 4275 )
 #include <boost/program_options.hpp>
+#pragma warning( default: 4275 )
 
 #ifndef MIN
 #  define MIN LB_MIN
