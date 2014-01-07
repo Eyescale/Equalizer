@@ -78,6 +78,12 @@ function(EQ_ADD_EXAMPLE NAME)
   add_dependencies(${THIS_TARGET} ${EQUALIZER_SERVER_LIBRARY}) # dlopen'ed
 
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT apps)
+  if (MSVC)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${THIS_TARGET}.pdb
+      DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
+    install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${THIS_TARGET}.pdb
+      DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
+  endif() 
   install(FILES CMakeLists.txt ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS}
     DESTINATION share/Equalizer/examples/${NAME} COMPONENT examples)
 endfunction(EQ_ADD_EXAMPLE NAME)
