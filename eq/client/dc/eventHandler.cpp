@@ -26,7 +26,7 @@
 #include "../configEvent.h"
 
 #include <lunchbox/perThread.h>
-#include <dcStream.h>
+#include <dc/Stream.h>
 
 namespace eq
 {
@@ -99,11 +99,11 @@ void EventHandler::_processEvents( const Proxy* proxy )
     eq::Channel* channel = _proxy->getChannel();
     eq::Window* window = channel->getWindow();
 
-    while( _proxy->hasNewInteractionState( ))
+    while( _proxy->hasNewEvent( ))
     {
-        const InteractionState& state = _proxy->getInteractionState();
+        const ::dc::Event& dcEvent = _proxy->getEvent();
 
-        if( state.type == InteractionState::EVT_CLOSE )
+        if( dcEvent.type == ::dc::Event::EVT_CLOSE )
         {
             _proxy->stopRunning();
             ConfigEvent configEvent;
@@ -117,65 +117,63 @@ void EventHandler::_processEvents( const Proxy* proxy )
         event.serial = channel->getSerial();
         event.type = Event::UNKNOWN;
 
-        float x = state.mouseX;
-        float y = state.mouseY;
-        x *= pvp.w;
-        y *= pvp.h;
+        const float x = dcEvent.mouseX * pvp.w;
+        const float y = dcEvent.mouseY * pvp.h;
 
-        switch( state.type )
+        switch( dcEvent.type )
         {
-        case InteractionState::EVT_KEY_PRESS:
-        case InteractionState::EVT_KEY_RELEASE:
-            event.type = state.type == InteractionState::EVT_KEY_PRESS ?
+        case ::dc::Event::EVT_KEY_PRESS:
+        case ::dc::Event::EVT_KEY_RELEASE:
+            event.type = dcEvent.type == ::dc::Event::EVT_KEY_PRESS ?
                                           Event::KEY_PRESS : Event::KEY_RELEASE;
-            event.keyPress.key = state.key;
+            event.keyPress.key = dcEvent.key;
             break;
-        case InteractionState::EVT_PRESS:
-        case InteractionState::EVT_RELEASE:
-            event.type = state.type == InteractionState::EVT_PRESS ?
+        case ::dc::Event::EVT_PRESS:
+        case ::dc::Event::EVT_RELEASE:
+            event.type = dcEvent.type == ::dc::Event::EVT_PRESS ?
                                           Event::CHANNEL_POINTER_BUTTON_PRESS :
                                           Event::CHANNEL_POINTER_BUTTON_RELEASE;
             event.pointerButtonPress.x = x;
             event.pointerButtonPress.y = y;
 
-            if( state.mouseLeft )
+            if( dcEvent.mouseLeft )
                 event.pointerButtonPress.buttons |= PTR_BUTTON1;
-            if( state.mouseMiddle )
+            if( dcEvent.mouseMiddle )
                 event.pointerButtonPress.buttons |= PTR_BUTTON2;
-            if( state.mouseRight )
+            if( dcEvent.mouseRight )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
             event.pointerButtonPress.button = event.pointerButtonPress.buttons;
             _computePointerDelta( window, event );
             break;
-        case InteractionState::EVT_DOUBLECLICK:
+        case ::dc::Event::EVT_DOUBLECLICK:
             break;
-        case InteractionState::EVT_MOVE:
+        case ::dc::Event::EVT_MOVE:
             event.type = Event::CHANNEL_POINTER_MOTION;
             event.pointerMotion.x = x;
             event.pointerMotion.y = y;
 
-            if( state.mouseLeft )
+            if( dcEvent.mouseLeft )
                 event.pointerButtonPress.buttons |= PTR_BUTTON1;
-            if( state.mouseMiddle )
+            if( dcEvent.mouseMiddle )
                 event.pointerButtonPress.buttons |= PTR_BUTTON2;
-            if( state.mouseRight )
+            if( dcEvent.mouseRight )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
 
             event.pointerMotion.button = event.pointerMotion.buttons;
             _computePointerDelta( window, event );
             break;
-        case InteractionState::EVT_WHEEL:
+        case ::dc::Event::EVT_WHEEL:
             event.type = Event::CHANNEL_POINTER_WHEEL;
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
             event.pointerWheel.buttons = PTR_BUTTON_NONE;
-            if( state.dy != 0 )
-                event.pointerWheel.xAxis = state.dy > 0 ? 1 : -1;
-            if( state.dx != 0 )
-                event.pointerWheel.yAxis = state.dx > 0 ? 1 : -1;
+            if( dcEvent.dy != 0 )
+                event.pointerWheel.xAxis = dcEvent.dy > 0 ? 1 : -1;
+            if( dcEvent.dx != 0 )
+                event.pointerWheel.yAxis = dcEvent.dx > 0 ? 1 : -1;
             _computePointerDelta( window, event );
             break;
-        case InteractionState::EVT_NONE:
+        case ::dc::Event::EVT_NONE:
         default:
             break;
         }
