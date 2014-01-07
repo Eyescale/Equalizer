@@ -27,7 +27,7 @@
 #include <eq/util/objectManager.h>
 #include <eq/util/texture.h>
 
-#include <dcStream.h>
+#include <dc/Stream.h>
 #include <GL/gl.h>
 
 namespace eq
@@ -40,11 +40,9 @@ class Proxy
 {
 public:
     Proxy( eq::Channel* channel )
-        : _dcSocket( 0 )
+        : _dcStream( 0 )
         , _eventHandler( 0 )
         , _channel( channel )
-        , _buffer( 0 )
-        , _size( 0 )
         , _isRunning( false )
         , _texture( GL_TEXTURE_RECTANGLE_ARB, channel->getObjectManager().glewGetContext( ))
     {
@@ -58,19 +56,12 @@ public:
         }
 
         const std::string& dcHost = channel->getView()->getDisplayCluster();
-        _dcSocket = dcStreamConnect( dcHost.c_str(), false );
-        if( !_dcSocket )
+        _dcStream = new ::dc::Stream( _channel->getView()->getName(), dcHost);
+        if( !_dcStream->isConnected( ))
         {
             LBWARN << "Could not connect to DisplayCluster host: " << dcHost
                    << std::endl;
             return;
-        }
-
-        if( !dcStreamBindInteractionExclusive( _dcSocket,
-                                               _channel->getView()->getName( )))
-        {
-            LBWARN << "Could not bind interaction events to DisplayCluster"
-                   << std::endl;
         }
 
         _isRunning = true;
@@ -80,23 +71,18 @@ public:
     {
         delete _eventHandler;
 
-        dcStreamDisconnect( _dcSocket );
-        delete _buffer;
+        delete _dcStream;
     }
 
     void swapBuffer()
     {
         const PixelViewport& pvp = _channel->getPixelViewport();
         const size_t newSize = pvp.w * pvp.h * 4;
-        if( !_buffer || _size != newSize )
-        {
-            delete _buffer;
-            _buffer = new unsigned char[newSize];
-            _size = newSize;
-        }
+        _buffer.reserve(newSize);
 
         _texture.copyFromFrameBuffer( GL_RGBA, pvp );
-        _texture.download( _buffer );
+        _texture.resize( pvp.w, pvp.h ); // Needed as copyFromFrameBuffer only grows the texture!
+        _texture.download( _buffer.getData() );
 
         const Viewport& vp = _channel->getViewport();
         const int32_t width = pvp.w / vp.w;
@@ -104,20 +90,16 @@ public:
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        const DcStreamParameters parameters =
-                dcStreamGenerateParameters( _channel->getView()->getName(),
-                                            offsX, offsY, pvp.w, pvp.h,
-                                            width, height );
-        dcStreamIncrementFrameIndex();
-        _isRunning = dcStreamSend( _dcSocket, _buffer, _size, offsX, offsY,
-                                   pvp.w, 0, pvp.h, RGBA, parameters );
+        ::dc::ImageWrapper::reorderGLImageData((void*)_buffer.getData(), pvp.w, pvp.h, 4);
+        ::dc::ImageWrapper imageWrapper(_buffer.getData(), pvp.w, pvp.h, ::dc::RGBA, offsX, offsY);
+
+        _isRunning = _dcStream->send(imageWrapper) && _dcStream->finishFrame();
     }
 
-    DcSocket* _dcSocket;
+    ::dc::Stream* _dcStream;
     EventHandler* _eventHandler;
     eq::Channel* _channel;
-    unsigned char* _buffer;
-    size_t _size;
+    lunchbox::Buffer<unsigned char> _buffer;
     bool _isRunning;
     util::Texture _texture;
 };
@@ -138,7 +120,8 @@ void Proxy::swapBuffer()
     _impl->swapBuffer();
 
     if( !_impl->_eventHandler &&
-        dcStreamHasInteraction( _impl->_dcSocket ) == 1 )
+            (_impl->_dcStream->isRegisteredForEvents() || _impl->_dcStream->registerForEvents()) &&
+            _impl->_dcStream->hasEvent( ))
     {
         _impl->_eventHandler = new EventHandler( this );
         LBINFO << "Installed event handler for DisplayCluster" << std::endl;
@@ -152,12 +135,12 @@ Channel* Proxy::getChannel()
 
 int Proxy::getSocketDescriptor() const
 {
-    return dcSocketDescriptor( _impl->_dcSocket );
+    return _impl->_dcStream->getDescriptor();
 }
 
-bool Proxy::hasNewInteractionState()
+bool Proxy::hasNewEvent()
 {
-    return dcHasNewInteractionState( _impl->_dcSocket );
+    return _impl->_dcStream->hasEvent();
 }
 
 bool Proxy::isRunning() const
@@ -170,9 +153,9 @@ void Proxy::stopRunning()
     _impl->_isRunning = false;
 }
 
-InteractionState Proxy::getInteractionState() const
+::dc::Event Proxy::getEvent() const
 {
-    return dcStreamGetInteractionState( _impl->_dcSocket );
+    return _impl->_dcStream->getEvent();
 }
 
 }
