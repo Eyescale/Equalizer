@@ -19,8 +19,7 @@
 #define EQ_DC_PROXY_H
 
 #include <eq/client/types.h>
-
-struct InteractionState;
+#include <dc/types.h>
 
 namespace eq
 {
@@ -50,8 +49,8 @@ public:
     /** @return the underlying socket descriptor. */
     int getSocketDescriptor() const;
 
-    /** @return true if a new interaction state was sent by DisplayCluster. */
-    bool hasNewInteractionState();
+    /** @return true if a new Event was sent by DisplayCluster. */
+    bool hasNewEvent();
 
     /** @return whether the application is running in DisplayCluster. */
     bool isRunning() const;
@@ -63,10 +62,10 @@ public:
      */
     void stopRunning();
 
-    /** @return the latest interaction state.
-     *  @sa hasNewInteractionState()
+    /** @return the latest window Event.
+     *  @sa hasNewEvent()
      */
-    InteractionState getInteractionState() const;
+    ::dc::Event getEvent() const;
 
 private:
     detail::Proxy* const _impl;
