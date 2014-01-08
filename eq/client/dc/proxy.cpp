@@ -39,12 +39,13 @@ namespace detail
 class Proxy
 {
 public:
-    Proxy( eq::Channel* channel )
-        : _dcStream( 0 )
-        , _eventHandler( 0 )
-        , _channel( channel )
-        , _isRunning( false )
-        , _texture( GL_TEXTURE_RECTANGLE_ARB, channel->getObjectManager().glewGetContext( ))
+    Proxy( eq::Channel* ch )
+        : stream( 0 )
+        , eventHandler( 0 )
+        , channel( channel )
+        , running( false )
+        , texture( GL_TEXTURE_RECTANGLE_ARB,
+                   channel->getObjectManager().glewGetContext( ))
     {
         const DrawableConfig& dc = channel->getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -56,52 +57,54 @@ public:
         }
 
         const std::string& dcHost = channel->getView()->getDisplayCluster();
-        _dcStream = new ::dc::Stream( _channel->getView()->getName(), dcHost);
-        if( !_dcStream->isConnected( ))
+        stream = new ::dc::Stream( channel->getView()->getName(), dcHost );
+        if( !stream->isConnected( ))
         {
             LBWARN << "Could not connect to DisplayCluster host: " << dcHost
                    << std::endl;
             return;
         }
 
-        _isRunning = true;
+        running = true;
     }
 
     ~Proxy()
     {
-        delete _eventHandler;
-
-        delete _dcStream;
+        delete eventHandler;
+        delete stream;
     }
 
     void swapBuffer()
     {
-        const PixelViewport& pvp = _channel->getPixelViewport();
+        const PixelViewport& pvp = channel->getPixelViewport();
         const size_t newSize = pvp.w * pvp.h * 4;
-        _buffer.reserve(newSize);
+        buffer.reserve(newSize);
 
-        _texture.copyFromFrameBuffer( GL_RGBA, pvp );
-        _texture.resize( pvp.w, pvp.h ); // Needed as copyFromFrameBuffer only grows the texture!
-        _texture.download( _buffer.getData() );
+        texture.copyFromFrameBuffer( GL_RGBA, pvp );
+        // Needed as copyFromFrameBuffer only grows the texture!
+        texture.resize( pvp.w, pvp.h );
+        texture.download( buffer.getData() );
 
-        const Viewport& vp = _channel->getViewport();
+        const Viewport& vp = channel->getViewport();
         const int32_t width = pvp.w / vp.w;
         const int32_t height = pvp.h / vp.h;
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        ::dc::ImageWrapper::reorderGLImageData((void*)_buffer.getData(), pvp.w, pvp.h, 4);
-        ::dc::ImageWrapper imageWrapper(_buffer.getData(), pvp.w, pvp.h, ::dc::RGBA, offsX, offsY);
+        ::dc::ImageWrapper::reorderGLImageData( buffer.getData(), pvp.w, pvp.h,
+                                                4 );
+        ::dc::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
+                                         ::dc::RGBA, offsX, offsY );
 
-        _isRunning = _dcStream->send(imageWrapper) && _dcStream->finishFrame();
+        running = stream->send( imageWrapper ) && stream->finishFrame();
     }
 
-    ::dc::Stream* _dcStream;
-    EventHandler* _eventHandler;
-    eq::Channel* _channel;
-    lunchbox::Buffer<unsigned char> _buffer;
-    bool _isRunning;
-    util::Texture _texture;
+    ::dc::Stream* stream;
+    EventHandler* eventHandler;
+    eq::Channel* channel;
+    lunchbox::Bufferb buffer;
+    bool running;
+    util::Texture texture;
 };
 }
 
@@ -119,43 +122,43 @@ void Proxy::swapBuffer()
 {
     _impl->swapBuffer();
 
-    if( !_impl->_eventHandler &&
-            (_impl->_dcStream->isRegisteredForEvents() || _impl->_dcStream->registerForEvents()) &&
-            _impl->_dcStream->hasEvent( ))
+    if( !_impl->eventHandler &&
+        ( _impl->stream->isRegisteredForEvents() ||
+          _impl->stream->registerForEvents( )) && _impl->stream->hasEvent( ))
     {
-        _impl->_eventHandler = new EventHandler( this );
+        _impl->eventHandler = new EventHandler( this );
         LBINFO << "Installed event handler for DisplayCluster" << std::endl;
     }
 }
 
 Channel* Proxy::getChannel()
 {
-    return _impl->_channel;
+    return _impl->channel;
 }
 
 int Proxy::getSocketDescriptor() const
 {
-    return _impl->_dcStream->getDescriptor();
+    return _impl->stream->getDescriptor();
 }
 
 bool Proxy::hasNewEvent()
 {
-    return _impl->_dcStream->hasEvent();
+    return _impl->stream->hasEvent();
 }
 
 bool Proxy::isRunning() const
 {
-    return _impl->_isRunning;
+    return _impl->running;
 }
 
 void Proxy::stopRunning()
 {
-    _impl->_isRunning = false;
+    _impl->running = false;
 }
 
 ::dc::Event Proxy::getEvent() const
 {
-    return _impl->_dcStream->getEvent();
+    return _impl->stream->getEvent();
 }
 
 }
