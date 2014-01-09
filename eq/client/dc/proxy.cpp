@@ -42,7 +42,7 @@ public:
     Proxy( eq::Channel* ch )
         : stream( 0 )
         , eventHandler( 0 )
-        , channel( channel )
+        , channel( ch )
         , running( false )
         , texture( GL_TEXTURE_RECTANGLE_ARB,
                    channel->getObjectManager().glewGetContext( ))
@@ -91,8 +91,7 @@ public:
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        ::dc::ImageWrapper::reorderGLImageData( buffer.getData(), pvp.w, pvp.h,
-                                                4 );
+        ::dc::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h, 4 );
         ::dc::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
                                          ::dc::RGBA, offsX, offsY );
 
@@ -122,9 +121,7 @@ void Proxy::swapBuffer()
 {
     _impl->swapBuffer();
 
-    if( !_impl->eventHandler &&
-        ( _impl->stream->isRegisteredForEvents() ||
-          _impl->stream->registerForEvents( )) && _impl->stream->hasEvent( ))
+    if( !_impl->eventHandler && _impl->stream->registerForEvents( ))
     {
         _impl->eventHandler = new EventHandler( this );
         LBINFO << "Installed event handler for DisplayCluster" << std::endl;
