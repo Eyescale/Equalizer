@@ -1,0 +1,4 @@
+# -*- mode: cmake -*-
+include(GitExternal)
+git_external("${CMAKE_CURRENT_LIST_DIR}/CMake/common"
+  "https://github.com/Eyescale/CMake.git" "2b64491")

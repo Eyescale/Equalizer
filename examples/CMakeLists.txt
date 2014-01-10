@@ -83,7 +83,7 @@ function(EQ_ADD_EXAMPLE NAME)
       DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
     install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${THIS_TARGET}.pdb
       DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
-  endif() 
+  endif()
   install(FILES CMakeLists.txt ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS}
     DESTINATION share/Equalizer/examples/${NAME} COMPONENT examples)
 endfunction(EQ_ADD_EXAMPLE NAME)
@@ -101,8 +101,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples)
-install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/FindGLEW_MX.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/EqStringifyShaders.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
