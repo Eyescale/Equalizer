@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -67,95 +67,97 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 
 void LocalInitData::parseArguments( const int argc, char** argv )
 {
-    try
-    {
-        std::string wsHelp = "Window System API ( one of: ";
+    std::string wsHelp = "Window System API ( one of: ";
 #ifdef AGL
-        wsHelp += "AGL ";
+    wsHelp += "AGL ";
 #endif
 #ifdef GLX
-        wsHelp += "glX ";
+    wsHelp += "glX ";
 #endif
 #ifdef WGL
-        wsHelp += "WGL ";
+    wsHelp += "WGL ";
 #endif
-        wsHelp += ")";
+    wsHelp += ")";
 
-        std::string desc = EVolve::getHelp();
-        bool showHelp(false);
-        uint32_t userDefinedPrecision(2);
-        float userDefinedBrightness(1.0f);
-        float userDefinedAlpha(1.0f);
-        std::string userDefinedModelPath("");
-        std::string userDefinedWindowSystem("");
+    bool showHelp(false);
+    uint32_t userDefinedPrecision(2);
+    float userDefinedBrightness(1.0f);
+    float userDefinedAlpha(1.0f);
+    std::string userDefinedModelPath("");
+    std::string userDefinedWindowSystem("");
 
-        po::options_description options( desc + eq::Version::getString( ));
+    const std::string& desc = EVolve::getHelp();
+    po::options_description options( desc + " Version " +
+                                     eq::Version::getString( ));
+    options.add_options()
+        ( "help,h",       po::bool_switch(&showHelp)->default_value(false),
+          "produce help message" )
+        ( "model,m",      po::value<std::string>(&userDefinedModelPath),
+          "raw model file name, e.g. Bucky32x32x32.raw" )
+        ( "resident,r", po::bool_switch(&_isResident)->default_value(false),
+          "Keep client resident (see resident mode documentation on website)" )
+        ( "numFrames,n",
+          po::value<uint32_t>(&_maxFrames)->default_value(0xffffffffu),
+          "Maximum number of rendered frames")
+        ( "precision,p",
+          po::value<uint32_t>(&userDefinedPrecision)->default_value(2),
+          "Rendering precision (default 2, bigger is better and slower)")
+        ( "brightness,b",
+          po::value<float>(&userDefinedBrightness)->default_value(1.0f),
+          "brightness factor" )
+        ( "alpha,a",
+          po::value<float>(&userDefinedAlpha)->default_value(1.0f),
+          "alpha attenuation" )
+        ( "ortho,o",      po::bool_switch(&_ortho)->default_value(false),
+          "use orthographic projection" )
+        ( "windowSystem,w",
+          po::value<std::string>(&userDefinedWindowSystem),
+          wsHelp.c_str( ));
 
-        options.add_options()
-            ( "help,h",       po::bool_switch(&showHelp)->default_value(false),
-              "produce help message" )
-            ( "model,m",      po::value<std::string>(&userDefinedModelPath),
-              "raw model file name, e.g. Bucky32x32x32.raw" )
-            ( "resident,r", po::bool_switch(&_isResident)->default_value(false),
-           "Keep client resident (see resident mode documentation on website)" )
-            ( "numFrames,n",
-              po::value<uint32_t>(&_maxFrames)->default_value(0xffffffffu),
-              "Maximum number of rendered frames")
-            ( "precision,p",
-              po::value<uint32_t>(&userDefinedPrecision)->default_value(2),
-              "Rendering precision (default 2, bigger is better and slower)")
-            ( "brightness,b",
-              po::value<float>(&userDefinedBrightness)->default_value(1.0f),
-              "brightness factor" )
-            ( "alpha,a",
-              po::value<float>(&userDefinedAlpha)->default_value(1.0f),
-              "alpha attenuation" )
-            ( "ortho,o",      po::bool_switch(&_ortho)->default_value(false),
-              "use orthographic projection" )
-            ( "windowSystem,w",
-              po::value<std::string>(&userDefinedWindowSystem),
-              wsHelp.c_str( ));
-
+    po::variables_map variableMap;
+    try
+    {
         // parse program options, ignore non related options
-        po::variables_map variableMap;
         po::store( po::command_line_parser( argc, argv ).options(
                        options ).allow_unregistered().run(),
                    variableMap );
         po::notify(variableMap);
-
-        // Evaluate parsed command line options
-        if(showHelp)
-        {
-            LBWARN << options << std::endl;
-            ::exit( EXIT_SUCCESS );
-        }
-
-        if ( variableMap.count( "model" ) > 0 )
-            setFilename( userDefinedModelPath );
-
-        if( variableMap.count( "windowSystem" ) > 0 )
-        {
-            std::transform( userDefinedWindowSystem.begin(),
-                            userDefinedWindowSystem.end(),
-                            userDefinedWindowSystem.begin(),
-                            (int(*)(int))std::toupper );
-            setWindowSystem( userDefinedWindowSystem );
-        }
-
-
-        if( variableMap.count("precision") > 0 )
-            setPrecision( userDefinedPrecision );
-        if( variableMap.count("brightness") > 0 )
-            setBrightness( userDefinedBrightness );
-        if( variableMap.count("alpha") > 0 )
-            setAlpha( userDefinedAlpha );
     }
     catch( std::exception& exception )
     {
         LBERROR << "Error parsing command line: " << exception.what()
-            << std::endl;
+                << std::endl;
+        eq::exit();
         ::exit( EXIT_FAILURE );
     }
+
+    // Evaluate parsed command line options
+    if(showHelp)
+    {
+        std::cout << options << std::endl;
+        eq::exit();
+        ::exit( EXIT_SUCCESS );
+    }
+
+    if ( variableMap.count( "model" ) > 0 )
+        setFilename( userDefinedModelPath );
+
+    if( variableMap.count( "windowSystem" ) > 0 )
+    {
+        std::transform( userDefinedWindowSystem.begin(),
+                        userDefinedWindowSystem.end(),
+                        userDefinedWindowSystem.begin(),
+                        (int(*)(int))std::toupper );
+        setWindowSystem( userDefinedWindowSystem );
+    }
+
+
+    if( variableMap.count("precision") > 0 )
+        setPrecision( userDefinedPrecision );
+    if( variableMap.count("brightness") > 0 )
+        setBrightness( userDefinedBrightness );
+    if( variableMap.count("alpha") > 0 )
+        setAlpha( userDefinedAlpha );
 }
 
 }
