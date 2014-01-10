@@ -412,9 +412,19 @@ GLuint Texture::getName() const { return _impl->name; }
 int32_t Texture::getWidth() const { return _impl->width; }
 int32_t Texture::getHeight() const { return _impl->height; }
 const GLEWContext* Texture::glewGetContext() const{ return _impl->glewContext; }
+
 void Texture::setGLEWContext( const GLEWContext* context )
 {
     _impl->glewContext = context;
+}
+
+std::ostream& operator << ( std::ostream& os, const Texture& texture )
+{
+    return os
+        << "Texture " << texture.getWidth() << "x" << texture.getHeight()
+        << " id " << texture.getName() << std::hex << " format "
+        << texture.getFormat() << " type " << texture.getType() << std::dec
+        << (texture.isValid() ? "" : " invalid");
 }
 
 }
