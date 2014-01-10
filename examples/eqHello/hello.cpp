@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,8 +46,8 @@ protected:
 
 class Application : public seq::Application
 {
-public:
     virtual ~Application() {}
+public:
     virtual seq::Renderer* createRenderer() { return new Renderer( *this ); }
 };
 typedef lunchbox::RefPtr< Application > ApplicationPtr;

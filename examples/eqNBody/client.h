@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,28 +37,26 @@
 
 namespace eqNbody
 {
-    class InitData;
-    class Config;
-    
-    class Client : public eq::Client
-    {
-    public:
-        Client( const InitData& initData );
+class InitData;
+class Config;
 
-        int init();
-        int exit();
-        
-        void run();
+class Client : public eq::Client
+{
+public:
+    Client( const InitData& initData );
 
-    protected:
-        virtual ~Client() {}
-        
-    private:
-        const InitData& _initData;
-        Config*         _config;
-        eq::ServerPtr   _server;
-    };
+    int init();
+    int exit();
+
+    void run();
+
+private:
+    const InitData& _initData;
+    Config*         _config;
+    eq::ServerPtr   _server;
+
+    virtual ~Client() {}
+};
 }
 
 #endif // EQNBODY_H
-

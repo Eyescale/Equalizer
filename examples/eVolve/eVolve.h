@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,72 +34,71 @@
 
 #include "rawVolModelRenderer.h"
 
-
 /** The Equalizer Volume Rendering Example */
 namespace eVolve
 {
-    class LocalInitData;
-    typedef RawVolumeModelRenderer Renderer;
+class LocalInitData;
+typedef RawVolumeModelRenderer Renderer;
 
+class EVolve : public eq::Client
+{
+public:
+    EVolve( const LocalInitData& initData );
 
-    class EVolve : public eq::Client
-    {
-    public:
-        EVolve( const LocalInitData& initData );
-        virtual ~EVolve() {}
+    /** Run an eqPly instance. */
+    int run();
 
-        /** Run an eqPly instance. */
-        int run();
+    static const std::string& getHelp();
 
-        static const std::string& getHelp();
+protected:
+    virtual ~EVolve() {}
 
-    protected:
-        /** @sa eq::Client::clientLoop. */
-        virtual void clientLoop();
-        
-    private:
-        const LocalInitData& _initData;
-    };
+    /** @sa eq::Client::clientLoop. */
+    virtual void clientLoop();
 
-    enum ColorMode
-    {
-        COLOR_MODEL,    //!< Render using the colors defined in the ply file
-        COLOR_DEMO,     //!< Use a unique color to demonstrate decomposition
-        COLOR_HALF_DEMO,//!< 50% unique color + 50% original color
-        COLOR_ALL       //!< @internal, must be last
-    };
+private:
+    const LocalInitData& _initData;
+};
 
-    enum BackgroundMode
-    {
-        BG_BLACK,   //!< Black background
-        BG_WHITE,   //!< White background
-        BG_COLOR,   //!< Unique color
-        BG_ALL      //!< @internal, must be last
-    };
+enum ColorMode
+{
+    COLOR_MODEL,    //!< Render using the colors defined in the ply file
+    COLOR_DEMO,     //!< Use a unique color to demonstrate decomposition
+    COLOR_HALF_DEMO,//!< 50% unique color + 50% original color
+    COLOR_ALL       //!< @internal, must be last
+};
 
-    enum NormalsQuality
-    {
-        NQ_FULL,    //!< Highest normals quality
-        NQ_MEDIUM,  //!< Average normals quality
-        NQ_MINIMAL, //!< Basic normal approximation
-        NQ_ALL      //!< @internal, must be last
-    };
+enum BackgroundMode
+{
+    BG_BLACK,   //!< Black background
+    BG_WHITE,   //!< White background
+    BG_COLOR,   //!< Unique color
+    BG_ALL      //!< @internal, must be last
+};
 
-    enum LogTopics
-    {
-        LOG_STATS = eq::LOG_CUSTOM      // 65536
-    };
+enum NormalsQuality
+{
+    NQ_FULL,    //!< Highest normals quality
+    NQ_MEDIUM,  //!< Average normals quality
+    NQ_MINIMAL, //!< Basic normal approximation
+    NQ_ALL      //!< @internal, must be last
+};
+
+enum LogTopics
+{
+    LOG_STATS = eq::LOG_CUSTOM      // 65536
+};
 }
 
 namespace lunchbox
 {
 template<> inline void byteswap( eVolve::ColorMode& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+{ byteswap( reinterpret_cast< uint32_t& >( value )); }
 
 template<> inline void byteswap( eVolve::BackgroundMode& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+{ byteswap( reinterpret_cast< uint32_t& >( value )); }
 
 template<> inline void byteswap( eVolve::NormalsQuality& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+{ byteswap( reinterpret_cast< uint32_t& >( value )); }
 }
 #endif // EVOLVE_H
