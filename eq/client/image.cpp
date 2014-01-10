@@ -452,19 +452,18 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 }
 
 bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
-                    const Vector2i& position, util::ObjectManager& glObjects ) const
+                    const Vector2i& position, util::ObjectManager& om ) const
 {
     // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
-    lunchbox::Uploader* uploader = glObjects.obtainEqUploader(
+    lunchbox::Uploader* uploader = om.obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
-    const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
-                           EQ_COMPRESSOR_DATA_2D |
+    const uint64_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
-    const GLEWContext* const gl = glObjects.glewGetContext();
+    const GLEWContext* const gl = om.glewGetContext();
 
     if( !uploader->supports( externalFormat, internalFormat, flags, gl ))
         uploader->setup( co::Global::getPluginRegistry(), externalFormat,

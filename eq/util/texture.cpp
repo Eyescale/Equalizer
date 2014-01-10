@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -46,13 +46,13 @@ public:
         {}
 
     ~Texture()
-        {
-            if( name != 0 )
-                LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
+    {
+        if( name != 0 )
+            LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
 
-            name      = 0;
-            defined = false;
-        }
+        name = 0;
+        defined = false;
+    }
 
     GLuint name;
     const GLenum target;
@@ -387,7 +387,7 @@ void Texture::writeRGB( const std::string& filename ) const
             break;
         case GL_DEPTH24_STENCIL8:
             image.allocDownloader( Frame::BUFFER_COLOR,
-                      EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
+                             EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                    _impl->glewContext );
             break;
 

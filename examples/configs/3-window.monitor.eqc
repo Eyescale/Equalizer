@@ -30,13 +30,13 @@ server
                 }
                 window
                 {
-                   name "Operator"
-                   viewport [ 340 425 480 150 ]
-                   channel { name "viewer" }
+                    name "Operator"
+                    viewport [ 340 425 480 150 ]
+                    channel { name "viewer" }
                 }
             }
         }
-        
+
         observer{}
         layout
         {

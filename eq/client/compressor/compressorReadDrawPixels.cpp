@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
- *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@eyescale.ch>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -379,7 +379,7 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
-                      _format, _type, _buffer.getData() ) );
+                                  _format, _type, _buffer.getData( )));
     }
     else
     {
@@ -455,10 +455,9 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
                                               const unsigned source,
                                               const eq_uint64_t flags )
 {
-    const eq_uint64_t size = dims[1] * dims[3] * _depth;
-
     _initPackAlignment( dims[1] );
 
+    const eq_uint64_t size = dims[1] * dims[3] * _depth;
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
 #ifdef EQ_ASYNC_PBO
@@ -502,11 +501,18 @@ void CompressorReadDrawPixels::finishDownload(
     const eq_uint64_t flags, eq_uint64_t outDims[4], void** out )
 {
     _copy4( outDims, inDims );
+
+    if( flags & (EQ_COMPRESSOR_USE_TEXTURE_RECT|EQ_COMPRESSOR_USE_TEXTURE_2D) )
+    {
+        *out = _buffer.getData();
+        return;
+    }
+
+    LBASSERT( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER );
     _initPackAlignment( outDims[1] );
 
 #ifdef EQ_ASYNC_PBO
-    if( (flags & EQ_COMPRESSOR_USE_FRAMEBUFFER) &&
-         _pbo && _pbo->isInitialized( ))
+    if( _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
         _resizeBuffer( size );
@@ -524,12 +530,9 @@ void CompressorReadDrawPixels::finishDownload(
         }
     }
 #else  // async RB through texture
-    if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
-    {
-        LBASSERT( _asyncTexture );
-        _asyncTexture->setGLEWContext( glewContext );
-        _asyncTexture->download( _buffer.getData( ));
-    }
+    LBASSERT( _asyncTexture );
+    _asyncTexture->setGLEWContext( glewContext );
+    _asyncTexture->download( _buffer.getData( ));
 #endif
     *out = _buffer.getData();
 }
