@@ -685,8 +685,8 @@ bool Config::_handleNewEvent( EventICommand& command )
     case Event::WINDOW_ERROR:
     case Event::CHANNEL_ERROR:
     {
-        const Error error = Error( command.get< uint32_t >( ));
         const uint128_t& originator = command.get< uint128_t >();
+        const Error error = Error( command.get< uint32_t >( ));
         LBWARN << error << " from " << originator;
         if( error < ERROR_CUSTOM )
             while( command.hasData( ))
