@@ -51,19 +51,19 @@ if(APPLE)
   endforeach()
 endif()
 
-include(EqStringifyShaders)
+include(StringifyShaders)
 
 function(EQ_ADD_EXAMPLE NAME)
   cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;SHADERS;LINK_LIBRARIES"
     ${ARGN})
 
-  eq_stringify_shaders(SHADERS ${THIS_SHADERS})
+  stringify_shaders(${THIS_SHADERS})
 
   set(THIS_TARGET ${NAME})
   set(THIS_INPUT)
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
-                 ${SHADERS})
+                 ${SHADER_SOURCES})
   target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES}
     ${EQUALIZER_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
