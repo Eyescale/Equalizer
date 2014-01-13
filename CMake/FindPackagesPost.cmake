@@ -1,5 +1,5 @@
 
-# Copyright (c) 2013 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2013-2014 Stefan Eilemann <eile@eyescale.ch>
 
 # additional compile-time definitions
 
@@ -16,6 +16,10 @@ endif()
 
 if(WIN32)
   list(APPEND FIND_PACKAGES_DEFINES WGL)
+endif()
+
+if(X11_FOUND)
+  set(EQ_GLX_USED 1)
 endif()
 
 if(APPLE)
@@ -35,10 +39,15 @@ if(APPLE)
     set(EQ_EXAMPLES_OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
   endif()
   list(REMOVE_DUPLICATES EQ_EXAMPLES_OSX_ARCHITECTURES)
-endif()
 
-if(X11_FOUND)
-  set(EQ_GLX_USED 1)
+  if(EQ_AGL_USED)
+    list(APPEND EQ_GL_LIBRARIES ${OPENGL_LIBRARIES})
+  endif()
+  if(EQ_GLX_USED)
+    list(APPEND EQ_GL_LIBRARIES GL)
+  endif()
+else()
+  list(APPEND EQ_GL_LIBRARIES ${OPENGL_gl_LIBRARY})
 endif()
 
 if(EQ_GLX_USED)

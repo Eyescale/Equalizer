@@ -1,7 +1,7 @@
 
 # Path : libs/client/CMakeLists.txt
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
 #               2011 Cedric Stalder <cedric.stalder@gmail.ch>
 
 if(EQUALIZER_USE_MAGELLAN)
@@ -19,7 +19,7 @@ update_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h
 
 add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
-set(EQ_LIBRARIES EqualizerFabric
+set(EQ_LIBRARIES EqualizerFabric ${EQ_GL_LIBRARIES}
   ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${GLEW_LIBRARY})
 
 if(MAGELLAN_FOUND)
@@ -49,22 +49,12 @@ if(VRPN_FOUND)
   list(APPEND EQ_LIBRARIES ${VRPN_LIBRARIES})
 endif()
 
-if(APPLE)
-  if(EQ_AGL_USED)
-    find_library(CARBON_LIBRARY Carbon)
-    list(APPEND EQ_LIBRARIES ${OPENGL_LIBRARIES})
-  endif()
-  if(EQ_GLX_USED)
-    list(APPEND EQ_LIBRARIES GL)
-  endif()
-else()
-  list(APPEND EQ_LIBRARIES ${OPENGL_gl_LIBRARY})
-endif()
 if(CUDA_FOUND)
   list(APPEND EQ_LIBRARIES ${CUDA_LIBRARIES})
 endif()
 
 if(EQ_AGL_USED)
+  find_library(CARBON_LIBRARY Carbon)
   list(APPEND EQ_LIBRARIES ${CARBON_LIBRARY})
 endif()
 if(EQ_GLX_USED)

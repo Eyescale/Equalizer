@@ -7,7 +7,8 @@ add_library(ply SHARED ${LIB_SOURCES} ${PUBLIC_HEADERS} ${LIB_HEADERS})
 set_target_properties(ply
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-target_link_libraries(ply ${EQUALIZER_LIBRARIES} )
+target_link_libraries(ply ${COLLAGE_LIBRARIES} ${EQ_GL_LIBRARIES}
+  ${GLEW_LIBRARY})
 
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/ply COMPONENT dev)
 install(TARGETS ply

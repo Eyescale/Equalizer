@@ -107,13 +107,13 @@ else()
 endif()
 add_definitions(${EQ_DEFINITIONS})
 
+include(GLEW/CMakeLists.txt)
 add_subdirectory(tools) # before examples, they depend on it
 add_subdirectory(examples)
 if(EXISTS "${Equalizer_SOURCE_DIR}/tests/CMakeLists.txt" )
   add_subdirectory(tests)
 endif()
 
-include(GLEW/CMakeLists.txt)
 add_subdirectory(eq)
 add_subdirectory(seq)
 

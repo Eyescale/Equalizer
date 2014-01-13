@@ -64,8 +64,8 @@ function(EQ_ADD_EXAMPLE NAME)
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
                  ${SHADERS})
-  target_link_libraries(${THIS_TARGET} ${EQUALIZER_LIBRARIES}
-    ${THIS_LINK_LIBRARIES} ${OPENGL_gl_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+  target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES}
+    ${EQUALIZER_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")
