@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  * 				      2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
@@ -1298,12 +1298,12 @@ void Channel::_finishReadback( const co::ObjectVersion& frameDataVersion,
     LBASSERT( images.size() > imageIndex );
     LBASSERT( image->hasAsyncReadback( ));
 
-    image->finishReadback( frameData->getZoom(), glewContext );
+    image->finishReadback( glewContext );
     LBASSERT( !image->hasAsyncReadback( ));
 
     // schedule async image tranmission
-    _asyncTransmit( frameData, frameNumber, imageIndex, nodes,
-                    netNodes, taskID );
+    _asyncTransmit( frameData, frameNumber, imageIndex, nodes, netNodes,
+                    taskID );
 }
 
 void Channel::_asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,

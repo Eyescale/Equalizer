@@ -278,7 +278,7 @@ void Texture::upload( const int32_t width, const int32_t height,
 void Texture::download( void* buffer ) const
 {
     LB_TS_THREAD( _thread );
-    LBASSERT( _impl->defined );
+    LBASSERT( isValid( ));
     glBindTexture( _impl->target, _impl->name );
     glGetTexImage( _impl->target, 0, _impl->format, _impl->type, buffer );
 }
@@ -399,7 +399,7 @@ void Texture::writeRGB( const std::string& filename ) const
     image.setPixelViewport( eq::PixelViewport( 0, 0,
                                                _impl->width, _impl->height ));
     if( image.startReadback( Frame::BUFFER_COLOR, this, _impl->glewContext ))
-        image.finishReadback( Zoom::NONE, _impl->glewContext );
+        image.finishReadback( _impl->glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
     image.resetPlugins();
 }
