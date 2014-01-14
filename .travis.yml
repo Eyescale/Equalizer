@@ -10,9 +10,12 @@ script:
  - env TRAVIS=1 make -j8 tests ARGS=-V
  - mkdir ../Release
  - git status
+ - git --no-pager diff
  - cd ../Release
  - cmake .. -DCI_BUILD_COMMIT=$TRAVIS_COMMIT -DCMAKE_BUILD_TYPE=Release -DTRAVIS=1
  - env TRAVIS=1 make -j8 tests ARGS=-V
+ - git status
+ - git --no-pager diff
 before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq autoconf || /bin/true
@@ -45,7 +48,6 @@ before_install:
  - sudo apt-get install -qq libopencv-dev || /bin/true
  - sudo apt-get install -qq libopenmpi-dev || /bin/true
  - sudo apt-get install -qq libopenscenegraph-dev || /bin/true
- - sudo apt-get install -qq libpoppler-dev || /bin/true
  - sudo apt-get install -qq libqt4-dev || /bin/true
  - sudo apt-get install -qq librdmacm-dev || /bin/true
  - sudo apt-get install -qq libspnav-dev || /bin/true

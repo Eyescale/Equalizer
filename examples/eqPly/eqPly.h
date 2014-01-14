@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,8 +29,9 @@
 #ifndef EQ_PLY_H
 #define EQ_PLY_H
 
-#include <eq/eq.h>
+#include "types.h"
 
+#include <eq/eq.h>
 #include <ply/vertexBufferDist.h>
 #include <ply/vertexBufferRoot.h>
 
@@ -41,56 +42,26 @@
 /** The Equalizer polygonal rendering example. */
 namespace eqPly
 {
-    class LocalInitData;
-
-    typedef ply::VertexBufferRoot  Model;
-    typedef ply::VertexBufferDist  ModelDist;
-
-    typedef std::vector< Model* > Models;
-    typedef std::vector< ModelDist* > ModelDists;
-
-    typedef Models::const_iterator ModelsCIter;
-    typedef ModelDists::const_iterator ModelDistsCIter;
-
-    /** The EqPly application instance */
-    class EqPly : public eq::Client
-    {
-    public:
-        EqPly( const LocalInitData& initData );
-        virtual ~EqPly() {}
-
-        /** Run an eqPly instance. */
-        int run();
-
-        /** @return a string containing an online help description. */
-        static const std::string& getHelp();
-
-    protected:
-        /** @sa eq::Client::clientLoop. */
-        virtual void clientLoop();
-
-    private:
-        const LocalInitData& _initData;
-    };
-
-    enum ColorMode
-    {
-        COLOR_MODEL, //!< Render using the colors defined in the ply file
-        COLOR_DEMO,  //!< Use a unique color to demonstrate decomposition
-        COLOR_WHITE, //!< Render in solid white (mostly for anaglyph stereo)
-        COLOR_ALL    //!< @internal, must be last
-    };
-
-    enum LogTopics
-    {
-        LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
-        LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
-    };
-}
-
-namespace lunchbox
+/** The EqPly application instance */
+class EqPly : public eq::Client
 {
-template<> inline void byteswap( eqPly::ColorMode& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+public:
+    EqPly( const LocalInitData& initData );
+
+    /** Run an eqPly instance. */
+    int run();
+
+    /** @return a string containing an online help description. */
+    static const std::string& getHelp();
+
+protected:
+    /** @sa eq::Client::clientLoop. */
+    virtual void clientLoop();
+
+private:
+    virtual ~EqPly() {}
+
+    const LocalInitData& _initData;
+};
 }
 #endif // EQ_PLY_H

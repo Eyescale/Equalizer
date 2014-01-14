@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,123 +27,123 @@
 namespace eq
 {
 namespace detail { class Client; }
+
+/**
+ * The client represents a network node of the application in the cluster.
+ *
+ * The methods initLocal() and exitLocal() should be used to set up and exit the
+ * listening node instance for each application process.
+ *
+ * @sa fabric::Client for public methods
+ */
+class Client : public fabric::Client
+{
+public:
+    /** Construct a new client. @version 1.0 */
+    EQ_API Client();
+
     /**
-     * The client represents a network node of the application in the cluster.
+     * Open and connect an Equalizer server to the local client.
      *
-     * The methods initLocal() and exitLocal() should be used to set up and exit
-     * the listening node instance for each application process.
+     * The client has to be in the listening state, see initLocal().
      *
-     * @sa fabric::Client for public methods
+     * @param server the server.
+     * @return true if the server was connected, false if not.
+     * @version 1.0
      */
-    class Client : public fabric::Client
-    {
-    public:
-        /** Construct a new client. @version 1.0 */
-        EQ_API Client();
+    EQ_API bool connectServer( ServerPtr server );
 
-        /** Destruct the client. @version 1.0 */
-        EQ_API virtual ~Client();
+    /**
+     * Disconnect and close the connection to an Equalizer server.
+     *
+     * @param server the server.
+     * @return true if the server was disconnected, false if not.
+     * @version 1.0
+     */
+    EQ_API bool disconnectServer( ServerPtr server );
 
-        /**
-         * Open and connect an Equalizer server to the local client.
-         *
-         * The client has to be in the listening state, see initLocal().
-         *
-         * @param server the server.
-         * @return true if the server was connected, false if not.
-         * @version 1.0
-         */
-        EQ_API bool connectServer( ServerPtr server );
+    /**
+     * Initialize a local, listening node.
+     *
+     * The <code>--eq-client</code>, <code>--eq-layout</code> and
+     * <code>--eq-modelunit</code> command line options are recognized by this
+     * method.
+     *
+     * <code>--eq-client</code> is used for remote nodes which have been
+     * auto-launched by another node, e.g., remote render clients. This method
+     * does not return when this command line option is present.
+     *
+     * <code>--eq-layout</code> can apply multiple times. Each instance has to
+     * be followed by the name of a layout. The given layouts will be activated
+     * on all canvases using them during Config::init().
+     *
+     * <code>--eq-modelunit</code> is used for scaling the rendered models in
+     * all views. The model unit defines the size of the model wrt the virtual
+     * room unit which is always in meter. The default unit is 1 (1 meter or
+     * EQ_M).
+     *
+     * @param argc the command line argument count.
+     * @param argv the command line argument values.
+     * @return <code>true</code> if the client was successfully initialized,
+     *         <code>false</code> otherwise.
+     * @version 1.0
+     */
+    EQ_API virtual bool initLocal( const int argc, char** argv );
 
-        /**
-         * Disconnect and close the connection to an Equalizer server.
-         *
-         * @param server the server.
-         * @return true if the server was disconnected, false if not.
-         * @version 1.0
-         */
-        EQ_API bool disconnectServer( ServerPtr server );
+    /** De-initialize a local, listening node. @version 1.1.6 */
+    EQ_API virtual bool exitLocal();
 
-        /**
-         * Initialize a local, listening node.
-         *
-         * The <code>--eq-client</code>, <code>--eq-layout</code> and
-         * <code>--eq-modelunit</code> command line options are recognized by
-         * this method.
-         *
-         * <code>--eq-client</code> is used for remote nodes which have been
-         * auto-launched by another node, e.g., remote render clients. This
-         * method does not return when this command line option is present.
-         *
-         * <code>--eq-layout</code> can apply multiple times. Each instance has
-         * to be followed by the name of a layout. The given layouts will be
-         * activated on all canvases using them during Config::init().
-         *
-         * <code>--eq-modelunit</code> is used for scaling the rendered models
-         * in all views. The model unit defines the size of the model wrt the
-         * virtual room unit which is always in meter. The default unit is 1
-         * (1 meter or EQ_M).
-         *
-         * @param argc the command line argument count.
-         * @param argv the command line argument values.
-         * @return <code>true</code> if the client was successfully initialized,
-         *         <code>false</code> otherwise.
-         * @version 1.0
-         */
-        EQ_API virtual bool initLocal( const int argc, char** argv );
+    /**
+     * @return true if the client has commands pending, false otherwise.
+     * @version 1.0
+     */
+    EQ_API bool hasCommands();
 
-        /** De-initialize a local, listening node. @version 1.1.6 */
-        EQ_API virtual bool exitLocal();
+    /** @internal @return the command queue to the main node thread. */
+    EQ_API virtual co::CommandQueue* getMainThreadQueue();
 
-        /**
-         * @return true if the client has commands pending, false otherwise.
-         * @version 1.0
-         */
-        EQ_API bool hasCommands();
+    /** @internal @return the active layouts given by --eq-layout. */
+    const Strings& getActiveLayouts();
 
-        /** @internal @return the command queue to the main node thread. */
-        EQ_API virtual co::CommandQueue* getMainThreadQueue();
+    /** @internal @return the gpu filter regex given by --eq-gpufilter. */
+    const std::string& getGPUFilter() const;
 
-        /** @internal @return the active layouts given by --eq-layout. */
-        const Strings& getActiveLayouts();
+    /** @internal @return the model unit for all views. */
+    float getModelUnit() const;
 
-        /** @internal @return the gpu filter regex given by --eq-gpufilter. */
-        const std::string& getGPUFilter() const;
+protected:
+    /** Destruct the client. @version 1.0 */
+    EQ_API virtual ~Client();
 
-        /** @internal @return the model unit for all views. */
-        float getModelUnit() const;
+    /**
+     * Implements the processing loop for render clients.
+     *
+     * As long as the node is running, that is, between initLocal() and an exit
+     * send from the server, this method executes received commands using
+     * processCommand() and triggers the message pump between commands.
+     *
+     * @sa Pipe::createMessagePump()
+     * @version 1.0
+     */
+    EQ_API virtual void clientLoop();
 
-    protected:
-        /**
-         * Implements the processing loop for render clients.
-         *
-         * As long as the node is running, that is, between initLocal() and an
-         * exit send from the server, this method executes received commands
-         * using processCommand() and triggers the message pump between
-         * commands.
-         *
-         * @sa Pipe::createMessagePump()
-         * @version 1.0
-         */
-        EQ_API virtual void clientLoop();
+    /** Exit the process cleanly on render clients. @version 1.0 */
+    EQ_API virtual void exitClient();
 
-        /** Exit the process cleanly on render clients. @version 1.0 */
-        EQ_API virtual void exitClient();
+private:
+    detail::Client* const impl_;
 
-    private:
-        detail::Client* const impl_;
+    /** @sa co::LocalNode::createNode */
+    EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
-        /** @sa co::LocalNode::createNode */
-        EQ_API virtual co::NodePtr createNode( const uint32_t type );
+    /** @internal */
+    EQ_API virtual void notifyDisconnect( co::NodePtr node );
 
-        /** @internal */
-        EQ_API virtual void notifyDisconnect( co::NodePtr node );
+    bool _setupClient( const std::string& clientArgs );
 
-        bool _setupClient( const std::string& clientArgs );
-
-        /** The command functions. */
-        bool _cmdExit( co::ICommand& command );
-    };
+    /** The command functions. */
+    bool _cmdExit( co::ICommand& command );
+};
 }
 
 #endif // EQ_CLIENT_H

@@ -13,6 +13,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
 
   if(NOT EXISTS "${DIR}")
+    message("git clone ${REPO} ${DIR}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone "${REPO}" "${DIR}"
       RESULT_VARIABLE nok ERROR_VARIABLE error
@@ -34,7 +35,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
         WORKING_DIRECTORY "${DIR}")
     endforeach()
 
-    execute_process(COMMAND "${GIT_EXECUTABLE}" pull
+    execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all -q
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${DIR}")
     if(nok)

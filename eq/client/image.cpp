@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -88,7 +88,8 @@ public:
     State state;   //!< The current state of the memory
 
     /** During the call of setPixelData or writeImage, we have to
-        manage an internal buffer to copy the data */
+     * manage an internal buffer to copy the data. Otherwise the downloader
+     * allocates the memory. */
     lunchbox::Bufferb localBuffer;
 
     bool hasAlpha; //!< The uncompressed pixels contain alpha
@@ -116,6 +117,8 @@ struct Attachment
 
     /** Current pixel data (memory images). */
     Memory memory;
+
+    Zoom zoom; //!< zoom factor of pending readback
 
     Attachment()
         : active( PLUGIN_FULL )
@@ -452,19 +455,18 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 }
 
 bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
-                    const Vector2i& position, util::ObjectManager& glObjects ) const
+                    const Vector2i& position, util::ObjectManager& om ) const
 {
     // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
-    lunchbox::Uploader* uploader = glObjects.obtainEqUploader(
+    lunchbox::Uploader* uploader = om.obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
-    const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
-                           EQ_COMPRESSOR_DATA_2D |
+    const uint64_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
-    const GLEWContext* const gl = glObjects.glewGetContext();
+    const GLEWContext* const gl = om.glewGetContext();
 
     if( !uploader->supports( externalFormat, internalFormat, flags, gl ))
         uploader->setup( co::Global::getPluginRegistry(), externalFormat,
@@ -501,6 +503,11 @@ bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
     if( startReadback( buffers, pvp, zoom, glObjects ))
         finishReadback( zoom, glObjects.glewGetContext( ));
     return true;
+}
+
+void Image::finishReadback( const Zoom&, const GLEWContext* context )
+{
+    return finishReadback( context );
 }
 #endif
 
@@ -545,11 +552,12 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return false;
     }
 
+    attachment.zoom = zoom;
     if( zoom == Zoom::NONE ) // normal framebuffer readback
         return startReadback( buffer, 0, glObjects.glewGetContext( ));
 
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
-    return _readbackZoom( buffer, zoom, glObjects );
+    return _readbackZoom( buffer, glObjects );
 }
 
 bool Image::startReadback( const Frame::Buffer buffer,
@@ -589,6 +597,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     uint64_t outDims[4] = {0};
     if( texture )
     {
+        LBASSERT( texture->isValid( ));
         const uint64_t inDims[4] = { 0ull, uint64_t( texture->getWidth( )),
                                      0ull, uint64_t( texture->getHeight( )) };
         if( downloader.start( &memory.pixels, inDims, flags, outDims,
@@ -610,14 +619,13 @@ bool Image::startReadback( const Frame::Buffer buffer,
     return false;
 }
 
-void Image::finishReadback( const Zoom& zoom, const GLEWContext* gl )
+void Image::finishReadback( const GLEWContext* context )
 {
-    LBASSERT( gl );
-    LBLOG( LOG_ASSEMBLY ) << "finishReadback, zoom " << zoom
-                          << std::endl;
+    LBASSERT( context );
+    LBLOG( LOG_ASSEMBLY ) << "finishReadback" << std::endl;
 
-    _finishReadback( Frame::BUFFER_COLOR, zoom, gl );
-    _finishReadback( Frame::BUFFER_DEPTH, zoom, gl );
+    _finishReadback( Frame::BUFFER_COLOR, context );
+    _finishReadback( Frame::BUFFER_DEPTH, context );
 
 #ifndef NDEBUG
     if( getenv( "EQ_DUMP_IMAGES" ))
@@ -632,25 +640,24 @@ void Image::finishReadback( const Zoom& zoom, const GLEWContext* gl )
 #endif
 }
 
-void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                             const GLEWContext* gl )
+void Image::_finishReadback( const Frame::Buffer buffer,
+                             const GLEWContext* context )
 {
     if( _impl->type == Frame::TYPE_TEXTURE )
         return;
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
     Memory& memory = attachment.memory;
-    const uint32_t inputToken = memory.internalFormat;
-
     if( memory.state != Memory::DOWNLOAD )
         return;
 
-    uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                     ( zoom == Zoom::NONE ? EQ_COMPRESSOR_USE_FRAMEBUFFER :
-                                            EQ_COMPRESSOR_USE_TEXTURE_RECT );
-
+    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
+    const uint32_t inputToken = memory.internalFormat;
     const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
+    uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
+        ( attachment.zoom == Zoom::NONE ? EQ_COMPRESSOR_USE_FRAMEBUFFER :
+                                          EQ_COMPRESSOR_USE_TEXTURE_RECT );
+
     if( !downloader.supports( inputToken, alpha, flags ))
     {
         LBWARN << "Download plugin initialization failed" << std::endl;
@@ -658,53 +665,46 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return;
     }
 
-    if( !memory.hasAlpha )
-        flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
+     flags |= ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
 
     uint64_t outDims[4] = {0};
-    if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
+    uint64_t inDims[4];
+    PixelViewport pvp = _impl->pvp;
+    if( attachment.zoom != Zoom::NONE )
     {
-        uint64_t inDims[4];
-        _impl->pvp.convertToPlugin( inDims );
-        downloader.finish( &memory.pixels, inDims, flags, outDims, gl );
-    }
-    else
-    {
-        uint64_t inDims[4];
-        PixelViewport pvp = _impl->pvp;
-        pvp.apply( zoom );
+        pvp.apply( attachment.zoom );
         pvp.x = 0;
         pvp.y = 0;
-        _impl->pvp.convertToPlugin( inDims );
-        downloader.finish( &memory.pixels, inDims, flags, outDims, gl );
     }
+    _impl->pvp.convertToPlugin( inDims );
 
+    downloader.finish( &memory.pixels, inDims, flags, outDims, context );
     memory.pvp.convertFromPlugin( outDims );
     memory.state = Memory::VALID;
 }
 
-bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                           util::ObjectManager& glObjects )
+bool Image::_readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om )
 {
-    LBASSERT( glObjects.supportsEqTexture( ));
-    LBASSERT( glObjects.supportsEqFrameBufferObject( ));
+    LBASSERT( om.supportsEqTexture( ));
+    LBASSERT( om.supportsEqFrameBufferObject( ));
 
+    const Attachment& attachment = _impl->getAttachment( buffer );
     PixelViewport pvp = _impl->pvp;
-    pvp.apply( zoom );
+    pvp.apply( attachment.zoom );
     if( !pvp.hasArea( ))
         return false;
 
     // copy frame buffer to texture
+    const uint32_t inputToken = attachment.memory.internalFormat;
     const void* bufferKey = _getBufferKey( buffer );
-    util::Texture* texture =
-        glObjects.obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
-
-    texture->copyFromFrameBuffer( getInternalFormat( buffer ), _impl->pvp );
+    util::Texture* texture = om.obtainEqTexture( bufferKey,
+                                                 GL_TEXTURE_RECTANGLE_ARB );
+    texture->copyFromFrameBuffer( inputToken, _impl->pvp );
 
     // draw zoomed quad into FBO
     //  uses the same FBO for color and depth, with masking.
     const void* fboKey = _getBufferKey( Frame::BUFFER_COLOR );
-    util::FrameBufferObject* fbo = glObjects.getEqFrameBufferObject( fboKey );
+    util::FrameBufferObject* fbo = om.getEqFrameBufferObject( fboKey );
 
     if( fbo )
     {
@@ -712,8 +712,8 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     }
     else
     {
-        fbo = glObjects.newEqFrameBufferObject( fboKey );
-        LBCHECK( fbo->init( pvp.w, pvp.h, getInternalFormat( buffer ), 24, 0 ));
+        fbo = om.newEqFrameBufferObject( fboKey );
+        LBCHECK( fbo->init( pvp.w, pvp.h, inputToken, 24, 0 ));
     }
     fbo->bind();
     texture->bind();
@@ -765,7 +765,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
         glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
         zoomedTexture = &fbo->getDepthTexture();
     }
-
+    LBASSERT( zoomedTexture->isValid( ));
     LBLOG( LOG_ASSEMBLY ) << "Scale " << _impl->pvp << " -> " << pvp << std::endl;
 
     // BUG TODO: this is a bug in case of color and depth buffers read-back, as
@@ -776,7 +776,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     LBLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
-    return startReadback( buffer, zoomedTexture, glObjects.glewGetContext( ));
+    return startReadback( buffer, zoomedTexture, om.glewGetContext( ));
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

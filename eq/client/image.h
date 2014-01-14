@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -292,6 +292,9 @@ public:
      */
     EQ_API bool readback( const uint32_t buffers, const PixelViewport& pvp,
                           const Zoom& zoom, util::ObjectManager& glObjects);
+
+    /* @deprecated Use finishReadback without Zoom */
+    EQ_API void finishReadback( const Zoom&, const GLEWContext* );
 #endif
 
     /**
@@ -316,12 +319,10 @@ public:
     /**
      * Finish an asynchronous readback.
      *
-     * @param zoom the scale factor to apply during readback.
      * @param glewContext the OpenGL function table.
-     * @version 1.3.2
+     * @version 1.7.1
      */
-    EQ_API void finishReadback( const Zoom& zoom,
-                                const GLEWContext* glewContext );
+    EQ_API void finishReadback( const GLEWContext* glewContext );
 
     /**
      * Upload this image to the frame buffer or a texture.
@@ -416,11 +417,8 @@ private:
     bool _startReadback( const Frame::Buffer buffer, const Zoom& zoom,
                          util::ObjectManager& glObjects );
 
-    void _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                          const GLEWContext* glewContext );
-
-    bool _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                        util::ObjectManager& glObjects );
+    void _finishReadback( const Frame::Buffer buffer, const GLEWContext* );
+    bool _readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om );
 };
 };
 #endif // EQ_IMAGE_H

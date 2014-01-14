@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -148,7 +148,7 @@ void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& conf
         _impl->frameData->startReadback( *this, glObjects, config,
                                          PixelViewports( 1, pvp ));
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( getZoom(), glObjects.glewGetContext( ));
+        (*i)->finishReadback( glObjects.glewGetContext( ));
 }
 
 void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& config,
@@ -157,7 +157,7 @@ void Frame::readback( util::ObjectManager& glObjects, const DrawableConfig& conf
     const Images& images =
         _impl->frameData->startReadback( *this, glObjects, config, regions );
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( getZoom(), glObjects.glewGetContext( ));
+        (*i)->finishReadback( glObjects.glewGetContext( ));
 }
 
 Images Frame::startReadback( util::ObjectManager& glObjects,

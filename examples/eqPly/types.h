@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2014, Stefan.Eilemann@epfl.ch
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,55 +26,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SEQ_PLY_H
-#define SEQ_PLY_H
+#ifndef EQPLY_TYPES_H
+#define EQPLY_TYPES_H
 
-#include <seq/sequel.h>
+#include <eq/eq.h>
 
-#include <frameData.h>
 #include <ply/vertexBufferDist.h>
 #include <ply/vertexBufferRoot.h>
-#include <ply/vertexBufferState.h>
 
 #ifndef M_PI_2
 #  define M_PI_2 1.57079632679489661923
 #endif
 
-/** The Sequel polygonal rendering example. */
-namespace seqPly
+namespace eqPly
 {
-typedef ply::VertexBufferRoot      Model;
-typedef ply::VertexBufferDist      ModelDist;
-typedef ply::VertexBufferStateSimple State;
-using eqPly::FrameData;
+class LocalInitData;
 
-class Application : public seq::Application
+typedef ply::VertexBufferRoot  Model;
+typedef ply::VertexBufferDist  ModelDist;
+
+typedef std::vector< Model* > Models;
+typedef std::vector< ModelDist* > ModelDists;
+
+typedef Models::const_iterator ModelsCIter;
+typedef ModelDists::const_iterator ModelDistsCIter;
+
+enum ColorMode
 {
-public:
-    Application() : _model( 0 ), _modelDist( 0 ) {}
-
-    bool init( const int argc, char** argv );
-    bool run();
-    virtual bool exit();
-
-    virtual seq::Renderer* createRenderer();
-    virtual co::Object* createObject( const uint32_t type );
-
-    const Model* getModel( const eq::uint128_t& modelID );
-
-private:
-    FrameData _frameData;
-    Model* _model;
-    ModelDist* _modelDist;
-    lunchbox::Lock _modelLock;
-
-    virtual ~Application() {}
-    eq::Strings _parseArguments( const int argc, char** argv );
-    void _loadModel( const eq::Strings& models );
-    void _unloadModel();
+    COLOR_MODEL, //!< Render using the colors defined in the ply file
+    COLOR_DEMO,  //!< Use a unique color to demonstrate decomposition
+    COLOR_WHITE, //!< Render in solid white (mostly for anaglyph stereo)
+    COLOR_ALL    //!< @internal, must be last
 };
 
-typedef lunchbox::RefPtr< Application > ApplicationPtr;
+enum LogTopics
+{
+    LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
+    LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
+};
 }
 
-#endif // SEQ_PLY_H
+namespace lunchbox
+{
+template<> inline void byteswap( eqPly::ColorMode& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
+#endif // EQPLY_TYPES_H

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,6 +27,12 @@ namespace eq
 {
 namespace plugin
 {
+
+enum FlushMode
+{
+    FLUSH_TEXTURE,
+    KEEP_TEXTURE
+};
 
 class CompressorReadDrawPixels : public Compressor
 {
@@ -61,7 +67,6 @@ public:
 protected:
     lunchbox::Bufferb _buffer;
     util::Texture*    _texture;
-    util::Texture*    _asyncTexture;
     util::PixelBufferObject* _pbo;
     unsigned    _internalFormat; //!< the GL format
     unsigned    _format;         //!< the GL format
@@ -74,6 +79,8 @@ protected:
                             const eq_uint64_t );
     bool _initPBO( const GLEWContext*, const eq_uint64_t );
     void _initDownload( const GLEWContext*, const eq_uint64_t*, eq_uint64_t* );
+    void* _downloadTexture( const GLEWContext* glewContext,
+                            const FlushMode mode );
 };
 
 }

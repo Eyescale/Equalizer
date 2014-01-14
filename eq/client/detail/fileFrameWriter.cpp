@@ -50,15 +50,16 @@ FileFrameWriter::FileFrameWriter()
 
 void FileFrameWriter::write( eq::Channel* channel )
 {
-    if( _image.readback( eq::Frame::BUFFER_COLOR, channel->getPixelViewport(),
-                         channel->getZoom(), channel->getObjectManager( )))
+    if( _image.startReadback( eq::Frame::BUFFER_COLOR,
+                              channel->getPixelViewport(),
+                              channel->getZoom(), channel->getObjectManager( )))
     {
-        const std::string& fileName = _buildFileName( channel );
-        if( !_image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
-            LBWARN << "Could not write file " << fileName << std::endl;
+        _image.finishReadback( channel->glewGetContext( ));
     }
-    else
-        LBWARN << "Could not read frame buffer" << std::endl;
+
+    const std::string& fileName = _buildFileName( channel );
+    if( !_image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
+        LBWARN << "Could not write file " << fileName << std::endl;
 }
 
 FileFrameWriter::~FileFrameWriter()

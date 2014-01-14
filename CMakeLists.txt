@@ -1,11 +1,14 @@
 
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
+                              ${CMAKE_SOURCE_DIR}/CMake/common)
+include(.gitexternals)
+
 include(Buildyard)
 if(BUILDYARD_STOP)
   return()
@@ -104,13 +107,13 @@ else()
 endif()
 add_definitions(${EQ_DEFINITIONS})
 
+include(GLEW/CMakeLists.txt)
 add_subdirectory(tools) # before examples, they depend on it
 add_subdirectory(examples)
 if(EXISTS "${Equalizer_SOURCE_DIR}/tests/CMakeLists.txt" )
   add_subdirectory(tests)
 endif()
 
-include(GLEW/CMakeLists.txt)
 add_subdirectory(eq)
 add_subdirectory(seq)
 
@@ -125,7 +128,8 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-install(FILES CMake/FindGLEW_MX.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
+install(FILES CMake/common/FindGLEW_MX.cmake
+  DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)
 

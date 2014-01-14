@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@eyescale.ch>
+ *   2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,21 +39,21 @@
 
 namespace osgScaleViewer
 {
-    class OSGScaleViewer : public eq::Client
-    {
-    public:
-        /** 
-         * Create an OSG application.
-         * @param initData the init data object.
-         */
-        OSGScaleViewer( const InitData& initData );
+class OSGScaleViewer : public eq::Client
+{
+public:
+    /**
+     * Create an OSG application.
+     * @param initData the init data object.
+     */
+    OSGScaleViewer( const InitData& initData );
 
-        /** Run the application. */
-        int run();
+    /** Run the application. */
+    int run();
 
-    private:
-        const InitData& _initData;
-    };
+private:
+    virtual ~OSGScaleViewer() {}
+    const InitData& _initData;
+};
 }
 #endif
-

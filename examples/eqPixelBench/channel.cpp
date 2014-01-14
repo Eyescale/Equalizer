@@ -174,7 +174,7 @@ void Channel::_testFormats( float applyZoom )
                 {
                     image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom,
                                           glObjects );
-                    image->finishReadback( zoom, glObjects.glewGetContext( ));
+                    image->finishReadback( glObjects.glewGetContext( ));
                     ++nLoops;
                 }
                 glFinish();
@@ -287,7 +287,7 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects.glewGetContext( ));
+            image->finishReadback( glObjects.glewGetContext( ));
             msec += clock.getTimef();
         }
 
@@ -317,7 +317,7 @@ void Channel::_testTiledOperations()
             clock.reset();
             image->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
                                   eq::Zoom::NONE, glObjects );
-            image->finishReadback( eq::Zoom::NONE, glObjects.glewGetContext( ));
+            image->finishReadback( glObjects.glewGetContext( ));
             msec += clock.getTimef();
         }
         _sendEvent( READBACK, msec, area, formatType.str(), 0, 0 );
@@ -408,7 +408,7 @@ void Channel::_testDepthAssemble()
 
         image->startReadback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
                               pvp, eq::Zoom::NONE, glObjects );
-        image->finishReadback( eq::Zoom::NONE, glObjects.glewGetContext( ));
+        image->finishReadback( glObjects.glewGetContext( ));
         LBASSERT( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
         LBASSERT( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
 

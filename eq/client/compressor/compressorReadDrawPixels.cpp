@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
- *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@eyescale.ch>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -113,7 +113,6 @@ REGISTER_TRANSFER( DEPTH, DEPTH_UNSIGNED_INT, 4, 1., 1., 1., false );
 CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         : Compressor()
         , _texture( 0 )
-        , _asyncTexture( 0 )
         , _pbo( 0 )
         , _internalFormat( 0 )
         , _format( 0 )
@@ -278,8 +277,6 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
 {
     delete _texture;
     _texture = 0;
-    delete _asyncTexture;
-    _asyncTexture = 0;
 
     if( _pbo )
     {
@@ -296,30 +293,30 @@ bool CompressorReadDrawPixels::isCompatible( const GLEWContext* )
 
 namespace
 {
-    void _copy4( eq_uint64_t dst[4], const eq_uint64_t src[4] )
-    {
-        memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
-    }
+void _copy4( eq_uint64_t dst[4], const eq_uint64_t src[4] )
+{
+    memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
+}
 
-    void _initPackAlignment( const eq_uint64_t width )
-    {
-        if( (width % 4) == 0 )
-            glPixelStorei( GL_PACK_ALIGNMENT, 4 );
-        else if( (width % 2) == 0 )
-            glPixelStorei( GL_PACK_ALIGNMENT, 2 );
-        else
-            glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-    }
+void _initPackAlignment( const eq_uint64_t width )
+{
+    if( (width % 4) == 0 )
+        glPixelStorei( GL_PACK_ALIGNMENT, 4 );
+    else if( (width % 2) == 0 )
+        glPixelStorei( GL_PACK_ALIGNMENT, 2 );
+    else
+        glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+}
 
-    void _initUnpackAlignment( const eq_uint64_t width )
-    {
-        if( (width % 4) == 0 )
-            glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
-        else if( (width % 2) == 0 )
-            glPixelStorei( GL_UNPACK_ALIGNMENT, 2 );
-        else
-            glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-    }
+void _initUnpackAlignment( const eq_uint64_t width )
+{
+    if( (width % 4) == 0 )
+        glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
+    else if( (width % 2) == 0 )
+        glPixelStorei( GL_UNPACK_ALIGNMENT, 2 );
+    else
+        glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+}
 }
 
 void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
@@ -359,13 +356,28 @@ void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
         LBUNREACHABLE;
     }
 
-    if ( !_texture || _texture->getTarget( ) != target )
+    if ( !_texture || _texture->getTarget() != target )
     {
-        if( _texture )
-            delete _texture;
+        delete _texture;
         _texture = new util::Texture( target, glewContext );
     }
 }
+
+void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
+                                                 const eq_uint64_t w,
+                                                 const eq_uint64_t h )
+{
+    if( !_texture || _texture->getTarget() != GL_TEXTURE_RECTANGLE_ARB ||
+        !_texture->isValid( ))
+    {
+        delete _texture;
+        _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
+    }
+
+    _texture->setGLEWContext( glewContext );
+    _texture->init( _internalFormat, w, h );
+}
+
 
 void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
                                          const eq_uint64_t  inDims[4],
@@ -379,18 +391,17 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
-                      _format, _type, _buffer.getData() ) );
+                                  _format, _type, _buffer.getData( )));
+        *out = _buffer.getData();
     }
     else
     {
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
         _texture->setExternalFormat( _format, _type );
-        _texture->download( _buffer.getData( ));
-        _texture->flushNoDelete();
+        *out = _downloadTexture( glewContext, FLUSH_TEXTURE );
     }
 
-    *out = _buffer.getData();
 }
 
 void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
@@ -439,26 +450,14 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     return false;
 }
 
-void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
-                                                 const eq_uint64_t w,
-                                                 const eq_uint64_t h )
-{
-    if( !_asyncTexture )
-        _asyncTexture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB,
-                                           glewContext );
-    _asyncTexture->setGLEWContext( glewContext );
-    _asyncTexture->init( _internalFormat, w, h );
-}
-
 void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
                                               const eq_uint64_t dims[4],
                                               const unsigned source,
                                               const eq_uint64_t flags )
 {
-    const eq_uint64_t size = dims[1] * dims[3] * _depth;
-
     _initPackAlignment( dims[1] );
 
+    const eq_uint64_t size = dims[1] * dims[3] * _depth;
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
 #ifdef EQ_ASYNC_PBO
@@ -478,35 +477,49 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
         return;
 #endif
         // else
-
-
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
                                   _format, _type, _buffer.getData( )));
     }
     else
     {
-        // TODO: fix Texture class for async texture download
         _resizeBuffer( size );
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, dims[1], dims[3] );
         _texture->setExternalFormat( _format, _type );
-        _texture->download( _buffer.getData( ));
-        _texture->flushNoDelete();
+        glFlush(); // Enough?
     }
 }
 
+void* CompressorReadDrawPixels::_downloadTexture(
+    const GLEWContext* glewContext, const FlushMode mode )
+{
+    LBASSERT( _texture );
+    _texture->setGLEWContext( glewContext );
+    _texture->download( _buffer.getData( ));
+    if( mode == FLUSH_TEXTURE )
+        _texture->flushNoDelete();
+
+    return _buffer.getData();
+}
 
 void CompressorReadDrawPixels::finishDownload(
-    const GLEWContext* glewContext LB_UNUSED, const eq_uint64_t inDims[4],
+    const GLEWContext* glewContext, const eq_uint64_t inDims[4],
     const eq_uint64_t flags, eq_uint64_t outDims[4], void** out )
 {
     _copy4( outDims, inDims );
-    _initPackAlignment( outDims[1] );
+    _initPackAlignment( inDims[1] );
+
+    if( flags & (EQ_COMPRESSOR_USE_TEXTURE_RECT|EQ_COMPRESSOR_USE_TEXTURE_2D) )
+    {
+        *out = _downloadTexture( glewContext, FLUSH_TEXTURE );
+        return;
+    }
+
+    LBASSERT( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER );
 
 #ifdef EQ_ASYNC_PBO
-    if( (flags & EQ_COMPRESSOR_USE_FRAMEBUFFER) &&
-         _pbo && _pbo->isInitialized( ))
+    if( _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
         _resizeBuffer( size );
@@ -523,15 +536,10 @@ void CompressorReadDrawPixels::finishDownload(
             EQ_GL_ERROR( "PixelBufferObject::mapRead()" );
         }
     }
-#else  // async RB through texture
-    if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
-    {
-        LBASSERT( _asyncTexture );
-        _asyncTexture->setGLEWContext( glewContext );
-        _asyncTexture->download( _buffer.getData( ));
-    }
-#endif
     *out = _buffer.getData();
+#else  // async RB through texture
+    *out = _downloadTexture( glewContext, KEEP_TEXTURE );
+#endif
 }
 
 }

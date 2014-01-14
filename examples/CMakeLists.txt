@@ -51,21 +51,21 @@ if(APPLE)
   endforeach()
 endif()
 
-include(EqStringifyShaders)
+include(StringifyShaders)
 
 function(EQ_ADD_EXAMPLE NAME)
   cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;SHADERS;LINK_LIBRARIES"
     ${ARGN})
 
-  eq_stringify_shaders(SHADERS ${THIS_SHADERS})
+  stringify_shaders(${THIS_SHADERS})
 
   set(THIS_TARGET ${NAME})
   set(THIS_INPUT)
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
-                 ${SHADERS})
-  target_link_libraries(${THIS_TARGET} ${EQUALIZER_LIBRARIES}
-    ${THIS_LINK_LIBRARIES} ${OPENGL_gl_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+                 ${SHADER_SOURCES})
+  target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES}
+    ${EQUALIZER_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")
@@ -83,7 +83,7 @@ function(EQ_ADD_EXAMPLE NAME)
       DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
     install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${THIS_TARGET}.pdb
       DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
-  endif() 
+  endif()
   install(FILES CMakeLists.txt ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS}
     DESTINATION share/Equalizer/examples/${NAME} COMPONENT examples)
 endfunction(EQ_ADD_EXAMPLE NAME)
@@ -101,8 +101,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples)
-install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/FindGLEW_MX.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -46,13 +46,13 @@ public:
         {}
 
     ~Texture()
-        {
-            if( name != 0 )
-                LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
+    {
+        if( name != 0 )
+            LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
 
-            name      = 0;
-            defined = false;
-        }
+        name = 0;
+        defined = false;
+    }
 
     GLuint name;
     const GLenum target;
@@ -278,7 +278,7 @@ void Texture::upload( const int32_t width, const int32_t height,
 void Texture::download( void* buffer ) const
 {
     LB_TS_THREAD( _thread );
-    LBASSERT( _impl->defined );
+    LBASSERT( isValid( ));
     glBindTexture( _impl->target, _impl->name );
     glGetTexImage( _impl->target, 0, _impl->format, _impl->type, buffer );
 }
@@ -387,7 +387,7 @@ void Texture::writeRGB( const std::string& filename ) const
             break;
         case GL_DEPTH24_STENCIL8:
             image.allocDownloader( Frame::BUFFER_COLOR,
-                      EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
+                             EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                    _impl->glewContext );
             break;
 
@@ -399,7 +399,7 @@ void Texture::writeRGB( const std::string& filename ) const
     image.setPixelViewport( eq::PixelViewport( 0, 0,
                                                _impl->width, _impl->height ));
     if( image.startReadback( Frame::BUFFER_COLOR, this, _impl->glewContext ))
-        image.finishReadback( Zoom::NONE, _impl->glewContext );
+        image.finishReadback( _impl->glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
     image.resetPlugins();
 }
@@ -412,9 +412,19 @@ GLuint Texture::getName() const { return _impl->name; }
 int32_t Texture::getWidth() const { return _impl->width; }
 int32_t Texture::getHeight() const { return _impl->height; }
 const GLEWContext* Texture::glewGetContext() const{ return _impl->glewContext; }
+
 void Texture::setGLEWContext( const GLEWContext* context )
 {
     _impl->glewContext = context;
+}
+
+std::ostream& operator << ( std::ostream& os, const Texture& texture )
+{
+    return os
+        << "Texture " << texture.getWidth() << "x" << texture.getHeight()
+        << " id " << texture.getName() << std::hex << " format "
+        << texture.getFormat() << " type " << texture.getType() << std::dec
+        << (texture.isValid() ? "" : " invalid");
 }
 
 }
