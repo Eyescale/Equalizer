@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,9 +30,6 @@ class Application : public eq::Client, public co::ObjectFactory
 public:
     /** Construct a new application instance. @version 1.0 */
     SEQ_API Application();
-
-    /** Destruct this application instance. @version 1.0 */
-    SEQ_API virtual ~Application();
 
     /** @name Data Access */
     //@{
@@ -138,6 +135,10 @@ public:
     SEQ_API eq::Config* getConfig(); //!< @internal
     detail::Application* getImpl() { return _impl; } //!< @internal
     //@}
+
+protected:
+    /** Destruct this application instance. @version 1.0 */
+    SEQ_API virtual ~Application();
 
 private:
     detail::Application* _impl;

@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/CMake/common)
+                              ${CMAKE_SOURCE_DIR}/CMake/common)
 include(.gitexternals)
 
 include(Buildyard)

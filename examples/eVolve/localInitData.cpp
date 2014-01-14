@@ -132,7 +132,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     }
 
     // Evaluate parsed command line options
-    if(showHelp)
+    if( showHelp )
     {
         std::cout << options << std::endl;
         eq::exit();

@@ -113,7 +113,6 @@ REGISTER_TRANSFER( DEPTH, DEPTH_UNSIGNED_INT, 4, 1., 1., 1., false );
 CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         : Compressor()
         , _texture( 0 )
-        , _asyncTexture( 0 )
         , _pbo( 0 )
         , _internalFormat( 0 )
         , _format( 0 )
@@ -278,8 +277,6 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
 {
     delete _texture;
     _texture = 0;
-    delete _asyncTexture;
-    _asyncTexture = 0;
 
     if( _pbo )
     {
@@ -359,13 +356,28 @@ void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
         LBUNREACHABLE;
     }
 
-    if ( !_texture || _texture->getTarget( ) != target )
+    if ( !_texture || _texture->getTarget() != target )
     {
-        if( _texture )
-            delete _texture;
+        delete _texture;
         _texture = new util::Texture( target, glewContext );
     }
 }
+
+void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
+                                                 const eq_uint64_t w,
+                                                 const eq_uint64_t h )
+{
+    if( !_texture || _texture->getTarget() != GL_TEXTURE_RECTANGLE_ARB ||
+        !_texture->isValid( ))
+    {
+        delete _texture;
+        _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
+    }
+
+    _texture->setGLEWContext( glewContext );
+    _texture->init( _internalFormat, w, h );
+}
+
 
 void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
                                          const eq_uint64_t  inDims[4],
@@ -380,17 +392,16 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     {
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                                   _format, _type, _buffer.getData( )));
+        *out = _buffer.getData();
     }
     else
     {
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
         _texture->setExternalFormat( _format, _type );
-        _texture->download( _buffer.getData( ));
-        _texture->flushNoDelete();
+        *out = _downloadTexture( glewContext, FLUSH_TEXTURE );
     }
 
-    *out = _buffer.getData();
 }
 
 void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
@@ -439,17 +450,6 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     return false;
 }
 
-void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
-                                                 const eq_uint64_t w,
-                                                 const eq_uint64_t h )
-{
-    if( !_asyncTexture )
-        _asyncTexture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB,
-                                           glewContext );
-    _asyncTexture->setGLEWContext( glewContext );
-    _asyncTexture->init( _internalFormat, w, h );
-}
-
 void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
                                               const eq_uint64_t dims[4],
                                               const unsigned source,
@@ -491,26 +491,32 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
     }
 }
 
+void* CompressorReadDrawPixels::_downloadTexture(
+    const GLEWContext* glewContext, const FlushMode mode )
+{
+    LBASSERT( _texture );
+    _texture->setGLEWContext( glewContext );
+    _texture->download( _buffer.getData( ));
+    if( mode == FLUSH_TEXTURE )
+        _texture->flushNoDelete();
+
+    return _buffer.getData();
+}
 
 void CompressorReadDrawPixels::finishDownload(
-    const GLEWContext* glewContext LB_UNUSED, const eq_uint64_t inDims[4],
+    const GLEWContext* glewContext, const eq_uint64_t inDims[4],
     const eq_uint64_t flags, eq_uint64_t outDims[4], void** out )
 {
     _copy4( outDims, inDims );
+    _initPackAlignment( inDims[1] );
 
     if( flags & (EQ_COMPRESSOR_USE_TEXTURE_RECT|EQ_COMPRESSOR_USE_TEXTURE_2D) )
     {
-        _initPackAlignment( inDims[1] );
-        _texture->setGLEWContext( glewContext );
-        _texture->download( _buffer.getData( ));
-        _texture->flushNoDelete();
-
-        *out = _buffer.getData();
+        *out = _downloadTexture( glewContext, FLUSH_TEXTURE );
         return;
     }
 
     LBASSERT( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER );
-    _initPackAlignment( outDims[1] );
 
 #ifdef EQ_ASYNC_PBO
     if( _pbo && _pbo->isInitialized( ))
@@ -530,13 +536,10 @@ void CompressorReadDrawPixels::finishDownload(
             EQ_GL_ERROR( "PixelBufferObject::mapRead()" );
         }
     }
-#else  // async RB through texture
-    LBASSERT( _asyncTexture );
-    _initPackAlignment( inDims[1] );
-    _asyncTexture->setGLEWContext( glewContext );
-    _asyncTexture->download( _buffer.getData( ));
-#endif
     *out = _buffer.getData();
+#else  // async RB through texture
+    *out = _downloadTexture( glewContext, KEEP_TEXTURE );
+#endif
 }
 
 }

@@ -417,7 +417,7 @@ private:
     bool _startReadback( const Frame::Buffer buffer, const Zoom& zoom,
                          util::ObjectManager& glObjects );
 
-    void _finishReadback( const Frame::Buffer buffer, const GLEWContext* gl );
+    void _finishReadback( const Frame::Buffer buffer, const GLEWContext* );
     bool _readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om );
 };
 };

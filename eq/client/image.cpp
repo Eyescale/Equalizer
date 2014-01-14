@@ -505,9 +505,9 @@ bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
     return true;
 }
 
-void Image::finishReadback( const Zoom&, const GLEWContext* gl )
+void Image::finishReadback( const Zoom&, const GLEWContext* context )
 {
-    return finishReadback( gl );
+    return finishReadback( context );
 }
 #endif
 
@@ -619,13 +619,13 @@ bool Image::startReadback( const Frame::Buffer buffer,
     return false;
 }
 
-void Image::finishReadback( const GLEWContext* gl )
+void Image::finishReadback( const GLEWContext* context )
 {
-    LBASSERT( gl );
+    LBASSERT( context );
     LBLOG( LOG_ASSEMBLY ) << "finishReadback" << std::endl;
 
-    _finishReadback( Frame::BUFFER_COLOR, gl );
-    _finishReadback( Frame::BUFFER_DEPTH, gl );
+    _finishReadback( Frame::BUFFER_COLOR, context );
+    _finishReadback( Frame::BUFFER_DEPTH, context );
 
 #ifndef NDEBUG
     if( getenv( "EQ_DUMP_IMAGES" ))
@@ -640,7 +640,8 @@ void Image::finishReadback( const GLEWContext* gl )
 #endif
 }
 
-void Image::_finishReadback( const Frame::Buffer buffer, const GLEWContext* gl )
+void Image::_finishReadback( const Frame::Buffer buffer,
+                             const GLEWContext* context )
 {
     if( _impl->type == Frame::TYPE_TEXTURE )
         return;
@@ -653,10 +654,9 @@ void Image::_finishReadback( const Frame::Buffer buffer, const GLEWContext* gl )
     lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
     const uint32_t inputToken = memory.internalFormat;
     const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
-    const uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
+    uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
         ( attachment.zoom == Zoom::NONE ? EQ_COMPRESSOR_USE_FRAMEBUFFER :
-                                          EQ_COMPRESSOR_USE_TEXTURE_RECT ) |
-        ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
+                                          EQ_COMPRESSOR_USE_TEXTURE_RECT );
 
     if( !downloader.supports( inputToken, alpha, flags ))
     {
@@ -665,15 +665,20 @@ void Image::_finishReadback( const Frame::Buffer buffer, const GLEWContext* gl )
         return;
     }
 
+     flags |= ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
+
     uint64_t outDims[4] = {0};
     uint64_t inDims[4];
     PixelViewport pvp = _impl->pvp;
-    pvp.apply( attachment.zoom );
-    pvp.x = 0;
-    pvp.y = 0;
+    if( attachment.zoom != Zoom::NONE )
+    {
+        pvp.apply( attachment.zoom );
+        pvp.x = 0;
+        pvp.y = 0;
+    }
     _impl->pvp.convertToPlugin( inDims );
 
-    downloader.finish( &memory.pixels, inDims, flags, outDims, gl );
+    downloader.finish( &memory.pixels, inDims, flags, outDims, context );
     memory.pvp.convertFromPlugin( outDims );
     memory.state = Memory::VALID;
 }

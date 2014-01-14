@@ -101,7 +101,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples)
-install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/EqStringifyShaders.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake

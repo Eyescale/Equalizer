@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com>
  *
@@ -689,11 +689,13 @@ bool Config::_handleNewEvent( EventICommand& command )
         const Error error = Error( command.get< uint32_t >( ));
         LBWARN << error << " from " << originator;
         if( error < ERROR_CUSTOM )
+        {
             while( command.hasData( ))
             {
                 const std::string& text = command.get< std::string >();
                 LBWARN << ": " << text;
             }
+        }
         LBWARN << std::endl;
         return false;
     }
