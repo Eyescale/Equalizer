@@ -27,7 +27,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <float.h>
-#include <math.h>
+#include <cmath>
 
 #if defined(IRIX) || defined(LINUX) || defined(MACOSX)
 #define UNIX
