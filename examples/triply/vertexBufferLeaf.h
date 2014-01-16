@@ -32,7 +32,7 @@
 
 #include "vertexBufferBase.h"
 
-namespace ply
+namespace triply
 {
 /*  The class for kd-tree leaf nodes.  */
 class VertexBufferLeaf : public VertexBufferBase

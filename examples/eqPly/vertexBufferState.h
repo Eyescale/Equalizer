@@ -32,17 +32,17 @@
 
 #include "channel.h"
 
-#include <ply/vertexBufferState.h>
+#include <triply/vertexBufferState.h>
 #include <eq/eq.h>
 
 namespace eqPly
 {
 /*  State for Equalizer usage, uses Eq's Object Manager.  */
-class VertexBufferState : public ply::VertexBufferState
+class VertexBufferState : public triply::VertexBufferState
 {
 public:
     VertexBufferState( eq::util::ObjectManager& objectManager )
-        : ply::VertexBufferState( objectManager.glewGetContext( ))
+        : triply::VertexBufferState( objectManager.glewGetContext( ))
         , _objectManager( objectManager )
         , _channel( 0 )
     {}
@@ -87,7 +87,7 @@ public:
     virtual bool stopRendering( ) const
         { return _channel ? _channel->stopRendering() : false; }
 
-    virtual void declareRegion( const ply::Vector4f& region )
+    virtual void declareRegion( const triply::Vector4f& region )
         { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
 
 private:

@@ -767,7 +767,7 @@ void Channel::_drawHelp()
     resetAssemblyState();
 }
 
-void Channel::_updateNearFar( const ply::BoundingSphere& boundingSphere )
+void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )
 {
     // compute dynamic near/far plane of whole model
     const FrameData& frameData = _getFrameData();

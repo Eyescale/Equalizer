@@ -66,7 +66,7 @@
 #include <iostream>
 #include <string>
 
-namespace ply
+namespace triply
 {
 // class forward declarations
 class VertexBufferBase;
@@ -189,10 +189,10 @@ inline void memRead( char* destination, char** source, size_t length )
 #ifdef EQUALIZER
 namespace lunchbox
 {
-template<> inline void byteswap( ply::RenderMode& value )
+template<> inline void byteswap( triply::RenderMode& value )
 { byteswap( reinterpret_cast< uint32_t& >( value )); }
 
-template<> inline void byteswap( ply::Range& value )
+template<> inline void byteswap( triply::Range& value )
 {
     byteswap( value[ 0 ]);
     byteswap( value[ 1 ]);

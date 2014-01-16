@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2014 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
@@ -10,15 +10,15 @@ include_directories(
 
 eq_add_example(seqPly
   HEADERS
+    application.h
+    renderer.h
   SOURCES
     application.cpp
-    application.h
     main.cpp
     renderer.cpp
-    renderer.h
     ../eqPly/frameData.h
     ../eqPly/frameData.cpp
   LINK_LIBRARIES
     ${EQUALIZER_SEQUEL_LIBRARY}
-    ply
+    triply
   )

@@ -36,7 +36,7 @@
 #include <fstream>
 
 
-namespace ply 
+namespace triply 
 {    
     /** Holds the final kd-tree data, sorted and reindexed.  */
     class VertexBufferData

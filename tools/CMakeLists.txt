@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2013 Stefan.Eilemann@epfl.ch
+#               2013-2014 Stefan.Eilemann@epfl.ch
 
 include(CMakeParseArguments)
 include(PurpleInstallPDB)
@@ -16,7 +16,7 @@ macro(EQ_ADD_TOOL NAME)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT apps)
 endmacro(EQ_ADD_TOOL NAME)
 
-include_directories(${CMAKE_SOURCE_DIR}/examples/include
+include_directories(BEFORE ${CMAKE_SOURCE_DIR}/examples/include
   ${CMAKE_SOURCE_DIR}/examples)
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
 
@@ -47,7 +47,7 @@ eq_add_tool(eqThreadAffinity SOURCES threadAffinity/threadAffinity.cpp
 eq_add_tool(eqPlyConverter
   HEADERS
   SOURCES eqPlyConverter/main.cpp
-  LINK_LIBRARIES Equalizer ply
+  LINK_LIBRARIES Equalizer triply
   )
 
 eq_add_tool(eVolveConverter

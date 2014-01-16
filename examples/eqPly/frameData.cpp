@@ -36,7 +36,7 @@ FrameData::FrameData()
         : _rotation( eq::Matrix4f::ZERO )
         , _modelRotation( eq::Matrix4f::ZERO )
         , _position( eq::Vector3f::ZERO )
-        , _renderMode( ply::RENDER_MODE_DISPLAY_LIST )
+        , _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
         , _ortho( false )
@@ -95,7 +95,7 @@ void FrameData::setColorMode( const ColorMode mode )
     setDirty( DIRTY_FLAGS );
 }
 
-void FrameData::setRenderMode( const ply::RenderMode mode )
+void FrameData::setRenderMode( const triply::RenderMode mode )
 {
     _renderMode = mode;
     setDirty( DIRTY_FLAGS );
@@ -157,8 +157,8 @@ void FrameData::togglePilotMode()
 
 void FrameData::toggleRenderMode()
 {
-    _renderMode = static_cast< ply::RenderMode >(
-        ( _renderMode + 1) % ply::RENDER_MODE_ALL );
+    _renderMode = static_cast< triply::RenderMode >(
+        ( _renderMode + 1) % triply::RENDER_MODE_ALL );
 
     LBINFO << "Switched to " << _renderMode << std::endl;
     setDirty( DIRTY_FLAGS );
