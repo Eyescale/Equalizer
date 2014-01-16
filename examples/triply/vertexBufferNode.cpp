@@ -34,7 +34,7 @@
 #include "vertexData.h"
 #include <set>
 
-namespace ply
+namespace triply
 {
 
 /*  Destructor, clears up children as well.  */

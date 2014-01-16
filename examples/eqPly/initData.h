@@ -45,7 +45,7 @@ namespace eqPly
 
         eq::uint128_t getFrameDataID() const  { return _frameDataID; }
         eq::WindowSystem   getWindowSystem() const  { return _windowSystem; }
-        ply::RenderMode getRenderMode() const       { return _renderMode; }
+        triply::RenderMode getRenderMode() const       { return _renderMode; }
         bool               useGLSL() const          { return _useGLSL; }
         bool               useInvertedFaces() const { return _invFaces; }
         bool               showLogo() const         { return _logo; }
@@ -57,7 +57,7 @@ namespace eqPly
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }
-        void setRenderMode( const ply::RenderMode renderMode )
+        void setRenderMode( const triply::RenderMode renderMode )
             { _renderMode = renderMode; }
         void enableGLSL()          { _useGLSL  = true; }
         void enableInvertedFaces() { _invFaces = true; }
@@ -67,7 +67,7 @@ namespace eqPly
     private:
         eq::uint128_t    _frameDataID;
         eq::WindowSystem _windowSystem;
-        ply::RenderMode  _renderMode;
+        triply::RenderMode  _renderMode;
         bool             _useGLSL;
         bool             _invFaces;
         bool             _logo;

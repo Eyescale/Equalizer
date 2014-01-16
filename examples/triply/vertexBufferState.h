@@ -35,7 +35,7 @@
 #include "typedefs.h"
 #include <map>
 
-namespace ply
+namespace triply
 {
 /*  The abstract base class for kd-tree rendering state.  */
 class VertexBufferState
@@ -114,7 +114,7 @@ private:
     GLMap  _displayLists;
     GLMap  _bufferObjects;
 };
-} // namespace ply
+} // namespace triply
 
 
 #endif // PLYLIB_VERTEXBUFFERSTATE_H

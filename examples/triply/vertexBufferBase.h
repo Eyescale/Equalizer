@@ -40,7 +40,7 @@ namespace eqPly
 class VertexBufferDist;
 }
 
-namespace ply
+namespace triply
 {
 /*  The abstract base class for all kinds of kd-tree nodes.  */
 class VertexBufferBase

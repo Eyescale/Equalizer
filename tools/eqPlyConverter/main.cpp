@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,7 @@
  */
 
 #include <eq/eq.h>
-#include <ply/vertexBufferRoot.h>
+#include <triply/vertexBufferRoot.h>
 
 namespace
 {
@@ -59,7 +59,7 @@ int main( const int argc, char** argv )
 
         if( _isPlyfile( filename ))
         {
-            ply::VertexBufferRoot* model = new ply::VertexBufferRoot;
+            triply::VertexBufferRoot* model = new triply::VertexBufferRoot;
             if( !model->readFromFile( filename.c_str( )))
                 LBWARN << "Can't load model: " << filename << std::endl;
 

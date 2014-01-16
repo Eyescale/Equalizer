@@ -31,8 +31,8 @@
 
 #include <eq/eq.h>
 
-#include <ply/vertexBufferDist.h>
-#include <ply/vertexBufferRoot.h>
+#include <triply/vertexBufferDist.h>
+#include <triply/vertexBufferRoot.h>
 
 #ifndef M_PI_2
 #  define M_PI_2 1.57079632679489661923
@@ -42,8 +42,8 @@ namespace eqPly
 {
 class LocalInitData;
 
-typedef ply::VertexBufferRoot  Model;
-typedef ply::VertexBufferDist  ModelDist;
+typedef triply::VertexBufferRoot  Model;
+typedef triply::VertexBufferDist  ModelDist;
 
 typedef std::vector< Model* > Models;
 typedef std::vector< ModelDist* > ModelDists;

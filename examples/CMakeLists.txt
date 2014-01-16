@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
 #                    2011 Maxim Makhinya <maxmah@gmail.com>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
@@ -88,7 +88,7 @@ function(EQ_ADD_EXAMPLE NAME)
     DESTINATION share/Equalizer/examples/${NAME} COMPONENT examples)
 endfunction(EQ_ADD_EXAMPLE NAME)
 
-include_directories(include ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(BEFORE include ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK) # Fix for windows and shared boost.
 if(GLEW_MX_FOUND)
@@ -114,7 +114,7 @@ if(OPENSCENEGRAPH_FOUND)
   add_subdirectory(osgScaleViewer)
 endif()
 
-add_subdirectory(ply)
+add_subdirectory(triply)
 add_subdirectory(eVolve)
 add_subdirectory(eqAsync)
 add_subdirectory(eqHello)

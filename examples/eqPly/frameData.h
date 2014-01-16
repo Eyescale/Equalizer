@@ -56,7 +56,7 @@ public:
     void setModelID( const eq::uint128_t& id );
 
     void setColorMode( const ColorMode color );
-    void setRenderMode( const ply::RenderMode mode );
+    void setRenderMode( const triply::RenderMode mode );
     void setIdle( const bool idleMode );
 
     void toggleOrtho();
@@ -78,7 +78,7 @@ public:
     bool useWireframe() const { return _wireframe; }
     bool usePilotMode() const { return _pilotMode; }
     bool isIdle() const { return _idle; }
-    ply::RenderMode getRenderMode() const { return _renderMode; }
+    triply::RenderMode getRenderMode() const { return _renderMode; }
     bool useCompression() const { return _compression; }
     //*}
 
@@ -136,7 +136,7 @@ private:
     eq::Vector3f _position;
 
     eq::uint128_t    _modelID;
-    ply::RenderMode  _renderMode;
+    triply::RenderMode  _renderMode;
     ColorMode        _colorMode;
     float            _quality;
     bool             _ortho;

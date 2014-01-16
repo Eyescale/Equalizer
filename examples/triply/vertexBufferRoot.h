@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,46 +27,52 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PLYLIB_VERTEXBUFFERNODE_H
-#define PLYLIB_VERTEXBUFFERNODE_H
+
+#ifndef PLYLIB_VERTEXBUFFERROOT_H
+#define PLYLIB_VERTEXBUFFERROOT_H
 
 #include "api.h"
-#include "vertexBufferBase.h"
+#include "vertexBufferData.h"
+#include "vertexBufferNode.h"
 
-namespace ply
+
+namespace triply
 {
-/* The class for regular (non-leaf) kd-tree nodes.  */
-class VertexBufferNode : public VertexBufferBase
+/*  The class for kd-tree root nodes.  */
+class VertexBufferRoot : public VertexBufferNode
 {
 public:
-    VertexBufferNode() : _left( 0 ), _right( 0 ) {}
-    PLYLIB_API virtual ~VertexBufferNode();
+    PLYLIB_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
 
-    PLYLIB_API void draw( VertexBufferState& state ) const override;
-    Index getNumberOfVertices() const override
-        { return _left->getNumberOfVertices()+_right->getNumberOfVertices(); }
+    PLYLIB_API virtual void cullDraw( VertexBufferState& state ) const;
+    PLYLIB_API virtual void draw( VertexBufferState& state ) const;
 
-    const VertexBufferBase* getLeft() const override { return _left; }
-    const VertexBufferBase* getRight() const override { return _right; }
-    VertexBufferBase* getLeft() override { return _left; }
-    VertexBufferBase* getRight() override { return _right; }
+    PLYLIB_API void setupTree( VertexData& data );
+    PLYLIB_API bool writeToFile( const std::string& filename );
+    PLYLIB_API bool readFromFile( const std::string& filename );
+    bool hasColors() const { return _data.colors.size() > 0; }
+
+    void useInvertedFaces() { _invertFaces = true; }
+
+    const std::string& getName() const { return _name; }
 
 protected:
-    PLYLIB_API void toStream( std::ostream& os ) override;
-    PLYLIB_API void fromMemory( char** addr, VertexBufferData& globalData )
-        override;
-
-    PLYLIB_API void setupTree( VertexData& data, const Index start,
-                               const Index length, const Axis axis,
-                               const size_t depth,
-                               VertexBufferData& globalData ) override;
-    PLYLIB_API const BoundingSphere& updateBoundingSphere() override;
-    PLYLIB_API void updateRange() override;
+    PLYLIB_API virtual void toStream( std::ostream& os );
+    PLYLIB_API virtual void fromMemory( char* start );
 
 private:
+    bool _constructFromPly( const std::string& filename );
+    bool _readBinary( std::string filename );
+
+    void _beginRendering( VertexBufferState& state ) const;
+    void _endRendering( VertexBufferState& state ) const;
+
     friend class VertexBufferDist;
-    VertexBufferBase*   _left;
-    VertexBufferBase*   _right;
+    VertexBufferData _data;
+    bool             _invertFaces;
+    std::string      _name;
 };
 }
-#endif // PLYLIB_VERTEXBUFFERNODE_H
+
+
+#endif // PLYLIB_VERTEXBUFFERROOT_H

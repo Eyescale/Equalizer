@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
@@ -43,7 +43,7 @@ eq_add_example(eqPly
     vertexShader.glsl
     fragmentShader.glsl
   LINK_LIBRARIES
-    ${EQUALIZER_ADMIN_LIBRARY} ply
+    ${EQUALIZER_ADMIN_LIBRARY} triply
   )
 
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)
