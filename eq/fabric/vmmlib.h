@@ -29,6 +29,8 @@
 #  include <vmmlib/vmmlib.hpp>
 #pragma warning(pop)
 
+#include <lunchbox/bitOperation.h>
+
 namespace eq
 {
 namespace fabric
