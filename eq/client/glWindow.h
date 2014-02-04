@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,95 +23,86 @@
 
 namespace eq
 {
+namespace detail { class GLWindow; }
+
+/**
+ * A system window for OpenGL rendering.
+ *
+ * The GLWindow implements all generic OpenGL functionality for a SystemWindow.
+ * It is subclassed by OS-specific implementations which provide the the glue to
+ * the actual window system.
+ */
+class GLWindow : public SystemWindow, public boost::noncopyable
+{
+public:
+    /** Construct a new OpenGL window. @version 1.0 */
+    EQ_API GLWindow( Window* parent );
+
+    /** Destruct a new OpenGL window. @version 1.0 */
+    EQ_API virtual ~GLWindow();
+
+    /** Bind the FBO and update the current cache. @version 1.0 */
+    EQ_API void makeCurrent( const bool cache = true ) const override;
+
     /**
-     * A system window for OpenGL rendering.
-     *
-     * The GLWindow implements all generic OpenGL functionality for a
-     * SystemWindow. It is subclassed by OS-specific implementations which
-     * provide the the glue to the actual window system.
+     * @return true if this window was last made current in this thread.
+     * @version 1.3.2
      */
-    class GLWindow : public SystemWindow
-    {
-    public:
-        /** Construct a new OpenGL window. @version 1.0 */
-        EQ_API GLWindow( Window* parent );
+    EQ_API bool isCurrent() const;
 
-        /** Destruct a new OpenGL window. @version 1.0 */
-        EQ_API virtual ~GLWindow();
+    /** @name Frame Buffer Object support. */
+    //@{
+    /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
+    EQ_API void bindFrameBuffer() const override;
 
-        /** Bind the FBO and update the current cache. @version 1.0 */
-        EQ_API virtual void makeCurrent( const bool cache = true ) const;
+    /** Flush all command buffers. @version 1.5.2 */
+    EQ_API void flush() override;
 
-        /**
-         * @return true if this window was last made current in this thread.
-         * @version 1.3.2
-         */
-        EQ_API bool isCurrent() const;
+    /** Finish execution of  all commands. @version 1.5.2 */
+    EQ_API void finish() override;
 
-        /** @name Frame Buffer Object support. */
-        //@{
-        /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
-        EQ_API virtual void bindFrameBuffer() const;
+    /** Build and initialize the FBO. @version 1.0 */
+    EQ_API virtual bool configInitFBO();
 
-        /** Flush all command buffers. @version 1.5.2 */
-        EQ_API virtual void flush();
+    /** Destroy the FBO. @version 1.0 */
+    EQ_API virtual void configExitFBO();
 
-        /** Finish execution of  all commands. @version 1.5.2 */
-        EQ_API virtual void finish();
+    /** @return the FBO of this window, or 0. @version 1.0 */
+    EQ_API const util::FrameBufferObject* getFrameBufferObject() const override;
+    //@}
 
-        /** Build and initialize the FBO. @version 1.0 */
-        EQ_API virtual bool configInitFBO();
+    /** Initialize the GLEW context for this window. @version 1.0 */
+    EQ_API virtual void initGLEW();
 
-        /** Destroy the FBO. @version 1.0 */
-        EQ_API virtual void configExitFBO();
+    /** De-initialize the GLEW context. @version 1.0 */
+    EQ_API virtual void exitGLEW();
 
-        /** @return the FBO of this window, or 0. @version 1.0 */
-        virtual const util::FrameBufferObject* getFrameBufferObject()
-            const { return _fbo; }
-        //@}
+    /**
+     * Get the GLEW context for this window.
+     *
+     * The glew context is initialized during window initialization, and
+     * provides access to OpenGL extensions. This function does not follow the
+     * Equalizer naming conventions, since GLEW uses a function of this name to
+     * automatically resolve OpenGL function entry points. Therefore, any
+     * supported GL function can be called directly from an initialized
+     * GLWindow.
+     *
+     * @return the OpenGL function table for the window's OpenGL context
+     * @version 1.0
+     */
+    EQ_API const GLEWContext* glewGetContext() const override;
 
-        /** Initialize the GLEW context for this window. @version 1.0 */
-        EQ_API virtual void initGLEW();
+    /**
+     * Set up the drawable config by querying the current context.
+     * @version 1.0
+     */
+    EQ_API void queryDrawableConfig( DrawableConfig& ) override;
 
-        /** De-initialize the GLEW context. @version 1.0 */
-        virtual void exitGLEW() { _glewInitialized = false; }
+private:
+    detail::GLWindow* const impl_;
 
-        /**
-         * Get the GLEW context for this window.
-         *
-         * The glew context is initialized during window initialization, and
-         * provides access to OpenGL extensions. This function does not follow
-         * the Equalizer naming conventions, since GLEW uses a function of this
-         * name to automatically resolve OpenGL function entry
-         * points. Therefore, any supported GL function can be called directly
-         * from an initialized GLWindow.
-         *
-         * @return the extended OpenGL function table for the window's OpenGL
-         *         context.
-         * @version 1.0
-         */
-        EQ_API virtual const GLEWContext* glewGetContext() const;
-
-        /**
-         * Set up the drawable config by querying the current context.
-         * @version 1.0
-         */
-        EQ_API virtual void queryDrawableConfig( DrawableConfig& );
-
-    private:
-        bool _glewInitialized ;
-
-        /** Extended OpenGL function entries when window has a context. */
-        GLEWContext* const _glewContext;
-
-        /** Frame buffer object for FBO drawables. */
-        util::FrameBufferObject* _fbo;
-
-        GLEWContext* glewGetContext();
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-    };
+    GLEWContext* glewGetContext();
+};
 }
 
 

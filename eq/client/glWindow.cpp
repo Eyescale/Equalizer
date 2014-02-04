@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2009, Makhinya Maxim
  *
@@ -36,26 +36,47 @@ namespace
 {
 lunchbox::PerThread< const GLWindow, lunchbox::perThreadNoDelete > _current;
 }
+namespace detail
+{
+class GLWindow
+{
+public:
+    GLWindow()
+        : glewInitialized( false )
+        , fbo( 0 )
+    {
+        lunchbox::setZero( &glewContext, sizeof( GLEWContext ));
+    }
 
+    ~GLWindow()
+    {
+        glewInitialized = false;
+#ifndef NDEBUG
+        lunchbox::setZero( &glewContext, sizeof( GLEWContext ));
+#endif
+    }
+
+    bool glewInitialized ;
+
+    /** Extended OpenGL function entries when window has a context. */
+    GLEWContext glewContext;
+
+    /** Frame buffer object for FBO drawables. */
+    util::FrameBufferObject* fbo;
+};
+}
 
 GLWindow::GLWindow( Window* parent )
     : SystemWindow( parent )
-    , _glewInitialized( false )
-    , _glewContext( new GLEWContext )
-    , _fbo( 0 )
+    , impl_( new detail::GLWindow )
 {
-    lunchbox::setZero( _glewContext, sizeof( _glewContext ));
 }
 
 GLWindow::~GLWindow()
 {
-    _glewInitialized = false;
-#ifndef NDEBUG
-    lunchbox::setZero( _glewContext, sizeof( GLEWContext ));
-#endif
-    delete _glewContext;
     if( _current == this )
         _current = 0;
+    delete impl_;
 }
 
 void GLWindow::makeCurrent( const bool useCache ) const
@@ -74,29 +95,39 @@ bool GLWindow::isCurrent() const
 
 void GLWindow::initGLEW()
 {
-    if( _glewInitialized )
+    if( impl_->glewInitialized )
         return;
 
     const GLenum result = glewInit();
     if( result != GLEW_OK )
         LBWARN << "GLEW initialization failed: " << std::endl;
     else
-        _glewInitialized = true;
+        impl_->glewInitialized = true;
+}
+
+void GLWindow::exitGLEW()
+{
+    impl_->glewInitialized = false;
+}
+
+const util::FrameBufferObject* GLWindow::getFrameBufferObject() const
+{
+    return impl_->fbo;
 }
 
 const GLEWContext* GLWindow::glewGetContext() const
 {
-    return _glewContext;
+    return &impl_->glewContext;
 }
 
 GLEWContext* GLWindow::glewGetContext()
 {
-    return _glewContext;
+    return &impl_->glewContext;
 }
 
 bool GLWindow::configInitFBO()
 {
-    if( !_glewInitialized ||
+    if( !impl_->glewInitialized ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
         sendError( ERROR_FBO_UNSUPPORTED );
@@ -104,7 +135,7 @@ bool GLWindow::configInitFBO()
     }
 
     // needs glew initialized (see above)
-    _fbo = new util::FrameBufferObject( _glewContext );
+    impl_->fbo = new util::FrameBufferObject( &impl_->glewContext );
 
     const PixelViewport& pvp = getWindow()->getPixelViewport();
     const GLuint colorFormat = getWindow()->getColorFormat();
@@ -117,39 +148,39 @@ bool GLWindow::configInitFBO()
     if( stencilSize == AUTO )
         stencilSize = 1;
 
-    Error error = _fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
-                              stencilSize );
+    Error error = impl_->fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
+                                    stencilSize );
     if( !error )
         return true;
 
     if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO )
-        error = _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
+        error = impl_->fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
 
     if( !error )
         return true;
 
     sendError( error );
-    delete _fbo;
-    _fbo = 0;
+    delete impl_->fbo;
+    impl_->fbo = 0;
     return false;
 }
 
 void GLWindow::configExitFBO()
 {
-    if( _fbo )
-        _fbo->exit();
+    if( impl_->fbo )
+        impl_->fbo->exit();
 
-    delete _fbo;
-    _fbo = 0;
+    delete impl_->fbo;
+    impl_->fbo = 0;
 }
 
 void GLWindow::bindFrameBuffer() const
 {
-   if( !_glewInitialized )
+   if( !impl_->glewInitialized )
        return;
 
-   if( _fbo )
-       _fbo->bind();
+   if( impl_->fbo )
+       impl_->fbo->bind();
    else if( GLEW_EXT_framebuffer_object )
        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 }

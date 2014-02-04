@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,30 +29,66 @@ namespace eq
 {
 namespace fabric
 {
+namespace detail
+{
+struct BackupData
+{
+    /** The application-defined name of the object. */
+    std::string name;
+
+    /** The user data parameters if no _userData object is set. */
+    co::ObjectVersion userData;
+};
+
+class Object
+{
+public:
+    Object()
+        : userData( 0 )
+        , tasks( TASK_NONE )
+        , serial( CO_INSTANCE_INVALID )
+    {}
+
+    BackupData data; //!< Active data
+    BackupData backup; //!< Backed up version (from .eqc)
+
+    co::Object* userData; //!< User data object
+    uint32_t tasks; //!< Worst-case set of tasks
+    uint32_t serial; //!< Server-unique serial number
+
+    /** The identifiers of removed children since the last slave commit. */
+    std::vector< uint128_t > removedChildren;
+};
+}
 
 Object::Object()
-        : _userData( 0 )
-        , _tasks( TASK_NONE )
-        , _serial( CO_INSTANCE_INVALID )
+    : impl_( new detail::Object )
+{}
+
+Object::Object( const Object& from )
+    : co::Serializable( from )
+    , impl_( new detail::Object( *from.impl_ ))
 {}
 
 Object::~Object()
 {
     LBASSERTINFO( !isAttached(), "Object " << getID() << " is still attached" );
-    LBASSERTINFO( !_userData,
+    LBASSERTINFO( !impl_->userData,
                   "Unset user data before destruction to allow clean release" )
+
     co::LocalNodePtr node = getLocalNode();
     if( node.isValid() )
         node->releaseObject( this );
+    delete impl_;
 }
 
 bool Object::isDirty() const
 {
-    if( _userData && _userData->isAttached( ))
+    if( impl_->userData && impl_->userData->isAttached( ))
     {
-        if( _userData->isMaster( ))
-            _userData->sync(); // apply slave object commits
-        return Serializable::isDirty() || _userData->isDirty();
+        if( impl_->userData->isMaster( ))
+            impl_->userData->sync(); // apply slave object commits
+        return Serializable::isDirty() || impl_->userData->isDirty();
     }
 
     // else
@@ -61,38 +97,40 @@ bool Object::isDirty() const
 
 uint128_t Object::commit( const uint32_t incarnation )
 {
-    if( !_userData )
+    if( !impl_->userData )
         return Serializable::commit( incarnation );
 
-    if( !_userData->isAttached() && hasMasterUserData( ))
+    if( !impl_->userData->isAttached() && hasMasterUserData( ))
     {
-        getLocalNode()->registerObject( _userData );
-        _userData->setAutoObsolete( getUserDataLatency() + 1 );
-        _data.userData = _userData;
+        getLocalNode()->registerObject( impl_->userData );
+        impl_->userData->setAutoObsolete( getUserDataLatency() + 1 );
+        impl_->data.userData = impl_->userData;
         setDirty( DIRTY_USERDATA );
     }
 
-    if( _userData->isDirty() && _userData->isAttached( ))
+    if( impl_->userData->isDirty() && impl_->userData->isAttached( ))
     {
-        const uint128_t& version = _userData->commit( incarnation );
+        const uint128_t& version = impl_->userData->commit( incarnation );
         LBASSERT( version != co::VERSION_NONE );
-//        LBINFO << "Committed " << _userData->getID() << " v" << version
-//               << " of " << lunchbox::className( _userData ) << " @"
-//               << (void*)_userData << lunchbox::backtrace << std::endl;
+//        LBINFO << "Committed " << impl_->userData->getID() << " v" << version
+//               << " of " << lunchbox::className( impl_->userData ) << " @"
+//               << (void*)impl_->userData << lunchbox::backtrace << std::endl;
 
-        LBASSERT( !_userData->isDirty( ));
-        LBASSERT( _data.userData.identifier != _userData->getID() ||
-                  _data.userData.version <= version );
+        LBASSERT( !impl_->userData->isDirty( ));
+        LBASSERT( impl_->data.userData.identifier != impl_->userData->getID() ||
+                  impl_->data.userData.version <= version );
 
-        if( _userData->isMaster() && _data.userData != _userData )
+        if( impl_->userData->isMaster() && impl_->data.userData != impl_->userData )
         {
-            LBASSERTINFO( _data.userData.identifier != _userData->getID() ||
-                          _data.userData.version < _userData->getVersion(),
-                          _data.userData << " >= " <<
-                          co::ObjectVersion( _userData ));
+            LBASSERTINFO( impl_->data.userData.identifier !=
+                          impl_->userData->getID() ||
+                          impl_->data.userData.version <
+                          impl_->userData->getVersion(),
+                          impl_->data.userData << " >= " <<
+                          co::ObjectVersion( impl_->userData ));
 
-            _data.userData.identifier = _userData->getID();
-            _data.userData.version = version;
+            impl_->data.userData.identifier = impl_->userData->getID();
+            impl_->data.userData.version = version;
             setDirty( DIRTY_USERDATA );
         }
     }
@@ -103,64 +141,64 @@ uint128_t Object::commit( const uint32_t incarnation )
 void Object::notifyDetach()
 {
     Serializable::notifyDetach();
-    if( !_userData )
+    if( !impl_->userData )
         return;
 
-    LBASSERT( !_userData->isAttached() ||
-              _userData->isMaster() == hasMasterUserData( ));
+    LBASSERT( !impl_->userData->isAttached() ||
+              impl_->userData->isMaster() == hasMasterUserData( ));
 
-    if( _userData->isMaster( ))
-        _data.userData = co::ObjectVersion( 0 );
+    if( impl_->userData->isMaster( ))
+        impl_->data.userData = co::ObjectVersion( 0 );
 
-    getLocalNode()->releaseObject( _userData );
+    getLocalNode()->releaseObject( impl_->userData );
 }
 
 void Object::backup()
 {
-    LBASSERT( !_userData );
-    _backup = _data;
+    LBASSERT( !impl_->userData );
+    impl_->backup = impl_->data;
 }
 
 void Object::restore()
 {
-    LBASSERT( !_userData );
-    _data = _backup;
+    LBASSERT( !impl_->userData );
+    impl_->data = impl_->backup;
     setDirty( DIRTY_NAME | DIRTY_USERDATA );
 }
 
 void Object::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_NAME )
-        os << _data.name;
+        os << impl_->data.name;
     if( dirtyBits & DIRTY_USERDATA )
-        os << _data.userData;
+        os << impl_->data.userData;
     if( dirtyBits & DIRTY_TASKS )
-        os << _tasks;
+        os << impl_->tasks;
     if( dirtyBits & DIRTY_REMOVED )
     {
         LBASSERT( !isMaster() ||
-                  ( _removedChildren.empty() && dirtyBits == DIRTY_ALL ))
-        os << _removedChildren;
-        _removedChildren.clear();
+                  ( impl_->removedChildren.empty() && dirtyBits == DIRTY_ALL ))
+        os << impl_->removedChildren;
+        impl_->removedChildren.clear();
     }
     if( (dirtyBits & DIRTY_SERIAL) && isMaster( ))
     {
-        _serial = getInstanceID();
-        os << _serial;
+        impl_->serial = getInstanceID();
+        os << impl_->serial;
     }
 }
 
 void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_NAME )
-        is >> _data.name;
+        is >> impl_->data.name;
     if( dirtyBits & DIRTY_USERDATA )
     {
-        is >> _data.userData;
+        is >> impl_->data.userData;
         // map&sync below to allow early exits
     }
     if( dirtyBits & DIRTY_TASKS )
-        is >> _tasks;
+        is >> impl_->tasks;
     if( dirtyBits & DIRTY_REMOVED )
     {
         std::vector< uint128_t > removed;
@@ -176,63 +214,63 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         }
     }
     if( (dirtyBits & DIRTY_SERIAL) && !isMaster( ))
-        is >> _serial;
+        is >> impl_->serial;
 
     if( isMaster( )) // redistribute changes
         setDirty( dirtyBits & getRedistributableBits( ));
 
     // Update user data state
-    if( !(dirtyBits & DIRTY_USERDATA) || !_userData )
+    if( !(dirtyBits & DIRTY_USERDATA) || !impl_->userData )
         return;
 
-    LBASSERTINFO( _data.userData.identifier != _userData->getID() ||
-                  _data.userData.version >= _userData->getVersion() ||
-                  _userData->isMaster(),
-                  "Incompatible version, new " << _data.userData << " old " <<
-                  co::ObjectVersion( _userData ));
+    LBASSERTINFO( impl_->data.userData.identifier != impl_->userData->getID() ||
+                  impl_->data.userData.version >= impl_->userData->getVersion() ||
+                  impl_->userData->isMaster(),
+                  "Incompatible version, new " << impl_->data.userData << " old " <<
+                  co::ObjectVersion( impl_->userData ));
 
-    if( _data.userData.identifier == 0 )
+    if( impl_->data.userData.identifier == 0 )
     {
-        if( _userData->isAttached() && !_userData->isMaster( ))
+        if( impl_->userData->isAttached() && !impl_->userData->isMaster( ))
         {
             LBASSERT( !hasMasterUserData( ));
-            getLocalNode()->unmapObject( _userData );
+            getLocalNode()->unmapObject( impl_->userData );
         }
         return;
     }
 
-    if( !_userData->isAttached() && _data.userData.identifier != 0 )
+    if( !impl_->userData->isAttached() && impl_->data.userData.identifier != 0 )
     {
         LBASSERT( !hasMasterUserData( ));
-        //LBINFO << "Map " << _data.userData << lunchbox::backtrace
+        //LBINFO << "Map " << impl_->data.userData << lunchbox::backtrace
         //       << std::endl;
-        if( !getLocalNode()->mapObject( _userData, _data.userData ))
+        if( !getLocalNode()->mapObject( impl_->userData, impl_->data.userData ))
         {
-            LBWARN << "Mapping of " << lunchbox::className( _userData )
+            LBWARN << "Mapping of " << lunchbox::className( impl_->userData )
                    << " user data failed" << std::endl;
             LBUNREACHABLE;
             return;
         }
     }
 
-    if( !_userData->isMaster() && _userData->isAttached( ))
+    if( !impl_->userData->isMaster() && impl_->userData->isAttached( ))
     {
-        LBASSERTINFO( _userData->getID() == _data.userData.identifier,
-                      _userData->getID() << " != " << _data.userData.identifier );
+        LBASSERTINFO( impl_->userData->getID() == impl_->data.userData.identifier,
+                      impl_->userData->getID() << " != " << impl_->data.userData.identifier );
 #if 0
-        if( _userData->getVersion() < _data.userData.version )
-            LBINFO << "Sync " << _data.userData << lunchbox::backtrace
+        if( impl_->userData->getVersion() < impl_->data.userData.version )
+            LBINFO << "Sync " << impl_->data.userData << lunchbox::backtrace
                    << std::endl;
 #endif
-        _userData->sync( _data.userData.version );
+        impl_->userData->sync( impl_->data.userData.version );
     }
 }
 
 void Object::setName( const std::string& name )
 {
-    if( _data.name == name )
+    if( impl_->data.name == name )
         return;
-    _data.name = name;
+    impl_->data.name = name;
     setDirty( DIRTY_NAME );
 }
 
@@ -240,37 +278,57 @@ void Object::setUserData( co::Object* userData )
 {
     LBASSERT( !userData || !userData->isAttached() );
 
-    if( _userData == userData )
+    if( impl_->userData == userData )
         return;
 
-    if( _userData && _userData->isAttached( ))
+    if( impl_->userData && impl_->userData->isAttached( ))
     {
-        LBASSERT( _userData->isMaster() == hasMasterUserData( ));
-        _userData->getLocalNode()->releaseObject( _userData );
+        LBASSERT( impl_->userData->isMaster() == hasMasterUserData( ));
+        impl_->userData->getLocalNode()->releaseObject( impl_->userData );
     }
 
-    _userData = userData;
+    impl_->userData = userData;
 
     if( hasMasterUserData( ))
         setDirty( DIRTY_USERDATA );
-    else if( _data.userData.identifier != 0 )
+    else if( impl_->data.userData.identifier != 0 )
     {
         co::LocalNodePtr node = getLocalNode();
         if( node.isValid() )
-            node->mapObject( _userData, _data.userData );
+            node->mapObject( impl_->userData, impl_->data.userData );
     }
+}
+
+co::Object* Object::getUserData()
+{
+    return impl_->userData;
+}
+
+const co::Object* Object::getUserData() const
+{
+    return impl_->userData;
+}
+
+uint32_t Object::getTasks() const
+{
+    return impl_->tasks;
+}
+
+uint32_t Object::getSerial() const
+{
+    return impl_->serial;
 }
 
 const std::string& Object::getName() const
 {
-    return _data.name;
+    return impl_->data.name;
 }
 
 void Object::setTasks( const uint32_t tasks )
 {
-    if( _tasks == tasks )
+    if( impl_->tasks == tasks )
         return;
-    _tasks = tasks;
+    impl_->tasks = tasks;
     setDirty( DIRTY_TASKS );
 }
 
@@ -283,7 +341,7 @@ void Object::postRemove( Object* child )
     LBASSERT( !child->isMaster( ));
     LBASSERT( !isMaster( ));
 
-    _removedChildren.push_back( child->getID( ));
+    impl_->removedChildren.push_back( child->getID( ));
     setDirty( DIRTY_REMOVED );
 
     co::LocalNodePtr localNode = child->getLocalNode();

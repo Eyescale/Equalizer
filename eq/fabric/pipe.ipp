@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -142,8 +142,7 @@ void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
             syncChildren( _windows );
         else
         {
-            bool useChildren;
-            is >> useChildren;
+            const bool useChildren = is.read< bool >();
             if( useChildren && _mapNodeObjects( ))
             {
                 Windows result;
@@ -152,10 +151,7 @@ void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
                 LBASSERT( _windows.size() == result.size( ));
             }
             else // consume unused ObjectVersions
-            {
-                co::ObjectVersions childIDs;
-                is >> childIDs;
-            }
+                is.read< co::ObjectVersions >();
         }
     }
     if( dirtyBits & DIRTY_PIXELVIEWPORT )

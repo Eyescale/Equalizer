@@ -41,7 +41,7 @@ namespace detail { class PixelBufferObject; }
  *
  * On correct PBO usage see: http://www.songho.ca/opengl/gl_pbo.html
  */
-class PixelBufferObject
+class PixelBufferObject : public boost::noncopyable
 {
 public:
     /**

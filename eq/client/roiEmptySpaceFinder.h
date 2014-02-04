@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2009, Maxim Makhinya
- *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,51 +24,51 @@
 
 namespace eq
 {
-    /** @internal Finds largest empty regions. */
-    class ROIEmptySpaceFinder
+/** @internal Finds largest empty regions. */
+class ROIEmptySpaceFinder
+{
+public:
+    ROIEmptySpaceFinder() : _limAbs( 200 ), _limRel( .002f ), _mask( 0 ) {}
+    virtual ~ROIEmptySpaceFinder(){};
+
+    /** Updated data structure from a given mask. Limits should be
+        re-initialized after calling this function */
+    void update( const uint8_t* mask, const int32_t w, const int32_t h );
+
+    /** Returns maximal empty pvp within a given pvp.
+        Uses mask data from update to check if single block is empty! */
+    PixelViewport getLargestEmptyArea( const PixelViewport& pvp ) const;
+
+    void setLimits( const int16_t absolute, const float relative )
     {
-    public:
-        ROIEmptySpaceFinder() : _mask( 0 ) {};
-        virtual ~ROIEmptySpaceFinder(){};
+        _limAbs = absolute;
+        _limRel = relative;
+    }
 
-        /** Updated data structure from a given mask. Limits should be
-            re-initialized after calling this function */
-        void update( const uint8_t* mask, const int32_t w, const int32_t h );
+private:
+    uint16_t _getArea( const int32_t x, const int32_t y,
+                       const int32_t w, const int32_t h ) const;
 
-        /** Returns maximal empty pvp within a given pvp.
-            Uses mask data from update to check if single block is empty! */
-        PixelViewport getLargestEmptyArea( const PixelViewport& pvp ) const;
+    uint16_t _getArea( const int32_t w, const int32_t h,
+                       const uint16_t* data ) const;
 
-        void setLimits( const int16_t absolute, const float relative )
-        {
-            _limAbs = absolute;
-            _limRel = relative;
-        }
+    /** Updates dimensions, resizes data if needed */
+    void _resize( const int32_t w, const int32_t h );
 
-    private:
-        uint16_t _getArea( const int32_t x, const int32_t y,
-                          const int32_t w, const int32_t h ) const;
+    bool _updateMaximalEmptyRegion( const int32_t x, const int32_t y,
+                                    const int32_t w, const int32_t h,
+                                    PixelViewport& pvp,
+                                    const uint16_t* data ) const;
 
-        uint16_t _getArea( const int32_t w, const int32_t h,
-                          const uint16_t* data ) const;
+    int32_t _w;
+    int32_t _h;
 
-        /** Updates dimensions, resizes data if needed */
-        void _resize( const int32_t w, const int32_t h );
+    int16_t _limAbs;
+    float   _limRel;
 
-        bool _updateMaximalEmptyRegion( const int32_t x, const int32_t y,
-                                        const int32_t w, const int32_t h,
-                                        PixelViewport& pvp,
-                                        const uint16_t* data ) const;
-
-        int32_t _w;
-        int32_t _h;
-
-        int16_t _limAbs;
-        float   _limRel;
-
-        Vectorus _data;
-        const uint8_t* _mask;
-    };
+    Vectorus _data;
+    const uint8_t* _mask;
+};
 }
 
 #endif // EQ_ROI_EMPTY_SPACE_FINDER_H

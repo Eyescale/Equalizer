@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,6 +40,43 @@ using boost::lexical_cast;
 
 namespace eq
 {
+namespace
+{
+#ifdef EQUALIZER_USE_CUDA
+static int _getFastestDeviceID()
+{
+#  if __DEVICE_EMULATION__
+    return 0;
+#  else
+    int device_count = 0;
+    cudaGetDeviceCount( &device_count );
+
+    cudaDeviceProp device_properties;
+    int max_gflops_device = 0;
+
+    int current_device = 0;
+    cudaGetDeviceProperties( &device_properties, current_device );
+    int max_gflops = device_properties.multiProcessorCount *
+        device_properties.clockRate;
+
+    ++current_device;
+    while( current_device < device_count )
+    {
+        cudaGetDeviceProperties( &device_properties, current_device );
+        const int gflops = device_properties.multiProcessorCount *
+            device_properties.clockRate;
+        if( gflops > max_gflops )
+        {
+            max_gflops        = gflops;
+            max_gflops_device = current_device;
+        }
+        ++current_device;
+    }
+    return max_gflops_device;
+#  endif
+}
+#endif
+}
 
 CUDAContext::CUDAContext( Pipe* parent ): ComputeContext( parent )
 {
@@ -48,12 +85,15 @@ CUDAContext::CUDAContext( Pipe* parent ): ComputeContext( parent )
 CUDAContext::~CUDAContext()
 {
 }
-#ifdef WIN32_API
 WGLEWContext* CUDAContext::wglewGetContext()
 {
-    return static_cast<wgl::Pipe*>(getPipe()->getSystemPipe())->wglewGetContext();
-}
+#ifdef WIN32_API
+    return
+        static_cast<wgl::Pipe*>(getPipe()->getSystemPipe())->wglewGetContext();
+#else
+    return 0;
 #endif
+}
 //--------------------------------------------------------------------------
 // CUDA init
 //--------------------------------------------------------------------------
@@ -140,43 +180,4 @@ void CUDAContext::configExit()
 #endif
 }
 
-//--------------------------------------------------------------------------
-// CUDA exit
-//--------------------------------------------------------------------------
-int CUDAContext::_getFastestDeviceID()
-{
-#ifdef EQUALIZER_USE_CUDA
-# if __DEVICE_EMULATION__
-    return 0;
-# else
-    int device_count = 0;
-    cudaGetDeviceCount( &device_count );
-
-    cudaDeviceProp device_properties;
-    int max_gflops_device = 0;
-
-    int current_device = 0;
-    cudaGetDeviceProperties( &device_properties, current_device );
-    int max_gflops = device_properties.multiProcessorCount *
-        device_properties.clockRate;
-
-    ++current_device;
-    while( current_device < device_count )
-    {
-        cudaGetDeviceProperties( &device_properties, current_device );
-        const int gflops = device_properties.multiProcessorCount *
-            device_properties.clockRate;
-        if( gflops > max_gflops )
-        {
-            max_gflops        = gflops;
-            max_gflops_device = current_device;
-        }
-        ++current_device;
-    }
-    return max_gflops_device;
-# endif
-#else
-    return 0;
-#endif
-}
 }

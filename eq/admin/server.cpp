@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -80,13 +80,12 @@ void Server::unmap()
     client->waitRequest( requestID );
 }
 
-void Server::syncConfig( const co::uint128_t& configID, const co::uint128_t& version  )
+void Server::syncConfig( const co::uint128_t& configID,
+                         const co::uint128_t& version  )
 {
     const Configs& configs = getConfigs();
-    for( eq::admin::Configs::const_iterator i = configs.begin();
-        i != configs.end(); i++ )
+    BOOST_FOREACH( Config* config, configs )
     {
-        Config* config = *i;
         if( config->getID() == configID )
             config->sync( version );
     }

@@ -101,6 +101,7 @@ Equalizer::Equalizer( const Equalizer& rhs )
     , _backup( 0 )
 {}
 
+// cppcheck-suppress operatorEqVarError
 Equalizer& Equalizer::operator=( const Equalizer& rhs )
 {
     if( this == &rhs )

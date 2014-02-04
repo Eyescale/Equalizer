@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -54,7 +54,7 @@ namespace server
         co::NodePtr getNode() const { return _node; }
         void setNode( co::NodePtr node ) { _node = node; }
 
-        void setHost( const std::string host ) { _host = host; }
+        void setHost( const std::string& host ) { _host = host; }
         const std::string& getHost() const { return _host; }
 
         Channel* getChannel( const ChannelPath& path );

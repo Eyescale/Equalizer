@@ -969,7 +969,7 @@ unsigned char *quantize(unsigned char *volume,
          for (i=0; i<width; i++)
             volume2[i+(j+k*height)*width]=(int)(err[DDS_get(volume3,width,height,depth,i,j,k)]+0.5);
 
-   delete err;
+   delete [] err;
    free(volume3);
 
    if (verbose)

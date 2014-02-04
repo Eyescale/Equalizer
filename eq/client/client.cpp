@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -46,6 +46,11 @@
 
 namespace eq
 {
+namespace
+{
+typedef stde::hash_set< Server* > ServerSet;
+}
+
 /** @cond IGNORE */
 namespace detail
 {
@@ -54,15 +59,16 @@ class Client
 public:
     Client()
         : queue( co::Global::getCommandQueueLimit( ))
-        , running( false )
         , modelUnit( EQ_UNDEFINED_UNIT )
+        , running( false )
     {}
 
     CommandQueue queue; //!< The command->node command queue.
-    bool running;
     Strings activeLayouts;
+    ServerSet localServers;
     std::string gpuFilter;
     float modelUnit;
+    bool running;
 };
 }
 
@@ -119,7 +125,7 @@ bool Client::connectServer( ServerPtr server )
         return false;
 
     server->setClient( this );
-    server->_localServer = true;
+    impl_->localServers.insert( server.get( ));
     return true;
 }
 
@@ -201,26 +207,25 @@ static void _joinLocalServer()
 
 bool Client::disconnectServer( ServerPtr server )
 {
-    bool success = true;
+    ServerSet::iterator i = impl_->localServers.find( server.get( ));
+    if( i == impl_->localServers.end( ))
+    {
+        server->setClient( 0 );
+        const bool success = Super::disconnectServer( server );
+        impl_->queue.flush();
+        return success;
+    }
 
     // shut down process-local server (see _startLocalServer)
-    if( server->_localServer )
-    {
-        LBASSERT( server->isConnected( ));
-        LBCHECK( server->shutdown( ));
-        _joinLocalServer();
-        server->_localServer = false;
-        server->setClient( 0 );
-        LBASSERT( !server->isConnected( ));
-    }
-    else
-    {
-        server->setClient( 0 );
-        success = Super::disconnectServer( server.get( ));
-    }
+    LBASSERT( server->isConnected( ));
+    LBCHECK( server->shutdown( ));
+    _joinLocalServer();
+    server->setClient( 0 );
 
+    LBASSERT( !server->isConnected( ));
+    impl_->localServers.erase( i );
     impl_->queue.flush();
-    return success;
+    return true;
 }
 
 namespace

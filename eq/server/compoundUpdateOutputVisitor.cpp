@@ -198,6 +198,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
     std::vector< Vector2i > tiles;
     tiles.reserve( dim.x() * dim.y() );
 
+    // cppcheck-suppress unassignedVariable
     tiles::TILE_STRATEGY strategy;
     strategy( tiles, dim );
     _addTilesToQueue( queue, compound, tiles );

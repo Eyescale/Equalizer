@@ -42,10 +42,10 @@ static GLuint createPreintegrationTable( const uint8_t* Table );
 static bool readTransferFunction( FILE* file, std::vector<uint8_t>& TF );
 
 static bool readDimensionsAndScaling
-( 
-    FILE* file, 
-    uint32_t& w, uint32_t& h, uint32_t& d, 
-    VolumeScaling& volScaling 
+(
+    FILE* file,
+    uint32_t& w, uint32_t& h, uint32_t& d,
+    VolumeScaling& volScaling
 );
 
 
@@ -82,7 +82,7 @@ bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
 
     // test for raw+der or raw
     const size_t fNameLen = _filename.length();
-    _hasDerivatives = 
+    _hasDerivatives =
         ( fNameLen >= 6 && _filename.substr( fNameLen-6, 6 ) == "_d.raw" ) ?
         true : false;
 
@@ -150,7 +150,6 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
     info.TD         = volumePart->TD;
     info.preint     = _preintName;
     info.volScaling = _volScaling;
-    info.hasDerivatives = _hasDerivatives;
     if( _hasDerivatives )
     {
         info.voxelSize.W  = 1.f;
@@ -182,7 +181,7 @@ static uint32_t calcMinPow2( uint32_t size )
 {
     if( size == 0 )
         return 0;
-    
+
     size--;
     uint32_t res = 1;
 
@@ -243,7 +242,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
             << " h: "  << h << " " << _tH
             << " d: "  << d << " " << depth << " " << _tD           << std::endl
             << " r: "  << _resolution                              << std::endl
-            << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D 
+            << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D
             << " Do: " << TD.Do << " Db: " << TD.Db                << std::endl
             << " s= "  << start << " e= "  << end                  << std::endl;
 
@@ -312,8 +311,8 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 }
 
 
-/** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model 
-    is not cube it's proportions should be modified. This function makes 
+/** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model
+    is not cube it's proportions should be modified. This function makes
     maximum proportion equal to 1.0 to prevent unnecessary rescaling.
 */
 static void normalizeScaling
@@ -341,10 +340,10 @@ static void normalizeScaling
 
 
 static bool readDimensionsAndScaling
-( 
-    FILE* file, 
-    uint32_t& w, uint32_t& h, uint32_t& d, 
-    VolumeScaling& volScaling 
+(
+    FILE* file,
+    uint32_t& w, uint32_t& h, uint32_t& d,
+    VolumeScaling& volScaling
 )
 {
     if( fscanf( file, "w=%u\n", &w ) == EOF )
@@ -368,8 +367,8 @@ static bool readDimensionsAndScaling
     }
 
     if( w<1 || h<1 || d<1 ||
-        volScaling.W<0.001 || 
-        volScaling.H<0.001 || 
+        volScaling.W<0.001 ||
+        volScaling.H<0.001 ||
         volScaling.W<0.001    )
     {
         LBERROR << "volume scaling is incorrect, check header file"<< std::endl;
@@ -418,7 +417,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
-            LBERROR << "Failed to read entity #" << i 
+            LBERROR << "Failed to read entity #" << i
                     << " of TF from header file" << std::endl;
             return i;
         }
@@ -443,7 +442,7 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
         // average Alpha from two neighbouring TF values
         const double tauc =   ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2. / 255.;
 
-        // SAT of average RGBs from two neighbouring TF values 
+        // SAT of average RGBs from two neighbouring TF values
         // multiplied with Alpha
         rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc;
         gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc;
@@ -492,7 +491,7 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
     GLuint preintName = 0;
     glGenTextures( 1, &preintName );
     glBindTexture( GL_TEXTURE_2D, preintName );
-    glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, 
+    glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0,
                    GL_RGBA, GL_UNSIGNED_BYTE, &lookupImg[0] );
 
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE );

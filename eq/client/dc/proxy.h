@@ -28,7 +28,7 @@ namespace dc
 namespace detail { class Proxy; }
 
 /** @internal */
-class Proxy
+class Proxy : public boost::noncopyable
 {
 public:
     /** Construct a DisplayCluster proxy associated to a destination channel. */
@@ -62,9 +62,7 @@ public:
      */
     void stopRunning();
 
-    /** @return the latest window Event.
-     *  @sa hasNewEvent()
-     */
+    /** @return the latest window Event. @sa hasNewEvent() */
     ::dc::Event getEvent() const;
 
 private:

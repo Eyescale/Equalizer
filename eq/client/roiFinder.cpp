@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2009, Maxim Makhinya
- *               2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,11 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-//#define EQ_USE_ROI                // use ROI
 #define EQ_ROI_USE_TRACKER        // disable ROI in case it can't help
 //#define EQ_ROI_USE_DEPTH_TEXTURE  // use depth texture instead of color
-
-//#define EQ_ROI_TEST_SPEED         // measure and print ROI speed
 
 #include "roiFinder.h"
 
@@ -90,8 +87,6 @@ void ROIFinder::_dumpDebug( const GLEWContext* gl, const uint32_t stage )
     LBWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
     _tmpImg.writeImages( ss.str( ));
 }
-
-
 
 PixelViewport ROIFinder::_getObjectPVP( const PixelViewport& pvp,
                                         const uint8_t*       src )
@@ -260,9 +255,8 @@ void ROIFinder::_updateSubArea( const uint8_t type )
 
     a.emptySize = pvp.getArea() - a.pvp.getArea() + a.hole.getArea();
 
-    LBASSERT( !a.valid );
-
 #ifndef NDEBUG
+    LBASSERT( !a.valid );
     a.valid = true;
 #endif
 }
@@ -440,7 +434,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
         for( uint8_t j = 0; j < areasPerVariant; j++ )
         {
             LBASSERT( _tmpAreas[_compilations16[variant][j]].valid );
-            _finalAreas[j] = &_tmpAreas[_compilations16[variant][j]];
+            _finalAreas[j] = _tmpAreas[_compilations16[variant][j]];
         }
 
         return areasPerVariant;
@@ -466,7 +460,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
     for( uint8_t j = 0; j < areasPerVariant; j++ )
     {
         LBASSERT( _tmpAreas[_compilations[type][variant][j]].valid );
-        _finalAreas[j] = &_tmpAreas[_compilations[type][variant][j]];
+        _finalAreas[j] = _tmpAreas[_compilations[type][variant][j]];
     }
 
     return areasPerVariant;
@@ -501,13 +495,13 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
 
         for( uint8_t i = 0; i < n; i++ )
         {
-            LBASSERT( _finalAreas[i]->valid );
-            LBASSERT( _finalAreas[i]->pvp.hasArea( ));
+            LBASSERT( _finalAreas[i].valid );
+            LBASSERT( _finalAreas[i].pvp.hasArea( ));
 
-            if( _finalAreas[i]->hole.getArea() == 0 )
-                resultPVPs.push_back( _finalAreas[i]->pvp );
+            if( _finalAreas[i].hole.getArea() == 0 )
+                resultPVPs.push_back( _finalAreas[i].pvp );
             else
-                _areasToCheck.push_back( *_finalAreas[i] );
+                _areasToCheck.push_back( _finalAreas[i] );
         }
     }
 
@@ -682,19 +676,8 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
     PixelViewports result;
     result.push_back( pvp );
 
-#ifndef EQ_USE_ROI
-    return result; // disable read back info usage
-#endif
-
-#ifdef EQ_ROI_TEST_SPEED
-    lunchbox::Clock clock;
-    clock.reset();
-for( int i = 0; i < 100; i++ ) {
-#endif
-
-    LBLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
-                            << ", buffers " << buffers
-                            << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "ROIFinder::getObjects " << pvp << ", buffers "
+                          << buffers << std::endl;
 
     if( zoom != Zoom::NONE )
     {
@@ -733,28 +716,6 @@ for( int i = 0; i < 100; i++ ) {
     _roiTracker.updateDelay( result, ticket );
 #endif
 
-#ifdef EQ_ROI_TEST_SPEED
-}
-    const float time = clock.getTimef() / 100;
-    const float fps  = 1000.f / time;
-
-    static float minFPS = 10000;    minFPS = LB_MIN( fps, minFPS );
-    static float maxFPS = 0;        maxFPS = LB_MAX( fps, maxFPS );
-    static float sumFPS = 0;        sumFPS += fps;
-    static float frames = 0;        frames++;
-
-    const float avgFPS = sumFPS / frames;
-    LBWARN << "=============================================" << std::endl;
-    LBWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
-          << " ms) max fps: " << maxFPS << " (" << 1000.f/maxFPS
-          << " ms) avg fps: " << avgFPS << " (" << 1000.f/avgFPS
-          << " ms) cur fps: " << fps    << " (" << 1000.f/fps
-          << " ms) areas found: " << result.size() << std::endl;
-
-    if( frames < 5 ) { minFPS = 10000; maxFPS = 0; }
-#endif //EQ_ROI_TEST_SPEED
-
-//    LBWARN << "Areas found: " << result.size() << std::endl;
     return result;
 }
 

@@ -57,7 +57,10 @@ namespace
 struct Memory : public PixelData
 {
 public:
-    Memory() : state( INVALID ) {}
+    Memory()
+        : state( INVALID )
+        , hasAlpha( true )
+    {}
 
     void flush()
     {
@@ -1130,13 +1133,14 @@ struct RGBHeader
 
 void put32f( std::ostream& os, const char* ptr )
 {
-    const float& value = *(float*)(ptr);
+    // cppcheck-suppress invalidPointerCast
+    const float& value = *reinterpret_cast< const float* >( ptr );
     const uint8_t byte = uint8_t( value * 255.f );
     os.write( (const char*)&byte, 1 );
 }
 void put16f( std::ostream& os, const char* ptr )
 {
-    const uint16_t& value = *(uint16_t*)(ptr);
+    const uint16_t& value = *reinterpret_cast< const uint16_t* >(ptr);
     const float f = half_to_float( value );
     put32f( os, (const char*)&f );
 }

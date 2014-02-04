@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
@@ -751,9 +751,9 @@ bool Node::_cmdFrameDataReady( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const co::ObjectVersion frameDataVersion =
+    const co::ObjectVersion& frameDataVersion =
                                             command.get< co::ObjectVersion >();
-    const FrameData::Data data = command.get< FrameData::Data >();
+    const FrameData::Data& data = command.get< FrameData::Data >();
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << frameDataVersion
                           << std::endl;

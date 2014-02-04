@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -51,6 +51,7 @@ Equalizer::Equalizer( const Equalizer& from )
         , _active( from._active )
 {}
 
+// cppcheck-suppress operatorEqVarError
 Equalizer& Equalizer::operator=( const fabric::Equalizer& from )
 {
     fabric::Equalizer::operator = ( from );

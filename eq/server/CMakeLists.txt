@@ -10,6 +10,10 @@ bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
 
 flex_target(LEXER loader.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 add_flex_bison_dependency(LEXER PARSER)
+list(APPEND CPPCHECK_EXTRA_ARGS
+  --suppress=unusedStructMember:${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp
+  --suppress=uselessAssignmentPtrArg:${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
+  --suppress=noQuoteCharPair:${CMAKE_CURRENT_SOURCE_DIR}/loader.l)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 

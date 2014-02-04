@@ -45,7 +45,8 @@ public:
     /**
      * Open and connect an Equalizer server to the local client.
      *
-     * The client has to be in the listening state, see initLocal().
+     * The client has to be in the listening state, see initLocal(). Not thread
+     * safe.
      *
      * @param server the server.
      * @return true if the server was connected, false if not.
@@ -55,6 +56,8 @@ public:
 
     /**
      * Disconnect and close the connection to an Equalizer server.
+     *
+     * Not thread safe.
      *
      * @param server the server.
      * @return true if the server was disconnected, false if not.

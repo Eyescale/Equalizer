@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2014, Cedric Stalder <cedric.stalder@gmail.com>
  *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -43,6 +43,7 @@ namespace
 }
 
 Compressor::Compressor()
+    : _nResults( 0 )
 {}
 
 Compressor::~Compressor()

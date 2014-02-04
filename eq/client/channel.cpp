@@ -1890,7 +1890,7 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
         co::ObjectOCommand( co::Connections( 1, toNode->getConnection( )),
                             fabric::CMD_NODE_FRAMEDATA_READY,
                             co::COMMANDTYPE_OBJECT, *i, CO_INSTANCE_ALL )
-            << frameDataVersion << frameData->_data;
+            << frameDataVersion << frameData->getData();
     }
 
     _unrefFrame( frameNumber );

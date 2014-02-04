@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,22 +35,22 @@ std::string glError( const GLenum error )
 {
     switch( error )
     {
-        case GL_INVALID_ENUM:
-            return std::string( "GL_INVALID_ENUM" );
-        case GL_INVALID_VALUE:
-            return std::string( "GL_INVALID_VALUE" );
-        case GL_INVALID_OPERATION:
-            return std::string( "GL_INVALID_OPERATION" );
-        case GL_STACK_OVERFLOW:
-            return std::string( "GL_STACK_OVERFLOW" );
-        case GL_STACK_UNDERFLOW:
-            return std::string( "GL_STACK_UNDERFLOW" );
-        case GL_OUT_OF_MEMORY:
-            return std::string( "GL_OUT_OF_MEMORY" );
-      case GL_INVALID_FRAMEBUFFER_OPERATION:
-          return std::string( "GL_INVALID_FRAMEBUFFER_OPERATION" );
-        default:
-            break;
+    case GL_INVALID_ENUM:
+        return std::string( "GL_INVALID_ENUM" );
+    case GL_INVALID_VALUE:
+        return std::string( "GL_INVALID_VALUE" );
+    case GL_INVALID_OPERATION:
+        return std::string( "GL_INVALID_OPERATION" );
+    case GL_STACK_OVERFLOW:
+        return std::string( "GL_STACK_OVERFLOW" );
+    case GL_STACK_UNDERFLOW:
+        return std::string( "GL_STACK_UNDERFLOW" );
+    case GL_OUT_OF_MEMORY:
+        return std::string( "GL_OUT_OF_MEMORY" );
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        return std::string( "GL_INVALID_FRAMEBUFFER_OPERATION" );
+    default:
+        break;
     }
 
     std::ostringstream os;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,7 +35,10 @@ TileQueue::TileQueue()
         , _size( 0, 0 )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
         _queueMaster[i] = 0;
+        _outputQueue[i] = 0;
+    }
 }
 
 TileQueue::TileQueue( const TileQueue& from )
@@ -45,7 +48,10 @@ TileQueue::TileQueue( const TileQueue& from )
         , _size( from._size )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
         _queueMaster[i] = 0;
+        _outputQueue[i] = 0;
+    }
 }
 
 TileQueue::~TileQueue()

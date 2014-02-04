@@ -100,12 +100,6 @@ public:
 
     /** @name Frame Buffer Object support. */
     //@{
-    /** Build and initialize the FBO. @version 1.0 */
-    EQ_API bool configInitFBO();
-
-    /** Destroy FBO. @version 1.0 */
-    EQ_API void configExitFBO();
-
     /** @return the FBO of this window, or 0. @version 1.0 */
     virtual const util::FrameBufferObject* getFrameBufferObject()
         const { return 0; }

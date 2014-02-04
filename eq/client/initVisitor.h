@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2013-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,43 +23,43 @@ class InitVisitor : public ConfigVisitor
 {
 public:
     InitVisitor( const Strings& activeLayouts, const float modelUnit )
-            : _layouts( activeLayouts ), _modelUnit( modelUnit )
-            , _update( false ) {}
+        : _layouts( activeLayouts ), _modelUnit( modelUnit ), _update( false )
+    {}
 
     virtual VisitorResult visit( eq::Observer* observer )
-        {
-            if( observer->configInit( ))
-                return TRAVERSE_CONTINUE;
-            LBWARN << *observer << " initialization failed" << std::endl;
-            return TRAVERSE_TERMINATE;
-        }
+    {
+        if( observer->configInit( ))
+            return TRAVERSE_CONTINUE;
+        LBWARN << *observer << " initialization failed" << std::endl;
+        return TRAVERSE_TERMINATE;
+    }
 
     virtual VisitorResult visit( eq::View* view )
-        {
-            if( view->setModelUnit( _modelUnit ))
-                _update = true;
-            return TRAVERSE_CONTINUE;
-        }
+    {
+        if( view->setModelUnit( _modelUnit ))
+            _update = true;
+        return TRAVERSE_CONTINUE;
+    }
 
     virtual VisitorResult visitPre( eq::Canvas* canvas )
-        {
-            const Layouts& layouts = canvas->getLayouts();
+    {
+        const Layouts& layouts = canvas->getLayouts();
 
-            for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
+        for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
+        {
+            const std::string& name = *i;
+            for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
             {
-                const std::string& name = *i;
-                for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
+                const eq::Layout* layout = *j;
+                if( layout->getName() == name &&
+                    canvas->useLayout( j - layouts.begin( )))
                 {
-                    const Layout* layout = *j;
-                    if( layout->getName() == name &&
-                        canvas->useLayout( j - layouts.begin( )))
-                    {
-                        _update = true;
-                    }
+                    _update = true;
                 }
             }
-            return TRAVERSE_CONTINUE;
         }
+        return TRAVERSE_CONTINUE;
+    }
 
     bool needsUpdate() const { return _update; }
 
