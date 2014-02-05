@@ -171,7 +171,7 @@ int RawConverter::parseArguments( int argc, char** argv )
         }
         throw std::runtime_error("Converter options were not specified completely.");
     }
-    catch( std::exception& e )
+    catch( const std::exception& e )
     {
         std::cerr << "Command line parse error: " << e.what() << std::endl;
         return EXIT_FAILURE;

@@ -38,7 +38,7 @@ public:
     const uint32_t glError;
 
 private:
-    std::string what_;
+    std::string _what;
 };
 }
 

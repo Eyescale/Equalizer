@@ -29,7 +29,7 @@ typedef fabric::Layout< Config, Layout, View > Super;
 
 Layout::Layout( Config* parent )
     : Super( parent )
-    , impl_( 0 )
+    , _impl( 0 )
 {
 }
 

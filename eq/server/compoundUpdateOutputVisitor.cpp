@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,16 +25,11 @@
 #include "tileQueue.h"
 #include "window.h"
 
-#include "tiles/rasterStrategy.h"
-#include "tiles/spiralStrategy.h"
-#include "tiles/squareStrategy.h"
 #include "tiles/zigzagStrategy.h"
 
 #include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/tile.h>
-
-#define TILE_STRATEGY ZigzagStrategy
 
 namespace eq
 {
@@ -198,9 +193,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
     std::vector< Vector2i > tiles;
     tiles.reserve( dim.x() * dim.y() );
 
-    // cppcheck-suppress unassignedVariable
-    tiles::TILE_STRATEGY strategy;
-    strategy( tiles, dim );
+    tiles::generateZigzag( tiles, dim );
     _addTilesToQueue( queue, compound, tiles );
 }
 

@@ -134,7 +134,7 @@ protected:
     EQ_API virtual void exitClient();
 
 private:
-    detail::Client* const impl_;
+    detail::Client* const _impl;
 
     /** @sa co::LocalNode::createNode */
     EQ_API virtual co::NodePtr createNode( const uint32_t type );

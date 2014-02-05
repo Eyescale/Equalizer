@@ -23,12 +23,12 @@ namespace eq
 GLException::GLException( const uint32_t glError_ )
     : Exception( GL_ERROR )
     , glError( glError_ )
-    , what_( eq::glError( glError_ ))
+    , _what( eq::glError( glError_ ))
 {}
 
 const char* GLException::what() const throw()
 {
-    return what_.c_str();
+    return _what.c_str();
 }
 
 }

@@ -98,7 +98,7 @@ namespace detail { class Observer; }
         //@}
 
     private:
-        detail::Observer* const impl_;
+        detail::Observer* const _impl;
     };
 }
 #endif // EQ_OBSERVER_H

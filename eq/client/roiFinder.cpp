@@ -687,7 +687,6 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
     }
 
 #ifdef EQ_ROI_USE_TRACKER
-//    LBWARN << "frID: " << frameID << " stage: " << stage << std::endl;
     uint8_t* ticket;
     if( !_roiTracker.useROIFinder( pvp, stage, frameID, ticket ))
         return result;
@@ -703,14 +702,12 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
 
     // Analyze readed back data and find regions of interest
     _init( );
-//    _dumpDebug( glewGetContext(), 0 );
 
     _emptyFinder.update( &_mask[0], _wb, _hb );
     _emptyFinder.setLimits( 200, 0.002f );
 
     result.clear();
     _findAreas( result );
-//    _dumpDebug( glewGetContext(), 1 );
 
 #ifdef EQ_ROI_USE_TRACKER
     _roiTracker.updateDelay( result, ticket );

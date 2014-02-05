@@ -63,7 +63,7 @@ public:
     //@}
 
 private:
-    detail::Canvas* const impl_;
+    detail::Canvas* const _impl;
 };
 }
 #endif // EQ_CANVAS_H

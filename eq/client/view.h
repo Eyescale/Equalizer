@@ -101,7 +101,7 @@ namespace detail { class View; }
         EQ_API virtual void detach();
 
     private:
-        detail::View* const impl_;
+        detail::View* const _impl;
 
         Pipe* _pipe; // for render-client views
         friend class Pipe;

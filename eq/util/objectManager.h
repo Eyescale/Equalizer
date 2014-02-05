@@ -150,7 +150,7 @@ public:
 
 private:
     typedef lunchbox::RefPtr< detail::ObjectManager > SharedDataPtr;
-    SharedDataPtr impl_;
+    SharedDataPtr _impl;
 };
 }
 }

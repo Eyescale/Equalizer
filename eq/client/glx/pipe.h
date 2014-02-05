@@ -21,7 +21,6 @@
 
 #include <eq/client/glx/types.h>
 
-#include <eq/client/gl.h>         // GLXEWContext
 #include <eq/client/systemPipe.h> // base class
 
 namespace eq
@@ -98,7 +97,7 @@ protected:
     virtual bool configInitGL() { return true; }
 
 private:
-    detail::Pipe* const impl_;
+    detail::Pipe* const _impl;
 
     bool _configInitGLXEW();
 };

@@ -85,10 +85,10 @@ typedef fabric::Client Super;
 
 Client::Client()
         : Super()
-        , impl_( new detail::Client )
+        , _impl( new detail::Client )
 {
     registerCommand( fabric::CMD_CLIENT_EXIT,
-                     ClientFunc( this, &Client::_cmdExit ), &impl_->queue );
+                     ClientFunc( this, &Client::_cmdExit ), &_impl->queue );
 
     LBVERB << "New client at " << (void*)this << std::endl;
 }
@@ -98,7 +98,7 @@ Client::~Client()
     LBVERB << "Delete client at " << (void*)this << std::endl;
     LBASSERT( isClosed( ));
     close();
-    delete impl_;
+    delete _impl;
 }
 
 bool Client::connectServer( ServerPtr server )
@@ -125,7 +125,7 @@ bool Client::connectServer( ServerPtr server )
         return false;
 
     server->setClient( this );
-    impl_->localServers.insert( server.get( ));
+    _impl->localServers.insert( server.get( ));
     return true;
 }
 
@@ -207,25 +207,25 @@ static void _joinLocalServer()
 
 bool Client::disconnectServer( ServerPtr server )
 {
-    ServerSet::iterator i = impl_->localServers.find( server.get( ));
-    if( i == impl_->localServers.end( ))
+    ServerSet::iterator i = _impl->localServers.find( server.get( ));
+    if( i == _impl->localServers.end( ))
     {
         server->setClient( 0 );
         const bool success = Super::disconnectServer( server );
-        impl_->queue.flush();
+        _impl->queue.flush();
         return success;
     }
 
     // shut down process-local server (see _startLocalServer)
     LBASSERT( server->isConnected( ));
-    LBCHECK( server->shutdown( ));
+    const bool success = server->shutdown();
     _joinLocalServer();
     server->setClient( 0 );
 
     LBASSERT( !server->isConnected( ));
-    impl_->localServers.erase( i );
-    impl_->queue.flush();
-    return true;
+    _impl->localServers.erase( i );
+    _impl->queue.flush();
+    return success;
 }
 
 namespace
@@ -260,13 +260,13 @@ bool Client::initLocal( const int argc, char** argv )
             }
         }
         else if( _isParameterOption( "--eq-layout", argc, argv, i ))
-            impl_->activeLayouts.push_back( argv[++i] );
+            _impl->activeLayouts.push_back( argv[++i] );
         else if( _isParameterOption( "--eq-gpufilter" , argc, argv, i ))
-            impl_->gpuFilter = argv[ ++i ];
+            _impl->gpuFilter = argv[ ++i ];
         else if( _isParameterOption( "--eq-modelunit", argc, argv, i ))
         {
             std::istringstream unitString( argv[++i] );
-            unitString >> impl_->modelUnit;
+            unitString >> _impl->modelUnit;
         }
     }
     LBVERB << "Launching " << getNodeID() << std::endl;
@@ -340,18 +340,18 @@ void Client::clientLoop()
 {
     LBINFO << "Entered client loop" << std::endl;
 
-    impl_->running = true;
-    while( impl_->running )
+    _impl->running = true;
+    while( _impl->running )
         processCommand();
 
     // cleanup
-    impl_->queue.flush();
+    _impl->queue.flush();
 }
 
 bool Client::exitLocal()
 {
-    impl_->activeLayouts.clear();
-    impl_->modelUnit = EQ_UNDEFINED_UNIT;
+    _impl->activeLayouts.clear();
+    _impl->modelUnit = EQ_UNDEFINED_UNIT;
     return fabric::Client::exitLocal();
 }
 
@@ -368,27 +368,27 @@ void Client::exitClient()
 
 bool Client::hasCommands()
 {
-    return !impl_->queue.isEmpty();
+    return !_impl->queue.isEmpty();
 }
 
 co::CommandQueue* Client::getMainThreadQueue()
 {
-    return &impl_->queue;
+    return &_impl->queue;
 }
 
 const Strings& Client::getActiveLayouts()
 {
-    return impl_->activeLayouts;
+    return _impl->activeLayouts;
 }
 
 const std::string& Client::getGPUFilter() const
 {
-    return impl_->gpuFilter;
+    return _impl->gpuFilter;
 }
 
 float Client::getModelUnit() const
 {
-    return impl_->modelUnit;
+    return _impl->modelUnit;
 }
 
 co::NodePtr Client::createNode( const uint32_t type )
@@ -409,7 +409,7 @@ co::NodePtr Client::createNode( const uint32_t type )
 
 bool Client::_cmdExit( co::ICommand& command )
 {
-    impl_->running = false;
+    _impl->running = false;
     // Close connection here, this is the last command we'll get on it
     command.getLocalNode()->disconnect( command.getNode( ));
     return true;

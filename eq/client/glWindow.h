@@ -99,7 +99,7 @@ public:
     EQ_API void queryDrawableConfig( DrawableConfig& ) override;
 
 private:
-    detail::GLWindow* const impl_;
+    detail::GLWindow* const _impl;
 
     GLEWContext* glewGetContext();
 };

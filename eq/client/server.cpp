@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2014birgi, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -40,12 +40,11 @@ typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node,
 
 Server::Server()
     : Super( Global::getNodeFactory( ))
-    , impl_( 0 )
+    , _impl( 0 )
 {}
 
 Server::~Server()
 {
-//    delete impl_;
 }
 
 void Server::setClient( ClientPtr client )

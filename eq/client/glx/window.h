@@ -212,7 +212,7 @@ public:
     //@}
 
 private:
-    detail::Window* const impl_;
+    detail::Window* const _impl;
 
     /** Create an unmapped X11 window. */
     XID _createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp );

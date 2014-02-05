@@ -19,6 +19,7 @@
 
 #include "pipe.h"
 
+#include "../gl.h"
 #include "../global.h"
 #include "../log.h"
 #include "../pipe.h"
@@ -55,23 +56,23 @@ public:
 
 Pipe::Pipe( eq::Pipe* parent )
     : SystemPipe( parent )
-    , impl_( new detail::Pipe )
+    , _impl( new detail::Pipe )
 {
 }
 
 Pipe::~Pipe( )
 {
-    delete impl_;
+    delete _impl;
 }
 
 Display* Pipe::getXDisplay() const
 {
-    return impl_->xDisplay;
+    return _impl->xDisplay;
 }
 
 GLXEWContext* Pipe::glxewGetContext()
 {
-    return &impl_->glxewContext;
+    return &_impl->glxewContext;
 }
 
 //---------------------------------------------------------------------------
@@ -139,10 +140,10 @@ std::string Pipe::getXDisplayString()
 
 void Pipe::setXDisplay( Display* display )
 {
-    if( impl_->xDisplay == display )
+    if( _impl->xDisplay == display )
         return;
 
-    impl_->xDisplay = display;
+    _impl->xDisplay = display;
     XSetCurrentDisplay( display );
 
     GPUInfo info;
@@ -195,7 +196,7 @@ bool Pipe::getGPUInfo( Display* display, GPUInfo& info )
 
 bool Pipe::_configInitGLXEW()
 {
-    LBASSERT( impl_->xDisplay );
+    LBASSERT( _impl->xDisplay );
 
     //----- Create and make current a temporary GL context to initialize GLXEW
     // visual
@@ -203,8 +204,8 @@ bool Pipe::_configInitGLXEW()
     attributes.push_back( GLX_RGBA );
     attributes.push_back( None );
 
-    const int screen = DefaultScreen( impl_->xDisplay );
-    XVisualInfo *visualInfo = glXChooseVisual( impl_->xDisplay, screen,
+    const int screen = DefaultScreen( _impl->xDisplay );
+    XVisualInfo *visualInfo = glXChooseVisual( _impl->xDisplay, screen,
                                                &attributes.front( ));
     if( !visualInfo )
     {
@@ -213,7 +214,7 @@ bool Pipe::_configInitGLXEW()
     }
 
     //context
-    GLXContext context = glXCreateContext( impl_->xDisplay, visualInfo, 0,
+    GLXContext context = glXCreateContext( _impl->xDisplay, visualInfo, 0,
                                            True );
     if( !context )
     {
@@ -222,13 +223,13 @@ bool Pipe::_configInitGLXEW()
     }
 
     // window
-    const XID parent = RootWindow( impl_->xDisplay, screen );
+    const XID parent = RootWindow( _impl->xDisplay, screen );
     XSetWindowAttributes wa;
-    wa.colormap = XCreateColormap( impl_->xDisplay, parent, visualInfo->visual,
+    wa.colormap = XCreateColormap( _impl->xDisplay, parent, visualInfo->visual,
                                    AllocNone );
     wa.background_pixmap = None;
     wa.border_pixel = 0;
-    XID drawable = XCreateWindow( impl_->xDisplay, parent, 0, 0, 16, 16,
+    XID drawable = XCreateWindow( _impl->xDisplay, parent, 0, 0, 16, 16,
                                   0, visualInfo->depth, InputOutput,
                                   visualInfo->visual,
                                   CWBackPixmap | CWBorderPixel | CWColormap,
@@ -240,9 +241,9 @@ bool Pipe::_configInitGLXEW()
     }
 
     XFree( visualInfo );
-    XSync( impl_->xDisplay, False );
+    XSync( _impl->xDisplay, False );
 
-    glXMakeCurrent( impl_->xDisplay, drawable, context );
+    glXMakeCurrent( _impl->xDisplay, drawable, context );
 
     const GLenum result = glxewInit();
     bool success = result == GLEW_OK;
@@ -255,9 +256,9 @@ bool Pipe::_configInitGLXEW()
         sendError( ERROR_GLXPIPE_GLXEWINIT_FAILED )
             << lexical_cast< std::string >( result );
 
-    XSync( impl_->xDisplay, False );
-    glXDestroyContext( impl_->xDisplay, context );
-    XDestroyWindow( impl_->xDisplay, drawable );
+    XSync( _impl->xDisplay, False );
+    glXDestroyContext( _impl->xDisplay, context );
+    XDestroyWindow( _impl->xDisplay, drawable );
 
     return success;
 }

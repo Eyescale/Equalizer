@@ -80,7 +80,7 @@ protected:
     EQ_API virtual ~Server();
 
 private:
-    detail::Server* const impl_;
+    detail::Server* const _impl;
 
     /* The command handler functions. */
     bool _cmdChooseConfigReply( co::ICommand& command );

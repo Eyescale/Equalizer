@@ -159,9 +159,6 @@ private:
 
     bool _isAppNode; //!< execute render tasks in application process
 
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
-
     template< class, class, class, class > friend class Pipe;
     void _addPipe( P* pipe );
     bool _removePipe( P* pipe );

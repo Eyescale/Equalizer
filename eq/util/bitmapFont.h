@@ -26,7 +26,7 @@ namespace eq
 namespace util
 {
 /** A wrapper around AGL, WGL and GLX bitmap fonts. */
-class BitmapFont
+class BitmapFont : public boost::noncopyable
 {
 public:
     /**

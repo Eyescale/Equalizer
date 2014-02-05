@@ -24,6 +24,8 @@
 
 namespace eq
 {
+namespace detail { class Segment; }
+
 /**
  * A segment covers a sub-area of a Canvas. It has a Frustum, and defines one
  * output Channel of the whole projection area, typically a projector or screen.
@@ -50,6 +52,9 @@ public:
     /** @return the Server of this segment. @version 1.0 */
     EQ_API ServerPtr getServer();
     //@}
+
+private:
+    detail::Segment* const _impl;
 };
 
 }

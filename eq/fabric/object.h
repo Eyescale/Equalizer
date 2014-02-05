@@ -124,8 +124,7 @@ protected:
     EQFABRIC_API virtual ~Object();
 
     /** NOP assignment operator. @version 1.1.1 */
-    Object& operator = ( const Object& from )
-        { co::Serializable::operator = ( from ); return *this; }
+    EQFABRIC_API Object& operator = ( const Object& from );
 
     /**
      * @return true if this instance shall hold the master instance of the
@@ -201,7 +200,7 @@ protected:
     EQFABRIC_API bool _cmdSync( co::ICommand& command );
 
 private:
-    detail::Object* const impl_;
+    detail::Object* const _impl;
 };
 
 // Template Implementation

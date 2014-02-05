@@ -302,8 +302,6 @@ public:
         Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
                , phase( 0 ) {}
 
-        EQ_API Data& operator=( const Data& rhs );
-
         PixelViewport pvp;
         fabric::Frame::Type frameType;
         uint32_t      buffers;
@@ -334,7 +332,7 @@ protected:
     virtual void applyInstanceData( co::DataIStream& is );
 
 private:
-    detail::FrameData* const impl_;
+    detail::FrameData* const _impl;
 
     /** Allocate or reuse an image. */
     Image* _allocImage( const Frame::Type type,

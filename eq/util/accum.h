@@ -134,7 +134,7 @@ public:
     EQ_API const GLEWContext* glewGetContext() const;
 
 private:
-    detail::Accum* const impl_;
+    detail::Accum* const _impl;
 };
 }
 }

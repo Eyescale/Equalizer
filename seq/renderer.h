@@ -155,7 +155,7 @@ public:
 
     /** @name Data Access */
     //@{
-    detail::Renderer* getImpl() { return impl_; } //!< @internal
+    detail::Renderer* getImpl() { return _impl; } //!< @internal
     co::Object* getFrameData(); // @warning experimental
 
     /** @return the application instance for this renderer. @version 1.0 */
@@ -212,7 +212,7 @@ public:
     //@}
 
 private:
-    detail::Renderer* const impl_;
+    detail::Renderer* const _impl;
     Application& app_;
 };
 }

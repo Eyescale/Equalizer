@@ -261,7 +261,7 @@ protected:
     //@}
 
 private:
-    detail::Node* const impl_;
+    detail::Node* const _impl;
 
     void _setAffinity();
 

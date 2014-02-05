@@ -21,14 +21,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-#include <lunchbox/types.h>
-#include <string>
-
-namespace co
-{
-class DataOStream;
-class DataIStream;
-}
+#include <co/types.h>
 
 
 namespace eq
@@ -61,7 +54,7 @@ public:
         FLAG_LOAD_EQ_2D = LB_BIT7,
         /** @internal */
         FLAG_LOAD_EQ_ALL = FLAG_LOAD_EQ_HORIZONTAL | FLAG_LOAD_EQ_VERTICAL |
-        FLAG_LOAD_EQ_2D,
+                           FLAG_LOAD_EQ_2D,
         /** @internal */
         FLAG_NETWORK_ALL = FLAG_NETWORK_ETHERNET | FLAG_NETWORK_INFINIBAND
     };

@@ -32,27 +32,27 @@ namespace server
 {
 
 Equalizer::Equalizer()
-        : _compound( 0 )
-        , _active( true )
+    : _compound( 0 )
+    , _active( true )
 {
     LBVERB << "New Equalizer @" << (void*)this << std::endl;
 }
 
 Equalizer::Equalizer( const fabric::Equalizer& from )
-        : fabric::Equalizer( from )
-        , _compound( 0 )
-        , _active( true )
+    : fabric::Equalizer( from )
+    , _compound( 0 )
+    , _active( true )
 {}
 
 Equalizer::Equalizer( const Equalizer& from )
-        : fabric::Equalizer( from )
-        , CompoundListener( from )
-        , _compound( 0 )
-        , _active( from._active )
+    : fabric::Equalizer( from )
+    , CompoundListener( from )
+    , _compound( 0 )
+    , _active( from._active )
 {}
 
 // cppcheck-suppress operatorEqVarError
-Equalizer& Equalizer::operator=( const fabric::Equalizer& from )
+Equalizer& Equalizer::operator = ( const fabric::Equalizer& from )
 {
     fabric::Equalizer::operator = ( from );
     return *this;

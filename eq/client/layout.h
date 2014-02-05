@@ -59,7 +59,7 @@ public:
     //@}
 
 private:
-    detail::Layout* const impl_;
+    detail::Layout* const _impl;
 };
 }
 #endif // EQ_LAYOUT_H

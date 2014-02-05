@@ -24,24 +24,24 @@
 namespace seq
 {
 Renderer::Renderer( Application& application )
-    : impl_( new detail::Renderer )
+    : _impl( new detail::Renderer )
     , app_( application )
 {
 }
 
 Renderer::~Renderer()
 {
-    delete impl_;
+    delete _impl;
 }
 
 co::Object* Renderer::getFrameData()
 {
-    return impl_->getFrameData();
+    return _impl->getFrameData();
 }
 
 const GLEWContext* Renderer::glewGetContext() const
 {
-    return impl_->glewGetContext();
+    return _impl->glewGetContext();
 }
 
 ViewData* Renderer::createViewData()
@@ -56,32 +56,32 @@ void Renderer::destroyViewData( ViewData* viewData )
 
 const Frustumf& Renderer::getFrustum() const
 {
-    return impl_->getFrustum();
+    return _impl->getFrustum();
 }
 
 const Matrix4f& Renderer::getViewMatrix() const
 {
-    return impl_->getViewMatrix();
+    return _impl->getViewMatrix();
 }
 
 const Matrix4f& Renderer::getModelMatrix() const
 {
-    return impl_->getModelMatrix();
+    return _impl->getModelMatrix();
 }
 
 bool Renderer::initContext( co::Object* /*initData*/ )
 {
-    return impl_->initContext();
+    return _impl->initContext();
 }
 
 bool Renderer::exitContext()
 {
-    return impl_->exitContext();
+    return _impl->exitContext();
 }
 
 void Renderer::clear( co::Object* /*frameData*/ )
 {
-    impl_->clear();
+    _impl->clear();
 }
 
 void Renderer::updateNearFar( const Vector4f& boundingSphere )
@@ -101,7 +101,7 @@ void Renderer::updateNearFar( const Vector4f& boundingSphere )
     const Vector3f& nearPoint  = view * ( center - front );
     const Vector3f& farPoint   = view * ( center + front );
 
-    if( impl_->useOrtho( ))
+    if( _impl->useOrtho( ))
     {
         LBASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) >
                       std::numeric_limits< float >::epsilon(),
@@ -111,7 +111,7 @@ void Renderer::updateNearFar( const Vector4f& boundingSphere )
     else
     {
         // estimate minimal value of near plane based on frustum size
-        const eq::Frustumf& frustum = impl_->getFrustum();
+        const eq::Frustumf& frustum = _impl->getFrustum();
         const float width  = fabs( frustum.right() - frustum.left() );
         const float height = fabs( frustum.top() - frustum.bottom() );
         const float size   = LB_MIN( width, height );
@@ -126,22 +126,22 @@ void Renderer::updateNearFar( const Vector4f& boundingSphere )
 
 void Renderer::setNearFar( const float nearPlane, const float farPlane )
 {
-    impl_->setNearFar( nearPlane, farPlane );
+    _impl->setNearFar( nearPlane, farPlane );
 }
 
 void Renderer::applyRenderContext()
 {
-    impl_->applyRenderContext();
+    _impl->applyRenderContext();
 }
 
 const RenderContext& Renderer::getRenderContext() const
 {
-    return impl_->getRenderContext();
+    return _impl->getRenderContext();
 }
 
 void Renderer::applyModelMatrix()
 {
-    impl_->applyModelMatrix();
+    _impl->applyModelMatrix();
 }
 
 co::Object* Renderer::createObject( const uint32_t type )

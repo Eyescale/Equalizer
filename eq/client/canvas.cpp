@@ -32,7 +32,7 @@ typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 
 Canvas::Canvas( Config* parent )
         : Super( parent )
-        , impl_( 0 )
+        , _impl( 0 )
 {
 }
 

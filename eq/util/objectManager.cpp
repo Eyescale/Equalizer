@@ -40,8 +40,8 @@ namespace
 {
 struct Object
 {
-    unsigned   id;
-    unsigned   num;
+    unsigned id;
+    unsigned num;
 };
 
 typedef stde::hash_map< const void*, Object >     ObjectHash;
@@ -51,9 +51,9 @@ typedef stde::hash_map< const void*, PixelBufferObject* > PBOHash;
 typedef stde::hash_map< const void*, util::BitmapFont* > FontHash;
 typedef stde::hash_map< const void*, Accum* > AccumHash;
 typedef stde::hash_map< const void*, lunchbox::Uploader* > UploaderHash;
-#   ifdef EQ_OM_TRACE_ALLOCATIONS
+#ifdef EQ_OM_TRACE_ALLOCATIONS
 typedef stde::hash_map< const void*, std::string > UploaderAllocs;
-#   endif
+#endif
 }
 
 namespace detail
@@ -155,101 +155,100 @@ public:
     PBOHash eqPixelBufferObjects;
     FontHash eqFonts;
     UploaderHash eqUploaders;
-#   ifdef EQ_OM_TRACE_ALLOCATIONS
+#ifdef EQ_OM_TRACE_ALLOCATIONS
     UploaderAllocs eqUploaderAllocs;
-#   endif
+#endif
 };
 }
 
 ObjectManager::ObjectManager( const GLEWContext* const glewContext )
-    : impl_( new detail::ObjectManager( glewContext ))
+    : _impl( new detail::ObjectManager( glewContext ))
 {
 }
 
 ObjectManager::ObjectManager( const ObjectManager& shared )
-        : impl_( shared.impl_ )
+        : _impl( shared._impl )
 {
-    LBASSERT( impl_ );
+    LBASSERT( _impl );
     LBASSERT( glewGetContext( ));
 }
 
 ObjectManager::~ObjectManager()
 {
-    impl_ = 0;
 }
 
 ObjectManager& ObjectManager::operator = ( const ObjectManager& rhs )
 {
     if( this != &rhs )
-        impl_ = rhs.impl_;
+        _impl = rhs._impl;
     LBASSERT( glewGetContext( ));
     return *this;
 }
 
 void ObjectManager::clear()
 {
-    impl_ = new detail::ObjectManager( 0 );
+    _impl = new detail::ObjectManager( 0 );
 }
 
 bool ObjectManager::isShared() const
 {
-    return impl_->getRefCount() > 1;
+    return _impl->getRefCount() > 1;
 }
 
 const GLEWContext* ObjectManager::glewGetContext() const
 {
-    return &impl_->glewContext;
+    return &_impl->glewContext;
 }
 
 void ObjectManager::deleteAll()
 {
-    for( ObjectHash::const_iterator i = impl_->lists.begin();
-         i != impl_->lists.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->lists.begin();
+         i != _impl->lists.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete list " << object.id << std::endl;
         glDeleteLists( object.id, object.num );
     }
-    impl_->lists.clear();
+    _impl->lists.clear();
 
-    for( ObjectHash::const_iterator i = impl_->textures.begin();
-         i != impl_->textures.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->textures.begin();
+         i != _impl->textures.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete texture " << object.id << std::endl;
         glDeleteTextures( 1, &object.id );
     }
-    impl_->textures.clear();
+    _impl->textures.clear();
 
-    for( ObjectHash::const_iterator i = impl_->buffers.begin();
-         i != impl_->buffers.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->buffers.begin();
+         i != _impl->buffers.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete buffer " << object.id << std::endl;
         glDeleteBuffers( 1, &object.id );
     }
-    impl_->buffers.clear();
+    _impl->buffers.clear();
 
-    for( ObjectHash::const_iterator i = impl_->programs.begin();
-         i != impl_->programs.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->programs.begin();
+         i != _impl->programs.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete program " << object.id << std::endl;
         glDeleteProgram( object.id );
     }
-    impl_->programs.clear();
+    _impl->programs.clear();
 
-    for( ObjectHash::const_iterator i = impl_->shaders.begin();
-         i != impl_->shaders.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->shaders.begin();
+         i != _impl->shaders.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete shader " << object.id << std::endl;
         glDeleteShader( object.id );
     }
-    impl_->shaders.clear();
+    _impl->shaders.clear();
 
-    for( TextureHash::const_iterator i = impl_->eqTextures.begin();
-         i != impl_->eqTextures.end(); ++i )
+    for( TextureHash::const_iterator i = _impl->eqTextures.begin();
+         i != _impl->eqTextures.end(); ++i )
     {
         Texture* texture = i->second;
         LBVERB << "Delete eq::Texture " << i->first << " @" << (void*)texture
@@ -257,10 +256,10 @@ void ObjectManager::deleteAll()
         texture->flush();
         delete texture;
     }
-    impl_->eqTextures.clear();
+    _impl->eqTextures.clear();
 
-    for( FontHash::const_iterator i = impl_->eqFonts.begin();
-         i != impl_->eqFonts.end(); ++i )
+    for( FontHash::const_iterator i = _impl->eqFonts.begin();
+         i != _impl->eqFonts.end(); ++i )
     {
         util::BitmapFont* font = i->second;
         LBVERB << "Delete eq::Font " << i->first << " @" << (void*)font
@@ -268,11 +267,11 @@ void ObjectManager::deleteAll()
         font->exit();
         delete font;
     }
-    impl_->eqFonts.clear();
+    _impl->eqFonts.clear();
 
     for( FBOHash::const_iterator i =
-             impl_->eqFrameBufferObjects.begin();
-         i != impl_->eqFrameBufferObjects.end(); ++i )
+             _impl->eqFrameBufferObjects.begin();
+         i != _impl->eqFrameBufferObjects.end(); ++i )
     {
         FrameBufferObject* frameBufferObject = i->second;
         LBVERB << "Delete eq::FrameBufferObject " << i->first << " @"
@@ -280,10 +279,10 @@ void ObjectManager::deleteAll()
         frameBufferObject->exit();
         delete frameBufferObject;
     }
-    impl_->eqFrameBufferObjects.clear();
+    _impl->eqFrameBufferObjects.clear();
 
-    for( UploaderHash::const_iterator i = impl_->eqUploaders.begin();
-         i != impl_->eqUploaders.end(); ++i )
+    for( UploaderHash::const_iterator i = _impl->eqUploaders.begin();
+         i != _impl->eqUploaders.end(); ++i )
     {
         lunchbox::Uploader* uploader = i->second;
         LBVERB << "Delete uploader " << i->first << " @" << (void*)uploader
@@ -291,15 +290,15 @@ void ObjectManager::deleteAll()
         uploader->clear();
         delete uploader;
     }
-    impl_->eqUploaders.clear();
+    _impl->eqUploaders.clear();
 }
 
 // display list functions
 
 GLuint ObjectManager::getList( const void* key ) const
 {
-    ObjectHash::const_iterator i = impl_->lists.find( key );
-    if( i == impl_->lists.end( ))
+    ObjectHash::const_iterator i = _impl->lists.find( key );
+    if( i == _impl->lists.end( ))
         return INVALID;
 
     const Object& object = i->second;
@@ -308,7 +307,7 @@ GLuint ObjectManager::getList( const void* key ) const
 
 GLuint ObjectManager::newList( const void* key, const GLsizei num )
 {
-    if( impl_->lists.find( key ) != impl_->lists.end( ))
+    if( _impl->lists.find( key ) != _impl->lists.end( ))
     {
         LBWARN << "Requested new list for existing key" << std::endl;
         return INVALID;
@@ -321,7 +320,7 @@ GLuint ObjectManager::newList( const void* key, const GLsizei num )
         return INVALID;
     }
 
-    Object& object   = impl_->lists[ key ];
+    Object& object   = _impl->lists[ key ];
     object.id        = id;
     object.num       = num;
 
@@ -338,21 +337,21 @@ GLuint ObjectManager::obtainList( const void* key, const GLsizei num )
 
 void ObjectManager::deleteList( const void* key )
 {
-    ObjectHash::iterator i = impl_->lists.find( key );
-    if( i == impl_->lists.end( ))
+    ObjectHash::iterator i = _impl->lists.find( key );
+    if( i == _impl->lists.end( ))
         return;
 
     const Object& object = i->second;
     glDeleteLists( object.id, object.num );
-    impl_->lists.erase( i );
+    _impl->lists.erase( i );
 }
 
 // texture object functions
 
 GLuint ObjectManager::getTexture( const void* key ) const
 {
-    ObjectHash::const_iterator i = impl_->textures.find( key );
-    if( i == impl_->textures.end( ))
+    ObjectHash::const_iterator i = _impl->textures.find( key );
+    if( i == _impl->textures.end( ))
         return INVALID;
 
     const Object& object = i->second;
@@ -361,7 +360,7 @@ GLuint ObjectManager::getTexture( const void* key ) const
 
 GLuint ObjectManager::newTexture( const void* key )
 {
-    if( impl_->textures.find( key ) != impl_->textures.end( ))
+    if( _impl->textures.find( key ) != _impl->textures.end( ))
     {
         LBWARN << "Requested new texture for existing key" << std::endl;
         return INVALID;
@@ -375,7 +374,7 @@ GLuint ObjectManager::newTexture( const void* key )
         return INVALID;
     }
 
-    Object& object   = impl_->textures[ key ];
+    Object& object   = _impl->textures[ key ];
     object.id        = id;
     return id;
 }
@@ -390,13 +389,13 @@ GLuint ObjectManager::obtainTexture( const void* key )
 
 void ObjectManager::deleteTexture( const void* key )
 {
-    ObjectHash::iterator i = impl_->textures.find( key );
-    if( i == impl_->textures.end( ))
+    ObjectHash::iterator i = _impl->textures.find( key );
+    if( i == _impl->textures.end( ))
         return;
 
     const Object& object = i->second;
     glDeleteTextures( 1, &object.id );
-    impl_->textures.erase( i );
+    _impl->textures.erase( i );
 }
 
 // buffer object functions
@@ -408,8 +407,8 @@ bool ObjectManager::supportsBuffers() const
 
 GLuint ObjectManager::getBuffer( const void* key ) const
 {
-    ObjectHash::const_iterator i = impl_->buffers.find( key );
-    if( i == impl_->buffers.end() )
+    ObjectHash::const_iterator i = _impl->buffers.find( key );
+    if( i == _impl->buffers.end() )
         return INVALID;
 
     const Object& object = i->second;
@@ -424,7 +423,7 @@ GLuint ObjectManager::newBuffer( const void* key )
         return INVALID;
     }
 
-    if( impl_->buffers.find( key ) != impl_->buffers.end() )
+    if( _impl->buffers.find( key ) != _impl->buffers.end() )
     {
         LBWARN << "Requested new buffer for existing key" << std::endl;
         return INVALID;
@@ -439,7 +438,7 @@ GLuint ObjectManager::newBuffer( const void* key )
         return INVALID;
     }
 
-    Object& object     = impl_->buffers[ key ];
+    Object& object     = _impl->buffers[ key ];
     object.id          = id;
     return id;
 }
@@ -454,13 +453,13 @@ GLuint ObjectManager::obtainBuffer( const void* key )
 
 void ObjectManager::deleteBuffer( const void* key )
 {
-    ObjectHash::iterator i = impl_->buffers.find( key );
-    if( i == impl_->buffers.end() )
+    ObjectHash::iterator i = _impl->buffers.find( key );
+    if( i == _impl->buffers.end() )
         return;
 
     const Object& object = i->second;
     glDeleteBuffers( 1, &object.id );
-    impl_->buffers.erase( i );
+    _impl->buffers.erase( i );
 }
 
 // program object functions
@@ -472,8 +471,8 @@ bool ObjectManager::supportsPrograms() const
 
 GLuint ObjectManager::getProgram( const void* key ) const
 {
-    ObjectHash::const_iterator i = impl_->programs.find( key );
-    if( i == impl_->programs.end() )
+    ObjectHash::const_iterator i = _impl->programs.find( key );
+    if( i == _impl->programs.end() )
         return INVALID;
 
     const Object& object = i->second;
@@ -488,7 +487,7 @@ GLuint ObjectManager::newProgram( const void* key )
         return INVALID;
     }
 
-    if( impl_->programs.find( key ) != impl_->programs.end() )
+    if( _impl->programs.find( key ) != _impl->programs.end() )
     {
         LBWARN << "Requested new program for existing key" << std::endl;
         return INVALID;
@@ -501,7 +500,7 @@ GLuint ObjectManager::newProgram( const void* key )
         return INVALID;
     }
 
-    Object& object     = impl_->programs[ key ];
+    Object& object     = _impl->programs[ key ];
     object.id          = id;
     return id;
 }
@@ -516,13 +515,13 @@ GLuint ObjectManager::obtainProgram( const void* key )
 
 void ObjectManager::deleteProgram( const void* key )
 {
-    ObjectHash::iterator i = impl_->programs.find( key );
-    if( i == impl_->programs.end() )
+    ObjectHash::iterator i = _impl->programs.find( key );
+    if( i == _impl->programs.end() )
         return;
 
     const Object& object = i->second;
     glDeleteProgram( object.id );
-    impl_->programs.erase( i );
+    _impl->programs.erase( i );
 }
 
 // shader object functions
@@ -534,8 +533,8 @@ bool ObjectManager::supportsShaders() const
 
 GLuint ObjectManager::getShader( const void* key ) const
 {
-    ObjectHash::const_iterator i = impl_->shaders.find( key );
-    if( i == impl_->shaders.end() )
+    ObjectHash::const_iterator i = _impl->shaders.find( key );
+    if( i == _impl->shaders.end() )
         return INVALID;
 
     const Object& object = i->second;
@@ -550,7 +549,7 @@ GLuint ObjectManager::newShader( const void* key, const GLenum type )
         return INVALID;
     }
 
-    if( impl_->shaders.find( key ) != impl_->shaders.end() )
+    if( _impl->shaders.find( key ) != _impl->shaders.end() )
     {
         LBWARN << "Requested new shader for existing key" << std::endl;
         return INVALID;
@@ -564,7 +563,7 @@ GLuint ObjectManager::newShader( const void* key, const GLenum type )
     }
 
 
-    Object& object     = impl_->shaders[ key ];
+    Object& object     = _impl->shaders[ key ];
     object.id          = id;
     return id;
 }
@@ -579,19 +578,19 @@ GLuint ObjectManager::obtainShader( const void* key, const GLenum type )
 
 void ObjectManager::deleteShader( const void* key )
 {
-    ObjectHash::iterator i = impl_->shaders.find( key );
-    if( i == impl_->shaders.end() )
+    ObjectHash::iterator i = _impl->shaders.find( key );
+    if( i == _impl->shaders.end() )
         return;
 
     const Object& object = i->second;
     glDeleteShader( object.id );
-    impl_->shaders.erase( i );
+    _impl->shaders.erase( i );
 }
 
 Accum* ObjectManager::getEqAccum( const void* key ) const
 {
-    AccumHash::const_iterator i = impl_->accums.find( key );
-    if( i == impl_->accums.end( ))
+    AccumHash::const_iterator i = _impl->accums.find( key );
+    if( i == _impl->accums.end( ))
         return 0;
 
     return i->second;
@@ -599,14 +598,14 @@ Accum* ObjectManager::getEqAccum( const void* key ) const
 
 Accum* ObjectManager::newEqAccum( const void* key )
 {
-    if( impl_->accums.find( key ) != impl_->accums.end( ))
+    if( _impl->accums.find( key ) != _impl->accums.end( ))
     {
         LBWARN << "Requested new Accumulation for existing key" << std::endl;
         return 0;
     }
 
-    Accum* accum = new Accum( &impl_->glewContext );
-    impl_->accums[ key ] = accum;
+    Accum* accum = new Accum( &_impl->glewContext );
+    _impl->accums[ key ] = accum;
     return accum;
 }
 
@@ -620,12 +619,12 @@ Accum* ObjectManager::obtainEqAccum( const void* key )
 
 void ObjectManager::deleteEqAccum( const void* key )
 {
-    AccumHash::iterator i = impl_->accums.find( key );
-    if( i == impl_->accums.end( ))
+    AccumHash::iterator i = _impl->accums.find( key );
+    if( i == _impl->accums.end( ))
         return;
 
     Accum* accum = i->second;
-    impl_->accums.erase( i );
+    _impl->accums.erase( i );
 
     accum->exit();
     delete accum;
@@ -634,8 +633,8 @@ void ObjectManager::deleteEqAccum( const void* key )
 // eq::CompressorData object functions
 lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
 {
-    UploaderHash::const_iterator i = impl_->eqUploaders.find( key );
-    if( i == impl_->eqUploaders.end( ))
+    UploaderHash::const_iterator i = _impl->eqUploaders.find( key );
+    if( i == _impl->eqUploaders.end( ))
         return 0;
 
     return i->second;
@@ -643,18 +642,18 @@ lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
 
 lunchbox::Uploader* ObjectManager::newEqUploader( const void* key )
 {
-    if( impl_->eqUploaders.find( key ) != impl_->eqUploaders.end( ))
+    if( _impl->eqUploaders.find( key ) != _impl->eqUploaders.end( ))
     {
         LBWARN << "Requested new compressor for existing key" << std::endl;
         return 0;
     }
 
     lunchbox::Uploader* compressor = new lunchbox::Uploader;
-    impl_->eqUploaders[ key ] = compressor;
+    _impl->eqUploaders[ key ] = compressor;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     std::ostringstream out;
     out << lunchbox::backtrace;
-    impl_->eqUploaderAllocs[ key ] = out.str();
+    _impl->eqUploaderAllocs[ key ] = out.str();
 #endif
 
     return compressor;
@@ -670,14 +669,14 @@ lunchbox::Uploader* ObjectManager::obtainEqUploader( const void* key )
 
 void ObjectManager::deleteEqUploader( const void* key )
 {
-    UploaderHash::iterator i = impl_->eqUploaders.find( key );
-    if( i == impl_->eqUploaders.end( ))
+    UploaderHash::iterator i = _impl->eqUploaders.find( key );
+    if( i == _impl->eqUploaders.end( ))
         return;
 
     lunchbox::Uploader* uploader = i->second;
-    impl_->eqUploaders.erase( i );
+    _impl->eqUploaders.erase( i );
 #ifdef EQ_OM_TRACE_ALLOCATIONS
-    impl_->eqUploaderAllocs.erase( key );
+    _impl->eqUploaderAllocs.erase( key );
 #endif
     uploader->clear();
     delete uploader;
@@ -691,8 +690,8 @@ bool ObjectManager::supportsEqTexture() const
 
 Texture* ObjectManager::getEqTexture( const void* key ) const
 {
-    TextureHash::const_iterator i = impl_->eqTextures.find( key );
-    if( i == impl_->eqTextures.end( ))
+    TextureHash::const_iterator i = _impl->eqTextures.find( key );
+    if( i == _impl->eqTextures.end( ))
         return 0;
 
     return i->second;
@@ -700,14 +699,14 @@ Texture* ObjectManager::getEqTexture( const void* key ) const
 
 Texture* ObjectManager::newEqTexture( const void* key, const GLenum target )
 {
-    if( impl_->eqTextures.find( key ) != impl_->eqTextures.end( ))
+    if( _impl->eqTextures.find( key ) != _impl->eqTextures.end( ))
     {
         LBWARN << "Requested new eqTexture for existing key" << std::endl;
         return 0;
     }
 
-    Texture* texture = new Texture( target, &impl_->glewContext );
-    impl_->eqTextures[ key ] = texture;
+    Texture* texture = new Texture( target, &_impl->glewContext );
+    _impl->eqTextures[ key ] = texture;
     return texture;
 }
 
@@ -721,12 +720,12 @@ Texture* ObjectManager::obtainEqTexture( const void* key, const GLenum target )
 
 void   ObjectManager::deleteEqTexture( const void* key )
 {
-    TextureHash::iterator i = impl_->eqTextures.find( key );
-    if( i == impl_->eqTextures.end( ))
+    TextureHash::iterator i = _impl->eqTextures.find( key );
+    if( i == _impl->eqTextures.end( ))
         return;
 
     Texture* texture = i->second;
-    impl_->eqTextures.erase( i );
+    _impl->eqTextures.erase( i );
 
     texture->flush();
     delete texture;
@@ -735,8 +734,8 @@ void   ObjectManager::deleteEqTexture( const void* key )
 // eq::util::BitmapFont object functions
 util::BitmapFont* ObjectManager::getEqBitmapFont( const void* key ) const
 {
-    FontHash::const_iterator i = impl_->eqFonts.find( key );
-    if( i == impl_->eqFonts.end( ))
+    FontHash::const_iterator i = _impl->eqFonts.find( key );
+    if( i == _impl->eqFonts.end( ))
         return 0;
 
     return i->second;
@@ -744,14 +743,14 @@ util::BitmapFont* ObjectManager::getEqBitmapFont( const void* key ) const
 
 util::BitmapFont* ObjectManager::newEqBitmapFont( const void* key )
 {
-    if( impl_->eqFonts.find( key ) != impl_->eqFonts.end( ))
+    if( _impl->eqFonts.find( key ) != _impl->eqFonts.end( ))
     {
         LBWARN << "Requested new eqFont for existing key" << std::endl;
         return 0;
     }
 
     util::BitmapFont* font = new util::BitmapFont( *this, key );
-    impl_->eqFonts[ key ] = font;
+    _impl->eqFonts[ key ] = font;
     return font;
 }
 
@@ -765,12 +764,12 @@ util::BitmapFont* ObjectManager::obtainEqBitmapFont( const void* key )
 
 void ObjectManager::deleteEqBitmapFont( const void* key )
 {
-    FontHash::iterator i = impl_->eqFonts.find( key );
-    if( i == impl_->eqFonts.end( ))
+    FontHash::iterator i = _impl->eqFonts.find( key );
+    if( i == _impl->eqFonts.end( ))
         return;
 
     util::BitmapFont* font = i->second;
-    impl_->eqFonts.erase( i );
+    _impl->eqFonts.erase( i );
 
     font->exit();
     delete font;
@@ -785,8 +784,8 @@ bool ObjectManager::supportsEqFrameBufferObject() const
 FrameBufferObject* ObjectManager::getEqFrameBufferObject( const void* key )
     const
 {
-    FBOHash::const_iterator i = impl_->eqFrameBufferObjects.find(key);
-    if( i == impl_->eqFrameBufferObjects.end( ))
+    FBOHash::const_iterator i = _impl->eqFrameBufferObjects.find(key);
+    if( i == _impl->eqFrameBufferObjects.end( ))
         return 0;
 
     return i->second;
@@ -794,8 +793,8 @@ FrameBufferObject* ObjectManager::getEqFrameBufferObject( const void* key )
 
 FrameBufferObject* ObjectManager::newEqFrameBufferObject( const void* key )
 {
-    if( impl_->eqFrameBufferObjects.find( key ) !=
-        impl_->eqFrameBufferObjects.end( ))
+    if( _impl->eqFrameBufferObjects.find( key ) !=
+        _impl->eqFrameBufferObjects.end( ))
     {
         LBWARN << "Requested new eqFrameBufferObject for existing key"
                << std::endl;
@@ -803,8 +802,8 @@ FrameBufferObject* ObjectManager::newEqFrameBufferObject( const void* key )
     }
 
     FrameBufferObject* frameBufferObject =
-                                    new FrameBufferObject( &impl_->glewContext );
-    impl_->eqFrameBufferObjects[ key ] = frameBufferObject;
+                                    new FrameBufferObject( &_impl->glewContext );
+    _impl->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
 }
 
@@ -818,12 +817,12 @@ FrameBufferObject* ObjectManager::obtainEqFrameBufferObject( const void* key )
 
 void ObjectManager::deleteEqFrameBufferObject( const void* key )
 {
-    FBOHash::iterator i = impl_->eqFrameBufferObjects.find(key);
-    if( i == impl_->eqFrameBufferObjects.end( ))
+    FBOHash::iterator i = _impl->eqFrameBufferObjects.find(key);
+    if( i == _impl->eqFrameBufferObjects.end( ))
         return;
 
     FrameBufferObject* frameBufferObject = i->second;
-    impl_->eqFrameBufferObjects.erase( i );
+    _impl->eqFrameBufferObjects.erase( i );
 
     frameBufferObject->exit();
     delete frameBufferObject;
@@ -838,8 +837,8 @@ bool ObjectManager::supportsEqPixelBufferObject() const
 PixelBufferObject* ObjectManager::getEqPixelBufferObject( const void* key )
     const
 {
-    PBOHash::const_iterator i = impl_->eqPixelBufferObjects.find(key);
-    if( i == impl_->eqPixelBufferObjects.end( ))
+    PBOHash::const_iterator i = _impl->eqPixelBufferObjects.find(key);
+    if( i == _impl->eqPixelBufferObjects.end( ))
         return 0;
 
     return i->second;
@@ -848,8 +847,8 @@ PixelBufferObject* ObjectManager::getEqPixelBufferObject( const void* key )
 PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key,
                                                          const bool threadSafe )
 {
-    if( impl_->eqPixelBufferObjects.find( key ) !=
-        impl_->eqPixelBufferObjects.end( ))
+    if( _impl->eqPixelBufferObjects.find( key ) !=
+        _impl->eqPixelBufferObjects.end( ))
     {
         LBWARN << "Requested new eqPixelBufferObject for existing key"
                << std::endl;
@@ -857,8 +856,8 @@ PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key,
     }
 
     PixelBufferObject* pixelBufferObject =
-        new PixelBufferObject( &impl_->glewContext, threadSafe );
-    impl_->eqPixelBufferObjects[ key ] = pixelBufferObject;
+        new PixelBufferObject( &_impl->glewContext, threadSafe );
+    _impl->eqPixelBufferObjects[ key ] = pixelBufferObject;
     return pixelBufferObject;
 }
 
@@ -880,12 +879,12 @@ PixelBufferObject* ObjectManager::obtainEqPixelBufferObject( const void* key,
 
 void ObjectManager::deleteEqPixelBufferObject( const void* key )
 {
-    PBOHash::iterator i = impl_->eqPixelBufferObjects.find(key);
-    if( i == impl_->eqPixelBufferObjects.end( ))
+    PBOHash::iterator i = _impl->eqPixelBufferObjects.find(key);
+    if( i == _impl->eqPixelBufferObjects.end( ))
         return;
 
     PixelBufferObject* pixelBufferObject = i->second;
-    impl_->eqPixelBufferObjects.erase( i );
+    _impl->eqPixelBufferObjects.erase( i );
 
     pixelBufferObject->destroy();
     delete pixelBufferObject;

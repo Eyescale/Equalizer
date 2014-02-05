@@ -68,7 +68,7 @@ public:
 
 GLWindow::GLWindow( Window* parent )
     : SystemWindow( parent )
-    , impl_( new detail::GLWindow )
+    , _impl( new detail::GLWindow )
 {
 }
 
@@ -76,7 +76,7 @@ GLWindow::~GLWindow()
 {
     if( _current == this )
         _current = 0;
-    delete impl_;
+    delete _impl;
 }
 
 void GLWindow::makeCurrent( const bool useCache ) const
@@ -95,39 +95,39 @@ bool GLWindow::isCurrent() const
 
 void GLWindow::initGLEW()
 {
-    if( impl_->glewInitialized )
+    if( _impl->glewInitialized )
         return;
 
     const GLenum result = glewInit();
     if( result != GLEW_OK )
         LBWARN << "GLEW initialization failed: " << std::endl;
     else
-        impl_->glewInitialized = true;
+        _impl->glewInitialized = true;
 }
 
 void GLWindow::exitGLEW()
 {
-    impl_->glewInitialized = false;
+    _impl->glewInitialized = false;
 }
 
 const util::FrameBufferObject* GLWindow::getFrameBufferObject() const
 {
-    return impl_->fbo;
+    return _impl->fbo;
 }
 
 const GLEWContext* GLWindow::glewGetContext() const
 {
-    return &impl_->glewContext;
+    return &_impl->glewContext;
 }
 
 GLEWContext* GLWindow::glewGetContext()
 {
-    return &impl_->glewContext;
+    return &_impl->glewContext;
 }
 
 bool GLWindow::configInitFBO()
 {
-    if( !impl_->glewInitialized ||
+    if( !_impl->glewInitialized ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
         sendError( ERROR_FBO_UNSUPPORTED );
@@ -135,7 +135,7 @@ bool GLWindow::configInitFBO()
     }
 
     // needs glew initialized (see above)
-    impl_->fbo = new util::FrameBufferObject( &impl_->glewContext );
+    _impl->fbo = new util::FrameBufferObject( &_impl->glewContext );
 
     const PixelViewport& pvp = getWindow()->getPixelViewport();
     const GLuint colorFormat = getWindow()->getColorFormat();
@@ -148,39 +148,39 @@ bool GLWindow::configInitFBO()
     if( stencilSize == AUTO )
         stencilSize = 1;
 
-    Error error = impl_->fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
+    Error error = _impl->fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
                                     stencilSize );
     if( !error )
         return true;
 
     if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO )
-        error = impl_->fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
+        error = _impl->fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
 
     if( !error )
         return true;
 
     sendError( error );
-    delete impl_->fbo;
-    impl_->fbo = 0;
+    delete _impl->fbo;
+    _impl->fbo = 0;
     return false;
 }
 
 void GLWindow::configExitFBO()
 {
-    if( impl_->fbo )
-        impl_->fbo->exit();
+    if( _impl->fbo )
+        _impl->fbo->exit();
 
-    delete impl_->fbo;
-    impl_->fbo = 0;
+    delete _impl->fbo;
+    _impl->fbo = 0;
 }
 
 void GLWindow::bindFrameBuffer() const
 {
-   if( !impl_->glewInitialized )
+   if( !_impl->glewInitialized )
        return;
 
-   if( impl_->fbo )
-       impl_->fbo->bind();
+   if( _impl->fbo )
+       _impl->fbo->bind();
    else if( GLEW_EXT_framebuffer_object )
        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
 }
