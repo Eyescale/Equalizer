@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2012, Maxim Makhinya <maxmah@gmail.com>
- *               2012-2013, Stefan Eilemann <eile@eyescale.ch>
+ *               2012-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,7 @@ namespace detail { class PixelBufferObject; }
  *
  * On correct PBO usage see: http://www.songho.ca/opengl/gl_pbo.html
  */
-class PixelBufferObject
+class PixelBufferObject : public boost::noncopyable
 {
 public:
     /**

@@ -48,23 +48,23 @@ typedef fabric::View< Layout, View, Observer > Super;
 
 View::View( Layout* parent )
         : Super( parent )
-        , impl_( new detail::View )
+        , _impl( new detail::View )
         , _pipe( 0 )
 {
 }
 
 View::~View()
 {
-    delete impl_;
+    delete _impl;
 }
 
 void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
-    if( impl_->baseFrustum.getCurrentType() == TYPE_NONE &&
+    if( _impl->baseFrustum.getCurrentType() == TYPE_NONE &&
         ( dirtyBits & DIRTY_FRUSTUM ))
     {
-        impl_->baseFrustum = *this; // save baseline data for resizing
+        _impl->baseFrustum = *this; // save baseline data for resizing
     }
 }
 
@@ -117,7 +117,7 @@ ServerPtr View::getServer()
 
 const Frustum& View::getBaseFrustum() const
 {
-    return impl_->baseFrustum;
+    return _impl->baseFrustum;
 }
 
 bool View::handleEvent( const Event& event )
@@ -135,10 +135,10 @@ bool View::handleEvent( const Event& event )
         case TYPE_WALL:
         {
             const float ratio( resize.dw / resize.dh );
-            Wall wall( impl_->baseFrustum.getWall( ));
+            Wall wall( _impl->baseFrustum.getWall( ));
             wall.resizeHorizontal( ratio );
 
-            lunchbox::ScopedFastWrite mutex( impl_->eventLock );
+            lunchbox::ScopedFastWrite mutex( _impl->eventLock );
             setWall( wall );
             break;
         }
@@ -146,10 +146,10 @@ bool View::handleEvent( const Event& event )
         case View::TYPE_PROJECTION:
         {
             const float ratio( resize.dw / resize.dh );
-            eq::Projection projection( impl_->baseFrustum.getProjection( ));
+            eq::Projection projection( _impl->baseFrustum.getProjection( ));
             projection.resizeHorizontal( ratio );
 
-            lunchbox::ScopedFastWrite mutex( impl_->eventLock );
+            lunchbox::ScopedFastWrite mutex( _impl->eventLock );
             setProjection( projection );
             break;
         }

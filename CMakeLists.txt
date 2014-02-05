@@ -57,6 +57,8 @@ include(GitTargets)
 include(configure)
 include(UpdateFile)
 
+list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
+
 if(CMAKE_COMPILER_IS_CLANG)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual")
 endif()

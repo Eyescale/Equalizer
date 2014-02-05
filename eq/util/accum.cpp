@@ -49,50 +49,50 @@ public:
 }
 
 Accum::Accum( const GLEWContext* const glewContext )
-    : impl_( new detail::Accum( glewContext ))
+    : _impl( new detail::Accum( glewContext ))
 {
 }
 
 Accum::~Accum()
 {
     exit();
-    delete impl_;
+    delete _impl;
 }
 
 bool Accum::init( const PixelViewport& pvp, GLuint textureFormat )
 {
     if( usesFBO( ))
     {
-        impl_->abo = new AccumBufferObject( impl_->glewContext );
-        if( !impl_->abo->init( pvp, textureFormat ))
+        _impl->abo = new AccumBufferObject( _impl->glewContext );
+        if( !_impl->abo->init( pvp, textureFormat ))
         {
-            delete impl_->abo;
-            impl_->abo = 0;
+            delete _impl->abo;
+            _impl->abo = 0;
             return false;
         }
     }
 
-    if( impl_->totalSteps == 0 )
-        impl_->totalSteps = getMaxSteps();
+    if( _impl->totalSteps == 0 )
+        _impl->totalSteps = getMaxSteps();
 
-    impl_->pvp = pvp;
-    return ( impl_->totalSteps > 0 );
+    _impl->pvp = pvp;
+    return ( _impl->totalSteps > 0 );
 }
 
 void Accum::exit()
 {
     clear();
 
-    if( impl_->abo )
-        impl_->abo->exit();
+    if( _impl->abo )
+        _impl->abo->exit();
 
-    delete impl_->abo;
-    impl_->abo = 0;
+    delete _impl->abo;
+    _impl->abo = 0;
 }
 
 void Accum::clear()
 {
-    impl_->numSteps = 0;
+    _impl->numSteps = 0;
 }
 
 bool Accum::resize( const int width, const int height )
@@ -102,59 +102,59 @@ bool Accum::resize( const int width, const int height )
 
 bool Accum::resize( const PixelViewport& pvp )
 {
-    if( impl_->pvp == pvp )
+    if( _impl->pvp == pvp )
         return false;
 
-    impl_->pvp = pvp;
+    _impl->pvp = pvp;
     if( usesFBO( ))
-        return impl_->abo->resize( pvp );
+        return _impl->abo->resize( pvp );
     return true;
 }
 
 void Accum::accum()
 {
-    LBASSERT( impl_->numSteps < impl_->totalSteps );
+    LBASSERT( _impl->numSteps < _impl->totalSteps );
 
-    if( impl_->abo )
+    if( _impl->abo )
     {
-        if( impl_->numSteps == 0 )
-            impl_->abo->load( 1.0f );
+        if( _impl->numSteps == 0 )
+            _impl->abo->load( 1.0f );
         else
-            impl_->abo->accum( 1.0f );
+            _impl->abo->accum( 1.0f );
     }
     else
     {
         // This is the only working implementation on MacOS found at the moment.
         // glAccum function seems to be implemented differently.
-        if( impl_->numSteps == 0 )
+        if( _impl->numSteps == 0 )
 #ifdef Darwin
-            glAccum( GL_LOAD, 1.0f / impl_->totalSteps );
+            glAccum( GL_LOAD, 1.0f / _impl->totalSteps );
 #else
             glAccum( GL_LOAD, 1.0f );
 #endif
         else
 #ifdef Darwin
-            glAccum( GL_ACCUM, 1.0f / impl_->totalSteps );
+            glAccum( GL_ACCUM, 1.0f / _impl->totalSteps );
 #else
             glAccum( GL_ACCUM, 1.0f );
 #endif
     }
 
-    ++impl_->numSteps;
+    ++_impl->numSteps;
 }
 
 void Accum::display()
 {
-    LBASSERT( impl_->numSteps <= impl_->totalSteps );
+    LBASSERT( _impl->numSteps <= _impl->totalSteps );
 
-    if( impl_->abo )
-        impl_->abo->display( 1.0f / impl_->numSteps );
+    if( _impl->abo )
+        _impl->abo->display( 1.0f / _impl->numSteps );
     else
     {
 #ifdef Darwin
-        const float factor = float( impl_->totalSteps ) / impl_->numSteps;
+        const float factor = float( _impl->totalSteps ) / _impl->numSteps;
 #else
-        const float factor = 1.0f / impl_->numSteps;
+        const float factor = 1.0f / _impl->numSteps;
 #endif
         glAccum( GL_RETURN, factor );
     }
@@ -173,17 +173,17 @@ uint32_t Accum::getMaxSteps() const
 
 uint32_t Accum::getNumSteps() const
 {
-    return impl_->numSteps;
+    return _impl->numSteps;
 }
 
 void Accum::setTotalSteps( uint32_t totalSteps )
 {
-    impl_->totalSteps = totalSteps;
+    _impl->totalSteps = totalSteps;
 }
 
 uint32_t Accum::getTotalSteps()
 {
-    return impl_->totalSteps;
+    return _impl->totalSteps;
 }
 
 bool Accum::usesFBO() const
@@ -194,7 +194,7 @@ bool Accum::usesFBO() const
 
 const GLEWContext* Accum::glewGetContext() const
 {
-    return impl_->glewContext;
+    return _impl->glewContext;
 }
 
 #define glewGetContext() glewContext

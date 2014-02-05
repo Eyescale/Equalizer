@@ -898,7 +898,6 @@ bool Config::_needsLocalSync() const
     {
         case ASYNC:
             return false;
-            break;
 
         case DRAW_SYNC:
             if( !(node->getTasks() & fabric::TASK_DRAW) )

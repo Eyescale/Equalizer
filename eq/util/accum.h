@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -36,7 +36,7 @@ namespace detail { class Accum; }
  * use a workaround which needs setTotalSteps() to set up the total number of
  * accumulations done.
  */
-class Accum
+class Accum : public boost::noncopyable
 {
 public:
     /** Construct a new accumulation buffer. @version 1.0 */
@@ -134,7 +134,7 @@ public:
     EQ_API const GLEWContext* glewGetContext() const;
 
 private:
-    detail::Accum* const impl_;
+    detail::Accum* const _impl;
 };
 }
 }

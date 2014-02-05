@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -1305,6 +1305,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
 
 void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
 {
+    // cppcheck-suppress unreadVariable
     Channel* channel = op.channel;
 
     if( GLEW_VERSION_2_0 )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,6 +23,7 @@ namespace eq
 namespace fabric
 {
 
+// cppcheck-suppress uninitMemberVar
 RenderContext::RenderContext()
         : frustum( Frustumf::DEFAULT )
         , ortho( Frustumf::DEFAULT )
@@ -49,9 +50,8 @@ void RenderContext::apply( const Tile& tile )
 
 std::ostream& operator << ( std::ostream& os, const RenderContext& ctx )
 {
-    os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp << " "
-       << ctx.range << " " << ctx.eye << " " << ctx.zoom;
-    return os;
+    return os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp
+              << " " << ctx.range << " " << ctx.eye << " " << ctx.zoom;
 }
 
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,181 +25,230 @@
 #include "texture.h"
 
 #include <eq/client/gl.h>
+#include <lunchbox/hash.h>
+#include <lunchbox/referenced.h>
 #include <lunchbox/uploader.h>
 #include <string.h>
+
+//#define EQ_OM_TRACE_ALLOCATIONS
 
 namespace eq
 {
 namespace util
 {
+namespace
+{
+struct Object
+{
+    unsigned id;
+    unsigned num;
+};
+
+typedef stde::hash_map< const void*, Object >     ObjectHash;
+typedef stde::hash_map< const void*, Texture* >   TextureHash;
+typedef stde::hash_map< const void*, FrameBufferObject* > FBOHash;
+typedef stde::hash_map< const void*, PixelBufferObject* > PBOHash;
+typedef stde::hash_map< const void*, util::BitmapFont* > FontHash;
+typedef stde::hash_map< const void*, Accum* > AccumHash;
+typedef stde::hash_map< const void*, lunchbox::Uploader* > UploaderHash;
+#ifdef EQ_OM_TRACE_ALLOCATIONS
+typedef stde::hash_map< const void*, std::string > UploaderAllocs;
+#endif
+}
+
+namespace detail
+{
+class ObjectManager : public lunchbox::Referenced
+{
+public:
+    ObjectManager( const GLEWContext* gl )
+    {
+        if( gl )
+            memcpy( &glewContext, gl, sizeof( GLEWContext ));
+        else
+            lunchbox::setZero( &glewContext, sizeof( GLEWContext ));
+    }
+
+    virtual ~ObjectManager()
+    {
+        // Do not delete GL objects, we may no longer have a GL context.
+        if( !lists.empty( ))
+            LBWARN << lists.size()
+                   << " lists allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( lists.empty( ));
+        lists.clear();
+
+        if( !textures.empty( ))
+            LBWARN << textures.size()
+                   << " textures allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( textures.empty( ));
+        textures.clear();
+
+        if( !buffers.empty( ))
+            LBWARN << buffers.size()
+                   << " buffers allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( buffers.empty( ));
+        buffers.clear();
+
+        if( !programs.empty( ))
+            LBWARN << programs.size()
+                   << " programs allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( programs.empty( ));
+        programs.clear();
+
+        if( !shaders.empty( ))
+            LBWARN << shaders.size()
+                   << " shaders allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( shaders.empty( ));
+        shaders.clear();
+
+        if( !eqTextures.empty( ))
+            LBWARN << eqTextures.size()
+                   << " eq::Texture allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( eqTextures.empty( ));
+        eqTextures.clear();
+
+        if( !eqFonts.empty( ))
+            LBWARN << eqFonts.size()
+                   << " eq::BitmapFont allocated in ObjectManager destructor"
+                   << std::endl;
+        LBASSERT( eqFonts.empty( ));
+        eqFonts.clear();
+
+        if( !eqFrameBufferObjects.empty( ))
+            LBWARN << eqFrameBufferObjects.size()
+                   << " eq::FrameBufferObject's allocated in ObjectManager "
+                   << "destructor" << std::endl;
+        LBASSERT( eqFrameBufferObjects.empty( ));
+        eqFrameBufferObjects.clear();
+
+        if( !eqUploaders.empty( ))
+            LBWARN << eqUploaders.size()
+                   << " uploader allocated in ObjectManager destructor"
+                   << std::endl;
+
+#ifdef EQ_OM_TRACE_ALLOCATIONS
+        LBASSERTINFO( eqUploaders.empty(), eqUploaderAllocs.begin()->second );
+#else
+        LBASSERTINFO( eqUploaders.empty(), (void*)eqUploaders.begin()->second );
+#endif
+        eqUploaders.clear();
+    }
+
+
+    GLEWContext glewContext;
+    ObjectHash lists;
+    ObjectHash textures;
+    ObjectHash buffers;
+    ObjectHash programs;
+    ObjectHash shaders;
+    ObjectHash uploaderDatas;
+    AccumHash  accums;
+    TextureHash eqTextures;
+    FBOHash eqFrameBufferObjects;
+    PBOHash eqPixelBufferObjects;
+    FontHash eqFonts;
+    UploaderHash eqUploaders;
+#ifdef EQ_OM_TRACE_ALLOCATIONS
+    UploaderAllocs eqUploaderAllocs;
+#endif
+};
+}
+
 ObjectManager::ObjectManager( const GLEWContext* const glewContext )
-        : _data( new SharedData( glewContext ))
+    : _impl( new detail::ObjectManager( glewContext ))
 {
 }
 
-ObjectManager::ObjectManager( ObjectManager& shared )
-        : _data( shared._data )
+ObjectManager::ObjectManager( const ObjectManager& shared )
+        : _impl( shared._impl )
 {
-    LBASSERT( _data );
+    LBASSERT( _impl );
     LBASSERT( glewGetContext( ));
 }
 
 ObjectManager::~ObjectManager()
 {
-    _data = 0;
 }
 
-ObjectManager& ObjectManager::operator = ( ObjectManager& rhs )
+ObjectManager& ObjectManager::operator = ( const ObjectManager& rhs )
 {
     if( this != &rhs )
-        _data = rhs._data;
+        _impl = rhs._impl;
     LBASSERT( glewGetContext( ));
     return *this;
 }
 
 void ObjectManager::clear()
 {
-    _data = new SharedData( 0 );
+    _impl = new detail::ObjectManager( 0 );
 }
 
-ObjectManager::SharedData::SharedData( const GLEWContext* gl )
-        : glewContext( 0 )
+bool ObjectManager::isShared() const
 {
-    if( gl )
-    {
-        glewContext = new GLEWContext;
-        memcpy( glewContext, gl, sizeof( GLEWContext ));
-    }
-#ifdef NDEBUG
-    else
-    {
-        glewContext = new GLEWContext;
-        lunchbox::setZero( glewContext, sizeof( GLEWContext ));
-    }
-#endif
+    return _impl->getRefCount() > 1;
 }
 
-ObjectManager::SharedData::~SharedData()
+const GLEWContext* ObjectManager::glewGetContext() const
 {
-    // Do not delete GL objects, we may no longer have a GL context.
-    if( !lists.empty( ))
-        LBWARN << lists.size()
-               << " lists still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( lists.empty( ));
-    lists.clear();
-
-    if( !textures.empty( ))
-        LBWARN << textures.size()
-               << " textures still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( textures.empty( ));
-    textures.clear();
-
-    if( !buffers.empty( ))
-        LBWARN << buffers.size()
-               << " buffers still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( buffers.empty( ));
-    buffers.clear();
-
-    if( !programs.empty( ))
-        LBWARN << programs.size()
-               << " programs still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( programs.empty( ));
-    programs.clear();
-
-    if( !shaders.empty( ))
-        LBWARN << shaders.size()
-               << " shaders still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( shaders.empty( ));
-    shaders.clear();
-
-    if( !eqTextures.empty( ))
-        LBWARN << eqTextures.size()
-               << " eq::Texture still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( eqTextures.empty( ));
-    eqTextures.clear();
-
-    if( !eqFonts.empty( ))
-        LBWARN << eqFonts.size()
-               << " eq::BitmapFont still allocated in ObjectManager destructor"
-               << std::endl;
-    LBASSERT( eqFonts.empty( ));
-    eqFonts.clear();
-
-    if( !eqFrameBufferObjects.empty( ))
-        LBWARN << eqFrameBufferObjects.size()
-               << " eq::FrameBufferObject's still allocated in ObjectManager "
-               << "destructor" << std::endl;
-    LBASSERT( eqFrameBufferObjects.empty( ));
-    eqFrameBufferObjects.clear();
-
-    if( !eqUploaders.empty( ))
-        LBWARN << eqUploaders.size()
-               << " uploader still allocated in ObjectManager destructor"
-               << std::endl;
-#ifdef EQ_OM_TRACE_ALLOCATIONS
-    LBASSERTINFO( eqUploaders.empty(), eqUploaderAllocs.begin()->second );
-#else
-    LBASSERTINFO( eqUploaders.empty(), (void*)eqUploaders.begin()->second );
-#endif
-    eqUploaders.clear();
-    delete glewContext;
+    return &_impl->glewContext;
 }
 
 void ObjectManager::deleteAll()
 {
-    for( ObjectHash::const_iterator i = _data->lists.begin();
-         i != _data->lists.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->lists.begin();
+         i != _impl->lists.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete list " << object.id << std::endl;
         glDeleteLists( object.id, object.num );
     }
-    _data->lists.clear();
+    _impl->lists.clear();
 
-    for( ObjectHash::const_iterator i = _data->textures.begin();
-         i != _data->textures.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->textures.begin();
+         i != _impl->textures.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete texture " << object.id << std::endl;
         glDeleteTextures( 1, &object.id );
     }
-    _data->textures.clear();
+    _impl->textures.clear();
 
-    for( ObjectHash::const_iterator i = _data->buffers.begin();
-         i != _data->buffers.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->buffers.begin();
+         i != _impl->buffers.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete buffer " << object.id << std::endl;
         glDeleteBuffers( 1, &object.id );
     }
-    _data->buffers.clear();
+    _impl->buffers.clear();
 
-    for( ObjectHash::const_iterator i = _data->programs.begin();
-         i != _data->programs.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->programs.begin();
+         i != _impl->programs.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete program " << object.id << std::endl;
         glDeleteProgram( object.id );
     }
-    _data->programs.clear();
+    _impl->programs.clear();
 
-    for( ObjectHash::const_iterator i = _data->shaders.begin();
-         i != _data->shaders.end(); ++i )
+    for( ObjectHash::const_iterator i = _impl->shaders.begin();
+         i != _impl->shaders.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete shader " << object.id << std::endl;
         glDeleteShader( object.id );
     }
-    _data->shaders.clear();
+    _impl->shaders.clear();
 
-    for( TextureHash::const_iterator i = _data->eqTextures.begin();
-         i != _data->eqTextures.end(); ++i )
+    for( TextureHash::const_iterator i = _impl->eqTextures.begin();
+         i != _impl->eqTextures.end(); ++i )
     {
         Texture* texture = i->second;
         LBVERB << "Delete eq::Texture " << i->first << " @" << (void*)texture
@@ -207,10 +256,10 @@ void ObjectManager::deleteAll()
         texture->flush();
         delete texture;
     }
-    _data->eqTextures.clear();
+    _impl->eqTextures.clear();
 
-    for( FontHash::const_iterator i = _data->eqFonts.begin();
-         i != _data->eqFonts.end(); ++i )
+    for( FontHash::const_iterator i = _impl->eqFonts.begin();
+         i != _impl->eqFonts.end(); ++i )
     {
         util::BitmapFont* font = i->second;
         LBVERB << "Delete eq::Font " << i->first << " @" << (void*)font
@@ -218,11 +267,11 @@ void ObjectManager::deleteAll()
         font->exit();
         delete font;
     }
-    _data->eqFonts.clear();
+    _impl->eqFonts.clear();
 
     for( FBOHash::const_iterator i =
-             _data->eqFrameBufferObjects.begin();
-         i != _data->eqFrameBufferObjects.end(); ++i )
+             _impl->eqFrameBufferObjects.begin();
+         i != _impl->eqFrameBufferObjects.end(); ++i )
     {
         FrameBufferObject* frameBufferObject = i->second;
         LBVERB << "Delete eq::FrameBufferObject " << i->first << " @"
@@ -230,10 +279,10 @@ void ObjectManager::deleteAll()
         frameBufferObject->exit();
         delete frameBufferObject;
     }
-    _data->eqFrameBufferObjects.clear();
+    _impl->eqFrameBufferObjects.clear();
 
-    for( UploaderHash::const_iterator i = _data->eqUploaders.begin();
-         i != _data->eqUploaders.end(); ++i )
+    for( UploaderHash::const_iterator i = _impl->eqUploaders.begin();
+         i != _impl->eqUploaders.end(); ++i )
     {
         lunchbox::Uploader* uploader = i->second;
         LBVERB << "Delete uploader " << i->first << " @" << (void*)uploader
@@ -241,15 +290,15 @@ void ObjectManager::deleteAll()
         uploader->clear();
         delete uploader;
     }
-    _data->eqUploaders.clear();
+    _impl->eqUploaders.clear();
 }
 
 // display list functions
 
 GLuint ObjectManager::getList( const void* key ) const
 {
-    ObjectHash::const_iterator i = _data->lists.find( key );
-    if( i == _data->lists.end( ))
+    ObjectHash::const_iterator i = _impl->lists.find( key );
+    if( i == _impl->lists.end( ))
         return INVALID;
 
     const Object& object = i->second;
@@ -258,7 +307,7 @@ GLuint ObjectManager::getList( const void* key ) const
 
 GLuint ObjectManager::newList( const void* key, const GLsizei num )
 {
-    if( _data->lists.find( key ) != _data->lists.end( ))
+    if( _impl->lists.find( key ) != _impl->lists.end( ))
     {
         LBWARN << "Requested new list for existing key" << std::endl;
         return INVALID;
@@ -271,7 +320,7 @@ GLuint ObjectManager::newList( const void* key, const GLsizei num )
         return INVALID;
     }
 
-    Object& object   = _data->lists[ key ];
+    Object& object   = _impl->lists[ key ];
     object.id        = id;
     object.num       = num;
 
@@ -288,21 +337,21 @@ GLuint ObjectManager::obtainList( const void* key, const GLsizei num )
 
 void ObjectManager::deleteList( const void* key )
 {
-    ObjectHash::iterator i = _data->lists.find( key );
-    if( i == _data->lists.end( ))
+    ObjectHash::iterator i = _impl->lists.find( key );
+    if( i == _impl->lists.end( ))
         return;
 
     const Object& object = i->second;
     glDeleteLists( object.id, object.num );
-    _data->lists.erase( i );
+    _impl->lists.erase( i );
 }
 
 // texture object functions
 
 GLuint ObjectManager::getTexture( const void* key ) const
 {
-    ObjectHash::const_iterator i = _data->textures.find( key );
-    if( i == _data->textures.end( ))
+    ObjectHash::const_iterator i = _impl->textures.find( key );
+    if( i == _impl->textures.end( ))
         return INVALID;
 
     const Object& object = i->second;
@@ -311,7 +360,7 @@ GLuint ObjectManager::getTexture( const void* key ) const
 
 GLuint ObjectManager::newTexture( const void* key )
 {
-    if( _data->textures.find( key ) != _data->textures.end( ))
+    if( _impl->textures.find( key ) != _impl->textures.end( ))
     {
         LBWARN << "Requested new texture for existing key" << std::endl;
         return INVALID;
@@ -325,7 +374,7 @@ GLuint ObjectManager::newTexture( const void* key )
         return INVALID;
     }
 
-    Object& object   = _data->textures[ key ];
+    Object& object   = _impl->textures[ key ];
     object.id        = id;
     return id;
 }
@@ -340,13 +389,13 @@ GLuint ObjectManager::obtainTexture( const void* key )
 
 void ObjectManager::deleteTexture( const void* key )
 {
-    ObjectHash::iterator i = _data->textures.find( key );
-    if( i == _data->textures.end( ))
+    ObjectHash::iterator i = _impl->textures.find( key );
+    if( i == _impl->textures.end( ))
         return;
 
     const Object& object = i->second;
     glDeleteTextures( 1, &object.id );
-    _data->textures.erase( i );
+    _impl->textures.erase( i );
 }
 
 // buffer object functions
@@ -358,8 +407,8 @@ bool ObjectManager::supportsBuffers() const
 
 GLuint ObjectManager::getBuffer( const void* key ) const
 {
-    ObjectHash::const_iterator i = _data->buffers.find( key );
-    if( i == _data->buffers.end() )
+    ObjectHash::const_iterator i = _impl->buffers.find( key );
+    if( i == _impl->buffers.end() )
         return INVALID;
 
     const Object& object = i->second;
@@ -374,7 +423,7 @@ GLuint ObjectManager::newBuffer( const void* key )
         return INVALID;
     }
 
-    if( _data->buffers.find( key ) != _data->buffers.end() )
+    if( _impl->buffers.find( key ) != _impl->buffers.end() )
     {
         LBWARN << "Requested new buffer for existing key" << std::endl;
         return INVALID;
@@ -389,7 +438,7 @@ GLuint ObjectManager::newBuffer( const void* key )
         return INVALID;
     }
 
-    Object& object     = _data->buffers[ key ];
+    Object& object     = _impl->buffers[ key ];
     object.id          = id;
     return id;
 }
@@ -404,13 +453,13 @@ GLuint ObjectManager::obtainBuffer( const void* key )
 
 void ObjectManager::deleteBuffer( const void* key )
 {
-    ObjectHash::iterator i = _data->buffers.find( key );
-    if( i == _data->buffers.end() )
+    ObjectHash::iterator i = _impl->buffers.find( key );
+    if( i == _impl->buffers.end() )
         return;
 
     const Object& object = i->second;
     glDeleteBuffers( 1, &object.id );
-    _data->buffers.erase( i );
+    _impl->buffers.erase( i );
 }
 
 // program object functions
@@ -422,8 +471,8 @@ bool ObjectManager::supportsPrograms() const
 
 GLuint ObjectManager::getProgram( const void* key ) const
 {
-    ObjectHash::const_iterator i = _data->programs.find( key );
-    if( i == _data->programs.end() )
+    ObjectHash::const_iterator i = _impl->programs.find( key );
+    if( i == _impl->programs.end() )
         return INVALID;
 
     const Object& object = i->second;
@@ -438,7 +487,7 @@ GLuint ObjectManager::newProgram( const void* key )
         return INVALID;
     }
 
-    if( _data->programs.find( key ) != _data->programs.end() )
+    if( _impl->programs.find( key ) != _impl->programs.end() )
     {
         LBWARN << "Requested new program for existing key" << std::endl;
         return INVALID;
@@ -451,7 +500,7 @@ GLuint ObjectManager::newProgram( const void* key )
         return INVALID;
     }
 
-    Object& object     = _data->programs[ key ];
+    Object& object     = _impl->programs[ key ];
     object.id          = id;
     return id;
 }
@@ -466,13 +515,13 @@ GLuint ObjectManager::obtainProgram( const void* key )
 
 void ObjectManager::deleteProgram( const void* key )
 {
-    ObjectHash::iterator i = _data->programs.find( key );
-    if( i == _data->programs.end() )
+    ObjectHash::iterator i = _impl->programs.find( key );
+    if( i == _impl->programs.end() )
         return;
 
     const Object& object = i->second;
     glDeleteProgram( object.id );
-    _data->programs.erase( i );
+    _impl->programs.erase( i );
 }
 
 // shader object functions
@@ -484,8 +533,8 @@ bool ObjectManager::supportsShaders() const
 
 GLuint ObjectManager::getShader( const void* key ) const
 {
-    ObjectHash::const_iterator i = _data->shaders.find( key );
-    if( i == _data->shaders.end() )
+    ObjectHash::const_iterator i = _impl->shaders.find( key );
+    if( i == _impl->shaders.end() )
         return INVALID;
 
     const Object& object = i->second;
@@ -500,7 +549,7 @@ GLuint ObjectManager::newShader( const void* key, const GLenum type )
         return INVALID;
     }
 
-    if( _data->shaders.find( key ) != _data->shaders.end() )
+    if( _impl->shaders.find( key ) != _impl->shaders.end() )
     {
         LBWARN << "Requested new shader for existing key" << std::endl;
         return INVALID;
@@ -514,7 +563,7 @@ GLuint ObjectManager::newShader( const void* key, const GLenum type )
     }
 
 
-    Object& object     = _data->shaders[ key ];
+    Object& object     = _impl->shaders[ key ];
     object.id          = id;
     return id;
 }
@@ -529,19 +578,19 @@ GLuint ObjectManager::obtainShader( const void* key, const GLenum type )
 
 void ObjectManager::deleteShader( const void* key )
 {
-    ObjectHash::iterator i = _data->shaders.find( key );
-    if( i == _data->shaders.end() )
+    ObjectHash::iterator i = _impl->shaders.find( key );
+    if( i == _impl->shaders.end() )
         return;
 
     const Object& object = i->second;
     glDeleteShader( object.id );
-    _data->shaders.erase( i );
+    _impl->shaders.erase( i );
 }
 
 Accum* ObjectManager::getEqAccum( const void* key ) const
 {
-    AccumHash::const_iterator i = _data->accums.find( key );
-    if( i == _data->accums.end( ))
+    AccumHash::const_iterator i = _impl->accums.find( key );
+    if( i == _impl->accums.end( ))
         return 0;
 
     return i->second;
@@ -549,14 +598,14 @@ Accum* ObjectManager::getEqAccum( const void* key ) const
 
 Accum* ObjectManager::newEqAccum( const void* key )
 {
-    if( _data->accums.find( key ) != _data->accums.end( ))
+    if( _impl->accums.find( key ) != _impl->accums.end( ))
     {
         LBWARN << "Requested new Accumulation for existing key" << std::endl;
         return 0;
     }
 
-    Accum* accum = new Accum( _data->glewContext );
-    _data->accums[ key ] = accum;
+    Accum* accum = new Accum( &_impl->glewContext );
+    _impl->accums[ key ] = accum;
     return accum;
 }
 
@@ -570,12 +619,12 @@ Accum* ObjectManager::obtainEqAccum( const void* key )
 
 void ObjectManager::deleteEqAccum( const void* key )
 {
-    AccumHash::iterator i = _data->accums.find( key );
-    if( i == _data->accums.end( ))
+    AccumHash::iterator i = _impl->accums.find( key );
+    if( i == _impl->accums.end( ))
         return;
 
     Accum* accum = i->second;
-    _data->accums.erase( i );
+    _impl->accums.erase( i );
 
     accum->exit();
     delete accum;
@@ -584,8 +633,8 @@ void ObjectManager::deleteEqAccum( const void* key )
 // eq::CompressorData object functions
 lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
 {
-    UploaderHash::const_iterator i = _data->eqUploaders.find( key );
-    if( i == _data->eqUploaders.end( ))
+    UploaderHash::const_iterator i = _impl->eqUploaders.find( key );
+    if( i == _impl->eqUploaders.end( ))
         return 0;
 
     return i->second;
@@ -593,18 +642,18 @@ lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
 
 lunchbox::Uploader* ObjectManager::newEqUploader( const void* key )
 {
-    if( _data->eqUploaders.find( key ) != _data->eqUploaders.end( ))
+    if( _impl->eqUploaders.find( key ) != _impl->eqUploaders.end( ))
     {
         LBWARN << "Requested new compressor for existing key" << std::endl;
         return 0;
     }
 
     lunchbox::Uploader* compressor = new lunchbox::Uploader;
-    _data->eqUploaders[ key ] = compressor;
+    _impl->eqUploaders[ key ] = compressor;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     std::ostringstream out;
     out << lunchbox::backtrace;
-    _data->eqUploaderAllocs[ key ] = out.str();
+    _impl->eqUploaderAllocs[ key ] = out.str();
 #endif
 
     return compressor;
@@ -620,14 +669,14 @@ lunchbox::Uploader* ObjectManager::obtainEqUploader( const void* key )
 
 void ObjectManager::deleteEqUploader( const void* key )
 {
-    UploaderHash::iterator i = _data->eqUploaders.find( key );
-    if( i == _data->eqUploaders.end( ))
+    UploaderHash::iterator i = _impl->eqUploaders.find( key );
+    if( i == _impl->eqUploaders.end( ))
         return;
 
     lunchbox::Uploader* uploader = i->second;
-    _data->eqUploaders.erase( i );
+    _impl->eqUploaders.erase( i );
 #ifdef EQ_OM_TRACE_ALLOCATIONS
-    _data->eqUploaderAllocs.erase( key );
+    _impl->eqUploaderAllocs.erase( key );
 #endif
     uploader->clear();
     delete uploader;
@@ -641,8 +690,8 @@ bool ObjectManager::supportsEqTexture() const
 
 Texture* ObjectManager::getEqTexture( const void* key ) const
 {
-    TextureHash::const_iterator i = _data->eqTextures.find( key );
-    if( i == _data->eqTextures.end( ))
+    TextureHash::const_iterator i = _impl->eqTextures.find( key );
+    if( i == _impl->eqTextures.end( ))
         return 0;
 
     return i->second;
@@ -650,14 +699,14 @@ Texture* ObjectManager::getEqTexture( const void* key ) const
 
 Texture* ObjectManager::newEqTexture( const void* key, const GLenum target )
 {
-    if( _data->eqTextures.find( key ) != _data->eqTextures.end( ))
+    if( _impl->eqTextures.find( key ) != _impl->eqTextures.end( ))
     {
         LBWARN << "Requested new eqTexture for existing key" << std::endl;
         return 0;
     }
 
-    Texture* texture = new Texture( target, _data->glewContext );
-    _data->eqTextures[ key ] = texture;
+    Texture* texture = new Texture( target, &_impl->glewContext );
+    _impl->eqTextures[ key ] = texture;
     return texture;
 }
 
@@ -671,12 +720,12 @@ Texture* ObjectManager::obtainEqTexture( const void* key, const GLenum target )
 
 void   ObjectManager::deleteEqTexture( const void* key )
 {
-    TextureHash::iterator i = _data->eqTextures.find( key );
-    if( i == _data->eqTextures.end( ))
+    TextureHash::iterator i = _impl->eqTextures.find( key );
+    if( i == _impl->eqTextures.end( ))
         return;
 
     Texture* texture = i->second;
-    _data->eqTextures.erase( i );
+    _impl->eqTextures.erase( i );
 
     texture->flush();
     delete texture;
@@ -685,8 +734,8 @@ void   ObjectManager::deleteEqTexture( const void* key )
 // eq::util::BitmapFont object functions
 util::BitmapFont* ObjectManager::getEqBitmapFont( const void* key ) const
 {
-    FontHash::const_iterator i = _data->eqFonts.find( key );
-    if( i == _data->eqFonts.end( ))
+    FontHash::const_iterator i = _impl->eqFonts.find( key );
+    if( i == _impl->eqFonts.end( ))
         return 0;
 
     return i->second;
@@ -694,14 +743,14 @@ util::BitmapFont* ObjectManager::getEqBitmapFont( const void* key ) const
 
 util::BitmapFont* ObjectManager::newEqBitmapFont( const void* key )
 {
-    if( _data->eqFonts.find( key ) != _data->eqFonts.end( ))
+    if( _impl->eqFonts.find( key ) != _impl->eqFonts.end( ))
     {
         LBWARN << "Requested new eqFont for existing key" << std::endl;
         return 0;
     }
 
     util::BitmapFont* font = new util::BitmapFont( *this, key );
-    _data->eqFonts[ key ] = font;
+    _impl->eqFonts[ key ] = font;
     return font;
 }
 
@@ -715,12 +764,12 @@ util::BitmapFont* ObjectManager::obtainEqBitmapFont( const void* key )
 
 void ObjectManager::deleteEqBitmapFont( const void* key )
 {
-    FontHash::iterator i = _data->eqFonts.find( key );
-    if( i == _data->eqFonts.end( ))
+    FontHash::iterator i = _impl->eqFonts.find( key );
+    if( i == _impl->eqFonts.end( ))
         return;
 
     util::BitmapFont* font = i->second;
-    _data->eqFonts.erase( i );
+    _impl->eqFonts.erase( i );
 
     font->exit();
     delete font;
@@ -735,8 +784,8 @@ bool ObjectManager::supportsEqFrameBufferObject() const
 FrameBufferObject* ObjectManager::getEqFrameBufferObject( const void* key )
     const
 {
-    FBOHash::const_iterator i = _data->eqFrameBufferObjects.find(key);
-    if( i == _data->eqFrameBufferObjects.end( ))
+    FBOHash::const_iterator i = _impl->eqFrameBufferObjects.find(key);
+    if( i == _impl->eqFrameBufferObjects.end( ))
         return 0;
 
     return i->second;
@@ -744,8 +793,8 @@ FrameBufferObject* ObjectManager::getEqFrameBufferObject( const void* key )
 
 FrameBufferObject* ObjectManager::newEqFrameBufferObject( const void* key )
 {
-    if( _data->eqFrameBufferObjects.find( key ) !=
-        _data->eqFrameBufferObjects.end( ))
+    if( _impl->eqFrameBufferObjects.find( key ) !=
+        _impl->eqFrameBufferObjects.end( ))
     {
         LBWARN << "Requested new eqFrameBufferObject for existing key"
                << std::endl;
@@ -753,8 +802,8 @@ FrameBufferObject* ObjectManager::newEqFrameBufferObject( const void* key )
     }
 
     FrameBufferObject* frameBufferObject =
-                                    new FrameBufferObject( _data->glewContext );
-    _data->eqFrameBufferObjects[ key ] = frameBufferObject;
+                                    new FrameBufferObject( &_impl->glewContext );
+    _impl->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
 }
 
@@ -768,12 +817,12 @@ FrameBufferObject* ObjectManager::obtainEqFrameBufferObject( const void* key )
 
 void ObjectManager::deleteEqFrameBufferObject( const void* key )
 {
-    FBOHash::iterator i = _data->eqFrameBufferObjects.find(key);
-    if( i == _data->eqFrameBufferObjects.end( ))
+    FBOHash::iterator i = _impl->eqFrameBufferObjects.find(key);
+    if( i == _impl->eqFrameBufferObjects.end( ))
         return;
 
     FrameBufferObject* frameBufferObject = i->second;
-    _data->eqFrameBufferObjects.erase( i );
+    _impl->eqFrameBufferObjects.erase( i );
 
     frameBufferObject->exit();
     delete frameBufferObject;
@@ -788,8 +837,8 @@ bool ObjectManager::supportsEqPixelBufferObject() const
 PixelBufferObject* ObjectManager::getEqPixelBufferObject( const void* key )
     const
 {
-    PBOHash::const_iterator i = _data->eqPixelBufferObjects.find(key);
-    if( i == _data->eqPixelBufferObjects.end( ))
+    PBOHash::const_iterator i = _impl->eqPixelBufferObjects.find(key);
+    if( i == _impl->eqPixelBufferObjects.end( ))
         return 0;
 
     return i->second;
@@ -798,8 +847,8 @@ PixelBufferObject* ObjectManager::getEqPixelBufferObject( const void* key )
 PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key,
                                                          const bool threadSafe )
 {
-    if( _data->eqPixelBufferObjects.find( key ) !=
-        _data->eqPixelBufferObjects.end( ))
+    if( _impl->eqPixelBufferObjects.find( key ) !=
+        _impl->eqPixelBufferObjects.end( ))
     {
         LBWARN << "Requested new eqPixelBufferObject for existing key"
                << std::endl;
@@ -807,8 +856,8 @@ PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key,
     }
 
     PixelBufferObject* pixelBufferObject =
-                        new PixelBufferObject( _data->glewContext, threadSafe );
-    _data->eqPixelBufferObjects[ key ] = pixelBufferObject;
+        new PixelBufferObject( &_impl->glewContext, threadSafe );
+    _impl->eqPixelBufferObjects[ key ] = pixelBufferObject;
     return pixelBufferObject;
 }
 
@@ -830,12 +879,12 @@ PixelBufferObject* ObjectManager::obtainEqPixelBufferObject( const void* key,
 
 void ObjectManager::deleteEqPixelBufferObject( const void* key )
 {
-    PBOHash::iterator i = _data->eqPixelBufferObjects.find(key);
-    if( i == _data->eqPixelBufferObjects.end( ))
+    PBOHash::iterator i = _impl->eqPixelBufferObjects.find(key);
+    if( i == _impl->eqPixelBufferObjects.end( ))
         return;
 
     PixelBufferObject* pixelBufferObject = i->second;
-    _data->eqPixelBufferObjects.erase( i );
+    _impl->eqPixelBufferObjects.erase( i );
 
     pixelBufferObject->destroy();
     delete pixelBufferObject;

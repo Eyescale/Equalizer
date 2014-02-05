@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -19,6 +19,7 @@
 
 #include "pipe.h"
 
+#include "../gl.h"
 #include "../global.h"
 #include "../log.h"
 #include "../pipe.h"
@@ -36,16 +37,42 @@ namespace glx
 static int XErrorHandler( Display* display, XErrorEvent* event );
 #endif
 
+namespace detail
+{
+class Pipe
+{
+public:
+    Pipe()
+        : xDisplay( 0 )
+    {}
+
+    /** Window-system specific display information. */
+    Display* xDisplay;
+
+    /** Extended GLX function entries. */
+    GLXEWContext glxewContext;
+};
+}
+
 Pipe::Pipe( eq::Pipe* parent )
-        : SystemPipe( parent )
-        , _xDisplay( 0 )
-        , _glxewContext( new GLXEWContext )
+    : SystemPipe( parent )
+    , _impl( new detail::Pipe )
 {
 }
 
 Pipe::~Pipe( )
 {
-    delete _glxewContext;
+    delete _impl;
+}
+
+Display* Pipe::getXDisplay() const
+{
+    return _impl->xDisplay;
+}
+
+GLXEWContext* Pipe::glxewGetContext()
+{
+    return &_impl->glxewContext;
 }
 
 //---------------------------------------------------------------------------
@@ -113,10 +140,10 @@ std::string Pipe::getXDisplayString()
 
 void Pipe::setXDisplay( Display* display )
 {
-    if( _xDisplay == display )
+    if( _impl->xDisplay == display )
         return;
 
-    _xDisplay = display;
+    _impl->xDisplay = display;
     XSetCurrentDisplay( display );
 
     GPUInfo info;
@@ -169,7 +196,7 @@ bool Pipe::getGPUInfo( Display* display, GPUInfo& info )
 
 bool Pipe::_configInitGLXEW()
 {
-    LBASSERT( _xDisplay );
+    LBASSERT( _impl->xDisplay );
 
     //----- Create and make current a temporary GL context to initialize GLXEW
     // visual
@@ -177,8 +204,8 @@ bool Pipe::_configInitGLXEW()
     attributes.push_back( GLX_RGBA );
     attributes.push_back( None );
 
-    const int screen = DefaultScreen( _xDisplay );
-    XVisualInfo *visualInfo = glXChooseVisual( _xDisplay, screen,
+    const int screen = DefaultScreen( _impl->xDisplay );
+    XVisualInfo *visualInfo = glXChooseVisual( _impl->xDisplay, screen,
                                                &attributes.front( ));
     if( !visualInfo )
     {
@@ -187,7 +214,8 @@ bool Pipe::_configInitGLXEW()
     }
 
     //context
-    GLXContext context = glXCreateContext( _xDisplay, visualInfo, 0, True );
+    GLXContext context = glXCreateContext( _impl->xDisplay, visualInfo, 0,
+                                           True );
     if( !context )
     {
         sendError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
@@ -195,13 +223,13 @@ bool Pipe::_configInitGLXEW()
     }
 
     // window
-    const XID parent = RootWindow( _xDisplay, screen );
+    const XID parent = RootWindow( _impl->xDisplay, screen );
     XSetWindowAttributes wa;
-    wa.colormap = XCreateColormap( _xDisplay, parent, visualInfo->visual,
+    wa.colormap = XCreateColormap( _impl->xDisplay, parent, visualInfo->visual,
                                    AllocNone );
     wa.background_pixmap = None;
     wa.border_pixel = 0;
-    XID drawable = XCreateWindow( _xDisplay, parent, 0, 0, 16, 16,
+    XID drawable = XCreateWindow( _impl->xDisplay, parent, 0, 0, 16, 16,
                                   0, visualInfo->depth, InputOutput,
                                   visualInfo->visual,
                                   CWBackPixmap | CWBorderPixel | CWColormap,
@@ -213,9 +241,9 @@ bool Pipe::_configInitGLXEW()
     }
 
     XFree( visualInfo );
-    XSync( _xDisplay, False );
+    XSync( _impl->xDisplay, False );
 
-    glXMakeCurrent( _xDisplay, drawable, context );
+    glXMakeCurrent( _impl->xDisplay, drawable, context );
 
     const GLenum result = glxewInit();
     bool success = result == GLEW_OK;
@@ -228,9 +256,9 @@ bool Pipe::_configInitGLXEW()
         sendError( ERROR_GLXPIPE_GLXEWINIT_FAILED )
             << lexical_cast< std::string >( result );
 
-    XSync( _xDisplay, False );
-    glXDestroyContext( _xDisplay, context );
-    XDestroyWindow( _xDisplay, drawable );
+    XSync( _impl->xDisplay, False );
+    glXDestroyContext( _impl->xDisplay, context );
+    XDestroyWindow( _impl->xDisplay, drawable );
 
     return success;
 }

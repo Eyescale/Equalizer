@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -40,6 +40,7 @@ class Client;
 class Config;
 class Layout;
 class Node;
+class NodeFactory;
 class Observer;
 class Pipe;
 class Segment;
@@ -67,8 +68,8 @@ typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
-    
+typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+
 /** A visitor to traverse pipes and children. */
 typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
 
@@ -80,6 +81,7 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 /** A visitor to traverse configs and children. */
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
+// cppcheck-suppress unnecessaryForwardDeclaration
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
 
 /** A visitor to traverse servers and children. */

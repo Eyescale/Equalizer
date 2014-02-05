@@ -19,6 +19,8 @@ endmacro(EQ_ADD_TOOL NAME)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/examples/include
   ${CMAKE_SOURCE_DIR}/examples)
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
+list(APPEND CPPCHECK_EXTRA_ARGS -I${CMAKE_SOURCE_DIR}/examples/include
+  -I${CMAKE_SOURCE_DIR}/examples)
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
@@ -50,6 +52,20 @@ eq_add_tool(eqPlyConverter
   LINK_LIBRARIES Equalizer triply
   )
 
+eq_add_tool(eqWindowAdmin
+  SOURCES windowAdmin/main.cpp
+  LINK_LIBRARIES EqualizerAdmin
+  )
+
+eq_add_tool(eqServer
+  SOURCES server/eqServer.cpp
+  LINK_LIBRARIES EqualizerServer
+  )
+
+list(APPEND CPPCHECK_EXTRA_ARGS --suppress=invalidscanf
+  --suppress=variableScope --suppress=invalidPointerCast
+  --suppress=invalidPrintfArgType_sint) # Yes, it's that bad.
+
 eq_add_tool(eVolveConverter
   HEADERS
     eVolveConverter/codebase.h
@@ -62,12 +78,3 @@ eq_add_tool(eVolveConverter
   LINK_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
-eq_add_tool(eqWindowAdmin
-  SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES EqualizerAdmin
-  )
-
-eq_add_tool(eqServer
-  SOURCES server/eqServer.cpp
-  LINK_LIBRARIES EqualizerServer
-  )

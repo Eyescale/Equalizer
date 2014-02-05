@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,6 +30,8 @@ namespace eq
 {
 namespace fabric
 {
+namespace detail { class Object; }
+
 /**
  * Internal base class for all distributed, inheritable Equalizer objects.
  *
@@ -59,10 +61,10 @@ public:
     EQFABRIC_API void setUserData( co::Object* userData );
 
     /** @return the user-specific data. @version 1.0 */
-    co::Object* getUserData() { return _userData; }
+    EQFABRIC_API co::Object* getUserData();
 
     /** @return the user-specific data. @version 1.0 */
-    const co::Object* getUserData() const { return _userData; }
+    EQFABRIC_API const co::Object* getUserData() const;
     //@}
 
     /** @name Data Access */
@@ -76,9 +78,9 @@ public:
      * @return the tasks.
      * @warning Experimental - may not be supported in the future
      */
-    uint32_t getTasks() const { return _tasks; }
+    EQFABRIC_API uint32_t getTasks() const;
 
-    uint32_t getSerial() const { return _serial; } //!< @internal
+    EQFABRIC_API uint32_t getSerial() const;
     //@}
 
     /** @return true if the object has data to commit. @version 1.0 */
@@ -115,8 +117,14 @@ protected:
     /** Construct a new Object. */
     EQFABRIC_API Object();
 
+    /** Construct an unmapped, unregistered copy of an object. */
+    EQFABRIC_API Object( const Object& );
+
     /** Destruct the object. */
     EQFABRIC_API virtual ~Object();
+
+    /** NOP assignment operator. @version 1.1.1 */
+    EQFABRIC_API Object& operator = ( const Object& from );
 
     /**
      * @return true if this instance shall hold the master instance of the
@@ -192,30 +200,7 @@ protected:
     EQFABRIC_API bool _cmdSync( co::ICommand& command );
 
 private:
-    struct BackupData
-    {
-        /** The application-defined name of the object. */
-        std::string name;
-
-        /** The user data parameters if no _userData object is set. */
-        co::ObjectVersion userData;
-    }
-        _data, _backup;
-
-    /** The user data. */
-    co::Object* _userData;
-
-    /** Worst-case set of tasks. */
-    uint32_t _tasks;
-
-    /** Server-unique serial number. */
-    uint32_t _serial;
-
-    /** The identifiers of removed children since the last slave commit. */
-    std::vector< uint128_t > _removedChildren;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    detail::Object* const _impl;
 };
 
 // Template Implementation

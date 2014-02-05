@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -34,16 +34,14 @@
 
 namespace eq
 {
-
 typedef co::CommandFunc< Server > CmdFunc;
 typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node,
                         ServerVisitor > Super;
 
 Server::Server()
-        : Super( Global::getNodeFactory( ))
-        , _localServer( false )
-{
-}
+    : Super( Global::getNodeFactory( ))
+    , _impl( 0 )
+{}
 
 Server::~Server()
 {

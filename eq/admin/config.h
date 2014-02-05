@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,43 +25,39 @@ namespace eq
 {
 namespace admin
 {
-    class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas, Node, ConfigVisitor >
-    {
-    public:
-        typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
-                                ConfigVisitor > Super;
+class Config : public fabric::Config< Server, Config, Observer, Layout,
+                                      Canvas, Node, ConfigVisitor >
+{
+public:
+    typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
+                            ConfigVisitor > Super;
 
-        /** Construct a new config. @version 1.0 */
-        EQADMIN_API Config( ServerPtr parent );
+    /** Construct a new config. @version 1.0 */
+    EQADMIN_API Config( ServerPtr parent );
 
-        /** Destruct a config. @version 1.0 */
-        EQADMIN_API virtual ~Config();
+    /** Destruct a config. @version 1.0 */
+    EQADMIN_API virtual ~Config();
 
-        /** @return the local client node. @version 1.0 */
-        EQADMIN_API ClientPtr getClient();
+    /** @return the local client node. @version 1.0 */
+    EQADMIN_API ClientPtr getClient();
 
-        /** @return the local client node. @version 1.0 */
-        EQADMIN_API ConstClientPtr getClient() const;
+    /** @return the local client node. @version 1.0 */
+    EQADMIN_API ConstClientPtr getClient() const;
 
-        EQADMIN_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+    EQADMIN_API co::CommandQueue* getMainThreadQueue(); //!< @internal
 
-        /** Commit all changes on this config and its children. @version 1.0 */
-        EQADMIN_API virtual uint128_t commit( const uint32_t incarnation =
-                                              CO_COMMIT_NEXT );
+    /** Commit all changes on this config and its children. @version 1.0 */
+    EQADMIN_API virtual uint128_t commit( const uint32_t incarnation =
+                                          CO_COMMIT_NEXT );
 
-        /** @internal */
-        const Channel* findChannel( const std::string& name ) const
-            { return find< Channel >( name ); }
+    /** @internal */
+    const Channel* findChannel( const std::string& name ) const
+    { return find< Channel >( name ); }
 
-        void output( std::ostream& ) const {} //!< @internal
-        virtual bool mapViewObjects() const { return true; } //!< @internal
-        virtual bool mapNodeObjects() const { return true; } //!< @internal
-
-    private:
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-    };
+    void output( std::ostream& ) const {} //!< @internal
+    virtual bool mapViewObjects() const { return true; } //!< @internal
+    virtual bool mapNodeObjects() const { return true; } //!< @internal
+};
 }
 }
 

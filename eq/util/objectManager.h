@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,18 +21,12 @@
 #include <eq/util/types.h>
 #include <eq/client/api.h>
 
-#include <lunchbox/api.h>              // EQ_API definition
-#include <lunchbox/debug.h>            // LBASSERT definition
-#include <lunchbox/hash.h>             // member
-#include <lunchbox/nonCopyable.h>      // base class
-#include <lunchbox/referenced.h>       // base class
-
-//#define EQ_OM_TRACE_ALLOCATIONS
-
 namespace eq
 {
 namespace util
 {
+namespace detail { class ObjectManager; }
+
 /**
  * A facility class to manage OpenGL objects across shared contexts.
  *
@@ -66,15 +60,15 @@ public:
     EQ_API ObjectManager( const GLEWContext* const glewContext );
 
     /** Construct a new object manager sharing data with another manager. */
-    EQ_API ObjectManager( ObjectManager& shared );
+    EQ_API ObjectManager( const ObjectManager& shared );
 
     /** Destruct this object manager. */
     EQ_API virtual ~ObjectManager();
 
-    ObjectManager& operator = ( ObjectManager& rhs ); //!< @internal
+    ObjectManager& operator = ( const ObjectManager& rhs ); //!< @internal
 
     /** @return true if more than one OM is using the same data. */
-    bool isShared() const { return _data->getRefCount() > 1; }
+    EQ_API bool isShared() const;
 
     /** Reset the object manager. deleteAll() should be called beforehand. */
     EQ_API void clear();
@@ -152,59 +146,11 @@ public:
     EQ_API util::BitmapFont* obtainEqBitmapFont( const void* key );
     EQ_API void                   deleteEqBitmapFont( const void* key );
 
-    const GLEWContext* glewGetContext() const { return _data->glewContext; }
+    EQ_API const GLEWContext* glewGetContext() const;
 
 private:
-    struct Object
-    {
-        unsigned   id;
-        unsigned   num;
-    };
-
-    typedef stde::hash_map< const void*, Object >     ObjectHash;
-    typedef stde::hash_map< const void*, Texture* >   TextureHash;
-    typedef stde::hash_map< const void*, FrameBufferObject* > FBOHash;
-    typedef stde::hash_map< const void*, PixelBufferObject* > PBOHash;
-    typedef stde::hash_map< const void*, util::BitmapFont* > FontHash;
-    typedef stde::hash_map< const void*, Accum* > AccumHash;
-    typedef stde::hash_map< const void*, lunchbox::Uploader* > UploaderHash;
-#   ifdef EQ_OM_TRACE_ALLOCATIONS
-    typedef stde::hash_map< const void*, std::string > UploaderAllocs;
-#   endif
-
-    struct SharedData : public lunchbox::Referenced
-    {
-        SharedData( const GLEWContext* glewContext );
-        virtual ~SharedData();
-
-        GLEWContext* glewContext;
-        ObjectHash lists;
-        ObjectHash textures;
-        ObjectHash buffers;
-        ObjectHash programs;
-        ObjectHash shaders;
-        ObjectHash uploaderDatas;
-        AccumHash  accums;
-        TextureHash eqTextures;
-        FBOHash eqFrameBufferObjects;
-        PBOHash eqPixelBufferObjects;
-        FontHash eqFonts;
-        UploaderHash eqUploaders;
-#   ifdef EQ_OM_TRACE_ALLOCATIONS
-        UploaderAllocs eqUploaderAllocs;
-#   endif
-
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
-    };
-
-    typedef lunchbox::RefPtr< SharedData > SharedDataPtr;
-    SharedDataPtr _data;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    typedef lunchbox::RefPtr< detail::ObjectManager > SharedDataPtr;
+    SharedDataPtr _impl;
 };
 }
 }

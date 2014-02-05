@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,7 @@ BitmapFont::~BitmapFont()
         LBWARN << "OpenGL BitmapFont was not freed" << std::endl;
 }
 
-bool BitmapFont::init( const WindowSystem ws, const std::string& name,
+bool BitmapFont::init( const WindowSystem& ws, const std::string& name,
                        const uint32_t size )
 {
     return ws.setupFont( _gl, _key, name, size );

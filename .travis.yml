@@ -22,6 +22,7 @@ before_install:
  - sudo apt-get install -qq automake || /bin/true
  - sudo apt-get install -qq bison || /bin/true
  - sudo apt-get install -qq cmake || /bin/true
+ - sudo apt-get install -qq cppcheck || /bin/true
  - sudo apt-get install -qq doxygen || /bin/true
  - sudo apt-get install -qq flex || /bin/true
  - sudo apt-get install -qq freeglut3-dev || /bin/true
@@ -40,6 +41,7 @@ before_install:
  - sudo apt-get install -qq libboost-serialization-dev || /bin/true
  - sudo apt-get install -qq libboost-system-dev || /bin/true
  - sudo apt-get install -qq libboost-test-dev || /bin/true
+ - sudo apt-get install -qq libfcgi-dev || /bin/true
  - sudo apt-get install -qq libgl1-mesa-dev || /bin/true
  - sudo apt-get install -qq libglewmx1.6-dev || /bin/true
  - sudo apt-get install -qq libhwloc-dev || /bin/true
@@ -58,5 +60,6 @@ before_install:
  - sudo apt-get install -qq libx11-dev || /bin/true
  - sudo apt-get install -qq libxmu-dev || /bin/true
  - sudo apt-get install -qq ninja-build || /bin/true
+ - sudo apt-get install -qq openmpi-bin || /bin/true
  - sudo apt-get install -qq pkg-config || /bin/true
  - sudo apt-get install -qq subversion || /bin/true

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,7 +28,7 @@ namespace fabric
 struct ToNodes
 {
     std::vector< uint128_t > inputNodes;
-    std::vector< co::NodeID > inputNetNodes;
+    co::NodeIDs inputNetNodes;
 };
 
 namespace detail
@@ -128,7 +128,7 @@ const std::vector< uint128_t >& Frame::getInputNodes( const Eye eye ) const
     return _impl->toNodes[ lunchbox::getIndexOfLastBit( eye )].inputNodes;
 }
 
-const std::vector< co::NodeID >& Frame::getInputNetNodes(const Eye eye) const
+const co::NodeIDs& Frame::getInputNetNodes(const Eye eye) const
 {
     return _impl->toNodes[ lunchbox::getIndexOfLastBit( eye )].inputNetNodes;
 }
@@ -138,7 +138,7 @@ std::vector< uint128_t >& Frame::_getInputNodes( const unsigned i )
     return _impl->toNodes[ i ].inputNodes;
 }
 
-std::vector< co::NodeID >& Frame::_getInputNetNodes( const unsigned i )
+co::NodeIDs& Frame::_getInputNetNodes( const unsigned i )
 {
     return _impl->toNodes[ i ].inputNetNodes;
 }

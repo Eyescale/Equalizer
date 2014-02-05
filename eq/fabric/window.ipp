@@ -169,8 +169,7 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
             syncChildren( _channels );
         else
         {
-            bool useChildren;
-            is >> useChildren;
+            const bool useChildren = is.read< bool >();
             if( useChildren && _mapNodeObjects( ))
             {
                 Channels result;
@@ -179,10 +178,7 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
                 LBASSERT( _channels.size() == result.size( ));
             }
             else // consume unused ObjectVersions
-            {
-                co::ObjectVersions childIDs;
-                is >> childIDs;
-            }
+                is.read< co::ObjectVersions >();
         }
     }
     if( dirtyBits & DIRTY_VIEWPORT )

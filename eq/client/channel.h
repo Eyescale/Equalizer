@@ -611,24 +611,24 @@ private:
                           const uint32_t frameNumber,
                           const uint32_t taskID,
                           const std::vector< uint128_t >& nodes,
-                          const std::vector< co::NodeID >& netNodes );
+                          const co::NodeIDs& netNodes );
 
     bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 
     void _asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
                          const uint64_t image,
                          const std::vector< uint128_t >& nodes,
-                         const std::vector< co::NodeID >& netNodes,
+                         const co::NodeIDs& netNodes,
                          const uint32_t taskID );
 
     void _setReady( const bool async, detail::RBStat* stat );
     void _asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
                          const std::vector< uint128_t >& nodes,
-                         const std::vector< co::NodeID >& netNodes );
+                         const co::NodeIDs& netNodes );
 
     void _setReady( FrameDataPtr frame, detail::RBStat* stat,
                     const std::vector< uint128_t >& nodes,
-                    const std::vector< co::NodeID >& netNodes );
+                    const co::NodeIDs& netNodes );
 
     /** Get the channel's current input queue. */
     co::QueueSlave* _getQueue( const uint128_t& queueID );

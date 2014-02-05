@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -26,6 +26,8 @@
 
 namespace eq
 {
+namespace detail { class Server; }
+
 /**
  * Proxy object for the connection to an Equalizer server.
  *
@@ -78,12 +80,7 @@ protected:
     EQ_API virtual ~Server();
 
 private:
-    /** Process-local server */
-    bool _localServer;
-    friend class Client;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    detail::Server* const _impl;
 
     /* The command handler functions. */
     bool _cmdChooseConfigReply( co::ICommand& command );

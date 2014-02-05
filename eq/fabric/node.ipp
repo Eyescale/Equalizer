@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -121,8 +121,7 @@ Node< C, N, P, V >::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
             syncChildren( _pipes );
         else
         {
-            bool useChildren;
-            is >> useChildren;
+            const bool useChildren = is.read< bool >();
             if( useChildren && _mapNodeObjects( ))
             {
                 Pipes result;
@@ -131,10 +130,7 @@ Node< C, N, P, V >::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
                 LBASSERT( _pipes.size() == result.size( ));
             }
             else // consume unused ObjectVersions
-            {
-                co::ObjectVersions childIDs;
-                is >> childIDs;
-            }
+                is.read< co::ObjectVersions >();
         }
     }
     if( dirtyBits & DIRTY_MEMBER )

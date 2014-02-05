@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2012-2014, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,10 +20,15 @@
 
 namespace eq
 {
+GLException::GLException( const uint32_t glError_ )
+    : Exception( GL_ERROR )
+    , glError( glError_ )
+    , _what( eq::glError( glError_ ))
+{}
+
 const char* GLException::what() const throw()
 {
-    std::stringstream os;
-    os << Exception::what() << " " << eq::glError( glError );
-    return os.str().c_str();
+    return _what.c_str();
 }
+
 }

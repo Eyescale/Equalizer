@@ -16,6 +16,7 @@ else() # installed examples
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
   find_package(Equalizer @VERSION@ REQUIRED)
   include_directories(${EQUALIZER_INCLUDE_DIRS})
+
   set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
   add_definitions(${EQ_DEFINITIONS})
 
@@ -94,6 +95,7 @@ add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK) # Fix for windows and shared b
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
+list(APPEND CPPCHECK_EXTRA_ARGS -I${CMAKE_CURRENT_SOURCE_DIR})
 
 install(DIRECTORY configs DESTINATION share/Equalizer COMPONENT examples
   FILES_MATCHING PATTERN "*.eqc"  PATTERN "issue*" EXCLUDE)

@@ -1,15 +1,15 @@
 
-/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield 
- *                           2010-2011 Stefan Eilemann <eile@eyescale.ch>
+/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield
+ *                           2010-2014 Stefan Eilemann <eile@eyescale.ch>
  *
- * This library is open source and may be redistributed and/or modified under  
- * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or 
+ * This library is open source and may be redistributed and/or modified under
+ * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
  * (at your option) any later version.  The full license is in LICENSE file
  * included with this distribution, and on the openscenegraph.org website.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * OpenSceneGraph Public License for more details.
 */
 #include "sceneView.h"
@@ -39,54 +39,56 @@ using namespace osgUtil;
 namespace osgScaleViewer
 {
 
-SceneView::SceneView( osg::DisplaySettings* ds)
+SceneView::SceneView( osg::DisplaySettings* ds )
+    : _fusionDistanceValue( 0.f )
 {
     _displaySettings = ds;
 
     _lightingMode=NO_SCENEVIEW_LIGHT;
-    
+
     _prioritizeTextures = false;
-    
+
     setCamera(new Camera);
     _camera->setViewport(new Viewport);
     _camera->setClearColor(osg::Vec4(0.2f, 0.2f, 0.4f, 1.0f));
-    
+
     _initCalled = false;
 
     _camera->setDrawBuffer(GL_BACK);
 
     _requiresFlush = true;
-    
+
     _activeUniforms = DEFAULT_UNIFORMS;
-    
+
     _previousFrameTime = 0;
     _previousSimulationTime = 0;
-    
+
     _dynamicObjectCount = 0;
 }
 
-SceneView::SceneView(const SceneView& rhs, const osg::CopyOp& copyop):
-    osg::Object(rhs,copyop),
-    osg::CullSettings(rhs)
+SceneView::SceneView(const SceneView& rhs, const osg::CopyOp& copyop)
+    : osg::Object(rhs,copyop)
+    , osg::CullSettings(rhs)
+    , _fusionDistanceValue( 0.f )
 {
     _displaySettings = rhs._displaySettings;
 
     _lightingMode = rhs._lightingMode;
-    
+
     _prioritizeTextures = rhs._prioritizeTextures;
-    
+
     _camera = rhs._camera;
     _cameraWithOwnership = rhs._cameraWithOwnership;
-    
+
     _initCalled = false;
 
     _requiresFlush = rhs._requiresFlush;
-    
+
     _activeUniforms = rhs._activeUniforms;
-    
+
     _previousFrameTime = 0;
     _previousSimulationTime = 0;
-    
+
     _dynamicObjectCount = 0;
 }
 
@@ -121,7 +123,7 @@ void SceneView::setDefaults(unsigned int options)
             // enable lighting by default.
             _globalStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
         #endif
-        
+
         #if !defined(OSG_GLES1_AVAILABLE) && !defined(OSG_GLES2_AVAILABLE) && defined(OSG_GL_FIXED_FUNCTION_AVAILABLE)
             osg::LightModel* lightmodel = new osg::LightModel;
             lightmodel->setAmbientIntensity(osg::Vec4(0.1f,0.1f,0.1f,1.0f));
@@ -132,9 +134,9 @@ void SceneView::setDefaults(unsigned int options)
     {
         _lightingMode = NO_SCENEVIEW_LIGHT;
     }
- 
+
     _renderInfo.setState(new State);
-    
+
     _stateGraph = new StateGraph;
     _renderStage = new RenderStage;
 
@@ -142,14 +144,14 @@ void SceneView::setDefaults(unsigned int options)
     if (options & COMPILE_GLOBJECTS_AT_INIT)
     {
         GLObjectsVisitor::Mode  dlvMode = GLObjectsVisitor::COMPILE_DISPLAY_LISTS |
-                                          GLObjectsVisitor::COMPILE_STATE_ATTRIBUTES | 
+                                          GLObjectsVisitor::COMPILE_STATE_ATTRIBUTES |
                                           GLObjectsVisitor::CHECK_BLACK_LISTED_MODES;
 
     #ifdef __sgi
         dlvMode = GLObjectsVisitor::COMPILE_STATE_ATTRIBUTES;
     #endif
 
-        // sgi's IR graphics has a problem with lighting and display lists, as it seems to store 
+        // sgi's IR graphics has a problem with lighting and display lists, as it seems to store
         // lighting state with the display list, and the display list visitor doesn't currently apply
         // state before creating display lists. So will disable the init visitor default, this won't
         // affect functionality since the display lists will be created as and when needed.
@@ -158,7 +160,7 @@ void SceneView::setDefaults(unsigned int options)
         _initVisitor = dlv;
 
     }
-    
+
     _updateVisitor = new UpdateVisitor;
 
     _cullVisitor = CullVisitor::create();
@@ -174,7 +176,7 @@ void SceneView::setDefaults(unsigned int options)
          texenv->setMode(osg::TexEnv::MODULATE);
          _globalStateSet->setTextureAttributeAndModes(0,texenv, osg::StateAttribute::ON);
     #endif
-         
+
     _camera->setClearColor(osg::Vec4(0.2f, 0.2f, 0.4f, 1.0f));
 }
 
@@ -188,7 +190,7 @@ void SceneView::setCamera(osg::Camera* camera, bool assumeOwnershipOfCamera)
     {
         osg::notify(osg::NOTICE)<<"Warning: attempt to assign a NULL camera to SceneView not permitted."<<std::endl;
     }
-    
+
     if (assumeOwnershipOfCamera)
     {
         _cameraWithOwnership = _camera.get();
@@ -202,12 +204,12 @@ void SceneView::setCamera(osg::Camera* camera, bool assumeOwnershipOfCamera)
 void SceneView::setSceneData(osg::Node* node)
 {
     // take a temporary reference to node to prevent the possibility
-    // of it getting deleted when when we do the camera clear of children. 
+    // of it getting deleted when when we do the camera clear of children.
     osg::ref_ptr<osg::Node> temporaryRefernce = node;
-    
+
     // remove pre existing children
     _camera->removeChildren(0, _camera->getNumChildren());
-    
+
     // add the new one in.
     _camera->addChild(node);
 }
@@ -224,18 +226,18 @@ void SceneView::init()
     {
         _initVisitor->reset();
         _initVisitor->setFrameStamp(_frameStamp.get());
-        
+
         GLObjectsVisitor* dlv = dynamic_cast<GLObjectsVisitor*>(_initVisitor.get());
         if (dlv) dlv->setState(_renderInfo.getState());
-        
+
         if (_frameStamp.valid())
         {
              _initVisitor->setTraversalNumber(_frameStamp->getFrameNumber());
         }
-        
+
         _camera->accept(*_initVisitor.get());
-        
-    } 
+
+    }
 }
 
 void SceneView::updateUniforms()
@@ -246,7 +248,7 @@ void SceneView::updateUniforms()
     }
 
     if (!_localStateSet) return;
-    
+
     if ((_activeUniforms & FRAME_NUMBER_UNIFORM) && _frameStamp.valid())
     {
 #if OSG_MIN_VERSION_REQUIRED(2,9,11)
@@ -255,39 +257,39 @@ void SceneView::updateUniforms()
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_FrameNumber",osg::Uniform::INT);
 #endif
 
-        uniform->set(_frameStamp->getFrameNumber());        
+        uniform->set(_frameStamp->getFrameNumber());
     }
-    
+
     if ((_activeUniforms & FRAME_TIME_UNIFORM) && _frameStamp.valid())
     {
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_FrameTime",osg::Uniform::FLOAT);
         uniform->set(static_cast<float>(_frameStamp->getReferenceTime()));
     }
-    
+
     if ((_activeUniforms & DELTA_FRAME_TIME_UNIFORM) && _frameStamp.valid())
     {
         float delta_frame_time = (_previousFrameTime != 0.0) ? static_cast<float>(_frameStamp->getReferenceTime()-_previousFrameTime) : 0.0f;
         _previousFrameTime = _frameStamp->getReferenceTime();
-        
+
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_DeltaFrameTime",osg::Uniform::FLOAT);
         uniform->set(delta_frame_time);
     }
-    
+
     if ((_activeUniforms & SIMULATION_TIME_UNIFORM) && _frameStamp.valid())
     {
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_SimulationTime",osg::Uniform::FLOAT);
         uniform->set(static_cast<float>(_frameStamp->getSimulationTime()));
     }
-    
+
     if ((_activeUniforms & DELTA_SIMULATION_TIME_UNIFORM) && _frameStamp.valid())
     {
         float delta_simulation_time = (_previousSimulationTime != 0.0) ? static_cast<float>(_frameStamp->getSimulationTime()-_previousSimulationTime) : 0.0f;
         _previousSimulationTime = _frameStamp->getSimulationTime();
-        
+
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_DeltaSimulationTime",osg::Uniform::FLOAT);
         uniform->set(delta_simulation_time);
     }
-    
+
     if (_activeUniforms & VIEW_MATRIX_UNIFORM)
     {
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_ViewMatrix",osg::Uniform::FLOAT_MAT4);
@@ -305,7 +307,7 @@ void SceneView::updateUniforms()
 void SceneView::setLightingMode(LightingMode mode)
 {
     if (mode==_lightingMode) return;
-    
+
     if (_lightingMode!=NO_SCENEVIEW_LIGHT)
     {
         // remove GL_LIGHTING mode
@@ -325,7 +327,7 @@ void SceneView::setLightingMode(LightingMode mode)
         #if defined(OSG_GL_FIXED_FUNCTION_AVAILABLE)
             // add GL_LIGHTING mode
             _globalStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-            if (_light.valid()) 
+            if (_light.valid())
             {
                 _globalStateSet->setAssociatedModes(_light.get(), osg::StateAttribute::ON);
             }
@@ -335,31 +337,31 @@ void SceneView::setLightingMode(LightingMode mode)
 
 void SceneView::inheritCullSettings(const osg::CullSettings& settings, unsigned int inheritanceMask)
 {
-    if (_camera.valid() && _camera->getView()) 
+    if (_camera.valid() && _camera->getView())
     {
         if (inheritanceMask & osg::CullSettings::LIGHTING_MODE)
         {
             LightingMode newLightingMode = _lightingMode;
-        
+
             switch(_camera->getView()->getLightingMode())
             {
                 case(osg::View::NO_LIGHT): newLightingMode = NO_SCENEVIEW_LIGHT; break;
                 case(osg::View::HEADLIGHT): newLightingMode = HEADLIGHT; break;
                 case(osg::View::SKY_LIGHT): newLightingMode = SKY_LIGHT; break;
             }
-            
+
             if (newLightingMode != _lightingMode)
             {
                 setLightingMode(newLightingMode);
             }
         }
-                
+
         if (inheritanceMask & osg::CullSettings::LIGHT)
         {
             setLight(_camera->getView()->getLight());
         }
     }
-    
+
     osg::CullSettings::inheritCullSettings(settings, inheritanceMask);
 }
 
@@ -383,17 +385,17 @@ void SceneView::cull()
         // applications which is ok for most apps, but not multiple context/pipe applications.
         _renderInfo.setState(new osg::State);
     }
-    
+
     osg::State* state = _renderInfo.getState();
 
     if (!_localStateSet)
     {
         _localStateSet = new osg::StateSet;
     }
-    
+
     // we in theory should be able to be able to bypass reset, but we'll call it just incase.
     //_state->reset();
-   
+
     state->setFrameStamp(_frameStamp.get());
     state->setDisplaySettings(_displaySettings.get());
 
@@ -437,14 +439,14 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
     if (_camera->containsOccluderNodes())
     {
         //std::cout << "Scene graph contains occluder nodes, searching for them"<<std::endl;
-        
-        
+
+
         if (!_collectOccludersVisitor) _collectOccludersVisitor = new osg::CollectOccludersVisitor;
-        
+
         _collectOccludersVisitor->inheritCullSettings(*this);
-        
+
         _collectOccludersVisitor->reset();
-        
+
         _collectOccludersVisitor->setFrameStamp(_frameStamp.get());
 
         // use the frame number for the traversal number.
@@ -463,17 +465,17 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
         _collectOccludersVisitor->popModelViewMatrix();
         _collectOccludersVisitor->popProjectionMatrix();
         _collectOccludersVisitor->popViewport();
-        
+
         // sort the occluder from largest occluder volume to smallest.
         _collectOccludersVisitor->removeOccludedOccluders();
-        
-        
+
+
         osg::notify(osg::DEBUG_INFO) << "finished searching for occluder - found "<<_collectOccludersVisitor->getCollectedOccluderSet().size()<<std::endl;
-           
+
         cullVisitor->getOccluderList().clear();
         std::copy(_collectOccludersVisitor->getCollectedOccluderSet().begin(),_collectOccludersVisitor->getCollectedOccluderSet().end(), std::back_insert_iterator<CullStack::OccluderList>(cullVisitor->getOccluderList()));
     }
-    
+
 
 
     cullVisitor->reset();
@@ -509,8 +511,8 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
     renderStage->setClearAccum(_camera->getClearAccum());
     renderStage->setClearStencil(_camera->getClearStencil());
     renderStage->setClearMask(_camera->getClearMask());
-    
-#if 1    
+
+#if 1
     renderStage->setCamera(_camera.get());
 #endif
 
@@ -527,9 +529,9 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
             break;
         default:
             break;
-        }            
+        }
     #endif
-    
+
     if (_globalStateSet.valid()) cullVisitor->pushStateSet(_globalStateSet.get());
     if (_secondaryStateSet.valid()) cullVisitor->pushStateSet(_secondaryStateSet.get());
     if (_localStateSet.valid()) cullVisitor->pushStateSet(_localStateSet.get());
@@ -539,8 +541,8 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
     cullVisitor->pushProjectionMatrix(proj.get());
     cullVisitor->pushModelViewMatrix(mv.get(),osg::Transform::ABSOLUTE_RF);
 
-    // traverse the scene graph to generate the rendergraph.    
-    // If the camera has a cullCallback execute the callback which has the  
+    // traverse the scene graph to generate the rendergraph.
+    // If the camera has a cullCallback execute the callback which has the
     // requirement that it must traverse the camera's children.
     {
        osg::NodeCallback* callback = _camera->getCullCallback();
@@ -556,7 +558,7 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
     if (_localStateSet.valid()) cullVisitor->popStateSet();
     if (_secondaryStateSet.valid()) cullVisitor->popStateSet();
     if (_globalStateSet.valid()) cullVisitor->popStateSet();
-    
+
 
     renderStage->sort();
 
@@ -566,8 +568,8 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
     // a clean has been used instead to try to minimize the amount of
     // allocation and deleteing of the StateGraph nodes.
     rendergraph->prune();
-    
-    // set the number of dynamic objects in the scene.    
+
+    // set the number of dynamic objects in the scene.
     _dynamicObjectCount += renderStage->computeNumberOfDynamicRenderLeaves();
 
 
@@ -578,9 +580,9 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
 void SceneView::releaseAllGLObjects()
 {
     if (!_camera) return;
-   
+
     _camera->releaseGLObjects(_renderInfo.getState());
-    
+
     // we need to reset State as it keeps handles to Program objects.
     if (_renderInfo.getState()) _renderInfo.getState()->reset();
 }
@@ -589,7 +591,7 @@ void SceneView::releaseAllGLObjects()
 void SceneView::flushAllDeletedGLObjects()
 {
     _requiresFlush = false;
-    
+
     osg::flushAllDeletedGLObjects(getState()->getContextID());
  }
 
@@ -623,7 +625,7 @@ void SceneView::draw()
     // and texture objects is deferred until the OpenGL context is the correct
     // context for when the object were originally created.  Here we know what
     // context we are in so can flush the appropriate caches.
-    
+
     if (_requiresFlush)
     {
         double availableTime = 0.005;
@@ -642,7 +644,7 @@ void SceneView::draw()
     // bog standard draw.
     _renderStage->drawPreRenderStages(_renderInfo,previous);
     _renderStage->draw(_renderInfo,previous);
-    
+
     // re apply the defalt OGL state.
     state->popAllStateSets();
     state->apply();
@@ -682,9 +684,9 @@ bool SceneView::projectWindowIntoObject(const osg::Vec3& window,osg::Vec3& objec
 {
     osg::Matrix inverseMVPW;
     inverseMVPW.invert(computeMVPW());
-    
+
     object = window*inverseMVPW;
-    
+
     return true;
 }
 
@@ -698,10 +700,10 @@ bool SceneView::projectWindowXYIntoObject(int x,int y,osg::Vec3& near_point,osg:
 {
     osg::Matrix inverseMVPW;
     inverseMVPW.invert(computeMVPW());
-    
+
     near_point = osg::Vec3(x,y,0.0f)*inverseMVPW;
     far_point = osg::Vec3(x,y,1.0f)*inverseMVPW;
-        
+
     return true;
 }
 
@@ -719,7 +721,7 @@ bool SceneView::projectObjectIntoWindow(const osg::Vec3& object,osg::Vec3& windo
 const osg::Matrix SceneView::computeMVPW() const
 {
     osg::Matrix matrix( getViewMatrix() * getProjectionMatrix());
-        
+
     if (getViewport())
         matrix.postMult(getViewport()->computeWindowMatrix());
     else
@@ -734,7 +736,7 @@ void SceneView::clearArea(int x,int y,int width,int height,const osg::Vec4& colo
     viewport->setViewport(x,y,width,height);
 
     _renderInfo.getState()->applyAttribute(viewport.get());
-    
+
     glScissor( x, y, width, height );
     glEnable( GL_SCISSOR_TEST );
     glClearColor( color[0], color[1], color[2], color[3]);
@@ -749,7 +751,7 @@ void SceneView::setProjectionMatrixAsOrtho(double left, double right,
     setProjectionMatrix(osg::Matrixd::ortho(left, right,
                                            bottom, top,
                                            zNear, zFar));
-}                                           
+}
 
 void SceneView::setProjectionMatrixAsOrtho2D(double left, double right,
                                              double bottom, double top)
@@ -772,7 +774,7 @@ void SceneView::setProjectionMatrixAsPerspective(double fovy,double aspectRatio,
 {
     setProjectionMatrix(osg::Matrixd::perspective(fovy,aspectRatio,
                                                  zNear, zFar));
-}                                      
+}
 
 bool SceneView::getProjectionMatrixAsOrtho(double& left, double& right,
                                            double& bottom, double& top,
@@ -790,13 +792,13 @@ bool SceneView::getProjectionMatrixAsFrustum(double& left, double& right,
     return getProjectionMatrix().getFrustum(left, right,
                                          bottom, top,
                                          zNear, zFar);
-}                                  
+}
 
 bool SceneView::getProjectionMatrixAsPerspective(double& fovy,double& aspectRatio,
                                                  double& zNear, double& zFar) const
 {
     return getProjectionMatrix().getPerspective(fovy, aspectRatio, zNear, zFar);
-}                                                 
+}
 
 void SceneView::setViewMatrixAsLookAt(const osg::Vec3& eye,const osg::Vec3& center,const osg::Vec3& up)
 {

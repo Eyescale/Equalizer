@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,44 +27,38 @@ namespace eq
 {
 namespace admin
 {
-    class NodeFactory;
-    class Config;
+/**
+ * Proxy object for the connection to an Equalizer server.
+ *
+ * @sa Client::connectServer
+ */
+class Server : public fabric::Server< Client, Server, Config, NodeFactory,
+                                      co::Node, ServerVisitor >
+{
+public:
+    /** Construct a new server. @version 1.0 */
+    EQADMIN_API Server();
 
-    /**
-     * Proxy object for the connection to an Equalizer server.
-     *
-     * @sa Client::connectServer
-     */
-    class Server : public fabric::Server< Client, Server, Config, NodeFactory,
-                                          co::Node, ServerVisitor >
-    {
-    public:
-        /** Construct a new server. @version 1.0 */
-        EQADMIN_API Server();
+    /** Destruct the server. @version 1.0 */
+    EQADMIN_API virtual ~Server() {}
 
-        /** Destruct the server. @version 1.0 */
-        EQADMIN_API virtual ~Server() {}
+    /** Map all server data. @internal */
+    void map();
 
-        /** Map all server data. @internal */
-        void map();
-        
-        /** Unmap all server data. @internal */
-        void unmap();
+    /** Unmap all server data. @internal */
+    void unmap();
 
-        /** Synchronize all sever data. @version 1.0  **/
-        EQADMIN_API void syncConfig( const co::uint128_t& configID,
-                                        const co::uint128_t& version );
+    /** Synchronize all sever data. @version 1.0  **/
+    EQADMIN_API void syncConfig( const co::uint128_t& configID,
+                                 const co::uint128_t& version );
 
-        virtual void setClient( ClientPtr client ); //!< @internal
-        co::CommandQueue* getMainThreadQueue(); //!< @internal
+    virtual void setClient( ClientPtr client ); //!< @internal
+    co::CommandQueue* getMainThreadQueue(); //!< @internal
 
-    private:
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-
-        bool _cmdMapReply( co::ICommand& command );
-        bool _cmdUnmapReply( co::ICommand& command );
-    };
+private:
+    bool _cmdMapReply( co::ICommand& command );
+    bool _cmdUnmapReply( co::ICommand& command );
+};
 }
 }
 

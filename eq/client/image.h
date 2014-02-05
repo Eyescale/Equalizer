@@ -32,7 +32,7 @@ namespace detail { class Image; }
  *
  * An image holds color and depth information for one rectangular region.
  */
-class Image
+class Image : public boost::noncopyable
 {
 public:
     /** Construct a new Image. @version 1.0 */

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -72,15 +72,16 @@ int main( int argc, char** argv )
 }
 
 ConfigTool::ConfigTool()
-        :_mode( MODE_2D )
-        ,_nPipes( 1 )
-        ,_nChannels( 4 )
-        ,_useDestination( true )
-        ,_columns( 3 )
-        ,_rows( 2 )
-        ,_nodesFile( "" )
-        ,_resX( 960 )
-        ,_resY( 600 )
+    : _mode( MODE_2D )
+    , _nPipes( 1 )
+    , _nChannels( 4 )
+    , _useDestination( true )
+    , _fullScreen( false )
+    , _columns( 3 )
+    , _rows( 2 )
+    , _nodesFile( "" )
+    , _resX( 960 )
+    , _resY( 600 )
 {}
 
 bool ConfigTool::parseArguments( int argc, char** argv )

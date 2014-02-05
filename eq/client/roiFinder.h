@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2009, Maxim Makhinya
- *               2010-2013, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,7 +31,7 @@ namespace eq
  * Processes current rendering target and selects areas for read back.
  * @internal
  */
-class ROIFinder
+class ROIFinder : public boost::noncopyable
 {
 public:
     ROIFinder();
@@ -108,7 +108,9 @@ private:
     struct Area
     {
         Area(){};
-        Area( PixelViewport pvp_ ) : emptySize( 0 ), pvp ( pvp_ ) {}
+        Area( PixelViewport pvp_ )
+            : emptySize( 0 ), pvp ( pvp_ ), valid( false )
+        {}
 
         int32_t       emptySize; //!< number of empty blocks
         PixelViewport pvp;       //!< PVP of area
@@ -117,8 +119,8 @@ private:
         bool          valid; //!< Used in debug build only
     };
 
-    Area  _tmpAreas[17];  //!< possible arreas
-    Area* _finalAreas[4]; //!< links to picked areas from _tmpAreas
+    Area _tmpAreas[17];  //!< possible arreas
+    Area _finalAreas[4]; //!< links to picked areas from _tmpAreas
 
     std::vector< Area > _areasToCheck;//!< Areas used to search for holes
 

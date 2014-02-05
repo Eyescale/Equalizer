@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2012-2014, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,18 +23,23 @@
 
 namespace eq
 {
-    /** OpenGL Exception. */
-    class GLException : public Exception
-    {
-    public:
-        /** Construct a new OpenGL Exception. */
-        GLException( const uint32_t glError_ )
-                : Exception( GL_ERROR ), glError( glError_ ) {}
+/** OpenGL Exception. */
+class GLException : public Exception
+{
+public:
+    /** Construct a new OpenGL Exception. */
+    EQ_API GLException( const uint32_t glError_ );
 
-        EQ_API virtual const char* what() const throw();
+    /** Destruct this exception. */
+    virtual ~GLException() throw() {}
 
-        const uint32_t glError;
-    };
+    EQ_API const char* what() const throw() override;
+
+    const uint32_t glError;
+
+private:
+    std::string _what;
+};
 }
 
 #endif // EQ_GLEXCEPTION_H

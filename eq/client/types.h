@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -126,6 +126,7 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 /** A visitor to traverse configs and children. */
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
+// cppcheck-suppress unnecessaryForwardDeclaration
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
 
 /** A visitor to traverse servers and children. */

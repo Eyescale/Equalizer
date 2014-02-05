@@ -4,6 +4,8 @@
 #               2010-2014 Stefan Eilemann <eile@eyescale.ch>
 #               2011 Cedric Stalder <cedric.stalder@gmail.ch>
 
+list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZER_DSO_NAME=foo)
+
 if(EQUALIZER_USE_MAGELLAN)
   find_package(MAGELLAN)
 endif()

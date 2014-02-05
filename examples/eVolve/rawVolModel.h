@@ -34,10 +34,10 @@
 namespace eVolve
 {
 
-    /** Structure that contain actual dimensions of data that is 
-        stored in volume texture.  
+    /** Structure that contain actual dimensions of data that is
+        stored in volume texture.
 
-        It assumes that volume fills the cube [-1,-1,-1]..[1,1,1] and 
+        It assumes that volume fills the cube [-1,-1,-1]..[1,1,1] and
         the texture coordinates scaled to [0,0,0]..[1,1,1] but volume
         itself can be less then whole texture. Correct coordinates of
         volume stored in texture could be computed as:
@@ -58,12 +58,15 @@ namespace eVolve
         float Db;   //!< Depth border (necessary for preintegration)
     };
 
-    /** Contain overal volume proportions relatively [-1,-1,-1]..[1,1,1] cube
+    /** Contain overall volume proportions relatively [-1,-1,-1]..[1,1,1] cube
     */
     struct VolumeScaling
     {
+        // cppcheck-suppress unusedStructMember
         float W;    //!< width  scale
+        // cppcheck-suppress unusedStructMember
         float H;    //!< height scale
+        // cppcheck-suppress unusedStructMember
         float D;    //!< depth  scale
     };
 
@@ -74,7 +77,6 @@ namespace eVolve
         VolumeScaling           volScaling; //!< Proportions of volume
         VolumeScaling           voxelSize;  //!< Relative volume size (0..1]
         DataInTextureDimensions TD; //!< Data dimensions within volume texture
-        bool                    hasDerivatives; //!< true if raw+der used
     };
 
     /** Load model to texture */

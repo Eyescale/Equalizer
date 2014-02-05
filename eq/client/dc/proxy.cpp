@@ -36,7 +36,7 @@ namespace dc
 {
 namespace detail
 {
-class Proxy
+class Proxy : public boost::noncopyable
 {
 public:
     Proxy( eq::Channel* ch )

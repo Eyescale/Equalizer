@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2013 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2014 Stefan Eilemann <eile@eyescale.ch>
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
 if(CUDA_FOUND)

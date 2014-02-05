@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -32,26 +32,27 @@ namespace server
 {
 
 Equalizer::Equalizer()
-        : _compound( 0 )
-        , _active( true )
+    : _compound( 0 )
+    , _active( true )
 {
     LBVERB << "New Equalizer @" << (void*)this << std::endl;
 }
 
 Equalizer::Equalizer( const fabric::Equalizer& from )
-        : fabric::Equalizer( from )
-        , _compound( 0 )
-        , _active( true )
+    : fabric::Equalizer( from )
+    , _compound( 0 )
+    , _active( true )
 {}
 
 Equalizer::Equalizer( const Equalizer& from )
-        : fabric::Equalizer( from )
-        , CompoundListener( from )
-        , _compound( 0 )
-        , _active( from._active )
+    : fabric::Equalizer( from )
+    , CompoundListener( from )
+    , _compound( 0 )
+    , _active( from._active )
 {}
 
-Equalizer& Equalizer::operator=( const fabric::Equalizer& from )
+// cppcheck-suppress operatorEqVarError
+Equalizer& Equalizer::operator = ( const fabric::Equalizer& from )
 {
     fabric::Equalizer::operator = ( from );
     return *this;
