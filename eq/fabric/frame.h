@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,8 +102,7 @@ namespace detail { class Frame; }
         const std::vector< uint128_t >& getInputNodes( const Eye eye ) const;
 
         /** @internal @return the receiving co::Node IDs of an output frame */
-        EQFABRIC_API
-        const std::vector< co::NodeID >& getInputNetNodes(const Eye eye) const;
+        EQFABRIC_API const co::NodeIDs& getInputNetNodes(const Eye eye) const;
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
@@ -118,8 +117,7 @@ namespace detail { class Frame; }
         EQFABRIC_API std::vector< uint128_t >& _getInputNodes( const unsigned i );
 
         /** @internal @return the receiving co::Node IDs of an output frame */
-        EQFABRIC_API
-        std::vector< co::NodeID >& _getInputNetNodes( const unsigned i );
+        EQFABRIC_API co::NodeIDs& _getInputNetNodes( const unsigned i );
 
     private:
         detail::Frame* const _impl;

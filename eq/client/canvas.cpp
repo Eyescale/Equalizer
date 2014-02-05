@@ -39,7 +39,6 @@ Canvas::Canvas( Config* parent )
 
 Canvas::~Canvas()
 {
-    // delete impl_;
 }
 
 ServerPtr Canvas::getServer()
