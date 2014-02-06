@@ -24,9 +24,10 @@
 #include "server.h"
 #include "window.h"
 
+#pragma clang diagnostic ignored "-Wunused-private-field" // _impl is unused
+
 namespace eq
 {
-
 typedef fabric::Segment< Canvas, Segment, Channel > Super;
 
 Segment::Segment( Canvas* parent )
