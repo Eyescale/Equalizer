@@ -23,6 +23,8 @@
 #include "nodeFactory.h"
 #include "view.h"
 
+#pragma clang diagnostic ignored "-Wunused-private-field" // _impl is unused
+
 namespace eq
 {
 typedef fabric::Layout< Config, Layout, View > Super;

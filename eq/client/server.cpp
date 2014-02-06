@@ -32,6 +32,8 @@
 
 #include <algorithm>
 
+#pragma clang diagnostic ignored "-Wunused-private-field" // _impl is unused
+
 namespace eq
 {
 typedef co::CommandFunc< Server > CmdFunc;

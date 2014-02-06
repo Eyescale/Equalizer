@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,6 +24,8 @@
 #include <eq/fabric/elementVisitor.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+
+#pragma clang diagnostic ignored "-Wunused-private-field" // _impl is unused
 
 namespace eq
 {
