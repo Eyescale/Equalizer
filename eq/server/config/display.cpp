@@ -39,6 +39,42 @@ namespace server
 namespace config
 {
 
+namespace
+{
+
+void _choosePixelViewport( Window& window, const PixelViewport& pvp )
+{
+    int32_t width = window.getIAttribute( Window::IATTR_HINT_WIDTH );
+    int32_t height = window.getIAttribute( Window::IATTR_HINT_HEIGHT );
+    if( width == fabric::UNDEFINED && height == fabric::UNDEFINED )
+    {
+        window.setViewport( Viewport( .25f, .2f, .5f, .5f ));
+    }
+    else
+    {
+        if( pvp.isValid( ))
+        {
+            width = width == fabric::UNDEFINED || width < 0 ?
+                pvp.w * .5f : std::min( pvp.w, width );
+            height = height == fabric::UNDEFINED || height < 0 ?
+                pvp.h * .5f : std::min( pvp.h, height );
+        }
+        if( width == fabric::UNDEFINED || width < 0)
+            /* An arbitray value */
+            width = 860;
+        if( height == fabric::UNDEFINED || height < 0)
+            /* An arbitray value */
+            height = 540;
+        const uint32_t x = ( pvp.w - width ) * 0.5;
+        const uint32_t y = ( pvp.h - height ) * 0.5;
+
+        window.setPixelViewport( PixelViewport( x, y, width, height ));
+    }
+}
+
+}
+
+
 void Display::discoverLocal( Config* config, const uint32_t flags )
 {
     Node* node = config->findAppNode();
@@ -53,7 +89,8 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
 
     Pipe* pipe = pipes.front();
     Window* window = new Window( pipe );
-    window->setViewport( Viewport( .25f, .2f, .5f, .5f ));
+    const PixelViewport& pvp = pipe->getPixelViewport( );
+    _choosePixelViewport( *window, pvp );
     window->setName( pipe->getName() + " window" );
     window->setIAttribute( Window::IATTR_PLANES_STENCIL, 1 );
 
@@ -61,9 +98,11 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
     channel->setName( pipe->getName() + " channel" );
     Observer* observer = new Observer( config );
 
-    const PixelViewport& pvp = pipe->getPixelViewport();
     Wall wall;
-    if( pvp.isValid( ))
+    const PixelViewport& windowPvp = window->getPixelViewport( );
+    if( windowPvp.isValid( ))
+        wall.resizeHorizontalToAR( float( windowPvp.w ) / float( windowPvp.h ));
+    else if( pvp.isValid( ))
         wall.resizeHorizontalToAR( float( pvp.w ) / float( pvp.h ));
 
     Canvas* canvas = new Canvas( config );
