@@ -42,34 +42,36 @@ namespace config
 namespace
 {
 
-void _choosePixelViewport( Window& window, const PixelViewport& pvp )
+void _choosePixelViewport( Window& window )
 {
     int32_t width = window.getIAttribute( Window::IATTR_HINT_WIDTH );
     int32_t height = window.getIAttribute( Window::IATTR_HINT_HEIGHT );
     if( width == fabric::UNDEFINED && height == fabric::UNDEFINED )
     {
         window.setViewport( Viewport( .25f, .2f, .5f, .5f ));
+        return;
     }
-    else
-    {
-        if( pvp.isValid( ))
-        {
-            width = width == fabric::UNDEFINED || width < 0 ?
-                pvp.w * .5f : std::min( pvp.w, width );
-            height = height == fabric::UNDEFINED || height < 0 ?
-                pvp.h * .5f : std::min( pvp.h, height );
-        }
-        if( width == fabric::UNDEFINED || width < 0)
-            /* An arbitray value */
-            width = 860;
-        if( height == fabric::UNDEFINED || height < 0)
-            /* An arbitray value */
-            height = 540;
-        const uint32_t x = ( pvp.w - width ) * 0.5;
-        const uint32_t y = ( pvp.h - height ) * 0.5;
 
-        window.setPixelViewport( PixelViewport( x, y, width, height ));
-    }
+    const PixelViewport& pvp = window.getPipe()->getPixelViewport();
+
+    if( width > 0 )
+        width = std::min( pvp.w, width );
+    else if( pvp.isValid( ))
+        width = pvp.w * .5f;
+    else
+        width = 860; // An arbitrary value
+
+    if( height > 0 )
+        height = std::min( pvp.h, height );
+    else if( pvp.isValid( ))
+        height = pvp.h * .5f;
+    else
+        height = 540; // An arbitrary value
+
+    const uint32_t x = ( pvp.w - width ) * 0.5;
+    const uint32_t y = ( pvp.h - height ) * 0.5;
+
+    window.setPixelViewport( PixelViewport( x, y, width, height ));
 }
 
 }
@@ -89,8 +91,7 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
 
     Pipe* pipe = pipes.front();
     Window* window = new Window( pipe );
-    const PixelViewport& pvp = pipe->getPixelViewport( );
-    _choosePixelViewport( *window, pvp );
+    _choosePixelViewport( *window );
     window->setName( pipe->getName() + " window" );
     window->setIAttribute( Window::IATTR_PLANES_STENCIL, 1 );
 
@@ -98,8 +99,10 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
     channel->setName( pipe->getName() + " channel" );
     Observer* observer = new Observer( config );
 
-    Wall wall;
+    const PixelViewport& pvp = pipe->getPixelViewport();
     const PixelViewport& windowPvp = window->getPixelViewport( );
+    Wall wall;
+
     if( windowPvp.isValid( ))
         wall.resizeHorizontalToAR( float( windowPvp.w ) / float( windowPvp.h ));
     else if( pvp.isValid( ))
