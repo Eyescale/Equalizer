@@ -507,8 +507,7 @@ namespace server
             { _data.iAttributes[attr] = value; }
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _data.iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr );
         //@}
 
         typedef stde::hash_map<std::string, co::Barrier*> BarrierMap;
@@ -532,9 +531,6 @@ namespace server
 
         Compound* const _parent;
         Compounds _children;
-
-        /** String representation of integer attributes. */
-        static std::string _iAttributeStrings[IATTR_ALL];
 
         /** Percentage the resource should be used. */
         float _usage;

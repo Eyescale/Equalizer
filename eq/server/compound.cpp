@@ -56,13 +56,7 @@ namespace eq
 namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_COMPOUND_") + #attr )
-std::string Compound::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
-    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
-    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
+;
 
 Compound::Compound( Config* parent )
         : _config( parent )
@@ -344,6 +338,19 @@ void Compound::fireUpdatePre( const uint32_t frameNumber )
          i != _listeners.end(); ++i )
 
         (*i)->notifyUpdatePre( this, frameNumber );
+}
+
+const std::string& Compound::getIAttributeString( const Compound::IAttribute attr )
+{
+    static std::string iAttributeStrings[] =
+    {
+        MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
+        MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
+        MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
+        MAKE_ATTR_STRING( IATTR_FILL1 ),
+        MAKE_ATTR_STRING( IATTR_FILL2 )
+    };
+    return iAttributeStrings[ attr ];
 }
 
 void Compound::_fireChildAdded( Compound* child )
