@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,7 @@
 #include <eq/util/bitmapFont.h>      // member
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/window.h>        // base class
+#include <eq/client/notifierInterface.h> // base class
 
 
 
@@ -59,7 +60,8 @@ namespace eq
  *
  * @sa fabric::Window
  */
-class Window : public fabric::Window< Pipe, Window, Channel >
+class Window : public fabric::Window< Pipe, Window, Channel >,
+               public NotifierInterface
 {
 public:
     /** Construct a new window. @version 1.0 */
@@ -287,7 +289,7 @@ public:
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error );
+    EQ_API EventOCommand sendError( const uint32_t error ) final;
 
     /**
      * Process a received event.
@@ -300,7 +302,7 @@ public:
      * @return true when the event was handled, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool processEvent( const Event& event );
+    EQ_API bool processEvent( const Event& event ) final;
     //@}
 
 protected:
@@ -485,6 +487,8 @@ private:
 
     /** Enter the given barrier. */
     void _enterBarrier( co::ObjectVersion barrier );
+
+    void _tweakEvent( Event& event );
 
     /* The command functions. */
     bool _cmdCreateChannel( co::ICommand& command );

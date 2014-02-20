@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -58,8 +59,9 @@ struct MagellanData
 static lunchbox::Lockable< MagellanData, lunchbox::SpinLock > _magellan;
 }
 
-EventHandler::EventHandler( WindowIF* window )
+EventHandler::EventHandler( WindowIF* window, MessagePump* messagePump )
         : _window( window )
+        , _messagePump( messagePump )
         , _magellanUsed( false )
 {
     LBASSERT( window );
@@ -68,15 +70,10 @@ EventHandler::EventHandler( WindowIF* window )
         _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
-    eq::Pipe* pipe = window->getPipe();
-    MessagePump* messagePump =
-        dynamic_cast< MessagePump* >( pipe->isThreaded() ?
-                                      pipe->getMessagePump() :
-                                      pipe->getConfig()->getMessagePump( ));
     Display* display = window->getXDisplay();
     LBASSERT( display );
-    if( messagePump )
-        messagePump->register_( display );
+    if( _messagePump )
+        _messagePump->register_( display );
     else
         LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
                << "event dispatch assumed" << std::endl;
@@ -129,16 +126,12 @@ EventHandler::~EventHandler()
         _magellanUsed = false;
     }
 
-    eq::Pipe* pipe = _window->getPipe();
-    MessagePump* messagePump =
-        dynamic_cast<MessagePump*>( pipe->isThreaded() ?
-                                    pipe->getMessagePump() :
-                                    pipe->getConfig()->getMessagePump( ));
-    if( messagePump )
+    if( _messagePump )
     {
         Display* display = _window->getXDisplay();
         LBASSERT( display );
-        messagePump->deregister( display );
+        _messagePump->deregister( display );
+        _messagePump = 0;
     }
 
     EventHandlers::iterator i = lunchbox::find( *_eventHandlers, this );
@@ -176,7 +169,6 @@ void EventHandler::_dispatch()
         XEvent& xEvent = event.xEvent;
 
         XNextEvent( display, &xEvent );
-        event.time = _window->getConfig()->getTime();
 
         for( EventHandlers::const_iterator i = _eventHandlers->begin();
              i != _eventHandlers->end(); ++i )
@@ -216,8 +208,6 @@ void EventHandler::_processEvent( WindowEvent& event )
 
     if( _window->getXDrawable() != drawable )
         return;
-
-    eq::Window* window = _window->getWindow();
 
     switch( xEvent.type )
     {
@@ -298,8 +288,7 @@ void EventHandler::_processEvent( WindowEvent& event )
             event.pointerMotion.buttons = _getButtonState( xEvent );
             event.pointerMotion.button  = PTR_BUTTON_NONE;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( _window->getParent(), event );
             break;
 
         case ButtonPress:
@@ -327,8 +316,7 @@ void EventHandler::_processEvent( WindowEvent& event )
                 event.pointerWheel.button = PTR_BUTTON_NONE;
             }
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( _window->getParent(), event );
             break;
 
         case ButtonRelease:
@@ -338,8 +326,7 @@ void EventHandler::_processEvent( WindowEvent& event )
             event.pointerButtonRelease.buttons = _getButtonState( xEvent );
             event.pointerButtonRelease.button  = _getButtonAction( xEvent);
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( _window->getParent(), event );
             break;
 
         case KeyPress:
@@ -364,8 +351,6 @@ void EventHandler::_processEvent( WindowEvent& event )
             break;
     }
 
-    event.originator = window->getID();
-    event.serial = window->getSerial();
     _window->processEvent( event );
 }
 

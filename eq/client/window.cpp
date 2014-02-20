@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -286,12 +286,7 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
 
 uint32_t Window::getColorFormat() const
 {
-    switch( getIAttribute( Window::IATTR_PLANES_COLOR ))
-    {
-        case RGBA32F:  return GL_RGBA32F;
-        case RGBA16F:  return GL_RGBA16F;
-        default:       return GL_RGBA;
-    }
+    return getSettings().getColorFormat();
 }
 
 void Window::flush() const
@@ -381,7 +376,9 @@ bool Window::configInit( const uint128_t& initID )
 bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
-    SystemWindow* systemWindow = pipe->getWindowSystem().createWindow( this );
+    setName( getName( ));
+    SystemWindow* systemWindow =
+            pipe->getWindowSystem().createWindow( this, getSettings() );
 
     LBASSERT( systemWindow );
     if( !systemWindow->configInit( ))
@@ -390,6 +387,8 @@ bool Window::configInitSystemWindow( const uint128_t& )
         delete systemWindow;
         return false;
     }
+
+    setPixelViewport( systemWindow->getPixelViewport( ));
 
     setSystemWindow( systemWindow );
     return true;
@@ -471,12 +470,11 @@ bool Window::createTransferWindow()
     if( _transferWindow )
         return true;
 
-    // create another (shared) osWindow with no drawable, restore original
-    const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE, OFF );
-
+    // create another (shared) osWindow with no drawable
+    WindowSettings settings = getSettings();
+    settings.setIAttribute( WindowSettings::IATTR_HINT_DRAWABLE, OFF );
     const Pipe* pipe = getPipe();
-    _transferWindow = pipe->getWindowSystem().createWindow( this );
+    _transferWindow = pipe->getWindowSystem().createWindow( this, settings );
 
     if( _transferWindow )
     {
@@ -487,13 +485,12 @@ bool Window::createTransferWindow()
             _transferWindow = 0;
         }
         else
-            makeCurrentTransfer();
+            makeCurrentTransfer(); // #177
     }
     else
         LBERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
 
-    setIAttribute( IATTR_HINT_DRAWABLE, drawable );
     makeCurrent();
 
     LBVERB << "Transfer window initialization finished" << std::endl;
@@ -521,15 +518,9 @@ void Window::deleteTransferSystemWindow()
     if( !_transferWindow )
         return;
 
-    const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE, OFF );
-
     _transferWindow->configExit();
-
     delete _transferWindow;
     _transferWindow = 0;
-
-    setIAttribute( IATTR_HINT_DRAWABLE, drawable );
 }
 
 //----------------------------------------------------------------------
@@ -606,6 +597,29 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     }
 }
 
+void Window::_tweakEvent( Event& event )
+{
+    event.time = getConfig()->getTime();
+    event.originator = getID();
+    event.serial = getSerial();
+
+    switch( event.type )
+    {
+    case Event::WINDOW_POINTER_MOTION:
+    case Event::WINDOW_POINTER_BUTTON_PRESS:
+    case Event::WINDOW_POINTER_BUTTON_RELEASE:
+    case Event::WINDOW_POINTER_WHEEL:
+    {
+        const int32_t xPos = event.pointer.x;
+        const int32_t yPos = event.pointer.y;
+
+        if( !getRenderContext( xPos, yPos, event.context ))
+            LBVERB << "No rendering context for pointer event at "
+                   << xPos << ", " << yPos << std::endl;
+    }
+    }
+}
+
 
 //======================================================================
 // event methods
@@ -618,6 +632,8 @@ EventOCommand Window::sendError( const uint32_t error )
 
 bool Window::processEvent( const Event& event )
 {
+    _tweakEvent( const_cast< Event& >( event ));
+
     switch( event.type )
     {
         case Event::WINDOW_HIDE:
@@ -696,7 +712,7 @@ bool Window::processEvent( const Event& event )
         }
 
         case Event::WINDOW_SCREENSAVER:
-            switch( getIAttribute( IATTR_HINT_SCREENSAVER ))
+            switch( getIAttribute( WindowSettings::IATTR_HINT_SCREENSAVER ))
             {
                 case OFF:
                     return true; // screen saver stays inactive
@@ -704,7 +720,7 @@ bool Window::processEvent( const Event& event )
                     return false; // screen saver becomes active
                 default: // AUTO
                     if( getDrawableConfig().doublebuffered &&
-                        getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW )
+                        getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW )
                     {
                         return true; // screen saver stays inactive
                     }

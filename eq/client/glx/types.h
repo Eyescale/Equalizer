@@ -38,6 +38,7 @@ namespace glx
 {
 
 class EventHandler;
+class MessagePump;
 class Pipe;
 class Window;
 class WindowIF;

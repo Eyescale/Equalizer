@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -73,7 +73,6 @@ template< class P, class W, class C >
 Window< P, W, C >::BackupData::BackupData()
         : fixedVP( true )
 {
-    memset( iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
 }
 
 template< class P, class W, class C >
@@ -145,15 +144,15 @@ void Window< P, W, C >::serialize( co::DataOStream& os,
                                    const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        os << co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
+    if( dirtyBits & DIRTY_SETTINGS )
+        _data.windowSettings.serialize( os );
     if( dirtyBits & DIRTY_CHANNELS && isMaster( ))
     {
         os << _mapNodeObjects();
         os.serializeChildren( _channels );
     }
     if( dirtyBits & DIRTY_VIEWPORT )
-        os << _data.vp << _data.pvp << _data.fixedVP;
+        os << _data.vp << getPixelViewport() << _data.fixedVP;
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         os << _data.drawableConfig;
 }
@@ -163,8 +162,8 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        is >> co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
+    if( dirtyBits & DIRTY_SETTINGS )
+        _data.windowSettings.deserialize( is );
     if( dirtyBits & DIRTY_CHANNELS )
     {
         if( isMaster( ))
@@ -188,11 +187,13 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
         // Ignore data from master (server) if we have local changes
         if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
         {
-            is >> _data.vp >> _data.pvp >> _data.fixedVP;
+            PixelViewport pvp;
+            is >> _data.vp >> pvp >> _data.fixedVP;
+            _data.windowSettings.setPixelViewport( pvp );
             notifyViewportChanged();
         }
         else // consume unused data
-            is.getRemainingBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
+            is.getRemainingBuffer( sizeof( _data.vp ) + sizeof( PixelViewport ) +
                                    sizeof( _data.fixedVP ));
     }
 
@@ -284,10 +285,35 @@ C* Window< P, W, C >::_findChannel( const uint128_t& id )
     return 0;
 }
 
+template< class P, class W, class C >
+void Window< P, W, C >::setIAttribute( const WindowSettings::IAttribute attr,
+                                       const int32_t value )
+{
+    _data.windowSettings.setIAttribute( attr, value );
+}
+
+template< class P, class W, class C >
+int32_t Window< P, W, C >::getIAttribute( const WindowSettings::IAttribute attr ) const
+{
+    return _data.windowSettings.getIAttribute( attr );
+}
+
 template< class P, class W, class C > const std::string&
-Window< P, W, C >::getIAttributeString( const IAttribute attr )
+Window< P, W, C >::getIAttributeString( const WindowSettings::IAttribute attr )
 {
     return _iAttributeStrings[attr];
+}
+
+//template< class P, class W, class C >
+//WindowSettings& Window< P, W, C >::getSettings()
+//{
+//    return _data.windowSettings;
+//}
+
+template< class P, class W, class C >
+const WindowSettings& Window< P, W, C >::getSettings() const
+{
+    return _data.windowSettings;
 }
 
 template< class P, class W, class C >
@@ -364,6 +390,12 @@ VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
 }
 
 template< class P, class W, class C >
+const PixelViewport& Window< P, W, C >::getPixelViewport() const
+{
+    return _data.windowSettings.getPixelViewport();
+}
+
+template< class P, class W, class C >
 void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
 {
     LBASSERTINFO( pvp.isValid(), pvp );
@@ -372,10 +404,10 @@ void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
 
     _data.fixedVP = false;
 
-    if( pvp == _data.pvp && _data.vp.hasArea( ))
+    if( pvp == getPixelViewport() && _data.vp.hasArea( ))
         return;
 
-    _data.pvp = pvp;
+    _data.windowSettings.setPixelViewport( pvp );
     _data.vp.invalidate();
 
     notifyViewportChanged();
@@ -390,10 +422,10 @@ void Window< P, W, C >::setViewport( const Viewport& vp )
 
     _data.fixedVP = true;
 
-    if( vp == _data.vp && _data.pvp.hasArea( ))
+    if( vp == _data.vp && getPixelViewport().hasArea( ))
         return;
     _data.vp = vp;
-    _data.pvp.invalidate();
+    _data.windowSettings.setPixelViewport( PixelViewport( ));
 
     setDirty( DIRTY_VIEWPORT );
     notifyViewportChanged();
@@ -406,16 +438,17 @@ void Window< P, W, C >::notifyViewportChanged()
 
     if( _data.fixedVP ) // update pixel viewport
     {
-        const PixelViewport oldPVP = _data.pvp;
-        _data.pvp = pipePVP;
-        _data.pvp.apply( _data.vp );
-        if( oldPVP != _data.pvp )
+        const PixelViewport oldPVP = getPixelViewport();
+        PixelViewport newPVP = pipePVP;
+        newPVP.apply( _data.vp );
+        _data.windowSettings.setPixelViewport( newPVP );
+        if( oldPVP != newPVP )
             setDirty( DIRTY_VIEWPORT );
     }
     else           // update viewport
     {
         const Viewport oldVP = _data.vp;
-        _data.vp = _data.pvp / pipePVP;
+        _data.vp = getPixelViewport() / pipePVP;
         if( oldVP != _data.vp )
             setDirty( DIRTY_VIEWPORT );
     }
@@ -425,8 +458,8 @@ void Window< P, W, C >::notifyViewportChanged()
     {
         (*i)->notifyViewportChanged();
     }
-    LBVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
-           << std::endl;
+    LBVERB << getName() << " viewport update: " << _data.vp << ":"
+           << getPixelViewport() << std::endl;
 }
 
 template< class P, class W, class C >

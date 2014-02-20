@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -1466,7 +1466,7 @@ void Compound::_updateInheritStereo()
     const Window* window = _inherit.channel->getWindow();
     const bool stereoWindow = window->getDrawableConfig().stereo;
     const bool usesFBO =  window &&
-        (( window->getIAttribute(Window::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
+        (( window->getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
          _inherit.channel->getDrawable() != Channel::FB_WINDOW );
 
     if( stereoWindow && !usesFBO )

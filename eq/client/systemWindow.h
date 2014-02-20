@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -34,8 +35,9 @@ namespace eq
 class SystemWindow
 {
 public:
-    /** Create a new SystemWindow for the given eq::Window. @version 1.0 */
-    EQ_API SystemWindow( Window* parent );
+    /** Create a new SystemWindow for the given eq::Window. @version 1.7.1 */
+    EQ_API SystemWindow( NotifierInterface* parent,
+                         const WindowSettings& settings );
 
     /** Destroy the SystemWindow. @version 1.0 */
     EQ_API virtual ~SystemWindow();
@@ -105,36 +107,6 @@ public:
         const { return 0; }
     //@}
 
-    /** @name Convenience interface to eq::Window methods */
-    //@{
-    /** @return the parent window. @version 1.0 */
-    Window* getWindow() { return _window; }
-
-    /** @return the parent window. @version 1.0 */
-    const Window* getWindow() const { return _window; }
-
-    /** @return the parent pipe. @version 1.0 */
-    EQ_API Pipe* getPipe();
-
-    /** @return the parent pipe. @version 1.0 */
-    EQ_API const Pipe* getPipe() const;
-
-    /** @return the parent node. @version 1.0 */
-    EQ_API Node* getNode();
-
-    /** @return the parent node. @version 1.0 */
-    EQ_API const Node* getNode() const;
-
-    /** @return the parent config. @version 1.0 */
-    EQ_API Config* getConfig();
-
-    /** @return the parent config. @version 1.0 */
-    EQ_API const Config* getConfig() const;
-
-    /** @return an integer attribute of the parent window. @version 1.0 */
-    EQ_API int32_t getIAttribute( const Window::IAttribute attr ) const;
-    //@}
-
     /**
      * Set up the given drawable based on the current context.
      * @version 1.0
@@ -168,9 +140,42 @@ public:
     /** Process an event. @version 1.0 */
     EQ_API virtual bool processEvent( const Event& event );
 
+    /**
+     * Set the window's pixel viewport wrt its parent pipe.
+     *
+     * @param pvp the viewport in pixels.
+     * @version 1.7.1
+     */
+    EQ_API void setPixelViewport( const PixelViewport& pvp );
+
+    /**
+     * @return the window's pixel viewport wrt the parent pipe.
+     * @version 1.7.1
+     */
+    EQ_API const PixelViewport& getPixelViewport() const;
+
+    /**
+     * @internal
+     * @return the OpenGL texture format corresponding to the window's color
+     *         drawable configuration
+     */
+    EQ_API uint32_t getColorFormat() const;
+
+    /** Set the window's name. @version 1.7.1 */
+    EQ_API void setName( const std::string& name );
+
+    /** @return the window's name. @version 1.7.1 */
+    EQ_API const std::string& getName() const;
+
+    /** @return the value of an integer attribute. @version 1.7.1 */
+    EQ_API int32_t getIAttribute( const WindowSettings::IAttribute attr ) const;
+
+    /** @return the parent of this window. @version 1.7.1 */
+    const NotifierInterface* getParent() const { return _parent; }
+
 private:
-    /** The parent eq::Window. */
-    Window* const _window;
+    NotifierInterface* const _parent;
+    WindowSettings _settings;
 };
 }
 

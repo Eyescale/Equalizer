@@ -1,6 +1,6 @@
 /* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  * 				      2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -271,7 +271,7 @@ bool Channel::_configInitFBO()
     int depthSize = 0;
     if( drawable & FBO_DEPTH )
     {
-        depthSize = window->getIAttribute( Window::IATTR_PLANES_DEPTH );
+        depthSize = window->getIAttribute( WindowSettings::IATTR_PLANES_DEPTH );
         if( depthSize < 1 )
             depthSize = 24;
     }
@@ -279,7 +279,7 @@ bool Channel::_configInitFBO()
     int stencilSize = 0;
     if( drawable & FBO_STENCIL )
     {
-        stencilSize = window->getIAttribute( Window::IATTR_PLANES_STENCIL );
+        stencilSize = window->getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
         if( stencilSize < 1 )
             stencilSize = 1;
     }
