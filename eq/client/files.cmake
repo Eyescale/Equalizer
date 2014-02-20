@@ -99,6 +99,7 @@ set(CLIENT_PUBLIC_HEADERS
   messagePump.h
   node.h
   nodeFactory.h
+  notifierInterface.h
   observer.h
   os.h
   pipe.h

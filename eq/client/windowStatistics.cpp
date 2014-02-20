@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,7 +36,7 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
                                     Window* window )
         : StatisticSampler< Window >( type, window )
 {
-    const int32_t hint = _owner->getIAttribute( Window::IATTR_HINT_STATISTICS );
+    const int32_t hint = _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 
@@ -57,7 +57,7 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
 
 WindowStatistics::~WindowStatistics()
 {
-    const int32_t hint = _owner->getIAttribute( Window::IATTR_HINT_STATISTICS );
+    const int32_t hint = _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 

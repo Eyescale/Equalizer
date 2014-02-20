@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,23 +93,23 @@ void Global::_setupDefaults()
     _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = AUTO;
 
     // window
-    for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<WindowSettings::IATTR_ALL; ++i )
         _windowIAttributes[i] = fabric::UNDEFINED;
 
-    _windowIAttributes[Window::IATTR_HINT_STEREO]       = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = fabric::OFF;
-    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
-    _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_GRAB_POINTER] = fabric::ON;
-    _windowIAttributes[Window::IATTR_PLANES_COLOR]      = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_HINT_STEREO]       = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_HINT_FULLSCREEN]   = fabric::OFF;
+    _windowIAttributes[WindowSettings::IATTR_HINT_DECORATION]   = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
+    _windowIAttributes[WindowSettings::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_HINT_GRAB_POINTER] = fabric::ON;
+    _windowIAttributes[WindowSettings::IATTR_PLANES_COLOR]      = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_PLANES_DEPTH]      = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_PLANES_STENCIL]    = fabric::AUTO;
 #ifdef NDEBUG
-    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = fabric::FASTEST;
+    _windowIAttributes[WindowSettings::IATTR_HINT_STATISTICS]   = fabric::FASTEST;
 #else
-    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = fabric::NICEST;
+    _windowIAttributes[WindowSettings::IATTR_HINT_STATISTICS]   = fabric::NICEST;
 #endif
 
     // channel
@@ -204,10 +204,10 @@ void Global::_readEnvironment()
         if( envValue )
             _pipeIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i < Window::IATTR_LAST; ++i )
+    for( uint32_t i=0; i < WindowSettings::IATTR_LAST; ++i )
     {
         const std::string& name     = Window::getIAttributeString(
-            (Window::IAttribute)i);
+            (WindowSettings::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
 
         if( envValue )
@@ -363,14 +363,14 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
 
-    for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<WindowSettings::IATTR_ALL; ++i )
     {
         const int value = global->_windowIAttributes[i];
         if( value == reference._windowIAttributes[i] )
             continue;
 
         const std::string& name = Window::getIAttributeString(
-            static_cast<Window::IAttribute>( i ));
+            static_cast<WindowSettings::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

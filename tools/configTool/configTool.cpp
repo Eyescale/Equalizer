@@ -201,17 +201,17 @@ void ConfigTool::writeConfig() const
 {
     Global* global = Global::instance();
     global->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
-    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN,
+    global->setWindowIAttribute( eq::fabric::WindowSettings::IATTR_HINT_FULLSCREEN,
                                  eq::fabric::ON );
     if( _mode != MODE_WALL )
     {
-        global->setWindowIAttribute(eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
+        global->setWindowIAttribute(eq::fabric::WindowSettings::IATTR_HINT_DOUBLEBUFFER,
                                     eq::fabric::OFF );
-        global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
+        global->setWindowIAttribute( eq::fabric::WindowSettings::IATTR_HINT_DRAWABLE,
                                      eq::fabric::PBUFFER );
     }
     if( _mode >= MODE_DB && _mode <= MODE_DB_STREAM )
-        global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
+        global->setWindowIAttribute( eq::fabric::WindowSettings::IATTR_PLANES_STENCIL,
                                      eq::fabric::ON );
 
     ServerPtr server = new eq::server::Server;
@@ -274,13 +274,15 @@ void ConfigTool::_writeResources( Config* config,
             if( c == 0 ) // destination window
             {
                 if( !_fullScreen && _mode != MODE_WALL )
+                {
                     window->setIAttribute(
-                        eq::server::Window::IATTR_HINT_FULLSCREEN,
+                        eq::server::WindowSettings::IATTR_HINT_FULLSCREEN,
                         eq::fabric::OFF );
-                window->setIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
+                }
+                window->setIAttribute( eq::server::WindowSettings::IATTR_HINT_DRAWABLE,
                                        eq::fabric::WINDOW );
                 window->setIAttribute(
-                    eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
+                    eq::server::WindowSettings::IATTR_HINT_DOUBLEBUFFER,
                     eq::fabric::ON );
             }
 
