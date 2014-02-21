@@ -29,53 +29,53 @@ namespace fabric
 {
 namespace detail { class Client; }
 
-    /** A client represents a network node of the application in the cluster. */
-    class Client : public co::LocalNode
-    {
-    public:
-        /**
-         * Open and connect an Equalizer server to the local client.
-         *
-         * The client has to be in the listening state, see initLocal().
-         *
-         * @param server the server.
-         * @return true if the server was connected, false if not.
-         * @version 1.0
-         */
-        EQFABRIC_API bool connectServer( co::NodePtr server );
+/** A client represents a network node of the application in the cluster. */
+class Client : public co::LocalNode
+{
+public:
+    /**
+     * Open and connect an Equalizer server to the local client.
+     *
+     * The client has to be in the listening state, see initLocal().
+     *
+     * @param server the server.
+     * @return true if the server was connected, false if not.
+     * @version 1.0
+     */
+    EQFABRIC_API bool connectServer( co::NodePtr server );
 
-        /**
-         * Disconnect and close the connection to an Equalizer server.
-         *
-         * @param server the server.
-         * @return true if the server was disconnected, false if not.
-         * @version 1.0
-         */
-        EQFABRIC_API bool disconnectServer( co::NodePtr server );
+    /**
+     * Disconnect and close the connection to an Equalizer server.
+     *
+     * @param server the server.
+     * @return true if the server was disconnected, false if not.
+     * @version 1.0
+     */
+    EQFABRIC_API bool disconnectServer( co::NodePtr server );
 
-        /**
-         * Get and process one pending command from the node command queue.
-         * @version 1.0
-         */
-        EQFABRIC_API void processCommand( const uint32_t timeout =
-                                          LB_TIMEOUT_INDEFINITE );
+    /**
+     * Get and process one pending command from the node command queue.
+     * @version 1.0
+     */
+    EQFABRIC_API void processCommand( const uint32_t timeout =
+                                      LB_TIMEOUT_INDEFINITE );
 
-        /** @return the command queue to the main node thread. @internal */
-        virtual co::CommandQueue* getMainThreadQueue() = 0;
+    /** @return the command queue to the main node thread. @internal */
+    virtual co::CommandQueue* getMainThreadQueue() = 0;
 
-        /** @internal */
-        EQFABRIC_API virtual bool dispatchCommand( co::ICommand& command );
+    /** @internal */
+    EQFABRIC_API virtual bool dispatchCommand( co::ICommand& command );
 
-    protected:
-        /** Construct a new client. @internal */
-        EQFABRIC_API Client();
+protected:
+    /** Construct a new client. @internal */
+    EQFABRIC_API Client();
 
-        /** Destruct the client. @internal */
-        EQFABRIC_API virtual ~Client();
+    /** Destruct the client. @internal */
+    EQFABRIC_API virtual ~Client();
 
-    private:
-        detail::Client* _impl;
-    };
+private:
+    detail::Client* _impl;
+};
 }
 }
 

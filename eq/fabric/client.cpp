@@ -76,7 +76,7 @@ bool Client::connectServer( co::NodePtr server )
     if( connect( server ))
         return true;
 
-    if( connDesc.isValid( )) // clean up
+    if( connDesc ) // clean up
         server->removeConnectionDescription( connDesc );
 
     return false;
