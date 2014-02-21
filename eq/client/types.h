@@ -47,6 +47,7 @@ class Layout;
 class MessagePump;
 class Node;
 class NodeFactory;
+class NotifierInterface;
 class Observer;
 class Pipe;
 class Segment;
@@ -96,6 +97,7 @@ using fabric::SubPixel;
 using fabric::Tile;
 using fabric::Viewport;
 using fabric::Wall;
+using fabric::WindowSettings;
 using fabric::Zoom;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */

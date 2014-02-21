@@ -37,7 +37,7 @@ namespace eVolve
 bool Window::configInit( const eq::uint128_t& initID )
 {
     // Enforce alpha channel, since we need one for rendering
-    setIAttribute( IATTR_PLANES_ALPHA, 8 );
+    setIAttribute( eq::WindowSettings::IATTR_PLANES_ALPHA, 8 );
 
     return eq::Window::configInit( initID );
 }

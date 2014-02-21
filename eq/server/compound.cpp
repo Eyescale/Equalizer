@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -56,13 +56,7 @@ namespace eq
 namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_COMPOUND_") + #attr )
-std::string Compound::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
-    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
-    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
+;
 
 Compound::Compound( Config* parent )
         : _config( parent )
@@ -344,6 +338,19 @@ void Compound::fireUpdatePre( const uint32_t frameNumber )
          i != _listeners.end(); ++i )
 
         (*i)->notifyUpdatePre( this, frameNumber );
+}
+
+const std::string& Compound::getIAttributeString( const Compound::IAttribute attr )
+{
+    static std::string iAttributeStrings[] =
+    {
+        MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
+        MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
+        MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
+        MAKE_ATTR_STRING( IATTR_FILL1 ),
+        MAKE_ATTR_STRING( IATTR_FILL2 )
+    };
+    return iAttributeStrings[ attr ];
 }
 
 void Compound::_fireChildAdded( Compound* child )
@@ -1459,7 +1466,7 @@ void Compound::_updateInheritStereo()
     const Window* window = _inherit.channel->getWindow();
     const bool stereoWindow = window->getDrawableConfig().stereo;
     const bool usesFBO =  window &&
-        (( window->getIAttribute(Window::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
+        (( window->getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
          _inherit.channel->getDrawable() != Channel::FB_WINDOW );
 
     if( stereoWindow && !usesFBO )

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,6 +26,7 @@
 #include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h>
 #include <eq/fabric/viewport.h>
+#include <eq/fabric/windowSettings.h>
 
 namespace eq
 {
@@ -64,7 +66,7 @@ namespace fabric
         /**
          * @return the window's pixel viewport wrt the parent pipe.
          * @version 1.0 */
-        const PixelViewport& getPixelViewport() const { return _data.pvp; }
+        EQFABRIC_INL const PixelViewport& getPixelViewport() const;
 
         /**
          * @return the window's fractional viewport wrt the parent pipe.
@@ -81,7 +83,7 @@ namespace fabric
          * @param pvp the viewport in pixels.
          * @version 1.0
          */
-        EQFABRIC_INL virtual void setPixelViewport(const PixelViewport& pvp);
+        EQFABRIC_INL virtual void setPixelViewport( const PixelViewport& pvp );
 
         /**
          * Set the window's viewport wrt its parent pipe.
@@ -116,51 +118,23 @@ namespace fabric
 
         /** @name Attributes */
         //@{
-        /**
-         * Window attributes.
-         *
-         * Most of these attributes are used by the SystemWindow implementation
-         * to configure the window during configInit(). An SystemWindow
-         * implementation might not respect all attributes, e.g.,
-         * IATTR_HINT_SWAPSYNC is not implemented by the GLXWindow. Please
-         * refer to the Programming Guide for details.  @version 1.0
-         */
-        enum IAttribute
-        {
-            // Note: also update string array initialization in window.ipp
-            IATTR_HINT_STEREO,           //!< Active stereo
-            IATTR_HINT_DOUBLEBUFFER,     //!< Front and back buffer
-            IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
-            IATTR_HINT_DECORATION,       //!< Window decorations
-            IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
-            IATTR_HINT_DRAWABLE,         //!< Window, pbuffer, FBO or OFF
-            IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
-            IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
-            IATTR_HINT_GRAB_POINTER,     //!< Capture mouse outside window
-            IATTR_HINT_WIDTH,            //!< Default horizontal resolution
-            IATTR_HINT_HEIGHT,           //!< Default vertical resolution
-            IATTR_PLANES_COLOR,          //!< No of per-component color planes
-            IATTR_PLANES_ALPHA,          //!< No of alpha planes
-            IATTR_PLANES_DEPTH,          //!< No of z-buffer planes
-            IATTR_PLANES_STENCIL,        //!< No of stencil planes
-            IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
-            IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
-            IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
-            IATTR_LAST,
-            IATTR_ALL = IATTR_LAST + 5
-        };
+        /** @return the settings of this window. @version 1.7.1 */
+        //EQFABRIC_INL WindowSettings& getSettings();
+
+        /** @return the settings of this window. @version 1.7.1 */
+        EQFABRIC_INL const WindowSettings& getSettings() const;
 
         /** Set a window attribute. @version 1.0 */
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _data.iAttributes[attr] = value; }
+        EQFABRIC_INL void setIAttribute( const WindowSettings::IAttribute attr,
+                                         const int32_t value );
 
         /** @return the value of a window attribute. @version 1.0 */
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _data.iAttributes[attr]; }
+        EQFABRIC_INL int32_t
+        getIAttribute( const WindowSettings::IAttribute attr ) const;
 
         /** @internal @return the name of a window attribute. */
-        EQFABRIC_INL static
-        const std::string& getIAttributeString( const IAttribute attr );
+        EQFABRIC_INL static const std::string&
+        getIAttributeString( const WindowSettings::IAttribute attr );
         //@}
 
         /** @internal @return the index path to this window. */
@@ -210,12 +184,12 @@ namespace fabric
         /** @internal */
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_SETTINGS        = Object::DIRTY_CUSTOM << 0,
             DIRTY_CHANNELS        = Object::DIRTY_CUSTOM << 1,
             DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 2,
             DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 3,
             DIRTY_WINDOW_BITS =
-                DIRTY_ATTRIBUTES | DIRTY_CHANNELS | DIRTY_VIEWPORT |
+                DIRTY_SETTINGS | DIRTY_CHANNELS | DIRTY_VIEWPORT |
                 DIRTY_DRAWABLECONFIG | DIRTY_OBJECT_BITS
         };
 
@@ -234,14 +208,11 @@ namespace fabric
         {
             BackupData();
 
-            /** Integer attributes. */
-            int32_t iAttributes[ IATTR_ALL ];
+            /** Window settings. */
+            WindowSettings windowSettings;
 
             /** Drawable characteristics of this window */
             DrawableConfig drawableConfig;
-
-            /** The absolute size and position of the window. */
-            PixelViewport pvp;
 
             /** The fractional size and position of the window. */
             Viewport vp;

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -17,7 +18,7 @@
  */
 
 #ifndef EQ_GLX_WINDOW_H
-#define EQ_GLX_OS_WINDOW_H
+#define EQ_GLX_WINDOW_H
 
 #include <eq/client/glx/types.h>
 #include <eq/client/glWindow.h>       // base class
@@ -32,7 +33,8 @@ namespace detail { class Window; }
 class WindowIF : public GLWindow
 {
 public:
-    WindowIF( eq::Window* parent ) : GLWindow( parent ) {}
+    WindowIF( NotifierInterface* parent,
+              const WindowSettings& settings ) : GLWindow( parent, settings ) {}
     virtual ~WindowIF() {}
 
     /** @return the glX rendering context. @version 1.0 */
@@ -47,7 +49,7 @@ public:
 #  pragma clang diagnostic push
 #  pragma clang diagnostic ignored "-Woverloaded-virtual"
     /** Process the given event. @version 1.5.1 */
-    EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
+    virtual bool processEvent( const WindowEvent& event ) = 0;
 #  pragma clang diagnostic pop
 };
 
@@ -57,14 +59,11 @@ class Window : public WindowIF
 public:
     /**
      * Construct a new glX/X11 system window.
-     *
-     * If no display connection or no GLXEWContext is given (the default),
-     * the constructor will try to query the corresponding data from the
-     * pipe's system pipe (GLXPipe). The GLXEWContext has to be initialized.
-     * @version 1.0
+     * @version 1.7.1
      */
-    Window( eq::Window* parent, Display* xDisplay = 0,
-            GLXEWContext* glxewContext = 0 );
+    Window( NotifierInterface* parent, const WindowSettings& settings,
+            Display* xDisplay, const GLXEWContext* glxewContext,
+            MessagePump* messagePump, const SystemWindow* shareWindow );
 
     /** Destruct this glX window. @version 1.0 */
     virtual ~Window();
@@ -143,9 +142,9 @@ public:
 
     /**
      * Register with the pipe's GLXEventHandler, called by setXDrawable().
-     * @version 1.0
+     * @version 1.7.1
      */
-    EQ_API virtual void initEventHandler();
+    EQ_API virtual void initEventHandler( MessagePump* messagePump );
 
     /**
      * Deregister with the GLXEventHandler, called by setXDrawable().
@@ -157,13 +156,13 @@ public:
     /** @name Data Access. */
     //@{
     /** @return the glX rendering context. @version 1.0 */
-    EQ_API virtual GLXContext getGLXContext() const;
+    EQ_API GLXContext getGLXContext() const override;
 
     /**  @return  the X11 drawable ID. @version 1.0 */
-    EQ_API virtual XID getXDrawable() const;
+    EQ_API XID getXDrawable() const override;
 
     /** @return the X11 display. @version 1.0 */
-    EQ_API virtual Display* getXDisplay();
+    EQ_API Display* getXDisplay() override;
 
     /** @return the GLXEW context. @version 1.0*/
     EQ_API const GLXEWContext* glxewGetContext() const;
@@ -195,20 +194,20 @@ public:
     /** @name Operations. */
     //@{
     /** @version 1.0 */
-    virtual void makeCurrent( const bool cache = true ) const;
+    void makeCurrent( const bool cache = true ) const override;
 
     /** @version 1.0 */
-    virtual void swapBuffers();
+    void swapBuffers() override;
 
     /** Implementation untested for glX. @version 1.0 */
-    virtual void joinNVSwapBarrier( const uint32_t group,
-                                    const uint32_t barrier );
+    void joinNVSwapBarrier( const uint32_t group,
+                            const uint32_t barrier ) override;
 
     /** Unbind a GLX_NV_swap_barrier. @version 1.0 */
     void leaveNVSwapBarrier();
 
     /** @version 1.5.1 */
-    EQ_API virtual bool processEvent( const WindowEvent& event );
+    EQ_API bool processEvent( const WindowEvent& event ) override;
     //@}
 
 private:
@@ -222,4 +221,4 @@ private:
 };
 }
 }
-#endif // EQ_GLX_OS_WINDOW_H
+#endif // EQ_GLX_WINDOW_H

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -112,16 +113,17 @@ std::string WindowSystem::getName() const
     return _impl->getName();
 }
 
-SystemWindow* WindowSystem::createWindow( Window* window ) const
+SystemWindow* WindowSystem::createWindow( Window* window,
+                                          const WindowSettings& settings ) const
 {
     LBASSERT( _impl );
-    return _impl->createWindow(window );
+    return _impl->createWindow( window, settings );
 }
 
 SystemPipe* WindowSystem::createPipe( Pipe* pipe ) const
 {
     LBASSERT( _impl );
-    return _impl->createPipe(pipe );
+    return _impl->createPipe( pipe );
 }
 
 MessagePump* WindowSystem::createMessagePump() const

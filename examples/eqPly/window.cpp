@@ -58,12 +58,12 @@ bool Window::configInitSystemWindow( const eq::uint128_t& initID )
         configExitSystemWindow();
 #endif
         // try with 64 bit accum buffer
-        setIAttribute( IATTR_PLANES_ACCUM, 16 );
+        setIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM, 16 );
         if( eq::Window::configInitSystemWindow( initID ))
             return true;
 
         // no anti-aliasing possible
-        setIAttribute( IATTR_PLANES_ACCUM, eq::AUTO );
+        setIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM, eq::AUTO );
 
         return eq::Window::configInitSystemWindow( initID );
 

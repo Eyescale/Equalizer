@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
  *               2012-2013, Stefan Eilemann <eile@eyescale.ch>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,17 +57,11 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
 {
     LBASSERT( window );
 
-    // store old drawable of window and set window's drawable to OFF,
-    // create another (shared) osWindow and restore original drawable
-    const int32_t drawable =
-        window->getIAttribute( eq::Window::IATTR_HINT_DRAWABLE );
-    window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::OFF );
-
+    eq::WindowSettings settings = window->getSettings();
+    settings.setIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE, eq::OFF );
     const eq::Pipe* pipe = window->getPipe();
-    LBASSERT( pipe );
-
     eq::SystemWindow* sharedWindow =
-        pipe->getWindowSystem().createWindow( window );
+        pipe->getWindowSystem().createWindow( window, settings );
 
     if( sharedWindow )
     {
@@ -85,7 +80,6 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
                 << pipe->getWindowSystem() << std::endl;
     }
 
-    window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
     window->makeCurrent();
 
     LBINFO << "Async fetcher initialization finished" << std::endl;
