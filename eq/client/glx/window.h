@@ -59,7 +59,7 @@ class Window : public WindowIF
 public:
     /**
      * Construct a new glX/X11 system window.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     Window( NotifierInterface* parent, const WindowSettings& settings,
             Display* xDisplay, const GLXEWContext* glxewContext,
@@ -142,7 +142,7 @@ public:
 
     /**
      * Register with the pipe's GLXEventHandler, called by setXDrawable().
-     * @version 1.7.1
+     * @version 1.7.2
      */
     EQ_API virtual void initEventHandler( MessagePump* messagePump );
 

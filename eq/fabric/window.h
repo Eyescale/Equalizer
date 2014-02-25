@@ -30,11 +30,6 @@
 
 namespace eq
 {
-    class Window;
-namespace server
-{
-    class Window;
-}
 namespace fabric
 {
     /** Base data transport class for windows. @sa eq::Window */
@@ -73,6 +68,8 @@ namespace fabric
          * @version 1.0
          */
         const Viewport& getViewport() const { return _data.vp; }
+
+        EQFABRIC_API virtual void setName( const std::string& name );
 
         /**
          * Set the window's pixel viewport wrt its parent pipe.
@@ -118,9 +115,6 @@ namespace fabric
 
         /** @name Attributes */
         //@{
-        /** @return the settings of this window. @version 1.7.1 */
-        //EQFABRIC_INL WindowSettings& getSettings();
-
         /** @return the settings of this window. @version 1.7.1 */
         EQFABRIC_INL const WindowSettings& getSettings() const;
 

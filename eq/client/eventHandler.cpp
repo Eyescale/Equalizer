@@ -22,18 +22,8 @@
 namespace eq
 {
 
-void EventHandler::_computePointerDelta( const NotifierInterface* window,
-                                         Event& event )
+void EventHandler::_computePointerDelta( Event& event )
 {
-    if( _lastEventWindow != window )
-    {
-        event.pointer.dx  = 0;
-        event.pointer.dy  = 0;
-        _lastPointerEvent = event;
-        _lastEventWindow  = window;
-        return;
-    }
-
     switch( event.type )
     {
         case Event::WINDOW_POINTER_BUTTON_PRESS:

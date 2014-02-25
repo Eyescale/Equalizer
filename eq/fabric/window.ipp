@@ -289,7 +289,8 @@ template< class P, class W, class C >
 void Window< P, W, C >::setIAttribute( const WindowSettings::IAttribute attr,
                                        const int32_t value )
 {
-    _data.windowSettings.setIAttribute( attr, value );
+    if( _data.windowSettings.setIAttribute( attr, value ))
+        setDirty( DIRTY_SETTINGS );
 }
 
 template< class P, class W, class C >
@@ -303,12 +304,6 @@ Window< P, W, C >::getIAttributeString( const WindowSettings::IAttribute attr )
 {
     return _iAttributeStrings[attr];
 }
-
-//template< class P, class W, class C >
-//WindowSettings& Window< P, W, C >::getSettings()
-//{
-//    return _data.windowSettings;
-//}
 
 template< class P, class W, class C >
 const WindowSettings& Window< P, W, C >::getSettings() const

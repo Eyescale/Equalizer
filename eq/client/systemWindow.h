@@ -170,9 +170,6 @@ public:
     /** @return the value of an integer attribute. @version 1.7.1 */
     EQ_API int32_t getIAttribute( const WindowSettings::IAttribute attr ) const;
 
-    /** @return the parent of this window. @version 1.7.1 */
-    const NotifierInterface* getParent() const { return _parent; }
-
 private:
     NotifierInterface* const _parent;
     WindowSettings _settings;

@@ -23,9 +23,7 @@
 namespace eq
 {
 
-/**
- * A base class for notifying errors and events.
- */
+/**  A base class for notifying errors and events. */
 class NotifierInterface
 {
 public:
@@ -35,7 +33,7 @@ public:
      * Send an error event to the application node.
      *
      * @param error the error code.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     virtual EventOCommand sendError( const uint32_t error ) = 0;
 
@@ -46,9 +44,9 @@ public:
      * transform the event into an config event to be send to the
      * application using Config::sendEvent().
      *
-     * @param event the received event for the derivative class.
+     * @param event the received event.
      * @return true when the event was handled, false if not.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     virtual bool processEvent( const Event& event ) = 0;
 };

@@ -302,7 +302,7 @@ public:
      * @return true when the event was handled, false if not.
      * @version 1.0
      */
-    EQ_API bool processEvent( const Event& event ) final;
+    EQ_API virtual bool processEvent( const Event& event );
     //@}
 
 protected:
@@ -488,7 +488,7 @@ private:
     /** Enter the given barrier. */
     void _enterBarrier( co::ObjectVersion barrier );
 
-    void _tweakEvent( Event& event );
+    void _updateEvent( Event& event );
 
     /* The command functions. */
     bool _cmdCreateChannel( co::ICommand& command );
