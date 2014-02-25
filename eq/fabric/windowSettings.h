@@ -28,15 +28,15 @@ namespace fabric
 {
 namespace detail { class WindowSettings; }
 
-/** A set of settings to setup an eq::Window or eq::SystemWindow. */
+/** A set of settings to setup an eq::fabric::Window. */
 class WindowSettings
 {
 public:
-    /** Create a new WindowSettings. @version 1.7.1 */
+    /** Create a new WindowSettings. @version 1.7.2 */
     EQFABRIC_API WindowSettings();
 
-    /** Destroy the WindowSettings. @version 1.7.1 */
-    EQFABRIC_API ~WindowSettings();
+    /** Destroy the WindowSettings. @version 1.7.2 */
+    EQFABRIC_API virtual ~WindowSettings();
 
     /** @internal */
     EQFABRIC_API WindowSettings( const WindowSettings& rhs );
@@ -74,7 +74,8 @@ public:
         IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
         IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
         IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
-        IATTR_ALL
+        IATTR_LAST,
+        IATTR_ALL = IATTR_LAST
     };
 
     /**
@@ -86,12 +87,12 @@ public:
     EQFABRIC_API bool setIAttribute( const IAttribute attr,
                                      const int32_t value );
 
-    /** @return the value of a window attribute. @version 1.7.1 */
+    /** @return the value of a window attribute. @version 1.7.2 */
     EQFABRIC_API int32_t getIAttribute( const IAttribute attr ) const;
 
     /**
      * @return the window's pixel viewport wrt the parent pipe.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     EQFABRIC_API const PixelViewport& getPixelViewport() const;
 
@@ -99,20 +100,20 @@ public:
      * Set the window's pixel viewport wrt its parent pipe.
      *
      * @param pvp the viewport in pixels.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     EQFABRIC_API void setPixelViewport( const PixelViewport& pvp );
 
-    /**  @return the window's name. @version 1.7.1 */
+    /**  @return the window's name. @version 1.7.2 */
     EQFABRIC_API const std::string& getName() const;
 
-    /** Set the window's name. @version 1.7.1 */
+    /** Set the window's name. @version 1.7.2 */
     EQFABRIC_API void setName( const std::string& name );
 
     /**
      * @return the OpenGL texture format corresponding to the window's color
      *         drawable configuration
-     * @version 1.7.1
+     * @version 1.7.2
      */
     EQFABRIC_API uint32_t getColorFormat() const;
 

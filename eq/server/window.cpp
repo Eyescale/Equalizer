@@ -181,7 +181,7 @@ void Window::deactivate()
     pipe->deactivate();
 
     LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
-};
+}
 
 void Window::addTasks( const uint32_t tasks )
 {

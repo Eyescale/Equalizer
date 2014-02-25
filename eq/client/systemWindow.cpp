@@ -21,6 +21,8 @@
 
 #include "notifierInterface.h"
 
+#include <co/objectOCommand.h>
+
 namespace eq
 {
 
@@ -66,16 +68,19 @@ SystemWindow::getIAttribute( const WindowSettings::IAttribute attr ) const
     return _settings.getIAttribute( attr );
 }
 
+const SystemWindow* SystemWindow::getSharedContextWindow() const
+{
+    return _settings.getSharedContextWindow();
+}
+
 EventOCommand SystemWindow::sendError( const uint32_t error )
 {
-    LBASSERT( _parent );
-    return _parent->sendError( error );
+    return _parent.sendError( error );
 }
 
 bool SystemWindow::processEvent( const Event& event )
 {
-    LBASSERT( _parent );
-    return _parent->processEvent( event );
+    return _parent.processEvent( event );
 }
 
 }

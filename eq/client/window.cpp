@@ -48,7 +48,7 @@
 namespace eq
 {
 
-typedef fabric::Window< Pipe, Window, Channel > Super;
+typedef fabric::Window< Pipe, Window, Channel, WindowSettings > Super;
 
 /** @cond IGNORE */
 typedef co::CommandFunc<Window> WindowFunc;
@@ -71,11 +71,6 @@ Window::Window( Pipe* parent )
         , _avgFPS ( 0.0f )
         , _lastSwapTime( 0 )
 {
-    const Windows& windows = parent->getWindows();
-    if( windows.empty( ))
-        setSharedContextWindow( this );
-    else
-        setSharedContextWindow( windows.front( ));
 }
 
 Window::~Window()
@@ -284,6 +279,19 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     return false;
 }
 
+void Window::setSharedContextWindow( const Window* sharedContextWindow )
+{
+    _sharedContextWindow = sharedContextWindow;
+    const SystemWindow* sysWindow = sharedContextWindow ?
+                                    sharedContextWindow->getSystemWindow() : 0;
+    _getSettings().setSharedContextWindow( sysWindow );
+}
+
+const Window* Window::getSharedContextWindow() const
+{
+    return _sharedContextWindow;
+}
+
 uint32_t Window::getColorFormat() const
 {
     return getSettings().getColorFormat();
@@ -306,6 +314,12 @@ void Window::finish() const
 void Window::setSystemWindow( SystemWindow* window )
 {
     _systemWindow = window;
+
+    const Windows& windows = getPipe()->getWindows();
+    if( windows.empty( ))
+        setSharedContextWindow( this );
+    else
+        setSharedContextWindow( windows.front( ));
 
     if( !window )
         return;
@@ -399,7 +413,7 @@ void Window::_setupObjectManager()
 
     _releaseObjectManager();
 
-    Window* sharedWindow = getSharedContextWindow();
+    const Window* sharedWindow = getSharedContextWindow();
     if( sharedWindow && sharedWindow != this )
         _objectManager = sharedWindow->_objectManager;
     else
@@ -995,7 +1009,8 @@ bool Window::_cmdFrameDrawFinish( co::ICommand& cmd )
 }
 
 #include "../fabric/window.ipp"
-template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel >;
+template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel,
+                                   eq::WindowSettings >;
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

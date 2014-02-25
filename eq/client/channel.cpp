@@ -42,6 +42,7 @@
 #include "server.h"
 #include "systemWindow.h"
 #include "view.h"
+#include "window.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>

@@ -43,8 +43,9 @@ std::string aglError()
 }
 }
 
-Window::Window( eq::Window* parent, CGDirectDisplayID displayID )
-    : WindowIF( parent )
+Window::Window( NotifierInterface& parent, const WindowSettings& settings,
+                CGDirectDisplayID displayID )
+    : WindowIF( parent, settings )
     , _aglContext( 0 )
     , _carbonWindow( 0 )
     , _aglPBuffer( 0 )
@@ -335,14 +336,10 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
     }
 
     AGLContext shareCtx = 0;
-    const eq::Window* shareWindow = getWindow()->getSharedContextWindow();
-    const SystemWindow* sysWindow =
-        shareWindow ? shareWindow->getSystemWindow() :0;
-    if( sysWindow )
-    {
-        const WindowIF* aglShareWindow = LBSAFECAST(const WindowIF*, sysWindow);
-        shareCtx = aglShareWindow->getAGLContext();
-    }
+    const WindowIF* shareGLXWindow =
+                dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
+    if( aglShareWindow )
+        shCtx = aglShareWindow->getAGLContext();
 
     Global::enterCarbon();
     AGLContext context = aglCreateContext( pixelFormat, shareCtx );

@@ -32,8 +32,8 @@ namespace eq
 namespace wgl
 {
 
-Window::Window( eq::Window* parent )
-    : WindowIF( parent )
+Window::Window( NotifierInterface& parent, const WindowSettings& settings )
+    : WindowIF( parent, settings )
     , _wglWindow( 0 )
     , _wglPBuffer( 0 )
     , _wglContext( 0 )
@@ -814,21 +814,14 @@ HGLRC Window::createWGLContext()
     }
 
     // share context
-    const eq::Window* shareWindow = getWindow()->getSharedContextWindow();
-    const SystemWindow* sysWindow =
-        shareWindow ? shareWindow->getSystemWindow() :0;
-    if( sysWindow )
+    const WindowIF* shareWGLWindow =
+                dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
+    if( shareWGLWindow )
     {
-        LBASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
-        const WindowIF* shareWGLWindow =
-            dynamic_cast< const WindowIF* >( sysWindow );
-        if( shareWGLWindow )
-        {
-            HGLRC shareCtx = shareWGLWindow->getWGLContext();
-            if( shareCtx && !wglShareLists( shareCtx, context ))
-                LBWARN << "Context sharing failed: " << lunchbox::sysError
-                       << std::endl;
-        }
+        HGLRC shareCtx = shareWGLWindow->getWGLContext();
+        if( shareCtx && !wglShareLists( shareCtx, context ))
+            LBWARN << "Context sharing failed: " << lunchbox::sysError
+                   << std::endl;
     }
 
     return context;

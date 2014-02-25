@@ -74,7 +74,7 @@ template< class, class > class Observer;
 template< class, class, class > class Layout;
 template< class, class, class > class Segment;
 template< class, class, class > class View;
-template< class, class, class > class Window;
+template< class, class, class, class > class Window;
 template< class, class, class, class > class Canvas;
 template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;

@@ -37,7 +37,7 @@ class GLWindow : public SystemWindow, public boost::noncopyable
 {
 public:
     /** Construct a new OpenGL window. @version 1.7.2 */
-    EQ_API GLWindow( NotifierInterface* parent,
+    EQ_API GLWindow( NotifierInterface& parent,
                      const WindowSettings& settings );
 
     /** Destruct a new OpenGL window. @version 1.0 */

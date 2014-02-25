@@ -218,7 +218,7 @@ namespace fabric
 
         void _addWindow( W* window );
         EQFABRIC_INL bool _removeWindow( W* window );
-        template< class, class, class > friend class Window;
+        template< class, class, class, class > friend class Window;
 
         /** @internal */
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }

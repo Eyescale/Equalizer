@@ -647,7 +647,7 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 
     send( fabric::CMD_NODE_FRAME_FINISH ) << i->second << frameNumber;
     _frameIDs.erase( i );
-    LBLOG( LOG_TASKS ) << "TASK node finish frame  " << frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node finish frame " << frameNumber << std::endl;
 }
 
 //---------------------------------------------------------------------------

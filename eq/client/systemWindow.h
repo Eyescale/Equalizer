@@ -21,7 +21,7 @@
 #define EQ_SYSTEM_WINDOW_H
 
 #include <eq/client/types.h>
-#include <eq/client/window.h>         // Window::IAttribute enum
+#include <eq/client/windowSettings.h> // WindowSettings::IAttribute enum
 
 namespace eq
 {
@@ -35,8 +35,8 @@ namespace eq
 class SystemWindow
 {
 public:
-    /** Create a new SystemWindow for the given eq::Window. @version 1.7.1 */
-    EQ_API SystemWindow( NotifierInterface* parent,
+    /** Create a new SystemWindow for the given eq::Window. @version 1.7.2 */
+    EQ_API SystemWindow( NotifierInterface& parent,
                          const WindowSettings& settings );
 
     /** Destroy the SystemWindow. @version 1.0 */
@@ -144,13 +144,13 @@ public:
      * Set the window's pixel viewport wrt its parent pipe.
      *
      * @param pvp the viewport in pixels.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     EQ_API void setPixelViewport( const PixelViewport& pvp );
 
     /**
      * @return the window's pixel viewport wrt the parent pipe.
-     * @version 1.7.1
+     * @version 1.7.2
      */
     EQ_API const PixelViewport& getPixelViewport() const;
 
@@ -161,17 +161,23 @@ public:
      */
     EQ_API uint32_t getColorFormat() const;
 
-    /** Set the window's name. @version 1.7.1 */
+    /** Set the window's name. @version 1.7.2 */
     EQ_API void setName( const std::string& name );
 
-    /** @return the window's name. @version 1.7.1 */
+    /** @return the window's name. @version 1.7.2 */
     EQ_API const std::string& getName() const;
 
-    /** @return the value of an integer attribute. @version 1.7.1 */
+    /** @return the value of an integer attribute. @version 1.7.2 */
     EQ_API int32_t getIAttribute( const WindowSettings::IAttribute attr ) const;
 
+    /**
+     * @return the window with which this window shares the GL context.
+     * @version 1.7.2
+     */
+    EQ_API const SystemWindow* getSharedContextWindow() const;
+
 private:
-    NotifierInterface* const _parent;
+    NotifierInterface& _parent;
     WindowSettings _settings;
 };
 }

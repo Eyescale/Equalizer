@@ -20,6 +20,7 @@
 #include "window.h"
 
 #include "eventHandler.h"
+#include "messagePump.h"
 #include "pipe.h"
 #include "windowEvent.h"
 
@@ -37,7 +38,7 @@ class Window
 {
 public:
     Window( Display* xDisplay_, const GLXEWContext* glxewContext_,
-            MessagePump* messagePump_, const SystemWindow* shareWindow_ )
+            MessagePump* messagePump_ )
         : xDisplay( xDisplay_ )
         , xDrawable ( 0 )
         , glXContext( 0 )
@@ -45,7 +46,6 @@ public:
         , glXEventHandler( 0 )
         , glxewContext( glxewContext_ )
         , messagePump( messagePump_ )
-        , shareWindow( shareWindow_ )
     {}
 
     /** The display connection (maintained by GLXPipe) */
@@ -64,16 +64,14 @@ public:
     const GLXEWContext* glxewContext;
 
     MessagePump* const messagePump;
-    const SystemWindow* shareWindow;
 };
 }
 
-Window::Window( NotifierInterface* parent, const WindowSettings& settings,
+Window::Window( NotifierInterface& parent, const WindowSettings& settings,
                 Display* xDisplay, const GLXEWContext* glxewContext,
-                MessagePump* messagePump, const SystemWindow* shareWindow )
+                MessagePump* messagePump )
     : WindowIF( parent, settings )
-    , _impl( new detail::Window( xDisplay, glxewContext, messagePump,
-                                 shareWindow ))
+    , _impl( new detail::Window( xDisplay, glxewContext, messagePump ))
 {
 }
 
@@ -336,13 +334,11 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     }
 
     GLXContext shCtx = 0;
-    if( _impl->shareWindow )
-    {
-        const WindowIF* shareGLXWindow = dynamic_cast< const WindowIF* >(
-                                                        _impl->shareWindow );
-        if( shareGLXWindow )
-            shCtx = shareGLXWindow->getGLXContext();
-    }
+    const WindowIF* shareGLXWindow =
+            dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
+    if( shareGLXWindow )
+        shCtx = shareGLXWindow->getGLXContext();
+
     int type = GLX_RGBA_TYPE;
     if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == PBUFFER &&
         ( getIAttribute( WindowSettings::IATTR_PLANES_COLOR ) == RGBA16F ||
@@ -617,9 +613,10 @@ void Window::setXDrawable( XID drawable )
     if( !drawable )
         return;
 
-    const int32_t drawableType = getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE);
+    const int32_t drawableType =
+                           getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
     if( drawableType != OFF )
-        initEventHandler( _impl->messagePump );
+        initEventHandler();
 
     // query pixel viewport of window
     switch( drawableType )
@@ -882,14 +879,29 @@ bool Window::processEvent( const WindowEvent& event )
     return SystemWindow::processEvent( event );
 }
 
-void Window::initEventHandler( MessagePump* messagePump )
+void Window::initEventHandler()
 {
     LBASSERT( !_impl->glXEventHandler );
-    _impl->glXEventHandler = new EventHandler( this, messagePump );
+    _impl->glXEventHandler = new EventHandler( this );
+
+    Display* display = getXDisplay();
+    LBASSERT( display );
+    if( _impl->messagePump )
+        _impl->messagePump->register_( display );
+    else
+        LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
+               << "event dispatch assumed" << std::endl;
 }
 
 void Window::exitEventHandler()
 {
+    if( _impl->messagePump )
+    {
+        Display* display = getXDisplay();
+        LBASSERT( display );
+        _impl->messagePump->deregister( display );
+    }
+
     delete _impl->glXEventHandler;
     _impl->glXEventHandler = 0;
 }

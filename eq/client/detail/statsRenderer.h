@@ -19,6 +19,7 @@
 #define EQ_STATSRENDERER_H
 
 #include <GLStats/renderer.h>
+#include <eq/util/bitmapFont.h>
 
 namespace eq
 {
