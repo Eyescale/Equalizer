@@ -33,7 +33,8 @@ namespace eq
 namespace fabric
 {
     /** Base data transport class for windows. @sa eq::Window */
-    template< class P, class W, class C > class Window : public Object
+    template< class P, class W, class C, class Settings = WindowSettings >
+    class Window : public Object
     {
     public:
         /** A vector of pointers to channels. @version 1.0 */
@@ -69,7 +70,8 @@ namespace fabric
          */
         const Viewport& getViewport() const { return _data.vp; }
 
-        EQFABRIC_API virtual void setName( const std::string& name );
+        /** Set the window's name/caption. @version 1.7.2 */
+        EQFABRIC_INL void setName( const std::string& name ) final;
 
         /**
          * Set the window's pixel viewport wrt its parent pipe.
@@ -115,8 +117,8 @@ namespace fabric
 
         /** @name Attributes */
         //@{
-        /** @return the settings of this window. @version 1.7.1 */
-        EQFABRIC_INL const WindowSettings& getSettings() const;
+        /** @return the settings of this window. @version 1.7.2 */
+        EQFABRIC_INL const Settings& getSettings() const;
 
         /** Set a window attribute. @version 1.0 */
         EQFABRIC_INL void setIAttribute( const WindowSettings::IAttribute attr,
@@ -171,6 +173,9 @@ namespace fabric
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
 
         /** @internal */
+        EQFABRIC_INL Settings& _getSettings();
+
+        /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
         C* _findChannel( const uint128_t& id ); //!< @internal
@@ -203,10 +208,13 @@ namespace fabric
             BackupData();
 
             /** Window settings. */
-            WindowSettings windowSettings;
+            Settings windowSettings;
 
             /** Drawable characteristics of this window */
             DrawableConfig drawableConfig;
+
+            /** The absolute size and position of the window. */
+            PixelViewport pvp;
 
             /** The fractional size and position of the window. */
             Viewport vp;
@@ -230,14 +238,14 @@ namespace fabric
         /** @internal */
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
-        typedef co::CommandFunc< Window< P, W, C > > CmdFunc;
+        typedef co::CommandFunc< Window< P, W, C, Settings > > CmdFunc;
         bool _cmdNewChannel( co::ICommand& command );
         bool _cmdNewChannelReply( co::ICommand& command );
     };
 
-    template< class P, class W, class C > EQFABRIC_INL
+    template< class P, class W, class C, class Settings > EQFABRIC_INL
     std::ostream& operator << ( std::ostream& os,
-                                const Window< P, W, C >& window );
+                                const Window< P, W, C, Settings >& window );
 }
 }
 

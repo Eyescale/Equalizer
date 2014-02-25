@@ -21,7 +21,6 @@
 
 #include "window.h"
 #include "windowEvent.h"
-#include "messagePump.h"
 #include "../config.h"
 #include "../event.h"
 #include "../global.h"
@@ -59,9 +58,8 @@ struct MagellanData
 static lunchbox::Lockable< MagellanData, lunchbox::SpinLock > _magellan;
 }
 
-EventHandler::EventHandler( WindowIF* window, MessagePump* messagePump )
+EventHandler::EventHandler( WindowIF* window )
         : _window( window )
-        , _messagePump( messagePump )
         , _magellanUsed( false )
 {
     LBASSERT( window );
@@ -70,15 +68,9 @@ EventHandler::EventHandler( WindowIF* window, MessagePump* messagePump )
         _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
+#ifdef EQUALIZER_USE_MAGELLAN_GLX
     Display* display = window->getXDisplay();
     LBASSERT( display );
-    if( _messagePump )
-        _messagePump->register_( display );
-    else
-        LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
-               << "event dispatch assumed" << std::endl;
-
-#ifdef EQUALIZER_USE_MAGELLAN_GLX
     lunchbox::ScopedFastWrite mutex( _magellan );
     if( !_magellan->display )
     {
@@ -124,13 +116,6 @@ EventHandler::~EventHandler()
         }
 #endif
         _magellanUsed = false;
-    }
-
-    if( _messagePump )
-    {
-        Display* display = _window->getXDisplay();
-        LBASSERT( display );
-        _messagePump->deregister( display );
     }
 
     EventHandlers::iterator i = lunchbox::find( *_eventHandlers, this );

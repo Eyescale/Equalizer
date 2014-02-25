@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
     if( !eq::Window::configInitGL( initID ))
         return false;
 
-    Window* sharedWindow = static_cast< Window* >( getSharedContextWindow( ));
+    const eq::Window* sharedWindow = getSharedContextWindow();
     if( sharedWindow == this || sharedWindow == 0 ) // init GL stuff
     {
         Node* node = static_cast< Node* >( getNode( ));
@@ -49,7 +49,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
         // lock is acceptable.
         static lunchbox::Lock lock;
         lunchbox::ScopedMutex<> mutex( lock );
-        
+
         _sceneView = new SceneView;
         _sceneView->setDefaults( SceneView::STANDARD_SETTINGS );
         _sceneView->setFrameStamp( node->getFrameStamp( ));
@@ -61,7 +61,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
         _sceneView->setSceneData( model );
     }
     else
-        _sceneView = sharedWindow->_sceneView;
+        _sceneView = static_cast< const Window* >( sharedWindow )->_sceneView;
 
     return true;
 }

@@ -33,8 +33,8 @@ namespace glx
     class EventHandler : public eq::EventHandler
     {
     public:
-        /** Construct a new glX event handler. @version 1.7.2 */
-        EventHandler( WindowIF* window, MessagePump* messagePump );
+        /** Construct a new glX event handler. @version 1.0 */
+        EventHandler( WindowIF* window );
 
         /** Destruct the glX event handler. @version 1.0 */
         virtual ~EventHandler();
@@ -50,7 +50,6 @@ namespace glx
 
     private:
         WindowIF* const _window;
-        MessagePump* const _messagePump;
 
         bool _magellanUsed; //!< Window registered with spnav
 

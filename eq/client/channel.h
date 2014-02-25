@@ -573,7 +573,7 @@ protected:
 
 private:
     detail::Channel* const _impl;
-    friend class fabric::Window< Pipe, Window, Channel >;
+    friend class fabric::Window< Pipe, Window, Channel, WindowSettings >;
 
     //-------------------- Methods --------------------
     /** Setup the current rendering context. */

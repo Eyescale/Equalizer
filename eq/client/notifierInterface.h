@@ -23,7 +23,7 @@
 namespace eq
 {
 
-/**  A base class for notifying errors and events. */
+/** A base class for notifying errors and events. */
 class NotifierInterface
 {
 public:

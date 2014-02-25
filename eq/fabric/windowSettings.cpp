@@ -71,7 +71,7 @@ WindowSettings::WindowSettings()
 {
 }
 
-WindowSettings::WindowSettings( const  WindowSettings& rhs )
+WindowSettings::WindowSettings( const WindowSettings& rhs )
     : _impl( new detail::WindowSettings( *rhs._impl ))
 {
 }
@@ -134,13 +134,13 @@ uint32_t WindowSettings::getColorFormat() const
 void WindowSettings::serialize( co::DataOStream& os ) const
 {
     os << co::Array< int32_t >( _impl->iAttributes, IATTR_ALL )
-       << _impl->windowName;
+       << _impl->pixelViewport << _impl->windowName;
 }
 
 void WindowSettings::deserialize( co::DataIStream& is )
 {
     is >> co::Array< int32_t >( _impl->iAttributes, IATTR_ALL )
-       >> _impl->windowName;
+       >> _impl->pixelViewport >> _impl->windowName;
 }
 
 }

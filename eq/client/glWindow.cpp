@@ -24,6 +24,7 @@
 #include "global.h"
 #include "pipe.h"
 
+#include <eq/fabric/drawableConfig.h>
 #include <eq/util/frameBufferObject.h>
 #include <lunchbox/perThread.h>
 
@@ -66,8 +67,7 @@ public:
 };
 }
 
-GLWindow::GLWindow( NotifierInterface* parent,
-                    const WindowSettings& settings )
+GLWindow::GLWindow( NotifierInterface& parent, const WindowSettings& settings )
     : SystemWindow( parent, settings )
     , _impl( new detail::GLWindow )
 {

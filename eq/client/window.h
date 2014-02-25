@@ -21,11 +21,12 @@
 #define EQ_WINDOW_H
 
 #include <eq/client/types.h>
-#include <eq/client/visitorResult.h> // enum
+#include <eq/client/windowSettings.h>    // template param
+#include <eq/client/visitorResult.h>     // enum
 
-#include <eq/util/bitmapFont.h>      // member
-#include <eq/fabric/renderContext.h> // member
-#include <eq/fabric/window.h>        // base class
+#include <eq/util/bitmapFont.h>          // member
+#include <eq/fabric/renderContext.h>     // member
+#include <eq/fabric/window.h>            // base class
 #include <eq/client/notifierInterface.h> // base class
 
 
@@ -60,7 +61,7 @@ namespace eq
  *
  * @sa fabric::Window
  */
-class Window : public fabric::Window< Pipe, Window, Channel >,
+class Window : public fabric::Window< Pipe, Window, Channel, WindowSettings >,
                public NotifierInterface
 {
 public:
@@ -129,21 +130,13 @@ public:
      * setup the OpenGL context and util::ObjectManager.
      * @version 1.0
      */
-    void setSharedContextWindow( Window* sharedContextWindow )
-        { _sharedContextWindow = sharedContextWindow; }
+    EQ_API void setSharedContextWindow( const Window* sharedContextWindow );
 
     /**
      * @return the window with which this window shares the GL context.
      * @version 1.0
      */
-    const Window* getSharedContextWindow() const
-        { return _sharedContextWindow; }
-
-    /**
-     * @return the window with which this window shares the GL context.
-     * @version 1.0
-     */
-    Window* getSharedContextWindow() { return _sharedContextWindow; }
+    EQ_API const Window* getSharedContextWindow() const;
 
     /** @return the window's object manager instance. @version 1.0 */
     util::ObjectManager& getObjectManager() { return _objectManager; }
@@ -433,7 +426,7 @@ private:
     };
 
     /** The window sharing the OpenGL context. */
-    Window* _sharedContextWindow;
+    const Window* _sharedContextWindow;
 
     /** Transfer window */
     SystemWindow* _transferWindow;

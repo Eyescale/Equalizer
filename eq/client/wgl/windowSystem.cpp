@@ -37,27 +37,28 @@ namespace wgl
 
 static class : WindowSystemIF
 {
-    std::string getName() const { return "WGL"; }
+    std::string getName() const final { return "WGL"; }
 
-    eq::SystemWindow* createWindow(eq::Window* window) const
+    eq::SystemWindow* createWindow( eq::Window* window,
+                                    const WindowSettings& settings ) const final
     {
         LBINFO << "Using wgl::Window" << std::endl;
-        return new Window(window);
+        return new Window( *window, settings );
     }
 
-    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) const final
     {
         LBINFO << "Using wgl::Pipe" << std::endl;
-        return new Pipe(pipe);
+        return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const
+    eq::MessagePump* createMessagePump() const final
     {
         return new MessagePump;
     }
 
     bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const
+                    const std::string& name, const uint32_t size ) const final
     {
         HDC dc = wglGetCurrentDC();
         if( !dc )

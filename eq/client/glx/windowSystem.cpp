@@ -26,6 +26,7 @@
 #include "../config.h"
 #include "../gl.h"
 #include "../pipe.h"
+#include "../window.h"
 
 #include <eq/fabric/gpuInfo.h>
 #include <lunchbox/scopedMutex.h>
@@ -37,10 +38,10 @@ namespace glx
 
 static class : WindowSystemIF
 {
-    std::string getName() const override { return "GLX"; }
+    std::string getName() const final { return "GLX"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) const override
+                                    const WindowSettings& settings ) const final
     {
         LBINFO << "Using glx::Window" << std::endl;
         Display* xDisplay = 0;
@@ -60,26 +61,24 @@ static class : WindowSystemIF
                                           pipe->getMessagePump() :
                                           pipe->getConfig()->getMessagePump( ));
         }
-        const eq::Window* shareWindow = window->getSharedContextWindow();
-        const SystemWindow* sysWindow = shareWindow ?
-                                        shareWindow->getSystemWindow() : 0;
-        return new Window( window, settings, xDisplay, glxewContext,
-                           messagePump, sysWindow );
+        return new Window( *window, settings, xDisplay, glxewContext,
+                           messagePump );
     }
 
-    eq::SystemPipe* createPipe( eq::Pipe* pipe ) const override
+    eq::SystemPipe* createPipe( eq::Pipe* pipe ) const final
     {
         LBINFO << "Using glx::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const override
+    eq::MessagePump* createMessagePump() const final
     {
         return new MessagePump;
     }
 
     bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const override
+                    const std::string& name,
+                    const uint32_t size ) const final
     {
         Display* display = XGetCurrentDisplay();
         LBASSERT( display );

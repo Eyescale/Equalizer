@@ -60,8 +60,8 @@ std::string _iAttributeStrings[] = {
 };
 }
 
-template< class P, class W, class C >
-Window< P, W, C >::Window( P* parent )
+template< class P, class W, class C, class Settings >
+Window< P, W, C, Settings >::Window( P* parent )
         : _pipe( parent )
 {
     LBASSERT( parent );
@@ -69,14 +69,14 @@ Window< P, W, C >::Window( P* parent )
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
-template< class P, class W, class C >
-Window< P, W, C >::BackupData::BackupData()
+template< class P, class W, class C, class Settings >
+Window< P, W, C, Settings >::BackupData::BackupData()
         : fixedVP( true )
 {
 }
 
-template< class P, class W, class C >
-Window< P, W, C >::~Window( )
+template< class P, class W, class C, class Settings >
+Window< P, W, C, Settings >::~Window( )
 {
     LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_channels.empty( ))
@@ -90,15 +90,15 @@ Window< P, W, C >::~Window( )
     _pipe->_removeWindow( static_cast< W* >( this ) );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::init()
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::init()
 {
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::attach( const uint128_t& id,
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::attach( const uint128_t& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -106,22 +106,22 @@ void Window< P, W, C >::attach( const uint128_t& id,
     LBASSERT( queue );
 
     registerCommand( CMD_WINDOW_NEW_CHANNEL,
-                     CmdFunc( this, &Window< P, W, C >::_cmdNewChannel ),
+                     CmdFunc( this, &Window< P, W, C, Settings >::_cmdNewChannel ),
                      queue );
     registerCommand( CMD_WINDOW_NEW_CHANNEL_REPLY,
-                     CmdFunc( this, &Window< P, W, C >::_cmdNewChannelReply ),
+                     CmdFunc( this, &Window< P, W, C, Settings >::_cmdNewChannelReply ),
                      0 );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::backup()
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::backup()
 {
     Object::backup();
     _backup = _data;
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::restore()
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::restore()
 {
     _data = _backup;
     _data.drawableConfig = DrawableConfig();
@@ -131,16 +131,16 @@ void Window< P, W, C >::restore()
     setDirty( DIRTY_VIEWPORT );
 }
 
-template< class P, class W, class C >
-uint128_t Window< P, W, C >::commit( const uint32_t incarnation )
+template< class P, class W, class C, class Settings >
+uint128_t Window< P, W, C, Settings >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNELS ))
         commitChildren< C >( _channels, CMD_WINDOW_NEW_CHANNEL, incarnation );
     return Object::commit( incarnation );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::serialize( co::DataOStream& os,
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::serialize( co::DataOStream& os,
                                    const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -152,13 +152,13 @@ void Window< P, W, C >::serialize( co::DataOStream& os,
         os.serializeChildren( _channels );
     }
     if( dirtyBits & DIRTY_VIEWPORT )
-        os << _data.vp << getPixelViewport() << _data.fixedVP;
+        os << _data.vp << _data.pvp << _data.fixedVP;
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         os << _data.drawableConfig;
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::deserialize( co::DataIStream& is,
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::deserialize( co::DataIStream& is,
                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -187,13 +187,11 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
         // Ignore data from master (server) if we have local changes
         if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
         {
-            PixelViewport pvp;
-            is >> _data.vp >> pvp >> _data.fixedVP;
-            _data.windowSettings.setPixelViewport( pvp );
+            is >> _data.vp >> _data.pvp >> _data.fixedVP;
             notifyViewportChanged();
         }
         else // consume unused data
-            is.getRemainingBuffer( sizeof( _data.vp ) + sizeof( PixelViewport ) +
+            is.getRemainingBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
                                    sizeof( _data.fixedVP ));
     }
 
@@ -201,15 +199,15 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
         is >> _data.drawableConfig;
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
     _pipe->setDirty( P::DIRTY_WINDOWS );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::notifyDetach()
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::notifyDetach()
 {
     Object::notifyDetach();
     co::LocalNodePtr node = getLocalNode();
@@ -236,30 +234,30 @@ void Window< P, W, C >::notifyDetach()
     }
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::create( C** channel )
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::create( C** channel )
 {
     *channel = _pipe->getServer()->getNodeFactory()->createChannel(
         static_cast< W* >( this ));
     (*channel)->init(); // not in ctor, virtual method
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::release( C* channel )
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::release( C* channel )
 {
     _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::_addChannel( C* channel )
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::_addChannel( C* channel )
 {
     LBASSERT( channel->getWindow() == this );
     _channels.push_back( channel );
     setDirty( DIRTY_CHANNELS );
 }
 
-template< class P, class W, class C >
-bool Window< P, W, C >::_removeChannel( C* channel )
+template< class P, class W, class C, class Settings >
+bool Window< P, W, C, Settings >::_removeChannel( C* channel )
 {
     typename Channels::iterator i = lunchbox::find( _channels, channel );
     if( i == _channels.end( ))
@@ -272,8 +270,8 @@ bool Window< P, W, C >::_removeChannel( C* channel )
     return true;
 }
 
-template< class P, class W, class C >
-C* Window< P, W, C >::_findChannel( const uint128_t& id )
+template< class P, class W, class C, class Settings >
+C* Window< P, W, C, Settings >::_findChannel( const uint128_t& id )
 {
     for( typename Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
@@ -285,34 +283,40 @@ C* Window< P, W, C >::_findChannel( const uint128_t& id )
     return 0;
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::setIAttribute( const WindowSettings::IAttribute attr,
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::setIAttribute( const WindowSettings::IAttribute attr,
                                        const int32_t value )
 {
     if( _data.windowSettings.setIAttribute( attr, value ))
         setDirty( DIRTY_SETTINGS );
 }
 
-template< class P, class W, class C >
-int32_t Window< P, W, C >::getIAttribute( const WindowSettings::IAttribute attr ) const
+template< class P, class W, class C, class Settings > int32_t
+Window< P, W, C, Settings >::getIAttribute( const WindowSettings::IAttribute attr ) const
 {
     return _data.windowSettings.getIAttribute( attr );
 }
 
-template< class P, class W, class C > const std::string&
-Window< P, W, C >::getIAttributeString( const WindowSettings::IAttribute attr )
+template< class P, class W, class C, class Settings > const std::string&
+Window< P, W, C, Settings >::getIAttributeString( const WindowSettings::IAttribute attr )
 {
     return _iAttributeStrings[attr];
 }
 
-template< class P, class W, class C >
-const WindowSettings& Window< P, W, C >::getSettings() const
+template< class P, class W, class C, class Settings >
+Settings& Window< P, W, C, Settings >::_getSettings()
 {
     return _data.windowSettings;
 }
 
-template< class P, class W, class C >
-WindowPath Window< P, W, C >::getPath() const
+template< class P, class W, class C, class Settings >
+const Settings& Window< P, W, C, Settings >::getSettings() const
+{
+    return _data.windowSettings;
+}
+
+template< class P, class W, class C, class Settings >
+WindowPath Window< P, W, C, Settings >::getPath() const
 {
     const P* pipe = getPipe();
     LBASSERT( pipe );
@@ -372,26 +376,36 @@ VisitorResult _accept( W* window, V& visitor )
 }
 }
 
-template< class P, class W, class C >
-VisitorResult Window< P, W, C >::accept( Visitor& visitor )
+template< class P, class W, class C, class Settings >
+VisitorResult Window< P, W, C, Settings >::accept( Visitor& visitor )
 {
     return _accept( static_cast< W* >( this ), visitor );
 }
 
-template< class P, class W, class C >
-VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
+template< class P, class W, class C, class Settings >
+VisitorResult Window< P, W, C, Settings >::accept( Visitor& visitor  ) const
 {
     return _accept( static_cast< const W* >( this ), visitor );
 }
 
-template< class P, class W, class C >
-const PixelViewport& Window< P, W, C >::getPixelViewport() const
+template< class P, class W, class C, class Settings >
+const PixelViewport& Window< P, W, C, Settings >::getPixelViewport() const
 {
     return _data.windowSettings.getPixelViewport();
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::setName( const std::string& name )
+{
+    Object::setName( name );
+    if( _data.windowSettings.getName() == name )
+        return;
+    _data.windowSettings.setName( name );
+    setDirty( DIRTY_SETTINGS );
+}
+
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::setPixelViewport( const PixelViewport& pvp )
 {
     LBASSERTINFO( pvp.isValid(), pvp );
     if( !pvp.isValid( ))
@@ -399,51 +413,58 @@ void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
 
     _data.fixedVP = false;
 
-    if( pvp == getPixelViewport() && _data.vp.hasArea( ))
+    if( pvp == _data.pvp && _data.vp.hasArea( ))
         return;
 
-    _data.windowSettings.setPixelViewport( pvp );
+    _data.pvp = pvp;
     _data.vp.invalidate();
+    _data.windowSettings.setPixelViewport( pvp );
 
     notifyViewportChanged();
     setDirty( DIRTY_VIEWPORT );
+    setDirty( DIRTY_SETTINGS );
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::setViewport( const Viewport& vp )
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::setViewport( const Viewport& vp )
 {
     if( !vp.hasArea())
         return;
 
     _data.fixedVP = true;
 
-    if( vp == _data.vp && getPixelViewport().hasArea( ))
+    if( vp == _data.vp && _data.pvp.hasArea( ))
         return;
     _data.vp = vp;
+    _data.pvp.invalidate();
     _data.windowSettings.setPixelViewport( PixelViewport( ));
 
     setDirty( DIRTY_VIEWPORT );
+    setDirty( DIRTY_SETTINGS );
     notifyViewportChanged();
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::notifyViewportChanged()
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::notifyViewportChanged()
 {
     const PixelViewport pipePVP = _pipe->getPixelViewport();
 
     if( _data.fixedVP ) // update pixel viewport
     {
-        const PixelViewport oldPVP = getPixelViewport();
-        PixelViewport newPVP = pipePVP;
-        newPVP.apply( _data.vp );
-        _data.windowSettings.setPixelViewport( newPVP );
-        if( oldPVP != newPVP )
+        const PixelViewport oldPVP = _data.pvp;
+        _data.pvp = pipePVP;
+        _data.pvp.apply( _data.vp );
+        if( oldPVP != _data.pvp )
+        {
+            _data.windowSettings.setPixelViewport( _data.pvp );
             setDirty( DIRTY_VIEWPORT );
+            setDirty( DIRTY_SETTINGS );
+        }
     }
     else           // update viewport
     {
         const Viewport oldVP = _data.vp;
-        _data.vp = getPixelViewport() / pipePVP;
+        _data.vp = _data.pvp / pipePVP;
         if( oldVP != _data.vp )
             setDirty( DIRTY_VIEWPORT );
     }
@@ -453,12 +474,12 @@ void Window< P, W, C >::notifyViewportChanged()
     {
         (*i)->notifyViewportChanged();
     }
-    LBVERB << getName() << " viewport update: " << _data.vp << ":"
-           << getPixelViewport() << std::endl;
+    LBVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
+           << std::endl;
 }
 
-template< class P, class W, class C >
-void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
+template< class P, class W, class C, class Settings >
+void Window< P, W, C, Settings >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 {
     _data.drawableConfig = drawableConfig;
     setDirty( DIRTY_DRAWABLECONFIG );
@@ -467,8 +488,8 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 //----------------------------------------------------------------------
 // ICommand handlers
 //----------------------------------------------------------------------
-template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannel( co::ICommand& cmd )
+template< class P, class W, class C, class Settings >
+bool Window< P, W, C, Settings >::_cmdNewChannel( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
@@ -486,8 +507,8 @@ bool Window< P, W, C >::_cmdNewChannel( co::ICommand& cmd )
     return true;
 }
 
-template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannelReply( co::ICommand& cmd )
+template< class P, class W, class C, class Settings >
+bool Window< P, W, C, Settings >::_cmdNewChannelReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
@@ -499,8 +520,8 @@ bool Window< P, W, C >::_cmdNewChannelReply( co::ICommand& cmd )
     return true;
 }
 
-template< class P, class W, class C >
-std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
+template< class P, class W, class C, class Settings >
+std::ostream& operator << ( std::ostream& os, const Window< P, W, C, Settings >& window )
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader
        << "window" << std::endl;

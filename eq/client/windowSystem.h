@@ -59,9 +59,9 @@ protected:
     /** @return a new event message pump @version 1.6 */
     virtual MessagePump* createMessagePump() const = 0;
 
-    /** @return a new system window @version 1.7.1 */
+    /** @return a new system window @version 1.7.2 */
     virtual SystemWindow* createWindow( Window* window,
-                                        const WindowSettings& settings ) const = 0;
+                                     const WindowSettings& settings ) const = 0;
 
     /**
      * Create a set of display lists for the given font.

@@ -56,6 +56,7 @@ class SystemPipe;
 class SystemWindow;
 class View;
 class Window;
+class WindowSettings;
 class WindowSystem;
 struct ConfigEvent; //!< @deprecated
 struct Event;
@@ -97,7 +98,6 @@ using fabric::SubPixel;
 using fabric::Tile;
 using fabric::Viewport;
 using fabric::Wall;
-using fabric::WindowSettings;
 using fabric::Zoom;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */

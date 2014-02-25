@@ -33,7 +33,7 @@ namespace detail { class Window; }
 class WindowIF : public GLWindow
 {
 public:
-    WindowIF( NotifierInterface* parent,
+    WindowIF( NotifierInterface& parent,
               const WindowSettings& settings ) : GLWindow( parent, settings ) {}
     virtual ~WindowIF() {}
 
@@ -61,9 +61,9 @@ public:
      * Construct a new glX/X11 system window.
      * @version 1.7.2
      */
-    Window( NotifierInterface* parent, const WindowSettings& settings,
+    Window( NotifierInterface& parent, const WindowSettings& settings,
             Display* xDisplay, const GLXEWContext* glxewContext,
-            MessagePump* messagePump, const SystemWindow* shareWindow );
+            MessagePump* messagePump );
 
     /** Destruct this glX window. @version 1.0 */
     virtual ~Window();
@@ -142,9 +142,9 @@ public:
 
     /**
      * Register with the pipe's GLXEventHandler, called by setXDrawable().
-     * @version 1.7.2
+     * @version 1.0
      */
-    EQ_API virtual void initEventHandler( MessagePump* messagePump );
+    EQ_API virtual void initEventHandler();
 
     /**
      * Deregister with the GLXEventHandler, called by setXDrawable().
