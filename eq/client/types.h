@@ -27,6 +27,8 @@
 #include <eq/fabric/types.h>
 #include <lunchbox/atomic.h>
 
+#include <boost/noncopyable.hpp>
+
 #include <map>
 #include <vector>
 
