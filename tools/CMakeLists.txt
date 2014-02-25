@@ -36,12 +36,6 @@ if(WIN32)
     )
 endif(WIN32)
 
-eq_add_tool(eqConfigTool
-  HEADERS configTool/configTool.h configTool/frame.h
-  SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
-  LINK_LIBRARIES Equalizer EqualizerServer ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  )
-
 eq_add_tool(eqThreadAffinity SOURCES threadAffinity/threadAffinity.cpp
   LINK_LIBRARIES Equalizer EqualizerServer
   )
