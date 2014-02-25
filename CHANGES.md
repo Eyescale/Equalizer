@@ -3,6 +3,7 @@ This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
 
+[aa93fa8] Removed eqConfigTool which was superseeded by
 [c36ea6b] Close #237: Replace setError with error events
 * replace setError/getError with sendEvent and default
   Config::handleEvent implementation

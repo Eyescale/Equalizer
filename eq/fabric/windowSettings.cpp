@@ -87,9 +87,13 @@ WindowSettings& WindowSettings::operator=( const WindowSettings& rhs )
     return *this;
 }
 
-void WindowSettings::setIAttribute( const IAttribute attr, const int32_t value )
+bool WindowSettings::setIAttribute( const IAttribute attr, const int32_t value )
 {
+    if( _impl->iAttributes[attr] == value )
+        return false;
+
     _impl->iAttributes[attr] = value;
+    return true;
 }
 
 int32_t WindowSettings::getIAttribute( const IAttribute attr ) const

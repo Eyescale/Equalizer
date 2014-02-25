@@ -131,7 +131,6 @@ EventHandler::~EventHandler()
         Display* display = _window->getXDisplay();
         LBASSERT( display );
         _messagePump->deregister( display );
-        _messagePump = 0;
     }
 
     EventHandlers::iterator i = lunchbox::find( *_eventHandlers, this );
@@ -288,7 +287,7 @@ void EventHandler::_processEvent( WindowEvent& event )
             event.pointerMotion.buttons = _getButtonState( xEvent );
             event.pointerMotion.button  = PTR_BUTTON_NONE;
 
-            _computePointerDelta( _window->getParent(), event );
+            _computePointerDelta( event );
             break;
 
         case ButtonPress:
@@ -316,7 +315,7 @@ void EventHandler::_processEvent( WindowEvent& event )
                 event.pointerWheel.button = PTR_BUTTON_NONE;
             }
 
-            _computePointerDelta( _window->getParent(), event );
+            _computePointerDelta( event );
             break;
 
         case ButtonRelease:
@@ -326,7 +325,7 @@ void EventHandler::_processEvent( WindowEvent& event )
             event.pointerButtonRelease.buttons = _getButtonState( xEvent );
             event.pointerButtonRelease.button  = _getButtonAction( xEvent);
 
-            _computePointerDelta( _window->getParent(), event );
+            _computePointerDelta( event );
             break;
 
         case KeyPress:

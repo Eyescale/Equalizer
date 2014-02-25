@@ -63,7 +63,7 @@ public:
     /** The glX extension pointer table. */
     const GLXEWContext* glxewContext;
 
-    MessagePump* messagePump;
+    MessagePump* const messagePump;
     const SystemWindow* shareWindow;
 };
 }
@@ -338,9 +338,10 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     GLXContext shCtx = 0;
     if( _impl->shareWindow )
     {
-        const WindowIF* shareGLXWindow = LBSAFECAST( const Window*,
+        const WindowIF* shareGLXWindow = dynamic_cast< const WindowIF* >(
                                                         _impl->shareWindow );
-        shCtx = shareGLXWindow->getGLXContext();
+        if( shareGLXWindow )
+            shCtx = shareGLXWindow->getGLXContext();
     }
     int type = GLX_RGBA_TYPE;
     if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == PBUFFER &&
@@ -653,8 +654,7 @@ void Window::setXDrawable( XID drawable )
             XTranslateCoordinates( _impl->xDisplay, parent, root, wa.x, wa.y,
                                    &x, &y, &childReturn );
 
-            setPixelViewport( PixelViewport( x, y,
-                                                      wa.width, wa.height ));
+            setPixelViewport( PixelViewport( x, y, wa.width, wa.height ));
             break;
         }
         default:

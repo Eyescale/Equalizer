@@ -376,9 +376,8 @@ bool Window::configInit( const uint128_t& initID )
 bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
-    setName( getName( ));
     SystemWindow* systemWindow =
-            pipe->getWindowSystem().createWindow( this, getSettings() );
+            pipe->getWindowSystem().createWindow( this, getSettings( ));
 
     LBASSERT( systemWindow );
     if( !systemWindow->configInit( ))
@@ -389,7 +388,6 @@ bool Window::configInitSystemWindow( const uint128_t& )
     }
 
     setPixelViewport( systemWindow->getPixelViewport( ));
-
     setSystemWindow( systemWindow );
     return true;
 }
@@ -597,26 +595,27 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     }
 }
 
-void Window::_tweakEvent( Event& event )
+void Window::_updateEvent( Event& event )
 {
+    // TODO 2.0 event interface will stream these and remove them from Event
     event.time = getConfig()->getTime();
     event.originator = getID();
     event.serial = getSerial();
 
     switch( event.type )
     {
-    case Event::WINDOW_POINTER_MOTION:
-    case Event::WINDOW_POINTER_BUTTON_PRESS:
-    case Event::WINDOW_POINTER_BUTTON_RELEASE:
-    case Event::WINDOW_POINTER_WHEEL:
-    {
-        const int32_t xPos = event.pointer.x;
-        const int32_t yPos = event.pointer.y;
+        case Event::WINDOW_POINTER_MOTION:
+        case Event::WINDOW_POINTER_BUTTON_PRESS:
+        case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        case Event::WINDOW_POINTER_WHEEL:
+        {
+            const int32_t xPos = event.pointer.x;
+            const int32_t yPos = event.pointer.y;
 
-        if( !getRenderContext( xPos, yPos, event.context ))
-            LBVERB << "No rendering context for pointer event at "
-                   << xPos << ", " << yPos << std::endl;
-    }
+            if( !getRenderContext( xPos, yPos, event.context ))
+                LBVERB << "No rendering context for pointer event at "
+                       << xPos << ", " << yPos << std::endl;
+        }
     }
 }
 
@@ -632,7 +631,8 @@ EventOCommand Window::sendError( const uint32_t error )
 
 bool Window::processEvent( const Event& event )
 {
-    _tweakEvent( const_cast< Event& >( event ));
+    // see comment in _updateEvent
+    _updateEvent( const_cast< Event& >( event ));
 
     switch( event.type )
     {

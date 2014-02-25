@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -33,7 +33,7 @@ namespace glx
     class EventHandler : public eq::EventHandler
     {
     public:
-        /** Construct a new glX event handler. @version 1.7.1 */
+        /** Construct a new glX event handler. @version 1.7.2 */
         EventHandler( WindowIF* window, MessagePump* messagePump );
 
         /** Destruct the glX event handler. @version 1.0 */
@@ -50,7 +50,7 @@ namespace glx
 
     private:
         WindowIF* const _window;
-        MessagePump* _messagePump;
+        MessagePump* const _messagePump;
 
         bool _magellanUsed; //!< Window registered with spnav
 

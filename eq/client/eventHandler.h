@@ -28,7 +28,7 @@ namespace eq
     {
     protected:
         /** Construct a new event handler. @version 1.0 */
-        EventHandler() : _lastEventWindow( 0 ) {}
+        EventHandler() {}
 
         /** Destruct the event handler. @version 1.0 */
         virtual ~EventHandler(){}
@@ -37,15 +37,11 @@ namespace eq
          * @internal
          * Compute the mouse move delta from the previous pointer event.
          */
-        EQ_API void _computePointerDelta( const NotifierInterface* window,
-                                          Event& event );
+        EQ_API void _computePointerDelta( Event& event );
 
     private:
         /** The previous pointer event to compute mouse movement deltas. */
         Event _lastPointerEvent;
-
-        /** The window of the previous pointer event. */
-        const NotifierInterface* _lastEventWindow;
     };
 }
 

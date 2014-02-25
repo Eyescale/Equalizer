@@ -24,7 +24,7 @@
 namespace eq
 {
 
-SystemWindow::SystemWindow( NotifierInterface* parent,
+SystemWindow::SystemWindow( NotifierInterface& parent,
                             const WindowSettings& settings )
     : _parent( parent )
     , _settings( settings )

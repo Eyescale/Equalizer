@@ -44,7 +44,7 @@ public:
     /** @name Data Access. */
     //@{
     /** Set the name of the object. @version 1.0 */
-    EQFABRIC_API void setName( const std::string& name );
+    EQFABRIC_API virtual void setName( const std::string& name );
 
     /** @return the name of the object. @version 1.0 */
     EQFABRIC_API const std::string& getName() const;

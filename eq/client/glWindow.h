@@ -36,7 +36,7 @@ namespace detail { class GLWindow; }
 class GLWindow : public SystemWindow, public boost::noncopyable
 {
 public:
-    /** Construct a new OpenGL window. @version 1.7.1 */
+    /** Construct a new OpenGL window. @version 1.7.2 */
     EQ_API GLWindow( NotifierInterface* parent,
                      const WindowSettings& settings );
 

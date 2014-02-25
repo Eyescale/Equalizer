@@ -28,9 +28,7 @@ namespace fabric
 {
 namespace detail { class WindowSettings; }
 
-/**
- * A set of settings to setup a eq::Window or eq::SystemWindow.
- */
+/** A set of settings to setup an eq::Window or eq::SystemWindow. */
 class WindowSettings
 {
 public:
@@ -49,11 +47,11 @@ public:
     /**
      * Window attributes.
      *
-     * Most of these attributes are used by the SystemWindow implementation
-     * to configure the window during configInit(). An SystemWindow
-     * implementation might not respect all attributes, e.g.,
-     * IATTR_HINT_SWAPSYNC is not implemented by the GLXWindow. Please
-     * refer to the Programming Guide for details.  @version 1.0
+     * Most of these attributes are used by the SystemWindow implementation to
+     * configure the window during configInit(). A SystemWindow implementation
+     * might not respect all attributes, e.g., IATTR_HINT_SWAPSYNC is not
+     * implemented by the GLXWindow. Please refer to the Programming Guide for
+     * details.  @version 1.0
      */
     enum IAttribute
     {
@@ -76,12 +74,16 @@ public:
         IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
         IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
         IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
-        IATTR_LAST,
-        IATTR_ALL = IATTR_LAST + 5
+        IATTR_ALL
     };
 
-    /** Set a window attribute. @version 1.7.1 */
-    EQFABRIC_API void setIAttribute( const IAttribute attr,
+    /**
+     * Set a window attribute.
+     *
+     * @return true if the attribute was changed, false otherwise.
+     * @version 1.7.2
+     */
+    EQFABRIC_API bool setIAttribute( const IAttribute attr,
                                      const int32_t value );
 
     /** @return the value of a window attribute. @version 1.7.1 */
