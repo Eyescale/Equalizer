@@ -43,8 +43,10 @@ public:
     /** @internal */
     EQ_API WindowSettings& operator=( const WindowSettings& rhs );
 
+    /** @sa eq::Window::setSharedContextWindow() @version 1.7.2 */
     EQ_API void setSharedContextWindow( const SystemWindow* window );
 
+    /** @sa eq::Window::getSharedContextWindow() @version 1.7.2 */
     EQ_API const SystemWindow* getSharedContextWindow() const;
 
 private:

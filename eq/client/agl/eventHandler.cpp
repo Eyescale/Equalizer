@@ -56,7 +56,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
         , _lastDY( 0 )
 {
     const bool fullscreen =
-        window->getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON;
+        window->getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON;
     const WindowRef carbonWindow = window->getCarbonWindow();
 
     if( !carbonWindow && !fullscreen )
@@ -219,7 +219,7 @@ void EventHandler::_processWindowEvent( WindowEvent& event )
     event.resize.w = rect.right  - rect.left;
 
     const eq::Window* window = _window->getWindow();
-    if( window->getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF )
+    if( window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF )
         event.resize.y -= EQ_AGL_MENUBARHEIGHT;
 
     EventRef eventRef = event.carbonEventRef;
@@ -266,7 +266,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
 {
     const eq::Window* window = _window->getWindow();
     const bool decoration =
-        window->getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF;
+        window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF;
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     HIPoint pos;
 
