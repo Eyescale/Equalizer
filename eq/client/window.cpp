@@ -71,6 +71,11 @@ Window::Window( Pipe* parent )
         , _avgFPS ( 0.0f )
         , _lastSwapTime( 0 )
 {
+    const Windows& windows = parent->getWindows();
+    if( windows.empty( ))
+        setSharedContextWindow( this );
+    else
+        setSharedContextWindow( windows.front( ));
 }
 
 Window::~Window()
@@ -315,11 +320,9 @@ void Window::setSystemWindow( SystemWindow* window )
 {
     _systemWindow = window;
 
-    const Windows& windows = getPipe()->getWindows();
-    if( windows.empty( ))
-        setSharedContextWindow( this );
-    else
-        setSharedContextWindow( windows.front( ));
+    const SystemWindow* sysWindow = _sharedContextWindow ?
+                                    _sharedContextWindow->getSystemWindow() : 0;
+    _getSettings().setSharedContextWindow( sysWindow );
 
     if( !window )
         return;

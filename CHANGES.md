@@ -11,7 +11,9 @@ This file lists all changes in the public Equalizer API, latest on top:
 ** add setter and getter for PixelViewport, name and sharedContextWindow
 * remove non-const getSharedContextWindow() from eq::Window
 * eq::WindowSystemIF::createWindow() needs eq::WindowSettings
+
 [aa93fa8] Removed eqConfigTool which was superseeded by autoconfig
+
 [c36ea6b] Close #237: Replace setError with error events
 * replace setError/getError with sendEvent and default
   Config::handleEvent implementation
