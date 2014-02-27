@@ -37,6 +37,8 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/plugins/compressor.h>
 
+#include <boost/foreach.hpp>
+
 #include <algorithm>
 
 namespace eq

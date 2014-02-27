@@ -26,6 +26,8 @@
 #include <co/dispatcher.h>
 #include <co/iCommand.h>
 
+#include <boost/foreach.hpp>
+
 namespace eq
 {
 namespace admin
