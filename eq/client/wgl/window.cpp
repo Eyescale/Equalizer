@@ -21,6 +21,7 @@
 #include "eventHandler.h"
 #include "pipe.h"
 #include "windowEvent.h"
+#include "../window.h"
 
 #include <eq/client/global.h>
 #include <eq/client/pipe.h>
@@ -32,7 +33,8 @@ namespace eq
 namespace wgl
 {
 
-Window::Window( NotifierInterface& parent, const WindowSettings& settings )
+Window::Window( NotifierInterface& parent, const WindowSettings& settings,
+                Pipe& pipe )
     : WindowIF( parent, settings )
     , _wglWindow( 0 )
     , _wglPBuffer( 0 )
@@ -42,6 +44,7 @@ Window::Window( NotifierInterface& parent, const WindowSettings& settings )
     , _wglAffinityDC( 0 )
     , _wglEventHandler( 0 )
     , _wglNVSwapGroup( 0 )
+    , _wglPipe( pipe )
 {
 }
 
@@ -90,7 +93,7 @@ void Window::setWGLWindowHandle( HWND handle )
     _wglWindow = handle;
     setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE ) == OFF )
         return;
 
     initEventHandler();
@@ -106,7 +109,7 @@ void Window::setWGLWindowHandle( HWND handle )
     pvp.y = windowInfo.rcClient.top;
     pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
     pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
-    getWindow()->setPixelViewport( pvp );
+    setPixelViewport( pvp );
 }
 
 void Window::setWGLPBufferHandle( HPBUFFERARB handle )
@@ -132,7 +135,7 @@ void Window::setWGLPBufferHandle( HPBUFFERARB handle )
     PixelViewport pvp;
     pvp.w = w;
     pvp.h = h;
-    getWindow()->setPixelViewport( pvp );
+    setPixelViewport( pvp );
 }
 
 void Window::setWGLDC( HDC dc, const WGLDCType type )
@@ -222,7 +225,7 @@ bool Window::configInit()
     makeCurrent();
     initGLEW();
     _initSwapSync();
-    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == FBO )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
 
     return true;
@@ -230,7 +233,7 @@ bool Window::configInit()
 
 bool Window::configInitWGLDrawable( int pixelFormat )
 {
-    switch( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ))
+    switch( getIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE ))
     {
         case PBUFFER:
             return configInitWGLPBuffer( pixelFormat );
@@ -241,7 +244,7 @@ bool Window::configInitWGLDrawable( int pixelFormat )
 
         default:
             LBWARN << "Unknown drawable type "
-                   << getIAttribute(eq::Window::IATTR_HINT_DRAWABLE )
+                   << getIAttribute(eq::WindowSettings::IATTR_HINT_DRAWABLE )
                    << ", creating a window" << std::endl;
             // no break;
         case UNDEFINED:
@@ -291,7 +294,7 @@ bool Window::configInitWGLFBO( int pixelFormat )
 bool Window::configInitWGLWindow( int pixelFormat )
 {
     // adjust window size (adds border pixels)
-    const PixelViewport& pvp = getWindow()->getPixelViewport();
+    const PixelViewport& pvp = getPixelViewport();
     HWND hWnd = _createWGLWindow( pvp );
     if( !hWnd )
         return false;
@@ -316,7 +319,7 @@ bool Window::configInitWGLWindow( int pixelFormat )
     ShowWindow( hWnd, SW_SHOW );
     UpdateWindow( hWnd );
 
-    if( getIAttribute( eq::Window::IATTR_HINT_SCREENSAVER ) != ON )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_SCREENSAVER ) != ON )
     {
         // Disable screen saver
         SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 0, &_screenSaverActive,
@@ -334,7 +337,7 @@ bool Window::configInitWGLWindow( int pixelFormat )
 HWND Window::_createWGLWindow( const PixelViewport& pvp  )
 {
     // window class
-    const std::string& name = getWindow()->getName();
+    const std::string& name = getName();
 
     std::ostringstream className;
     className << (name.empty() ? std::string("Equalizer") : name)
@@ -361,10 +364,10 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
     DWORD windowStyleEx = WS_EX_APPWINDOW;
     DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) == OFF )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_DECORATION ) == OFF )
         windowStyle = WS_POPUP;
 
-    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
     {
         windowStyleEx |= WS_EX_TOPMOST;
 
@@ -415,7 +418,7 @@ bool Window::configInitWGLPBuffer( int pf )
         return false;
     }
 
-    const eq::PixelViewport& pvp = getWindow()->getPixelViewport();
+    const eq::PixelViewport& pvp = getPixelViewport();
     LBASSERT( pvp.isValid( ));
 
     HPBUFFERARB pBuffer = 0;
@@ -458,15 +461,15 @@ bool Window::initWGLAffinityDC()
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
-    return getWGLPipe()->createWGLAffinityDC( _wglAffinityDC );
+    return _wglPipe.createWGLAffinityDC( _wglAffinityDC );
 }
 
 void Window::_initSwapSync()
 {
-    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE ) == OFF )
         return;
 
-    const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    const int32_t swapSync = getIAttribute( eq::WindowSettings::IATTR_HINT_SWAPSYNC );
     if( swapSync == AUTO ) // leave it alone
         return;
 
@@ -503,7 +506,7 @@ void Window::configExit( )
     if( hWnd )
     {
         // Re-enable screen saver
-        if( getIAttribute( eq::Window::IATTR_HINT_SCREENSAVER ) != ON )
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_SCREENSAVER ) != ON )
             SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, _screenSaverActive,
                                   0, 0 );
 
@@ -517,7 +520,7 @@ void Window::configExit( )
     if( hPBuffer )
         wglDestroyPbufferARB( hPBuffer );
 
-    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
         ChangeDisplaySettings( 0, 0 );
 
     LBINFO << "Destroyed WGL context and window" << std::endl;
@@ -534,7 +537,7 @@ HDC Window::getWGLAffinityDC()
 
 HDC Window::createWGLDisplayDC()
 {
-    return getWGLPipe()->createWGLDisplayDC();
+    return _wglPipe.createWGLDisplayDC();
 }
 
 int Window::chooseWGLPixelFormat()
@@ -580,31 +583,30 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
     pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
     pfd.iPixelType   = PFD_TYPE_RGBA;
 
-    const eq::Window* window = getWindow();
-    const int colorSize = window->getIAttribute( eq::Window::IATTR_PLANES_COLOR );
+    const int colorSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
         pfd.cColorBits = colorSize>0 ? colorSize : 1;
 
-    const int alphaSize = window->getIAttribute( eq::Window::IATTR_PLANES_ALPHA );
+    const int alphaSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
         pfd.cAlphaBits = alphaSize>0 ? alphaSize : 1;
 
-    const int depthSize = window->getIAttribute( eq::Window::IATTR_PLANES_DEPTH );
+    const int depthSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_DEPTH );
     if( depthSize > 0  || depthSize == AUTO )
         pfd.cDepthBits = depthSize>0 ? depthSize : 1;
 
-    const int stencilSize = window->getIAttribute(eq::Window::IATTR_PLANES_STENCIL);
+    const int stencilSize = getIAttribute(eq::WindowSettings::IATTR_PLANES_STENCIL);
     if( stencilSize >0 || stencilSize == AUTO )
         pfd.cStencilBits = stencilSize>0 ? stencilSize : 1;
 
-    if( window->getIAttribute( eq::Window::IATTR_HINT_STEREO ) != OFF )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_STEREO ) != OFF )
         pfd.dwFlags |= PFD_STEREO;
-    if( window->getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) != OFF )
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_DOUBLEBUFFER ) != OFF )
         pfd.dwFlags |= PFD_DOUBLEBUFFER;
 
     int pf = ChoosePixelFormat( pfDC, &pfd );
 
-    if( pf == 0 && window->getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO )
+    if( pf == 0 && getIAttribute( eq::WindowSettings::IATTR_HINT_STEREO ) == AUTO )
     {
         LBINFO << "Visual not available, trying mono visual" << std::endl;
         pfd.dwFlags |= PFD_STEREO_DONTCARE;
@@ -620,7 +622,7 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
     }
 
     if( pf == 0 &&
-        window->getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        getIAttribute( eq::WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {
         LBINFO << "Visual not available, trying single-buffered visual"
                << std::endl;
@@ -641,8 +643,8 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
     attributes.push_back( WGL_ACCELERATION_ARB );
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
-    const int colorSize = getIAttribute( eq::Window::IATTR_PLANES_COLOR );
-    const int32_t drawableHint = getIAttribute(eq::Window::IATTR_HINT_DRAWABLE);
+    const int colorSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_COLOR );
+    const int32_t drawableHint = getIAttribute(eq::WindowSettings::IATTR_HINT_DRAWABLE);
     if( colorSize > 0 || colorSize == AUTO || drawableHint == FBO ||
         drawableHint == OFF )
     {
@@ -670,29 +672,29 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
         attributes.push_back( colorBits * 4);
     }
 
-    const int alphaSize = getIAttribute( eq::Window::IATTR_PLANES_ALPHA );
+    const int alphaSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
     {
         attributes.push_back( WGL_ALPHA_BITS_ARB );
         attributes.push_back( alphaSize>0 ? alphaSize : 8 );
     }
 
-    const int depthSize = getIAttribute( eq::Window::IATTR_PLANES_DEPTH );
+    const int depthSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_DEPTH );
     if( depthSize > 0  || depthSize == AUTO )
     {
         attributes.push_back( WGL_DEPTH_BITS_ARB );
         attributes.push_back( depthSize>0 ? depthSize : 24 );
     }
 
-    const int stencilSize = getIAttribute( eq::Window::IATTR_PLANES_STENCIL );
+    const int stencilSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_STENCIL );
     if( stencilSize >0 || stencilSize == AUTO )
     {
         attributes.push_back( WGL_STENCIL_BITS_ARB );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
-    const int accumSize  = getIAttribute( eq::Window::IATTR_PLANES_ACCUM );
-    const int accumAlpha = getIAttribute( eq::Window::IATTR_PLANES_ACCUM_ALPHA );
+    const int accumSize  = getIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM );
+    const int accumAlpha = getIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM_ALPHA );
     if( accumSize >= 0 )
     {
         attributes.push_back( WGL_ACCUM_RED_BITS_ARB );
@@ -710,7 +712,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
         attributes.push_back( accumAlpha );
     }
 
-    const int samplesSize = getIAttribute( eq::Window::IATTR_PLANES_SAMPLES );
+    const int samplesSize = getIAttribute( eq::WindowSettings::IATTR_PLANES_SAMPLES );
     if( samplesSize >= 0 )
     {
         if( WGLEW_ARB_multisample )
@@ -725,16 +727,16 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
                    << "attribute" << std::endl;
     }
 
-    if( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO &&
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_STEREO ) == ON ||
+        ( getIAttribute( eq::WindowSettings::IATTR_HINT_STEREO ) == AUTO &&
           drawableHint == WINDOW ))
     {
         attributes.push_back( WGL_STEREO_ARB );
         attributes.push_back( 1 );
     }
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
+    if( getIAttribute( eq::WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == ON ||
+        ( getIAttribute( eq::WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
           drawableHint == WINDOW ))
     {
         attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
@@ -758,10 +760,10 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
     std::vector<int> backoffAttributes;
     if( drawableHint == WINDOW )
     {
-        if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
             backoffAttributes.push_back( WGL_DOUBLE_BUFFER_ARB );
 
-        if( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO )
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_STEREO ) == AUTO )
             backoffAttributes.push_back( WGL_STEREO_ARB );
     }
 
@@ -861,7 +863,7 @@ bool Window::processEvent( const WindowEvent& event )
       }
 
       case Event::WINDOW_POINTER_BUTTON_PRESS:
-        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
             // If no other button was pressed already, capture the mouse
             event.pointerButtonPress.buttons == event.pointerButtonPress.button )
         {
@@ -873,7 +875,7 @@ bool Window::processEvent( const WindowEvent& event )
         break;
 
       case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
             // If no button is pressed anymore, release the mouse
             event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
         {
@@ -955,17 +957,7 @@ void Window::leaveNVSwapBarrier()
 
 WGLEWContext* Window::wglewGetContext()
 {
-    return getWGLPipe()->wglewGetContext();
-}
-
-Pipe* Window::getWGLPipe()
-{
-    eq::Pipe* pipe = getPipe();
-    LBASSERT( pipe );
-    LBASSERT( pipe->getSystemPipe( ));
-    LBASSERT( dynamic_cast< Pipe* >( pipe->getSystemPipe( )));
-
-    return static_cast< Pipe* >( pipe->getSystemPipe( ) );
+    return _wglPipe.wglewGetContext();
 }
 
 }

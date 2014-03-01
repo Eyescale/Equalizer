@@ -21,7 +21,6 @@
 
 #include <co/dataOStream.h>
 #include <co/dataIStream.h>
-#include <GL/gl.h>
 
 namespace eq
 {
@@ -119,16 +118,6 @@ void WindowSettings::setName( const std::string& name )
 const std::string& WindowSettings::getName() const
 {
     return _impl->windowName;
-}
-
-uint32_t WindowSettings::getColorFormat() const
-{
-    switch( getIAttribute( IATTR_PLANES_COLOR ))
-    {
-        case RGBA32F:  return GL_RGBA32F;
-        case RGBA16F:  return GL_RGBA16F;
-        default:       return GL_RGBA;
-    }
 }
 
 void WindowSettings::serialize( co::DataOStream& os ) const

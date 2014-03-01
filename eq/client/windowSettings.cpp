@@ -17,6 +17,7 @@
 
 #include "windowSettings.h"
 
+#include "gl.h"
 
 namespace eq
 {
@@ -81,6 +82,16 @@ void WindowSettings::setSharedContextWindow( const SystemWindow* window )
 const SystemWindow* WindowSettings::getSharedContextWindow() const
 {
     return _impl->sharedContextWindow;
+}
+
+uint32_t WindowSettings::getColorFormat() const
+{
+    switch( getIAttribute( IATTR_PLANES_COLOR ))
+    {
+        case RGBA32F:  return GL_RGBA32F;
+        case RGBA16F:  return GL_RGBA16F;
+        default:       return GL_RGBA;
+    }
 }
 
 }

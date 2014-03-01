@@ -110,13 +110,6 @@ public:
     /** Set the window's name. @version 1.7.2 */
     EQFABRIC_API void setName( const std::string& name );
 
-    /**
-     * @return the OpenGL texture format corresponding to the window's color
-     *         drawable configuration
-     * @version 1.7.2
-     */
-    EQFABRIC_API uint32_t getColorFormat() const;
-
     /** @internal */
     EQFABRIC_API void serialize( co::DataOStream& os ) const;
 
