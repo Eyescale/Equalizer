@@ -68,8 +68,9 @@ private:
 class Window : public WindowIF
 {
 public:
-    /** Create a new WGL window for the given eq::Window. @version 1.0 */
-    EQ_API Window( NotifierInterface& parent, const WindowSettings& settings );
+    /** Create a new WGL window for the given eq::Window. @version 1.7.2 */
+    EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
+                   Pipe& pipe );
 
     /** Destruct the WGL window. @version 1.0 */
     EQ_API virtual ~Window( );
@@ -289,9 +290,6 @@ protected:
     /** @return the generic WGL function table for the window's pipe. */
     EQ_API WGLEWContext* wglewGetContext();
 
-    /** @return the WGL OS parent pipe. */
-    Pipe* getWGLPipe();
-
 private:
 
     HWND             _wglWindow;
@@ -306,6 +304,8 @@ private:
     BOOL          _screenSaverActive;
 
     uint32_t         _wglNVSwapGroup;
+
+    Pipe& _wglPipe;
 
     struct Private;
     Private* _private; // placeholder for binary-compatible changes

@@ -49,6 +49,13 @@ public:
     /** @sa eq::Window::getSharedContextWindow() @version 1.7.2 */
     EQ_API const SystemWindow* getSharedContextWindow() const;
 
+    /**
+     * @return the OpenGL texture format corresponding to the window's color
+     *         drawable configuration
+     * @version 1.7.2
+     */
+    EQ_API uint32_t getColorFormat() const;
+
 private:
     detail::WindowSettings* const _impl;
 };

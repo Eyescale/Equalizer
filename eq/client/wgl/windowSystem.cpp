@@ -27,6 +27,7 @@
 #include "../node.h"
 #include "../pipe.h"
 #include "../server.h"
+#include "../window.h"
 
 #include <eq/fabric/gpuInfo.h>
 
@@ -43,7 +44,10 @@ static class : WindowSystemIF
                                     const WindowSettings& settings ) const final
     {
         LBINFO << "Using wgl::Window" << std::endl;
-        return new Window( *window, settings );
+
+        eq::Pipe* pipe = window->getPipe();
+        Pipe* wglPipe = dynamic_cast< Pipe* >( pipe->getSystemPipe( ));
+        return new Window( *window, settings, *wglPipe );
     }
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) const final
