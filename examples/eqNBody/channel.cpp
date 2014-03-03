@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,8 +41,8 @@ using namespace std;
 
 namespace eqNbody
 {
-Channel::Channel( eq::Window* parent ) 
-    : eq::Channel( parent ) 
+Channel::Channel( eq::Window* parent )
+    : eq::Channel( parent )
     , _registerMem( true )
     , _mapMem( true )
 {
@@ -51,16 +51,13 @@ Channel::Channel( eq::Window* parent )
 
 Channel::~Channel()
 {
-    if ( _controller ) 
-    {
-        delete _controller;
-        _controller = 0;
-    }        
+    delete _controller;
+    _controller = 0;
 }
 
 bool Channel::configInit( const eq::uint128_t& initID )
 {
-    if( !eq::Channel::configInit( initID )) 
+    if( !eq::Channel::configInit( initID ))
         return false;
 
     // Initialize the CUDA controller
@@ -77,17 +74,17 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
 
     // 1st, register the local memory
-    if( _registerMem ) 
+    if( _registerMem )
     {
         sd.registerMemory( getRange() );
         _registerMem = false;
 
         // Make sure all proxies are mapped before cont'ing
-        return; 
+        return;
     }
 
     // 2nd, map remote memory
-    if( _mapMem ) 
+    if( _mapMem )
     {
         sd.mapMemory();
         _mapMem = false;

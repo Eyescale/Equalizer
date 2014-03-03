@@ -75,8 +75,7 @@ CompressorYUV::CompressorYUV()
 CompressorYUV::~CompressorYUV( )
 {
     // replace original texture
-    if( _fbo )
-        delete _fbo;
+    delete _fbo;
     _fbo = 0;
 
     if ( _texture )
