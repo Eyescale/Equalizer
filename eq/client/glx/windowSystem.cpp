@@ -54,7 +54,7 @@ static class : WindowSystemIF
             glxewContext = glxPipe->glxewGetContext();
         }
         MessagePump* messagePump = 0;
-        if( settings.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) != OFF )
+        if( settings.getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) != OFF )
         {
             messagePump = dynamic_cast< MessagePump* >(
                                           pipe->isThreaded() ?

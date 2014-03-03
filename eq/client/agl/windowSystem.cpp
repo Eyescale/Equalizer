@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
+ *               2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,6 +27,8 @@
 
 #include "../windowSystem.h"
 
+#include "../window.h"
+#include "../pipe.h"
 #include "eventHandler.h"
 #include "messagePump.h"
 #include "pipe.h"
@@ -51,7 +53,28 @@ static class : WindowSystemIF
                                     const WindowSettings& settings ) const final
     {
         LBINFO << "Using agl::Window" << std::endl;
-        return new Window( *window, settings );
+
+        const eq::Pipe* pipe = window->getPipe();
+        const Pipe* aglPipe = dynamic_cast<const Pipe*>( pipe->getSystemPipe());
+        LBASSERT( pipe->getSystemPipe( ));
+
+        const CGDirectDisplayID displayID = aglPipe ?
+            aglPipe->getCGDisplayID() : kCGNullDirectDisplay;
+        const bool fullscreen =
+            settings.getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) != ON;
+
+        if( !fullscreen )
+            return new Window( *window, settings, displayID,
+                               pipe->isThreaded( ));
+
+        const PixelViewport& pipePVP = pipe->getPixelViewport();
+        if( !pipePVP.isValid( ))
+            return new Window( *window, settings, displayID,
+                               pipe->isThreaded( ));
+
+        WindowSettings fsSettings = settings;
+        fsSettings.setPixelViewport( pipePVP );
+        return new Window( *window, fsSettings, displayID, pipe->isThreaded( ));
     }
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) const final

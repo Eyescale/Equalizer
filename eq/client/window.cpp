@@ -394,7 +394,7 @@ bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
     SystemWindow* systemWindow =
-            pipe->getWindowSystem().createWindow( this, getSettings( ));
+        pipe->getWindowSystem().createWindow( this, getSettings( ));
 
     LBASSERT( systemWindow );
     if( !systemWindow->configInit( ))
