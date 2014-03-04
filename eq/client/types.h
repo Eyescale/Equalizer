@@ -26,6 +26,7 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/atomic.h>
+#include <lunchbox/compiler.h>
 
 #include <boost/noncopyable.hpp>
 
