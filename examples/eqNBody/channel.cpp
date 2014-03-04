@@ -43,16 +43,14 @@ namespace eqNbody
 {
 Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
+    , _controller( new Controller( glewGetContext( )))
     , _registerMem( true )
     , _mapMem( true )
-{
-    _controller = new Controller( glewGetContext() );
-}
+{}
 
 Channel::~Channel()
 {
     delete _controller;
-    _controller = 0;
 }
 
 bool Channel::configInit( const eq::uint128_t& initID )
