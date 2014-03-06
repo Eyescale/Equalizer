@@ -586,7 +586,7 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
 }
 #endif
 
-void EventHandler::initMagellan( Node* node )
+void EventHandler::initMagellan( Node* node LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanNode )
@@ -610,7 +610,7 @@ void EventHandler::initMagellan( Node* node )
 #endif
 }
 
-void EventHandler::exitMagellan( Node* node )
+void EventHandler::exitMagellan( Node* node LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanID && _magellanNode == node )
