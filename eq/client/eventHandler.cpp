@@ -1,16 +1,17 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -18,29 +19,11 @@
 
 #include "eventHandler.h"
 
-#include "pipe.h"
-#include "window.h"
-
-#include <lunchbox/lock.h>
-#include <lunchbox/debug.h>
-
-using namespace lunchbox;
-using namespace std;
-
 namespace eq
 {
 
-void EventHandler::_computePointerDelta( const Window* window, Event &event )
+void EventHandler::_computePointerDelta( Event& event )
 {
-    if( _lastEventWindow != window )
-    {
-        event.pointer.dx  = 0;
-        event.pointer.dy  = 0;
-        _lastPointerEvent = event;
-        _lastEventWindow  = window;
-        return;
-    }
-
     switch( event.type )
     {
         case Event::WINDOW_POINTER_BUTTON_PRESS:
@@ -58,16 +41,6 @@ void EventHandler::_computePointerDelta( const Window* window, Event &event )
             event.pointer.dy = event.pointer.y - _lastPointerEvent.pointer.y;
     }
     _lastPointerEvent = event;
-}
-
-void EventHandler::_getRenderContext( const Window* window, Event& event )
-{
-    const int32_t x = event.pointer.x;
-    const int32_t y = event.pointer.y;
-
-    if( !window->getRenderContext( x, y, event.context ))
-        LBVERB << "No rendering context for pointer event at " << x << ", " 
-               << y << endl;
 }
 
 }

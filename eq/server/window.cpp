@@ -54,9 +54,9 @@ Window::Window( Pipe* parent )
         , _swap( false )
 {
     const Global* global = Global::instance();
-    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    for( unsigned i = 0; i < WindowSettings::IATTR_ALL; ++i )
     {
-        const IAttribute attr = static_cast< IAttribute >( i );
+        const WindowSettings::IAttribute attr = static_cast< WindowSettings::IAttribute >( i );
         setIAttribute( attr, global->getWindowIAttribute( attr ));
     }
 }
@@ -181,7 +181,7 @@ void Window::deactivate()
     pipe->deactivate();
 
     LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
-};
+}
 
 void Window::addTasks( const uint32_t tasks )
 {
@@ -512,9 +512,9 @@ void Window::output( std::ostream& os ) const
 {
     bool attrPrinted   = false;
 
-    for( IAttribute i = static_cast<IAttribute>( 0 );
-         i < IATTR_LAST;
-         i = static_cast<IAttribute>( static_cast<uint32_t>( i )+1))
+    for( WindowSettings::IAttribute i = static_cast<WindowSettings::IAttribute>( 0 );
+         i < WindowSettings::IATTR_LAST;
+         i = static_cast<WindowSettings::IAttribute>( static_cast<uint32_t>( i )+1))
     {
         const int value = getIAttribute( i );
         if( value == Global::instance()->getWindowIAttribute( i ))
@@ -527,37 +527,37 @@ void Window::output( std::ostream& os ) const
             attrPrinted = true;
         }
 
-        os << ( i== IATTR_HINT_STEREO ?
+        os << ( i== WindowSettings::IATTR_HINT_STEREO ?
                     "hint_stereo        " :
-                i== IATTR_HINT_DOUBLEBUFFER ?
+                i== WindowSettings::IATTR_HINT_DOUBLEBUFFER ?
                     "hint_doublebuffer  " :
-                i== IATTR_HINT_FULLSCREEN ?
+                i== WindowSettings::IATTR_HINT_FULLSCREEN ?
                     "hint_fullscreen    " :
-                i== IATTR_HINT_DECORATION ?
+                i== WindowSettings::IATTR_HINT_DECORATION ?
                     "hint_decoration    " :
-                i== IATTR_HINT_SWAPSYNC ?
+                i== WindowSettings::IATTR_HINT_SWAPSYNC ?
                     "hint_swapsync      " :
-                i== IATTR_HINT_DRAWABLE ?
+                i== WindowSettings::IATTR_HINT_DRAWABLE ?
                     "hint_drawable      " :
-                i== IATTR_HINT_STATISTICS ?
+                i== WindowSettings::IATTR_HINT_STATISTICS ?
                     "hint_statistics    " :
-                i== IATTR_HINT_SCREENSAVER ?
+                i== WindowSettings::IATTR_HINT_SCREENSAVER ?
                     "hint_screensaver   " :
-                i== IATTR_HINT_GRAB_POINTER ?
+                i== WindowSettings::IATTR_HINT_GRAB_POINTER ?
                     "hint_grab_pointer  " :
-                i== IATTR_PLANES_COLOR ?
+                i== WindowSettings::IATTR_PLANES_COLOR ?
                     "planes_color       " :
-                i== IATTR_PLANES_ALPHA ?
+                i== WindowSettings::IATTR_PLANES_ALPHA ?
                     "planes_alpha       " :
-                i== IATTR_PLANES_DEPTH ?
+                i== WindowSettings::IATTR_PLANES_DEPTH ?
                     "planes_depth       " :
-                i== IATTR_PLANES_STENCIL ?
+                i== WindowSettings::IATTR_PLANES_STENCIL ?
                     "planes_stencil     " :
-                i== IATTR_PLANES_ACCUM ?
+                i== WindowSettings::IATTR_PLANES_ACCUM ?
                     "planes_accum       " :
-                i== IATTR_PLANES_ACCUM_ALPHA ?
+                i== WindowSettings::IATTR_PLANES_ACCUM_ALPHA ?
                     "planes_accum_alpha " :
-                i== IATTR_PLANES_SAMPLES ?
+                i== WindowSettings::IATTR_PLANES_SAMPLES ?
                     "planes_samples     " : "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

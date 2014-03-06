@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -56,7 +56,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
         , _lastDY( 0 )
 {
     const bool fullscreen =
-        window->getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON;
+        window->getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON;
     const WindowRef carbonWindow = window->getCarbonWindow();
 
     if( !carbonWindow && !fullscreen )
@@ -97,8 +97,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
                                    this, &_eventHandler );
 
 
-    const eq::Pipe* pipe = window->getPipe();
-    if( pipe->isThreaded( ))
+    if( _window->isThreaded( ))
     {
         LBASSERT( GetCurrentEventQueue() != GetMainEventQueue( ));
 
@@ -161,8 +160,7 @@ OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
 
     if( GetCurrentEventQueue() == GetMainEventQueue( )) // main thread
     {
-        const eq::Pipe* pipe = window->getPipe();
-        if( !pipe->isThreaded( ))
+        if( !window->isThreaded( ))
             // non-threaded window, handle from main thread
             handler->handleEvent( event );
 
@@ -177,11 +175,6 @@ bool EventHandler::handleEvent( EventRef eventRef )
 {
     WindowEvent event;
     event.carbonEventRef = eventRef;
-    event.time = _window->getConfig()->getTime();
-
-    const eq::Window* window = _window->getWindow();
-    event.originator = window->getID();
-    event.serial = window->getSerial();
 
     switch( GetEventClass( eventRef ))
     {
@@ -218,8 +211,7 @@ void EventHandler::_processWindowEvent( WindowEvent& event )
     event.resize.h = rect.bottom - rect.top;
     event.resize.w = rect.right  - rect.left;
 
-    const eq::Window* window = _window->getWindow();
-    if( window->getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF )
+    if( _window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF )
         event.resize.y -= EQ_AGL_MENUBARHEIGHT;
 
     EventRef eventRef = event.carbonEventRef;
@@ -264,9 +256,8 @@ void EventHandler::_processWindowEvent( WindowEvent& event )
 
 bool EventHandler::_processMouseEvent( WindowEvent& event )
 {
-    const eq::Window* window = _window->getWindow();
     const bool decoration =
-        window->getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF;
+        _window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF;
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     HIPoint pos;
 
@@ -310,8 +301,6 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
 
             _lastDX = event.pointerMotion.dx;
             _lastDY = event.pointerMotion.dy;
-
-            _getRenderContext( window, event );
             return true;
 
         case kEventMouseDown:
@@ -343,8 +332,6 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             event.pointerButtonPress.dy = _lastDY;
             _lastDX = 0;
             _lastDY = 0;
-
-            _getRenderContext( window, event );
             return true;
 
         case kEventMouseUp:
@@ -376,8 +363,6 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             event.pointerButtonRelease.dy = _lastDY;
             _lastDX = 0;
             _lastDY = 0;
-
-            _getRenderContext( window, event );
             return true;
 
         case kEventMouseWheelMoved:
@@ -601,7 +586,7 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
 }
 #endif
 
-void EventHandler::initMagellan( Node* node )
+void EventHandler::initMagellan( Node* node LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanNode )
@@ -625,7 +610,7 @@ void EventHandler::initMagellan( Node* node )
 #endif
 }
 
-void EventHandler::exitMagellan( Node* node )
+void EventHandler::exitMagellan( Node* node LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanID && _magellanNode == node )

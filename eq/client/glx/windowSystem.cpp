@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011 Daniel Pfeifer <daniel@pfeifer-mail.de>
  *               2011-2014, Stefan Eilemann <eile@eyescale.ch>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +23,10 @@
 #include "pipe.h"
 #include "messagePump.h"
 #include "eventHandler.h"
+#include "../config.h"
 #include "../gl.h"
+#include "../pipe.h"
+#include "../window.h"
 
 #include <eq/fabric/gpuInfo.h>
 #include <lunchbox/scopedMutex.h>
@@ -34,27 +38,47 @@ namespace glx
 
 static class : WindowSystemIF
 {
-    std::string getName() const { return "GLX"; }
+    std::string getName() const final { return "GLX"; }
 
-    eq::SystemWindow* createWindow(eq::Window* window) const
+    eq::SystemWindow* createWindow( eq::Window* window,
+                                    const WindowSettings& settings ) const final
     {
         LBINFO << "Using glx::Window" << std::endl;
-        return new Window(window);
+        Display* xDisplay = 0;
+        GLXEWContext* glxewContext = 0;
+        eq::Pipe* pipe = window->getPipe();
+        Pipe* glxPipe = dynamic_cast< Pipe* >( pipe->getSystemPipe( ));
+        if( glxPipe )
+        {
+            xDisplay = glxPipe->getXDisplay();
+            glxewContext = glxPipe->glxewGetContext();
+        }
+        MessagePump* messagePump = 0;
+        if( settings.getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) != OFF )
+        {
+            messagePump = dynamic_cast< MessagePump* >(
+                                          pipe->isThreaded() ?
+                                          pipe->getMessagePump() :
+                                          pipe->getConfig()->getMessagePump( ));
+        }
+        return new Window( *window, settings, xDisplay, glxewContext,
+                           messagePump );
     }
 
-    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe( eq::Pipe* pipe ) const final
     {
         LBINFO << "Using glx::Pipe" << std::endl;
-        return new Pipe(pipe);
+        return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const
+    eq::MessagePump* createMessagePump() const final
     {
         return new MessagePump;
     }
 
     bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const
+                    const std::string& name,
+                    const uint32_t size ) const final
     {
         Display* display = XGetCurrentDisplay();
         LBASSERT( display );

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2012-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@
 #include "global.h"
 #include "pipe.h"
 
+#include <eq/fabric/drawableConfig.h>
 #include <eq/util/frameBufferObject.h>
 #include <lunchbox/perThread.h>
 
@@ -66,8 +67,8 @@ public:
 };
 }
 
-GLWindow::GLWindow( Window* parent )
-    : SystemWindow( parent )
+GLWindow::GLWindow( NotifierInterface& parent, const WindowSettings& settings )
+    : SystemWindow( parent, settings )
     , _impl( new detail::GLWindow )
 {
 }
@@ -137,14 +138,14 @@ bool GLWindow::configInitFBO()
     // needs glew initialized (see above)
     _impl->fbo = new util::FrameBufferObject( &_impl->glewContext );
 
-    const PixelViewport& pvp = getWindow()->getPixelViewport();
-    const GLuint colorFormat = getWindow()->getColorFormat();
+    const PixelViewport& pvp = getPixelViewport();
+    const GLuint colorFormat = getColorFormat();
 
-    int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
+    int depthSize = getIAttribute( WindowSettings::IATTR_PLANES_DEPTH );
     if( depthSize == AUTO )
          depthSize = 24;
 
-    int stencilSize = getIAttribute( Window::IATTR_PLANES_STENCIL );
+    int stencilSize = getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
     if( stencilSize == AUTO )
         stencilSize = 1;
 
@@ -153,7 +154,7 @@ bool GLWindow::configInitFBO()
     if( !error )
         return true;
 
-    if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO )
+    if( getIAttribute( WindowSettings::IATTR_PLANES_STENCIL ) == AUTO )
         error = _impl->fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
 
     if( !error )

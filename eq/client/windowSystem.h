@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -58,8 +59,9 @@ protected:
     /** @return a new event message pump @version 1.6 */
     virtual MessagePump* createMessagePump() const = 0;
 
-    /** @return a new system window @version 1.6 */
-    virtual SystemWindow* createWindow(Window* window) const = 0;
+    /** @return a new system window @version 1.7.2 */
+    virtual SystemWindow* createWindow( Window* window,
+                                     const WindowSettings& settings ) const = 0;
 
     /**
      * Create a set of display lists for the given font.
@@ -106,7 +108,8 @@ public:
 
     EQ_API std::string getName() const;
 
-    EQ_API SystemWindow* createWindow( Window* window ) const;
+    EQ_API SystemWindow* createWindow( Window* window,
+                                       const WindowSettings& settings ) const;
     EQ_API SystemPipe* createPipe( Pipe* pipe ) const;
     EQ_API MessagePump* createMessagePump() const;
     EQ_API bool setupFont( util::ObjectManager& gl, const void* key,

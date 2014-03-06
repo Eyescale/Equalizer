@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2012-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -401,7 +401,7 @@ public:
         Window* window = new Window( pipe );
         if( !pipe->getPixelViewport().isValid( ))
             window->setPixelViewport( _pvp );
-        window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
+        window->setIAttribute( WindowSettings::IATTR_HINT_DRAWABLE, fabric::FBO );
         window->setName( pipe->getName() + " source window" );
 
         _channels.push_back( new Channel( window ));

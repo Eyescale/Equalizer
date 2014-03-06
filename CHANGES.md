@@ -3,6 +3,17 @@ This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
 
+[b2a92d4] Close #69: WindowSettings to decouple Window from SystemWindow
+* eq::fabric::Window::IATTR* are now eq::fabric::WindowSettings::IATTR*
+* eq::SystemWindow:
+** need eq::NotifierInterface and eq::WindowSettings for construction
+** remove getWindow(), getPipe(), getNode() and getConfig()
+** add setter and getter for PixelViewport, name and sharedContextWindow
+* remove non-const getSharedContextWindow() from eq::Window
+* eq::WindowSystemIF::createWindow() needs eq::WindowSettings
+
+[aa93fa8] Removed eqConfigTool which was superseeded by autoconfig
+
 [c36ea6b] Close #237: Replace setError with error events
 * replace setError/getError with sendEvent and default
   Config::handleEvent implementation

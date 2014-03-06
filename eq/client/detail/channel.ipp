@@ -19,6 +19,8 @@
 #include "../channel.h"
 #include "fileFrameWriter.h"
 
+#include <eq/fabric/drawableConfig.h>
+
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
 #  include "../dc/proxy.h"
 #endif

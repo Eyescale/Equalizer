@@ -405,7 +405,7 @@ protected:
     virtual uint64_t getRedistributableBits() const
         { return DIRTY_CHANNEL_BITS; }
 
-    virtual void updateCapabilities() {}; //!< @internal
+    virtual void updateCapabilities() {} //!< @internal
 
 private:
     /** The parent window. */

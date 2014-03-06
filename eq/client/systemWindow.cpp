@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
-                      2009, Maxim Makhinya
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,71 +19,68 @@
 
 #include "systemWindow.h"
 
-#include "global.h"
-#include "pipe.h"
+#include "notifierInterface.h"
+
+#include <co/objectOCommand.h>
 
 namespace eq
 {
 
-SystemWindow::SystemWindow( Window* parent )
-    : _window( parent )
+SystemWindow::SystemWindow( NotifierInterface& parent,
+                            const WindowSettings& settings )
+    : _parent( parent )
+    , _settings( settings )
 {
-    LBASSERT( _window );
 }
 
 SystemWindow::~SystemWindow()
 {
 }
 
-const Pipe* SystemWindow::getPipe() const
+void SystemWindow::setPixelViewport( const PixelViewport& pvp )
 {
-    LBASSERT( _window );
-    return _window->getPipe();
-}
-Pipe* SystemWindow::getPipe()
-{
-    LBASSERT( _window );
-    return _window->getPipe();
+    _settings.setPixelViewport( pvp );
 }
 
-const Node* SystemWindow::getNode() const
+const PixelViewport& SystemWindow::getPixelViewport() const
 {
-    LBASSERT( _window );
-    return _window->getNode();
-}
-Node* SystemWindow::getNode()
-{
-    LBASSERT( _window );
-    return _window->getNode();
+    return _settings.getPixelViewport();
 }
 
-const Config* SystemWindow::getConfig() const
+uint32_t SystemWindow::getColorFormat() const
 {
-    LBASSERT( _window );
-    return _window->getConfig();
-}
-Config* SystemWindow::getConfig()
-{
-    LBASSERT( _window );
-    return _window->getConfig();
+    return _settings.getColorFormat();
 }
 
-int32_t SystemWindow::getIAttribute( const Window::IAttribute attr ) const
+void SystemWindow::setName( const std::string& name )
 {
-    LBASSERT( _window );
-    return _window->getIAttribute( attr );
+    _settings.setName( name );
+}
+
+const std::string& SystemWindow::getName() const
+{
+    return _settings.getName();
+}
+
+int32_t
+SystemWindow::getIAttribute( const WindowSettings::IAttribute attr ) const
+{
+    return _settings.getIAttribute( attr );
+}
+
+const SystemWindow* SystemWindow::getSharedContextWindow() const
+{
+    return _settings.getSharedContextWindow();
 }
 
 EventOCommand SystemWindow::sendError( const uint32_t error )
 {
-    LBASSERT( _window );
-    return _window->sendError( error );
+    return _parent.sendError( error );
 }
 
 bool SystemWindow::processEvent( const Event& event )
 {
-    LBASSERT( _window );
-    return _window->processEvent( event );
+    return _parent.processEvent( event );
 }
 
 }

@@ -1,6 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2012 Stefan Eilemann <eile@eyescale.ch>
-#                    2012 Daniel Nachbaur <danielnachbaur@gmail.com>
+#               2012-2014 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 set(EQ_FABRIC_PUBLIC_HEADERS
   api.h
@@ -52,6 +52,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   viewport.h
   vmmlib.h
   wall.h
+  windowSettings.h
   window.h
   zoom.h
   )
@@ -93,6 +94,7 @@ set(EQ_FABRIC_SOURCES
   swapBarrier.cpp
   viewport.cpp
   wall.cpp
+  windowSettings.cpp
   zoom.cpp
   )
 

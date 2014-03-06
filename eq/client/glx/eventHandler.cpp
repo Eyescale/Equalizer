@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,7 +21,6 @@
 
 #include "window.h"
 #include "windowEvent.h"
-#include "messagePump.h"
 #include "../config.h"
 #include "../event.h"
 #include "../global.h"
@@ -68,20 +68,9 @@ EventHandler::EventHandler( WindowIF* window )
         _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
-    eq::Pipe* pipe = window->getPipe();
-    MessagePump* messagePump =
-        dynamic_cast< MessagePump* >( pipe->isThreaded() ?
-                                      pipe->getMessagePump() :
-                                      pipe->getConfig()->getMessagePump( ));
+#ifdef EQUALIZER_USE_MAGELLAN_GLX
     Display* display = window->getXDisplay();
     LBASSERT( display );
-    if( messagePump )
-        messagePump->register_( display );
-    else
-        LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
-               << "event dispatch assumed" << std::endl;
-
-#ifdef EQUALIZER_USE_MAGELLAN_GLX
     lunchbox::ScopedFastWrite mutex( _magellan );
     if( !_magellan->display )
     {
@@ -129,18 +118,6 @@ EventHandler::~EventHandler()
         _magellanUsed = false;
     }
 
-    eq::Pipe* pipe = _window->getPipe();
-    MessagePump* messagePump =
-        dynamic_cast<MessagePump*>( pipe->isThreaded() ?
-                                    pipe->getMessagePump() :
-                                    pipe->getConfig()->getMessagePump( ));
-    if( messagePump )
-    {
-        Display* display = _window->getXDisplay();
-        LBASSERT( display );
-        messagePump->deregister( display );
-    }
-
     EventHandlers::iterator i = lunchbox::find( *_eventHandlers, this );
     LBASSERT( i != _eventHandlers->end( ));
     _eventHandlers->erase( i );
@@ -176,7 +153,6 @@ void EventHandler::_dispatch()
         XEvent& xEvent = event.xEvent;
 
         XNextEvent( display, &xEvent );
-        event.time = _window->getConfig()->getTime();
 
         for( EventHandlers::const_iterator i = _eventHandlers->begin();
              i != _eventHandlers->end(); ++i )
@@ -216,8 +192,6 @@ void EventHandler::_processEvent( WindowEvent& event )
 
     if( _window->getXDrawable() != drawable )
         return;
-
-    eq::Window* window = _window->getWindow();
 
     switch( xEvent.type )
     {
@@ -298,8 +272,7 @@ void EventHandler::_processEvent( WindowEvent& event )
             event.pointerMotion.buttons = _getButtonState( xEvent );
             event.pointerMotion.button  = PTR_BUTTON_NONE;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case ButtonPress:
@@ -327,8 +300,7 @@ void EventHandler::_processEvent( WindowEvent& event )
                 event.pointerWheel.button = PTR_BUTTON_NONE;
             }
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case ButtonRelease:
@@ -338,8 +310,7 @@ void EventHandler::_processEvent( WindowEvent& event )
             event.pointerButtonRelease.buttons = _getButtonState( xEvent );
             event.pointerButtonRelease.button  = _getButtonAction( xEvent);
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case KeyPress:
@@ -364,8 +335,6 @@ void EventHandler::_processEvent( WindowEvent& event )
             break;
     }
 
-    event.originator = window->getID();
-    event.serial = window->getSerial();
     _window->processEvent( event );
 }
 

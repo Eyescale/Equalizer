@@ -99,6 +99,7 @@ set(CLIENT_PUBLIC_HEADERS
   messagePump.h
   node.h
   nodeFactory.h
+  notifierInterface.h
   observer.h
   os.h
   pipe.h
@@ -114,6 +115,7 @@ set(CLIENT_PUBLIC_HEADERS
   view.h
   visitorResult.h
   window.h
+  windowSettings.h
   windowStatistics.h
   windowSystem.h
   zoomFilter.h
@@ -173,6 +175,7 @@ set(CLIENT_SOURCES
   version.cpp
   view.cpp
   window.cpp
+  windowSettings.cpp
   windowStatistics.cpp
   windowSystem.cpp
   worker.cpp

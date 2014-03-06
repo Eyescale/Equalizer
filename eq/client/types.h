@@ -49,6 +49,7 @@ class Layout;
 class MessagePump;
 class Node;
 class NodeFactory;
+class NotifierInterface;
 class Observer;
 class Pipe;
 class Segment;
@@ -57,6 +58,7 @@ class SystemPipe;
 class SystemWindow;
 class View;
 class Window;
+class WindowSettings;
 class WindowSystem;
 struct ConfigEvent; //!< @deprecated
 struct Event;

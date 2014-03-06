@@ -27,6 +27,7 @@
 #include "../node.h"
 #include "../pipe.h"
 #include "../server.h"
+#include "../window.h"
 
 #include <eq/fabric/gpuInfo.h>
 
@@ -37,27 +38,31 @@ namespace wgl
 
 static class : WindowSystemIF
 {
-    std::string getName() const { return "WGL"; }
+    std::string getName() const final { return "WGL"; }
 
-    eq::SystemWindow* createWindow(eq::Window* window) const
+    eq::SystemWindow* createWindow( eq::Window* window,
+                                    const WindowSettings& settings ) const final
     {
         LBINFO << "Using wgl::Window" << std::endl;
-        return new Window(window);
+
+        eq::Pipe* pipe = window->getPipe();
+        Pipe* wglPipe = dynamic_cast< Pipe* >( pipe->getSystemPipe( ));
+        return new Window( *window, settings, *wglPipe );
     }
 
-    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) const final
     {
         LBINFO << "Using wgl::Pipe" << std::endl;
-        return new Pipe(pipe);
+        return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const
+    eq::MessagePump* createMessagePump() const final
     {
         return new MessagePump;
     }
 
     bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const
+                    const std::string& name, const uint32_t size ) const final
     {
         HDC dc = wglGetCurrentDC();
         if( !dc )

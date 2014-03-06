@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2012-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,10 +44,10 @@ namespace
 
 void _choosePixelViewport( Window& window )
 {
-    int32_t width = window.getIAttribute( Window::IATTR_HINT_WIDTH );
-    int32_t height = window.getIAttribute( Window::IATTR_HINT_HEIGHT );
+    int32_t width = window.getIAttribute( WindowSettings::IATTR_HINT_WIDTH );
+    int32_t height = window.getIAttribute( WindowSettings::IATTR_HINT_HEIGHT );
     const int32_t drawable =
-        window.getIAttribute( Window::IATTR_HINT_DRAWABLE );
+        window.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
     if( width == fabric::UNDEFINED && height == fabric::UNDEFINED )
     {
         window.setViewport( Viewport( .25f, .2f, .5f, .5f ));
@@ -101,7 +101,7 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
     Window* window = new Window( pipe );
     _choosePixelViewport( *window );
     window->setName( pipe->getName() + " window" );
-    window->setIAttribute( Window::IATTR_PLANES_STENCIL, 1 );
+    window->setIAttribute( WindowSettings::IATTR_PLANES_STENCIL, 1 );
 
     Channel* channel = new Channel( window );
     channel->setName( pipe->getName() + " channel" );

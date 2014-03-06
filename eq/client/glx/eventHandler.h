@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,7 +49,6 @@ namespace glx
         static void dispatch();
 
     private:
-        /** The corresponding glX pipe. */
         WindowIF* const _window;
 
         bool _magellanUsed; //!< Window registered with spnav

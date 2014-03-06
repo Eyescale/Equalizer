@@ -143,7 +143,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
             if( dcEvent.mouseRight )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
             event.pointerButtonPress.button = event.pointerButtonPress.buttons;
-            _computePointerDelta( window, event );
+            _computePointerDelta( event );
             break;
         case ::dc::Event::EVT_DOUBLECLICK:
             break;
@@ -160,7 +160,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
 
             event.pointerMotion.button = event.pointerMotion.buttons;
-            _computePointerDelta( window, event );
+            _computePointerDelta( event );
             break;
         case ::dc::Event::EVT_WHEEL:
             event.type = Event::CHANNEL_POINTER_WHEEL;
@@ -171,7 +171,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
                 event.pointerWheel.xAxis = dcEvent.dy > 0 ? 1 : -1;
             if( dcEvent.dx != 0 )
                 event.pointerWheel.yAxis = dcEvent.dx > 0 ? 1 : -1;
-            _computePointerDelta( window, event );
+            _computePointerDelta( event );
             break;
         case ::dc::Event::EVT_NONE:
         default:

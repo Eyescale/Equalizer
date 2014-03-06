@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,8 +36,9 @@ namespace detail { class GLWindow; }
 class GLWindow : public SystemWindow, public boost::noncopyable
 {
 public:
-    /** Construct a new OpenGL window. @version 1.0 */
-    EQ_API GLWindow( Window* parent );
+    /** Construct a new OpenGL window. @version 1.7.2 */
+    EQ_API GLWindow( NotifierInterface& parent,
+                     const WindowSettings& settings );
 
     /** Destruct a new OpenGL window. @version 1.0 */
     EQ_API virtual ~GLWindow();

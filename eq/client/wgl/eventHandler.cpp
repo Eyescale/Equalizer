@@ -186,15 +186,12 @@ void _getWindowSize( HWND hWnd, ResizeEvent& event )
 }
 }
 LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-					 LPARAM lParam )
+                                         LPARAM lParam )
 {
     WindowEvent event;
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;
-    event.time = _window->getConfig()->getTime();
-
-    eq::Window* const window = _window->getWindow();
 
     LONG result = 0;
     switch( uMsg )
@@ -215,7 +212,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         {
             _getWindowSize( hWnd, event.resize );
             const bool hasArea = (event.resize.w >0 && event.resize.h > 0);
-            const PixelViewport& pvp = window->getPixelViewport();
+            const PixelViewport& pvp = _window->getPixelViewport();
 
             // No show/hide events on Win32?: Emulate.
             if( !hasArea && pvp.hasArea( ))
@@ -250,8 +247,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerMotion.y = GET_Y_LPARAM( lParam );
             event.pointerMotion.buttons = _buttonState;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
         }
 
@@ -263,8 +259,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON1;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case WM_MBUTTONDOWN:
@@ -275,8 +270,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON2;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case WM_RBUTTONDOWN:
@@ -287,8 +281,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON3;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case WM_XBUTTONDOWN:
@@ -305,8 +298,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
             event.pointerButtonPress.buttons = _buttonState;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             result = TRUE;
             break;
 
@@ -318,8 +310,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON1;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case WM_MBUTTONUP:
@@ -330,8 +321,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON2;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case WM_RBUTTONUP:
@@ -342,8 +332,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON3;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             break;
 
         case WM_XBUTTONUP:
@@ -360,8 +349,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
             event.pointerButtonRelease.buttons =_buttonState;
 
-            _computePointerDelta( window, event );
-            _getRenderContext( window, event );
+            _computePointerDelta( event );
             result = TRUE;
             break;
 
@@ -424,10 +412,6 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                    << std::endl;
             break;
     }
-
-    LBASSERT( window->getID() != 0 );
-    event.originator = window->getID();
-    event.serial = window->getSerial();
 
     if( _window->processEvent( event ))
         return result;

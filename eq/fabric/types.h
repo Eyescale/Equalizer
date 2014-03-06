@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -55,6 +55,7 @@ class SwapBarrier;
 class Tile;
 class Viewport;
 class Wall;
+class WindowSettings;
 class Zoom;
 struct CanvasPath;
 struct ChannelPath;
@@ -73,7 +74,7 @@ template< class, class > class Observer;
 template< class, class, class > class Layout;
 template< class, class, class > class Segment;
 template< class, class, class > class View;
-template< class, class, class > class Window;
+template< class, class, class, class > class Window;
 template< class, class, class, class > class Canvas;
 template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;

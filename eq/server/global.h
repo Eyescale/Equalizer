@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -45,22 +46,22 @@ namespace server
 
         /** @name Connection (Description) Attributes. */
         //@{
-        void setConnectionSAttribute( const ConnectionDescription::SAttribute 
+        void setConnectionSAttribute( const ConnectionDescription::SAttribute
                                       attr, const std::string& value )
             { _connectionSAttributes[attr] = value; }
         const std::string& getConnectionSAttribute(
             const ConnectionDescription::SAttribute attr ) const
             { return _connectionSAttributes[attr]; }
 
-        void setConnectionIAttribute( const ConnectionDescription::IAttribute 
+        void setConnectionIAttribute( const ConnectionDescription::IAttribute
                                       attr, const int32_t value)
             { _connectionIAttributes[attr] = value; }
-        int32_t getConnectionIAttribute( 
+        int32_t getConnectionIAttribute(
             const ConnectionDescription::IAttribute attr ) const
             { return _connectionIAttributes[attr]; }
         //@}
-            
-        /** @name Config Attributes. */  
+
+        /** @name Config Attributes. */
         //@{
         void setConfigFAttribute( const Config::FAttribute attr,
                                   const float value )
@@ -75,7 +76,7 @@ namespace server
             { return _configIAttributes[attr]; }
         //@}
 
-        /** @name Node Attributes. */  
+        /** @name Node Attributes. */
         //@{
         void setNodeSAttribute( const Node::SAttribute attr,
                                 const std::string& value )
@@ -106,10 +107,10 @@ namespace server
 
         /** @name Window Attributes. */
         //@{
-        void setWindowIAttribute( const Window::IAttribute attr,
+        void setWindowIAttribute( const WindowSettings::IAttribute attr,
                                   const int32_t value )
             { _windowIAttributes[attr] = value; }
-        int32_t getWindowIAttribute( const Window::IAttribute attr ) const
+        int32_t getWindowIAttribute( const WindowSettings::IAttribute attr ) const
             { return _windowIAttributes[attr]; }
         //@}
 
@@ -128,7 +129,7 @@ namespace server
             { return _channelSAttributes[attr]; }
         //@}
 
-        /** @name Compound Attributes. */  
+        /** @name Compound Attributes. */
         //@{
         void setCompoundIAttribute( const Compound::IAttribute attr,
                                     const int32_t value )
@@ -139,10 +140,10 @@ namespace server
 
     private:
         Global();
-        
+
         std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
-        
+
         float       _configFAttributes[Config::FATTR_ALL];
         int32_t     _configIAttributes[Config::IATTR_ALL];
 
@@ -152,11 +153,11 @@ namespace server
 
         int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
 
-        int32_t     _windowIAttributes[Window::IATTR_ALL];
+        int32_t     _windowIAttributes[WindowSettings::IATTR_ALL];
 
         int32_t     _channelIAttributes[Channel::IATTR_ALL];
         std::string _channelSAttributes[Channel::SATTR_ALL];
-        
+
         int32_t     _compoundIAttributes[Compound::IATTR_ALL];
 
         struct Private;
