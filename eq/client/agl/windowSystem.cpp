@@ -60,21 +60,20 @@ static class : WindowSystemIF
 
         const CGDirectDisplayID displayID = aglPipe ?
             aglPipe->getCGDisplayID() : kCGNullDirectDisplay;
+        const bool threaded = pipe->isThreaded();
         const bool fullscreen =
-            settings.getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) != ON;
+            settings.getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON;
 
         if( !fullscreen )
-            return new Window( *window, settings, displayID,
-                               pipe->isThreaded( ));
+            return new Window( *window, settings, displayID, threaded );
 
         const PixelViewport& pipePVP = pipe->getPixelViewport();
         if( !pipePVP.isValid( ))
-            return new Window( *window, settings, displayID,
-                               pipe->isThreaded( ));
+            return new Window( *window, settings, displayID, threaded );
 
         WindowSettings fsSettings = settings;
         fsSettings.setPixelViewport( pipePVP );
-        return new Window( *window, fsSettings, displayID, pipe->isThreaded( ));
+        return new Window( *window, fsSettings, displayID, threaded );
     }
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) const final
