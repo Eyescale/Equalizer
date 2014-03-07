@@ -130,14 +130,14 @@ static class : WindowSystemIF
         return false;
     }
 
-    void configInit( eq::Node* node )
+    void configInit( eq::Node* node LB_UNUSED)
     {
 #ifdef EQUALIZER_USE_MAGELLAN
         EventHandler::initMagellan( node );
 #endif
     }
 
-    void configExit( eq::Node* node )
+    void configExit( eq::Node* node LB_UNUSED)
     {
 #ifdef EQUALIZER_USE_MAGELLAN
         EventHandler::exitMagellan( node );
