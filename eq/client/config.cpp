@@ -44,8 +44,12 @@
 #include <co/object.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <lunchbox/scopedMutex.h>
+
+#include <lunchbox/clock.h>
+#include <lunchbox/monitor.h>
 #include <lunchbox/plugins/compressor.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/spinLock.h>
 
 #ifdef EQUALIZER_USE_GLSTATS
 #  include <GLStats/GLStats.h>
