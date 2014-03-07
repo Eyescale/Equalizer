@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,7 +19,7 @@
 #define EQFABRIC_RANGE_H
 
 #include <eq/fabric/api.h>
-
+#include <lunchbox/bitOperation.h>
 #include <iostream>
 
 namespace eq
@@ -27,7 +27,7 @@ namespace eq
 namespace fabric
 {
     /** A fractional database range with methods for manipulation. */
-    class Range 
+    class Range
     {
     public:
         /** @name Constructors */
@@ -45,11 +45,11 @@ namespace fabric
         /** @return true if the two ranges are identical. @version 1.0 */
         bool operator == ( const Range& rhs ) const
             { return start==rhs.start && end==rhs.end; }
-        
+
         /** @return true if the two ranges are not identical. @version 1.0 */
         bool operator != ( const Range& rhs ) const
             { return start!=rhs.start || end!=rhs.end; }
-        
+
         /** @return the interval spanned by this range. @version 1.3 */
         float getSize() const { return end - start; }
 
@@ -57,7 +57,7 @@ namespace fabric
         void invalidate() { start=0.f; end=0.f; }
 
         /** @internal @return true if the database range is valid. */
-        bool isValid() const 
+        bool isValid() const
             { return ( start>=0.f && end <=1.f && (end - start) >= 0.f ); }
 
         /** @internal @return true if the database range covers some data. */
@@ -70,7 +70,7 @@ namespace fabric
                 end    = start + rhs.end * w;
                 start += rhs.start * w;
             }
-        
+
 
         float start; //!< The start position
         float end;   //!< The end position

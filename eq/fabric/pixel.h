@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,6 +19,7 @@
 #define EQFABRIC_PIXEL_H
 
 #include <eq/fabric/api.h>
+#include <lunchbox/bitOperation.h>
 #include <lunchbox/log.h>
 #include <lunchbox/types.h>
 
@@ -36,7 +37,7 @@ namespace fabric
      * destination. The x, y index determines the position of the contributor
      * within the decomposition pixel grid.
      */
-    class Pixel 
+    class Pixel
     {
     public:
         /** @name Constructors */
@@ -48,7 +49,7 @@ namespace fabric
         Pixel() : x( 0 ), y( 0 ), w( 1 ), h( 1 )  {}
 
         /** Construct a pixel specification with default values. @version 1.0 */
-        Pixel( const uint32_t x_, const uint32_t y_, 
+        Pixel( const uint32_t x_, const uint32_t y_,
                const uint32_t w_, const uint32_t h_ )
                 : x( x_ ), y( y_ ), w( w_ ), h( h_ ) {}
         //@}
@@ -73,7 +74,7 @@ namespace fabric
         {
             return x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h;
         }
-        
+
         /**
          * @return true if the pixel specification are not identical.
          * @version 1.0
@@ -82,7 +83,7 @@ namespace fabric
         {
             return x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h;
         }
-        
+
         /** Make the pixel specification invalid. @internal */
         void invalidate() { x = y = w = h = 0; }
 
@@ -107,7 +108,7 @@ namespace fabric
         uint32_t h;
 
         /** A pixel specification covering all pixels */
-        EQFABRIC_API static const Pixel ALL; 
+        EQFABRIC_API static const Pixel ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #define EQFABRIC_ERROR_H
 
 #include <eq/fabric/api.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {

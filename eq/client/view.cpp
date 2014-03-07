@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,6 +29,8 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/spinLock.h>
 
 namespace eq
 {

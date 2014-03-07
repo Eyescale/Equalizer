@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,9 +24,9 @@
 #if defined(EQUALIZERSERVER_STATIC)
 #  define EQSERVER_API
 #elif defined(EQUALIZERSERVER_SHARED)
-#  define EQSERVER_API LB_DLLEXPORT
+#  define EQSERVER_API LUNCHBOX_DLLEXPORT
 #else
-#  define EQSERVER_API LB_DLLIMPORT
+#  define EQSERVER_API LUNCHBOX_DLLIMPORT
 #endif
 
 #endif // EQSERVER_API_H
