@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,6 +29,8 @@ namespace eq
 {
 namespace agl
 {
+namespace detail { class Window; }
+
 /** The interface defining the minimum functionality for an AGL window. */
 class WindowIF : public GLWindow
 {
@@ -41,13 +43,19 @@ public:
     virtual ~WindowIF() {}
 
     /** @return the AGL rendering context. @version 1.0 */
-    EQ_API virtual AGLContext getAGLContext() const = 0;
+    virtual AGLContext getAGLContext() const = 0;
 
     /** @return the carbon window reference. @version 1.0 */
-    EQ_API virtual WindowRef getCarbonWindow() const = 0;
+    virtual WindowRef getCarbonWindow() const = 0;
 
     /** @return the AGL PBuffer object. @version 1.0 */
-    EQ_API virtual AGLPbuffer getAGLPBuffer() const = 0;
+    virtual AGLPbuffer getAGLPBuffer() const = 0;
+
+    /**
+     * @return true if the window does not run in the main thread.
+     * @version 1.7.2
+     */
+    virtual bool isThreaded() const { return false; }
 
 #  pragma clang diagnostic push
 #  pragma clang diagnostic ignored "-Woverloaded-virtual"
@@ -73,7 +81,7 @@ public:
      * @version 1.0
      */
     EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
-                   CGDirectDisplayID displayID = 0 );
+                   const CGDirectDisplayID displayID, const bool threaded );
 
     /** Destruct the AGL window. @version 1.0 */
     EQ_API virtual ~Window();
@@ -108,16 +116,22 @@ public:
     EQ_API virtual void setAGLPBuffer( AGLPbuffer pbuffer );
 
     /** @return the AGL rendering context. @version 1.0 */
-    virtual AGLContext getAGLContext() const { return _aglContext; }
+    EQ_API AGLContext getAGLContext() const override;
 
     /** @return the carbon window reference. @version 1.0 */
-    virtual WindowRef getCarbonWindow() const { return _carbonWindow; }
+    EQ_API WindowRef getCarbonWindow() const override;
 
     /** @return the AGL PBuffer object. @version 1.0 */
-    virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
+    EQ_API AGLPbuffer getAGLPBuffer() const override;
+
+    /**
+     * @return true if the window does not run in the main thread.
+     * @version 1.7.2
+     */
+    EQ_API bool isThreaded() const override;
 
     /** @return the CG display id used by this window. @version 1.1.1 */
-    CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
+    CGDirectDisplayID getCGDisplayID() const;
     //@}
 
     /** @name AGL/Carbon initialization */
@@ -255,23 +269,7 @@ public:
     //@}
 
 private:
-    /** The AGL context. */
-    AGLContext _aglContext;
-
-    /** The carbon window reference. */
-    WindowRef _carbonWindow;
-
-    /** The AGL PBuffer object. */
-    AGLPbuffer _aglPBuffer;
-
-    /** The AGL event handler. */
-    EventHandler* _eventHandler;
-
-    /** Carbon display identifier. */
-    CGDirectDisplayID _cgDisplayID;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    detail::Window* const _impl;
 
     void _initSwapSync( AGLContext context );
 };

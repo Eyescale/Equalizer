@@ -46,8 +46,6 @@ void _choosePixelViewport( Window& window )
 {
     int32_t width = window.getIAttribute( WindowSettings::IATTR_HINT_WIDTH );
     int32_t height = window.getIAttribute( WindowSettings::IATTR_HINT_HEIGHT );
-    const int32_t drawable =
-        window.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
     if( width == fabric::UNDEFINED && height == fabric::UNDEFINED )
     {
         window.setViewport( Viewport( .25f, .2f, .5f, .5f ));
@@ -55,6 +53,8 @@ void _choosePixelViewport( Window& window )
     }
 
     const PixelViewport& pvp = window.getPipe()->getPixelViewport();
+    const int32_t drawable =
+        window.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
 
     if( width > 0 )
     {
