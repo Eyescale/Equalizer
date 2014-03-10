@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2013, Stefan.Eilemann@epfl.ch
+ *               2013-2014, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,9 +25,9 @@
 #if defined(EQUALIZER_STATIC)
 #  define EQ_API
 #elif defined(EQUALIZER_SHARED)
-#  define EQ_API LB_DLLEXPORT
+#  define EQ_API LUNCHBOX_DLLEXPORT
 #else
-#  define EQ_API LB_DLLIMPORT
+#  define EQ_API LUNCHBOX_DLLIMPORT
 #endif
 
 #endif /* EQCLIENT_API_H */

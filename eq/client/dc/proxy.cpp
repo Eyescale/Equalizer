@@ -27,6 +27,7 @@
 #include <eq/util/objectManager.h>
 #include <eq/util/texture.h>
 
+#include <lunchbox/buffer.h>
 #include <dc/Stream.h>
 #include <GL/gl.h>
 

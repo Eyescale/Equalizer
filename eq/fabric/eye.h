@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@
 #define EQFABRIC_EYE_H
 
 #include <eq/fabric/api.h>
+#include <lunchbox/bitOperation.h>
 #include <iostream>
 
 namespace eq

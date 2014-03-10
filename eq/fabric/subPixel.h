@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@
 #define EQFABRIC_SUBPIXEL_H
 
 #include <eq/fabric/api.h>
+#include <lunchbox/bitOperation.h>
 #include <lunchbox/log.h>
 #include <lunchbox/types.h>
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -29,7 +29,10 @@
 #include "../pipe.h"
 #include "../window.h"
 
+#include <lunchbox/lockable.h>
 #include <lunchbox/perThread.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/spinLock.h>
 
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
