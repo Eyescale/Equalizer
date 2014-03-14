@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +23,7 @@
 
 #include <eq/client/agl/types.h>
 #include <eq/client/messagePump.h>  // base class
-
+#include <lunchbox/clock.h> // member
 namespace eq
 {
 namespace agl

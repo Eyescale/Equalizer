@@ -312,7 +312,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     Global::setWorkDir( workDir );
     if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
         LBWARN << "Can't change working directory to " << workDir << ": "
-               << strerror( errno ) << std::endl;
+               << lunchbox::sysError << std::endl;
 
     nextPos = description.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )

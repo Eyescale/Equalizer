@@ -26,6 +26,7 @@
 
 #include <eq/fabric/drawableConfig.h>
 #include <eq/util/frameBufferObject.h>
+#include <lunchbox/os.h>
 #include <lunchbox/perThread.h>
 
 template
