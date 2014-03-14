@@ -400,7 +400,7 @@ if(GLEW_MX_name)
   endif()
 endif()
 
-set(EQUALIZER_BUILD_DEBS autoconf;automake;bison;cmake;cppcheck;doxygen;flex;freeglut3-dev;git;git-review;git-svn;lcov;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libfcgi-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libpoppler-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;ninja-build;openmpi-bin;pkg-config;subversion)
+set(EQUALIZER_BUILD_DEBS autoconf;automake;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libfcgi-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libpoppler-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;openmpi-bin;pkg-config;subversion)
 
 set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;OpenCV;VRPN;DisplayCluster;MAGELLAN;GLEW_MX)
 
@@ -440,7 +440,7 @@ file(APPEND ${DEFINES_FILE_IN}
   "\n#endif\n")
 
 include(UpdateFile)
-update_file(${DEFINES_FILE_IN} ${DEFINES_FILE})
+configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
 if(Boost_FOUND) # another WAR for broken boost stuff...
   set(Boost_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
 endif()

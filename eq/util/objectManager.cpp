@@ -26,6 +26,7 @@
 
 #include <eq/client/gl.h>
 #include <lunchbox/hash.h>
+#include <lunchbox/os.h>
 #include <lunchbox/referenced.h>
 #include <lunchbox/uploader.h>
 #include <string.h>
