@@ -174,11 +174,18 @@ static inline uint16_t _uint16_neg( uint16_t a )
   return (-a);
 }
 
+#ifndef __GNUC__
 // Complement
 static inline uint16_t _uint16_not( uint16_t a )
 {
   return (~a);
 }
+// Add then Mask
+static inline uint16_t _uint16_addm( uint16_t a, uint16_t b, uint16_t mask )
+{
+  return ((a + b) & mask);
+}
+#endif
 
 // Decrement
 static inline uint16_t _uint16_dec( uint16_t a )
@@ -245,13 +252,6 @@ static inline uint16_t _uint16_srlm( uint16_t a, int sa, uint16_t mask )
 {
   return ((a >> sa) & mask);
 }
-
-// Add then Mask
-static inline uint16_t _uint16_addm( uint16_t a, uint16_t b, uint16_t mask )
-{
-  return ((a + b) & mask);
-}
-
 
 // Select on Sign bit
 static inline uint16_t _uint16_sels( uint16_t test, uint16_t a, uint16_t b )
