@@ -22,6 +22,8 @@
 #include <eq/defines.h>
 #ifdef AGL
 
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #include <eq/client/agl/types.h>
 #include <eq/client/glWindow.h>       // base class
 

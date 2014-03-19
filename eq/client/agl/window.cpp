@@ -30,7 +30,6 @@
 #include <boost/lexical_cast.hpp>
 
 using boost::lexical_cast;
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 namespace eq
 {
