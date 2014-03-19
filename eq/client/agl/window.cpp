@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,8 +28,8 @@
 #include "../window.h"
 
 #include <boost/lexical_cast.hpp>
-using boost::lexical_cast;
 
+using boost::lexical_cast;
 
 namespace eq
 {
