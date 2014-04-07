@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -51,6 +51,7 @@
 #include <co/objectICommand.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
+#include <boost/lexical_cast.hpp>
 #include <sstream>
 
 #ifdef EQUALIZER_USE_HWLOC_GL
@@ -100,8 +101,15 @@ public:
     {}
 
 protected:
-    virtual void run();
-    virtual bool stopRunning() { return !_pipe; }
+    bool init() override
+    {
+        setName( std::string( "Draw" ) +
+              boost::lexical_cast< std::string >( _pipe->getPath().pipeIndex ));
+        return true;
+    }
+
+    void run() override;
+    bool stopRunning() override { return !_pipe; }
 
 private:
     eq::Pipe* _pipe;
@@ -113,42 +121,47 @@ private:
 class TransferThread : public co::Worker
 {
 public:
-    TransferThread()
+    TransferThread( const uint32_t index )
         : co::Worker( co::Global::getCommandQueueLimit( ))
-        , _running( true )
+        , _index( index )
+        , _stop( false )
     {}
 
     virtual bool init()
-        {
-            if( !co::Worker::init( ))
-                return false;
-            setName( "PipeTfer" );
-            return true;
-        }
+    {
+        if( !co::Worker::init( ))
+            return false;
+        setName( std::string( "Tfer" ) +
+                 boost::lexical_cast< std::string >( _index ));
+        return true;
+    }
 
-    virtual bool stopRunning() { return !_running; }
-    void postStop() { _running = false; }
+    virtual bool stopRunning() { return _stop; }
+    void postStop() { _stop = true; }
 
 private:
-    bool _running; // thread will exit if this is false
+    uint32_t _index;
+    bool _stop; // thread will exit if this is true
 };
 
 class Pipe
 {
 public:
-    Pipe()
-            : systemPipe( 0 )
-            , state( STATE_STOPPED )
-            , currentFrame( 0 )
-            , frameTime( 0 )
-            , thread( 0 )
-            , computeContext( 0 )
-        {}
+    Pipe( const uint32_t index )
+        : systemPipe( 0 )
+        , state( STATE_STOPPED )
+        , currentFrame( 0 )
+        , frameTime( 0 )
+        , thread( 0 )
+        , transferThread( index )
+        , computeContext( 0 )
+    {}
+
     ~Pipe()
-        {
-            delete thread;
-            thread = 0;
-        }
+    {
+        delete thread;
+        thread = 0;
+    }
 
     /** Window-system specific functions class */
     SystemPipe* systemPipe;
@@ -201,7 +214,6 @@ public:
 
 void RenderThread::run()
 {
-    setName( "PipeDraw" );
     LB_TS_THREAD( _pipe->_pipeThread );
     LBINFO << "Entered pipe thread" << std::endl;
 
@@ -219,7 +231,7 @@ void RenderThread::run()
 
 Pipe::Pipe( Node* parent )
         : Super( parent )
-        , _impl( new detail::Pipe )
+        , _impl( new detail::Pipe( getPath().pipeIndex ))
 {
 }
 

@@ -531,37 +531,36 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
         {
             PixelData pixelData;
             const ImageHeader* header = reinterpret_cast<ImageHeader*>( data );
+            data += sizeof( ImageHeader );
+
             pixelData.internalFormat  = header->internalFormat;
             pixelData.externalFormat  = header->externalFormat;
             pixelData.pixelSize       = header->pixelSize;
             pixelData.pvp             = header->pvp;
-            pixelData.compressorName  = header->compressorName;
             pixelData.compressorFlags = header->compressorFlags;
-            pixelData.isCompressed =
-                pixelData.compressorName > EQ_COMPRESSOR_NONE;
 
-            const uint32_t nChunks    = header->nChunks;
-            data += sizeof( ImageHeader );
-
-            if( pixelData.isCompressed )
+            const uint32_t compressor = header->compressorName;
+            if( compressor > EQ_COMPRESSOR_NONE )
             {
-                pixelData.compressedSize.resize( nChunks );
-                pixelData.compressedData.resize( nChunks );
+                lunchbox::CompressorChunks chunks;
+                const uint32_t nChunks = header->nChunks;
 
                 for( uint32_t j = 0; j < nChunks; ++j )
                 {
                     const uint64_t size = *reinterpret_cast< uint64_t*>( data );
                     data += sizeof( uint64_t );
 
-                    pixelData.compressedSize[j] = size;
-                    pixelData.compressedData[j] = data;
+                    chunks.push_back( lunchbox::CompressorChunk( data, size ));
                     data += size;
                 }
+                pixelData.compressedData =
+                    lunchbox::CompressorResult( compressor, chunks );
             }
             else
             {
                 const uint64_t size = *reinterpret_cast< uint64_t*>( data );
                 data += sizeof( uint64_t );
+
                 pixelData.pixels = data;
                 data += size;
                 LBASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );

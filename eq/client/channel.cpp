@@ -1365,8 +1365,8 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     co::NodePtr toNode = localNode->connect( netNodeID );
     if( !toNode || !toNode->isReachable( ))
     {
-        LBWARN << "Can't connect node " << netNodeID
-               << " to send image data" << std::endl;
+        LBWARN << "Can't connect node " << netNodeID << " to send output frame"
+               << std::endl;
         return;
     }
 
@@ -1381,7 +1381,6 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
     uint32_t commandBuffers = Frame::BUFFER_NONE;
     uint64_t imageDataSize = 0;
-
 
     {
         uint64_t rawSize( 0 );
@@ -1411,23 +1410,16 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                 pixelDatas.push_back( &data );
                 qualities.push_back( image->getQuality( buffer ));
 
-                if( data.isCompressed )
+                if( data.compressedData.isCompressed( ))
                 {
-                    const uint32_t nElements =
-                        uint32_t( data.compressedSize.size( ));
-                    for( uint32_t k = 0 ; k < nElements; ++k )
-                    {
-                        imageDataSize += sizeof( uint64_t );
-                        imageDataSize += data.compressedSize[ k ];
-                    }
+                    imageDataSize += data.compressedData.getSize() +
+                        data.compressedData.chunks.size() * sizeof( uint64_t );
                     compressEvent.event.data.statistic.plugins[j] =
-                        data.compressorName;
+                        data.compressedData.compressor;
                 }
                 else
-                {
-                    imageDataSize += sizeof( uint64_t );
-                    imageDataSize += image->getPixelDataSize( buffer );
-                }
+                    imageDataSize += sizeof( uint64_t ) +
+                                     image->getPixelDataSize( buffer );
 
                 commandBuffers |= buffer;
                 rawSize += image->getPixelDataSize( buffer );
@@ -1472,25 +1464,29 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         sentBytes += sizeof( FrameData::ImageHeader );
 #endif
         const PixelData* data = pixelDatas[j];
+        const bool isCompressed = data->compressedData.isCompressed();
+        const uint32_t nChunks = isCompressed ?
+            uint32_t( data->compressedData.chunks.size( )) : 1;
+
         const FrameData::ImageHeader header =
               { data->internalFormat, data->externalFormat,
                 data->pixelSize, data->pvp,
-                useCompression ? data->compressorName : EQ_COMPRESSOR_NONE,
-                data->compressorFlags,
-                data->isCompressed ? uint32_t( data->compressedSize.size()) : 1,
-                qualities[ j ] };
+                isCompressed ? data->compressedData.compressor :
+                               EQ_COMPRESSOR_NONE,
+                data->compressorFlags, nChunks, qualities[ j ] };
 
         connection->send( &header, sizeof( header ), true );
 
-        if( data->isCompressed )
+        if( isCompressed )
         {
-            for( uint32_t k = 0 ; k < data->compressedSize.size(); ++k )
+            BOOST_FOREACH( const lunchbox::CompressorChunk& chunk,
+                           data->compressedData.chunks )
             {
-                const uint64_t dataSize = data->compressedSize[k];
+                const uint64_t dataSize = chunk.getNumBytes();
+
                 connection->send( &dataSize, sizeof( dataSize ), true );
                 if( dataSize > 0 )
-                    connection->send( data->compressedData[k],
-                                      dataSize, true );
+                    connection->send( chunk.data, dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
 #endif
@@ -1594,9 +1590,9 @@ void Channel::_deleteTransferContext()
         return;
 
     co::LocalNodePtr localNode = getLocalNode();
-    const uint32_t requestID = localNode->registerRequest();
-    send( localNode, fabric::CMD_CHANNEL_DELETE_TRANSFER_CONTEXT ) << requestID;
-    localNode->waitRequest( requestID );
+    const lunchbox::Request< void >& request =
+        localNode->registerRequest< void >();
+    send( localNode, fabric::CMD_CHANNEL_DELETE_TRANSFER_CONTEXT ) << request;
 }
 
 //---------------------------------------------------------------------------

@@ -291,12 +291,13 @@ bool Config::init( const uint128_t& initID )
         update();
 
     co::LocalNodePtr localNode = getLocalNode();
-    const uint32_t requestID = localNode->registerRequest();
-    send( getServer(), fabric::CMD_CONFIG_INIT ) << initID << requestID;
+    lunchbox::Request< bool > request = localNode->registerRequest< bool >();
+    send( getServer(), fabric::CMD_CONFIG_INIT ) << initID << request;
 
-    while( !localNode->isRequestServed( requestID ))
+    while( !request.isReady( ))
         client->processCommand();
-    localNode->waitRequest( requestID, _impl->running );
+
+    _impl->running = request.get();
     localNode->enableSendOnRegister();
 
     handleEvents();
@@ -314,15 +315,13 @@ bool Config::exit()
     co::LocalNodePtr localNode = getLocalNode();
     localNode->disableSendOnRegister();
 
-    const uint32_t requestID = localNode->registerRequest();
-    send( getServer(), fabric::CMD_CONFIG_EXIT ) << requestID;
+    lunchbox::Request< bool > request = localNode->registerRequest< bool >();
+    send( getServer(), fabric::CMD_CONFIG_EXIT ) << request;
 
     ClientPtr client = getClient();
-    while( !localNode->isRequestServed( requestID ))
+    while( !request.isReady( ))
         client->processCommand();
-
-    bool ret = false;
-    localNode->waitRequest( requestID, ret );
+    bool ret = request.get();
 
     detail::ExitVisitor exitVisitor;
     if( accept( exitVisitor ) == TRAVERSE_TERMINATE )
@@ -343,22 +342,22 @@ bool Config::update()
     // send update req to server
     ClientPtr client = getClient();
 
-    const uint32_t reqVersionID = client->registerRequest();
-    const uint32_t reqFinishID = client->registerRequest();
-    const uint32_t requestID = client->registerRequest();
+    lunchbox::Request< uint128_t > reqVersion =
+        client->registerRequest< uint128_t >();
+    lunchbox::Request< uint32_t > reqFinish =
+        client->registerRequest< uint32_t >();
+    lunchbox::Request< bool > request = client->registerRequest< bool >();
     send( getServer(), fabric::CMD_CONFIG_UPDATE )
-            << reqVersionID << reqFinishID << requestID;
+            << reqVersion << reqFinish << request;
 
     // wait for new version
-    uint128_t version = co::VERSION_INVALID;
-    client->waitRequest( reqVersionID, version );
-    uint32_t finishID = 0;
-    client->waitRequest( reqFinishID, finishID );
+    const uint128_t& version = reqVersion.get();
+    const uint32_t finishID = reqFinish.get();
 
     if( finishID == LB_UNDEFINED_UINT32 )
     {
         sync( version );
-        client->unregisterRequest( requestID );
+        client->unregisterRequest( request.getID( ));
         handleEvents();
         return true;
     }
@@ -370,11 +369,10 @@ bool Config::update()
     sync( version );
     client->ackRequest( getServer(), finishID );
 
-    while( !client->isRequestServed( requestID ))
+    while( !request.isReady( ))
         client->processCommand();
 
-    bool result = false;
-    client->waitRequest( requestID, result );
+    const bool result = request.get();
     client->enableSendOnRegister();
 #ifdef EQUALIZER_USE_GLSTATS
     _impl->statistics->clear();
@@ -1065,9 +1063,9 @@ void Config::deregisterObject( co::Object* object )
     // Keep a distributed object latency frames.
     // Replaces the object with a dummy proxy object using the
     // existing master change manager.
-    const uint32_t requestID = getLocalNode()->registerRequest();
-    send( client, fabric::CMD_CONFIG_SWAP_OBJECT ) << requestID << object;
-    client->waitRequest( requestID );
+    const lunchbox::Request< void > request =
+        getLocalNode()->registerRequest< void >();
+    send( client, fabric::CMD_CONFIG_SWAP_OBJECT ) << request << object;
 }
 
 bool Config::mapObject( co::Object* object, const uint128_t& id,

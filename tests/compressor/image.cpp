@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -192,48 +192,38 @@ int main( int argc, char **argv )
 
                 // Compress
                 clock.reset();
-                const eq::PixelData& compressedPixels =
-                    image.compressPixelData( buffer );
+                const eq::PixelData& pixels = image.compressPixelData( buffer );
                 const float compressTime = clock.getTimef();
 
-                TEST( compressedPixels.compressorName == name );
-                TEST( compressedPixels.compressedSize.size() ==
-                      compressedPixels.compressedData.size( ));
-                TESTINFO( name == compressedPixels.compressorName,
-                          name << " != " << compressedPixels.compressorName );
+                TEST( pixels.compressedData.compressor == name );
+                TESTINFO( name == pixels.compressedData.compressor,
+                          name << " != " << pixels.compressedData.compressor );
 
                 uint32_t compressedSize = 0;
-                if( compressedPixels.compressorName == EQ_COMPRESSOR_NONE )
+                if( pixels.compressedData.compressor == EQ_COMPRESSOR_NONE )
                     compressedSize = size;
                 else
                 {
+                    compressedSize = pixels.compressedData.getSize();
+
 #ifdef WRITE_COMPRESSED
                     std::ofstream comp( std::string( filename+".comp" ).c_str(),
                                         std::ios::out | std::ios::binary );
                     TEST( comp.is_open( ));
-                    std::vector< void* >::const_iterator compData =
-                        compressedPixels.compressedData.begin();
-#endif
 
-                    for( std::vector< uint64_t >::const_iterator k =
-                             compressedPixels.compressedSize.begin();
-                         k != compressedPixels.compressedSize.end(); ++k )
+                    BOOST_FOREACH( const lunchbox::CompressorChunk& chunk,
+                                   pixels.compressedData.chunks )
                     {
-                        compressedSize += *k;
-#ifdef WRITE_COMPRESSED
-                        comp.write( reinterpret_cast<const char*>( *compData ),
-                                    *k );
-                        ++compData;
-#endif
+                        comp.write( reinterpret_cast<const char*>( chunk.data ),
+                                    chunk.getNumBytes( ));
                     }
-#ifdef WRITE_COMPRESSED
                     comp.close();
 #endif
                 }
 
                 // Decompress
                 clock.reset();
-                destImage.setPixelData( buffer, compressedPixels );
+                destImage.setPixelData( buffer, pixels );
                 const float decompressTime = clock.getTimef();
 
                 std::cout  << "0x" << std::setw(3) << std::setfill( '0' )
