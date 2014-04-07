@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -611,12 +611,11 @@ bool Config::_connectNodes()
 void Config::_startNodes()
 {
     // start up newly running nodes
-    std::vector< uint32_t > requests;
+    std::vector< lunchbox::Request< void > > requests;
     const Nodes& nodes = getNodes();
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        Node* node = *i;
 
+    BOOST_FOREACH( Node* node, nodes )
+    {
         if( node->isActive() && node->isStopped( ))
         {
             if( !node->isApplicationNode( ))
@@ -628,13 +627,7 @@ void Config::_startNodes()
                       node->getState() == STATE_RUNNING );
         }
     }
-
-    // sync create config requests on starting nodes
-    for( std::vector< uint32_t >::const_iterator i = requests.begin();
-         i != requests.end(); ++i )
-    {
-        getLocalNode()->waitRequest( *i );
-    }
+    // Request dtor waits for finish
 }
 
 void Config::_updateCanvases()
@@ -745,18 +738,18 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
     }
 }
 
-uint32_t Config::_createConfig( Node* node )
+lunchbox::Request< void > Config::_createConfig( Node* node )
 {
     LBASSERT( !node->isApplicationNode( ));
     LBASSERT( node->isActive( ));
 
     // create config on each non-app node
     //   app-node already has config from chooseConfig
-    const uint32_t requestID = getLocalNode()->registerRequest();
-    node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG )
-            << co::ObjectVersion( this ) << requestID;
+    lunchbox::Request< void > request = getLocalNode()->registerRequest<void>();
 
-    return requestID;
+    node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG )
+            << co::ObjectVersion( this ) << request;
+    return request;
 }
 
 void Config::_syncClock()
@@ -1039,14 +1032,14 @@ bool Config::_cmdUpdate( co::ICommand& cmd )
     }
 
     co::LocalNodePtr localNode = getLocalNode();
-    const uint32_t requestID = localNode->registerRequest();
+    lunchbox::Request< void > request = localNode->registerRequest< void >();
 
     send( node, fabric::CMD_CONFIG_UPDATE_VERSION )
-            << getVersion() << versionID << finishID << requestID;
+        << getVersion() << versionID << finishID << request;
 
     _flushAllFrames();
     _finishedFrame.waitEQ( _currentFrame ); // wait for render clients idle
-    localNode->waitRequest( requestID ); // wait for app sync
+    request.wait(); // wait for app sync
     _needsFinish = false;
 
     const bool result = _updateRunning();

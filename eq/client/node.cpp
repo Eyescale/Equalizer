@@ -74,7 +74,8 @@ public:
     co::CommandQueue& getQueue() { return _queue; }
 
 protected:
-    virtual void run();
+    bool init() override { setName( "Xmit" ); return true; }
+    void run() override;
 
 private:
     co::CommandQueue _queue;
@@ -508,8 +509,6 @@ void Node::_flushObjects()
 
 void detail::TransmitThread::run()
 {
-    lunchbox::Thread::setName( std::string( "Trm " ) +
-                               lunchbox::className( _node ));
     while( true )
     {
         co::ICommand command = _queue.pop();

@@ -348,7 +348,7 @@ if(VRPN_name)
   set(FIND_PACKAGES_FOUND "${FIND_PACKAGES_FOUND} VRPN")
   link_directories(${${VRPN_name}_LIBRARY_DIRS})
   if(NOT "${${VRPN_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
-    include_directories(${${VRPN_name}_INCLUDE_DIRS})
+    include_directories(SYSTEM ${${VRPN_name}_INCLUDE_DIRS})
   endif()
 endif()
 
