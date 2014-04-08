@@ -544,6 +544,7 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
             {
                 lunchbox::CompressorChunks chunks;
                 const uint32_t nChunks = header->nChunks;
+                chunks.reserve( nChunks );
 
                 for( uint32_t j = 0; j < nChunks; ++j )
                 {

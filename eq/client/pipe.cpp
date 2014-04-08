@@ -95,7 +95,7 @@ namespace detail
 class RenderThread : public eq::Worker
 {
 public:
-    RenderThread( eq::Pipe* pipe )
+    explicit RenderThread( eq::Pipe* pipe )
         : eq::Worker( co::Global::getCommandQueueLimit( ))
         , _pipe( pipe )
     {}
@@ -121,13 +121,13 @@ private:
 class TransferThread : public co::Worker
 {
 public:
-    TransferThread( const uint32_t index )
+    explicit TransferThread( const uint32_t index )
         : co::Worker( co::Global::getCommandQueueLimit( ))
         , _index( index )
         , _stop( false )
     {}
 
-    virtual bool init()
+    bool init() override
     {
         if( !co::Worker::init( ))
             return false;
@@ -136,7 +136,7 @@ public:
         return true;
     }
 
-    virtual bool stopRunning() { return _stop; }
+    bool stopRunning() override { return _stop; }
     void postStop() { _stop = true; }
 
 private:
@@ -147,7 +147,7 @@ private:
 class Pipe
 {
 public:
-    Pipe( const uint32_t index )
+    explicit Pipe( const uint32_t index )
         : systemPipe( 0 )
         , state( STATE_STOPPED )
         , currentFrame( 0 )

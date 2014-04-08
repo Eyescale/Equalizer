@@ -613,6 +613,7 @@ void Config::_startNodes()
     // start up newly running nodes
     std::vector< lunchbox::Request< void > > requests;
     const Nodes& nodes = getNodes();
+    requests.reserve( nodes.size( ));
 
     BOOST_FOREACH( Node* node, nodes )
     {

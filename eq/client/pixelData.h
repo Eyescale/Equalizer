@@ -87,6 +87,9 @@ struct PixelData : public lunchbox::NonCopyable
     /** The compressed pixel data blocks. @version 1.9.1 */
     lunchbox::CompressorResult compressedData;
 
+    /** The compressor used to produce compressedData. @version 1.0 */
+    uint32_t compressorName;
+
     uint32_t compressorFlags; //!< Flags used for compression. @version 1.0
 };
 };
