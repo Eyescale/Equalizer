@@ -40,6 +40,7 @@ void PixelData::reset()
     pixelSize = 0;
     pixels = 0;
     compressedData = lunchbox::CompressorResult();
+    compressorName = EQ_COMPRESSOR_INVALID;
     compressorFlags = 0;
 }
 

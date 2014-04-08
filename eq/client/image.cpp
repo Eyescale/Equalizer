@@ -848,7 +848,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.pixelSize = pixels.pixelSize;
     memory.pvp       = pixels.pvp;
     memory.state     = Memory::INVALID;
-    memory.compressedData = lunchbox::CompressorResult();
+    memory.compressedData = pixels.compressedData;
     memory.hasAlpha = false;
 
     const EqCompressorInfos& transferrers = _impl->findTransferers( buffer,
@@ -989,7 +989,7 @@ uint32_t Image::getDownloaderName( const Frame::Buffer buffer ) const
 
 void Image::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
-    _impl->getMemory( buffer ).compressedData.compressor = name;
+    _impl->getMemory( buffer ).compressorName = name;
 }
 
 const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
@@ -999,9 +999,9 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     Attachment& attachment = _impl->getAttachment( buffer );
     Memory& memory = attachment.memory;
     if( memory.compressedData.isCompressed() ||
-        memory.compressedData.compressor == EQ_COMPRESSOR_NONE )
+        memory.compressorName == EQ_COMPRESSOR_NONE )
     {
-        LBASSERT( memory.compressedData.compressor != EQ_COMPRESSOR_AUTO );
+        LBASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
         return memory;
     }
 
@@ -1009,9 +1009,9 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
     if( !compressor.isGood() ||
         compressor.getInfo().tokenType != getExternalFormat( buffer ) ||
-        memory.compressedData.compressor == EQ_COMPRESSOR_AUTO )
+        memory.compressorName == EQ_COMPRESSOR_AUTO )
     {
-        if( memory.compressedData.compressor == EQ_COMPRESSOR_AUTO )
+        if( memory.compressorName == EQ_COMPRESSOR_AUTO )
         {
             const uint32_t tokenType = getExternalFormat( buffer );
             const float downloadQuality =
@@ -1023,7 +1023,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         }
         else
             compressor.setup( co::Global::getPluginRegistry(),
-                               memory.compressedData.compressor );
+                              memory.compressorName );
 
         if( !compressor.isGood( ))
         {
