@@ -848,7 +848,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.pixelSize = pixels.pixelSize;
     memory.pvp       = pixels.pvp;
     memory.state     = Memory::INVALID;
-    memory.compressedData = pixels.compressedData;
+    memory.compressedData = lunchbox::CompressorResult();
     memory.hasAlpha = false;
 
     const EqCompressorInfos& transferrers = _impl->findTransferers( buffer,
