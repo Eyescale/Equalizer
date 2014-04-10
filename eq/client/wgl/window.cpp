@@ -32,6 +32,17 @@ namespace eq
 {
 namespace wgl
 {
+
+/** The type of the Win32 device context. */
+enum WGLDCType
+{
+    WGL_DC_NONE,     //!< No device context is set
+    WGL_DC_WINDOW,   //!< The WGL DC belongs to a window
+    WGL_DC_PBUFFER,  //!< The WGL DC belongs to a PBuffer
+    WGL_DC_AFFINITY, //!< The WGL DC is an affinity DC
+    WGL_DC_DISPLAY   //!< The WGL DC is a display DC
+};
+
 namespace detail
 {
 class Window
@@ -48,6 +59,61 @@ public:
         , _wglNVSwapGroup( 0 )
         , _wglPipe( pipe )
     {}
+
+    WGLEWContext* wglewGetContext()
+    {
+        return _wglPipe.wglewGetContext();
+    }
+
+    /**
+     * Set new device context and release the old DC.
+     *
+     * @param dc the new DC.
+     * @param type the type of the new DC.
+     */
+    void setWGLDC( HDC dc, const WGLDCType type )
+    {
+        if( ( type != WGL_DC_NONE && dc == 0 ) ||
+            ( type == WGL_DC_NONE && dc != 0 ))
+        {
+            LBABORT( "Illegal combination of WGL device context and type" );
+            return;
+        }
+
+        switch( _wglDCType )
+        {
+            case WGL_DC_NONE:
+                break;
+
+            case WGL_DC_WINDOW:
+                LBASSERT( _wglWindow );
+                LBASSERT( _wglDC );
+                ReleaseDC( _wglWindow, _wglDC );
+                break;
+
+            case WGL_DC_PBUFFER:
+                LBASSERT( _wglPBuffer );
+                LBASSERT( _wglDC );
+                wglReleasePbufferDCARB( _wglPBuffer, _wglDC );
+                break;
+
+            case WGL_DC_AFFINITY:
+                LBASSERT( _wglDC );
+                wglDeleteDCNV( _wglDC );
+                break;
+
+            case WGL_DC_DISPLAY:
+                LBASSERT( _wglDC );
+                DeleteDC( _wglDC );
+                break;
+
+            default:
+                LBUNIMPLEMENTED;
+        }
+
+        _wglDC     = dc;
+        _wglDCType = type;
+    }
 
     HWND          _wglWindow;
     HPBUFFERARB   _wglPBuffer;
@@ -86,7 +152,9 @@ void Window::makeCurrent( const bool cache ) const
     LBCHECK( wglMakeCurrent( _impl->_wglDC, _impl->_wglContext ));
     WindowIF::makeCurrent();
     if( _impl->_wglContext )
+    {
         EQ_GL_ERROR( "After wglMakeCurrent" );
+    }
 }
 
 void Window::swapBuffers()
@@ -109,13 +177,13 @@ void Window::setWGLWindowHandle( HWND handle )
 
     if( !handle )
     {
-        setWGLDC( 0, WGL_DC_NONE );
+        _impl->setWGLDC( 0, WGL_DC_NONE );
         _impl->_wglWindow = 0;
         return;
     }
 
     _impl->_wglWindow = handle;
-    setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
+    _impl->setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
 
     if( getIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE ) == OFF )
         return;
@@ -143,13 +211,13 @@ void Window::setWGLPBufferHandle( HPBUFFERARB handle )
 
     if( !handle )
     {
-        setWGLDC( 0, WGL_DC_NONE );
+        _impl->setWGLDC( 0, WGL_DC_NONE );
         _impl->_wglPBuffer = 0;
         return;
     }
 
     _impl->_wglPBuffer = handle;
-    setWGLDC( wglGetPbufferDCARB( handle ), WGL_DC_PBUFFER );
+    _impl->setWGLDC( wglGetPbufferDCARB( handle ), WGL_DC_PBUFFER );
 
     // query pixel viewport of PBuffer
     int w,h;
@@ -162,48 +230,29 @@ void Window::setWGLPBufferHandle( HPBUFFERARB handle )
     setPixelViewport( pvp );
 }
 
-void Window::setWGLDC( HDC dc, const WGLDCType type )
+HWND Window::getWGLWindowHandle() const
 {
-    if( ( type != WGL_DC_NONE && dc == 0 ) ||
-        ( type == WGL_DC_NONE && dc != 0 ))
-    {
-        LBABORT( "Illegal combination of WGL device context and type" );
-        return;
-    }
+    return _impl->_wglWindow;
+}
 
-    switch( _impl->_wglDCType )
-    {
-        case WGL_DC_NONE:
-            break;
+HPBUFFERARB Window::getWGLPBufferHandle() const
+{
+    return _impl->_wglPBuffer;
+}
 
-        case WGL_DC_WINDOW:
-            LBASSERT( _impl->_wglWindow );
-            LBASSERT( _impl->_wglDC );
-            ReleaseDC( _impl->_wglWindow, _impl->_wglDC );
-            break;
+HDC Window::getWGLDC() const
+{
+    return _impl->_wglDC;
+}
 
-        case WGL_DC_PBUFFER:
-            LBASSERT( _impl->_wglPBuffer );
-            LBASSERT( _impl->_wglDC );
-            wglReleasePbufferDCARB( _impl->_wglPBuffer, _impl->_wglDC );
-            break;
+HGLRC Window::getWGLContext() const
+{
+    return _impl->_wglContext;
+}
 
-        case WGL_DC_AFFINITY:
-            LBASSERT( _impl->_wglDC );
-            wglDeleteDCNV( _impl->_wglDC );
-            break;
-
-        case WGL_DC_DISPLAY:
-            LBASSERT( _impl->_wglDC );
-            DeleteDC( _impl->_wglDC );
-            break;
-
-        default:
-            LBUNIMPLEMENTED;
-    }
-
-    _impl->_wglDC     = dc;
-    _impl->_wglDCType = type;
+const EventHandler* Window::getWGLEventHandler() const
+{
+    return _impl->_wglEventHandler;
 }
 
 //---------------------------------------------------------------------------
@@ -233,7 +282,7 @@ bool Window::configInit()
     if( !_impl->_wglDC )
     {
         exitWGLAffinityDC();
-        setWGLDC( 0, WGL_DC_NONE );
+        _impl->setWGLDC( 0, WGL_DC_NONE );
         sendError( ERROR_WGLWINDOW_NO_DRAWABLE );
         return false;
     }
@@ -283,7 +332,7 @@ bool Window::configInitWGLFBO( int pixelFormat )
     {
         // move affinity DC to be our main DC
         // deletion is now taken care of by setWGLDC( 0 )
-        setWGLDC( _impl->_wglAffinityDC, WGL_DC_AFFINITY );
+        _impl->setWGLDC( _impl->_wglAffinityDC, WGL_DC_AFFINITY );
         _impl->_wglAffinityDC = 0;
     }
     else // no affinity, use window DC
@@ -297,7 +346,7 @@ bool Window::configInitWGLFBO( int pixelFormat )
         if( !dc )
             return false;
 
-        setWGLDC( dc, WGL_DC_WINDOW );
+        _impl->setWGLDC( dc, WGL_DC_WINDOW );
     }
 
     PIXELFORMATDESCRIPTOR pfd = {0};
@@ -520,7 +569,7 @@ void Window::configExit( )
     HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
     exitWGLAffinityDC();
-    setWGLDC( 0, WGL_DC_NONE );
+    _impl->setWGLDC( 0, WGL_DC_NONE );
     setWGLContext( 0 );
     setWGLWindowHandle( 0 );
     setWGLPBufferHandle( 0 );
@@ -997,7 +1046,7 @@ void Window::leaveNVSwapBarrier()
 
 WGLEWContext* Window::wglewGetContext()
 {
-    return _impl->_wglPipe.wglewGetContext();
+    return _impl->wglewGetContext();
 }
 
 }

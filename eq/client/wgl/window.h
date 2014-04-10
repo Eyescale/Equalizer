@@ -110,23 +110,22 @@ public:
     EQ_API virtual void setWGLPBufferHandle( HPBUFFERARB handle );
 
     /** @return the Win32 window handle. @version 1.0 */
-    virtual HWND getWGLWindowHandle() const { return _wglWindow; }
+    EQ_API virtual HWND getWGLWindowHandle() const;
 
     /** @return the Win32 off screen PBuffer handle. @version 1.0 */
-    virtual HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
+    EQ_API virtual HPBUFFERARB getWGLPBufferHandle() const;
 
     /**
      * @return the Win32 device context used for the current drawable.
      * @version 1.0
      */
-    virtual HDC getWGLDC() const { return _wglDC; }
+    EQ_API virtual HDC getWGLDC() const;
 
     /** @return the WGL rendering context. @version 1.0 */
-    virtual HGLRC getWGLContext() const { return _wglContext; }
+    EQ_API virtual HGLRC getWGLContext() const;
 
     /** @return the WGL event handler. @version 1.0 */
-    const EventHandler* getWGLEventHandler() const
-        { return _wglEventHandler; }
+    EQ_API const EventHandler* getWGLEventHandler() const;
     //@}
 
     /** @name WGL/Win32 initialization */
@@ -267,24 +266,6 @@ public:
     //@}
 
 protected:
-    /** The type of the Win32 device context. */
-    enum WGLDCType
-    {
-        WGL_DC_NONE,     //!< No device context is set
-        WGL_DC_WINDOW,   //!< The WGL DC belongs to a window
-        WGL_DC_PBUFFER,  //!< The WGL DC belongs to a PBuffer
-        WGL_DC_AFFINITY, //!< The WGL DC is an affinity DC
-        WGL_DC_DISPLAY   //!< The WGL DC is a display DC
-    };
-
-    /**
-     * Set new device context and release the old DC.
-     *
-     * @param dc the new DC.
-     * @param type the type of the new DC.
-     */
-    void setWGLDC( HDC dc, const WGLDCType type );
-
     /** @return the generic WGL function table for the window's pipe. */
     EQ_API WGLEWContext* wglewGetContext();
 
