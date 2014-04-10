@@ -50,7 +50,7 @@ public:
     PLYLIB_API void setupTree( VertexData& data );
     PLYLIB_API bool writeToFile( const std::string& filename );
     PLYLIB_API bool readFromFile( const std::string& filename );
-    bool hasColors() const { return _data.colors.size() > 0; }
+    bool hasColors() const { return !_data.colors.empty(); }
 
     void useInvertedFaces() { _invertFaces = true; }
 
