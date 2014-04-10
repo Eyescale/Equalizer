@@ -99,7 +99,7 @@ Config* Server::chooseConfig( const fabric::ConfigParams& p )
     while( !request.isReady( ))
         getClient()->processCommand();
 
-    return static_cast< Config* >( request.get( ));
+    return static_cast< Config* >( request.wait( ));
 }
 
 void Server::releaseConfig( Config* config )
@@ -126,7 +126,7 @@ bool Server::shutdown()
     while( !request.isReady( ))
         getClient()->processCommand();
 
-    if( !request.get( ))
+    if( !request.wait( ))
         return false;
 
     static_cast< co::LocalNode& >( *getClient( )).disconnect( this );

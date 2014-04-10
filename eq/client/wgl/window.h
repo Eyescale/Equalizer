@@ -27,6 +27,8 @@ namespace eq
 {
 namespace wgl
 {
+namespace detail { class Window; }
+
 /** The interface defining the minimum functionality for a WGL window. */
 class WindowIF : public GLWindow
 {
@@ -58,10 +60,6 @@ public:
 
     /** Process the given event. @version 1.0 */
     EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
-
-private:
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
 };
 
 /** Equalizer default implementation of a WGL window */
@@ -291,24 +289,7 @@ protected:
     EQ_API WGLEWContext* wglewGetContext();
 
 private:
-
-    HWND             _wglWindow;
-    HPBUFFERARB      _wglPBuffer;
-    HGLRC            _wglContext;
-
-    HDC              _wglDC;
-    WGLDCType        _wglDCType;
-    HDC              _wglAffinityDC;
-
-    EventHandler* _wglEventHandler;
-    BOOL          _screenSaverActive;
-
-    uint32_t         _wglNVSwapGroup;
-
-    Pipe& _wglPipe;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    detail::Window* const _impl;
 
     /** Create an unmapped WGL window. */
     HWND _createWGLWindow( const PixelViewport& pvp );

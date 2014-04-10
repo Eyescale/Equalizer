@@ -217,7 +217,7 @@ Object::commitChild( C* child, S* sender, uint32_t cmd,
         co::NodePtr node = child->getServer().get();
         sender->send( node, cmd ) << request;
 
-        LBCHECK( localNode->mapObject( child, request.get(),
+        LBCHECK( localNode->mapObject( child, request.wait(),
                                        co::VERSION_NONE ));
     }
     child->commit( incarnation );

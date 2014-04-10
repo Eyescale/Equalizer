@@ -64,10 +64,6 @@ public:
     /** Process the given event. @version 1.0 */
     EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
 #  pragma clang diagnostic pop
-
-private:
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
 };
 
 /** Equalizer default implementation of an AGL window interface. */
