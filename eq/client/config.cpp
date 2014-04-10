@@ -297,7 +297,7 @@ bool Config::init( const uint128_t& initID )
     while( !request.isReady( ))
         client->processCommand();
 
-    _impl->running = request.get();
+    _impl->running = request.wait();
     localNode->enableSendOnRegister();
 
     handleEvents();
@@ -321,7 +321,7 @@ bool Config::exit()
     ClientPtr client = getClient();
     while( !request.isReady( ))
         client->processCommand();
-    bool ret = request.get();
+    bool ret = request.wait();
 
     detail::ExitVisitor exitVisitor;
     if( accept( exitVisitor ) == TRAVERSE_TERMINATE )
@@ -351,8 +351,8 @@ bool Config::update()
             << reqVersion << reqFinish << request;
 
     // wait for new version
-    const uint128_t& version = reqVersion.get();
-    const uint32_t finishID = reqFinish.get();
+    const uint128_t& version = reqVersion.wait();
+    const uint32_t finishID = reqFinish.wait();
 
     if( finishID == LB_UNDEFINED_UINT32 )
     {
@@ -372,7 +372,7 @@ bool Config::update()
     while( !request.isReady( ))
         client->processCommand();
 
-    const bool result = request.get();
+    const bool result = request.wait();
     client->enableSendOnRegister();
 #ifdef EQUALIZER_USE_GLSTATS
     _impl->statistics->clear();
