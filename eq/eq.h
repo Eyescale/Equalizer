@@ -24,6 +24,7 @@
 #  include <eq/util/base.h>
 #  include <eq/fabric/base.h>
 #  include <co/co.h>
+#  include <lunchbox/lunchbox.h>
 #pragma warning(pop)
 
 #endif // EQ_H
