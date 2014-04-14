@@ -25,6 +25,9 @@
     SetEnvironmentVariable( name, value )
 #endif
 
+const uint32_t sleepTime = 2000; // ms
+const uint32_t overheadTime = 400; // ms; time to init, exit, process, ...
+
 class Renderer : public seq::Renderer
 {
 public:
@@ -34,7 +37,7 @@ public:
 protected:
     virtual void draw( co::Object* )
     {
-        lunchbox::sleep( 20000 );
+        lunchbox::sleep( sleepTime );
         getApplication().stopRunning();
     }
 };
@@ -66,6 +69,6 @@ int main( const int argc, char** argv )
     TEST( app->run( 0 ));
     TEST( app->exit( ));
 
-    TEST( clock.getTime64() > 22000 );
+    TEST( clock.getTime64() > sleepTime + overheadTime );
     return EXIT_SUCCESS;
 }
