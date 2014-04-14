@@ -24,8 +24,6 @@ option(EQUALIZER_BUILD_2_0_API
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
-include(GitInfo)
-
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(LAST_RELEASE 1.6.0)
 set(VERSION_MAJOR "1")
