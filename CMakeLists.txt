@@ -5,13 +5,12 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake/common)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
+  ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
-include(Common)
-
 include(Buildyard)
+
 if(BUILDYARD_STOP)
   return()
 endif()
@@ -48,6 +47,7 @@ else()
   list(APPEND FIND_PACKAGES_DEFINES EQ_1_0_API)
 endif()
 
+include(Common)
 include(GitTargets)
 include(configure)
 include(UpdateFile)
