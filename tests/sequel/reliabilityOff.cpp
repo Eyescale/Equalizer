@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,7 @@
     SetEnvironmentVariable( name, value )
 #endif
 
+#ifdef EQUALIZER_USE_HWSD
 class Renderer : public seq::Renderer
 {
 public:
@@ -69,3 +70,12 @@ int main( const int argc, char** argv )
     TEST( clock.getTime64() > 22000 );
     return EXIT_SUCCESS;
 }
+
+#else
+
+int main( const int, char** )
+{
+    return EXIT_SUCCESS;
+}
+
+#endif
