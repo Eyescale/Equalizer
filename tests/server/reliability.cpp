@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #include <eq/eq.h>
 #include <eq/server/global.h>
 
+#ifdef EQUALIZER_USE_HWSD
 lunchbox::a_int32_t drawCalls;
 lunchbox::a_int32_t readbackCalls;
 lunchbox::a_int32_t assembleCalls;
@@ -228,3 +229,12 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     server->releaseConfig( config );
     client->disconnectServer( server );
 }
+
+#else
+
+int main( const int, char** )
+{
+    return EXIT_SUCCESS;
+}
+
+#endif
