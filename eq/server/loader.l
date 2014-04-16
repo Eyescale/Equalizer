@@ -38,6 +38,7 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma clang diagnostic ignored "-Wsign-compare"
 #pragma clang diagnostic ignored "-Wnull-conversion"
+#pragma clang diagnostic ignored "-Wdeprecated"
 #pragma clang diagnostic ignored "-Wdeprecated-register"
 
 int yylineno = 0;

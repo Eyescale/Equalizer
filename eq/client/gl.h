@@ -79,7 +79,7 @@ EQ_API std::string glError( const GLenum error );
 }
 
 #ifdef NDEBUG
-#  define EQ_GL_ERROR( when )
+#  define EQ_GL_ERROR( when ) {}
 #  define EQ_GL_CALL( code ) { code; }
 #else // NDEBUG
 #  define EQ_GL_ERROR( when )                                           \

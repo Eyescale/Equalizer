@@ -62,24 +62,22 @@ void Server::map()
 {
     ClientPtr client = getClient();
 
-    const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_MAP ) << requestID;
+    const lunchbox::Request< void >& request = client->registerRequest<void>();
+    send( fabric::CMD_SERVER_MAP ) << request.getID();
 
-    while( !client->isRequestServed( requestID ))
+    while( !request.isReady( ))
         client->processCommand();
-    client->waitRequest( requestID );
 }
 
 void Server::unmap()
 {
     ClientPtr client = getClient();
 
-    const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_UNMAP ) << requestID;
+    const lunchbox::Request< void >& request = client->registerRequest<void>();
+    send( fabric::CMD_SERVER_UNMAP ) << request;
 
-    while( !client->isRequestServed( requestID ))
+    while( !request.isReady( ))
         client->processCommand();
-    client->waitRequest( requestID );
 }
 
 void Server::syncConfig( const co::uint128_t& configID,

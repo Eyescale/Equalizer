@@ -92,30 +92,26 @@ Config* Server::chooseConfig( const fabric::ConfigParams& p )
     if( params.getRenderClient().empty( ))
         LBWARN << "No render client in ConfigParams specified" << std::endl;
 
-    const uint32_t requestID =  client->registerRequest();
-
+    lunchbox::Request< void* > request = client->registerRequest< void* >();
     send( fabric::CMD_SERVER_CHOOSE_CONFIG )
-        << requestID << params << eq::Global::getConfigFile();
+        << request << params << eq::Global::getConfigFile();
 
-    while( !client->isRequestServed( requestID ))
+    while( !request.isReady( ))
         getClient()->processCommand();
 
-    void* ptr = 0;
-    client->waitRequest( requestID, ptr );
-    return static_cast<Config*>( ptr );
+    return static_cast< Config* >( request.wait( ));
 }
 
 void Server::releaseConfig( Config* config )
 {
     LBASSERT( isConnected( ));
     ClientPtr client = getClient();
-    const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_RELEASE_CONFIG ) << config->getID() << requestID;
 
-    while( !client->isRequestServed( requestID ))
+    lunchbox::Request< void > request = client->registerRequest< void >();
+    send( fabric::CMD_SERVER_RELEASE_CONFIG ) << config->getID() << request;
+
+    while( !request.isReady( ))
         client->processCommand();
-
-    client->waitRequest( requestID );
 }
 
 bool Server::shutdown()
@@ -124,19 +120,17 @@ bool Server::shutdown()
         return false;
 
     ClientPtr client = getClient();
-    const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_SHUTDOWN ) << requestID;
+    lunchbox::Request< bool > request = client->registerRequest< bool >();
+    send( fabric::CMD_SERVER_SHUTDOWN ) << request;
 
-    while( !client->isRequestServed( requestID ))
+    while( !request.isReady( ))
         getClient()->processCommand();
 
-    bool result = false;
-    client->waitRequest( requestID, result );
+    if( !request.wait( ))
+        return false;
 
-    if( result )
-        static_cast< co::LocalNode& >( *getClient( )).disconnect( this );
-
-    return result;
+    static_cast< co::LocalNode& >( *getClient( )).disconnect( this );
+    return true;
 }
 
 //---------------------------------------------------------------------------

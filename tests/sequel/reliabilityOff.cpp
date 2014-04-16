@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,7 @@
     SetEnvironmentVariable( name, value )
 #endif
 
+#ifdef EQUALIZER_USE_HWSD
 const uint32_t sleepTime = 2000; // ms
 const uint32_t overheadTime = 400; // ms; time to init, exit, process, ...
 
@@ -72,3 +73,12 @@ int main( const int argc, char** argv )
     TEST( clock.getTime64() > sleepTime + overheadTime );
     return EXIT_SUCCESS;
 }
+
+#else
+
+int main( const int, char** )
+{
+    return EXIT_SUCCESS;
+}
+
+#endif

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,7 @@
     SetEnvironmentVariable( name, value )
 #endif
 
+#ifdef EQUALIZER_USE_HWSD
 #define LOOPS 5
 #define LOOPTIME 200 // ms
 
@@ -78,3 +79,12 @@ int main( const int argc, char** argv )
     eq::exit();
     return EXIT_SUCCESS;
 }
+
+#else
+
+int main( const int, char** )
+{
+    return EXIT_SUCCESS;
+}
+
+#endif

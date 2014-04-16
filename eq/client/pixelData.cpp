@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -39,11 +39,9 @@ void PixelData::reset()
     externalFormat = EQ_COMPRESSOR_DATATYPE_NONE;
     pixelSize = 0;
     pixels = 0;
+    compressedData = lunchbox::CompressorResult();
     compressorName = EQ_COMPRESSOR_INVALID;
     compressorFlags = 0;
-    isCompressed = false;
-    compressedSize.clear();
-    compressedData.clear();
 }
 
 }

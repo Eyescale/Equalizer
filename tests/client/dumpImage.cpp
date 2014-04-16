@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,6 +29,7 @@
     SetEnvironmentVariable( name, value )
 #endif
 
+#ifdef EQUALIZER_USE_HWSD
 static const unsigned int WIDTH = 200;
 static const unsigned int HEIGHT = 100;
 static const unsigned int BYTES_PER_PIXEL = 1;
@@ -120,3 +122,12 @@ int main( const int argc, char** argv )
 
     return EXIT_SUCCESS;
 }
+
+#else
+
+int main( const int, char** )
+{
+    return EXIT_SUCCESS;
+}
+
+#endif
