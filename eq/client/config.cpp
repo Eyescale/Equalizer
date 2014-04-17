@@ -358,6 +358,7 @@ bool Config::update()
     {
         sync( version );
         client->unregisterRequest( request.getID( ));
+        request.relinquish();
         handleEvents();
         return true;
     }

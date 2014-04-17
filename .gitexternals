@@ -1,5 +1,2 @@
 # -*- mode: cmake -*-
-include(GitExternal)
-git_external_manage(${CMAKE_CURRENT_LIST_FILE})
-#-> CMake/common https://github.com/Eyescale/CMake.git a26c94b
-
+# CMake/common https://github.com/Eyescale/CMake.git 182dd65

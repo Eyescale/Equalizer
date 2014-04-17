@@ -469,7 +469,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
 
 void ROIFinder::_findAreas( PixelViewports& resultPVPs )
 {
-    LBASSERT( _areasToCheck.size() == 0 );
+    LBASSERT( _areasToCheck.empty() );
 
     Area area( PixelViewport( 0, 0, _w, _h ));
     area.pvp  = _getObjectPVP( area.pvp, &_mask[0] );
@@ -485,7 +485,7 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
         _areasToCheck.push_back( area );
 
     // try to split areas
-    while( _areasToCheck.size() > 0 )
+    while( !_areasToCheck.empty() )
     {
         Area curArea = _areasToCheck.back();
         _areasToCheck.pop_back();
