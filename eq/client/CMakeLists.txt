@@ -17,7 +17,7 @@ include(../util/files.cmake)
 include(compressor/files.cmake)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h
-  ${OUTPUT_INCLUDE_DIR}/eq/client/version.h)
+  ${OUTPUT_INCLUDE_DIR}/eq/client/version.h @ONLY)
 
 add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
