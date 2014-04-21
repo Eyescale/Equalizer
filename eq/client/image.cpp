@@ -1287,7 +1287,11 @@ bool Image::writeImage( const std::string& filename,
 
     const boost::filesystem::path path( filename );
     const std::string smallFilename = path.parent_path().string() + "/s_" +
+#if BOOST_FILESYSTEM_VERSION == 3
                                       path.filename().string();
+#else
+                                      path.filename();
+#endif
     image.open( smallFilename.c_str(), std::ios::out | std::ios::binary );
     if( !image.is_open( ))
     {
