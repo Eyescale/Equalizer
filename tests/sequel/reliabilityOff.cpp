@@ -26,8 +26,6 @@
 #endif
 
 #ifdef EQUALIZER_USE_HWSD
-const uint32_t sleepTime = 2000; // ms
-const uint32_t overheadTime = 400; // ms; time to init, exit, process, ...
 
 class Renderer : public seq::Renderer
 {
