@@ -50,7 +50,8 @@ bool Pipe::configInit()
 
     if( device != LB_UNDEFINED_UINT32 )
     {
-        CGDirectDisplayID displayIDs[device+1];
+        CGDirectDisplayID *displayIDs = static_cast< CGDirectDisplayID* >(
+            alloca( (device+1) * sizeof( displayIDs )));
         CGDisplayCount    nDisplays;
 
         if( CGGetOnlineDisplayList( device+1, displayIDs, &nDisplays ) !=
