@@ -422,10 +422,10 @@ class StopNodesVisitor : public ServerVisitor
 public:
     virtual ~StopNodesVisitor() {}
     virtual VisitorResult visitPre( Node* node )
-        {
-            node->dirtyClientExit();
-            return TRAVERSE_CONTINUE;
-        }
+    {
+        node->dirtyClientExit();
+        return TRAVERSE_CONTINUE;
+    }
 };
 }
 

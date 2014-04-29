@@ -137,10 +137,10 @@ private:
     detail::Client* const _impl;
 
     /** @sa co::LocalNode::createNode */
-    EQ_API virtual co::NodePtr createNode( const uint32_t type );
+    EQ_API co::NodePtr createNode( const uint32_t type ) override;
 
     /** @internal */
-    EQ_API virtual void notifyDisconnect( co::NodePtr node );
+    EQ_API void notifyDisconnect( co::NodePtr node ) override;
 
     bool _setupClient( const std::string& clientArgs );
 
