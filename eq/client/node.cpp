@@ -65,30 +65,28 @@ namespace detail
 class TransmitThread : public lunchbox::Thread
 {
 public:
-    TransmitThread( eq::Node* parent )
+    TransmitThread()
         : _queue( co::Global::getCommandQueueLimit( ))
-        , _node( parent )
     {}
     virtual ~TransmitThread() {}
 
     co::CommandQueue& getQueue() { return _queue; }
 
 protected:
-    virtual void run();
+    bool init() override { setName( "Xmit" ); return true; }
+    void run() override;
 
 private:
     co::CommandQueue _queue;
-    eq::Node* const _node;
 };
 
 class Node
 {
 public:
-    Node( eq::Node* parent )
+    Node()
         : state( STATE_STOPPED )
         , finishedFrame( 0 )
         , unlockedFrame( 0 )
-        , transmitter( parent )
     {}
 
     /** The configInit/configExit state. */
@@ -120,12 +118,8 @@ typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 /** @endcond */
 
 Node::Node( Config* parent )
-        : Super( parent )
-#pragma warning(push)
-#pragma warning(disable: 4355)
-        , _impl( new detail::Node( this ))
-#pragma warning(pop)
-
+    : Super( parent )
+    , _impl( new detail::Node )
 {
 }
 
@@ -508,8 +502,6 @@ void Node::_flushObjects()
 
 void detail::TransmitThread::run()
 {
-    lunchbox::Thread::setName( std::string( "Trm " ) +
-                               lunchbox::className( _node ));
     while( true )
     {
         co::ICommand command = _queue.pop();

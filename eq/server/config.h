@@ -249,7 +249,7 @@ namespace server
         bool _connectNode( Node* node );
         bool _syncConnectNode( Node* node, const lunchbox::Clock& clock );
         void _startNodes();
-        uint32_t _createConfig( Node* node );
+        lunchbox::Request< void > _createConfig( Node* node );
         bool _updateNodes();
         void _stopNodes();
         template< class T >

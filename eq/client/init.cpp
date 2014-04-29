@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -30,13 +30,13 @@
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
-#include <lunchbox/file.h>
 #include <lunchbox/pluginRegistry.h>
 
 #ifdef _WIN32
 #pragma warning( push )
 #pragma warning( disable : 4275 4251 )
 #endif
+#include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -290,8 +290,10 @@ bool _parseArguments( const int argc, char** argv )
     if( vm.count( EQ_CLIENT ))
     {
         const std::string& renderClient = vm[EQ_CLIENT].as< std::string >();
+        const boost::filesystem::path path( renderClient );
+
         Global::setProgramName( renderClient );
-        Global::setWorkDir( lunchbox::getDirname( renderClient ));
+        Global::setWorkDir( path.parent_path().string( ));
     }
 
     return true;

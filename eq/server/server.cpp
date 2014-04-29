@@ -97,7 +97,7 @@ Server::~Server()
 
 void Server::init()
 {
-    lunchbox::Thread::setName( lunchbox::className( this ));
+    lunchbox::Thread::setName( "Server" );
     LBASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
@@ -284,10 +284,10 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
         config->exit(); // Make sure config is exited
     }
 
-    const uint32_t destroyRequestID = registerRequest();
+    lunchbox::Request< void > request = registerRequest< void >();
     node->send( fabric::CMD_SERVER_DESTROY_CONFIG )
-            << config->getID() << destroyRequestID;
-    waitRequest( destroyRequestID );
+        << config->getID() << request;
+    request.wait();
 
 #ifdef EQUALIZER_USE_HWSD
     if( config->isAutoConfig( ))

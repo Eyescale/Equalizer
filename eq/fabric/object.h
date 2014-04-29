@@ -212,14 +212,13 @@ Object::commitChild( C* child, S* sender, uint32_t cmd,
     {
         LBASSERT( !isMaster( ));
         co::LocalNodePtr localNode = child->getConfig()->getLocalNode();
-        const uint32_t requestID = localNode->registerRequest();
-
+        lunchbox::Request< uint128_t > request =
+            localNode->registerRequest< uint128_t >();
         co::NodePtr node = child->getServer().get();
-        sender->send( node, cmd ) << requestID;
+        sender->send( node, cmd ) << request;
 
-        uint128_t identifier;
-        localNode->waitRequest( requestID, identifier );
-        LBCHECK( localNode->mapObject( child, identifier, co::VERSION_NONE ));
+        LBCHECK( localNode->mapObject( child, request.wait(),
+                                       co::VERSION_NONE ));
     }
     child->commit( incarnation );
 }

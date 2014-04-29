@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,6 +24,7 @@
 #include <eq/client/init.h>
 #include <lunchbox/file.h>
 #include <lunchbox/memoryMap.h>
+#include <boost/filesystem.hpp>
 
 int main( int argc, char **argv )
 {
@@ -48,8 +49,9 @@ int main( int argc, char **argv )
     for( eq::Strings::const_iterator i = images.begin(); i != images.end(); ++i)
     {
         const std::string& inFilename = *i;
-        const std::string outFilename = lunchbox::getDirname( inFilename ) +
-            "/out_" + lunchbox::getFilename( inFilename );
+        const boost::filesystem::path path( inFilename );
+        const std::string outFilename = path.parent_path().string() + "/out_" +
+                                        path.filename().string();
 
         TEST( image.readImage( inFilename, eq::Frame::BUFFER_COLOR ));
         TEST( image.writeImage( outFilename, eq::Frame::BUFFER_COLOR ));

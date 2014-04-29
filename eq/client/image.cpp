@@ -31,15 +31,16 @@
 
 #include <co/global.h>
 
+#include <lunchbox/buffer.h>
 #include <lunchbox/compressor.h>
 #include <lunchbox/decompressor.h>
 #include <lunchbox/downloader.h>
-#include <lunchbox/file.h>
 #include <lunchbox/memoryMap.h>
 #include <lunchbox/omp.h>
 #include <lunchbox/pluginRegistry.h>
 #include <lunchbox/uploader.h>
 
+#include <boost/filesystem.hpp>
 #include <fstream>
 
 #ifdef _WIN32
@@ -403,8 +404,8 @@ void Image::setAlphaUsage( const bool enabled )
         return;
 
     _impl->ignoreAlpha = !enabled;
-    _impl->color.memory.isCompressed = false;
-    _impl->depth.memory.isCompressed = false;
+    _impl->color.memory.compressedData = lunchbox::CompressorResult();
+    _impl->depth.memory.compressedData = lunchbox::CompressorResult();
 }
 
 void Image::setQuality( const Frame::Buffer buffer, const float quality )
@@ -543,7 +544,7 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager& glObjects )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
-    attachment.memory.isCompressed = false;
+    attachment.memory.compressedData = lunchbox::CompressorResult();
 
     if( _impl->type == Frame::TYPE_TEXTURE )
     {
@@ -788,8 +789,8 @@ void Image::setPixelViewport( const PixelViewport& pvp )
     _impl->pvp = pvp;
     _impl->color.memory.state = Memory::INVALID;
     _impl->depth.memory.state = Memory::INVALID;
-    _impl->color.memory.isCompressed = false;
-    _impl->depth.memory.isCompressed = false;
+    _impl->color.memory.compressedData = lunchbox::CompressorResult();
+    _impl->depth.memory.compressedData = lunchbox::CompressorResult();
 }
 
 void Image::clearPixelData( const Frame::Buffer buffer )
@@ -836,7 +837,7 @@ void Image::validatePixelData( const Frame::Buffer buffer )
     Memory& memory = _impl->getAttachment( buffer ).memory;
     memory.useLocalBuffer();
     memory.state = Memory::VALID;
-    memory.isCompressed = false;
+    memory.compressedData = lunchbox::CompressorResult();
 }
 
 void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
@@ -847,7 +848,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.pixelSize = pixels.pixelSize;
     memory.pvp       = pixels.pvp;
     memory.state     = Memory::INVALID;
-    memory.isCompressed = false;
+    memory.compressedData = lunchbox::CompressorResult();
     memory.hasAlpha = false;
 
     const EqCompressorInfos& transferrers = _impl->findTransferers( buffer,
@@ -875,7 +876,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( size == 0 )
         return;
 
-    if( pixels.compressorName <= EQ_COMPRESSOR_NONE )
+    if( pixels.compressedData.compressor <= EQ_COMPRESSOR_NONE )
     {
         validatePixelData( buffer ); // alloc memory for pixels
 
@@ -891,21 +892,22 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    LBASSERT( !pixels.compressedData.empty( ));
-    LBASSERT( pixels.compressorName != EQ_COMPRESSOR_AUTO );
+    LBASSERT( !pixels.compressedData.chunks.empty( ));
+    LBASSERT( pixels.compressedData.compressor != EQ_COMPRESSOR_AUTO );
 
     Attachment& attachment = _impl->getAttachment( buffer );
     if( !attachment.decompressor->setup( co::Global::getPluginRegistry(),
-                                         pixels.compressorName ))
+                                         pixels.compressedData.compressor ))
     {
         LBASSERTINFO( false,
-                      "Can't allocate decompressor " << pixels.compressorName <<
-                      ", mismatched compressor plugin installation?" );
+                      "Can't allocate decompressor " <<
+                      pixels.compressedData.compressor <<
+                      ", mismatched compression plugin installation?" );
         return;
     }
 
     const EqCompressorInfo& info = attachment.decompressor->getInfo();
-    LBASSERTINFO( info.name == pixels.compressorName, info );
+    LBASSERTINFO( info.name == pixels.compressedData.compressor, info );
 
     if( memory.externalFormat != info.outputTokenType )
     {
@@ -917,13 +919,9 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     uint64_t outDims[4];
     memory.pvp.convertToPlugin( outDims );
-    const uint64_t nBlocks = pixels.compressedSize.size();
 
-    LBASSERT( nBlocks == pixels.compressedData.size( ));
-    attachment.decompressor->decompress( &pixels.compressedData.front(),
-                                         &pixels.compressedSize.front(),
-                                         nBlocks, memory.pixels, outDims,
-                                         pixels.compressorFlags );
+    attachment.decompressor->decompress( pixels.compressedData, memory.pixels,
+                                         outDims, pixels.compressorFlags );
 }
 
 /** Find and activate a compression engine */
@@ -933,7 +931,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     lunchbox::Compressor& compressor = attachment.compressor[attachment.active];
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        attachment.memory.isCompressed = false;
+        attachment.memory.compressedData = lunchbox::CompressorResult();
         compressor.clear();
         return true;
     }
@@ -941,7 +939,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     if( compressor.uses( name ))
         return true;
 
-    attachment.memory.isCompressed = false;
+    attachment.memory.compressedData = lunchbox::CompressorResult();
     compressor.setup( co::Global::getPluginRegistry(), name );
     LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
@@ -1000,7 +998,8 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
     Attachment& attachment = _impl->getAttachment( buffer );
     Memory& memory = attachment.memory;
-    if( memory.isCompressed || memory.compressorName == EQ_COMPRESSOR_NONE )
+    if( memory.compressedData.isCompressed() ||
+        memory.compressorName == EQ_COMPRESSOR_NONE )
     {
         LBASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
         return memory;
@@ -1024,7 +1023,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         }
         else
             compressor.setup( co::Global::getPluginRegistry(),
-                               memory.compressorName );
+                              memory.compressorName );
 
         if( !compressor.isGood( ))
         {
@@ -1034,10 +1033,10 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         }
     }
 
-    memory.compressorName = compressor.getInfo().name;
-    LBASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
-    LBASSERT( memory.compressorName != EQ_COMPRESSOR_INVALID );
-    if( memory.compressorName == EQ_COMPRESSOR_NONE )
+    memory.compressedData.compressor = compressor.getInfo().name;
+    LBASSERT( memory.compressedData.compressor != EQ_COMPRESSOR_AUTO );
+    LBASSERT( memory.compressedData.compressor != EQ_COMPRESSOR_INVALID );
+    if( memory.compressedData.compressor == EQ_COMPRESSOR_NONE )
         return memory;
 
     memory.compressorFlags = EQ_COMPRESSOR_DATA_2D;
@@ -1050,15 +1049,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     uint64_t inDims[4];
     memory.pvp.convertToPlugin( inDims );
     compressor.compress( memory.pixels, inDims, memory.compressorFlags );
-
-    const unsigned numResults = compressor.getNumResults();
-    memory.compressedSize.resize( numResults );
-    memory.compressedData.resize( numResults );
-
-    for( unsigned i = 0; i < numResults ; ++i )
-        compressor.getResult( i, &memory.compressedData[i],
-                              &memory.compressedSize[i] );
-    memory.isCompressed = true;
+    memory.compressedData = compressor.getResult();
     return memory;
 }
 
@@ -1294,8 +1285,9 @@ bool Image::writeImage( const std::string& filename,
         return true;
     // else also write 8bpp version
 
-    const std::string smallFilename = lunchbox::getDirname( filename ) + "/s_" +
-                                      lunchbox::getFilename( filename );
+    const boost::filesystem::path path( filename );
+    const std::string smallFilename = path.parent_path().string() + "/s_" +
+                                      path.filename().string();
     image.open( smallFilename.c_str(), std::ios::out | std::ios::binary );
     if( !image.is_open( ))
     {
