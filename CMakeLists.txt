@@ -6,10 +6,11 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
-                              ${CMAKE_SOURCE_DIR}/CMake/common)
-include(.gitexternals)
+  ${CMAKE_SOURCE_DIR}/CMake/common)
 
+include(GitExternal)
 include(Buildyard)
+
 if(BUILDYARD_STOP)
   return()
 endif()
@@ -22,13 +23,15 @@ option(EQUALIZER_BUILD_2_0_API
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
-include(Revision)
-
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(LAST_RELEASE 1.6.0)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "7")
 set(VERSION_PATCH "2")
+
+set(COMMON_PROJECT_DOMAIN ch.eyescale)
+set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
+                          parallel and scalable OpenGL and GPGPU applications.")
 
 if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)

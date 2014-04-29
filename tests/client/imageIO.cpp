@@ -51,7 +51,11 @@ int main( int argc, char **argv )
         const std::string& inFilename = *i;
         const boost::filesystem::path path( inFilename );
         const std::string outFilename = path.parent_path().string() + "/out_" +
+#if BOOST_FILESYSTEM_VERSION == 3
                                         path.filename().string();
+#else
+                                        path.filename();
+#endif
 
         TEST( image.readImage( inFilename, eq::Frame::BUFFER_COLOR ));
         TEST( image.writeImage( outFilename, eq::Frame::BUFFER_COLOR ));

@@ -107,7 +107,9 @@ private:
     /** Describes region that is used to search holes withing */
     struct Area
     {
-        Area(){};
+        Area()
+            : valid( false )
+        {};
         Area( PixelViewport pvp_ )
             : emptySize( 0 ), pvp ( pvp_ ), valid( false )
         {}

@@ -16,14 +16,14 @@ include(files.cmake)
 include(../util/files.cmake)
 include(compressor/files.cmake)
 
-update_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h
-  ${OUTPUT_INCLUDE_DIR}/eq/client/version.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h
+  ${OUTPUT_INCLUDE_DIR}/eq/client/version.h @ONLY)
 
 add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
-set(EQ_LIBRARIES EqualizerFabric ${EQ_GL_LIBRARIES} ${PTHREAD_LIBRARIES}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
-  ${GLEW_LIBRARY})
+set(EQ_LIBRARIES EqualizerFabric ${EQ_GL_LIBRARIES}
+  ${PTHREAD_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${GLEW_LIBRARY})
 
 if(MAGELLAN_FOUND)
   include_directories(${MAGELLAN_INCLUDE_DIR})

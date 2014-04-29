@@ -42,6 +42,7 @@
 #include <lunchbox/debug.h>
 #include <lunchbox/monitor.h>
 #include <lunchbox/plugins/compressor.h>
+#include <lunchbox/os.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
