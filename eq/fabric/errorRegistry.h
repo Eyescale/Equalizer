@@ -20,7 +20,6 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-#include <lunchbox/nonCopyable.h> // base class
 
 namespace eq
 {
@@ -39,7 +38,7 @@ namespace detail { class ErrorRegistry; }
      *
      * @sa co::Error, eq::Error
      */
-    class ErrorRegistry : public lunchbox::NonCopyable
+    class ErrorRegistry : public boost::noncopyable
     {
     public:
         /** @internal Construct an error registry. */

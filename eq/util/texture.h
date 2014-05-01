@@ -22,7 +22,6 @@
 #include <eq/client/frame.h>        // Frame::Buffer enum
 
 #include <lunchbox/thread.h>         // thread debug macro
-#include <lunchbox/nonCopyable.h>    // base class
 
 namespace eq
 {
@@ -36,7 +35,7 @@ namespace detail { class Texture; }
  * So far used by the Image and Compositor. The target is assumed to be
  * GL_TEXTURE_RECTANGLE_ARB or GL_TEXTURE_2D.
  */
-class Texture : public lunchbox::NonCopyable
+class Texture : public boost::noncopyable
 {
 public:
     /**
