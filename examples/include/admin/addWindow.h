@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -55,6 +55,8 @@ inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
     eq::admin::View* view = new eq::admin::View( layout );
     eq::admin::Observer* observer = new eq::admin::Observer( config );
 
+    window->setIAttribute( eq::fabric::WindowSettings::IATTR_HINT_DRAWABLE,
+                           eq::fabric::WINDOW );
     window->setPixelViewport( eq::fabric::PixelViewport( 100, 100, 400, 300 ));
     channel->setName( "Runtime-created channel" );
     canvas->setName( "Runtime-created canvas" );
