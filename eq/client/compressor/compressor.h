@@ -71,7 +71,7 @@ namespace plugin
          */
         virtual void compress( const void* const inData LB_UNUSED,
                                const eq_uint64_t nPixels LB_UNUSED,
-                               const bool useAlpha LB_UNUSED ) { LBDONTCALL; };
+                               const bool useAlpha LB_UNUSED ) { LBDONTCALL; }
 
         typedef lunchbox::Bufferb Result;
         typedef std::vector< Result* > Results;

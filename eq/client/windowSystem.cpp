@@ -70,7 +70,6 @@ void WindowSystem::_chooseImpl( const std::string& name )
 
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
     {
-        // TODO: maybe we should do case insesitive comparision?
         if( ws->getName() == name )
         {
             _impl = ws;
@@ -87,7 +86,6 @@ bool WindowSystem::supports( std::string const& type )
 {
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
     {
-        // TODO: maybe we should do case insensitive comparison?
         if( ws->getName() == type )
             return true;
     }

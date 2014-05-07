@@ -280,7 +280,8 @@ bool Channel::_configInitFBO()
     int stencilSize = 0;
     if( drawable & FBO_STENCIL )
     {
-        stencilSize = window->getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
+        stencilSize =
+                window->getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
         if( stencilSize < 1 )
             stencilSize = 1;
     }
@@ -1813,7 +1814,8 @@ bool Channel::_cmdFinishReadback( co::ICommand& cmd )
     const uint64_t imageIndex = command.read< uint64_t >();
     const uint32_t frameNumber = command.read< uint32_t >();
     const uint32_t taskID = command.read< uint32_t >();
-    const std::vector< uint128_t >& nodes = command.read< std::vector< uint128_t > >();
+    const std::vector< uint128_t >& nodes =
+            command.read< std::vector< uint128_t > >();
     const co::NodeIDs& netNodes = command.read< co::NodeIDs >();
 
     getWindow()->makeCurrentTransfer();
@@ -1827,9 +1829,11 @@ bool Channel::_cmdFrameSetReady( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const co::ObjectVersion frameDataVersion = command.read<co::ObjectVersion>();
+    const co::ObjectVersion frameDataVersion =
+            command.read< co::ObjectVersion >();
     detail::RBStat* stat = command.read< detail::RBStat* >();
-    const std::vector< uint128_t >& nodes = command.read< std::vector< uint128_t > >();
+    const std::vector< uint128_t >& nodes =
+            command.read< std::vector< uint128_t > >();
     const co::NodeIDs& netNodes = command.read< co::NodeIDs >();
 
     LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
@@ -1868,8 +1872,9 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const co::ObjectVersion& frameDataVersion =
-        command.get< co::ObjectVersion >();
-    const std::vector< uint128_t >& nodes = command.read< std::vector< uint128_t > >();
+            command.get< co::ObjectVersion >();
+    const std::vector< uint128_t >& nodes =
+            command.read< std::vector< uint128_t > >();
     const co::NodeIDs& netNodes = command.read< co::NodeIDs >();
     const uint32_t frameNumber = command.read< uint32_t >();
 
@@ -1881,6 +1886,12 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
          i != nodes.end(); ++i, ++j )
     {
         co::NodePtr toNode = localNode->connect( *j );
+        if( !toNode )
+        {
+            LBERROR << "Can't connect to " << *j << " to signal ready of frame "
+                    << frameNumber << std::endl;
+            continue;
+        }
         co::ObjectOCommand( co::Connections( 1, toNode->getConnection( )),
                             fabric::CMD_NODE_FRAMEDATA_READY,
                             co::COMMANDTYPE_OBJECT, *i, CO_INSTANCE_ALL )
