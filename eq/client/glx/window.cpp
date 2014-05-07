@@ -633,6 +633,8 @@ void Window::setXDrawable( XID drawable )
             break;
         }
         case WINDOW:
+        case AUTO:
+        case UNDEFINED:
         {
             XWindowAttributes wa;
             XGetWindowAttributes( _impl->xDisplay, drawable, &wa );
@@ -655,6 +657,7 @@ void Window::setXDrawable( XID drawable )
             break;
         }
         default:
+            LBERROR << "Unknown drawable type " << drawableType << std::endl;
             LBUNIMPLEMENTED;
         case OFF:
         case FBO:
