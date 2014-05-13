@@ -121,9 +121,10 @@ Observer::Observer(eq::Observer *o) :
 bool Observer::canUseSensor(const vrpn_TRACKERCB &data)
 {
 #ifdef DEBUG_TRACKER
-    std::cout << "Sensor " << data.sensor << ", position ("
-              << data.pos[0] << ", " << data.pos[1] << ", " << data.pos[2]
-              << ")" << std::endl;
+    std::cout << "Eq::Observer Sensor " << data.sensor << ", position ("
+              << data.pos[0] << ", " << data.pos[1] << "," << data.pos[2]
+              << "), orientation (" << data.quat[0] << "," << data.quat[1]
+              << "," << data.quat[2] << "," << data.quat[3] << ")" << std::endl;
 #endif
 
     if (_trackerSensorID == k_UseLowestValidSensorID)
