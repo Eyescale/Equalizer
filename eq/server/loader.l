@@ -230,6 +230,11 @@ focus_distance                  { return EQTOKEN_FOCUS_DISTANCE; }
 focus_mode                      { return EQTOKEN_FOCUS_MODE; }
 opencv_camera                   { return EQTOKEN_OPENCV_CAMERA; }
 vrpn_tracker                    { return EQTOKEN_VRPN_TRACKER; }
+vrpn_tracker_sensor             { return EQTOKEN_VRPN_TRACKER_SENSOR; }
+ANY                             { return EQTOKEN_ANY; }
+LOWEST                          { return EQTOKEN_LOWEST; }
+vrpn_tracker_axis               { return EQTOKEN_VRPN_TRACKER_AXIS; }
+[xyzXYZ]{3}                     { return EQTOKEN_VRPN_AXIS; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }
@@ -297,12 +302,11 @@ STEREO                          { return EQTOKEN_STEREO; }
 size                            { return EQTOKEN_SIZE; }
 DisplayCluster                  { return EQTOKEN_DISPLAYCLUSTER; }
 dump_image                      { return EQTOKEN_DUMP_IMAGE; }
-
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }
 [+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
-\"[-\\\., _%&@<>:a-zA-Z0-9\! \/]*\"  { return EQTOKEN_STRING; }
+\"[-\\\., =_%&@<>:a-zA-Z0-9\! \/]*\"  { return EQTOKEN_STRING; }
 '.'                             { return EQTOKEN_CHARACTER; }
 
 [\(\){}\[\]]                    { return *yytext; }
