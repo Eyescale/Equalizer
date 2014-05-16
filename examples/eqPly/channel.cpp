@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2007, Tobias Wolf <twolf@access.unizh.ch>
@@ -189,7 +189,8 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     accum.transfer = true;
 }
 
-void Channel::frameAssemble( const eq::uint128_t& frameID )
+void Channel::frameAssemble( const eq::uint128_t& frameID,
+                             const eq::Frames& frames  )
 {
     if( stopRendering( ))
         return;
@@ -210,14 +211,12 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
             accum.step = 0;
         }
 
-        eq::Channel::frameAssemble( frameID );
+        eq::Channel::frameAssemble( frameID, frames );
         return;
     }
     // else
 
     accum.transfer = true;
-    const eq::Frames& frames = getInputFrames();
-
     for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
@@ -236,7 +235,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
     try
     {
-        eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
+        eq::Compositor::assembleFrames( frames, this, accum.buffer );
     }
     catch( const co::Exception& e )
     {
@@ -246,13 +245,13 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     resetAssemblyState();
 }
 
-void Channel::frameReadback( const eq::uint128_t& frameID )
+void Channel::frameReadback( const eq::uint128_t& frameID,
+                             const eq::Frames& frames )
 {
     if( stopRendering() || _isDone( ))
         return;
 
     const FrameData& frameData = _getFrameData();
-    const eq::Frames& frames = getOutputFrames();
     for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
@@ -270,7 +269,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_NONE );
     }
 
-    eq::Channel::frameReadback( frameID );
+    eq::Channel::frameReadback( frameID, frames );
 }
 
 void Channel::frameStart( const eq::uint128_t& frameID,

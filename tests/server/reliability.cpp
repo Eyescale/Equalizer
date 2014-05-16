@@ -75,12 +75,14 @@ public:
     Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
 protected:
-    virtual void frameDraw( const eq::uint128_t& frameID )
+    void frameDraw( const eq::uint128_t& frameID ) override
         { eq::Channel::frameDraw( frameID ); ++drawCalls; lunchbox::sleep(10); }
-    virtual void frameReadback( const eq::uint128_t& frameID )
-        { eq::Channel::frameReadback( frameID ); ++readbackCalls; }
-    virtual void frameAssemble( const eq::uint128_t& frameID )
-        { eq::Channel::frameAssemble( frameID ); ++assembleCalls; }
+    void frameReadback( const eq::uint128_t& frameID,
+                        const eq::Frames& frames ) override
+    { eq::Channel::frameReadback( frameID, frames ); ++readbackCalls; }
+    void frameAssemble( const eq::uint128_t& frameID,
+                        const eq::Frames& frames ) override
+    { eq::Channel::frameAssemble( frameID, frames ); ++assembleCalls; }
 };
 
 class NodeFactory : public eq::NodeFactory
