@@ -287,9 +287,6 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
 void Window::setSharedContextWindow( const Window* sharedContextWindow )
 {
     _sharedContextWindow = sharedContextWindow;
-    const SystemWindow* sysWindow = sharedContextWindow ?
-                                    sharedContextWindow->getSystemWindow() : 0;
-    _getSettings().setSharedContextWindow( sysWindow );
 }
 
 const Window* Window::getSharedContextWindow() const
