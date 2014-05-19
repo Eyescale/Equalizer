@@ -485,6 +485,9 @@ bool Window::createTransferWindow()
     // create another (shared) osWindow with no drawable
     WindowSettings settings = getSettings();
     settings.setIAttribute( WindowSettings::IATTR_HINT_DRAWABLE, OFF );
+    const SystemWindow* sysWindow = _sharedContextWindow ?
+                                    _sharedContextWindow->getSystemWindow() : 0;
+    settings.setSharedContextWindow( sysWindow );
     const Pipe* pipe = getPipe();
     _transferWindow = pipe->getWindowSystem().createWindow( this, settings );
 
