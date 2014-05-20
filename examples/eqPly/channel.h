@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,23 +53,21 @@ namespace eqPly
     protected:
         virtual ~Channel() {}
 
-        virtual bool configInit( const eq::uint128_t& initID );
-        virtual bool configExit();
-        virtual void frameClear( const eq::uint128_t& frameID );
-        virtual void frameDraw( const eq::uint128_t& frameID );
-        virtual void frameAssemble( const eq::uint128_t& frameID );
-        virtual void frameReadback( const eq::uint128_t& frameID );
-        virtual void frameStart( const eq::uint128_t& frameID,
-                                 const uint32_t frameNumber );
-        virtual void frameFinish( const eq::uint128_t& frameID,
-                                  const uint32_t frameNumber );
-        virtual void frameViewStart( const eq::uint128_t& frameID );
-        virtual void frameViewFinish( const eq::uint128_t& frameID );
+        bool configInit( const eq::uint128_t& initID ) override;
+        bool configExit() override;
+        void frameClear( const eq::uint128_t& frameID ) override;
+        void frameDraw( const eq::uint128_t& frameID ) override;
+        void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
+        void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
+        void frameStart( const eq::uint128_t&, const uint32_t ) override;
+        void frameFinish( const eq::uint128_t&, const uint32_t ) override;
+        void frameViewStart( const eq::uint128_t& frameID ) override;
+        void frameViewFinish( const eq::uint128_t& frameID ) override;
 
-        virtual bool useOrtho() const;
-        virtual eq::Vector2f getJitter() const;
+        bool useOrtho() const override;
+        eq::Vector2f getJitter() const override;
 
-        virtual void notifyStopFrame( const uint32_t lastFrameNumber )
+        void notifyStopFrame( const uint32_t lastFrameNumber ) override
             { _frameRestart = lastFrameNumber + 1; }
 
     private:
@@ -110,4 +108,3 @@ namespace eqPly
 }
 
 #endif // EQ_PLY_CHANNEL_H
-

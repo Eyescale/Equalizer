@@ -410,14 +410,14 @@ void Channel::frameDraw( const uint128_t& )
     EQ_GL_CALL( applyHeadTransform( ));
 }
 
-void Channel::frameAssemble( const uint128_t& )
+void Channel::frameAssemble( const uint128_t&, const Frames& frames )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
     try
     {
-        Compositor::assembleFrames( getInputFrames(), this, 0 );
+        Compositor::assembleFrames( frames, this, 0 );
     }
     catch( const co::Exception& e )
     {
@@ -426,7 +426,7 @@ void Channel::frameAssemble( const uint128_t& )
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
-void Channel::frameReadback( const uint128_t& )
+void Channel::frameReadback( const uint128_t&, const Frames& frames )
 {
     const PixelViewport& region = getRegion();
     if( !region.hasArea( ))
@@ -438,7 +438,6 @@ void Channel::frameReadback( const uint128_t& )
 
     util::ObjectManager&  glObjects   = getObjectManager();
     const DrawableConfig& drawable    = getDrawableConfig();
-    const Frames&         frames      = getOutputFrames();
     const PixelViewports& regions     = getRegions();
 
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
@@ -764,18 +763,6 @@ Vector2f Channel::getJitter() const
 
 bool Channel::isStopped() const { return _impl->state == STATE_STOPPED; }
 
-const Frames& Channel::getInputFrames()
-{
-    LB_TS_THREAD( _pipeThread );
-    return _impl->inputFrames;
-}
-
-const Frames& Channel::getOutputFrames()
-{
-    LB_TS_THREAD( _pipeThread );
-    return _impl->outputFrames;
-}
-
 const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
 
 void Channel::resetRegions()
@@ -1051,16 +1038,17 @@ typedef lunchbox::RefPtr< detail::RBStat > RBStatPtr;
 
 void Channel::_frameTiles( RenderContext& context, const bool isLocal,
                            const uint128_t& queueID, const uint32_t tasks,
-                           const co::ObjectVersions& frames )
+                           const co::ObjectVersions& frameIDs )
 {
     _overrideContext( context );
 
     frameTilesStart( context.frameID );
 
     RBStatPtr stat;
+    Frames frames;
     if( tasks & fabric::TASK_READBACK )
     {
-        _setOutputFrames( frames );
+        frames = _getFrames( frameIDs );
         stat = new detail::RBStat( this );
     }
 
@@ -1107,23 +1095,22 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
         if( tasks & fabric::TASK_READBACK )
         {
             const int64_t time = getConfig()->getTime();
-            const Frames& outFrames = getOutputFrames();
-            const size_t nFrames = outFrames.size();
+            const size_t nFrames = frames.size();
 
             std::vector< size_t > nImages( nFrames, 0 );
             for( size_t i = 0; i < nFrames; ++i )
             {
-                nImages[i] = outFrames[i]->getImages().size();
-                outFrames[i]->getFrameData()->setPixelViewport(
+                nImages[i] = frames[i]->getImages().size();
+                frames[i]->getFrameData()->setPixelViewport(
                     getPixelViewport( ));
             }
 
-            frameReadback( context.frameID );
+            frameReadback( context.frameID, frames );
             readbackTime += getConfig()->getTime() - time;
 
             for( size_t i = 0; i < nFrames; ++i )
             {
-                const Frame* frame = outFrames[i];
+                const Frame* frame = frames[i];
                 const Images& images = frame->getImages();
                 for( size_t j = nImages[i]; j < images.size(); ++j )
                 {
@@ -1134,7 +1121,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
                 }
             }
 
-            if( _asyncFinishReadback( nImages ))
+            if( _asyncFinishReadback( nImages, frames ))
                 hasAsyncReadback = true;
         }
     }
@@ -1161,8 +1148,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
         startTime += readbackTime;
         stat->event.event.data.statistic.endTime = startTime;
 
-        _setReady( hasAsyncReadback, stat.get( ));
-        _resetOutputFrames();
+        _setReady( hasAsyncReadback, stat.get(), frames );
     }
 
     frameTilesFinish( context.frameID );
@@ -1193,57 +1179,51 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     _impl->finishedFrame = frameNumber;
 }
 
-void Channel::_setOutputFrames( const co::ObjectVersions& frames )
+Frames Channel::_getFrames( const co::ObjectVersions& frameIDs )
 {
     LB_TS_THREAD( _pipeThread );
-    LBASSERT( _impl->outputFrames.empty( ))
 
-    for( size_t i = 0; i < frames.size(); ++i )
+    Frames frames;
+    for( size_t i = 0; i < frameIDs.size(); ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( frames[i], getEye(), true );
-        LBASSERTINFO( lunchbox::find( _impl->outputFrames, frame ) ==
-                      _impl->outputFrames.end(),
-                      "frame " << i << " " << frames[i] );
+        Frame* frame = pipe->getFrame( frameIDs[i], getEye(), true );
+        LBASSERTINFO( lunchbox::find( frames, frame ) == frames.end(),
+                      "frame " << i << " " << frameIDs[i] );
 
-        _impl->outputFrames.push_back( frame );
+        frames.push_back( frame );
     }
-}
 
-void Channel::_resetOutputFrames()
-{
-    LB_TS_THREAD( _pipeThread );
-    _impl->outputFrames.clear();
+    return frames;
 }
 
 //---------------------------------------------------------------------------
 // Asynchronous image readback, compression and transmission
 //---------------------------------------------------------------------------
 void Channel::_frameReadback( const uint128_t& frameID,
-                              const co::ObjectVersions& frames )
+                              const co::ObjectVersions& frameIDs )
 {
     LB_TS_THREAD( _pipeThread );
 
     RBStatPtr stat = new detail::RBStat( this );
-    _setOutputFrames( frames );
+    const Frames& frames = _getFrames( frameIDs );
 
     std::vector< size_t > nImages( frames.size(), 0 );
     for( size_t i = 0; i < frames.size(); ++i )
         nImages[i] = _impl->outputFrames[i]->getImages().size();
 
-    frameReadback( frameID );
+    frameReadback( frameID, frames );
     LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
-    const bool async = _asyncFinishReadback( nImages );
-    _setReady( async, stat.get( ));
-    _resetOutputFrames();
+    const bool async = _asyncFinishReadback( nImages, frames );
+    _setReady( async, stat.get(), frames );
 }
 
-bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
+bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos,
+                                    const Frames& frames )
 {
     LB_TS_THREAD( _pipeThread );
 
     bool hasAsyncReadback = false;
-    const Frames& frames = getOutputFrames();
     LBASSERT( frames.size() == imagePos.size( ));
 
     for( size_t i = 0; i < frames.size(); ++i )
@@ -1510,9 +1490,9 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 #endif
 }
 
-void Channel::_setReady( const bool async, detail::RBStat* stat )
+void Channel::_setReady( const bool async, detail::RBStat* stat,
+                         const Frames& frames )
 {
-    const Frames& frames = getOutputFrames();
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
@@ -1764,26 +1744,18 @@ bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
     RenderContext context = command.get< RenderContext >();
-    const co::ObjectVersions frames = command.get< co::ObjectVersions >();
+    const co::ObjectVersions frameIDs = command.get< co::ObjectVersions >();
 
     LBLOG( LOG_TASKS | LOG_ASSEMBLY )
         << "TASK assemble " << getName() <<  " " << command << " " << context
-        << " nFrames " << frames.size() << std::endl;
+        << " nFrames " << frameIDs.size() << std::endl;
 
     _overrideContext( context );
+
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
-    for( size_t i=0; i < frames.size(); ++i )
-    {
-        Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( frames[i], getEye(), false );
-        _impl->inputFrames.push_back( frame );
-        LBLOG( LOG_ASSEMBLY ) << *frame << " " << *frame->getFrameData()
-                              << std::endl;
-    }
+    const Frames& frames = _getFrames( frameIDs );
+    frameAssemble( context.frameID, frames );
 
-    frameAssemble( context.frameID );
-
-    _impl->inputFrames.clear();
     resetContext();
     return true;
 }

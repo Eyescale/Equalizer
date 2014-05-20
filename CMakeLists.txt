@@ -27,7 +27,7 @@ set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(LAST_RELEASE 1.6.0)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "7")
-set(VERSION_PATCH "2")
+set(VERSION_PATCH "3")
 
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
 set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
