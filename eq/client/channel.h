@@ -626,7 +626,8 @@ private:
     /** Get the channel's current input queue. */
     co::QueueSlave* _getQueue( const uint128_t& queueID );
 
-    Frames _getFrames( const co::ObjectVersions& frameIDs );
+    Frames _getFrames( const co::ObjectVersions& frameIDs,
+                       const bool isOutput );
 
     void _deleteTransferContext();
 
