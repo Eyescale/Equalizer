@@ -86,12 +86,6 @@ public:
     /** The configInit/configExit state. */
     State state;
 
-    /** server-supplied vector of output frames for current task. */
-    Frames outputFrames;
-
-    /** Server-supplied vector of input frames for current task. */
-    Frames inputFrames;
-
     /** Used as an alternate drawable. */
     util::FrameBufferObject* fbo;
 
