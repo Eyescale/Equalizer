@@ -792,7 +792,7 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 bool Window::_cmdCreateChannel( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t& channelID = command.get< uint128_t >();
+    const uint128_t& channelID = command.read< uint128_t >();
 
     LBLOG( LOG_INIT ) << "Create channel " << command  << " id " << channelID
                       << std::endl;
@@ -812,7 +812,7 @@ bool Window::_cmdDestroyChannel( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
 
-    Channel* channel = _findChannel( command.get< uint128_t >( ));
+    Channel* channel = _findChannel( command.read< uint128_t >( ));
     LBASSERT( channel );
 
     const bool stopped = channel->isStopped();
@@ -835,7 +835,7 @@ bool Window::_cmdConfigInit( co::ICommand& cmd )
     if( getPipe()->isRunning( ))
     {
         _state = STATE_INITIALIZING;
-        result = configInit( command.get< uint128_t >( ));
+        result = configInit( command.read< uint128_t >( ));
         if( result )
             _state = STATE_RUNNING;
     }
@@ -845,7 +845,7 @@ bool Window::_cmdConfigInit( co::ICommand& cmd )
     LBLOG( LOG_INIT ) << "TASK window config init reply " << std::endl;
 
     commit();
-    send( command.getNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;
+    send( command.getRemoteNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;
     return true;
 }
 
@@ -878,9 +878,9 @@ bool Window::_cmdFrameStart( co::ICommand& cmd )
 
     LB_TS_THREAD( _pipeThread );
 
-    const uint128_t version = command.get< uint128_t >();
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK frame start " << getName()
                        << " " << command << " frame " << frameNumber
@@ -905,8 +905,8 @@ bool Window::_cmdFrameFinish( co::ICommand& cmd )
 
     LBVERB << "handle window frame sync " << command << std::endl;
 
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     makeCurrent();
     frameFinish( frameID, frameNumber );
@@ -936,7 +936,7 @@ bool  Window::_cmdThrottleFramerate( co::ICommand& cmd )
 
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
-    const float minFrameTime = command.get< float >();
+    const float minFrameTime = command.read< float >();
     const float timeLeft = minFrameTime - static_cast<float>( elapsed );
 
     if( timeLeft >= 1.f )
@@ -952,7 +952,7 @@ bool  Window::_cmdThrottleFramerate( co::ICommand& cmd )
 bool Window::_cmdBarrier( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const co::ObjectVersion barrier = command.get< co::ObjectVersion >();
+    const co::ObjectVersion& barrier = command.read< co::ObjectVersion >();
 
     LBVERB << "handle barrier " << command << " barrier " << barrier << std::endl;
     LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
@@ -968,9 +968,9 @@ bool Window::_cmdNVBarrier( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     LBASSERT( _systemWindow );
 
-    const co::ObjectVersion netBarrier = command.get< co::ObjectVersion >();
-    const uint32_t group = command.get< uint32_t >();
-    const uint32_t barrier = command.get< uint32_t >();
+    const co::ObjectVersion& netBarrier = command.read< co::ObjectVersion >();
+    const uint32_t group = command.read< uint32_t >();
+    const uint32_t barrier = command.read< uint32_t >();
 
     makeCurrent();
     _systemWindow->joinNVSwapBarrier( group, barrier );
@@ -998,8 +998,8 @@ bool Window::_cmdSwap( co::ICommand& cmd )
 bool Window::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << " frame " << frameNumber << " id " << frameID
