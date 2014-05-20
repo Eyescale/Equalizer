@@ -170,8 +170,8 @@ void Server::handleCommands()
 
 bool Server::_cmdChooseConfig( co::ICommand& command )
 {
-    const uint32_t requestID = command.get< uint32_t >();
-    const fabric::ConfigParams& params = command.get< fabric::ConfigParams >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const fabric::ConfigParams& params = command.read< fabric::ConfigParams >();
 
     LBVERB << "Handle choose config " << command << " req " << requestID
            << " renderer " << params.getWorkDir() << '/'
@@ -191,7 +191,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
 #ifdef EQUALIZER_USE_HWSD
     if( !config )
     {
-        const std::string& configFile = command.get< std::string >();
+        const std::string& configFile = command.read< std::string >();
         config = config::Server::configure( this, configFile, params );
         if( config )
         {
@@ -205,7 +205,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
     }
 #endif
 
-    co::NodePtr node = command.getNode();
+    co::NodePtr node = command.getRemoteNode();
 
     if( !config )
     {
@@ -253,13 +253,13 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
 
 bool Server::_cmdReleaseConfig( co::ICommand& command )
 {
-    uint128_t configID = command.get< uint128_t >();
-    uint32_t requestID = command.get< uint32_t >();
+    const uint128_t& configID = command.read< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
 
     LBVERB << "Handle release config " << command << " config " << configID
            << std::endl;
 
-    co::NodePtr node = command.getNode();
+    co::NodePtr node = command.getRemoteNode();
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -311,15 +311,15 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
 
 bool Server::_cmdDestroyConfigReply( co::ICommand& command )
 {
-    serveRequest( command.get< uint32_t >( ));
+    serveRequest( command.read< uint32_t >( ));
     return true;
 }
 
 bool Server::_cmdShutdown( co::ICommand& command )
 {
-    const uint32_t requestID = command.get< uint32_t >();
+    const uint32_t requestID = command.read< uint32_t >();
 
-    co::NodePtr node = command.getNode();
+    co::NodePtr node = command.getRemoteNode();
 
     if( !_admins.empty( ))
     {
@@ -360,7 +360,7 @@ bool Server::_cmdShutdown( co::ICommand& command )
 
 bool Server::_cmdMap( co::ICommand& command )
 {
-    co::NodePtr node = command.getNode();
+    co::NodePtr node = command.getRemoteNode();
     _admins.push_back( node );
 
     const Configs& configs = getConfigs();
@@ -371,13 +371,13 @@ bool Server::_cmdMap( co::ICommand& command )
                 << co::ObjectVersion( config ) << LB_UNDEFINED_UINT32;
     }
 
-    node->send( fabric::CMD_SERVER_MAP_REPLY ) << command.get< uint32_t >();
+    node->send( fabric::CMD_SERVER_MAP_REPLY ) << command.read< uint32_t >();
     return true;
 }
 
 bool Server::_cmdUnmap( co::ICommand& command )
 {
-    co::NodePtr node = command.getNode();
+    co::NodePtr node = command.getRemoteNode();
     co::Nodes::iterator i = lunchbox::find( _admins, node );
 
     LBASSERT( i != _admins.end( ));
@@ -394,7 +394,7 @@ bool Server::_cmdUnmap( co::ICommand& command )
         }
     }
 
-    node->send( fabric::CMD_SERVER_UNMAP_REPLY ) << command.get< uint32_t >();
+    node->send( fabric::CMD_SERVER_UNMAP_REPLY ) << command.read< uint32_t >();
     return true;
 }
 

@@ -976,8 +976,8 @@ bool Config::_cmdInit( co::ICommand& cmd )
     sync();
     commit();
 
-    const uint128_t initID = command.get< uint128_t >();
-    const uint32_t requestID = command.get< uint32_t >();
+    const uint128_t& initID = command.read< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
     const bool result = _init( initID );
 
     if( !result )
@@ -987,7 +987,7 @@ bool Config::_cmdInit( co::ICommand& cmd )
     LBINFO << "Config init " << (result ? "successful" : "failed") << std::endl;
 
     const uint128_t version = commit();
-    send( command.getNode(),
+    send( command.getRemoteNode(),
           fabric::CMD_CONFIG_INIT_REPLY ) << version << requestID << result;
     return true;
 }
@@ -1007,8 +1007,8 @@ bool Config::_cmdExit( co::ICommand& cmd )
     }
 
     LBINFO << "Config exit " << (result ? "successful" : "failed") << std::endl;
-    send( command.getNode(), fabric::CMD_CONFIG_EXIT_REPLY )
-            << command.get< uint32_t >() << result;
+    send( command.getRemoteNode(), fabric::CMD_CONFIG_EXIT_REPLY )
+            << command.read< uint32_t >() << result;
     return true;
 }
 
@@ -1018,13 +1018,13 @@ bool Config::_cmdUpdate( co::ICommand& cmd )
 
     LBVERB << "handle config update " << command << std::endl;
 
-    const uint32_t versionID = command.get< uint32_t >();
-    const uint32_t finishID = command.get< uint32_t >();
+    const uint32_t versionID = command.read< uint32_t >();
+    const uint32_t finishID = command.read< uint32_t >();
 
     sync();
     commit();
 
-    co::NodePtr node = command.getNode();
+    co::NodePtr node = command.getRemoteNode();
     if( !_needsFinish )
     {
         send( node, fabric::CMD_CONFIG_UPDATE_VERSION )
@@ -1051,8 +1051,8 @@ bool Config::_cmdUpdate( co::ICommand& cmd )
     }
 
     const uint128_t version = commit();
-    send( command.getNode(), fabric::CMD_CONFIG_UPDATE_REPLY )
-            << version << command.get< uint32_t >() << result;
+    send( command.getRemoteNode(), fabric::CMD_CONFIG_UPDATE_REPLY )
+            << version << command.read< uint32_t >() << result;
     return true;
 }
 
@@ -1062,13 +1062,13 @@ bool Config::_cmdStartFrame( co::ICommand& cmd )
 
     LBVERB << "handle config frame start " << command << std::endl;
 
-    _startFrame( command.get< uint128_t >( ));
+    _startFrame( command.read< uint128_t >( ));
 
     if( _state == STATE_STOPPED )
     {
         // unlock app
-        send( command.getNode(),
-              fabric::CMD_CONFIG_FRAME_FINISH ) << _currentFrame;
+        send( command.getRemoteNode(), fabric::CMD_CONFIG_FRAME_FINISH )
+                << _currentFrame;
     }
     return true;
 }
@@ -1102,7 +1102,7 @@ bool Config::_cmdCreateReply( co::ICommand& cmd )
     LB_TS_THREAD( _cmdThread );
     LB_TS_NOT_THREAD( _mainThread );
 
-    getLocalNode()->serveRequest( command.get< uint32_t >( ));
+    getLocalNode()->serveRequest( command.read< uint32_t >( ));
     return true;
 }
 
@@ -1114,7 +1114,7 @@ bool Config::_cmdCheckFrame( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBVERB << "Check nodes for frame finish " << command << std::endl;
 
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
     const uint32_t timeout = getTimeout();
 
     bool retry = false;
@@ -1157,7 +1157,7 @@ bool Config::_cmdCheckFrame( co::ICommand& cmd )
     if( retry )
         return true;
 
-    send( command.getNode(), fabric::CMD_CONFIG_FRAME_FINISH )
+    send( command.getRemoteNode(), fabric::CMD_CONFIG_FRAME_FINISH )
         << _currentFrame;
     return true;
 }

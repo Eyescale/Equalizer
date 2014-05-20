@@ -1048,7 +1048,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     Frames frames;
     if( tasks & fabric::TASK_READBACK )
     {
-        frames = _getFrames( frameIDs );
+        frames = _getFrames( frameIDs, true );
         stat = new detail::RBStat( this );
     }
 
@@ -1067,7 +1067,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
         if( !tileCmd.isValid( ))
             break;
 
-        const Tile& tile = tileCmd.get< Tile >();
+        const Tile& tile = tileCmd.read< Tile >();
         context.apply( tile );
 
         const PixelViewport tilePVP = context.pvp;
@@ -1179,7 +1179,8 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     _impl->finishedFrame = frameNumber;
 }
 
-Frames Channel::_getFrames( const co::ObjectVersions& frameIDs )
+Frames Channel::_getFrames( const co::ObjectVersions& frameIDs,
+                            const bool isOutput )
 {
     LB_TS_THREAD( _pipeThread );
 
@@ -1187,7 +1188,7 @@ Frames Channel::_getFrames( const co::ObjectVersions& frameIDs )
     for( size_t i = 0; i < frameIDs.size(); ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( frameIDs[i], getEye(), true );
+        Frame* frame = pipe->getFrame( frameIDs[i], getEye(), isOutput );
         LBASSERTINFO( lunchbox::find( frames, frame ) == frames.end(),
                       "frame " << i << " " << frameIDs[i] );
 
@@ -1206,11 +1207,11 @@ void Channel::_frameReadback( const uint128_t& frameID,
     LB_TS_THREAD( _pipeThread );
 
     RBStatPtr stat = new detail::RBStat( this );
-    const Frames& frames = _getFrames( frameIDs );
+    const Frames& frames = _getFrames( frameIDs, true );
 
     std::vector< size_t > nImages( frames.size(), 0 );
     for( size_t i = 0; i < frames.size(); ++i )
-        nImages[i] = _impl->outputFrames[i]->getImages().size();
+        nImages[i] = frames[i]->getImages().size();
 
     frameReadback( frameID, frames );
     LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
@@ -1475,8 +1476,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         }
         else
         {
-            const uint64_t dataSize = data->pvp.getArea() *
-                data->pixelSize;
+            const uint64_t dataSize = data->pvp.getArea() * data->pixelSize;
             connection->send( &dataSize, sizeof( dataSize ), true );
             connection->send( data->pixels, dataSize, true );
 #ifndef NDEBUG
@@ -1600,7 +1600,7 @@ bool Channel::_cmdConfigInit( co::ICommand& cmd )
         _impl->initialSize.y() = pvp.h;
         _impl->finishedFrame = window->getCurrentFrame();
 
-        result = configInit( command.get< uint128_t >( ));
+        result = configInit( command.read< uint128_t >( ));
 
         if( result )
         {
@@ -1614,7 +1614,8 @@ bool Channel::_cmdConfigInit( co::ICommand& cmd )
     LBLOG( LOG_INIT ) << "TASK channel config init reply " << result
                       << std::endl;
     commit();
-    send( command.getNode(), fabric::CMD_CHANNEL_CONFIG_INIT_REPLY ) << result;
+    send( command.getRemoteNode(), fabric::CMD_CHANNEL_CONFIG_INIT_REPLY )
+            << result;
     return true;
 }
 
@@ -1637,9 +1638,9 @@ bool Channel::_cmdFrameStart( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    RenderContext context = command.get< RenderContext >();
-    const uint128_t version = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    RenderContext context = command.read< RenderContext >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBVERB << "handle channel frame start " << command << " " << context
            << " frame " << frameNumber << std::endl;
@@ -1666,8 +1667,8 @@ bool Channel::_cmdFrameFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    RenderContext context = command.get< RenderContext >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    RenderContext context = command.read< RenderContext >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
                        << " " << context << std::endl;
@@ -1685,7 +1686,7 @@ bool Channel::_cmdFrameClear( co::ICommand& cmd )
     LBASSERT( _impl->state == STATE_RUNNING );
 
     co::ObjectICommand command( cmd );
-    RenderContext context  = command.get< RenderContext >();
+    RenderContext context  = command.read< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
                        << " " << context << std::endl;
@@ -1701,8 +1702,8 @@ bool Channel::_cmdFrameClear( co::ICommand& cmd )
 bool Channel::_cmdFrameDraw( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    RenderContext context  = command.get< RenderContext >();
-    const bool finish = command.get< bool >();
+    RenderContext context  = command.read< RenderContext >();
+    const bool finish = command.read< bool >();
 
     LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << command
                        << " " << context << std::endl;
@@ -1727,8 +1728,8 @@ bool Channel::_cmdFrameDraw( co::ICommand& cmd )
 bool Channel::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << " frame " << frameNumber << " id " << frameID
@@ -1743,8 +1744,8 @@ bool Channel::_cmdFrameDrawFinish( co::ICommand& cmd )
 bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    RenderContext context = command.get< RenderContext >();
-    const co::ObjectVersions frameIDs = command.get< co::ObjectVersions >();
+    RenderContext context = command.read< RenderContext >();
+    const co::ObjectVersions& frameIDs = command.read< co::ObjectVersions >();
 
     LBLOG( LOG_TASKS | LOG_ASSEMBLY )
         << "TASK assemble " << getName() <<  " " << command << " " << context
@@ -1753,7 +1754,7 @@ bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
     _overrideContext( context );
 
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
-    const Frames& frames = _getFrames( frameIDs );
+    const Frames& frames = _getFrames( frameIDs, false );
     frameAssemble( context.frameID, frames );
 
     resetContext();
@@ -1763,8 +1764,8 @@ bool Channel::_cmdFrameAssemble( co::ICommand& cmd )
 bool Channel::_cmdFrameReadback( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    RenderContext context = command.get< RenderContext >();
-    const co::ObjectVersions frames = command.get< co::ObjectVersions >();
+    RenderContext context = command.read< RenderContext >();
+    const co::ObjectVersions& frames = command.read< co::ObjectVersions >();
     LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
                                       << command << " " << context<< " nFrames "
                                       << frames.size() << std::endl;
@@ -1782,7 +1783,7 @@ bool Channel::_cmdFinishReadback( co::ICommand& cmd )
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << command
                                     << std::endl;
 
-    const co::ObjectVersion frameData = command.get< co::ObjectVersion >();
+    const co::ObjectVersion& frameData = command.read< co::ObjectVersion >();
     const uint64_t imageIndex = command.read< uint64_t >();
     const uint32_t frameNumber = command.read< uint32_t >();
     const uint32_t taskID = command.read< uint32_t >();
@@ -1822,12 +1823,12 @@ bool Channel::_cmdFrameSetReady( co::ICommand& cmd )
 bool Channel::_cmdFrameTransmitImage( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const co::ObjectVersion frameData = command.get< co::ObjectVersion >();
-    const uint128_t nodeID = command.get< uint128_t >();
-    const co::NodeID netNodeID = command.get< co::NodeID >();
-    const uint64_t imageIndex = command.get< uint64_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
-    const uint32_t taskID = command.get< uint32_t >();
+    const co::ObjectVersion& frameData = command.read< co::ObjectVersion >();
+    const uint128_t& nodeID = command.read< uint128_t >();
+    const co::NodeID& netNodeID = command.read< co::NodeID >();
+    const uint64_t imageIndex = command.read< uint64_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
+    const uint32_t taskID = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << command << " frame data "
                                     << frameData << " receiver " << nodeID
@@ -1844,7 +1845,7 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const co::ObjectVersion& frameDataVersion =
-            command.get< co::ObjectVersion >();
+            command.read< co::ObjectVersion >();
     const std::vector< uint128_t >& nodes =
             command.read< std::vector< uint128_t > >();
     const co::NodeIDs& netNodes = command.read< co::NodeIDs >();
@@ -1877,7 +1878,7 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
 bool Channel::_cmdFrameViewStart( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    RenderContext context = command.get< RenderContext >();
+    RenderContext context = command.read< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << command
                        << " " << context << std::endl;
@@ -1892,7 +1893,7 @@ bool Channel::_cmdFrameViewStart( co::ICommand& cmd )
 bool Channel::_cmdFrameViewFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    RenderContext context = command.get< RenderContext >();
+    RenderContext context = command.read< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << command
                        << " " << context << std::endl;
@@ -1914,18 +1915,18 @@ bool Channel::_cmdStopFrame( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << command << std::endl;
 
-    notifyStopFrame( command.get< uint32_t >( ));
+    notifyStopFrame( command.read< uint32_t >( ));
     return true;
 }
 
 bool Channel::_cmdFrameTiles( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    RenderContext context = command.get< RenderContext >();
-    const bool isLocal = command.get< bool >();
-    const uint128_t& queueID = command.get< uint128_t >();
-    const uint32_t tasks = command.get< uint32_t >();
-    const co::ObjectVersions frames = command.get< co::ObjectVersions >();
+    RenderContext context = command.read< RenderContext >();
+    const bool isLocal = command.read< bool >();
+    const uint128_t& queueID = command.read< uint128_t >();
+    const uint32_t tasks = command.read< uint32_t >();
+    const co::ObjectVersions& frames = command.read< co::ObjectVersions >();
 
     LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
                        << command << " " << context << std::endl;
@@ -1941,7 +1942,7 @@ bool Channel::_cmdDeleteTransferContext( co::ICommand& cmd )
     LBLOG( LOG_INIT ) << "Delete transfer context " << command << std::endl;
 
     getWindow()->deleteTransferSystemWindow();
-    getLocalNode()->serveRequest( command.get< uint32_t >( ));
+    getLocalNode()->serveRequest( command.read< uint32_t >( ));
     return true;
 }
 

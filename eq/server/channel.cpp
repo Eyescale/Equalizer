@@ -455,7 +455,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 bool Channel::_cmdConfigInitReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const bool result = command.get< bool >();
+    const bool result = command.read< bool >();
 
     LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
                       << " result " << result << std::endl;
@@ -470,16 +470,16 @@ bool Channel::_cmdConfigExitReply( co::ICommand& cmd )
     LBLOG( LOG_INIT ) << "handle channel configExit reply " << command
                       << std::endl;
 
-    _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.read< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 
 bool Channel::_cmdFrameFinishReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const Viewport region = command.get< Viewport >();
-    const uint32_t frameNumber = command.get< uint32_t >();
-    const Statistics statistics = command.get< Statistics >();
+    const Viewport& region = command.read< Viewport >();
+    const uint32_t frameNumber = command.read< uint32_t >();
+    const Statistics& statistics = command.read< Statistics >();
 
     _fireLoadData( frameNumber, statistics, region );
     return true;

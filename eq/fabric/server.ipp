@@ -147,8 +147,8 @@ VisitorResult Server< CL, S, CFG, NF, N, V >::accept( V& visitor ) const
 template< class CL, class S, class CFG, class NF, class N, class V > bool
 Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::ICommand& command )
 {
-    const co::ObjectVersion configVersion = command.get< co::ObjectVersion >();
-    const uint32_t requestID = command.get< uint32_t >();
+    const co::ObjectVersion& configVersion = command.read< co::ObjectVersion >();
+    const uint32_t requestID = command.read< uint32_t >();
 
     LBVERB << "Handle create config " << command << " config version "
            << configVersion << " request " << requestID << std::endl;
@@ -167,7 +167,8 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::ICommand& command )
     co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS,
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
     if( requestID != LB_UNDEFINED_UINT32 )
-        config->send( command.getNode(), CMD_CONFIG_CREATE_REPLY ) << requestID;
+        config->send( command.getRemoteNode(), CMD_CONFIG_CREATE_REPLY )
+                << requestID;
 
     return true;
 }
@@ -178,8 +179,8 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::ICommand& command )
     LBVERB << "Handle destroy config " << command << std::endl;
 
     co::LocalNodePtr localNode = command.getLocalNode();
-    const uint128_t& configID = command.get< uint128_t >();
-    const uint32_t requestID = command.get< uint32_t >();
+    const uint128_t& configID = command.read< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
 
     CFG* config = 0;
     for( typename Configs::const_iterator i = _configs.begin();
@@ -197,7 +198,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::ICommand& command )
     _nodeFactory->releaseConfig( config );
 
     if( requestID != LB_UNDEFINED_UINT32 )
-        command.getNode()->send( CMD_SERVER_DESTROY_CONFIG_REPLY )
+        command.getRemoteNode()->send( CMD_SERVER_DESTROY_CONFIG_REPLY )
                 << requestID;
 
     return true;

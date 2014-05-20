@@ -839,8 +839,8 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout( co::ICommand& cmd )
     layout->setAutoObsolete( _data.latency + 1 );
     LBASSERT( layout->isAttached() );
 
-    send( command.getNode(), CMD_CONFIG_NEW_ENTITY_REPLY )
-            << command.get< uint32_t >() << layout->getID();
+    send( command.getRemoteNode(), CMD_CONFIG_NEW_ENTITY_REPLY )
+            << command.read< uint32_t >() << layout->getID();
     return true;
 }
 
@@ -857,8 +857,8 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::ICommand& cmd )
     canvas->setAutoObsolete( _data.latency + 1 );
     LBASSERT( canvas->isAttached() );
 
-    send( command.getNode(), CMD_CONFIG_NEW_ENTITY_REPLY )
-            << command.get< uint32_t >() << canvas->getID();
+    send( command.getRemoteNode(), CMD_CONFIG_NEW_ENTITY_REPLY )
+            << command.read< uint32_t >() << canvas->getID();
     return true;
 }
 
@@ -875,8 +875,8 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::ICommand& cmd )
     observer->setAutoObsolete( _data.latency + 1 );
     LBASSERT( observer->isAttached() );
 
-    send( command.getNode(), CMD_CONFIG_NEW_ENTITY_REPLY )
-            << command.get< uint32_t >() << observer->getID();
+    send( command.getRemoteNode(), CMD_CONFIG_NEW_ENTITY_REPLY )
+            << command.read< uint32_t >() << observer->getID();
     return true;
 }
 
@@ -885,8 +885,8 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const uint32_t requestID = command.get< uint32_t >();
-    const uint128_t& result = command.get< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const uint128_t& result = command.read< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

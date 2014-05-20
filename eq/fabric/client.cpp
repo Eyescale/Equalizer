@@ -115,7 +115,7 @@ bool Client::dispatchCommand( co::ICommand& command )
     if( command.getCommand() >= co::CMD_NODE_CUSTOM &&
         command.getCommand() < CMD_SERVER_CUSTOM )
     {
-        co::NodePtr node = command.getNode();
+        co::NodePtr node = command.getRemoteNode();
         return node->co::Dispatcher::dispatchCommand( command );
     }
 
