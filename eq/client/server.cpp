@@ -139,8 +139,8 @@ bool Server::shutdown()
 bool Server::_cmdChooseConfigReply( co::ICommand& command )
 {
     co::LocalNodePtr  localNode = command.getLocalNode();
-    const uint128_t& configID = command.get< uint128_t >();
-    const uint32_t requestID = command.get< uint32_t >();
+    const uint128_t& configID = command.read< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
 
     LBVERB << "Handle choose config reply " << command << " req " << requestID
            << " id " << configID << std::endl;
@@ -151,7 +151,7 @@ bool Server::_cmdChooseConfigReply( co::ICommand& command )
         return true;
     }
 
-    const std::string connectionData = command.get< std::string >();
+    const std::string& connectionData = command.read< std::string >();
     const Configs& configs = getConfigs();
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
@@ -172,15 +172,15 @@ bool Server::_cmdChooseConfigReply( co::ICommand& command )
 bool Server::_cmdReleaseConfigReply( co::ICommand& command )
 {
     co::LocalNodePtr localNode = command.getLocalNode();
-    localNode->serveRequest( command.get< uint32_t >( ));
+    localNode->serveRequest( command.read< uint32_t >( ));
     return true;
 }
 
 bool Server::_cmdShutdownReply( co::ICommand& command )
 {
     co::LocalNodePtr localNode = command.getLocalNode();
-    const uint32_t requestID = command.get< uint32_t >();
-    const bool result = command.get< bool >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const bool result = command.read< bool >();
     localNode->serveRequest( requestID, result );
     return true;
 }

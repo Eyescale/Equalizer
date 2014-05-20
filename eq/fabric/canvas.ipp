@@ -446,8 +446,8 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::ICommand& cmd )
     segment->setAutoObsolete( _config->getLatency() + 1 );
     LBASSERT( segment->isAttached() );
 
-    send( command.getNode(), CMD_CANVAS_NEW_SEGMENT_REPLY )
-            << command.get< uint32_t >() << segment->getID();
+    send( command.getRemoteNode(), CMD_CANVAS_NEW_SEGMENT_REPLY )
+            << command.read< uint32_t >() << segment->getID();
 
     return true;
 }
@@ -457,8 +457,8 @@ Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const uint32_t requestID = command.get< uint32_t >();
-    const uint128_t& result = command.get< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const uint128_t& result = command.read< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

@@ -287,7 +287,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 bool Pipe::_cmdConfigInitReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const bool result = command.get< bool >();
+    const bool result = command.read< bool >();
 
     LBVERB << "handle pipe configInit reply " << command << " result " << result
            << std::endl;
@@ -301,7 +301,7 @@ bool Pipe::_cmdConfigExitReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBVERB << "handle pipe configExit reply " << command << std::endl;
 
-    _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.read< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 

@@ -500,8 +500,8 @@ bool Window< P, W, C, Settings >::_cmdNewChannel( co::ICommand& cmd )
     getLocalNode()->registerObject( channel );
     LBASSERT( channel->isAttached() );
 
-    send( command.getNode(), CMD_WINDOW_NEW_CHANNEL_REPLY )
-            << command.get< uint32_t >() << channel->getID();
+    send( command.getRemoteNode(), CMD_WINDOW_NEW_CHANNEL_REPLY )
+            << command.read< uint32_t >() << channel->getID();
     LBASSERT( channel->isAttached( ));
 
     return true;
@@ -512,8 +512,8 @@ bool Window< P, W, C, Settings >::_cmdNewChannelReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const uint32_t requestID = command.get< uint32_t >();
-    const uint128_t& result = command.get< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const uint128_t& result = command.read< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

@@ -388,8 +388,8 @@ Pipe< N, P, W, V >::_cmdNewWindow( co::ICommand& cmd )
     getLocalNode()->registerObject( window );
     LBASSERT( window->isAttached() );
 
-    send( command.getNode(), CMD_PIPE_NEW_WINDOW_REPLY )
-            << command.get< uint32_t >() << window->getID();
+    send( command.getRemoteNode(), CMD_PIPE_NEW_WINDOW_REPLY )
+            << command.read< uint32_t >() << window->getID();
 
     return true;
 }
@@ -399,8 +399,8 @@ Pipe< N, P, W, V >::_cmdNewWindowReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const uint32_t requestID = command.get< uint32_t >();
-    const uint128_t& result = command.get< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const uint128_t& result = command.read< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 

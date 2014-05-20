@@ -99,14 +99,14 @@ co::CommandQueue* Server::getMainThreadQueue()
 bool Server::_cmdMapReply( co::ICommand& command )
 {
     ClientPtr client = getClient();
-    client->serveRequest( command.get< uint32_t >( ));
+    client->serveRequest( command.read< uint32_t >( ));
     return true;
 }
 
 bool Server::_cmdUnmapReply( co::ICommand& command )
 {
     ClientPtr client = getClient();
-    client->serveRequest( command.get< uint32_t >( ));
+    client->serveRequest( command.read< uint32_t >( ));
     return true;
 }
 

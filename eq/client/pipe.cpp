@@ -1012,7 +1012,7 @@ ComputeContext* Pipe::getComputeContext()
 bool Pipe::_cmdCreateWindow( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t& windowID = command.get< uint128_t >();
+    const uint128_t& windowID = command.read< uint128_t >();
 
     LBLOG( LOG_INIT ) << "Create window " << command << " id " << windowID
                       << std::endl;
@@ -1032,7 +1032,7 @@ bool Pipe::_cmdDestroyWindow( co::ICommand& cmd )
 
     LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
 
-    Window* window = _findWindow( command.get< uint128_t >( ));
+    Window* window = _findWindow( command.read< uint128_t >( ));
     LBASSERT( window );
 
     // re-set shared windows accordingly
@@ -1075,8 +1075,8 @@ bool Pipe::_cmdConfigInit( co::ICommand& cmd )
     LB_TS_THREAD( _pipeThread );
 
     co::ObjectICommand command( cmd );
-    const uint128_t initID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& initID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_INIT ) << "Init pipe " << command << " init id " << initID
                       << " frame " << frameNumber << std::endl;
@@ -1110,10 +1110,9 @@ bool Pipe::_cmdConfigInit( co::ICommand& cmd )
     LBLOG( LOG_INIT ) << "TASK pipe config init reply result " << result
                       << std::endl;
 
-    co::NodePtr netNode = command.getNode();
-
     commit();
-    send( netNode, fabric::CMD_PIPE_CONFIG_INIT_REPLY ) << result;
+    send( command.getRemoteNode(), fabric::CMD_PIPE_CONFIG_INIT_REPLY )
+            << result;
     return true;
 }
 
@@ -1165,9 +1164,9 @@ bool Pipe::_cmdFrameStart( co::ICommand& cmd )
     LB_TS_THREAD( _pipeThread );
 
     co::ObjectICommand command( cmd );
-    const uint128_t version = command.get< uint128_t >();
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBVERB << "handle pipe frame start " << command << " frame " << frameNumber
            << " id " << frameID << std::endl;
@@ -1205,8 +1204,8 @@ bool Pipe::_cmdFrameFinish( co::ICommand& cmd )
     LB_TS_THREAD( _pipeThread );
 
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << command << " frame "
                        << frameNumber << " id " << frameID << std::endl;
@@ -1238,7 +1237,7 @@ bool Pipe::_cmdFrameFinish( co::ICommand& cmd )
 
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-        send( command.getNode(), fabric::CMD_OBJECT_SYNC );
+        send( command.getRemoteNode(), fabric::CMD_OBJECT_SYNC );
     return true;
 }
 
@@ -1247,8 +1246,8 @@ bool Pipe::_cmdFrameDrawFinish( co::ICommand& cmd )
     LB_TS_THREAD( _pipeThread );
 
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName()
                        << " frame " << frameNumber << " id " << frameID
@@ -1264,7 +1263,7 @@ bool Pipe::_cmdDetachView( co::ICommand& cmd )
 
     LB_TS_THREAD( _pipeThread );
 
-    ViewHash::iterator i = _impl->views.find( command.get< uint128_t >( ));
+    ViewHash::iterator i = _impl->views.find( command.read< uint128_t >( ));
     if( i != _impl->views.end( ))
     {
         View* view = i->second;

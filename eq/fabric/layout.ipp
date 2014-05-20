@@ -300,8 +300,8 @@ Layout< C, L, V >::_cmdNewView( co::ICommand& cmd )
     view->setAutoObsolete( _config->getLatency() + 1 );
     LBASSERT( view->isAttached() );
 
-    send( command.getNode(), CMD_LAYOUT_NEW_VIEW_REPLY )
-            << command.get< uint32_t >() << view->getID();
+    send( command.getRemoteNode(), CMD_LAYOUT_NEW_VIEW_REPLY )
+            << command.read< uint32_t >() << view->getID();
 
     return true;
 }
@@ -310,8 +310,8 @@ template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewViewReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint32_t requestID = command.get< uint32_t >();
-    const uint128_t& result = command.get< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const uint128_t& result = command.read< uint128_t >();
 
     getLocalNode()->serveRequest( requestID, result );
 
