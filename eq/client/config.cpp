@@ -1097,14 +1097,10 @@ void Config::unmapObject( co::Object* object )
     getClient()->unmapObject( object );
 }
 
-void Config::releaseObject( co::Object* object )
+f_bool_t Config::syncObject( co::Object* object, co::NodePtr master,
+                             const uint128_t& id, const uint32_t instanceID )
 {
-    if( !object->isAttached( ))
-        return;
-    if( object->isMaster( ))
-        deregisterObject( object );
-    else
-        unmapObject( object );
+    return getClient()->syncObject( object, master, id, instanceID );
 }
 
 void Config::_releaseObjects()

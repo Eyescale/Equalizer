@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -228,7 +228,8 @@ public:
                                 const uint128_t& version = co::VERSION_OLDEST );
 
     /** Start mapping a distributed object from a known master. @version 1.0 */
-    EQ_API virtual uint32_t mapObjectNB( co::Object* object, const uint128_t& id,
+    EQ_API virtual uint32_t mapObjectNB( co::Object* object,
+                                         const uint128_t& id,
                                          const uint128_t& version,
                                          co::NodePtr master );
 
@@ -244,8 +245,15 @@ public:
      */
     EQ_API virtual void unmapObject( co::Object* object );
 
-    /** Convenience method to deregister or unmap an object. @version 1.0 */
-    EQ_API void releaseObject( co::Object* object );
+    /**
+     * Synchronize the local object with a remote object.
+     *
+     * Provided for symmetry. Forwards unmapping to local client node.
+     * @version 1.7.4
+     */
+    EQ_API f_bool_t syncObject( co::Object* object, co::NodePtr master,
+                                const uint128_t& id,
+                          const uint32_t instanceID = CO_INSTANCE_ALL) override;
     //@}
 
     /** @name Frame Control */

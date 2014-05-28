@@ -64,12 +64,10 @@ bool Window::configInitSystemWindow( const eq::uint128_t& initID )
 
         // no anti-aliasing possible
         setIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM, eq::AUTO );
-
         return eq::Window::configInitSystemWindow( initID );
 
 #ifndef Darwin
     }
-
     return true;
 #endif
 }
