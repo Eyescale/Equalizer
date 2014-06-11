@@ -37,7 +37,6 @@ namespace eq
 namespace server
 {
 class ChannelListener;
-class Window;
 
 class Channel : public fabric::Channel< Window, Channel >
 {

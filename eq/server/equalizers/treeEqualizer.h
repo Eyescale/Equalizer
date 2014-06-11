@@ -33,7 +33,6 @@ namespace eq
 {
 namespace server
 {
-    class TreeEqualizer;
     std::ostream& operator << ( std::ostream& os, const TreeEqualizer* );
 
     /** Adapts the 2D tiling or DB range of the attached compound's children. */

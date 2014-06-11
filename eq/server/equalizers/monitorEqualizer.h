@@ -28,8 +28,6 @@ namespace eq
 {
 namespace server
 {
-    class Compound;
-    class MonitorEqualizer;
     std::ostream& operator << ( std::ostream& os, const MonitorEqualizer* );
 
     /** Destination-driven scaling.*/
