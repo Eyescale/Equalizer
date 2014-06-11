@@ -26,7 +26,6 @@ namespace eq
 namespace server
 {
 
-class TileEqualizer;
 std::ostream& operator << ( std::ostream& os, const TileEqualizer* );
 
 class TileEqualizer : public Equalizer
