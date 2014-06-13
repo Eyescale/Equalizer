@@ -27,14 +27,12 @@ namespace eq
 {
 namespace qt
 {
-    /** A window-system event for a qt::WindowIF. */
-    class EQ_API WindowEvent : public QEvent, public Event
-    {
-    public:
-        WindowEvent()
-            : QEvent( QEvent::User )
-        {}
-    };
+/** A window-system event for a qt::WindowIF. */
+class EQ_API WindowEvent : public QEvent, public Event
+{
+public:
+    WindowEvent() : QEvent( QEvent::User ) {}
+};
 }
 }
 #endif // EQ_QT_WINDOWEVENT_H

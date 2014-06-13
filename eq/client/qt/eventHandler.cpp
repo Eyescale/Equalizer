@@ -38,7 +38,10 @@ EventHandler::~EventHandler()
 bool EventHandler::event( QEvent* evt )
 {
     if( evt->type() != QEvent::User )
+    {
         LBUNREACHABLE;
+        return false;
+    }
 
     WindowEvent& windowEvent  = static_cast< WindowEvent& >( *evt );
     switch( windowEvent.eq::Event::type )

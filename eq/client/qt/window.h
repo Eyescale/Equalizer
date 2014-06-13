@@ -69,14 +69,10 @@ public:
     /** @version 1.7.3 */
     void configExit() override;
 
-    /**
-     * @version 1.7.3
-     */
+    /** @version 1.7.3 */
     EQ_API virtual void initEventHandler();
 
-    /**
-     * @version 1.7.3
-     */
+    /** @version 1.7.3 */
     EQ_API virtual void exitEventHandler();
     //@}
 

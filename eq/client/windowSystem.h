@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -63,7 +63,7 @@ protected:
     virtual SystemWindow* createWindow( Window* window,
                                         const WindowSettings& settings ) = 0;
 
-    /** @return destroy the system window of the given window. @version 1.7.3 */
+    /** Destroy the system window of the given window. @version 1.7.3 */
     virtual void destroyWindow( Window* /*window*/ ) {}
 
     /**

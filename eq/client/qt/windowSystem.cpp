@@ -36,7 +36,7 @@ namespace qt
 {
 
 class WindowSystem;
-typedef co::CommandFunc< WindowSystem > WidgetFunc;
+typedef co::CommandFunc< WindowSystem > CmdFunc;
 
 static class WindowSystem : WindowSystemIF, public co::Dispatcher
 {
@@ -62,8 +62,8 @@ private:
                           WindowSettings::IATTR_HINT_DRAWABLE ) != eq::WINDOW );
     }
 
-    std::string getName() const final { return QApplication::instance() ? "Qt"
-                                                                        : ""; }
+    std::string getName() const final
+        { return QApplication::instance() ? "Qt" : ""; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
@@ -75,8 +75,9 @@ private:
 
         // need to create QGLWidget from main thread
         window->registerCommand( fabric::CMD_WINDOW_CREATE_QGL_WIDGET,
-                        WidgetFunc( this, &WindowSystem::_cmdCreateQGLWidget ),
-                                    window->getConfig()->getMainThreadQueue( ));
+                                 CmdFunc( this,
+                                          &WindowSystem::_cmdCreateQGLWidget ),
+                                 window->getConfig()->getMainThreadQueue( ));
 
         co::LocalNodePtr localNode = window->getConfig()->getLocalNode();
         lunchbox::Request< void* > request =
@@ -101,7 +102,7 @@ private:
 
         // need to destroy QGLWidget from main thread
         window->registerCommand( fabric::CMD_WINDOW_DESTROY_QGL_WIDGET,
-                         WidgetFunc( this, &WindowSystem::_cmdDestroyGLWidget ),
+                         CmdFunc( this, &WindowSystem::_cmdDestroyGLWidget ),
                                     window->getConfig()->getMainThreadQueue( ));
 
         Window* sysWindow = static_cast< Window* >( window->getSystemWindow( ));
@@ -211,9 +212,7 @@ private:
     bool _cmdCreateQGLWidget( co::ICommand& command )
     {
         co::ObjectICommand cmd( command );
-
-        eq::Window* window =
-                reinterpret_cast< eq::Window* >( cmd.get< void* >( ));
+        eq::Window* window = reinterpret_cast< eq::Window* >( cmd.get<void*>());
         WindowSettings& settings =
                 *reinterpret_cast< WindowSettings* >( cmd.get< void* >( ));
 
@@ -245,8 +244,7 @@ private:
         glWidget->doneCurrent();
 
 #if QT_VERSION >= 0x050000
-        QThread* renderThread =
-                reinterpret_cast< QThread* >( cmd.get< void* >( ));
+        QThread* renderThread = reinterpret_cast< QThread* >( cmd.get<void*>());
         glWidget->context()->moveToThread( renderThread );
 #else
         cmd.get< void* >();
