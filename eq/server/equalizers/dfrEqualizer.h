@@ -28,7 +28,6 @@ namespace eq
 {
 namespace server
 {
-    class DFREqualizer;
     std::ostream& operator << ( std::ostream& os, const DFREqualizer* );
 
     /** Tries to maintain a constant frame rate by adapting the compound zoom.*/

@@ -30,7 +30,6 @@ namespace eq
 {
 namespace server
 {
-    class ViewEqualizer;
     std::ostream& operator << ( std::ostream& os, const ViewEqualizer* );
 
     /**

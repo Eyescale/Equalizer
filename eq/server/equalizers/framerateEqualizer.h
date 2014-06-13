@@ -28,7 +28,6 @@ namespace eq
 {
 namespace server
 {
-    class FramerateEqualizer;
     std::ostream& operator << ( std::ostream& os, const FramerateEqualizer* );
 
     /**

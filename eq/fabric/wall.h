@@ -27,8 +27,6 @@ namespace eq
 {
 namespace fabric
 {
-    class Projection;
-
     /**
      * A wall defining a view frustum.
      *

@@ -19,6 +19,7 @@
 #define EQFABRIC_PIXEL_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/types.h>
 #include <lunchbox/bitOperation.h>
 #include <lunchbox/log.h>
 #include <lunchbox/types.h>
@@ -27,7 +28,6 @@ namespace eq
 {
 namespace fabric
 {
-    class Pixel;
     std::ostream& operator << ( std::ostream& os, const Pixel& pixel );
 
     /**
