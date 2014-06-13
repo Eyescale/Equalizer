@@ -31,7 +31,7 @@ namespace eq
         EventHandler() {}
 
         /** Destruct the event handler. @version 1.0 */
-        virtual ~EventHandler(){}
+        virtual ~EventHandler() {}
 
         /**
          * @internal
@@ -46,4 +46,3 @@ namespace eq
 }
 
 #endif // EQ_EVENTHANDLER_H
-

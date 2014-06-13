@@ -48,6 +48,23 @@ if(DISPLAYCLUSTER_FOUND)
   )
 endif()
 
+set(QT_HEADERS
+  qt/eventHandler.h
+  qt/glWidget.h
+  qt/messagePump.h
+  qt/types.h
+  qt/window.h
+  qt/windowEvent.h
+)
+
+set(QT_SOURCES
+  qt/eventHandler.cpp
+  qt/glWidget.cpp
+  qt/messagePump.cpp
+  qt/window.cpp
+  qt/windowSystem.cpp
+)
+
 set(WGL_HEADERS
   wgl/eventHandler.h
   wgl/messagePump.h
@@ -66,7 +83,7 @@ set(WGL_SOURCES
 )
 
 set(CLIENT_PUBLIC_HEADERS
-  ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
+  ${AGL_HEADERS} ${GLX_HEADERS} ${QT_HEADERS} ${WGL_HEADERS}
   api.h
   base.h
   canvas.h
@@ -184,12 +201,18 @@ set(CLIENT_SOURCES
 if(NOT EQUALIZER_BUILD_2_0_API)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
 endif()
+if(GLSTATS_FOUND)
+  list(APPEND CLIENT_HEADERS detail/statsRenderer.h)
+endif()
 
 if(EQ_AGL_USED)
   list(APPEND CLIENT_SOURCES ${AGL_SOURCES})
 endif()
 if(EQ_GLX_USED)
   list(APPEND CLIENT_SOURCES ${GLX_SOURCES})
+endif()
+if(EQ_QT_USED)
+  list(APPEND CLIENT_SOURCES ${QT_SOURCES})
 endif()
 if(WIN32)
   list(APPEND CLIENT_SOURCES ${WGL_SOURCES})

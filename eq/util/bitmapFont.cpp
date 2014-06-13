@@ -25,38 +25,52 @@ namespace eq
 {
 namespace util
 {
-
-BitmapFont::BitmapFont( ObjectManager& gl, const void* key )
+namespace detail
+{
+class BitmapFont
+{
+public:
+    BitmapFont( util::ObjectManager& om_, const void* key_ )
         // We create a new shared object manager. Typically we are exited by
         // the last user, at which point the given OM may have been deleted
-        : _gl( gl )
-        , _key( key )
+        : om( om_ )
+        , key( key_ )
+    {}
+
+    util::ObjectManager om;
+    const void* key;
+};
+}
+
+BitmapFont::BitmapFont( ObjectManager& om, const void* key )
+    : _impl( new detail::BitmapFont( om, key ))
 {
 }
 
 BitmapFont::~BitmapFont()
 {
-    const GLuint lists = _gl.getList( _key );
+    const GLuint lists = _impl->om.getList( _impl->key );
     if( lists != ObjectManager::INVALID )
         LBWARN << "OpenGL BitmapFont was not freed" << std::endl;
+    delete _impl;
 }
 
 bool BitmapFont::init( const WindowSystem& ws, const std::string& name,
                        const uint32_t size )
 {
-    return ws.setupFont( _gl, _key, name, size );
+    return ws.setupFont( _impl->om, _impl->key, name, size );
 }
 
 void BitmapFont::exit()
 {
-    GLuint lists = _gl.getList( _key );
+    GLuint lists = _impl->om.getList( _impl->key );
     if( lists != ObjectManager::INVALID )
-        _gl.deleteList( _key );
+        _impl->om.deleteList( _impl->key );
 }
 
 void BitmapFont::draw( const std::string& text ) const
 {
-    const GLuint lists = _gl.getList( _key );
+    const GLuint lists = _impl->om.getList( _impl->key );
     LBASSERTINFO( lists != ObjectManager::INVALID,
                   "Font not initialized" );
 

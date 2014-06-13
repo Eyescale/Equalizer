@@ -63,6 +63,9 @@ endif()
 if(EQ_GLX_USED)
   list(APPEND EQ_LIBRARIES ${X11_LIBRARIES})
 endif()
+if(EQ_QT_USED)
+  list(APPEND EQ_LIBRARIES ${QT_LIBRARIES})
+endif()
 
 source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
@@ -74,6 +77,7 @@ source_group(client FILES eq.h ${CLIENT_PUBLIC_HEADERS} ${CLIENT_HEADERS} ${CLIE
 source_group(agl FILES ${AGL_HEADERS} ${AGL_SOURCES})
 source_group(glx FILES ${GLX_HEADERS} ${GLX_SOURCES})
 source_group(wgl FILES ${WGL_HEADERS} ${WGL_SOURCES})
+source_group(qt  FILES ${QT_HEADERS}  ${QT_SOURCES})
 set_source_files_properties(${AGL_SOURCES}
   PROPERTIES COMPILE_FLAGS "-Wno-multichar")
 
@@ -86,7 +90,7 @@ set_target_properties(Equalizer
 install_files(include/eq/client FILES ${CLIENT_PUBLIC_HEADERS}  COMPONENT dev)
 install_files(include/eq/util FILES ${UTIL_HEADERS} COMPONENT dev)
 
-if (MSVC)
+if(MSVC)
   install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/Equalizer.pdb
     DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
   install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/Equalizer.pdb

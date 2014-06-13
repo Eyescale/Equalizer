@@ -54,14 +54,17 @@ protected:
     virtual std::string getName() const = 0;
 
     /** @return a new system pipe. @version 1.6 */
-    virtual SystemPipe* createPipe(Pipe* pipe) const = 0;
+    virtual SystemPipe* createPipe( Pipe* pipe ) = 0;
 
     /** @return a new event message pump @version 1.6 */
-    virtual MessagePump* createMessagePump() const = 0;
+    virtual MessagePump* createMessagePump() = 0;
 
     /** @return a new system window @version 1.7.2 */
     virtual SystemWindow* createWindow( Window* window,
-                                     const WindowSettings& settings ) const = 0;
+                                        const WindowSettings& settings ) = 0;
+
+    /** @return destroy the system window of the given window. @version 1.7.3 */
+    virtual void destroyWindow( Window* /*window*/ ) {}
 
     /**
      * Create a set of display lists for the given font.
@@ -78,7 +81,8 @@ protected:
      * @warning experimental, might not be supported in the future.
      */
     virtual bool setupFont( util::ObjectManager& gl, const void* key,
-                       const std::string& name, const uint32_t size ) const = 0;
+                            const std::string& name,
+                            const uint32_t size ) const = 0;
 
     /** Perform per-process initialization for a Config. @version 1.6 */
     virtual void configInit( Node* /*node*/ ) {}
@@ -98,10 +102,9 @@ private:
 class WindowSystem
 {
 public:
-    EQ_API WindowSystem();
-    EQ_API WindowSystem( const std::string& name );
+    EQ_API explicit WindowSystem( const std::string& name );
 
-    static bool supports( std::string const& type );
+    static bool supports( const std::string& type );
 
     static void configInit( Node* node );
     static void configExit( Node* node );
@@ -109,9 +112,10 @@ public:
     EQ_API std::string getName() const;
 
     EQ_API SystemWindow* createWindow( Window* window,
-                                       const WindowSettings& settings ) const;
-    EQ_API SystemPipe* createPipe( Pipe* pipe ) const;
-    EQ_API MessagePump* createMessagePump() const;
+                                       const WindowSettings& settings );
+    EQ_API void destroyWindow( Window* window );
+    EQ_API SystemPipe* createPipe( Pipe* pipe );
+    EQ_API MessagePump* createMessagePump();
     EQ_API bool setupFont( util::ObjectManager& gl, const void* key,
                            const std::string& name, const uint32_t size ) const;
 
@@ -119,7 +123,8 @@ public:
     EQ_API bool operator != ( const WindowSystem& other ) const;
 
 private:
-    const WindowSystemIF* _impl;
+    WindowSystem();
+    WindowSystemIF* _impl;
     void _chooseImpl( const std::string& name );
 };
 

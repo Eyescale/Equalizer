@@ -974,8 +974,11 @@ void Config::setupMessagePump( Pipe* pipe )
     const bool isThreaded = pipe->isThreaded();
     const WindowSystem windowSystem = pipe->getWindowSystem();
 
-    if( isThreaded && windowSystem.getName() != "AGL" )
+    if( isThreaded && windowSystem.getName() != "AGL" &&
+                      windowSystem.getName() != "Qt" )
+    {
         return;
+    }
 
     // called from pipe threads - but only during init
     static lunchbox::Lock _lock;

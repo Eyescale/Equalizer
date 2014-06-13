@@ -44,7 +44,7 @@ namespace eqPly
             { _frameDataID = id; }
 
         eq::uint128_t getFrameDataID() const  { return _frameDataID; }
-        eq::WindowSystem   getWindowSystem() const  { return _windowSystem; }
+        const std::string& getWindowSystem() const { return _windowSystem; }
         triply::RenderMode getRenderMode() const       { return _renderMode; }
         bool               useGLSL() const          { return _useGLSL; }
         bool               useInvertedFaces() const { return _invFaces; }
@@ -55,7 +55,7 @@ namespace eqPly
         virtual void getInstanceData( co::DataOStream& os );
         virtual void applyInstanceData( co::DataIStream& is );
 
-        void setWindowSystem( const eq::WindowSystem windowSystem )
+        void setWindowSystem( const std::string& windowSystem )
             { _windowSystem = windowSystem; }
         void setRenderMode( const triply::RenderMode renderMode )
             { _renderMode = renderMode; }
@@ -65,13 +65,13 @@ namespace eqPly
         void disableROI()          { _roi      = false; }
 
     private:
-        eq::uint128_t    _frameDataID;
-        eq::WindowSystem _windowSystem;
-        triply::RenderMode  _renderMode;
-        bool             _useGLSL;
-        bool             _invFaces;
-        bool             _logo;
-        bool             _roi;
+        eq::uint128_t      _frameDataID;
+        std::string        _windowSystem;
+        triply::RenderMode _renderMode;
+        bool               _useGLSL;
+        bool               _invFaces;
+        bool               _logo;
+        bool               _roi;
     };
 }
 

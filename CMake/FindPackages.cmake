@@ -155,6 +155,15 @@ else()
   find_package(GLEW_MX  )
 endif()
 
+if(PKG_CONFIG_EXECUTABLE)
+  find_package(Qt4 4.6 COMPONENTS QtCore QtGui QtOpenGL)
+  if((NOT Qt4_FOUND) AND (NOT QT4_FOUND))
+    pkg_check_modules(Qt4 Qt4>=4.6)
+  endif()
+else()
+  find_package(Qt4 4.6  COMPONENTS QtCore QtGui QtOpenGL)
+endif()
+
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
   include(${CMAKE_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
@@ -400,9 +409,25 @@ if(GLEW_MX_name)
   endif()
 endif()
 
+if(QT4_FOUND)
+  set(Qt4_name QT4)
+  set(Qt4_FOUND TRUE)
+elseif(Qt4_FOUND)
+  set(Qt4_name Qt4)
+  set(QT4_FOUND TRUE)
+endif()
+if(Qt4_name)
+  list(APPEND FIND_PACKAGES_DEFINES EQUALIZER_USE_QT4)
+  set(FIND_PACKAGES_FOUND "${FIND_PACKAGES_FOUND} Qt4")
+  link_directories(${${Qt4_name}_LIBRARY_DIRS})
+  if(NOT "${${Qt4_name}_INCLUDE_DIRS}" MATCHES "-NOTFOUND")
+    include_directories(SYSTEM ${${Qt4_name}_INCLUDE_DIRS})
+  endif()
+endif()
+
 set(EQUALIZER_BUILD_DEBS autoconf;automake;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;libavahi-compat-libdnssd-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libbluetooth-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libboost-thread-dev;libfcgi-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libpoppler-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;openmpi-bin;pkg-config;subversion)
 
-set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;OpenCV;VRPN;DisplayCluster;MAGELLAN;GLEW_MX)
+set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;OpenCV;VRPN;DisplayCluster;MAGELLAN;GLEW_MX;Qt4)
 
 # Write defines.h and options.cmake
 if(NOT PROJECT_INCLUDE_NAME)

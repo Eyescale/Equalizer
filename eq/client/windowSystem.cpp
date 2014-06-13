@@ -20,6 +20,8 @@
 #include "windowSystem.h"
 
 #include "gl.h"
+#include "window.h"
+#include "systemWindow.h"
 
 #include <eq/util/objectManager.h>
 #include <eq/fabric/gpuInfo.h>
@@ -53,13 +55,7 @@ uint32_t WindowSystemIF::_setupLists( util::ObjectManager& gl, const void* key,
     return lists;
 }
 
-WindowSystem::WindowSystem()
-        : _impl( _stack )
-{
-    LBASSERTINFO( _stack, "no window system available" );
-}
-
-WindowSystem::WindowSystem( std::string const& type )
+WindowSystem::WindowSystem( const std::string& type )
 {
     _chooseImpl( type );
 }
@@ -77,7 +73,12 @@ void WindowSystem::_chooseImpl( const std::string& name )
         }
     }
 
-    _impl = _stack;
+    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    {
+        if( !ws->getName().empty( ))
+            _impl = ws;
+    }
+
     LBWARN << "Window system " << name << " not supported, " << "using "
            << _impl->getName() << " instead." << std::endl;
 }
@@ -112,19 +113,27 @@ std::string WindowSystem::getName() const
 }
 
 SystemWindow* WindowSystem::createWindow( Window* window,
-                                          const WindowSettings& settings ) const
+                                          const WindowSettings& settings )
 {
     LBASSERT( _impl );
     return _impl->createWindow( window, settings );
 }
 
-SystemPipe* WindowSystem::createPipe( Pipe* pipe ) const
+void WindowSystem::destroyWindow( Window* window )
+{
+    LBASSERT( _impl );
+    _impl->destroyWindow( window );
+    delete window->_systemWindow;
+    window->_systemWindow = 0;
+}
+
+SystemPipe* WindowSystem::createPipe( Pipe* pipe )
 {
     LBASSERT( _impl );
     return _impl->createPipe( pipe );
 }
 
-MessagePump* WindowSystem::createMessagePump() const
+MessagePump* WindowSystem::createMessagePump()
 {
     LBASSERT( _impl );
     return _impl->createMessagePump();

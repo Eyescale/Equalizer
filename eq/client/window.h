@@ -21,14 +21,14 @@
 #define EQ_WINDOW_H
 
 #include <eq/client/types.h>
+#include <eq/client/notifierInterface.h> // base class
 #include <eq/client/windowSettings.h>    // template param
 #include <eq/client/visitorResult.h>     // enum
 
-#include <eq/util/bitmapFont.h>          // member
 #include <eq/fabric/renderContext.h>     // member
 #include <eq/fabric/window.h>            // base class
-#include <eq/client/notifierInterface.h> // base class
-
+#include <eq/util/bitmapFont.h>          // member
+#include <eq/util/objectManager.h>       // member
 
 
 /** @file eq/client/window.h */
@@ -420,6 +420,7 @@ protected:
     //@}
 
 private:
+    friend class WindowSystem;
     enum State
     {
         STATE_STOPPED,
@@ -501,7 +502,7 @@ private:
     bool _cmdSwap( co::ICommand& command );
     bool _cmdFrameDrawFinish( co::ICommand& command );
 
-    LB_TS_VAR( _pipeThread );
+    LB_TS_VAR( _pipeThread )
 };
 }
 

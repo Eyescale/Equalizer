@@ -560,10 +560,10 @@ bool Window::configExitSystemWindow()
 
     if( _systemWindow )
     {
-        _systemWindow->configExit( );
+        _systemWindow->configExit();
 
-        delete _systemWindow;
-        _systemWindow = 0;
+        const Pipe* pipe = getPipe();
+        pipe->getWindowSystem().destroyWindow( this );
     }
     return true;
 }

@@ -18,6 +18,7 @@ script:
  - git --no-pager diff
 before_install:
  - sudo apt-get update -qq
+ - sudo apt-get install -qq abi-compliance-checker || /bin/true
  - sudo apt-get install -qq autoconf || /bin/true
  - sudo apt-get install -qq automake || /bin/true
  - sudo apt-get install -qq bison || /bin/true

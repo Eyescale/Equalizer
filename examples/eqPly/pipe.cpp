@@ -39,7 +39,7 @@ namespace eqPly
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
     const Config* config = static_cast<const Config*>( getConfig( ));
-    return config->getInitData().getWindowSystem();
+    return eq::WindowSystem( config->getInitData().getWindowSystem( ));
 }
 
 bool Pipe::configInit( const eq::uint128_t& initID )
