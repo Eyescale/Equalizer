@@ -123,7 +123,7 @@ namespace server
         co::NodePtr findApplicationNetNode();
 
         /** @internal set auto-configured server connections */
-        void setServerConnections( co::Connections connections )
+        void setServerConnections( const co::Connections& connections )
             { _connections = connections; }
 
         /** @internal @return the auto-configured server connections */

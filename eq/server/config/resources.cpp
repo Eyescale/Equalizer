@@ -358,19 +358,29 @@ bool Resources::discover( ServerPtr server, Config* config,
         {
             co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
             desc->port = EQ_DEFAULT_PORT;
-            connections.push_back( server->addListener( desc ));
-            LBASSERT( connections.back().isValid( ));
+            co::ConnectionPtr connection = server->addListener( desc );
+            LBASSERT( connection );
+            if( connection )
+                connections.push_back( connection );
+            else
+                LBWARN << "Could not add listener " << desc->hostname
+                       << " to server" << std::endl;
         }
         else
         {
             const co::ConnectionDescriptions& descs =
-                _findConnections( appNodeID, netInfos, EQ_DEFAULT_PORT);
+                _findConnections( appNodeID, netInfos, EQ_DEFAULT_PORT );
 
             for( co::ConnectionDescriptionsCIter i = descs.begin();
                  i != descs.end(); ++i )
             {
-                connections.push_back( server->addListener( *i ));
-                LBASSERT( connections.back().isValid( ));
+                co::ConnectionPtr connection = server->addListener( *i );
+                LBASSERT( connection );
+                if( connection )
+                    connections.push_back( connection );
+                else
+                    LBWARN << "Could not add listener " << (*i)->hostname
+                           << " to server" << std::endl;
             }
         }
 
