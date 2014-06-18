@@ -42,32 +42,23 @@ and documentation changes over the Equalizer 1.6 release:
 
 ## New Features {#NewFeatures}
 
-* [267](https://github.com/Eyescale/Equalizer/issues/267): Image dumping
-  features added
-* [280](https://github.com/Eyescale/Equalizer/issues/280): Sequel: change
-  the near and far planes
-* [299](https://github.com/Eyescale/Equalizer/issues/299): Added two new
-  window attributes to set the width and height
+* [267](https://github.com/Eyescale/Equalizer/issues/267): Flag to write
+  the framebuffer content of destination channels to an image
+* [280](https://github.com/Eyescale/Equalizer/issues/280): Sequel: allow
+  changing of near and far planes
 
 ## Enhancements {#Enhancements}
 
-* [264](https://github.com/Eyescale/Equalizer/issues/264): Move away from
-  removed/deprecated lunchbox API
-* [269](https://github.com/Eyescale/Equalizer/issues/269): Generalize test
-  config and put more tokens in it
-* [272](https://github.com/Eyescale/Equalizer/issues/272): Classes related
-  to PLY models moved to its own library
-* [285](https://github.com/Eyescale/Equalizer/issues/285): Added global
-  parameters to global section of the config: tcp_recv_buffer_size,
-  tcp_send_buffer_size, read_thread_count
+* [272](https://github.com/Eyescale/Equalizer/issues/272): Generic
+  triply library for PLY model parsing and rendering
 * [289](https://github.com/Eyescale/Equalizer/issues/289): Install pdb files
   for windows examples in debug builds
-* [290](https://github.com/Eyescale/Equalizer/issues/290): Updated Equalizer
-  to the new dc::Stream API.
-* [308](https://github.com/Eyescale/Equalizer/issues/308): Remove unnecessary
-  null pointer checks
-* [331](https://github.com/Eyescale/Equalizer/issues/331): Add syncObject
-  to ObjectHandler
+* [299](https://github.com/Eyescale/Equalizer/issues/299): Allow
+  autoconfig setting of window size in pixels from environment variables
+* [328](https://github.com/Eyescale/Equalizer/issues/328): Remove
+  Channel::getInput/OutputFrames
+* [331](https://github.com/Eyescale/Equalizer/issues/331): Added
+  Config::syncObject
 
 ## Optimizations {#Optimizations}
 
@@ -97,22 +88,10 @@ the following:
   error on VS2013
 * [302](https://github.com/Eyescale/Equalizer/issues/302): Not clamping
   window size hints to physical display if offscreen.
-* [303](https://github.com/Eyescale/Equalizer/issues/303): Boost
-  dependencies
-* [309](https://github.com/Eyescale/Equalizer/issues/309): Build
-  against new lunchbox and upcoming collage change
-* [323](https://github.com/Eyescale/Equalizer/issues/323): 'Handle' failing
-  frame set ready
-* [324](https://github.com/Eyescale/Equalizer/issues/324): Admin
-  window creation in eqPly
-* [327](https://github.com/Eyescale/Equalizer/issues/327): Context
-  sharing
-* [328](https://github.com/Eyescale/Equalizer/issues/328): Remove
-  Channel::getInput/OutputFrames
-* [330](https://github.com/Eyescale/Equalizer/issues/330): Readback
-  and assemble frames, replace deprecated ICommand funcs
-* [332](https://github.com/Eyescale/Equalizer/issues/332): Output of
-  readback types
+* [323](https://github.com/Eyescale/Equalizer/issues/323): Reliability
+  improvements in image transmission
+* [324](https://github.com/Eyescale/Equalizer/issues/324): Fix window
+  creation in eqPly through admin API
 
 ## Known Bugs {#Bugs}
 
@@ -167,7 +146,3 @@ available from [Eyescale](http://www.eyescale.ch). Please contact
 for further information.
 
 # Errata
-* [236](https://github.com/Eyescale/Equalizer/issues/236): Bug in
-  Equalizer.pc pkg-config file
-* [0f5afef](https://github.com/Eyescale/Equalizer/commit/0f5afef) Fix
-  PackageConfig generation to locate FindGLEW_MX
