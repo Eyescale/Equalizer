@@ -9,12 +9,12 @@ Welcome to Equalizer, the standard middleware to create and deploy
 parallel, scalable OpenGL applications. This release introduces major
 new features, most notably integrated head tracking using VRPN or OpenCV.
 
-Equalizer 1.6 is a feature release extending the 1.0 API, distilling
-over eight years of development and decades of experience into a
+Equalizer 1.7 is a feature release extending the 1.0 API, distilling
+over several years of development and decades of experience into a
 feature-rich, high-performance and mature parallel rendering
 framework. It is intended for all application developers creating
-parallel, interactive OpenGL applications. Equalizer 1.6 can be
-retrieved by downloading the [source code](http://www.equalizergraphics.com/downloads/Equalizer-1.6.0.tar.gz") or one of the [precompiled packages](http://www.equalizergraphics.com/downloads/major.html).
+parallel, interactive OpenGL applications. Equalizer 1.7 can be
+retrieved by downloading the [source code](http://www.equalizergraphics.com/downloads/Equalizer-1.7.0.tar.gz") or one of the [precompiled packages](http://www.equalizergraphics.com/downloads/major.html).
 
 ## Features {#Features}
 
@@ -37,35 +37,37 @@ Equalizer provides the following major features to facilitate the development an
 
 # New in this release {#New}
 
-Equalizer 1.6 contains the following features, enhancements, bug fixes
-and documentation changes over the Equalizer 1.4 release:
+Equalizer 1.7 contains the following features, enhancements, bug fixes
+and documentation changes over the Equalizer 1.6 release:
 
 ## New Features {#NewFeatures}
 
-* [204](https://github.com/Eyescale/Equalizer/issues/204): Camera-based
-  head tracking using OpenCV
-* [196](https://github.com/Eyescale/Equalizer/issues/196): Asymmetric
-  eye position
-* [194](https://github.com/Eyescale/Equalizer/issues/194): Runtime
-  changeable segment frusta
-* [189](https://github.com/Eyescale/Equalizer/issues/189): Runtime
-  changeable equalizer properties
-* [133](https://github.com/Eyescale/Equalizer/issues/133): VRPN head tracking
+* [267](https://github.com/Eyescale/Equalizer/issues/267): Image dumping
+  features added
+* [280](https://github.com/Eyescale/Equalizer/issues/280): Sequel: change
+  the near and far planes
+* [299](https://github.com/Eyescale/Equalizer/issues/299): Added two new
+  window attributes to set the width and height
 
 ## Enhancements {#Enhancements}
 
-* [186](https://github.com/Eyescale/Equalizer/issues/186): Resistance to
-  load_equalizers changes
-* [185](https://github.com/Eyescale/Equalizer/issues/185): Network
-  interface selection for autoconfiguration
-* [153](https://github.com/Eyescale/Equalizer/issues/153): GLEW 1.9.0 update
-* [150](https://github.com/Eyescale/Equalizer/issues/150): Spacemouse
-  Linux support
-* [110](https://github.com/Eyescale/Equalizer/issues/110): Refactored
-  statistics handling into external GLStats library
-* [166](https://github.com/Eyescale/Equalizer/issues/166): Custom HMD projection
-* [222](https://github.com/Eyescale/Equalizer/issues/222): Add default
-  frustum on canvas
+* [264](https://github.com/Eyescale/Equalizer/issues/264): Move away from
+  removed/deprecated lunchbox API
+* [269](https://github.com/Eyescale/Equalizer/issues/269): Generalize test
+  config and put more tokens in it
+* [272](https://github.com/Eyescale/Equalizer/issues/272): Classes related
+  to PLY models moved to its own library
+* [285](https://github.com/Eyescale/Equalizer/issues/285): Added global
+  parameters to global section of the config: tcp_recv_buffer_size,
+  tcp_send_buffer_size, read_thread_count
+* [289](https://github.com/Eyescale/Equalizer/issues/289): Install pdb files
+  for windows examples in debug builds
+* [290](https://github.com/Eyescale/Equalizer/issues/290): Updated Equalizer
+  to the new dc::Stream API.
+* [308](https://github.com/Eyescale/Equalizer/issues/308): Remove unnecessary
+  null pointer checks
+* [331](https://github.com/Eyescale/Equalizer/issues/331): Add syncObject
+  to ObjectHandler
 
 ## Optimizations {#Optimizations}
 
@@ -86,30 +88,31 @@ since the last release:
 
 ## Bug Fixes {#Fixes}
 
-Equalizer 1.6 includes various bugfixes over the 1.4 release, including
+Equalizer 1.7 includes various bugfixes over the 1.6 release, including
 the following:
 
-* [138](https://github.com/Eyescale/Equalizer/issues/138),
-  [174](https://github.com/Eyescale/Equalizer/issues/174),
-  [177](https://github.com/Eyescale/Equalizer/issues/177),
-  [183](https://github.com/Eyescale/Equalizer/issues/183): Shared
-  rendering context setup bugs
-* [192](https://github.com/Eyescale/Equalizer/issues/192):
-  Auto-configured server connections are not removed
-* [203](https://github.com/Eyescale/Equalizer/issues/203): Sequel: crash
-  on failed window initialization
-* [201](https://github.com/Eyescale/Equalizer/issues/201): util::Accum
-  broken for operations with offset
-* [217](https://github.com/Eyescale/Equalizer/issues/217): Auto image
-  compressor allocation always uses lossy downloader data
-* [76](https://github.com/Eyescale/Equalizer/issues/76):
-  7-window.DPLEX.2D.lb.eqc does not load-balance
-* [187](https://github.com/Eyescale/Equalizer/issues/187): TileEqualizer
-  queue linking broken
-* [199](https://github.com/Eyescale/Equalizer/issues/199): Alpha value
-  wrong in eq::util::Accum::display
-* [233](https://github.com/Eyescale/Equalizer/issues/233): Monitor
-  equalizer with FBO sources leads to crash
+* [291](https://github.com/Eyescale/Equalizer/issues/291): Document
+  non-stack usage by protecting dtors
+* [292](https://github.com/Eyescale/Equalizer/issues/292): FMAX/FMIN
+  error on VS2013
+* [302](https://github.com/Eyescale/Equalizer/issues/302): Not clamping
+  window size hints to physical display if offscreen.
+* [303](https://github.com/Eyescale/Equalizer/issues/303): Boost
+  dependencies
+* [309](https://github.com/Eyescale/Equalizer/issues/309): Build
+  against new lunchbox and upcoming collage change
+* [323](https://github.com/Eyescale/Equalizer/issues/323): 'Handle' failing
+  frame set ready
+* [324](https://github.com/Eyescale/Equalizer/issues/324): Admin
+  window creation in eqPly
+* [327](https://github.com/Eyescale/Equalizer/issues/327): Context
+  sharing
+* [328](https://github.com/Eyescale/Equalizer/issues/328): Remove
+  Channel::getInput/OutputFrames
+* [330](https://github.com/Eyescale/Equalizer/issues/330): Readback
+  and assemble frames, replace deprecated ICommand funcs
+* [332](https://github.com/Eyescale/Equalizer/issues/332): Output of
+  readback types
 
 ## Known Bugs {#Bugs}
 
@@ -141,9 +144,9 @@ system. Equalizer requires at least [OpenGL 1.1](http://www.opengl.org),
 but uses newer OpenGL features when available. Equalizer uses CMake and
 [Buildyard](https://github.com/Eyescale/Buildyard) to create a
 platform-specific build environment. The following platforms and build
-environments are tested for version 1.6:
+environments are tested for version 1.7:
 
-* Linux: Ubuntu 12.04, 12.10, RHEL 6.4 (Makefile, i386, x64)
+* Linux: Ubuntu 13.10, 14.04, RHEL 6.5 (Makefile, i386, x64)
 * Windows: 7 (Visual Studio 2008, i386, x64)
 * Mac OS X: 10.8 (Makefile, XCode, i386, x64)
 
