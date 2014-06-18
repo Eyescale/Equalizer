@@ -23,22 +23,18 @@ option(EQUALIZER_BUILD_2_0_API
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
-set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(LAST_RELEASE 1.6.0)
+set(VERSION_ABI 2)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "7")
 set(VERSION_PATCH "3")
 
+set(DPUT_HOST ppa:bbp/ppa)
+set(GITTARGETS_RELEASE_BRANCH minor)
+
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
 set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
                           parallel and scalable OpenGL and GPGPU applications.")
-
-if(RELEASE_VERSION)
-  set(EQ_DEFINITIONS -DEQ_RELEASE)
-  set(VERSION_ABI ${RELEASE_VERSION})
-else()
-  set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
-endif()
 
 set(PROJECT_INCLUDE_NAME eq)
 if(EQUALIZER_BUILD_2_0_API)
@@ -48,6 +44,11 @@ else()
 endif()
 
 include(Common)
+
+if(RELEASE_VERSION)
+  set(EQ_DEFINITIONS -DEQ_RELEASE)
+endif()
+
 include(GitTargets)
 include(configure)
 include(UpdateFile)
@@ -158,7 +159,6 @@ if(MSVC)
 else()
   message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 endif()
-
 
 include(DoxygenRule) # must be after all targets
 include(CPackConfig)
