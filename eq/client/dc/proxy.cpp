@@ -84,8 +84,7 @@ public:
         texture.copyFromFrameBuffer( GL_RGBA, pvp );
         // Needed as copyFromFrameBuffer only grows the texture!
         texture.resize( pvp.w, pvp.h );
-        texture.download( buffer.getData() );
-
+        texture.download( buffer.getData( ));
         const Viewport& vp = channel->getViewport();
         const int32_t width = pvp.w / vp.w;
         const int32_t height = pvp.h / vp.h;
@@ -95,6 +94,8 @@ public:
         ::dc::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h, 4 );
         ::dc::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
                                          ::dc::RGBA, offsX, offsY );
+        imageWrapper.compressionPolicy = ::dc::COMPRESSION_ON;
+        imageWrapper.compressionQuality = 100;
 
         running = stream->send( imageWrapper ) && stream->finishFrame();
     }
