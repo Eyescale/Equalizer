@@ -140,7 +140,7 @@ int Proxy::getSocketDescriptor() const
     return _impl->stream->getDescriptor();
 }
 
-bool Proxy::hasNewEvent()
+bool Proxy::hasNewEvent() const
 {
     return _impl->stream->hasEvent();
 }
