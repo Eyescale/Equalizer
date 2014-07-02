@@ -124,7 +124,7 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-install(FILES CMake/common/FindGLEW_MX.cmake
+install(FILES CMake/common/FindGLEW_MX.cmake CMake/EqGLLibraries.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)
