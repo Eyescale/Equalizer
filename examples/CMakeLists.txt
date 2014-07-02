@@ -5,8 +5,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 if(Equalizer_BINARY_DIR) # in-repository build
-  configure_file(CMakeLists.txt
-                 ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt @ONLY)
+  configure_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
+    @ONLY)
 
   set(EQUALIZER_LIBRARIES Equalizer)
   set(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin)
