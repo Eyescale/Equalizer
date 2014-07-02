@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,8 +19,8 @@
 #define EQ_AGL_EVENTHANDLER_H
 
 #include <eq/defines.h>
+#include <eq/client/os.h>
 #ifdef AGL
-
 #include <eq/client/agl/types.h>
 #include <eq/client/eventHandler.h> // base class
 
