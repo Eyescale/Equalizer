@@ -84,39 +84,13 @@ public:
     void swapBuffer()
     {
         const PixelViewport& pvp = _channel->getPixelViewport();
-        const SystemWindow* sysWindow = _channel->getWindow()->getSystemWindow();
-        const util::FrameBufferObject* fbo = sysWindow->getFrameBufferObject();
-        ::dc::PixelFormat pixelFormat = ::dc::RGB;
-        size_t bytesPerPixel = 3;
+        const size_t bytesPerPixel = 4;
+        const size_t newSize = pvp.w * pvp.h * bytesPerPixel;
+        buffer.resize( newSize );
 
         // OPT: use FBO texture directly to download
-        if( fbo && fbo->getColorTextures().size() == 1 )
-        {
-            const util::Texture* texture = fbo->getColorTextures().front();
-            if( texture->getFormat() == GL_RGBA )
-            {
-                pixelFormat = ::dc::RGBA;
-                bytesPerPixel = 4;
-            }
-
-            const size_t newSize = pvp.w * pvp.h * bytesPerPixel;
-            buffer.reserve( newSize );
-            texture->download( buffer.getData( ));
-        }
-        else
-        {
-            if( !_texture )
-                _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB,
-                                _channel->getObjectManager().glewGetContext( ));
-
-            const size_t newSize = pvp.w * pvp.h * bytesPerPixel;
-            buffer.reserve( newSize );
-
-            _texture->copyFromFrameBuffer( GL_RGB, pvp );
-            // Needed as copyFromFrameBuffer only grows the texture!
-            _texture->resize( pvp.w, pvp.h );
-            _texture->download( buffer.getData( ));
-        }
+        if( !_fboDownload( ))
+            _textureDownload();
 
         const Viewport& vp = _channel->getViewport();
         const int32_t width = pvp.w / vp.w;
@@ -127,7 +101,7 @@ public:
         ::dc::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
                                        bytesPerPixel );
         ::dc::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
-                                         pixelFormat, offsX, offsY );
+                                         ::dc::RGBA, offsX, offsY );
         imageWrapper.compressionPolicy = ::dc::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
 
@@ -140,6 +114,36 @@ public:
     lunchbox::Bufferb buffer;
     bool _running;
     util::Texture* _texture;
+
+private:
+    bool _fboDownload()
+    {
+        const SystemWindow* sysWindow = _channel->getWindow()->getSystemWindow();
+        const util::FrameBufferObject* fbo = sysWindow->getFrameBufferObject();
+        if( !fbo || fbo->getColorTextures().size() != 1 )
+            return false;
+
+        const util::Texture* texture = fbo->getColorTextures().front();
+        const PixelViewport& pvp = _channel->getPixelViewport();
+        if( texture->getWidth() != pvp.w || texture->getHeight() != pvp.h )
+            return false;
+
+        texture->download( buffer.getData( ));
+        return true;
+    }
+
+    void _textureDownload()
+    {
+        if( !_texture )
+            _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB,
+                            _channel->getObjectManager().glewGetContext( ));
+
+        const PixelViewport& pvp = _channel->getPixelViewport();
+        _texture->copyFromFrameBuffer( GL_RGBA, pvp );
+        // Needed as copyFromFrameBuffer only grows the texture!
+        _texture->resize( pvp.w, pvp.h );
+        _texture->download( buffer.getData( ));
+    }
 };
 }
 
@@ -157,7 +161,7 @@ void Proxy::swapBuffer()
 {
     _impl->swapBuffer();
 
-    if( !_impl->_eventHandler && _impl->_stream->registerForEvents( ))
+    if( !_impl->_eventHandler && _impl->_stream->registerForEvents( true ))
     {
         _impl->_eventHandler = new EventHandler( this );
         LBINFO << "Installed event handler for DisplayCluster" << std::endl;
