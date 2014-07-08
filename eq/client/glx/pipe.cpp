@@ -25,8 +25,9 @@
 #include "../pipe.h"
 
 #include <eq/fabric/gpuInfo.h>
-
+#include <lunchbox/os.h>
 #include <boost/lexical_cast.hpp>
+
 using boost::lexical_cast;
 
 namespace eq
@@ -44,7 +45,16 @@ class Pipe
 public:
     Pipe()
         : xDisplay( 0 )
-    {}
+    {
+        lunchbox::setZero( &glxewContext, sizeof( GLXEWContext ));
+    }
+
+    ~Pipe()
+    {
+#ifndef NDEBUG
+        lunchbox::setZero( &glxewContext, sizeof( GLXEWContext ));
+#endif
+    }
 
     /** Window-system specific display information. */
     Display* xDisplay;
