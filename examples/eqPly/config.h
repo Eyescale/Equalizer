@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -41,115 +41,113 @@
 
 namespace eqPly
 {
-    class View;
+/**
+ * The configuration, run be the EqPly application.
+ *
+ * A configuration instance manages configuration-specific data; it distributes
+ * the initialization and model data, updates frame-specific data and manages
+ * frame generation based on event handling.
+ */
+class Config : public eq::Config
+{
+public:
+    Config( eq::ServerPtr parent );
 
-    /**
-     * The configuration, run be the EqPly application.
-     *
-     * A configuration instance manages configuration-specific data: it
-     * distributes the initialization and model data, updates frame-specific
-     * data and manages frame generation based on event handling.
-     */
-    class Config : public eq::Config
-    {
-    public:
-        Config( eq::ServerPtr parent );
+    /** @sa eq::Config::init. */
+    virtual bool init();
+    /** @sa eq::Config::exit. */
+    virtual bool exit();
 
-        /** @sa eq::Config::init. */
-        virtual bool init();
-        /** @sa eq::Config::exit. */
-        virtual bool exit();
+    /** @sa eq::Config::startFrame. */
+    virtual uint32_t startFrame();
 
-        /** @sa eq::Config::startFrame. */
-        virtual uint32_t startFrame();
+    void setInitData( const LocalInitData& data ) { _initData = data; }
+    const InitData& getInitData() const { return _initData; }
 
-        void setInitData( const LocalInitData& data ) { _initData = data; }
-        const InitData& getInitData() const { return _initData; }
+    /** Map per-config data to the local node process */
+    bool loadInitData( const eq::uint128_t& initDataID );
 
-        /** Map per-config data to the local node process */
-        bool loadInitData( const eq::uint128_t& initDataID );
+    /** @return the requested, default model or 0. */
+    const Model* getModel( const eq::uint128_t& id );
 
-        /** @return the requested, default model or 0. */
-        const Model* getModel( const eq::uint128_t& id );
+    /** @sa eq::Config::handleEvent */
+    virtual bool handleEvent( const eq::ConfigEvent* event );
+    virtual bool handleEvent( eq::EventICommand command );
 
-        /** @sa eq::Config::handleEvent */
-        virtual bool handleEvent( const eq::ConfigEvent* event );
-        virtual bool handleEvent( eq::EventICommand command );
+    /** @return true if the application is idling. */
+    bool isIdleAA();
 
-        /** @return true if the application is idling. */
-        bool isIdleAA();
+    /** @return true if an event required a redraw. */
+    bool needRedraw();
 
-        /** @return true if an event required a redraw. */
-        bool needRedraw();
+    /** @return the current animation frame number. */
+    uint32_t getAnimationFrame();
 
-        /** @return the current animation frame number. */
-        uint32_t getAnimationFrame();
+protected:
+    virtual ~Config();
 
-    protected:
-        virtual ~Config();
+    /** Synchronize config and admin copy. */
+    virtual co::uint128_t sync(
+        const co::uint128_t& version = co::VERSION_HEAD );
 
-        /** Synchronize config and admin copy. */
-        virtual co::uint128_t sync(
-                             const co::uint128_t& version = co::VERSION_HEAD );
+private:
+    int         _spinX, _spinY;
+    int         _advance;
+    eq::Canvas* _currentCanvas;
 
-    private:
-        int         _spinX, _spinY;
-        int         _advance;
-        eq::Canvas* _currentCanvas;
+    LocalInitData _initData;
+    FrameData     _frameData;
 
-        LocalInitData _initData;
-        FrameData     _frameData;
+    Models     _models;
+    ModelDists _modelDist;
+    lunchbox::Lock  _modelLock;
 
-        Models     _models;
-        ModelDists _modelDist;
-        lunchbox::Lock  _modelLock;
+    CameraAnimation _animation;
 
-        CameraAnimation _animation;
+    uint64_t _messageTime;
 
-        uint64_t _messageTime;
+    bool _redraw;
+    bool _useIdleAA;
 
-        bool _redraw;
-        bool _useIdleAA;
+    int32_t _numFramesAA;
 
-        int32_t _numFramesAA;
+    eq::admin::ServerPtr _admin;
 
-        eq::admin::ServerPtr _admin;
+    void _loadModels();
+    void _registerModels();
+    void _loadPath();
+    void _deregisterData();
 
-        void _loadModels();
-        void _registerModels();
-        void _loadPath();
-        void _deregisterData();
+    bool _needNewFrame();
+    bool _handleKeyEvent( const eq::KeyEvent& event );
 
-        bool _needNewFrame();
-        bool _handleKeyEvent( const eq::KeyEvent& event );
+    void _switchCanvas();
+    void _switchView();
+    void _switchViewMode();
+    void _switchModel();
+    void _freezeLoadBalancing( const bool onOff );
+    void _adjustEyeBase( const float delta );
+    void _adjustTileSize( const int delta );
+    void _adjustResistance( const int delta );
+    void _adjustModelScale( const float factor );
+    void _switchLayout( int32_t increment );
+    void _toggleEqualizer();
 
-        void _switchCanvas();
-        void _switchView();
-        void _switchViewMode();
-        void _switchModel();
-        void _freezeLoadBalancing( const bool onOff );
-        void _adjustEyeBase( const float delta );
-        void _adjustTileSize( const int delta );
-        void _adjustResistance( const int delta );
-        void _adjustModelScale( const float factor );
-        void _switchLayout( int32_t increment );
-        void _toggleEqualizer();
+    void _setHeadMatrix( const eq::Matrix4f& matrix );
+    const eq::Matrix4f& _getHeadMatrix() const;
+    void _changeFocusDistance( const float delta );
+    void _setFocusMode( const eq::FocusMode mode );
 
-        void _setHeadMatrix( const eq::Matrix4f& matrix );
-        const eq::Matrix4f& _getHeadMatrix() const;
-        void _changeFocusDistance( const float delta );
-        void _setFocusMode( const eq::FocusMode mode );
+    /** @return a pointer to a connected admin server. */
+    eq::admin::ServerPtr _getAdminServer();
+    void _closeAdminServer();
 
-        /** @return a pointer to a connected admin server. */
-        eq::admin::ServerPtr _getAdminServer();
-        void _closeAdminServer();
+    View* _getCurrentView();
+    const View* _getCurrentView() const;
 
-        View* _getCurrentView();
-        const View* _getCurrentView() const;
-
-        void _setMessage( const std::string& message );
-        void _updateData();
-    };
+    void _setMessage( const std::string& message );
+    void _updateData();
+};
 }
 
 #endif // EQ_PLY_CONFIG_H

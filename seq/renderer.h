@@ -114,7 +114,6 @@ public:
      */
     SEQ_API void updateNearFar( const Vector4f& boundingSphere );
 
-
     /**
      * Set the near and far planes.
      *
