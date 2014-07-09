@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -144,18 +144,6 @@ public:
      * @version 1.0
      */
     EQ_API virtual Vector2f getJitter() const;
-
-    /**
-     * @return the list of input frames, used from frameAssemble().
-     * @version 1.0
-     */
-    EQ_API const Frames& getInputFrames();
-
-    /**
-     * @return the list of output frames, used from frameReadback().
-     * @version 1.0
-     */
-    EQ_API const Frames& getOutputFrames();
 
     /**
      * Get the channel's current View.
@@ -504,10 +492,11 @@ protected:
      * Called 0 to n times during one frame.
      *
      * @param frameID the per-frame identifier.
-     * @sa getInputFrames()
-     * @version 1.0
+     * @param frames the input frames.
+     * @version 1.7.3
      */
-    EQ_API virtual void frameAssemble( const uint128_t& frameID );
+    EQ_API virtual void frameAssemble( const uint128_t& frameID,
+                                       const Frames& frames );
 
     /**
      * Read back the rendered frame buffer into the output frames.
@@ -515,10 +504,12 @@ protected:
      * Called 0 to n times during one frame.
      *
      * @param frameID the per-frame identifier.
-     * @sa getOutputFrames()
+     * @param frames the output frames.
+     * @version 1.7.3
      * @version 1.0
      */
-    EQ_API virtual void frameReadback( const uint128_t& frameID );
+    EQ_API virtual void frameReadback( const uint128_t& frameID,
+                                       const Frames& frames );
 
     /**
      * Start updating a destination channel.
@@ -613,7 +604,8 @@ private:
                           const std::vector< uint128_t >& nodes,
                           const co::NodeIDs& netNodes );
 
-    bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
+    bool _asyncFinishReadback( const std::vector< size_t >& imagePos,
+                               const Frames& frames );
 
     void _asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
                          const uint64_t image,
@@ -621,7 +613,8 @@ private:
                          const co::NodeIDs& netNodes,
                          const uint32_t taskID );
 
-    void _setReady( const bool async, detail::RBStat* stat );
+    void _setReady( const bool async, detail::RBStat* stat,
+                    const Frames& frames );
     void _asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
                          const std::vector< uint128_t >& nodes,
                          const co::NodeIDs& netNodes );
@@ -633,8 +626,8 @@ private:
     /** Get the channel's current input queue. */
     co::QueueSlave* _getQueue( const uint128_t& queueID );
 
-    void _setOutputFrames( const co::ObjectVersions& frames );
-    void _resetOutputFrames();
+    Frames _getFrames( const co::ObjectVersions& frameIDs,
+                       const bool isOutput );
 
     void _deleteTransferContext();
 

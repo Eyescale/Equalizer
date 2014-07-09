@@ -211,7 +211,7 @@ bool MasterConfig::handleEvent( eq::EventICommand command )
     {
       case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
       {
-          const eq::Event& event = command.get< eq::Event >();
+          const eq::Event& event = command.read< eq::Event >();
           _currentViewID = event.context.view.identifier;
           return true;
       }
@@ -244,7 +244,7 @@ bool MasterConfig::handleEvent( eq::EventICommand command )
       case eq::Event::STATISTIC:
       {
           Config::handleEvent( command );
-          const eq::Event& event = command.get< eq::Event >();
+          const eq::Event& event = command.read< eq::Event >();
           if( event.statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
               return false;
 

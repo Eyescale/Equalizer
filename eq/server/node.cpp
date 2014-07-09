@@ -736,7 +736,7 @@ bool Node::_cmdConfigInitReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBVERB << "handle configInit reply " << command << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
-    _state = command.get< uint64_t >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    _state = command.read< uint64_t >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
     return true;
 }
@@ -747,7 +747,7 @@ bool Node::_cmdConfigExitReply( co::ICommand& cmd )
     LBVERB << "handle configExit reply " << command << std::endl;
     LBASSERT( _state == STATE_EXITING );
 
-    _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.read< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 
@@ -756,7 +756,7 @@ bool Node::_cmdFrameFinishReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBVERB << "handle frame finish reply " << command << std::endl;
 
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     _finishedFrame = frameNumber;
     getConfig()->notifyNodeFrameFinished( frameNumber );

@@ -16,10 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// HACK: Get rid of deprecated warning for aglUseFont
 #include <eq/defines.h>
-#ifdef AGL
+#include <eq/client/os.h>
 
+#ifdef AGL
+// HACK: Get rid of deprecated warning for aglUseFont
 #include <AvailabilityMacros.h>
 #undef DEPRECATED_ATTRIBUTE
 #define DEPRECATED_ATTRIBUTE
@@ -33,7 +34,6 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
 #include <lunchbox/debug.h>
 

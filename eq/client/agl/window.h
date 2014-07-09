@@ -20,8 +20,9 @@
 #define EQ_AGL_WINDOW_H
 
 #include <eq/defines.h>
-#ifdef AGL
+#include <eq/client/os.h>
 
+#ifdef AGL
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 #include <eq/client/agl/types.h>

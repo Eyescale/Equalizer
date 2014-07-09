@@ -2,6 +2,9 @@
 This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
+[3458316] Fix #326: Remove Channel::getInput/OutputFrames
+* The input and output frames are now passed to frameAssemble and
+  frameReadback, respectively.
 
 [b2a92d4] Close #69: WindowSettings to decouple Window from SystemWindow
 * eq::fabric::Window::IATTR* are now eq::fabric::WindowSettings::IATTR*

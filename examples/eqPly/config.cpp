@@ -485,7 +485,7 @@ bool Config::handleEvent( eq::EventICommand command )
     case IDLE_AA_LEFT:
         if( _useIdleAA )
         {
-            const int32_t steps = command.get< int32_t >();
+            const int32_t steps = command.read< int32_t >();
             _numFramesAA = LB_MAX( _numFramesAA, steps );
         }
         else

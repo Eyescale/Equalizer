@@ -127,7 +127,10 @@ public:
      *
      * By default it is set to the first window of the pipe in the window's
      * constructor. The shared context window is used during initialization to
-     * setup the OpenGL context and util::ObjectManager.
+     * setup the OpenGL context and util::ObjectManager. The default
+     * implementation of configInitSystemWindow() will use this to call
+     * WindowSettings::setSharedContextWindow() using the corresponding
+     * SystemWindow.
      * @version 1.0
      */
     EQ_API void setSharedContextWindow( const Window* sharedContextWindow );

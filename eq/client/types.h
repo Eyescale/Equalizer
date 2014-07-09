@@ -250,6 +250,8 @@ typedef std::vector< uint8_t >    Vectorub;
 /** A vector of unsigned shorts */
 typedef std::vector< uint16_t >   Vectorus;
 
+using co::f_bool_t;
+
 using lunchbox::a_int32_t;
 using lunchbox::backtrace;
 using lunchbox::uint128_t;

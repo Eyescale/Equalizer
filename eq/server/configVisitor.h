@@ -28,8 +28,6 @@ namespace eq
 {
 namespace server
 {
-    class Config;
-
     /** A visitor to traverse configs and children. */
     class ConfigVisitor : public NodeVisitor,
                           public CompoundVisitor,

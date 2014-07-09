@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,19 +47,19 @@ namespace eVolve
     protected:
         virtual ~Channel() {}
 
-        virtual bool configInit( const eq::uint128_t& initID );
-        virtual bool configExit();
+        bool configInit( const eq::uint128_t& initID ) override;
+        bool configExit() override;
 
-        virtual void frameStart( const eq::uint128_t& frameID,
-                                 const uint32_t frameNumber );
+        void frameStart( const eq::uint128_t& frameID,
+                         const uint32_t frameNumber ) override;
 
-        virtual void frameDraw(       const eq::uint128_t& frameID );
-        virtual void frameAssemble(   const eq::uint128_t& frameID );
-        virtual void frameReadback(   const eq::uint128_t& frameID );
-        virtual void frameViewFinish( const eq::uint128_t& frameID );
-        virtual void frameClear(      const eq::uint128_t& frameID );
+        void frameDraw( const eq::uint128_t& frameID ) override;
+        void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
+        void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
+        void frameViewFinish( const eq::uint128_t& frameID ) override;
+        void frameClear( const eq::uint128_t& frameID ) override;
 
-        virtual bool useOrtho() const;
+        bool useOrtho() const override;
 
         void clearViewport( const eq::PixelViewport &pvp );
 
@@ -84,4 +84,3 @@ namespace eVolve
 }
 
 #endif // EVOLVE_CHANNEL_H
-

@@ -597,7 +597,7 @@ const ConfigEvent* Config::_convertEvent( co::ObjectICommand command )
     }
 
     _impl->lastEvent = command;
-    const uint64_t size = command.get< uint64_t >();
+    const uint64_t size = command.read< uint64_t >();
     return reinterpret_cast< const ConfigEvent* >
                                           ( command.getRemainingBuffer( size ));
 }
@@ -675,7 +675,7 @@ bool Config::_handleNewEvent( EventICommand& command )
     {
     case Event::OBSERVER_MOTION:
     {
-        const uint128_t& originator = command.get< uint128_t >();
+        const uint128_t& originator = command.read< uint128_t >();
         LBASSERT( originator != 0 );
         Observer* observer = find< Observer >( originator );
         if( observer )
@@ -688,14 +688,14 @@ bool Config::_handleNewEvent( EventICommand& command )
     case Event::WINDOW_ERROR:
     case Event::CHANNEL_ERROR:
     {
-        const uint128_t& originator = command.get< uint128_t >();
-        const Error error = Error( command.get< uint32_t >( ));
+        const uint128_t& originator = command.read< uint128_t >();
+        const Error error = Error( command.read< uint32_t >( ));
         LBWARN << error << " from " << originator;
         if( error < ERROR_CUSTOM )
         {
             while( command.hasData( ))
             {
-                const std::string& text = command.get< std::string >();
+                const std::string& text = command.read< std::string >();
                 LBWARN << ": " << text;
             }
         }
@@ -1097,14 +1097,10 @@ void Config::unmapObject( co::Object* object )
     getClient()->unmapObject( object );
 }
 
-void Config::releaseObject( co::Object* object )
+f_bool_t Config::syncObject( co::Object* object, co::NodePtr master,
+                             const uint128_t& id, const uint32_t instanceID )
 {
-    if( !object->isAttached( ))
-        return;
-    if( object->isMaster( ))
-        deregisterObject( object );
-    else
-        unmapObject( object );
+    return getClient()->syncObject( object, master, id, instanceID );
 }
 
 void Config::_releaseObjects()
@@ -1135,7 +1131,7 @@ bool Config::_cmdCreateNode( co::ICommand& cmd )
     LBVERB << "Handle create node " << command << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    LBCHECK( mapObject( node, command.get< uint128_t >( )));
+    LBCHECK( mapObject( node, command.read< uint128_t >( )));
     return true;
 }
 
@@ -1145,7 +1141,7 @@ bool Config::_cmdDestroyNode( co::ICommand& cmd )
 
     LBVERB << "Handle destroy node " << command << std::endl;
 
-    Node* node = _findNode( command.get< uint128_t >( ));
+    Node* node = _findNode( command.read< uint128_t >( ));
     LBASSERT( node );
     if( !node )
         return true;
@@ -1166,9 +1162,9 @@ bool Config::_cmdInitReply( co::ICommand& cmd )
 
     LBVERB << "handle init reply " << command << std::endl;
 
-    const uint128_t version = command.get< uint128_t >();
-    const uint32_t requestID = command.get< uint32_t >();
-    const bool result = command.get< bool >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const bool result = command.read< bool >();
 
     sync( version );
     getLocalNode()->serveRequest( requestID, result );
@@ -1181,8 +1177,8 @@ bool Config::_cmdExitReply( co::ICommand& cmd )
 
     LBVERB << "handle exit reply " << command << std::endl;
 
-    const uint32_t requestID = command.get< uint32_t >();
-    const bool result = command.get< bool >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const bool result = command.read< bool >();
 
     _exitMessagePump();
     getLocalNode()->serveRequest( requestID, result );
@@ -1192,10 +1188,10 @@ bool Config::_cmdExitReply( co::ICommand& cmd )
 bool Config::_cmdUpdateVersion( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t version = command.get< uint128_t >();
-    const uint32_t versionID = command.get< uint32_t >();
-    const uint32_t finishID = command.get< uint32_t >();
-    const uint32_t requestID = command.get< uint32_t >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint32_t versionID = command.read< uint32_t >();
+    const uint32_t finishID = command.read< uint32_t >();
+    const uint32_t requestID = command.read< uint32_t >();
 
     getClient()->serveRequest( versionID, version );
     getClient()->serveRequest( finishID, requestID );
@@ -1205,9 +1201,9 @@ bool Config::_cmdUpdateVersion( co::ICommand& cmd )
 bool Config::_cmdUpdateReply( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t version = command.get< uint128_t >();
-    const uint32_t requestID = command.get< uint32_t >();
-    const bool result = command.get< bool >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint32_t requestID = command.read< uint32_t >();
+    const bool result = command.read< bool >();
 
     sync( version );
     getClient()->serveRequest( requestID, result );
@@ -1219,7 +1215,7 @@ bool Config::_cmdReleaseFrameLocal( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     _frameStart(); // never happened from node
-    releaseFrameLocal( command.get< uint32_t >( ));
+    releaseFrameLocal( command.read< uint32_t >( ));
     return true;
 }
 
@@ -1227,7 +1223,7 @@ bool Config::_cmdFrameFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    _impl->finishedFrame = command.get< uint32_t >();
+    _impl->finishedFrame = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "frame finish " << command
                        << " frame " << _impl->finishedFrame << std::endl;
@@ -1247,7 +1243,7 @@ bool Config::_cmdFrameFinish( co::ICommand& cmd )
 bool Config::_cmdSyncClock( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const int64_t time = command.get< int64_t >();
+    const int64_t time = command.read< int64_t >();
 
     LBVERB << "sync global clock to " << time << ", drift "
            << time - _impl->clock.getTime64() << std::endl;
@@ -1261,9 +1257,9 @@ bool Config::_cmdSwapObject( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBVERB << "Cmd swap object " << command << std::endl;
 
-    const uint32_t requestID = command.get< uint32_t >();
+    const uint32_t requestID = command.read< uint32_t >();
     co::Object* object =
-            reinterpret_cast< co::Object* >( command.get< void* >( ));
+            reinterpret_cast< co::Object* >( command.read< void* >( ));
 
     LatencyObject* latencyObject = new LatencyObject( object->getChangeType(),
                                                      object->chooseCompressor(),

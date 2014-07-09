@@ -533,8 +533,8 @@ bool Node::_cmdCreatePipe( co::ICommand& cmd )
     LBASSERT( _impl->state >= STATE_INIT_FAILED );
 
     co::ObjectICommand command( cmd );
-    const uint128_t pipeID = command.get< uint128_t >();
-    const bool threaded = command.get< bool >();
+    const uint128_t& pipeID = command.read< uint128_t >();
+    const bool threaded = command.read< bool >();
 
     LBLOG( LOG_INIT ) << "Create pipe " << command << " id " << pipeID
                       << std::endl;
@@ -557,7 +557,7 @@ bool Node::_cmdDestroyPipe( co::ICommand& cmd )
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
-    Pipe* pipe = findPipe( command.get< uint128_t >( ));
+    Pipe* pipe = findPipe( command.read< uint128_t >( ));
     LBASSERT( pipe );
     pipe->exitThread();
 
@@ -580,8 +580,8 @@ bool Node::_cmdConfigInit( co::ICommand& cmd )
 
     _impl->state = STATE_INITIALIZING;
 
-    const uint128_t initID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& initID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     _impl->currentFrame  = frameNumber;
     _impl->unlockedFrame = frameNumber;
@@ -597,7 +597,8 @@ bool Node::_cmdConfigInit( co::ICommand& cmd )
     _impl->state = result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     commit();
-    send( command.getNode(), fabric::CMD_NODE_CONFIG_INIT_REPLY ) << result;
+    send( command.getRemoteNode(), fabric::CMD_NODE_CONFIG_INIT_REPLY )
+            << result;
     return true;
 }
 
@@ -630,10 +631,10 @@ bool Node::_cmdFrameStart( co::ICommand& cmd )
     LB_TS_THREAD( _nodeThread );
 
     co::ObjectICommand command( cmd );
-    const uint128_t version = command.get< uint128_t >();
-    const uint128_t configVersion = command.get< uint128_t >();
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& version = command.read< uint128_t >();
+    const uint128_t& configVersion = command.read< uint128_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBVERB << "handle node frame start " << command << " frame " << frameNumber
            << " id " << frameID << std::endl;
@@ -662,8 +663,8 @@ bool Node::_cmdFrameFinish( co::ICommand& cmd )
     LB_TS_THREAD( _nodeThread );
 
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
                        << " frame " << frameNumber << " id " << frameID
@@ -681,8 +682,8 @@ bool Node::_cmdFrameFinish( co::ICommand& cmd )
 bool Node::_cmdFrameDrawFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << " frame " << frameNumber << " id " << frameID
@@ -695,8 +696,8 @@ bool Node::_cmdFrameDrawFinish( co::ICommand& cmd )
 bool Node::_cmdFrameTasksFinish( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
-    const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint128_t& frameID = command.read< uint128_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << command
                        << std::endl;
@@ -709,13 +710,13 @@ bool Node::_cmdFrameDataTransmit( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    const co::ObjectVersion frameDataVersion =
-                                             command.get< co::ObjectVersion >();
-    const PixelViewport pvp = command.get< PixelViewport >();
-    const Zoom zoom = command.get< Zoom >();
-    const uint32_t buffers = command.get< uint32_t >();
-    const uint32_t frameNumber = command.get< uint32_t >();
-    const bool useAlpha = command.get< bool >();
+    const co::ObjectVersion& frameDataVersion =
+                                             command.read< co::ObjectVersion >();
+    const PixelViewport& pvp = command.read< PixelViewport >();
+    const Zoom& zoom = command.read< Zoom >();
+    const uint32_t buffers = command.read< uint32_t >();
+    const uint32_t frameNumber = command.read< uint32_t >();
+    const bool useAlpha = command.read< bool >();
     const uint8_t* data = reinterpret_cast< const uint8_t* >(
                 command.getRemainingBuffer( command.getRemainingBufferSize( )));
 
@@ -761,7 +762,7 @@ bool Node::_cmdSetAffinity( co::ICommand& cmd )
 {
     co::ObjectICommand command( cmd );
 
-    lunchbox::Thread::setAffinity( command.get< int32_t >( ));
+    lunchbox::Thread::setAffinity( command.read< int32_t >( ));
     return true;
 }
 }

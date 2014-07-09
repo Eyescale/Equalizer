@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -277,13 +277,12 @@ void Channel::_orderFrames( eq::Frames& frames )
 }
 
 
-void Channel::frameAssemble( const eq::uint128_t& )
+void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
 {
     const bool composeOnly = (_drawRange == eq::Range::ALL);
 
     _startAssemble();
 
-    const eq::Frames& frames = getInputFrames();
     eq::PixelViewport  coveredPVP;
     eq::Frames         dbFrames;
     eq::Zoom           zoom( eq::Zoom::NONE );
@@ -378,10 +377,10 @@ void Channel::_startAssemble()
     setupAssemblyState();
 }
 
-void Channel::frameReadback( const eq::uint128_t& frameID )
+void Channel::frameReadback( const eq::uint128_t& frameID,
+                             const eq::Frames& frames )
 {
     // Drop depth buffer flag from all output frames
-    const eq::Frames& frames = getOutputFrames();
     const FrameData& frameData = _getFrameData();
     for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
@@ -391,7 +390,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         frame->getFrameData()->setRange( _drawRange );
     }
 
-    eq::Channel::frameReadback( frameID );
+    eq::Channel::frameReadback( frameID, frames );
 }
 
 void Channel::frameViewFinish( const eq::uint128_t& frameID )

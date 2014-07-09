@@ -490,7 +490,7 @@ bool Window::_cmdConfigInitReply( co::ICommand& cmd )
     LBVERB << "handle window configInit reply " << command << std::endl;
 
     LBASSERT( !needsDelete( ));
-    _state = command.get< bool >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    _state = command.read< bool >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
 }
 
@@ -499,7 +499,7 @@ bool Window::_cmdConfigExitReply( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     LBVERB << "handle window configExit reply " << command << std::endl;
 
-    if( command.get< bool >( ))
+    if( command.read< bool >( ))
         _state = State( needsDelete() ?
                         STATE_EXIT_SUCCESS|STATE_DELETE : STATE_EXIT_SUCCESS );
     else

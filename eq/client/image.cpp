@@ -516,6 +516,7 @@ void Image::finishReadback( const Zoom&, const GLEWContext* context )
 }
 #endif
 
+// TODO: 2.0 API: rename to readback and return Future
 bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                            const Zoom& zoom, util::ObjectManager& glObjects )
 {

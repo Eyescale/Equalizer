@@ -75,12 +75,12 @@ bool Config::handleEvent( eq::EventICommand command )
             std::cout << "        ";
         }
 
-        const float msec = command.get< float >();
-        const std::string& name = command.get< std::string >();
-        const eq::Vector2i area = command.get< eq::Vector2i >();
-        const std::string& formatType = command.get< std::string >();
-        const uint64_t dataSizeGPU = command.get< uint64_t >();
-        const uint64_t dataSizeCPU = command.get< uint64_t >();
+        const float msec = command.read< float >();
+        const std::string& name = command.read< std::string >();
+        const eq::Vector2i& area = command.read< eq::Vector2i >();
+        const std::string& formatType = command.read< std::string >();
+        const uint64_t dataSizeGPU = command.read< uint64_t >();
+        const uint64_t dataSizeCPU = command.read< uint64_t >();
 
         std::cout << " \"" << name << "\" " << formatType
                   << std::string( 32-formatType.length(), ' ' ) << area.x()

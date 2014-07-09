@@ -255,7 +255,8 @@ void FrameData::Data::deserialize( co::DataIStream& is )
 void FrameData::clear()
 {
     _impl->imageCacheLock.set();
-    _impl->imageCache.insert( _impl->imageCache.end(), _impl->images.begin(), _impl->images.end( ));
+    _impl->imageCache.insert( _impl->imageCache.end(), _impl->images.begin(),
+                              _impl->images.end( ));
     _impl->imageCacheLock.unset();
     _impl->images.clear();
 }
@@ -264,7 +265,8 @@ void FrameData::flush()
 {
     clear();
 
-    for( ImagesCIter i = _impl->imageCache.begin(); i != _impl->imageCache.end(); ++i )
+    for( ImagesCIter i = _impl->imageCache.begin();
+         i != _impl->imageCache.end(); ++i )
     {
         Image* image = *i;
         image->flush();
@@ -276,18 +278,18 @@ void FrameData::flush()
 
 void FrameData::deleteGLObjects( util::ObjectManager& om )
 {
-    for( ImagesCIter i = _impl->images.begin(); i != _impl->images.end(); ++i )
-        (*i)->deleteGLObjects( om );
-    for( ImagesCIter i = _impl->imageCache.begin(); i != _impl->imageCache.end(); ++i )
-        (*i)->deleteGLObjects( om );
+    BOOST_FOREACH( Image* image, _impl->images )
+        image->deleteGLObjects( om );
+    BOOST_FOREACH( Image* image, _impl->imageCache )
+        image->deleteGLObjects( om );
 }
 
 void FrameData::resetPlugins()
 {
-    for( ImagesCIter i = _impl->images.begin(); i != _impl->images.end(); ++i )
-        (*i)->resetPlugins();
-    for( ImagesCIter i = _impl->imageCache.begin(); i != _impl->imageCache.end(); ++i )
-        (*i)->resetPlugins();
+    BOOST_FOREACH( Image* image, _impl->images )
+        image->resetPlugins();
+    BOOST_FOREACH( Image* image, _impl->imageCache )
+        image->resetPlugins();
 }
 
 Image* FrameData::newImage( const eq::Frame::Type type,
@@ -360,7 +362,7 @@ void FrameData::readback( const Frame& frame,
                           const DrawableConfig& config )
 {
     const Images& images = startReadback( frame, glObjects, config,
-                                        PixelViewports( 1, getPixelViewport( )));
+                                       PixelViewports( 1, getPixelViewport( )));
 
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( frame.getZoom(), glObjects.glewGetContext( ));
@@ -435,7 +437,8 @@ Images FrameData::startReadback( const Frame& frame,
 
 void FrameData::setVersion( const uint64_t version )
 {
-    LBASSERTINFO( _impl->version <= version, _impl->version << " > " << version );
+    LBASSERTINFO( _impl->version <= version, _impl->version << " > "
+                                                            << version );
     _impl->version = version;
     LBLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
@@ -471,10 +474,9 @@ void FrameData::setReady( const co::ObjectVersion& frameData,
 
 void FrameData::_setReady( const uint64_t version )
 {
-
     LBASSERTINFO( _impl->readyVersion <= version,
-                  "v" << _impl->version << " ready " << _impl->readyVersion << " new "
-                      << version );
+                  "v" << _impl->version << " ready " << _impl->readyVersion
+                      << " new " << version );
 
     lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _impl->listeners );
     if( _impl->readyVersion >= version )

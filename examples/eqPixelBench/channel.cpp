@@ -162,8 +162,9 @@ void Channel::_testFormats( float applyZoom )
             const uint32_t outputToken =
                 image->getExternalFormat( eq::Frame::BUFFER_COLOR );
             std::stringstream formatType;
-            formatType << _enums[i].internalFormatString << outputToken << *j;
-
+            formatType << std::hex << *j << ':'
+                       << _enums[i].internalFormatString << '/' << outputToken
+                       << std::dec;
             // read
             glFinish();
             size_t nLoops = 0;

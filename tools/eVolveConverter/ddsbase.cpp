@@ -588,7 +588,7 @@ unsigned char *readPNMimage(const char *filename,unsigned int *width,unsigned in
    memcpy(str,ptr1,ptr2-ptr1);
    str[ptr2-ptr1]='\0';
 
-   if (sscanf(str,"%d %d\n%d\n",width,height,&maxval)!=3) ERRORMSG();
+   if (sscanf(str,"%u %u\n%d\n",width,height,&maxval)!=3) ERRORMSG();
 
    if (*width<1 || *height<1) ERRORMSG();
 
@@ -704,13 +704,13 @@ unsigned char *readPVMvolume(const char *filename,
       else if (strncmp((char *)data,"PVM3\n",5)==0) version=3;
       else return(NULL);
 
-      if (sscanf((char *)&data[5],"%d %d %d\n%g %g %g\n",width,height,depth,&sx,&sy,&sz)!=6) ERRORMSG();
+      if (sscanf((char *)&data[5],"%u %u %u\n%g %g %g\n",width,height,depth,&sx,&sy,&sz)!=6) ERRORMSG();
       if (*width<1 || *height<1 || *depth<1 || sx<=0.0f || sy<=0.0f || sz<=0.0f) ERRORMSG();
       ptr=(unsigned char *)strchr((char *)&data[5],'\n')+1;
       }
    else
       {
-      if (sscanf((char *)&data[4],"%d %d %d\n",width,height,depth)!=3) ERRORMSG();
+      if (sscanf((char *)&data[4],"%u %u %u\n",width,height,depth)!=3) ERRORMSG();
       if (*width<1 || *height<1 || *depth<1) ERRORMSG();
       ptr=&data[4];
       }
@@ -723,7 +723,7 @@ unsigned char *readPVMvolume(const char *filename,
       }
 
    ptr=(unsigned char *)strchr((char *)ptr,'\n')+1;
-   if (sscanf((char *)ptr,"%d\n",&numc)!=1) ERRORMSG();
+   if (sscanf((char *)ptr,"%u\n",&numc)!=1) ERRORMSG();
    if (numc<1) ERRORMSG();
 
    if (components!=NULL) *components=numc;

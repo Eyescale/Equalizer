@@ -411,7 +411,7 @@ bool Client::_cmdExit( co::ICommand& command )
 {
     _impl->running = false;
     // Close connection here, this is the last command we'll get on it
-    command.getLocalNode()->disconnect( command.getNode( ));
+    command.getLocalNode()->disconnect( command.getRemoteNode( ));
     return true;
 }
 
@@ -434,7 +434,8 @@ void Client::notifyDisconnect( co::NodePtr node )
     if( node->getType() == fabric::NODETYPE_SERVER )
     {
         // local command dispatching
-        co::OCommand( this, this, fabric::CMD_CLIENT_EXIT );
+        co::OCommand( this, this, fabric::CMD_CLIENT_EXIT,
+                      co::COMMANDTYPE_NODE );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;

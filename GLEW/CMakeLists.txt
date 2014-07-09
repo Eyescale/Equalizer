@@ -30,7 +30,8 @@ else()
 
   set(GLEW_INCLUDES GL/glew.h GL/glxew.h GL/wglew.h)
   foreach(file ${GLEW_INCLUDES})
-    update_file(${GLEW_DIR}/include/${file} ${OUTPUT_INCLUDE_DIR}/eq/${file})
+    configure_file(${GLEW_DIR}/include/${file} ${OUTPUT_INCLUDE_DIR}/eq/${file}
+      COPYONLY)
     install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL
       COMPONENT dev)
   endforeach()

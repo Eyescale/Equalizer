@@ -292,7 +292,7 @@ bool Observer::handleEvent( EventICommand& command )
     switch( command.getEventType( ))
     {
     case Event::OBSERVER_MOTION:
-        return setHeadMatrix( command.get< Matrix4f >( ));
+        return setHeadMatrix( command.read< Matrix4f >( ));
     }
     return false;
 }
