@@ -50,7 +50,7 @@ public:
     int getSocketDescriptor() const;
 
     /** @return true if a new Event was sent by DisplayCluster. */
-    bool hasNewEvent();
+    bool hasNewEvent() const;
 
     /** @return whether the application is running in DisplayCluster. */
     bool isRunning() const;

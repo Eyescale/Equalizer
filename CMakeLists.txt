@@ -81,10 +81,13 @@ endif(APPLE)
 if(EQ_GLX_USED)
   include_directories(SYSTEM ${X11_INCLUDE_DIR})
   set(EQ_FEATURES "${EQ_FEATURES} GLX")
-endif(EQ_GLX_USED)
+endif()
 if(EQ_AGL_USED)
   set(EQ_FEATURES "${EQ_FEATURES} AGL(32bit)")
-endif(EQ_AGL_USED)
+endif()
+if(EQ_QT_USED)
+  set(EQ_FEATURES "${EQ_FEATURES} Qt")
+endif()
 
 list(APPEND EQ_DEFINITIONS
   -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
@@ -124,7 +127,7 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-install(FILES CMake/common/FindGLEW_MX.cmake
+install(FILES CMake/common/FindGLEW_MX.cmake CMake/EqGLLibraries.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)

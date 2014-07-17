@@ -41,6 +41,7 @@
 namespace eqPly
 {
 class LocalInitData;
+class View;
 
 typedef triply::VertexBufferRoot  Model;
 typedef triply::VertexBufferDist  ModelDist;

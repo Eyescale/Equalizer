@@ -16,10 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// HACK: Get rid of deprecated warning for aglUseFont
 #include <eq/defines.h>
-#ifdef AGL
+#include <eq/client/os.h>
 
+#ifdef AGL
+// HACK: Get rid of deprecated warning for aglUseFont
 #include <AvailabilityMacros.h>
 #undef DEPRECATED_ATTRIBUTE
 #define DEPRECATED_ATTRIBUTE
@@ -33,7 +34,6 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
 #include <lunchbox/debug.h>
 
@@ -49,7 +49,7 @@ static class : WindowSystemIF
     std::string getName() const final { return "AGL"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) const final
+                                    const WindowSettings& settings ) final
     {
         LBINFO << "Using agl::Window" << std::endl;
 
@@ -75,16 +75,18 @@ static class : WindowSystemIF
         return new Window( *window, fsSettings, displayID, threaded );
     }
 
-    eq::SystemPipe* createPipe( eq::Pipe* pipe ) const final
+    eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
     {
         LBINFO << "Using agl::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const final
+    eq::MessagePump* createMessagePump() final
     {
         return new MessagePump;
     }
+
+    bool hasMainThreadEvents() const final { return true; }
 
     bool setupFont( util::ObjectManager& gl, const void* key,
                     const std::string& name, const uint32_t size ) const final
@@ -129,14 +131,14 @@ static class : WindowSystemIF
         return false;
     }
 
-    void configInit( eq::Node* node LB_UNUSED)
+    void configInit( eq::Node* node LB_UNUSED )
     {
 #ifdef EQUALIZER_USE_MAGELLAN
         EventHandler::initMagellan( node );
 #endif
     }
 
-    void configExit( eq::Node* node LB_UNUSED)
+    void configExit( eq::Node* node LB_UNUSED )
     {
 #ifdef EQUALIZER_USE_MAGELLAN
         EventHandler::exitMagellan( node );

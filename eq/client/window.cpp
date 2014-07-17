@@ -560,7 +560,7 @@ bool Window::configExitSystemWindow()
 
     if( _systemWindow )
     {
-        _systemWindow->configExit( );
+        _systemWindow->configExit();
 
         delete _systemWindow;
         _systemWindow = 0;
