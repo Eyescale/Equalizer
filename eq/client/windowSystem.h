@@ -63,9 +63,6 @@ protected:
     virtual SystemWindow* createWindow( Window* window,
                                         const WindowSettings& settings ) = 0;
 
-    /** Destroy the system window of the given window. @version 1.7.3 */
-    virtual void destroyWindow( Window* /*window*/ ) {}
-
     /**
      * Create a set of display lists for the given font.
      *
@@ -90,6 +87,12 @@ protected:
     /** Perform per-process de-initialization for a Config. @version 1.6 */
     virtual void configExit( Node* /*node*/ ) {}
 
+    /**
+     * @return true if events have to be dispatched in the main thread.
+     * @version 1.7.4
+     */
+    virtual bool hasMainThreadEvents() const { return false; }
+
 private:
     WindowSystemIF* _next;
     friend class WindowSystem;
@@ -113,11 +116,11 @@ public:
 
     EQ_API SystemWindow* createWindow( Window* window,
                                        const WindowSettings& settings );
-    EQ_API void destroyWindow( Window* window );
     EQ_API SystemPipe* createPipe( Pipe* pipe );
     EQ_API MessagePump* createMessagePump();
     EQ_API bool setupFont( util::ObjectManager& gl, const void* key,
                            const std::string& name, const uint32_t size ) const;
+    EQ_API bool hasMainThreadEvents() const;
 
     EQ_API bool operator == ( const WindowSystem& other ) const;
     EQ_API bool operator != ( const WindowSystem& other ) const;

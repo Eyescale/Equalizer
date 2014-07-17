@@ -20,8 +20,6 @@
 #include "windowSystem.h"
 
 #include "gl.h"
-#include "window.h"
-#include "systemWindow.h"
 
 #include <eq/util/objectManager.h>
 #include <eq/fabric/gpuInfo.h>
@@ -74,10 +72,8 @@ void WindowSystem::_chooseImpl( const std::string& name )
     }
 
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
-    {
         if( !ws->getName().empty( ))
             _impl = ws;
-    }
 
     LBWARN << "Window system " << name << " not supported, " << "using "
            << _impl->getName() << " instead." << std::endl;
@@ -119,14 +115,6 @@ SystemWindow* WindowSystem::createWindow( Window* window,
     return _impl->createWindow( window, settings );
 }
 
-void WindowSystem::destroyWindow( Window* window )
-{
-    LBASSERT( _impl );
-    _impl->destroyWindow( window );
-    delete window->_systemWindow;
-    window->_systemWindow = 0;
-}
-
 SystemPipe* WindowSystem::createPipe( Pipe* pipe )
 {
     LBASSERT( _impl );
@@ -145,6 +133,12 @@ bool WindowSystem::setupFont( util::ObjectManager& gl, const void* key,
 {
     LBASSERT( _impl );
     return _impl->setupFont( gl, key, name, size );
+}
+
+bool WindowSystem::hasMainThreadEvents() const
+{
+    LBASSERT( _impl );
+    return _impl->hasMainThreadEvents();
 }
 
 bool WindowSystem::operator == ( const WindowSystem& other) const

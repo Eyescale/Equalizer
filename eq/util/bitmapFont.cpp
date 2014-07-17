@@ -71,9 +71,6 @@ void BitmapFont::exit()
 void BitmapFont::draw( const std::string& text ) const
 {
     const GLuint lists = _impl->om.getList( _impl->key );
-    LBASSERTINFO( lists != ObjectManager::INVALID,
-                  "Font not initialized" );
-
     if( lists != ObjectManager::INVALID )
     {
         glListBase( lists );

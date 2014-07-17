@@ -420,7 +420,6 @@ protected:
     //@}
 
 private:
-    friend class WindowSystem;
     enum State
     {
         STATE_STOPPED,

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2014, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +21,7 @@
 
 #include <eq/client/qt/types.h>
 #include <eq/client/glWindow.h>       // base class
+#include <boost/function/function1.hpp> // used as parameter
 
 namespace eq
 {
@@ -47,11 +49,20 @@ class Window : public WindowIF
 {
 public:
     /**
+     * Function invoked to delete the GLWidget from the destructor.
+     * @version 1.7.3
+     */
+    typedef boost::function< void( GLWidget* ) > DeleteGLWidgetFunc;
+
+    /**
      * Construct a new Qt system window.
+     *
+     * If no DeleteGLWidgetFunc is given, the GLWidget is destroyed using
+     * delete.
      * @version 1.7.3
      */
     Window( NotifierInterface& parent, const WindowSettings& settings,
-            GLWidget* glWidget );
+            GLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget = 0 );
 
     /** Destruct this Qt window. @version 1.7.3 */
     ~Window() final;

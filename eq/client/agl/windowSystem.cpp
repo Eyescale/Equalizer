@@ -86,6 +86,8 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
+    bool hasMainThreadEvents() const final { return true; }
+
     bool setupFont( util::ObjectManager& gl, const void* key,
                     const std::string& name, const uint32_t size ) const final
     {
