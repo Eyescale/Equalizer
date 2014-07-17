@@ -140,6 +140,7 @@ set(CLIENT_PUBLIC_HEADERS
 
 set(CLIENT_HEADERS
   detail/fileFrameWriter.h
+  detail/statsRenderer.h
   exitVisitor.h
   half.h
   initVisitor.h
@@ -200,9 +201,6 @@ set(CLIENT_SOURCES
 
 if(NOT EQUALIZER_BUILD_2_0_API)
   list(APPEND CLIENT_SOURCES configEvent.cpp)
-endif()
-if(GLSTATS_FOUND)
-  list(APPEND CLIENT_HEADERS detail/statsRenderer.h)
 endif()
 
 if(EQ_AGL_USED)

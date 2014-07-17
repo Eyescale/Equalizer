@@ -25,10 +25,11 @@
 #include "../config.h"
 #include "../pipe.h"
 
-#include <co/objectICommand.h>
 #include <eq/fabric/commands.h>
+#include <co/objectICommand.h>
 #include <QApplication>
 #include <QThread>
+#include <boost/bind.hpp>
 
 namespace eq
 {
@@ -65,6 +66,14 @@ private:
     std::string getName() const final
         { return QApplication::instance() ? "Qt" : ""; }
 
+    void _deleteGLWidget( eq::Window* window, GLWidget* widget )
+    {
+        // destroy QGLWidget from main thread
+        co::LocalNodePtr localNode = window->getConfig()->getLocalNode();
+        window->send( localNode, fabric::CMD_WINDOW_DESTROY_QGL_WIDGET )
+            << widget;
+    }
+
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
     {
@@ -73,11 +82,16 @@ private:
 
         LBINFO << "Using qt::Window" << std::endl;
 
-        // need to create QGLWidget from main thread
+        // need to create and destroy QGLWidget from main thread
+        co::CommandQueue* queue = window->getConfig()->getMainThreadQueue();
         window->registerCommand( fabric::CMD_WINDOW_CREATE_QGL_WIDGET,
                                  CmdFunc( this,
                                           &WindowSystem::_cmdCreateQGLWidget ),
-                                 window->getConfig()->getMainThreadQueue( ));
+                                 queue );
+        window->registerCommand( fabric::CMD_WINDOW_DESTROY_QGL_WIDGET,
+                                 CmdFunc( this,
+                                          &WindowSystem::_cmdDestroyGLWidget ),
+                                 queue );
 
         co::LocalNodePtr localNode = window->getConfig()->getLocalNode();
         lunchbox::Request< void* > request =
@@ -85,40 +99,19 @@ private:
         window->send( localNode, fabric::CMD_WINDOW_CREATE_QGL_WIDGET )
                 << window << &settings << QThread::currentThread() << request;
 
+        Window::DeleteGLWidgetFunc deleteFunc =
+            boost::bind( &WindowSystem::_deleteGLWidget, this, window, _1 );
         GLWidget* widget = reinterpret_cast< GLWidget* >( request.wait( ));
-        return new Window( *window, settings, widget );
-    }
-
-    void destroyWindow( eq::Window* window ) final
-    {
-        const WindowSettings& settings = window->getSettings();
-        if( _useSystemWindowSystem( settings, window->getSharedContextWindow()))
-        {
-            _getSystemWindowSystem().destroyWindow( window );
-            return;
-        }
-
-        co::LocalNodePtr localNode = window->getConfig()->getLocalNode();
-
-        // need to destroy QGLWidget from main thread
-        window->registerCommand( fabric::CMD_WINDOW_DESTROY_QGL_WIDGET,
-                         CmdFunc( this, &WindowSystem::_cmdDestroyGLWidget ),
-                                    window->getConfig()->getMainThreadQueue( ));
-
-        Window* sysWindow = static_cast< Window* >( window->getSystemWindow( ));
-        window->send( localNode, fabric::CMD_WINDOW_DESTROY_QGL_WIDGET )
-                << sysWindow->getGLWidget();
+        return new Window( *window, settings, widget, deleteFunc );
     }
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
-    {
-        return _getSystemWindowSystem().createPipe( pipe );
-    }
+        { return _getSystemWindowSystem().createPipe( pipe ); }
 
     eq::MessagePump* createMessagePump() final
-    {
-        return new MessagePump;
-    }
+        { return new MessagePump; }
+
+    bool hasMainThreadEvents() const final { return true; }
 
     bool setupFont( util::ObjectManager& gl LB_UNUSED,
                     const void* key LB_UNUSED,
@@ -126,7 +119,7 @@ private:
                     const uint32_t size LB_UNUSED ) const final
     {
 #ifdef AGL
-        return true;
+        return false;
 #else
         return _getSystemWindowSystem().setupFont( gl, key, name, size );
 #endif

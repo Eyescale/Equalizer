@@ -30,18 +30,29 @@ namespace detail
 class Window
 {
 public:
-    Window( GLWidget* glWidget_ )
+    Window( GLWidget* glWidget_,
+            eq::qt::Window::DeleteGLWidgetFunc deleteGLWidget_ )
         : glWidget( glWidget_ )
+        , deleteGLWidget( deleteGLWidget_ )
     {}
 
+    ~Window()
+    {
+        if( deleteGLWidget )
+            deleteGLWidget( glWidget );
+        else
+            delete glWidget;
+    }
+
     GLWidget* glWidget;
+    const eq::qt::Window::DeleteGLWidgetFunc deleteGLWidget;
 };
 }
 
 Window::Window( NotifierInterface& parent, const WindowSettings& settings,
-                GLWidget* glWidget )
+                GLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget )
     : WindowIF( parent, settings )
-    , _impl( new detail::Window( glWidget ))
+    , _impl( new detail::Window( glWidget, deleteGLWidget ))
 {
 }
 

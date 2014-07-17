@@ -562,8 +562,8 @@ bool Window::configExitSystemWindow()
     {
         _systemWindow->configExit();
 
-        const Pipe* pipe = getPipe();
-        pipe->getWindowSystem().destroyWindow( this );
+        delete _systemWindow;
+        _systemWindow = 0;
     }
     return true;
 }
