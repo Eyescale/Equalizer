@@ -40,8 +40,8 @@ namespace fabric
         PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
         /** Construct a new pixel viewport with default values. @version 1.0 */
-        explicit PixelViewport( const int32_t x_, const int32_t y_,
-                                const int32_t w_, const int32_t h_ )
+        PixelViewport( const int32_t x_, const int32_t y_,
+                       const int32_t w_,const int32_t h_ )
                 : x(x_), y(y_), w(w_), h(h_)  {}
 
         /** Construct a new pixel viewport with default values. @version 1.1.6*/

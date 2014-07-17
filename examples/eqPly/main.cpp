@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,6 +26,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+#ifdef EQUALIZER_USE_QT4
+#  include <QApplication>
+#endif
+
 #include "eqPly.h"
 
 #include "channel.h"
@@ -43,7 +48,7 @@ class NodeFactory : public eq::NodeFactory
 public:
     virtual eq::Config*  createConfig( eq::ServerPtr parent )
         { return new eqPly::Config( parent ); }
-    virtual eq::Node*    createNode( eq::Config* parent )  
+    virtual eq::Node*    createNode( eq::Config* parent )
         { return new eqPly::Node( parent ); }
     virtual eq::Pipe*    createPipe( eq::Node* parent )
         { return new eqPly::Pipe( parent ); }
@@ -55,7 +60,7 @@ public:
         { return new eqPly::View( parent ); }
 };
 
-int main( const int argc, char** argv )
+int main( int argc, char** argv )
 {
     // 1. Equalizer initialization
     NodeFactory nodeFactory;
@@ -66,6 +71,11 @@ int main( const int argc, char** argv )
         LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
+
+#ifdef EQUALIZER_USE_QT4
+    QApplication::setAttribute( Qt::AA_X11InitThreads );
+    QApplication app( argc, argv );
+#endif
 
     // 2. parse arguments
     eqPly::LocalInitData initData;

@@ -149,6 +149,13 @@ class Pipe
 public:
     explicit Pipe( const uint32_t index )
         : systemPipe( 0 )
+#ifdef AGL
+        , windowSystem( "AGL" )
+#elif GLX
+        , windowSystem( "GLX" )
+#elif WGL
+        , windowSystem( "WGL" )
+#endif
         , state( STATE_STOPPED )
         , currentFrame( 0 )
         , frameTime( 0 )
@@ -312,8 +319,10 @@ WindowSystem Pipe::selectWindowSystem() const
 {
 #ifdef AGL
     return WindowSystem( "AGL" ); // prefer over GLX
-#else
-    return WindowSystem();
+#elif GLX
+    return WindowSystem( "GLX" );
+#elif WGL
+    return WindowSystem( "WGL" );
 #endif
 }
 
