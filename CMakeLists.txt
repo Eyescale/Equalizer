@@ -9,6 +9,14 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
   ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
+
+set(LAST_RELEASE 1.6.0)
+set(VERSION_MAJOR "1")
+set(VERSION_MINOR "7")
+set(VERSION_PATCH "3")
+set(VERSION_ABI 170)
+
+include(Common)
 include(Buildyard)
 
 if(BUILDYARD_STOP)
@@ -22,12 +30,6 @@ option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
-
-set(LAST_RELEASE 1.6.0)
-set(VERSION_MAJOR "1")
-set(VERSION_MINOR "7")
-set(VERSION_PATCH "3")
-set(VERSION_ABI 2)
 
 set(DPUT_HOST ppa:bbp/ppa)
 set(GITTARGETS_RELEASE_BRANCH minor)
@@ -43,15 +45,12 @@ else()
   list(APPEND FIND_PACKAGES_DEFINES EQ_1_0_API)
 endif()
 
-include(Common)
 
 if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
 endif()
 
-include(GitTargets)
 include(configure)
-include(UpdateFile)
 
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
 

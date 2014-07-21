@@ -441,9 +441,6 @@ file(APPEND ${DEFINES_FILE_IN}
 
 include(UpdateFile)
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
-if(Boost_FOUND) # another WAR for broken boost stuff...
-  set(Boost_VERSION ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION})
-endif()
 if(CUDA_FOUND)
   string(REPLACE "-std=c++11" "" CUDA_HOST_FLAGS "${CUDA_HOST_FLAGS}")
   string(REPLACE "-std=c++0x" "" CUDA_HOST_FLAGS "${CUDA_HOST_FLAGS}")
