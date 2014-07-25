@@ -136,8 +136,11 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
         Global::setWorkDir( getcwd( cwd, MAXPATHLEN ));
     }
 
+    if( !fabric::init( argc, argv ))
+        return false;;
+
     _initPlugins();
-    return fabric::init( argc, argv );
+    return true;
 }
 
 bool exit()
@@ -155,9 +158,8 @@ bool exit()
 #endif
 
     Global::_nodeFactory = 0;
-//    _exitErrors();
-    _exitPlugins();
     const bool ret = fabric::exit();
+    _exitPlugins();
 
     if( _logFile )
     {
