@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,9 +59,10 @@ int main( const int argc, char** argv )
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         LBERROR << "Equalizer init failed" << std::endl;
+        eq::exit();
         return EXIT_FAILURE;
     }
-    
+
     eqNbody::InitData id;
     lunchbox::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
     if( !client->initLocal( argc, argv ))
@@ -72,7 +73,7 @@ int main( const int argc, char** argv )
     }
 
     // Init
-    if( client->init() != EXIT_SUCCESS ) 
+    if( client->init() != EXIT_SUCCESS )
     {
         LBERROR << "Can't init client" << std::endl;
         eq::exit();
@@ -83,7 +84,7 @@ int main( const int argc, char** argv )
     client->run();
 
     // Exit
-    if( client->exit() != EXIT_SUCCESS ) 
+    if( client->exit() != EXIT_SUCCESS )
     {
         LBERROR << "Can't exit client" << std::endl;
     }
