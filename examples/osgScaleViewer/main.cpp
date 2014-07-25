@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ int main( const int argc, char** argv )
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         std::cout << "Equalizer init failed" << std::endl;
+        eq::exit();
         return EXIT_FAILURE;
     }
 

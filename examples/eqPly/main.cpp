@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -69,6 +69,7 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         LBERROR << "Equalizer init failed" << std::endl;
+        eq::exit();
         return EXIT_FAILURE;
     }
 
