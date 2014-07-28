@@ -74,7 +74,7 @@ int main( int argc, char** argv )
     }
 
 #ifdef EQUALIZER_USE_QT4
-    QApplication::setAttribute( Qt::AA_X11InitThreads );
+    // QApplication::setAttribute( Qt::AA_X11InitThreads );
     QApplication app( argc, argv );
 #endif
 
