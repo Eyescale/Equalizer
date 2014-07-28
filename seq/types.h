@@ -28,7 +28,6 @@ using eq::Matrix4f;
 using eq::Vector3f;
 using eq::Vector4f;
 using eq::uint128_t;
-using eq::UUID;
 using eq::fabric::RenderContext;
 
 class Application;
