@@ -203,12 +203,12 @@ bool Observer::configInit()
     const std::string& vrpnName = getVRPNTracker();
     if( !vrpnName.empty( ))
     {
-        // NOTE: loader.* EQTOKEN_STRING does not permit some symbols (e.g., ? or =), so we use - for = instead
         // <device_url> = ((<device_name>@<device_desc>)(&key-value)*
         // <device_name> = (non-space, non-@?/:;-symbols)+
         // <device_desc> = <ssep_word>@<ssep_word>[:<port>]
-        static const boost::regex k_deviceURL_re("^([^\\s@:;\\?&/]+@[^\\s@;\\?&/]+)(&\\w+\\-\\w+)?$");
-        static const boost::regex k_sensorid_re("^&sensorid\\-(\\w*)$");
+        static const boost::regex k_deviceURL_re("^([^\\s@:;\\?&/]+@[^\\s@;\\?&/]+)(&\\w+\\=\\w+)?$");
+        static const boost::regex k_sensorid_re("^&sensorid=(\\d*|any)$");
+        static const size_t k_option_index_start = 2;
 
         std::string trackerDevName;
 
@@ -224,7 +224,8 @@ bool Observer::configInit()
 
             trackerDevName = device_url.str(1);
 
-            for (size_t option_idx = 2; option_idx < device_url.size(); ++option_idx)
+            for (size_t option_idx = k_option_index_start;
+                 option_idx < device_url.size(); ++option_idx)
             {
                 const std::string optionStr(device_url.str(option_idx));
 
@@ -235,8 +236,6 @@ bool Observer::configInit()
                 if (boost::regex_search(optionStr, option_result, k_sensorid_re))
                 {
                     std::string optionValue(option_result.str(1));
-                    std::transform(optionValue.begin(), optionValue.end(), optionValue.begin(), ::tolower);
-
                     if (optionValue == "any")
                         _impl->_trackerSensorID = detail::Observer::k_UseAnyValidSensorID;
                     else
