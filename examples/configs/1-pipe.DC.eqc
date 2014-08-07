@@ -1,0 +1,29 @@
+#Equalizer 1.1 ascii
+
+# one-pipe configuration that streams its output to DisplayCluster
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 0 0 800 600 ]
+                    channel { name "channel" }
+                }
+            }
+        }
+        observer{}
+        layout{ view { observer 0 DisplayCluster "localhost" name "1-pipe.DC.eqc" }}
+        canvas
+        {
+            layout 0
+            wall {}
+            segment { channel "channel" }
+        }
+    }
+}
