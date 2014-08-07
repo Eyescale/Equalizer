@@ -28,65 +28,64 @@ namespace eq
 {
 namespace agl
 {
+/**
+ * The event handler for AGL windows.
+ *
+ * Any implementation of the agl::WindowIF can instantiate this event handler,
+ * which registers for Carbon events, translates each received event to an
+ * AGLWindowEvent and dispatches it to agl::WindowIF::processEvent.
+ */
+class EventHandler : public eq::EventHandler
+{
+public:
     /**
-     * The event handler for AGL windows.
-     *
-     * Any implementation of the agl::WindowIF can instantiate this event
-     * handler, which registers for Carbon events, translates each received
-     * event to an AGLWindowEvent and dispatches it to
-     * agl::WindowIF::processEvent.
+     * Construct a new AGL event handler for the given AGL window.
+     * @version 1.0
      */
-    class EventHandler : public eq::EventHandler
-    {
-    public:
-        /**
-         * Construct a new AGL event handler for the given AGL window.
-         * @version 1.0
-         */
-        EventHandler( agl::WindowIF* window );
+    EventHandler( agl::WindowIF* window );
 
-        /** Destruct the AGL event handler. @version 1.0 */
-        virtual ~EventHandler();
+    /** Destruct the AGL event handler. @version 1.0 */
+    virtual ~EventHandler();
 
-        /**
-         * Initialize space mouse event handling for this process.
-         *
-         * Received space mouse events are processed by Node::processEvent().
-         * @version 1.0
-         */
-        static void initMagellan( Node* node );
+    /**
+     * Initialize space mouse event handling for this process.
+     *
+     * Received space mouse events are processed by Node::processEvent().
+     * @version 1.0
+     */
+    static void initMagellan( Node* node );
 
-        /**
-         * De-initialize space mouse event handling for this process.
-         * @sa Node::configInit
-         * @version 1.0
-         */
-        static void exitMagellan( Node* node );
+    /**
+     * De-initialize space mouse event handling for this process.
+     * @sa Node::configInit
+     * @version 1.0
+     */
+    static void exitMagellan( Node* node );
 
-        /** @return the handled AGL window. @version 1.0 */
-        agl::WindowIF* getWindow() const { return _window; }
+    /** @return the handled AGL window. @version 1.0 */
+    agl::WindowIF* getWindow() const { return _window; }
 
-        /** @internal */
-        bool handleEvent( EventRef event );
+    /** @internal */
+    bool handleEvent( EventRef event );
 
-    private:
-        agl::WindowIF* const _window;
+private:
+    agl::WindowIF* const _window;
 
-        EventHandlerRef _eventHandler;
-        EventHandlerRef _eventDispatcher;
+    EventHandlerRef _eventHandler;
+    EventHandlerRef _eventDispatcher;
 
-        void _processWindowEvent( WindowEvent& event );
-        /** @return true if the event is valid for the window. */
-        bool _processMouseEvent( WindowEvent& event );
-        void _processKeyEvent( WindowEvent& event );
+    void _processWindowEvent( WindowEvent& event );
+    /** @return true if the event is valid for the window. */
+    bool _processMouseEvent( WindowEvent& event );
+    void _processKeyEvent( WindowEvent& event );
 
-        uint32_t _getButtonState();
-        uint32_t _getButtonAction( EventRef event );
-        uint32_t _getKey( EventRef event );
+    uint32_t _getButtonState();
+    uint32_t _getButtonAction( EventRef event );
+    uint32_t _getKey( EventRef event );
 
-        uint32_t _lastDX;
-        uint32_t _lastDY;
-    };
+    uint32_t _lastDX;
+    uint32_t _lastDY;
+};
 }
 }
 #endif // AGL

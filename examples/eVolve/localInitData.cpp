@@ -33,10 +33,6 @@
 #include <boost/program_options.hpp>
 #pragma warning( default: 4275 )
 
-#include <algorithm>
-#include <cctype>
-#include <functional>
-
 #ifndef MIN
 #  define MIN LB_MIN
 #endif
@@ -72,10 +68,13 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     wsHelp += "AGL ";
 #endif
 #ifdef GLX
-    wsHelp += "glX ";
+    wsHelp += "GLX ";
 #endif
 #ifdef WGL
     wsHelp += "WGL ";
+#endif
+#ifdef EQUALIZER_USE_QT4
+    wsHelp += "Qt ";
 #endif
     wsHelp += ")";
 
@@ -143,13 +142,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         setFilename( userDefinedModelPath );
 
     if( variableMap.count( "windowSystem" ) > 0 )
-    {
-        std::transform( userDefinedWindowSystem.begin(),
-                        userDefinedWindowSystem.end(),
-                        userDefinedWindowSystem.begin(),
-                        (int(*)(int))std::toupper );
         setWindowSystem( userDefinedWindowSystem );
-    }
 
 
     if( variableMap.count("precision") > 0 )

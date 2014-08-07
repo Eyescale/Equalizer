@@ -40,6 +40,18 @@ namespace dc
 {
 namespace detail
 {
+
+::dc::Stream::Future make_ready_future( bool value )
+{
+#if BOOST_VERSION < 105400
+    boost::promise< bool > promise;
+    promise.set_value( value );
+    return promise.get_future();
+#else
+    return boost::make_ready_future( value );
+#endif
+}
+
 class Proxy : public boost::noncopyable
 {
 public:
@@ -47,6 +59,7 @@ public:
         : _stream( 0 )
         , _eventHandler( 0 )
         , _channel( ch )
+        , _sendFuture( make_ready_future( false ))
         , _running( false )
         , _texture( 0 )
     {
@@ -69,10 +82,14 @@ public:
         }
 
         _running = true;
+        _sendFuture = make_ready_future( true );
     }
 
     ~Proxy()
     {
+        // wait for completion of previous send
+        _sendFuture.wait();
+
         if( _texture )
             _texture->flush();
 
@@ -83,6 +100,9 @@ public:
 
     void swapBuffer()
     {
+        // wait for completion of previous send
+        _running = _sendFuture.get();
+
         const PixelViewport& pvp = _channel->getPixelViewport();
         const size_t bytesPerPixel = 4;
         const size_t newSize = pvp.w * pvp.h * bytesPerPixel;
@@ -105,13 +125,14 @@ public:
         imageWrapper.compressionPolicy = ::dc::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
 
-        _running = _stream->send( imageWrapper ) && _stream->finishFrame();
+        _sendFuture = _stream->asyncSend( imageWrapper );
     }
 
     ::dc::Stream* _stream;
     EventHandler* _eventHandler;
     eq::Channel* _channel;
     lunchbox::Bufferb buffer;
+    ::dc::Stream::Future _sendFuture;
     bool _running;
     util::Texture* _texture;
 

@@ -41,7 +41,7 @@ static class : WindowSystemIF
     std::string getName() const final { return "WGL"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) const final
+                                    const WindowSettings& settings ) final
     {
         LBINFO << "Using wgl::Window" << std::endl;
 
@@ -50,13 +50,13 @@ static class : WindowSystemIF
         return new Window( *window, settings, *wglPipe );
     }
 
-    eq::SystemPipe* createPipe(eq::Pipe* pipe) const final
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) final
     {
         LBINFO << "Using wgl::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const final
+    eq::MessagePump* createMessagePump() final
     {
         return new MessagePump;
     }

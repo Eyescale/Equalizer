@@ -18,13 +18,15 @@
 #ifndef EQUTIL_BITMAPFONT_H
 #define EQUTIL_BITMAPFONT_H
 
-#include <eq/util/objectManager.h> // used inline
+#include <eq/client/api.h>
 #include <eq/util/types.h>
 
 namespace eq
 {
 namespace util
 {
+namespace detail { class BitmapFont; }
+
 /** A wrapper around AGL, WGL and GLX bitmap fonts. */
 class BitmapFont : public boost::noncopyable
 {
@@ -79,8 +81,7 @@ public:
     EQ_API void draw( const std::string& text ) const;
 
 private:
-    ObjectManager _gl;
-    const void* _key;
+    detail::BitmapFont* const _impl;
 };
 }
 }

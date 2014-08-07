@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,44 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_TYPES_H
-#define EQSEQUEL_TYPES_H
+#ifndef EQ_QT_EVENTHANDLER_H
+#define EQ_QT_EVENTHANDLER_H
 
-#include <seq/api.h>
-#include <eq/client/types.h>
+#include <eq/client/qt/types.h>
+#include <eq/client/eventHandler.h> // base class
+#include <QObject> // base class
 
-namespace seq
+
+namespace eq
 {
-using eq::Frustumf;
-using eq::Matrix4f;
-using eq::Vector3f;
-using eq::Vector4f;
-using eq::uint128_t;
-using eq::fabric::RenderContext;
-
-class Application;
-class ObjectFactory;
-class Renderer;
-class ViewData;
-
-typedef lunchbox::RefPtr< Application > ApplicationPtr;
-
-/** @cond IGNORE */
-namespace detail
+namespace qt
 {
 
-class Application;
-class Channel;
-class Config;
-class Node;
-class ObjectMap;
-class Pipe;
-class Renderer;
-class View;
-class Window;
+/** The event handler for Qt windows. */
+class EventHandler : public QObject, public eq::EventHandler
+{
+public:
+    /** Construct a new Qt event handler. @version 1.7.3 */
+    EventHandler( WindowIF& window );
 
-}
-/** @endcond */
-}
+    /** Destruct the Qt event handler. @version  1.7.3 */
+    ~EventHandler() final;
 
-#endif // EQSEQUEL_TYPES_H
+private:
+    bool event( QEvent* evt ) override;
+
+    WindowIF& _window;
+};
+}
+}
+#endif // EQ_QT_EVENTHANDLER_H

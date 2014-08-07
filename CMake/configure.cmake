@@ -5,8 +5,8 @@ if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   list(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
   list(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-  link_directories(/usr/X11R6/lib)
-  include_directories(SYSTEM /usr/X11R6/include)
+  link_directories(/opt/X11/lib /usr/X11R6/lib)
+  include_directories(SYSTEM /opt/X11/include /usr/X11R6/include)
 endif()
 
 include(FindPackages)
@@ -19,4 +19,3 @@ endif(APPLE)
 if(CUDA_FOUND)
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 endif(CUDA_FOUND)
-

@@ -90,7 +90,6 @@ using co::StringsCIter;
 typedef co::ObjectOCommand EventOCommand;
 
 using lunchbox::uint128_t;
-using lunchbox::UUID;
 using lunchbox::VisitorResult;
 using lunchbox::TRAVERSE_CONTINUE;
 using lunchbox::TRAVERSE_PRUNE;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,44 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_TYPES_H
-#define EQSEQUEL_TYPES_H
+#ifndef EQ_QT_TYPES_H
+#define EQ_QT_TYPES_H
 
-#include <seq/api.h>
-#include <eq/client/types.h>
-
-namespace seq
+namespace eq
 {
-using eq::Frustumf;
-using eq::Matrix4f;
-using eq::Vector3f;
-using eq::Vector4f;
-using eq::uint128_t;
-using eq::fabric::RenderContext;
-
-class Application;
-class ObjectFactory;
-class Renderer;
-class ViewData;
-
-typedef lunchbox::RefPtr< Application > ApplicationPtr;
-
-/** @cond IGNORE */
-namespace detail
+/**
+ * @namespace eq::qt
+ * @brief The system abstraction layer for Qt
+ */
+namespace qt
 {
 
-class Application;
-class Channel;
-class Config;
-class Node;
-class ObjectMap;
+class EventHandler;
+class GLWidget;
 class Pipe;
-class Renderer;
-class View;
 class Window;
+class WindowIF;
+class WindowEvent;
 
 }
-/** @endcond */
 }
 
-#endif // EQSEQUEL_TYPES_H
+#endif // EQ_QT_TYPES_H

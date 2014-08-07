@@ -59,6 +59,8 @@ and documentation changes over the Equalizer 1.6 release:
   Channel::getInput/OutputFrames
 * [331](https://github.com/Eyescale/Equalizer/issues/331): Added
   Config::syncObject
+* New EqGLLibraries.cmake script for simpler OpenGL configuration in
+  downstream projects
 
 ## Optimizations {#Optimizations}
 

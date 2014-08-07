@@ -255,7 +255,6 @@ using co::f_bool_t;
 using lunchbox::a_int32_t;
 using lunchbox::backtrace;
 using lunchbox::uint128_t;
-using lunchbox::UUID;
 
 /** @cond IGNORE */
 

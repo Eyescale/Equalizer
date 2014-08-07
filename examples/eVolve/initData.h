@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@ namespace eVolve
         void setFrameDataID( const eq::uint128_t& id )   { _frameDataID = id; }
 
         eq::uint128_t      getFrameDataID()  const { return _frameDataID;  }
-        eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
+        const std::string& getWindowSystem() const { return _windowSystem; }
         uint32_t           getPrecision()    const { return _precision;    }
         float              getBrightness()   const { return _brightness;   }
         float              getAlpha()        const { return _alpha;        }
@@ -55,7 +55,7 @@ namespace eVolve
         virtual void getInstanceData(   co::DataOStream& os );
         virtual void applyInstanceData( co::DataIStream& is );
 
-        void setWindowSystem( const eq::WindowSystem& windowSystem )
+        void setWindowSystem( const std::string& windowSystem )
             { _windowSystem = windowSystem; }
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setBrightness( const float brightness ) {_brightness = brightness;}
@@ -63,12 +63,12 @@ namespace eVolve
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
-        eq::uint128_t    _frameDataID;
-        eq::WindowSystem _windowSystem;
-        uint32_t         _precision;
-        float            _brightness;
-        float            _alpha;
-        std::string      _filename;
+        eq::uint128_t _frameDataID;
+        std::string   _windowSystem;
+        uint32_t      _precision;
+        float         _brightness;
+        float         _alpha;
+        std::string   _filename;
     };
 }
 
