@@ -671,7 +671,7 @@ void Image::_finishReadback( const Frame::Buffer buffer,
         return;
     }
 
-     flags |= ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
+    flags |= ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
 
     uint64_t outDims[4] = {0};
     uint64_t inDims[4];
