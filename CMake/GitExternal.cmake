@@ -61,16 +61,6 @@ function(GIT_EXTERNAL DIR REPO TAG)
       message(STATUS "Update of ${DIR} failed:\n   ${error}")
     endif()
 
-    # checkout requested tag
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}"
-      )
-    if(nok)
-      message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
-    endif()
-
     # update tag
     execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
       RESULT_VARIABLE RESULT OUTPUT_VARIABLE OUTPUT ERROR_VARIABLE OUTPUT
@@ -79,6 +69,16 @@ function(GIT_EXTERNAL DIR REPO TAG)
       message(STATUS "git rebase failed, aborting ${DIR} merge")
       execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
         WORKING_DIRECTORY "${DIR}")
+    endif()
+
+    # checkout requested tag
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
+      RESULT_VARIABLE nok ERROR_VARIABLE error
+      WORKING_DIRECTORY "${DIR}"
+      )
+    if(nok)
+      message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
     endif()
   else()
     message(STATUS "Can't update git external ${DIR}: Not a git repository")
