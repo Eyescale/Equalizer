@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ class NodeFactory : public eq::NodeFactory
 public:
     virtual eq::Config*  createConfig( eq::ServerPtr parent )
         { return new eVolve::Config( parent ); }
-    virtual eq::Node*    createNode( eq::Config* parent )  
+    virtual eq::Node*    createNode( eq::Config* parent )
         { return new eVolve::Node( parent ); }
     virtual eq::Pipe*    createPipe( eq::Node* parent )
         { return new eVolve::Pipe( parent ); }
@@ -61,6 +61,7 @@ int main( const int argc, char** argv )
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         LBERROR << "Equalizer init failed" << std::endl;
+        eq::exit();
         eVolve::exitErrors();
         return EXIT_FAILURE;
     }

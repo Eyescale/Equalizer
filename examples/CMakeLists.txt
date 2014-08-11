@@ -5,8 +5,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 if(Equalizer_BINARY_DIR) # in-repository build
-  configure_file(CMakeLists.txt
-                 ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt @ONLY)
+  configure_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
+    @ONLY)
 
   set(EQUALIZER_LIBRARIES Equalizer)
   set(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin)
@@ -35,25 +35,9 @@ else() # installed examples
   endif()
 endif()
 
-if(APPLE)
-  set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
-  message(STATUS "Building examples for ${CMAKE_OSX_ARCHITECTURES}")
-
-  # filter out -arch settings from environment (MacPorts...)
-  set(ALL_OSX_ARCHITECTURES ppc ppc64 i386 x86_64)
-  foreach(ARCH ${ALL_OSX_ARCHITECTURES})
-    list(FIND CMAKE_OSX_ARCHITECTURES ${ARCH} INDEX)
-    if(INDEX EQUAL -1) # Arch not enabled
-      string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS}")
-      string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-      string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS}")
-    endif()
-  endforeach()
-endif()
-
 include(StringifyShaders)
+configure_file(${CMAKE_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
+  ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist COPYONLY)
 
 function(EQ_ADD_EXAMPLE NAME)
   cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;SHADERS;LINK_LIBRARIES"
@@ -71,11 +55,9 @@ function(EQ_ADD_EXAMPLE NAME)
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")
-  if(APPLE AND AGL) # set preference to 32 bit if AGL is available
-    update_file(${CMAKE_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
+  if(AGL) # set preference to 32 bit if AGL is available
+    set_target_properties(${THIS_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST
       ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist)
-    set_target_properties(${THIS_TARGET} PROPERTIES
-      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist)
   endif()
   add_dependencies(${THIS_TARGET} ${EQUALIZER_SERVER_LIBRARY}) # dlopen'ed
 
@@ -110,17 +92,35 @@ install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
-if(CUDA_FOUND)
-  add_subdirectory(eqNBody)
-endif()
-if(OPENSCENEGRAPH_FOUND)
-  add_subdirectory(osgScaleViewer)
+add_subdirectory(triply) # build the ply library universal
+
+if(APPLE)
+  set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
+  message(STATUS "Building examples for ${CMAKE_OSX_ARCHITECTURES}")
+
+  # filter out -arch settings from environment (MacPorts...)
+  set(ALL_OSX_ARCHITECTURES ppc ppc64 i386 x86_64)
+  foreach(ARCH ${ALL_OSX_ARCHITECTURES})
+    list(FIND CMAKE_OSX_ARCHITECTURES ${ARCH} INDEX)
+    if(INDEX EQUAL -1) # Arch not enabled
+      string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS}")
+      string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+      string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS}")
+    endif()
+  endforeach()
 endif()
 
-add_subdirectory(triply)
 add_subdirectory(eVolve)
 add_subdirectory(eqAsync)
 add_subdirectory(eqHello)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
 add_subdirectory(seqPly)
+if(CUDA_FOUND)
+  add_subdirectory(eqNBody)
+endif()
+if(OPENSCENEGRAPH_FOUND)
+  add_subdirectory(osgScaleViewer)
+endif()

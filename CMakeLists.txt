@@ -9,6 +9,14 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
   ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
+
+set(LAST_RELEASE 1.6.0)
+set(VERSION_MAJOR "1")
+set(VERSION_MINOR "7")
+set(VERSION_PATCH "3")
+set(VERSION_ABI 170)
+
+include(Common)
 include(Buildyard)
 
 if(BUILDYARD_STOP)
@@ -23,22 +31,12 @@ option(EQUALIZER_BUILD_2_0_API
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
-set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
-set(LAST_RELEASE 1.6.0)
-set(VERSION_MAJOR "1")
-set(VERSION_MINOR "7")
-set(VERSION_PATCH "3")
+set(DPUT_HOST ppa:bbp/ppa)
+set(GITTARGETS_RELEASE_BRANCH minor)
 
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
 set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
                           parallel and scalable OpenGL and GPGPU applications.")
-
-if(RELEASE_VERSION)
-  set(EQ_DEFINITIONS -DEQ_RELEASE)
-  set(VERSION_ABI ${RELEASE_VERSION})
-else()
-  set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
-endif()
 
 set(PROJECT_INCLUDE_NAME eq)
 if(EQUALIZER_BUILD_2_0_API)
@@ -47,10 +45,12 @@ else()
   list(APPEND FIND_PACKAGES_DEFINES EQ_1_0_API)
 endif()
 
-include(Common)
-include(GitTargets)
+
+if(RELEASE_VERSION)
+  set(EQ_DEFINITIONS -DEQ_RELEASE)
+endif()
+
 include(configure)
-include(UpdateFile)
 
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
 
@@ -80,10 +80,13 @@ endif(APPLE)
 if(EQ_GLX_USED)
   include_directories(SYSTEM ${X11_INCLUDE_DIR})
   set(EQ_FEATURES "${EQ_FEATURES} GLX")
-endif(EQ_GLX_USED)
+endif()
 if(EQ_AGL_USED)
   set(EQ_FEATURES "${EQ_FEATURES} AGL(32bit)")
-endif(EQ_AGL_USED)
+endif()
+if(EQ_QT_USED)
+  set(EQ_FEATURES "${EQ_FEATURES} Qt")
+endif()
 
 list(APPEND EQ_DEFINITIONS
   -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
@@ -123,7 +126,7 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-install(FILES CMake/common/FindGLEW_MX.cmake
+install(FILES CMake/common/FindGLEW_MX.cmake CMake/EqGLLibraries.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)
@@ -158,7 +161,6 @@ if(MSVC)
 else()
   message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 endif()
-
 
 include(DoxygenRule) # must be after all targets
 include(CPackConfig)

@@ -41,7 +41,7 @@ static class : WindowSystemIF
     std::string getName() const final { return "GLX"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) const final
+                                    const WindowSettings& settings ) final
     {
         LBINFO << "Using glx::Window" << std::endl;
         Display* xDisplay = 0;
@@ -65,13 +65,13 @@ static class : WindowSystemIF
                            messagePump );
     }
 
-    eq::SystemPipe* createPipe( eq::Pipe* pipe ) const final
+    eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
     {
         LBINFO << "Using glx::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
-    eq::MessagePump* createMessagePump() const final
+    eq::MessagePump* createMessagePump() final
     {
         return new MessagePump;
     }

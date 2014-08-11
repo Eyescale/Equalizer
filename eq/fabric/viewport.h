@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,12 +28,10 @@ namespace eq
 {
 namespace fabric
 {
-    class PixelViewport;
-    class Viewport;
     std::ostream& operator << ( std::ostream& os, const Viewport& vp );
 
     /** A fractional viewport with methods for manipulation. */
-    class Viewport 
+    class Viewport
     {
     public:
         /** @name Constructors */
@@ -58,13 +56,13 @@ namespace fabric
         void apply( const Viewport& rhs )
             {
                 LBASSERTINFO( isValid(), *this);
-                LBASSERTINFO( rhs.isValid(), rhs );                
+                LBASSERTINFO( rhs.isValid(), rhs );
                 x += rhs.x * w;
                 y += rhs.y * h;
                 w *= rhs.w;
                 h *= rhs.h;
             }
-            
+
         /** Transform this viewport into the rhs viewport space. @internal */
         void transform( const Viewport& rhs )
             {
@@ -78,8 +76,8 @@ namespace fabric
          * @return true if the two viewports are identical.
          * @version 1.0
          */
-        bool operator == ( const Viewport& rhs ) const 
-            { 
+        bool operator == ( const Viewport& rhs ) const
+            {
                 return ( x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h);
             }
 
@@ -87,20 +85,20 @@ namespace fabric
          * @return true if the two viewports are not identical.
          * @version 1.0
          */
-        bool operator != ( const Viewport& rhs ) const 
-            { 
+        bool operator != ( const Viewport& rhs ) const
+            {
                 return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h);
             }
 
-        /** 
+        /**
          * @return true if the viewport has a non-negative, but potentially
          *         empty, size.
          * @version 1.0
          */
-        bool isValid() const 
+        bool isValid() const
             { return ( x>=0.0f && y>=0.0f && w>=0.0f && h>=0.0f ); }
-        
-        /** 
+
+        /**
          * @return true if the viewport has a non-zero area, i.e, it is
          *         not empty.
          * @version 1.0
@@ -127,7 +125,7 @@ namespace fabric
                     invalidate();
                     return;
                 }
-                
+
                 if( !rhs.hasArea() || !hasArea() )
                 {
                     x = 0;
@@ -136,12 +134,12 @@ namespace fabric
                     h = 0;
                     return;
                 }
-                
+
                 const float sEx = static_cast< float >(     x +     w );
                 const float sEy = static_cast< float >(     y +     h );
                 const float dEx = static_cast< float >( rhs.x + rhs.w );
                 const float dEy = static_cast< float >( rhs.y + rhs.h );
-                    
+
                 x = LB_MAX( x, rhs.x );
                 y = LB_MAX( y, rhs.y );
                 w = LB_MIN( sEx, dEx ) - x;
@@ -174,9 +172,9 @@ namespace fabric
 
         /** Apply the view coverage to this viewport. @internal */
         EQFABRIC_API void applyView( const Viewport& segmentVP,
-                                  const Viewport& viewVP,
-                                  const PixelViewport& pvp, 
-                                  const Vector4i& overdraw );
+                                     const Viewport& viewVP,
+                                     const PixelViewport& pvp,
+                                     const Vector4i& overdraw );
 
         float x; //!< The X coordinate
         float y; //!< The Y coordinate

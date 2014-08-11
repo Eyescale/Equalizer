@@ -33,7 +33,6 @@ namespace eq
 {
 namespace server
 {
-    class LoadEqualizer;
     std::ostream& operator << ( std::ostream& os, const LoadEqualizer* );
 
     /** Adapts the 2D tiling or DB range of the attached compound's children. */

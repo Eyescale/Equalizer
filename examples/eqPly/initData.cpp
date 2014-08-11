@@ -41,17 +41,19 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID()
+    : _frameDataID()
 #ifdef AGL
-        , _windowSystem( "AGL" ) // prefer over GLX
-#else
-        , _windowSystem()
+    , _windowSystem( "AGL" )
+#elif GLX
+    , _windowSystem( "GLX" )
+#elif WGL
+    , _windowSystem( "WGL" )
 #endif
-        , _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
-        , _useGLSL( false )
-        , _invFaces( false )
-        , _logo( true )
-        , _roi ( true )
+    , _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
+    , _useGLSL( false )
+    , _invFaces( false )
+    , _logo( true )
+    , _roi ( true )
 {}
 
 InitData::~InitData()

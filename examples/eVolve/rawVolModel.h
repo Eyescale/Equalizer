@@ -91,9 +91,9 @@ namespace eVolve
 
         void releaseVolumeInfo( const eq::Range& range );
 
-        const std::string&   getFileName()      const { return _filename;    };
-              uint32_t       getResolution()    const { return _resolution;  };
-        const VolumeScaling& getVolumeScaling() const { return _volScaling;  };
+        const std::string&   getFileName()      const { return _filename;    }
+              uint32_t       getResolution()    const { return _resolution;  }
+        const VolumeScaling& getVolumeScaling() const { return _volScaling;  }
 
         void glewSetContext( const GLEWContext* context )
             { _glewContext = context; }

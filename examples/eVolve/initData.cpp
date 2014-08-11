@@ -40,25 +40,27 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID()
+    : _frameDataID()
 #ifdef AGL
-        , _windowSystem( "AGL" ) // prefer over GLX
-#else
-        , _windowSystem()
+    , _windowSystem( "AGL" )
+#elif GLX
+    , _windowSystem( "GLX" )
+#elif WGL
+    , _windowSystem( "WGL" )
 #endif
-        , _precision( 2 )
-        , _brightness( 1.0f )
-        , _alpha( 1.0f )
+    , _precision( 2 )
+    , _brightness( 1.0f )
+    , _alpha( 1.0f )
 #ifdef EQ_RELEASE
 #  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-        , _filename( "../share/Equalizer/data/Bucky32x32x32_d.raw" )
+    , _filename( "../share/Equalizer/data/Bucky32x32x32_d.raw" )
 #  else
-        , _filename( std::string( EQ_INSTALL_DIR ) +
-                     std::string( "share/Equalizer/data/Bucky32x32x32_d.raw" ))
+    , _filename( std::string( EQ_INSTALL_DIR ) +
+                 std::string( "share/Equalizer/data/Bucky32x32x32_d.raw" ))
 #  endif
 #else
-        , _filename( std::string( EQ_SOURCE_DIR ) +
-                     std::string( "examples/eVolve/Bucky32x32x32_d.raw" ))
+    , _filename( std::string( EQ_SOURCE_DIR ) +
+                 std::string( "examples/eVolve/Bucky32x32x32_d.raw" ))
 #endif
 {}
 

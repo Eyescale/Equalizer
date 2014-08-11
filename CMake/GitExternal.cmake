@@ -70,6 +70,16 @@ function(GIT_EXTERNAL DIR REPO TAG)
     if(nok)
       message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
     endif()
+
+    # update tag
+    execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
+      RESULT_VARIABLE RESULT OUTPUT_VARIABLE OUTPUT ERROR_VARIABLE OUTPUT
+      WORKING_DIRECTORY "${DIR}")
+    if(RESULT)
+      message(STATUS "git rebase failed, aborting ${DIR} merge")
+      execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
+        WORKING_DIRECTORY "${DIR}")
+    endif()
   else()
     message(STATUS "Can't update git external ${DIR}: Not a git repository")
   endif()
@@ -109,6 +119,7 @@ if(EXISTS ${GIT_EXTERNALS})
           endif()
           if(NOT TARGET update_git_external)
             add_custom_target(update_git_external)
+            add_custom_target(flatten_git_external)
             add_dependencies(update update_git_external)
           endif()
 
@@ -149,9 +160,26 @@ endif()")
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
           add_dependencies(update_git_external
             update_git_external_${GIT_EXTERNAL_NAME})
+
+          # Flattens a git external repository into its parent repo:
+          # * Clean any changes from external
+          # * Unlink external from git: Remove external/.git and .gitexternals
+          # * Add external directory to parent
+          # * Commit with flattened repo and tag info
+          # - Depend on release branch checked out
+          add_custom_target(flatten_git_external_${GIT_EXTERNAL_NAME}
+            COMMAND ${GIT_EXECUTABLE} clean -dfx
+            COMMAND ${CMAKE_COMMAND} -E remove_directory .git
+            COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals
+            COMMAND ${GIT_EXECUTABLE} add -f .
+            COMMAND ${GIT_EXECUTABLE} commit -m "Flatten ${REPO} into ${DIR} at ${TAG}" . ${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals
+            COMMENT "Flatten ${REPO} into ${DIR}"
+            DEPENDS make-branch
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
+          add_dependencies(flatten_git_external
+            flatten_git_external_${GIT_EXTERNAL_NAME})
         endif()
       endif()
     endif()
   endforeach()
-  include(${GIT_EXTERNALS})
 endif()

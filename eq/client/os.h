@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -52,13 +52,17 @@
 #endif
 
 #ifdef AGL
-#  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
-#  include <ApplicationServices/ApplicationServices.h>
-#  include <AGL/agl.h>
-#  include <Carbon/Carbon.h>
-#  define EQ_AGL_MENUBARHEIGHT 22
-#  ifdef check // undo global namespace pollution (AssertMacros.h)
-#    undef check
+#  ifdef __LP64__ // AGL is not supported in 64 bit
+#    undef AGL
+#  else
+#    define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
+#    include <ApplicationServices/ApplicationServices.h>
+#    include <AGL/agl.h>
+#    include <Carbon/Carbon.h>
+#    define EQ_AGL_MENUBARHEIGHT 22
+#    ifdef check // undo global namespace pollution (AssertMacros.h)
+#      undef check
+#    endif
 #  endif
 #endif
 
