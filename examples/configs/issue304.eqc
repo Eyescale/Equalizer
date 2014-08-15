@@ -1,0 +1,30 @@
+#Equalizer 1.2 ascii
+
+# 'Hello, World!' config: one window rendering from the application process.
+server
+{
+    connection { hostname "127.0.0.1" }
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                device 4242
+                window
+                {
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+
+                    channel { name "channel" }
+                }
+            }
+        }
+        observer{} # vrpn_tracker "Tracker0@localhost" }
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            segment { channel "channel" }
+        }
+    }
+}
