@@ -562,7 +562,7 @@ bool Config::_updateRunning()
 
     _startNodes();
     _updateCanvases();
-    const bool result = _updateNodes() ? true : canFail;
+    const bool result = _updateNodes( canFail );
     _stopNodes();
 
     // Don't use visitor, it would get confused with modified child vectors
@@ -702,7 +702,7 @@ void Config::_stopNodes()
     }
 }
 
-bool Config::_updateNodes()
+bool Config::_updateNodes( const bool canFail )
 {
     ConfigUpdateVisitor update( _initID, _currentFrame );
     accept( update );
@@ -710,16 +710,24 @@ bool Config::_updateNodes()
     ConfigUpdateSyncVisitor syncUpdate;
     accept( syncUpdate );
 
-    const bool result = syncUpdate.getResult();
+    const bool failure = syncUpdate.hadFailure();
 
     if( syncUpdate.needsSync( )) // init failure, call again (exit pending)
     {
-        LBASSERT( !result );
+        LBASSERT( failure );
         accept( syncUpdate );
         LBASSERT( !syncUpdate.needsSync( ));
     }
 
-    return result;
+    if( syncUpdate.getNumRunningChannels() == 0 )
+    {
+        LBWARN << "Config has no running channels, will exit" << std::endl;
+        return false;
+    }
+    if( canFail )
+        return true;
+
+    return !failure;
 }
 
 template< class T >

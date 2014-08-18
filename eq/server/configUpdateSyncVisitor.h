@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,12 +30,17 @@ namespace
 class ConfigUpdateSyncVisitor : public ConfigVisitor
 {
 public:
-    ConfigUpdateSyncVisitor() : _result( true ), _sync( false ) {}
+    ConfigUpdateSyncVisitor()
+        : _runningChannels( 0 )
+        , _failure( false )
+        , _sync( false )
+    {}
     virtual ~ConfigUpdateSyncVisitor() {}
 
     VisitorResult visitPre( Config* )
     {
-        _result = true;
+        _runningChannels = 0;
+        _failure = false;
         _sync = false;
         return TRAVERSE_CONTINUE;
     }
@@ -60,13 +65,20 @@ public:
         { return _updateUp( window ); }
 
     VisitorResult visit( Channel* channel ) override
-        { return _updateUp( channel ); }
+    {
+        const VisitorResult result = _updateUp( channel );
+        if( channel->isRunning( ))
+            ++_runningChannels;
+        return result;
+    }
 
-    bool getResult() const { return _result; }
+    size_t getNumRunningChannels() const { return _runningChannels; }
+    bool hadFailure() const { return _failure; }
     bool needsSync() const { return _sync; }
 
 private:
-    bool _result; // success or failure
+    size_t _runningChannels;
+    bool _failure;
     bool _sync;   // call again after init failure
 
     template< class T > VisitorResult _updateDown( T* entity ) const
@@ -102,7 +114,7 @@ private:
                 if( !entity->syncConfigInit( ))
                 {
                     entity->sync();
-                    _result = false;
+                    _failure = true;
                     _sync = true;
                     LBWARN << lunchbox::className( entity ) << " init failed"
                            << std::endl;
@@ -117,7 +129,7 @@ private:
                 if( !entity->syncConfigExit( ))
                 {
                     entity->sync();
-                    _result = false;
+                    _failure = true;
                     LBWARN << lunchbox::className( entity ) << " exit failed"
                            << std::endl;
                 }

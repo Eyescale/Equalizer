@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -178,12 +178,8 @@ void ViewData::moveModel( const float x, const float y, const float z )
     if( x == 0.f && y == 0.f && z == 0.f )
         return;
 
-    Vector3f translation;
-    _modelMatrix.get_translation( translation );
-    if( translation.squared_length() < 0.01f )
-        _modelMatrix.set_translation( translation + Vector3f( x, y, z ));
-    else
-        _modelMatrix.scale_translation( Vector3f( 1.f + x, 1.f + y, 1.f + z ));
+    _modelMatrix.set_translation( _modelMatrix.get_translation() +
+                                  Vector3f( x, y, z ));
     setDirty( DIRTY_MODELMATRIX );
 }
 
