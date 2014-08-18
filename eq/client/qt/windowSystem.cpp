@@ -15,6 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NOMINMAX // no min/max from windows.h
+#pragma warning( disable: 4407 ) // see lunchbox/commandFunc.h
 #include "../window.h" // be first to avoid max/min name clashes on Win32...
 
 #include "../windowSystem.h"
