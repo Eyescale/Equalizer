@@ -89,6 +89,8 @@ Client::Client()
 {
     registerCommand( fabric::CMD_CLIENT_EXIT,
                      ClientFunc( this, &Client::_cmdExit ), &_impl->queue );
+    registerCommand( fabric::CMD_CLIENT_INTERRUPT,
+                     ClientFunc( this, &Client::_cmdInterrupt ), &_impl->queue);
 
     LBVERB << "New client at " << (void*)this << std::endl;
 }
@@ -391,6 +393,11 @@ float Client::getModelUnit() const
     return _impl->modelUnit;
 }
 
+void Client::interruptMainThread()
+{
+    send( fabric::CMD_CLIENT_INTERRUPT );
+}
+
 co::NodePtr Client::createNode( const uint32_t type )
 {
     switch( type )
@@ -412,6 +419,11 @@ bool Client::_cmdExit( co::ICommand& command )
     _impl->running = false;
     // Close connection here, this is the last command we'll get on it
     command.getLocalNode()->disconnect( command.getRemoteNode( ));
+    return true;
+}
+
+bool Client::_cmdInterrupt( co::ICommand& )
+{
     return true;
 }
 

@@ -53,14 +53,22 @@ set(QT_HEADERS
   qt/glWidget.h
   qt/messagePump.h
   qt/types.h
+  qt/widgetFactory.h
   qt/window.h
   qt/windowEvent.h
+  qt/windowSystem.h
+)
+
+set(QT_MOC_HEADERS
+  qt/widgetFactory.h
+  qt/windowSystem.h
 )
 
 set(QT_SOURCES
   qt/eventHandler.cpp
   qt/glWidget.cpp
   qt/messagePump.cpp
+  qt/widgetFactory.cpp
   qt/window.cpp
   qt/windowSystem.cpp
 )
@@ -210,7 +218,8 @@ if(EQ_GLX_USED)
   list(APPEND CLIENT_SOURCES ${GLX_SOURCES})
 endif()
 if(EQ_QT_USED)
-  list(APPEND CLIENT_SOURCES ${QT_SOURCES})
+  qt4_wrap_cpp(QT_MOC_OUTFILES ${QT_MOC_HEADERS})
+  list(APPEND CLIENT_SOURCES ${QT_SOURCES} ${QT_MOC_OUTFILES})
 endif()
 if(WIN32)
   list(APPEND CLIENT_SOURCES ${WGL_SOURCES})
