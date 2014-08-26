@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2014, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,27 +16,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_QT_TYPES_H
-#define EQ_QT_TYPES_H
+#ifndef EQ_QT_WIDGETFACTORY_H
+#define EQ_QT_WIDGETFACTORY_H
+
+#include <QObject>
+#include <eq/client/types.h>
+#include "types.h"
 
 namespace eq
 {
-/**
- * @namespace eq::qt
- * @brief The system abstraction layer for Qt
- */
 namespace qt
 {
 
-class EventHandler;
-class GLWidget;
-class Pipe;
-class WidgetFactory;
-class Window;
-class WindowIF;
-class WindowEvent;
+/** Creates and destroys the eq::qt::GLWidget in the QApplication thread. */
+class WidgetFactory : public QObject
+{
+    Q_OBJECT
 
+public slots:
+    GLWidget* onCreateWidget( eq::Window*, const WindowSettings&, QThread* );
+    void onDestroyWidget( GLWidget* );
+};
 }
 }
 
-#endif // EQ_QT_TYPES_H
+#endif

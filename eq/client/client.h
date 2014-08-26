@@ -114,6 +114,9 @@ public:
     /** @internal @return the model unit for all views. */
     float getModelUnit() const;
 
+    /** Experimental: interrupt main thread queue @internal */
+    void interruptMainThread();
+
 protected:
     /** Destruct the client. @version 1.0 */
     EQ_API virtual ~Client();
@@ -146,6 +149,7 @@ private:
 
     /** The command functions. */
     bool _cmdExit( co::ICommand& command );
+    bool _cmdInterrupt( co::ICommand& command );
 };
 }
 

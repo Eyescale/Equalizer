@@ -1,0 +1,26 @@
+#Equalizer 1.2 ascii
+
+# 'Hello, World!' config: one window rendering from the application process.
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                device 4242
+                window
+                {
+                    channel { name "channel" }
+                }
+            }
+        }
+        layout{ view { }}
+        canvas
+        {
+            layout 0
+            segment { channel "channel" }
+        }
+    }
+}

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -334,10 +334,8 @@ void Compound::fireUpdatePre( const uint32_t frameNumber )
 {
     LB_TS_SCOPED( _serverThread );
 
-    for( CompoundListeners::const_iterator i = _listeners.begin();
-         i != _listeners.end(); ++i )
-
-        (*i)->notifyUpdatePre( this, frameNumber );
+    BOOST_FOREACH( CompoundListener* listener, _listeners )
+        listener->notifyUpdatePre( this, frameNumber );
 }
 
 const std::string& Compound::getIAttributeString( const Compound::IAttribute attr )

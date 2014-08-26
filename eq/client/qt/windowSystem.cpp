@@ -15,247 +15,130 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "../window.h" // be first to avoid max/min name clashes on Win32...
+#define NOMINMAX // no min/max from windows.h
+#pragma warning( disable: 4407 ) // see lunchbox/commandFunc.h
+#include <eq/client/window.h> // be first to avoid max/min name clashes on Win32
 
-#include "../windowSystem.h"
+#include "windowSystem.h"
 
 #include "glWidget.h"
 #include "messagePump.h"
+#include "widgetFactory.h"
 #include "window.h"
-#include "../config.h"
-#include "../pipe.h"
 
-#include <eq/fabric/commands.h>
-#include <co/objectICommand.h>
+#include <boost/bind.hpp>
+#include <eq/client/client.h>
 #include <QApplication>
 #include <QThread>
-#include <boost/bind.hpp>
+
+
+static eq::qt::WindowSystem _qtFactory;
 
 namespace eq
 {
 namespace qt
 {
-
-class WindowSystem;
-typedef co::CommandFunc< WindowSystem > CmdFunc;
-
-static class WindowSystem : WindowSystemIF, public co::Dispatcher
+namespace
 {
-private:
-    eq::WindowSystem _getSystemWindowSystem() const
-    {
+eq::WindowSystem getSystemWindowSystem()
+{
 #ifdef AGL
-        return eq::WindowSystem( "AGL" );
+    return eq::WindowSystem( "AGL" );
 #elif GLX
-        return eq::WindowSystem( "GLX" );
+    return eq::WindowSystem( "GLX" );
 #elif WGL
-        return eq::WindowSystem( "WGL" );
+    return eq::WindowSystem( "WGL" );
 #endif
-    }
+}
+}
+
+WindowSystem::WindowSystem()
+    : QObject()
+    , _factory( 0 )
+{
+    qRegisterMetaType< WindowSettings >( "WindowSettings" );
+}
+
+WindowSystem::~WindowSystem()
+{
+    delete _factory;
+}
+
+std::string WindowSystem::getName() const
+    { return QApplication::instance() ? "Qt" : ""; }
+
+eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
+                                const WindowSettings& settings )
+{
+    if( _useSystemWindowSystem( settings, window->getSharedContextWindow()))
+        return getSystemWindowSystem().createWindow( window, settings );
+
+    LBINFO << "Using qt::Window" << std::endl;
+
+    if( !_factory )
+        _setupFactory();
+
+    window->getClient()->interruptMainThread();
+    GLWidget* widget = createWidget( window, settings,
+                                     QThread::currentThread( ));
+
+    return new Window( *window, settings, widget,
+                       boost::bind( &WindowSystem::destroyWidget, this, _1 ));
+}
+
+eq::SystemPipe* WindowSystem::createPipe( eq::Pipe* pipe )
+{
+    return getSystemWindowSystem().createPipe( pipe );
+}
+
+eq::MessagePump* WindowSystem::createMessagePump()
+{
+    return new MessagePump;
+}
+
+bool WindowSystem::setupFont( util::ObjectManager& gl LB_UNUSED,
+                              const void* key LB_UNUSED,
+                              const std::string& name LB_UNUSED,
+                              const uint32_t size LB_UNUSED ) const
+{
+#ifdef AGL
+    return false;
+#else
+    return getSystemWindowSystem().setupFont( gl, key, name, size );
+#endif
+}
 
 #define getAttribute( attr ) settings.getIAttribute( WindowSettings::attr )
 
-    bool _useSystemWindowSystem( const WindowSettings& settings,
-                                 const eq::Window* sharedWindow )
-    {
-        return getAttribute( IATTR_HINT_DRAWABLE ) != eq::WINDOW ||
-               (sharedWindow && sharedWindow->getSettings().getIAttribute(
-                          WindowSettings::IATTR_HINT_DRAWABLE ) != eq::WINDOW );
-    }
+bool WindowSystem::_useSystemWindowSystem( const WindowSettings& settings,
+                                           const eq::Window* sharedWindow )
+{
+    return getAttribute( IATTR_HINT_DRAWABLE ) != eq::WINDOW ||
+           (sharedWindow && sharedWindow->getSettings().getIAttribute(
+                      WindowSettings::IATTR_HINT_DRAWABLE ) != eq::WINDOW );
+}
 
-    std::string getName() const final
-        { return QApplication::instance() ? "Qt" : ""; }
+void WindowSystem::_setupFactory()
+{
+    QCoreApplication* app = QApplication::instance();
+    _factory = new WidgetFactory;
+    _factory->moveToThread( app->thread( ));
 
-    void _deleteGLWidget( eq::Window* window, GLWidget* widget )
-    {
-        // destroy QGLWidget from main thread
-        co::LocalNodePtr localNode = window->getConfig()->getLocalNode();
-        window->send( localNode, fabric::CMD_WINDOW_DESTROY_QGL_WIDGET )
-            << widget;
-    }
+    app->connect( this, SIGNAL(createWidget( eq::Window*, const WindowSettings&,
+                                             QThread* )),
+                  _factory, SLOT(onCreateWidget( eq::Window*,
+                                                 const WindowSettings&,
+                                                 QThread* )),
+                  Qt::BlockingQueuedConnection );
 
-    eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) final
-    {
-        if( _useSystemWindowSystem( settings, window->getSharedContextWindow()))
-            return _getSystemWindowSystem().createWindow( window, settings );
+    app->connect( this, SIGNAL(destroyWidget( GLWidget* )),
+                  _factory, SLOT(onDestroyWidget( GLWidget* )));
+}
 
-        LBINFO << "Using qt::Window" << std::endl;
-
-        // need to create and destroy QGLWidget from main thread
-        co::CommandQueue* queue = window->getConfig()->getMainThreadQueue();
-        window->registerCommand( fabric::CMD_WINDOW_CREATE_QGL_WIDGET,
-                                 CmdFunc( this,
-                                          &WindowSystem::_cmdCreateQGLWidget ),
-                                 queue );
-        window->registerCommand( fabric::CMD_WINDOW_DESTROY_QGL_WIDGET,
-                                 CmdFunc( this,
-                                          &WindowSystem::_cmdDestroyGLWidget ),
-                                 queue );
-
-        co::LocalNodePtr localNode = window->getConfig()->getLocalNode();
-        lunchbox::Request< void* > request =
-                localNode->registerRequest< void* >();
-        window->send( localNode, fabric::CMD_WINDOW_CREATE_QGL_WIDGET )
-                << window << &settings << QThread::currentThread() << request;
-
-        Window::DeleteGLWidgetFunc deleteFunc =
-            boost::bind( &WindowSystem::_deleteGLWidget, this, window, _1 );
-        GLWidget* widget = reinterpret_cast< GLWidget* >( request.wait( ));
-        return new Window( *window, settings, widget, deleteFunc );
-    }
-
-    eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
-        { return _getSystemWindowSystem().createPipe( pipe ); }
-
-    eq::MessagePump* createMessagePump() final
-        { return new MessagePump; }
-
-    bool hasMainThreadEvents() const final { return true; }
-
-    bool setupFont( util::ObjectManager& gl LB_UNUSED,
-                    const void* key LB_UNUSED,
-                    const std::string& name LB_UNUSED,
-                    const uint32_t size LB_UNUSED ) const final
-    {
-#ifdef AGL
-        return false;
-#else
-        return _getSystemWindowSystem().setupFont( gl, key, name, size );
-#endif
-    }
-
-    QGLFormat _createQGLFormat( const WindowSettings& settings )
-    {
-        // defaults: http://qt-project.org/doc/qt-4.8/qglformat.html#QGLFormat
-        QGLFormat format;
-
-        const int colorSize = getAttribute( IATTR_PLANES_COLOR );
-        if( colorSize > 0 || colorSize == eq::AUTO )
-        {
-            const int colorBits = ( colorSize > 0 ? colorSize : 8 );
-            format.setRedBufferSize( colorBits );
-            format.setGreenBufferSize( colorBits );
-            format.setBlueBufferSize( colorBits );
-        }
-
-        const int alphaPlanes = getAttribute( IATTR_PLANES_ALPHA );
-        if( alphaPlanes > 0 || alphaPlanes == eq::AUTO )
-        {
-            const int alphaBits = ( alphaPlanes > 0 ? alphaPlanes : 8 );
-            format.setAlphaBufferSize( alphaBits );
-        }
-
-        const int depthPlanes = getAttribute( IATTR_PLANES_DEPTH );
-        if( depthPlanes > 0  || depthPlanes == eq::AUTO )
-        {
-            const int depthBits = ( depthPlanes > 0 ? depthPlanes : 8 );
-            format.setDepthBufferSize( depthBits );
-        }
-        else
-            format.setDepth( false );
-
-        const int stencilPlanes = getAttribute( IATTR_PLANES_STENCIL );
-        if( stencilPlanes > 0 || stencilPlanes == eq::AUTO )
-        {
-            format.setStencil( true );
-            const int stencilBits = ( stencilPlanes > 0 ? stencilPlanes : 8 );
-            format.setStencilBufferSize( stencilBits );
-        }
-        else
-            format.setStencil( false );
-
-        // Qt only allows only the same bit depth for each channel
-        // http://qt-project.org/doc/qt-4.8/qglformat.html#setAccumBufferSize
-        const int accumPlanes  = getAttribute( IATTR_PLANES_ACCUM );
-        const int accumAlphaPlanes = getAttribute( IATTR_PLANES_ACCUM_ALPHA );
-        const int accumBits = std::max( accumPlanes, accumAlphaPlanes );
-        if( accumBits >= 0 )
-        {
-            format.setAccum( true );
-            format.setAccumBufferSize( accumBits );
-        }
-
-        const int samplesPlanes  = getAttribute( IATTR_PLANES_SAMPLES );
-        if( samplesPlanes >= 0 )
-        {
-            format.setSampleBuffers( true );
-            format.setSamples( samplesPlanes );
-        }
-
-        if( getAttribute( IATTR_HINT_STEREO ) == eq::ON ||
-            ( getAttribute( IATTR_HINT_STEREO ) == eq::AUTO &&
-              getAttribute( IATTR_HINT_DRAWABLE ) == eq::WINDOW ) )
-        {
-            format.setStereo( true );
-        }
-
-        if( getAttribute( IATTR_HINT_DOUBLEBUFFER ) == eq::ON ||
-            ( getAttribute( IATTR_HINT_DOUBLEBUFFER ) == eq::AUTO &&
-              getAttribute( IATTR_HINT_DRAWABLE ) == eq::WINDOW ))
-        {
-            format.setDoubleBuffer( true );
-        }
-        else
-            format.setDoubleBuffer( false );
-
-        return format;
-    }
-
-    bool _cmdCreateQGLWidget( co::ICommand& command )
-    {
-        co::ObjectICommand cmd( command );
-        eq::Window* window = reinterpret_cast< eq::Window* >( cmd.get<void*>());
-        WindowSettings& settings =
-                *reinterpret_cast< WindowSettings* >( cmd.get< void* >( ));
-
-        const GLWidget* shareGLWidget = 0;
-        const SystemWindow* shareContextWindow =
-                            window->getSharedContextWindow()->getSystemWindow();
-        if( shareContextWindow )
-        {
-            const Window* qtWindow =
-                             static_cast< const Window* >( shareContextWindow );
-            shareGLWidget = qtWindow->getGLWidget();
-        }
-
-        GLWidget* glWidget = new GLWidget( _createQGLFormat( settings ),
-                                           shareGLWidget );
-        PixelViewport pvp;
-        if( getAttribute( IATTR_HINT_FULLSCREEN ) == eq::ON )
-        {
-            pvp = window->getPipe()->getPixelViewport();
-            glWidget->showFullScreen();
-        }
-        else
-        {
-            pvp = settings.getPixelViewport();
-            glWidget->show();
-        }
-        glWidget->setWindowTitle( QString::fromStdString( settings.getName()));
-        glWidget->setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );
-        glWidget->doneCurrent();
-
-#if QT_VERSION >= 0x050000
-        QThread* renderThread = reinterpret_cast< QThread* >( cmd.get<void*>());
-        glWidget->context()->moveToThread( renderThread );
-#else
-        cmd.get< void* >();
-#endif
-
-        window->getLocalNode()->serveRequest( cmd.get< uint32_t >(), glWidget );
-        return true;
-    }
-
-    bool _cmdDestroyGLWidget( co::ICommand& command )
-    {
-        co::ObjectICommand cmd( command );
-        GLWidget* glWidget = reinterpret_cast< GLWidget* >( cmd.get< void* >());
-        delete glWidget;
-        return true;
-    }
-
-} _qtFactory;
+void WindowSystem::_deleteGLWidget( GLWidget* widget )
+{
+    destroyWidget( widget );
+}
 
 }
 }
