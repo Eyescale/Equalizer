@@ -7,8 +7,18 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#    git_external(<directory> <giturl> <gittag> [RESET <files>])
+#    git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE] [RESET <files>])
 #  git_external_manage(<file>)
+#
+# [optional] Flags which control behaviour
+#  NO_UPDATE
+#    When set, GitExternal will not change a repo that has already been checked out.
+#    The purpose of this is to allow one to set a default branch to be checked out,
+#    but stop GitExternal from changing back to that branch if the user has checked
+#    out and is working on another.
+#  VERBOSE
+#    When set, displays information about git commands that are executed
+#
 
 find_package(Git)
 if(NOT GIT_EXECUTABLE)
@@ -17,9 +27,16 @@ endif()
 
 include(CMakeParseArguments)
 
+macro(GIT_EXTERNAL_MESSAGE msg)
+  if(${GIT_EXTERNAL_VERBOSE})
+    message(STATUS "${NAME} : ${msg}")
+  endif()
+endmacro(GIT_EXTERNAL_MESSAGE)
+
 function(GIT_EXTERNAL DIR REPO TAG)
-  cmake_parse_arguments(GIT_EXTERNAL "" "" "RESET" ${ARGN})
-  get_filename_component(DIR "${DIR}" ABSOLUTE)
+  cmake_parse_arguments(GIT_EXTERNAL "NO_UPDATE;VERBOSE" "" "RESET" ${ARGN})
+  get_filename_component(DIR  "${DIR}" ABSOLUTE)
+  get_filename_component(NAME "${DIR}" NAME)
   get_filename_component(GIT_EXTERNAL_DIR "${DIR}/.." ABSOLUTE)
 
   if(NOT EXISTS "${DIR}")
@@ -34,54 +51,67 @@ function(GIT_EXTERNAL DIR REPO TAG)
   endif()
 
   if(IS_DIRECTORY "${DIR}/.git")
-    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-      OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
-      WORKING_DIRECTORY ${DIR})
-    if(currentref STREQUAL TAG) # nothing to do
-      return()
-    endif()
+    if(${GIT_EXTERNAL_NO_UPDATE})
+      GIT_EXTERNAL_MESSAGE("git update disabled by user")
+    else()
+      execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+        OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE
+        WORKING_DIRECTORY ${DIR})
+      GIT_EXTERNAL_MESSAGE("current ref is \"${currentref}\" and tag is \"${TAG}\"")
+      if(currentref STREQUAL TAG) # nothing to do
+        return()
+      endif()
 
-    # reset generated files
-    foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
-      execute_process(
-        COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
+      # reset generated files
+      foreach(GIT_EXTERNAL_RESET_FILE ${GIT_EXTERNAL_RESET})
+        GIT_EXTERNAL_MESSAGE("git reset -q ${GIT_EXTERNAL_RESET_FILE}")
+        execute_process(
+          COMMAND "${GIT_EXECUTABLE}" reset -q "${GIT_EXTERNAL_RESET_FILE}"
+          RESULT_VARIABLE nok ERROR_VARIABLE error
+          WORKING_DIRECTORY "${DIR}")
+        GIT_EXTERNAL_MESSAGE("git checkout -q -- ${GIT_EXTERNAL_RESET_FILE}")
+        execute_process(
+          COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
+          RESULT_VARIABLE nok ERROR_VARIABLE error
+          WORKING_DIRECTORY "${DIR}")
+      endforeach()
+
+      # fetch latest update
+      execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all -q
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
+      if(nok)
+        message(STATUS "Update of ${DIR} failed:\n   ${error}")
+      endif()
+
+      # update tag
+      GIT_EXTERNAL_MESSAGE("git rebase FETCH_HEAD")
+      execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
+        RESULT_VARIABLE RESULT OUTPUT_VARIABLE OUTPUT ERROR_VARIABLE OUTPUT
+        WORKING_DIRECTORY "${DIR}")
+      if(RESULT)
+        message(STATUS "git rebase failed, aborting ${DIR} merge")
+        execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
+          WORKING_DIRECTORY "${DIR}")
+        if(RESULT)
+          message(STATUS "git rebase failed, aborting ${DIR} merge")
+          execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
+            WORKING_DIRECTORY "${DIR}")
+        endif()
+      endif()
+
+      # checkout requested tag
       execute_process(
-        COMMAND "${GIT_EXECUTABLE}" checkout -q -- "${GIT_EXTERNAL_RESET_FILE}"
+        COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
         RESULT_VARIABLE nok ERROR_VARIABLE error
-        WORKING_DIRECTORY "${DIR}")
-    endforeach()
-
-    # fetch latest update
-    execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all -q
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}")
-    if(nok)
-      message(STATUS "Update of ${DIR} failed:\n   ${error}")
+        WORKING_DIRECTORY "${DIR}"
+        )
+      if(nok)
+        message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
+      endif()
+    else()
+      message(STATUS "Can't update git external ${DIR}: Not a git repository")
     endif()
-
-    # update tag
-    execute_process(COMMAND ${GIT_EXECUTABLE} rebase FETCH_HEAD
-      RESULT_VARIABLE RESULT OUTPUT_VARIABLE OUTPUT ERROR_VARIABLE OUTPUT
-      WORKING_DIRECTORY "${DIR}")
-    if(RESULT)
-      message(STATUS "git rebase failed, aborting ${DIR} merge")
-      execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
-        WORKING_DIRECTORY "${DIR}")
-    endif()
-
-    # checkout requested tag
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" checkout -q "${TAG}"
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}"
-      )
-    if(nok)
-      message(STATUS "${DIR} git checkout ${TAG} failed: ${error}\n")
-    endif()
-  else()
-    message(STATUS "Can't update git external ${DIR}: Not a git repository")
   endif()
 endfunction()
 
@@ -107,7 +137,7 @@ if(EXISTS ${GIT_EXTERNALS})
         list(GET DATA 2 TAG)
 
         # Create a unique, flat name
-        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR})
+        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR}_${PROJECT_NAME})
 
         if(NOT TARGET update_git_external_${GIT_EXTERNAL_NAME}) # not done
           # pull in identified external
@@ -124,7 +154,7 @@ if(EXISTS ${GIT_EXTERNALS})
           endif()
 
           # Create a unique, flat name
-          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_SOURCE_DIR}
+          file(RELATIVE_PATH GIT_EXTERNALS_BASE ${CMAKE_CURRENT_SOURCE_DIR}
             ${GIT_EXTERNALS})
           string(REPLACE "/" "_" GIT_EXTERNAL_TARGET ${GIT_EXTERNALS_BASE})
 

@@ -49,6 +49,7 @@ before_install:
  - sudo apt-get install -qq libhwloc-dev || /bin/true
  - sudo apt-get install -qq libibverbs-dev || /bin/true
  - sudo apt-get install -qq libjpeg-turbo8-dev || /bin/true
+ - sudo apt-get install -qq libleveldb-dev || /bin/true
  - sudo apt-get install -qq libopencv-dev || /bin/true
  - sudo apt-get install -qq libopenmpi-dev || /bin/true
  - sudo apt-get install -qq libopenscenegraph-dev || /bin/true
