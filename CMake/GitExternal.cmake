@@ -93,11 +93,6 @@ function(GIT_EXTERNAL DIR REPO TAG)
         message(STATUS "git rebase failed, aborting ${DIR} merge")
         execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
           WORKING_DIRECTORY "${DIR}")
-        if(RESULT)
-          message(STATUS "git rebase failed, aborting ${DIR} merge")
-          execute_process(COMMAND ${GIT_EXECUTABLE} rebase --abort
-            WORKING_DIRECTORY "${DIR}")
-        endif()
       endif()
 
       # checkout requested tag
