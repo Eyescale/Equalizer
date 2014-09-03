@@ -73,13 +73,15 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-#ifdef EQUALIZER_USE_QT4
-    QApplication app( argc, argv );
-#endif
-
     // 2. parse arguments
     eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
+
+#ifdef EQUALIZER_USE_QT4
+    QApplication* app = 0;
+    if( initData.getWindowSystem() == "Qt" )
+        app = new QApplication( argc, argv );
+#endif
 
     // 3. initialization of local client node
     lunchbox::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
@@ -98,6 +100,10 @@ int main( int argc, char** argv )
 
     LBASSERTINFO( client->getRefCount() == 1, client );
     client = 0;
+
+#ifdef EQUALIZER_USE_QT4
+    delete app;
+#endif
 
     eq::exit();
     eqPly::exitErrors();
