@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -109,34 +110,31 @@ class Error
 
 public:
     /** Construct a new error. @version 1.7.1 */
-    explicit Error( const uint32_t code ) : code_( code ) {}
+    EQFABRIC_API explicit Error( const uint32_t code );
 
     /** Assign the given error code. @version 1.7.1*/
-    Error& operator = ( const ErrorCode code ) { code_ = code; return *this; }
-
-    /** @return true if no error occured. @version 1.7.1 */
-    operator bool_t() { return code_ == ERROR_NONE ? &Error::bool_true : 0; }
+    EQFABRIC_API Error& operator = ( const ErrorCode code );
 
     /** @return true if an error occured. @version 1.7.1 */
-    bool operator ! () { return code_ != ERROR_NONE; }
+    EQFABRIC_API operator bool_t() const;
+
+    /** @return true if no error occured. @version 1.7.1 */
+    EQFABRIC_API bool operator ! () const;
 
     /** @return the error code. @version 1.7.1 */
-    uint32_t getCode() const { return code_; }
-
-    /** @return the error code. @version 1.7.1 */
-    operator uint32_t() const { return code_; }
+    EQFABRIC_API uint32_t getCode() const;
 
     /** @return true if the two errors have the same value. @version 1.7.1*/
-    bool operator == ( const Error& rhs ) const { return code_ == rhs.code_; }
+    EQFABRIC_API bool operator == ( const Error& rhs ) const;
 
     /** @return true if the two errors have different values. @version 1.7.1*/
-    bool operator != ( const Error& rhs ) const { return code_ != rhs.code_; }
+    EQFABRIC_API bool operator != ( const Error& rhs ) const;
 
     /** @return true if the two errors have the same value. @version 1.7.1*/
-    bool operator == ( const uint32_t code ) const { return code_ == code; }
+    EQFABRIC_API bool operator == ( const uint32_t code ) const;
 
     /** @return true if the two errors have different values. @version 1.7.1*/
-    bool operator != ( const uint32_t code ) const { return code_ != code; }
+    EQFABRIC_API bool operator != ( const uint32_t code ) const;
 
 private:
     uint32_t code_;

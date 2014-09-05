@@ -161,7 +161,7 @@ bool GLWindow::configInitFBO()
     if( !error )
         return true;
 
-    sendError( error );
+    sendError( error.getCode( ));
     delete _impl->fbo;
     _impl->fbo = 0;
     return false;
