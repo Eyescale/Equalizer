@@ -76,11 +76,15 @@ bool Window::configInit()
     makeCurrent();
     initGLEW();
 
+    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == FBO )
+        configInitFBO();
+
     return _impl->glWidget->isValid();
 }
 
 void Window::configExit()
 {
+    configExitFBO();
     makeCurrent();
     exitGLEW();
 

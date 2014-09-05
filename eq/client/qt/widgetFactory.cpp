@@ -126,16 +126,20 @@ GLWidget* WidgetFactory::onCreateWidget( eq::Window* window,
 
     GLWidget* glWidget = new GLWidget( _createQGLFormat( settings ),
                                        shareGLWidget );
+    const bool isOnscreen = settings.getIAttribute(
+                            WindowSettings::IATTR_HINT_DRAWABLE ) == eq::WINDOW;
     PixelViewport pvp;
     if( settings.getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == eq::ON )
     {
         pvp = window->getPipe()->getPixelViewport();
-        glWidget->showFullScreen();
+        if( isOnscreen )
+            glWidget->showFullScreen();
     }
     else
     {
         pvp = settings.getPixelViewport();
-        glWidget->show();
+        if( isOnscreen )
+            glWidget->show();
     }
     glWidget->setWindowTitle( QString::fromStdString( settings.getName()));
     glWidget->setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );

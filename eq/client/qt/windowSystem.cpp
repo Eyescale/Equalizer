@@ -68,7 +68,7 @@ std::string WindowSystem::getName() const
     { return QApplication::instance() ? "Qt" : ""; }
 
 eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
-                                const WindowSettings& settings )
+                                              const WindowSettings& settings )
 {
     if( _useSystemWindowSystem( settings, window->getSharedContextWindow()))
         return getSystemWindowSystem().createWindow( window, settings );
@@ -113,9 +113,9 @@ bool WindowSystem::setupFont( util::ObjectManager& gl LB_UNUSED,
 bool WindowSystem::_useSystemWindowSystem( const WindowSettings& settings,
                                            const eq::Window* sharedWindow )
 {
-    return getAttribute( IATTR_HINT_DRAWABLE ) != eq::WINDOW ||
+    return getAttribute( IATTR_HINT_DRAWABLE ) == eq::PBUFFER ||
            (sharedWindow && sharedWindow->getSettings().getIAttribute(
-                      WindowSettings::IATTR_HINT_DRAWABLE ) != eq::WINDOW );
+                      WindowSettings::IATTR_HINT_DRAWABLE ) == eq::PBUFFER );
 }
 
 void WindowSystem::_setupFactory()
