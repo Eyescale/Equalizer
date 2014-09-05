@@ -152,18 +152,10 @@ void _exitErrors()
         registry.eraseString( _errors[i].code );
 }
 
-std::ostream& operator << ( std::ostream& os, const Error& error )
+std::string Error::getString() const
 {
-    const ErrorRegistry& registry = Global::getErrorRegistry();
-    const std::string& text = registry.getString( error.getCode( ));
-
-    if( text.empty( ))
-        return os << "error 0x" << std::hex << uint32_t( error.getCode( ))
-                  << std::dec;
-
-    return os << text << " (0x" << std::hex << uint32_t( error.getCode( ))
-              << std::dec << ")";
+    return Global::getErrorRegistry().getString( getCode( ));
 }
 
-}
-}
+} // fabric
+} // eq
