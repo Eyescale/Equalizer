@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
+ *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +21,7 @@
 
 #include <eq/fabric/api.h>
 #include <lunchbox/types.h>
+#include <lunchbox/result.h>
 
 namespace eq
 {
@@ -28,7 +30,7 @@ namespace fabric
 /** Defines errors produced by Equalizer classes. */
 enum ErrorCode
 {
-    ERROR_NONE = 0,
+    ERROR_NONE = lunchbox::Result::SUCCESS,
     ERROR_FBO_UNSUPPORTED,
     ERROR_FRAMEBUFFER_STATUS,
     ERROR_FRAMEBUFFER_UNSUPPORTED,
@@ -102,48 +104,18 @@ enum ErrorCode
 };
 
 /** A wrapper for error codes to allow intuitive bool-like usage. */
-class Error
+class Error : public lunchbox::Result
 {
-    typedef void (Error::*bool_t)() const;
-    void bool_true() const {}
-
 public:
     /** Construct a new error. @version 1.7.1 */
-    explicit Error( const uint32_t code ) : code_( code ) {}
+    explicit Error( const int32_t code ) : lunchbox::Result( code ) {}
 
-    /** Assign the given error code. @version 1.7.1*/
-    Error& operator = ( const ErrorCode code ) { code_ = code; return *this; }
-
-    /** @return true if no error occured. @version 1.7.1 */
-    operator bool_t() { return code_ == ERROR_NONE ? &Error::bool_true : 0; }
-
-    /** @return true if an error occured. @version 1.7.1 */
-    bool operator ! () { return code_ != ERROR_NONE; }
-
-    /** @return the error code. @version 1.7.1 */
-    uint32_t getCode() const { return code_; }
-
-    /** @return the error code. @version 1.7.1 */
-    operator uint32_t() const { return code_; }
-
-    /** @return true if the two errors have the same value. @version 1.7.1*/
-    bool operator == ( const Error& rhs ) const { return code_ == rhs.code_; }
-
-    /** @return true if the two errors have different values. @version 1.7.1*/
-    bool operator != ( const Error& rhs ) const { return code_ != rhs.code_; }
-
-    /** @return true if the two errors have the same value. @version 1.7.1*/
-    bool operator == ( const uint32_t code ) const { return code_ == code; }
-
-    /** @return true if the two errors have different values. @version 1.7.1*/
-    bool operator != ( const uint32_t code ) const { return code_ != code; }
+    /** @return the result string. @version 1.7.3 */
+    EQFABRIC_API std::string getString() const override;
 
 private:
-    uint32_t code_;
+    bool operator !() const; //!< leads to semantic errors
 };
-
-/** Print the error in a human-readable format. @version 1.0 */
-EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Error& );
 
 }
 }
