@@ -691,7 +691,7 @@ bool Config::_handleNewEvent( EventICommand& command )
         const uint128_t& originator = command.read< uint128_t >();
         const Error error = Error( command.read< uint32_t >( ));
         LBWARN << error << " from " << originator;
-        if( error < ERROR_CUSTOM )
+        if( error.getCode() < ERROR_CUSTOM )
         {
             while( command.hasData( ))
             {

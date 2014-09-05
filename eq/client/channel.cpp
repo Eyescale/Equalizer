@@ -293,7 +293,7 @@ bool Channel::_configInitFBO()
     if( !error )
         return true;
 
-    sendError( error );
+    sendError( error.getCode( ));
     delete _impl->fbo;
     _impl->fbo = 0;
     return false;
@@ -576,7 +576,7 @@ void Channel::applyFrameBufferObject()
         const PixelViewport& pvp = getNativePixelViewport();
         const Error error = _impl->fbo->resize( pvp.w, pvp.h );
         if( error )
-            sendError( error );
+            sendError( error.getCode( ));
         _impl->fbo->bind();
     }
     else if( GLEW_EXT_framebuffer_object )
