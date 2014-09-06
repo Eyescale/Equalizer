@@ -86,7 +86,7 @@ uint32_t _getKey( const QKeyEvent keyEvent )
 }
 }
 
-GLWidget::GLWidget( const QGLFormat& format_, const GLWidget* shareWidget )
+GLWidget::GLWidget( const QGLFormat& format_, const QGLWidget* shareWidget )
     : QGLWidget( format_, 0, shareWidget )
     , _parent( 0 )
     , _eventHandler( 0 )
