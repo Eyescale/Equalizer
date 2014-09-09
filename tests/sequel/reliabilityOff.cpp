@@ -70,7 +70,7 @@ int main( const int argc, char** argv )
     TEST( app->run( 0 ));
     TEST( app->exit( ));
 
-    TEST( clock.getTime64() > sleepTime + overheadTime );
+    TEST( clock.getTime64() < sleepTime + overheadTime );
     return EXIT_SUCCESS;
 }
 

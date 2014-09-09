@@ -242,7 +242,8 @@ private:
      * @name Operations
      */
     //@{
-    bool _updateRunning(); //!< @return true on success, false on error
+    /** @return true on success, false on error */
+    bool _updateRunning( const bool canFail );
 
     void _updateCanvases();
     bool _connectNodes();
