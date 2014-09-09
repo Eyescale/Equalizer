@@ -167,10 +167,10 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
             event.pointerWheel.buttons = PTR_BUTTON_NONE;
-            if( dcEvent.dy != 0 )
-                event.pointerWheel.xAxis = dcEvent.dy > 0 ? 1 : -1;
             if( dcEvent.dx != 0 )
-                event.pointerWheel.yAxis = dcEvent.dx > 0 ? 1 : -1;
+                event.pointerWheel.xAxis = dcEvent.dx > 0 ? 1 : -1;
+            if( dcEvent.dy != 0 )
+                event.pointerWheel.yAxis = dcEvent.dy > 0 ? 1 : -1;
             _computePointerDelta( event );
             break;
         case ::dc::Event::EVT_NONE:

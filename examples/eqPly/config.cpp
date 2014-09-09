@@ -432,9 +432,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::CHANNEL_POINTER_WHEEL:
         {
-            _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
+            _frameData.moveCamera( -0.05f * event->data.pointerWheel.xAxis,
                                    0.f,
-                                   0.05f * event->data.pointerWheel.xAxis );
+                                   0.05f * event->data.pointerWheel.yAxis );
             _redraw = true;
             return true;
         }

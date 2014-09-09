@@ -125,8 +125,8 @@ bool ViewData::_handleEvent( const eq::Event& event )
           }
 
       case eq::Event::CHANNEL_POINTER_WHEEL:
-          moveModel( -0.05f * event.pointerWheel.yAxis, 0.f,
-                      0.05f * event.pointerWheel.xAxis );
+          moveModel( -0.05f * event.pointerWheel.xAxis, 0.f,
+                      0.05f * event.pointerWheel.yAxis );
           return true;
 
       case eq::Event::MAGELLAN_AXIS:

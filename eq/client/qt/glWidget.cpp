@@ -195,10 +195,10 @@ void GLWidget::wheelEvent( QWheelEvent* qevent )
     switch( qevent->orientation( ))
     {
     case Qt::Horizontal:
-        windowEvent->pointerWheel.yAxis = qevent->delta() > 0 ? 1 : -1;
+        windowEvent->pointerWheel.xAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     case Qt::Vertical:
-        windowEvent->pointerWheel.xAxis = qevent->delta() > 0 ? 1 : -1;
+        windowEvent->pointerWheel.yAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     }
     windowEvent->pointerWheel.buttons = qevent->buttons();
