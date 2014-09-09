@@ -288,10 +288,10 @@ void EventHandler::_processEvent( WindowEvent& event )
             // Translate wheel events
             switch( event.pointerButtonPress.button )
             {
-              case PTR_BUTTON4: event.pointerWheel.xAxis = 1; break;
-              case PTR_BUTTON5: event.pointerWheel.xAxis = -1; break;
-              case PTR_BUTTON6: event.pointerWheel.yAxis = 1; break;
-              case PTR_BUTTON7: event.pointerWheel.yAxis = -1; break;
+              case PTR_BUTTON4: event.pointerWheel.yAxis = 1; break;
+              case PTR_BUTTON5: event.pointerWheel.yAxis = -1; break;
+              case PTR_BUTTON6: event.pointerWheel.xAxis = 1; break;
+              case PTR_BUTTON7: event.pointerWheel.xAxis = -1; break;
             }
             switch( event.pointerButtonPress.button )
             {
