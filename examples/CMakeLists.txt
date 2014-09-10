@@ -13,12 +13,12 @@ if(Equalizer_BINARY_DIR) # in-repository build
   set(EQUALIZER_SERVER_LIBRARY EqualizerServer)
   set(EQUALIZER_SEQUEL_LIBRARY Sequel)
 else() # installed examples
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../CMake)
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+  list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../CMake)
+  list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake)
   find_package(Equalizer @VERSION@ REQUIRED)
   include_directories(${EQUALIZER_INCLUDE_DIRS})
 
-  set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
+  set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${PROJECT_BINARY_DIR}/" -DEQ_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
   add_definitions(${EQ_DEFINITIONS})
 
   include(configure)
@@ -36,7 +36,7 @@ else() # installed examples
 endif()
 
 include(StringifyShaders)
-configure_file(${CMAKE_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
+configure_file(${PROJECT_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
   ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist COPYONLY)
 
 function(EQ_ADD_EXAMPLE NAME)
@@ -63,9 +63,9 @@ function(EQ_ADD_EXAMPLE NAME)
 
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT apps)
   if (MSVC)
-    install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${THIS_TARGET}.pdb
+    install(FILES ${PROJECT_BINARY_DIR}/bin/Debug/${THIS_TARGET}.pdb
       DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
-    install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/${THIS_TARGET}.pdb
+    install(FILES ${PROJECT_BINARY_DIR}/bin/RelWithDebInfo/${THIS_TARGET}.pdb
       DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
   endif()
   install(FILES CMakeLists.txt ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS}
@@ -86,10 +86,10 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples)
-install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
+install(FILES ${PROJECT_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
+              ${PROJECT_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
+              ${PROJECT_SOURCE_DIR}/CMake/FindPackages.cmake
+              ${PROJECT_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
 add_subdirectory(triply) # build the ply library universal

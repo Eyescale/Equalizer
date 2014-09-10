@@ -5,8 +5,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/CMake/common)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
+  ${PROJECT_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
 
