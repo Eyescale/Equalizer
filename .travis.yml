@@ -21,6 +21,8 @@ before_install:
  - sudo apt-get install -qq autoconf || /bin/true
  - sudo apt-get install -qq automake || /bin/true
  - sudo apt-get install -qq bison || /bin/true
+ - sudo apt-get install -qq clang || /bin/true
+ - sudo apt-get install -qq clang-format-3.5 || /bin/true
  - sudo apt-get install -qq cmake || /bin/true
  - sudo apt-get install -qq cppcheck || /bin/true
  - sudo apt-get install -qq doxygen || /bin/true
