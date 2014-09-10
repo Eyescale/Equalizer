@@ -16,11 +16,11 @@ macro(EQ_ADD_TOOL NAME)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT apps)
 endmacro(EQ_ADD_TOOL NAME)
 
-include_directories(BEFORE ${CMAKE_SOURCE_DIR}/examples/include
-  ${CMAKE_SOURCE_DIR}/examples)
+include_directories(BEFORE ${PROJECT_SOURCE_DIR}/examples/include
+  ${PROJECT_SOURCE_DIR}/examples)
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
-list(APPEND CPPCHECK_EXTRA_ARGS -I${CMAKE_SOURCE_DIR}/examples/include
-  -I${CMAKE_SOURCE_DIR}/examples)
+list(APPEND CPPCHECK_EXTRA_ARGS -I${PROJECT_SOURCE_DIR}/examples/include
+  -I${PROJECT_SOURCE_DIR}/examples)
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})

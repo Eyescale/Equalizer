@@ -6,7 +6,7 @@ endif(MSVC)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/examples/eqPly)
+  ${PROJECT_SOURCE_DIR}/examples/eqPly)
 
 eq_add_example(seqPly
   HEADERS
