@@ -43,13 +43,9 @@ namespace detail
 
 ::dc::Stream::Future make_ready_future( bool value )
 {
-#if BOOST_VERSION < 105400
     boost::promise< bool > promise;
     promise.set_value( value );
     return promise.get_future();
-#else
-    return boost::make_ready_future( value );
-#endif
 }
 
 class Proxy : public boost::noncopyable

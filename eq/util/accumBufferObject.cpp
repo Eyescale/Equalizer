@@ -44,14 +44,16 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
     _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
     _texture->init( textureFormat, pvp.w, pvp.h );
 
-    if( FrameBufferObject::init( pvp.w, pvp.h, GL_RGBA32F, 0, 0 ))
+    const Error error = FrameBufferObject::init( pvp.w, pvp.h,
+                                                 GL_RGBA32F, 0, 0 );
+    if( error )
     {
-        unbind();
-        return true;
+        exit();
+        return false;
     }
 
-    exit();
-    return false;
+    unbind();
+    return true;
 }
 
 void AccumBufferObject::exit()

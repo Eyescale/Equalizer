@@ -710,7 +710,8 @@ Vector3f Compound::_getEyePosition( const Eye eye ) const
             ( frustumData.getType() == Wall::TYPE_FIXED ?
                 observer->getEyeWorld( eye ) : observer->getEyePosition( eye ));
 
-    const float eyeBase_2 = 0.5f *  view->getModelUnit() *
+    const float modelUnit = view ? view->getModelUnit() : 1.f;
+    const float eyeBase_2 = 0.5f * modelUnit *
                            getConfig()->getFAttribute( Config::FATTR_EYE_BASE );
     switch( eye )
     {

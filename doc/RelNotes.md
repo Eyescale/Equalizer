@@ -94,6 +94,8 @@ the following:
   improvements in image transmission
 * [324](https://github.com/Eyescale/Equalizer/issues/324): Fix window
   creation in eqPly through admin API
+* [368](https://github.com/Eyescale/Equalizer/pull/368): Fix mixup of
+  horizontal and vertical wheel events
 
 ## Known Bugs {#Bugs}
 

@@ -1,10 +1,10 @@
 
 # Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
 #
-# Change this number when adding tests to force a CMake run: 3
+# Change this number when adding tests to force a CMake run: 4
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
-file(COPY compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
+file(COPY compressor/images ${PROJECT_SOURCE_DIR}/examples/configs
   ${COMPOSITOR_IMAGES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB TEST_CONFIGS server/reliability/*.eqc)

@@ -3,7 +3,7 @@
 # - resizing is not possible, this is intended for full-screen PW windows
 # - use an offscreen buffer for deployment
 # - underlap/overlap is possible by tweaking output frame viewport
-# - if the source and destination window are on different pipes, remove the 
+# - if the source and destination window are on different pipes, remove the
 #   image texture type
 
 global
@@ -22,7 +22,7 @@ server
             {
                 window
                 {
-#                    attributes{ hint_drawable FBO }
+                    attributes{ hint_drawable FBO }
                     viewport [ 100 450 960 300 ]
                     channel { name "buffer" }
                 }
@@ -77,5 +77,5 @@ server
                 inputframe { name "right" }
             }
         }
-    }    
+    }
 }

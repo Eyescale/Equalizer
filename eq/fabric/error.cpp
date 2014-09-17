@@ -152,6 +152,50 @@ void _exitErrors()
         registry.eraseString( _errors[i].code );
 }
 
+Error::Error( const uint32_t code )
+    : code_( code )
+{}
+
+Error& Error::operator = ( const ErrorCode code )
+{
+    code_ = code; return *this;
+}
+
+Error::operator bool_t() const
+{
+    return code_ != ERROR_NONE ? &Error::bool_true : 0;
+}
+
+bool Error::operator ! () const
+{
+    return code_ == ERROR_NONE;\
+}
+
+uint32_t Error::getCode() const
+{
+    return code_;
+}
+
+bool Error::operator == ( const Error& rhs ) const
+{
+    return code_ == rhs.code_;
+}
+
+bool Error::operator != ( const Error& rhs ) const
+{
+    return code_ != rhs.code_;
+}
+
+bool Error::operator == ( const uint32_t code ) const
+{
+    return code_ == code;
+}
+
+bool Error::operator != ( const uint32_t code ) const
+{
+    return code_ != code;
+}
+
 std::ostream& operator << ( std::ostream& os, const Error& error )
 {
     const ErrorRegistry& registry = Global::getErrorRegistry();
@@ -165,5 +209,5 @@ std::ostream& operator << ( std::ostream& os, const Error& error )
               << std::dec << ")";
 }
 
-}
-}
+} // fabric
+} // eq

@@ -30,7 +30,7 @@ namespace qt
 class GLWidget : public QGLWidget
 {
 public:
-    GLWidget( const QGLFormat& format, const GLWidget* shareWidget );
+    GLWidget( const QGLFormat& format, const QGLWidget* shareWidget );
     ~GLWidget() final;
 
     void setParent( qt::Window* parent_ );

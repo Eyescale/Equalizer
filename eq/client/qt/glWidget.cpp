@@ -86,7 +86,7 @@ uint32_t _getKey( const QKeyEvent keyEvent )
 }
 }
 
-GLWidget::GLWidget( const QGLFormat& format_, const GLWidget* shareWidget )
+GLWidget::GLWidget( const QGLFormat& format_, const QGLWidget* shareWidget )
     : QGLWidget( format_, 0, shareWidget )
     , _parent( 0 )
     , _eventHandler( 0 )
@@ -195,10 +195,10 @@ void GLWidget::wheelEvent( QWheelEvent* qevent )
     switch( qevent->orientation( ))
     {
     case Qt::Horizontal:
-        windowEvent->pointerWheel.yAxis = qevent->delta() > 0 ? 1 : -1;
+        windowEvent->pointerWheel.xAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     case Qt::Vertical:
-        windowEvent->pointerWheel.xAxis = qevent->delta() > 0 ? 1 : -1;
+        windowEvent->pointerWheel.yAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     }
     windowEvent->pointerWheel.buttons = qevent->buttons();
