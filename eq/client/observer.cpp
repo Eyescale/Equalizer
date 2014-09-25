@@ -167,6 +167,9 @@ void VRPN_CALLBACK Observer::trackerCallback( void* userData,
     eq::Observer* observer = tracker->observer;
     eq::Config* config = observer->getConfig();
 
+    // Directly dispatch the event: We're called from Config::startFrame and
+    // need to process now without sending the event so that the change is
+    // committed and takes effect for this frame.
     MotionEvent oEvent( config );
     oEvent.command << observer->getID() << head;
     oEvent.command.disable();
@@ -176,9 +179,8 @@ void VRPN_CALLBACK Observer::trackerCallback( void* userData,
     buffer.swap( oEvent.buffer->getBuffer( ));
 
     co::ICommand iCommand( client, client, &buffer, false );
-    eq::EventICommand iEvent( iCommand );
-    iEvent.get< uint128_t >(); // normally done by Config::handleEvent()
-    observer->handleEvent( iEvent );
+    EventICommand iEvent( iCommand );
+    config->handleEvent( iEvent ); // config dispatch so app can update state
 }
 #endif
 }
