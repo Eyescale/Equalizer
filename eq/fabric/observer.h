@@ -21,6 +21,7 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/eye.h>           // enum
 #include <eq/fabric/focusMode.h>     // enum
+#include <eq/fabric/vrpnTracker.h>   // enum and class
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
 #include <string>
@@ -97,10 +98,23 @@ namespace fabric
         int32_t getOpenCVCamera() const { return _data.camera; }
 
         /** Set the VRPN tracker device. @version 1.5.2 */
-        EQFABRIC_INL void setVRPNTracker( const std::string& index );
+        EQFABRIC_INL void setVRPNTracker( const std::string& tracker );
+
+        /** Set the VRPN tracker device sensor id. */
+        EQFABRIC_INL void setVRPNTrackerSensor( const int32_t sensor );
+
+        /** Set the VRPN tracker device axis swizzle. */
+        EQFABRIC_INL void setVRPNTrackerAxis( const VRPNTrackerAxis& axis );
 
         /** @return the current VRPN tracker device name. @version 1.5.2 */
         const std::string& getVRPNTracker() const { return _data.vrpnTracker; }
+
+        /** @return the current VRPN tracker device sensor if. */
+        int32_t getVRPNTrackerSensor() const { return _data.vrpnTrackerSensor; }
+
+        /** @return the current VRPN tracker device axis swizzle. */
+        const VRPNTrackerAxis& getVRPNTrackerAxis() const
+                                              { return _data.vrpnTrackerAxis; }
 
         /** @return the parent config of this observer. @version 1.0 */
         const C* getConfig() const { return _config; }
@@ -175,6 +189,8 @@ namespace fabric
             FocusMode focusMode; //!< The current focal distance mode
             int32_t camera; //!< The OpenCV camera used for head tracking
             std::string vrpnTracker; //!< VRPN tracking device
+            int32_t vrpnTrackerSensor; //!< VRPN tracking device sensor id
+            VRPNTrackerAxis vrpnTrackerAxis; //!< VRPN tracking axis swizzle
         }
             _data, _backup;
 
