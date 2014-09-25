@@ -179,7 +179,7 @@ void VRPN_CALLBACK Observer::trackerCallback( void* userData,
     buffer.swap( oEvent.buffer->getBuffer( ));
 
     co::ICommand iCommand( client, client, &buffer, false );
-    EventICommand iEvent( iCommand );
+    eq::EventICommand iEvent( iCommand );
     config->handleEvent( iEvent ); // config dispatch so app can update state
 }
 #endif
