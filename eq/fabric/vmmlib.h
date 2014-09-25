@@ -93,7 +93,24 @@ template<> inline void byteswap( eq::fabric::Vector4i& value )
 template<> inline void byteswap( eq::fabric::Vector4ub& ) { /*NOP*/ }
 template<> inline void byteswap( eq::fabric::Vector3ub& ) { /*NOP*/ }
 
+template<> inline void byteswap( eq::fabric::Matrix3f& value )
+{
+    for( size_t i = 0; i < value.size(); ++i )
+        byteswap( value.array[ i ]);
+}
+
+template<> inline void byteswap( eq::fabric::Matrix3d& value )
+{
+    for( size_t i = 0; i < value.size(); ++i )
+        byteswap( value.array[ i ]);
+}
 template<> inline void byteswap( eq::fabric::Matrix4f& value )
+{
+    for( size_t i = 0; i < 16; ++i )
+        byteswap( value.array[ i ]);
+}
+
+template<> inline void byteswap( eq::fabric::Matrix4d& value )
 {
     for( size_t i = 0; i < 16; ++i )
         byteswap( value.array[ i ]);
