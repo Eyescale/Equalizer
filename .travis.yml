@@ -32,7 +32,7 @@ before_install:
  - sudo apt-get install -qq git-review || /bin/true
  - sudo apt-get install -qq git-svn || /bin/true
  - sudo apt-get install -qq lcov || /bin/true
- - sudo apt-get install -qq libavahi-compat-libdnssd-dev || /bin/true
+ - sudo apt-get install -qq libavahi-client-dev || /bin/true
  - sudo apt-get install -qq libavcodec-dev || /bin/true
  - sudo apt-get install -qq libavformat-dev || /bin/true
  - sudo apt-get install -qq libavutil-dev || /bin/true
