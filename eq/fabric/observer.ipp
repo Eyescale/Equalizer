@@ -57,6 +57,10 @@ Observer< C, O >::BackupData::BackupData()
     , focusDistance( 1.f )
     , focusMode( FOCUSMODE_FIXED )
     , camera( OFF )
+    , vrpnTracker()
+    , vrpnTrackerSensor(VRPNTrackerSensor::UseLowestValidSensorID)
+    , vrpnTrackerAxis()
+
 {
     for( size_t i = 0; i < NUM_EYES; ++i )
         eyePosition[ i ] = Vector3f::ZERO;
@@ -93,7 +97,9 @@ void Observer< C, O >::serialize( co::DataOStream& os,
     if( dirtyBits & DIRTY_FOCUS )
         os << _data.focusDistance << _data.focusMode;
     if( dirtyBits & DIRTY_TRACKER )
-        os << _data.camera << _data.vrpnTracker;
+        os << _data.camera
+           << _data.vrpnTracker
+           << _data.vrpnTrackerSensor << _data.vrpnTrackerAxis;
 }
 
 template< typename C, typename O >
@@ -110,7 +116,9 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
     if( dirtyBits & DIRTY_FOCUS )
         is >> _data.focusDistance >> _data.focusMode;
     if( dirtyBits & DIRTY_TRACKER )
-        is >> _data.camera >> _data.vrpnTracker;
+        is >> _data.camera
+           >> _data.vrpnTracker
+           >> _data.vrpnTrackerSensor >> _data.vrpnTrackerAxis;
 }
 
 template< typename C, typename O >
@@ -223,6 +231,27 @@ void Observer< C, O >::setVRPNTracker( const std::string& tracker )
 }
 
 template< typename C, typename O >
+void Observer< C, O >::setVRPNTrackerSensor( const int32_t sensor )
+{
+    if( _data.vrpnTrackerSensor == sensor )
+        return;
+
+    _data.vrpnTrackerSensor = sensor;
+    setDirty( DIRTY_TRACKER );
+}
+
+template< typename C, typename O >
+void Observer< C, O >::setVRPNTrackerAxis( const VRPNTrackerAxis& axis )
+{
+    if( _data.vrpnTrackerAxis == axis )
+        return;
+
+    _data.vrpnTrackerAxis = axis;
+    setDirty( DIRTY_TRACKER );
+}
+
+
+template< typename C, typename O >
 bool Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 {
     if( _data.headMatrix == matrix )
@@ -252,8 +281,15 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
        << "opencv_camera  " << IAttribute( observer.getOpenCVCamera( ))
        << std::endl;
     if( !observer.getVRPNTracker().empty( ))
-        os << "vrpn_tracker   \"" << observer.getVRPNTracker() << "\""
+    {
+        os << "vrpn_tracker        \"" << observer.getVRPNTracker() << "\""
            << std::endl;
+        os << "vrpn_tracker_sensor "
+           << VRPNTrackerSensor::SensorID(observer.getVRPNTrackerSensor())
+           << std::endl;
+        os << "vrpn_tracker_axis   " << observer.getVRPNTrackerAxis()
+           << std::endl;
+    }
     os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
        << lunchbox::enableFlush;
     return os;
