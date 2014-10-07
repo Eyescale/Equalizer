@@ -18,15 +18,15 @@ else()
 endif()
 
 if(PKG_CONFIG_EXECUTABLE)
-  find_package(Lunchbox 1.9)
+  find_package(Lunchbox 1.10)
   if((NOT Lunchbox_FOUND) AND (NOT LUNCHBOX_FOUND))
-    pkg_check_modules(Lunchbox Lunchbox>=1.9)
+    pkg_check_modules(Lunchbox Lunchbox>=1.10)
   endif()
   if((NOT Lunchbox_FOUND) AND (NOT LUNCHBOX_FOUND))
     message(FATAL_ERROR "Could not find Lunchbox")
   endif()
 else()
-  find_package(Lunchbox 1.9  REQUIRED)
+  find_package(Lunchbox 1.10  REQUIRED)
 endif()
 
 if(PKG_CONFIG_EXECUTABLE)
@@ -425,7 +425,7 @@ if(Qt4_name)
   endif()
 endif()
 
-set(EQUALIZER_BUILD_DEBS autoconf;automake;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;libavahi-client-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libbluetooth-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libboost-thread-dev;libfcgi-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libleveldb-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libpoppler-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;openmpi-bin;pkg-config;subversion)
+set(EQUALIZER_BUILD_DEBS autoconf;automake;avahi-daemon;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;libavahi-client-dev;libavcodec-dev;libavformat-dev;libavutil-dev;libbluetooth-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libboost-thread-dev;libfcgi-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libleveldb-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libpoppler-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libswscale-dev;libturbojpeg;libudt-dev;libx11-dev;libxmu-dev;openmpi-bin;pkg-config;subversion)
 
 set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;X11;hwsd;GLStats;hwloc;OpenSceneGraph;OpenCV;VRPN;DisplayCluster;MAGELLAN;GLEW_MX;Qt4)
 
