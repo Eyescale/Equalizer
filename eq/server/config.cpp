@@ -547,12 +547,10 @@ EventOCommand Config::sendError( const uint32_t type,
 //---------------------------------------------------------------------------
 // update running entities (init/exit/runtime change)
 //---------------------------------------------------------------------------
-bool Config::_updateRunning()
+bool Config::_updateRunning( const bool canFail )
 {
     if( _state == STATE_STOPPED )
         return true;
-
-    const bool canFail = (getIAttribute( IATTR_ROBUSTNESS ) != OFF);
 
     LBASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
@@ -719,7 +717,7 @@ bool Config::_updateNodes( const bool canFail )
         LBASSERT( !syncUpdate.needsSync( ));
     }
 
-    if( syncUpdate.getNumRunningChannels() == 0 )
+    if( syncUpdate.getNumRunningChannels() == 0 && !canFail )
     {
         LBWARN << "Config has no running channels, will exit" << std::endl;
         return false;
@@ -801,7 +799,7 @@ bool Config::_init( const uint128_t& initID )
     for( CanvasesCIter i = canvases.begin(); i != canvases.end(); ++i )
         (*i)->init();
 
-    if( !_updateRunning( ))
+    if( !_updateRunning( false ))
         return false;
 
     // Needed to set up active state for first LB update
@@ -843,7 +841,7 @@ bool Config::exit()
         compound->exit();
     }
 
-    const bool success = _updateRunning();
+    const bool success = _updateRunning( true );
 
     // TODO: is this needed? sender of CMD_CONFIG_EXIT is the appNode itself
     // which sets the running state to false anyway. Besides, this event is
@@ -1051,8 +1049,9 @@ bool Config::_cmdUpdate( co::ICommand& cmd )
     request.wait(); // wait for app sync
     _needsFinish = false;
 
-    const bool result = _updateRunning();
-    if( !result && getIAttribute( IATTR_ROBUSTNESS ) == OFF )
+    const bool canFail = (getIAttribute( IATTR_ROBUSTNESS ) != OFF);
+    const bool result = _updateRunning( canFail );
+    if( !result && !canFail )
     {
         LBWARN << "Config update failed, exiting config" << std::endl;
         exit();

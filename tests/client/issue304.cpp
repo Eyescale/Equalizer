@@ -41,12 +41,12 @@ int main( const int argc, char** argv )
     TEST( !config->isRunning( ));
 
     server->releaseConfig( config );
-    client->disconnectServer( server );
+    TEST( client->disconnectServer( server ));
     client->exitLocal();
 
     TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
     TESTINFO( server->getRefCount() == 1, server->getRefCount( ));
 
-    eq::exit();
+    TEST( eq::exit( ));
     return EXIT_SUCCESS;
 }
