@@ -10,11 +10,10 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
 
 include(GitExternal)
 
-set(LAST_RELEASE 1.6.0)
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "7")
-set(VERSION_PATCH "3")
-set(VERSION_ABI 170)
+set(VERSION_MINOR "8")
+set(VERSION_PATCH "0")
+set(VERSION_ABI 180)
 
 include(Common)
 include(Buildyard)
@@ -32,7 +31,6 @@ option(EQUALIZER_BUILD_2_0_API
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
 set(DPUT_HOST ppa:bbp/ppa)
-set(GITTARGETS_RELEASE_BRANCH minor)
 
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
 set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
