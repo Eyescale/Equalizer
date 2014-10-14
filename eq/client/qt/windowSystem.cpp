@@ -32,8 +32,6 @@
 #include <QThread>
 
 
-static eq::qt::WindowSystem _qtFactory;
-
 namespace eq
 {
 namespace qt

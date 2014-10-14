@@ -39,12 +39,13 @@ namespace eq
  */
 class WindowSystemIF
 {
+public:
+    /** Destroy the window system instance. @version 1.6 */
+    virtual ~WindowSystemIF() {}
+
 protected:
     /** Create a new window system instance. @version 1.6 */
     EQ_API WindowSystemIF();
-
-    /** Destroy the window system instance. @version 1.6 */
-    virtual ~WindowSystemIF() {}
 
     /** @internal */
     static uint32_t _setupLists( util::ObjectManager& gl, const void* key,
