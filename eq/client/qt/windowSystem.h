@@ -24,13 +24,13 @@ namespace eq
 namespace qt
 {
 
-class WindowSystem : public QObject, private WindowSystemIF
+class WindowSystem : public QObject, public WindowSystemIF
 {
     Q_OBJECT
 
 public:
-    WindowSystem();
-    ~WindowSystem();
+    EQ_API WindowSystem();
+    EQ_API ~WindowSystem();
 
 signals:
     eq::qt::GLWidget* createWidget( eq::Window*, const WindowSettings&,

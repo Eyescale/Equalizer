@@ -19,6 +19,11 @@
 
 #include "init.h"
 
+#ifdef EQUALIZER_USE_QT4
+#  include <QApplication>
+#  include "qt/windowSystem.h"
+#endif
+
 #include "client.h"
 #include "config.h"
 #include "global.h"
@@ -67,6 +72,7 @@ namespace
 {
 static std::ofstream* _logFile = 0;
 static lunchbox::a_int32_t _initialized;
+static std::vector< WindowSystemIF* > _windowSystems;
 }
 
 const char EQ_HELP[] = "eq-help";
@@ -113,6 +119,11 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
     ::XInitThreads();
 #endif
 
+#ifdef EQUALIZER_USE_QT4
+    if( QApplication::instance( ))
+        _windowSystems.push_back( new qt::WindowSystem );
+#endif
+
 #ifdef EQ_USE_PARACOMP
     LBINFO << "Initializing Paracomp library" << std::endl;
     PCerr err = pcSystemInitialize( 0 );
@@ -154,6 +165,10 @@ bool exit()
 #ifdef EQ_USE_PARACOMP
     pcSystemFinalize();
 #endif
+
+    BOOST_FOREACH( WindowSystemIF* windowSystem, _windowSystems )
+        delete windowSystem;
+    _windowSystems.clear();
 
     Global::_nodeFactory = 0;
     _exitPlugins();

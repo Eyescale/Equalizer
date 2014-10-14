@@ -23,7 +23,7 @@ if(X11_FOUND)
   set(EQ_GLX_USED 1)
 endif()
 
-if(Qt4_FOUND)
+if(Qt4_FOUND OR QT4_FOUND)
   set(EQ_QT_USED 1)
 endif()
 
