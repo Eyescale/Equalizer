@@ -66,13 +66,6 @@ int main( int argc, char** argv )
     NodeFactory nodeFactory;
     eqPly::initErrors();
 
-    if( !eq::init( argc, argv, &nodeFactory ))
-    {
-        LBERROR << "Equalizer init failed" << std::endl;
-        eq::exit();
-        return EXIT_FAILURE;
-    }
-
     // 2. parse arguments
     eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
@@ -80,8 +73,20 @@ int main( int argc, char** argv )
 #ifdef EQUALIZER_USE_QT4
     QApplication* app = 0;
     if( initData.getWindowSystem() == "Qt" )
+    {
+    #ifdef GLX
+        ::XInitThreads();
+    #endif
         app = new QApplication( argc, argv );
+    }
 #endif
+
+    if( !eq::init( argc, argv, &nodeFactory ))
+    {
+        LBERROR << "Equalizer init failed" << std::endl;
+        eq::exit();
+        return EXIT_FAILURE;
+    }
 
     // 3. initialization of local client node
     lunchbox::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
