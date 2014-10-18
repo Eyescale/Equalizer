@@ -16,15 +16,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "window.h"
+#include <eq/client/pipe.h>
+
 #include "widgetFactory.h"
 
 #include "glWidget.h"
-#include "window.h"
-
-#include <eq/client/pipe.h>
 #include <eq/client/window.h>
 #include <QGLFormat>
-
+#undef max
 
 namespace eq
 {
@@ -126,23 +126,26 @@ GLWidget* WidgetFactory::onCreateWidget( eq::Window* window,
 
     GLWidget* glWidget = new GLWidget( _createQGLFormat( settings ),
                                        shareGLWidget );
+    const QString& title = QString::fromStdString( settings.getName( ) );
+    glWidget->setWindowTitle( title.isEmpty() ? "Equalizer" : title );
+
     const bool isOnscreen = settings.getIAttribute(
                             WindowSettings::IATTR_HINT_DRAWABLE ) == eq::WINDOW;
-    PixelViewport pvp;
-    if( settings.getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == eq::ON )
+    if( settings.getIAttribute(
+            WindowSettings::IATTR_HINT_FULLSCREEN ) == eq::ON )
     {
-        pvp = window->getPipe()->getPixelViewport();
+        const PixelViewport& pvp = window->getPipe()->getPixelViewport();
+        glWidget->setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );
         if( isOnscreen )
             glWidget->showFullScreen();
     }
     else
     {
-        pvp = settings.getPixelViewport();
+        const PixelViewport& pvp = settings.getPixelViewport();
+        glWidget->setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );
         if( isOnscreen )
             glWidget->show();
     }
-    glWidget->setWindowTitle( QString::fromStdString( settings.getName()));
-    glWidget->setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );
     glWidget->doneCurrent();
 
 #if QT_VERSION >= 0x050000
