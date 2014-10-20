@@ -144,11 +144,21 @@ namespace fabric
          */
         EQFABRIC_INL float getModelUnit() const;
 
-        /** Set the DisplayCluster hostname for this view. @version 1.5.2 */
+#ifdef EQ_1_0_API
+        /**
+         * Set the DisplayCluster hostname for this view.
+         * @version 1.5.2
+         * @deprecated Use setSAttribute( View::SATTR_DISPLAYCLUSTER )
+         */
         void setDisplayCluster( const std::string& hostname );
 
-        /** @return the DisplayCluster host name. @version 1.5.2 */
+        /**
+         * @return the DisplayCluster host name.
+         * @version 1.5.2
+         * @deprecated Use getSAttribute( View::SATTR_DISPLAYCLUSTER )
+         */
         const std::string& getDisplayCluster() const;
+#endif
         //@}
 
         /** @name Operations */
@@ -232,13 +242,30 @@ namespace fabric
             DIRTY_EQUALIZER      = Object::DIRTY_CUSTOM << 8,
             DIRTY_EQUALIZERS     = Object::DIRTY_CUSTOM << 9,
             DIRTY_MODELUNIT      = Object::DIRTY_CUSTOM << 10,
-            DIRTY_DISPLAYCLUSTER = Object::DIRTY_CUSTOM << 11,
+            DIRTY_ATTRIBUTES     = Object::DIRTY_CUSTOM << 11,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
                 DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_EQUALIZER |
-                DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_DISPLAYCLUSTER
+                DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_ATTRIBUTES
         };
+
+        /** String attributes. */
+        enum SAttribute
+        {
+            SATTR_DISPLAYCLUSTER,
+            SATTR_PIXELSTREAM_NAME,
+            SATTR_LAST,
+            SATTR_ALL = SATTR_LAST + 5
+        };
+
+        /** @return the value of a string attribute. @version 1.9 */
+        EQFABRIC_INL
+        const std::string& getSAttribute( const SAttribute attr ) const;
+
+        /** @return the name of a string attribute. @version 1.9 */
+        EQFABRIC_INL
+        static const std::string& getSAttributeString( const SAttribute attr );
 
     protected:
         /** @internal Construct a new view. */
@@ -272,6 +299,10 @@ namespace fabric
         /** @internal */
         EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
+        void setSAttribute( const SAttribute attr, const std::string& value )
+            { _sAttributes[attr] = value; setDirty( DIRTY_ATTRIBUTES ); }
+
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const
             { return DIRTY_VIEW_BITS; }
@@ -295,7 +326,6 @@ namespace fabric
         uint64_t _capabilities; //!< intersection of all active channel caps
         uint32_t _equalizers; //!< Active Equalizers
         float _modelUnit; //!< Scaling of scene in this view
-        std::string _displayCluster;
 
         struct BackupData
         {
@@ -307,6 +337,9 @@ namespace fabric
             Mode mode; //!< Stereo mode
         }
             _data, _backup;
+
+        /** String attributes. */
+        std::string _sAttributes[SATTR_ALL];
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

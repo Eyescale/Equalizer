@@ -353,7 +353,7 @@ int32_t Channel< W, C >::getIAttribute( const IAttribute attr ) const
 }
 
 template< class W, class C >
-std::string Channel< W, C >::getSAttribute( const SAttribute attr ) const
+const std::string& Channel< W, C >::getSAttribute( const SAttribute attr ) const
 {
     LBASSERT( attr < SATTR_ALL );
     return _sAttributes[ attr ];

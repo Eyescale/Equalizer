@@ -68,8 +68,11 @@ public:
             return;
         }
 
-        const std::string& dcHost = _channel->getView()->getDisplayCluster();
-        _stream = new ::dc::Stream( _channel->getView()->getName(), dcHost );
+        const std::string& dcHost =
+               _channel->getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER );
+        const std::string& name =
+             _channel->getView()->getSAttribute( View::SATTR_PIXELSTREAM_NAME );
+        _stream = new ::dc::Stream( name, dcHost );
         if( !_stream->isConnected( ))
         {
             LBWARN << "Could not connect to DisplayCluster host: " << dcHost
