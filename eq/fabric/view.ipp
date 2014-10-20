@@ -31,6 +31,15 @@ namespace eq
 {
 namespace fabric
 {
+namespace
+{
+#define _MAKE_ATTR_STRING( attr ) ( std::string("EQ_VIEW_") + #attr )
+static std::string _sAttributeStrings[] = {
+    _MAKE_ATTR_STRING( SATTR_DISPLAYCLUSTER ),
+    _MAKE_ATTR_STRING( SATTR_PIXELSTREAM_NAME )
+};
+}
+
 template< class L, class V, class O >
 View< L, V, O >::View( L* layout )
     : _layout( layout )
@@ -88,8 +97,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _equalizers;
     if( dirtyBits & DIRTY_MODELUNIT )
         os << _modelUnit;
-    if( dirtyBits & DIRTY_DISPLAYCLUSTER )
-        os << _displayCluster;
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os << co::Array< std::string >( _sAttributes, SATTR_ALL );
 }
 
 template< class L, class V, class O >
@@ -158,8 +167,8 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _equalizers;
     if( dirtyBits & DIRTY_MODELUNIT )
         is >> _modelUnit;
-    if( dirtyBits & DIRTY_DISPLAYCLUSTER )
-        is >> _displayCluster;
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is >> co::Array< std::string >( _sAttributes, SATTR_ALL );
 }
 
 template< class L, class V, class O >
@@ -212,14 +221,13 @@ float View< L, V, O >::getModelUnit() const
 template< class L, class V, class O >
 void View< L, V, O >::setDisplayCluster( const std::string& hostname )
 {
-    _displayCluster = hostname;
-    setDirty( DIRTY_DISPLAYCLUSTER );
+    setSAttribute( View::SATTR_DISPLAYCLUSTER, hostname );
 }
 
 template< class L, class V, class O >
 const std::string& View< L, V, O >::getDisplayCluster() const
 {
-    return _displayCluster;
+    return getSAttribute( View::SATTR_DISPLAYCLUSTER );
 }
 
 template< class L, class V, class O >
@@ -367,6 +375,19 @@ template< class L, class V, class O >
 uint64_t View< L, V, O >::getCapabilities() const
 {
     return _capabilities;
+}
+
+template< class L, class V, class O >
+const std::string& View< L, V, O >::getSAttribute( const SAttribute attr ) const
+{
+    LBASSERT( attr < SATTR_ALL );
+    return _sAttributes[ attr ];
+}
+
+template< class L, class V, class O >
+const std::string& View< L, V, O >::getSAttributeString( const SAttribute attr )
+{
+    return _sAttributeStrings[attr];
 }
 
 template< class L, class V, class O >

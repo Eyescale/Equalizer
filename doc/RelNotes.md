@@ -44,6 +44,9 @@ and documentation changes over the Equalizer 1.7 release:
 
 * Implemented Qt window system for onscreen windows. Issue
   [21](https://github.com/Eyescale/Equalizer/issues/21) partially done.
+* DisplayCluster streaming can be enabled with automatic configuration using new
+  global view attributes: EQ_VIEW_SATTR_DISPLAYCLUSTER and
+  EQ_VIEW_SATTR_PIXELSTREAM_NAME.
 
 ## Enhancements {#Enhancements}
 

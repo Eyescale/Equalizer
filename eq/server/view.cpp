@@ -24,6 +24,7 @@
 #include "compound.h"
 #include "config.h"
 #include "configDestCompoundVisitor.h"
+#include "global.h"
 #include "layout.h"
 #include "log.h"
 #include "observer.h"
@@ -49,6 +50,20 @@ typedef co::CommandFunc<View> ViewFunc;
 View::View( Layout* parent )
         : Super( parent )
 {
+    const Global* global = Global::instance();
+    for( unsigned i = 0; i < SATTR_ALL; ++i )
+    {
+        const SAttribute attr = static_cast< SAttribute >( i );
+        setSAttribute( attr, global->getViewSAttribute( attr ));
+    }
+
+    // All processes must share a common, unique pixelstream name
+    if( getSAttribute( View::SATTR_PIXELSTREAM_NAME ).empty( ))
+    {
+        const std::string name = "Equalizer_" +
+                                 lunchbox::make_UUID().getShortString();
+        setSAttribute( View::SATTR_PIXELSTREAM_NAME, name);
+    }
 }
 
 View::~View()

@@ -326,7 +326,8 @@ public:
     EQFABRIC_INL int32_t getIAttribute( const IAttribute attr ) const;
 
     /** @return the value of a string attribute. @version 1.7.2 */
-    EQFABRIC_INL std::string getSAttribute( const SAttribute attr ) const;
+    EQFABRIC_INL
+    const std::string& getSAttribute( const SAttribute attr ) const;
 
     /** @return the name of an integer attribute. @version 1.7.2 */
     EQFABRIC_INL static const std::string& getIAttributeString(

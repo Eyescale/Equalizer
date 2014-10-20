@@ -27,7 +27,7 @@
 #include "pipe.h"                    // nested enum
 #include "node.h"                    // nested enum
 #include "window.h"                  // nested enum
-
+#include "view.h"                    // nested enum
 
 namespace eq
 {
@@ -138,6 +138,15 @@ namespace server
             { return _compoundIAttributes[attr]; }
         //@}
 
+        /** @name View Attributes. */
+        //@{
+        void setViewSAttribute( const View::SAttribute attr,
+                                const std::string& value )
+            { _viewSAttributes[attr] = value; }
+        const std::string& getViewSAttribute( const View::SAttribute attr) const
+            { return _viewSAttributes[attr]; }
+        //@}
+
     private:
         Global();
 
@@ -159,6 +168,8 @@ namespace server
         std::string _channelSAttributes[Channel::SATTR_ALL];
 
         int32_t     _compoundIAttributes[Compound::IATTR_ALL];
+
+        std::string _viewSAttributes[View::SATTR_ALL];
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

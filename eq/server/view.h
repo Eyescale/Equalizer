@@ -68,7 +68,7 @@ namespace server
         bool removeChannel( Channel* channel );
 
         /** @return the vector of destination channels. */
-        const Channels& getChannels() const{ return _channels; }
+        const Channels& getChannels() const { return _channels; }
 
         /** @name Operations */
         //@{
@@ -92,6 +92,9 @@ namespace server
 
         /** Update all segment frusta based on the current settings. */
         void updateFrusta();
+
+        void setSAttribute( const SAttribute attr, const std::string& value )
+            { fabric::View< Layout, View, Observer >::setSAttribute( attr, value ); }
 
         virtual void setDirty( const uint64_t bits ); //!< @internal
         //@}
