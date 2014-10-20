@@ -19,6 +19,7 @@
 #include "eventHandler.h"
 
 #include "../channel.h"
+#include "../gl.h"
 #include "../pipe.h"
 #include "../systemWindow.h"
 #include "../view.h"
@@ -32,7 +33,6 @@
 
 #include <lunchbox/buffer.h>
 #include <dc/Stream.h>
-#include <GL/gl.h>
 
 namespace eq
 {
