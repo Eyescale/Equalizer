@@ -243,7 +243,8 @@ bool Channel::configExit()
 bool Channel::configInit( const uint128_t& )
 {
 #ifdef EQUALIZER_USE_DISPLAYCLUSTER
-    if( getView() && !getView()->getDisplayCluster().empty( ))
+    if( getView() &&
+        !getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER ).empty( ))
     {
         LBASSERT( !_impl->_dcProxy );
         _impl->_dcProxy = new dc::Proxy( this );

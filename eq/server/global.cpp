@@ -240,6 +240,15 @@ void Global::_readEnvironment()
         if( envValue )
             _compoundIAttributes[i] = atol( envValue );
     }
+    for( uint32_t i=0; i < View::SATTR_LAST; ++i )
+    {
+        const std::string& name = View::getSAttributeString(
+            (View::SAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+
+        if( envValue )
+            _viewSAttributes[i] = envValue;
+    }
 }
 
 #define GLOBAL_ATTR_LENGTH 50
@@ -423,6 +432,18 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             default:
                 LBASSERTINFO( 0, "unimplemented" );
         }
+    }
+
+    for( uint32_t i=0; i<View::SATTR_ALL; ++i )
+    {
+        const std::string& value = global->_viewSAttributes[i];
+        if( value == reference._viewSAttributes[i] )
+            continue;
+
+        const std::string& name = View::getSAttributeString(
+            static_cast<View::SAttribute>( i ));
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "\"" << value << "\"" << std::endl;
     }
 
     os << lunchbox::exdent << '}' << std::endl

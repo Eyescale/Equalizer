@@ -123,6 +123,7 @@
 %token EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_PIPE_IATTR_HINT_AFFINITY
+%token EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
@@ -538,7 +539,6 @@ global:
             eq::server::Channel::SATTR_DUMP_IMAGE, $2 );
      }
 
-
 connectionType:
     EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
     | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
@@ -846,6 +846,14 @@ viewField:
 viewMode:
     EQTOKEN_MONO  { view->changeMode( eq::server::View::MODE_MONO ); }
     | EQTOKEN_STEREO  { view->changeMode( eq::server::View::MODE_STEREO ); }
+
+viewAttributes: /*null*/ | viewAttributes viewAttribute
+viewAttribute:
+     EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER STRING
+     {
+        eq::view::Global::instance()->setViewSAttribute(
+            eq::server::Channel::SATTR_DISPLAYCLUSTER, $2 );
+     }
 
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas( config ); }
             canvasFields '}' { config->activateCanvas( canvas ); canvas = 0; }
