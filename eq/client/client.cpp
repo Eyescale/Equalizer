@@ -38,6 +38,7 @@
 #include <co/connectionDescription.h>
 #include <co/global.h>
 #include <lunchbox/dso.h>
+#include <lunchbox/file.h>
 
 #ifdef WIN32_API
 #  include <direct.h>  // for chdir
@@ -142,14 +143,9 @@ co::ConnectionPtr _startLocalServer()
     Strings dirNames;
     dirNames.push_back( "" );
 
-#ifdef EQ_BUILD_DIR
-#  ifdef NDEBUG
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Release/" );
-#  else
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Debug/" );
-#  endif
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/" );
-#endif
+    // install dir
+    dirNames.push_back( lunchbox::getExecutablePath() + "/../lib64/" );
+    dirNames.push_back( lunchbox::getExecutablePath() + "/../lib/" );
 
 #ifdef _MSC_VER
     const std::string libName = "EqualizerServer.dll";
