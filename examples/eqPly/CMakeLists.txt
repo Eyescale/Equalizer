@@ -46,6 +46,7 @@ eq_add_example(eqPly
     ${EQUALIZER_ADMIN_LIBRARY} triply ${QT_LIBRARIES}
   )
 
+file(COPY logo.rgb DESTINATION ${PROJECT_BINARY_DIR}/share/Equalizer/data)
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)
 
 if(MSVC) # the custom command below doesn't work on VS
@@ -60,6 +61,7 @@ function(INSTALL_PLY IN OUT) # + command
     DEPENDS "${IN}" eqPlyConverter
     COMMENT "Creating eqPly kd-Tree for ${IN}"
     )
+  file(COPY ${OUT} DESTINATION ${PROJECT_BINARY_DIR}/share/Equalizer/data)
   install(FILES ${OUT} DESTINATION share/Equalizer/data COMPONENT apps)
 endfunction()
 
@@ -96,6 +98,6 @@ foreach(PLY_FILE ${PLY_FILES})
     install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
       "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
   endif()
+  file(COPY ${PLY_FILE} DESTINATION ${PROJECT_BINARY_DIR}/share/Equalizer/data)
   install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT apps)
 endforeach()
-install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)

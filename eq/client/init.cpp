@@ -35,6 +35,7 @@
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
+#include <lunchbox/file.h>
 #include <lunchbox/pluginRegistry.h>
 
 #ifdef _WIN32
@@ -318,15 +319,10 @@ void _initPlugins()
 {
     lunchbox::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
+    plugins.addDirectory( lunchbox::getExecutablePath() +
+                          "/../share/Equalizer/plugins" ); // install dir
     plugins.addDirectory( "/usr/share/Equalizer/plugins" );
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
-#ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-    plugins.addDirectory( "../share/Equalizer/plugins" );
-#else
-    plugins.addDirectory( std::string( EQ_INSTALL_DIR ) +
-                          std::string( "share/Equalizer/plugins" ));
-#endif
-
     plugins.addDirectory( ".eqPlugins" );
     plugins.addDirectory( "/opt/local/lib" ); // MacPorts
 
@@ -369,12 +365,8 @@ void _exitPlugins()
 {
     lunchbox::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
-#ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-    plugins.removeDirectory( "../share/Equalizer/plugins" );
-#else
-    plugins.removeDirectory( std::string( EQ_INSTALL_DIR ) +
-                             std::string( "share/Equalizer/plugins" ));
-#endif
+    plugins.removeDirectory( lunchbox::getExecutablePath() +
+                             "/../share/Equalizer/plugins" );
     plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
     plugins.removeDirectory( ".eqPlugins" );
 
