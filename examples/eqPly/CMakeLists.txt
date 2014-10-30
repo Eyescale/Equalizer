@@ -58,10 +58,11 @@ function(INSTALL_PLY IN OUT) # + command
   set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${OUT}")
   add_custom_target(${OUT} ALL
     COMMAND ${ARGN} "${CMAKE_CURRENT_SOURCE_DIR}/${IN}"
+    COMMAND ${CMAKE_COMMAND} -E copy ${BIN_FILE}
+                                     ${PROJECT_BINARY_DIR}/share/Equalizer/data
     DEPENDS "${IN}" eqPlyConverter
     COMMENT "Creating eqPly kd-Tree for ${IN}"
     )
-  file(COPY ${OUT} DESTINATION ${PROJECT_BINARY_DIR}/share/Equalizer/data)
   install(FILES ${OUT} DESTINATION share/Equalizer/data COMPONENT apps)
 endfunction()
 
