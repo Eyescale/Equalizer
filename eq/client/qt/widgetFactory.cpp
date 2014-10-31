@@ -141,7 +141,8 @@ GLWidget* WidgetFactory::onCreateWidget( eq::Window* window,
     }
     else
     {
-        const PixelViewport& pvp = settings.getPixelViewport();
+        const PixelViewport& pvp = isOnscreen ? settings.getPixelViewport()
+                                              : window->getPipe()->getPixelViewport();
         glWidget->setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );
         if( isOnscreen )
             glWidget->show();

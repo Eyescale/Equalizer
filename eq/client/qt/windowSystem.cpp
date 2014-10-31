@@ -111,9 +111,18 @@ bool WindowSystem::setupFont( util::ObjectManager& gl LB_UNUSED,
 bool WindowSystem::_useSystemWindowSystem( const WindowSettings& settings,
                                            const eq::Window* sharedWindow )
 {
-    return getAttribute( IATTR_HINT_DRAWABLE ) == eq::PBUFFER ||
-           (sharedWindow && sharedWindow->getSettings().getIAttribute(
-                      WindowSettings::IATTR_HINT_DRAWABLE ) == eq::PBUFFER );
+    // pbuffer is not (yet) supported; OFF is used for transfer window
+    // which can also not be emulated yet (maybe with QGLContext only)
+    const int32_t settingsDrawable = getAttribute( IATTR_HINT_DRAWABLE );
+    if( settingsDrawable == eq::PBUFFER || settingsDrawable == eq::OFF )
+        return true;
+
+    if( !sharedWindow )
+        return false;
+
+    const int32_t windowDrawable = sharedWindow->getSettings().getIAttribute(
+                                          WindowSettings::IATTR_HINT_DRAWABLE );
+    return windowDrawable == eq::PBUFFER || windowDrawable == eq::OFF;
 }
 
 void WindowSystem::_setupFactory()
