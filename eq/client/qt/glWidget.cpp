@@ -33,7 +33,7 @@ namespace qt
 
 namespace
 {
-uint32_t _getKey( const QKeyEvent keyEvent )
+uint32_t _getKey( const QKeyEvent& keyEvent )
 {
     switch( keyEvent.key( ))
     {
@@ -83,6 +83,30 @@ uint32_t _getKey( const QKeyEvent keyEvent )
             return KC_VOID;
         return keyEvent.text().at( 0 ).unicode();
     }
+}
+
+// Qt buttons 2 & 3 are inversed with EQ (X11/AGL/WGL)
+uint32_t _getButtons( const Qt::MouseButtons& eventButtons )
+{
+    if( (eventButtons & (Qt::MiddleButton | Qt::RightButton)) ==
+                                          (Qt::MiddleButton | Qt::RightButton) )
+    {
+        return eventButtons;
+    }
+
+    uint32_t buttons = eventButtons;
+    if( eventButtons & Qt::MiddleButton || eventButtons & Qt::RightButton )
+        buttons ^= PTR_BUTTON2 | PTR_BUTTON3;
+    return buttons;
+}
+
+uint32_t _getButton( const Qt::MouseButton button )
+{
+    if( button == Qt::RightButton )
+        return PTR_BUTTON2;
+    if( button == Qt::MiddleButton )
+        return PTR_BUTTON3;
+    return button;
 }
 }
 
@@ -154,8 +178,8 @@ void GLWidget::mousePressEvent( QMouseEvent* qevent )
     windowEvent->eq::Event::type = Event::WINDOW_POINTER_BUTTON_PRESS;
     windowEvent->pointerButtonPress.x = qevent->x();
     windowEvent->pointerButtonPress.y = qevent->y();
-    windowEvent->pointerButtonPress.buttons = qevent->buttons();
-    windowEvent->pointerButtonPress.button  = qevent->button();
+    windowEvent->pointerButtonPress.buttons = _getButtons( qevent->buttons( ));
+    windowEvent->pointerButtonPress.button  = _getButton( qevent->button( ));
     QApplication::postEvent( _eventHandler, windowEvent );
 }
 
@@ -167,8 +191,8 @@ void GLWidget::mouseReleaseEvent( QMouseEvent* qevent )
     windowEvent->eq::Event::type = Event::WINDOW_POINTER_BUTTON_RELEASE;
     windowEvent->pointerButtonRelease.x = qevent->x();
     windowEvent->pointerButtonRelease.y = qevent->y();
-    windowEvent->pointerButtonRelease.buttons = qevent->buttons();
-    windowEvent->pointerButtonRelease.button  = qevent->button();
+    windowEvent->pointerButtonRelease.buttons = _getButtons( qevent->buttons());
+    windowEvent->pointerButtonRelease.button  = _getButton( qevent->button( ));
     QApplication::postEvent( _eventHandler, windowEvent );
 }
 
@@ -180,8 +204,8 @@ void GLWidget::mouseMoveEvent( QMouseEvent* qevent )
     windowEvent->eq::Event::type = Event::WINDOW_POINTER_MOTION;
     windowEvent->pointerMotion.x = qevent->x();
     windowEvent->pointerMotion.y = qevent->y();
-    windowEvent->pointerMotion.buttons = qevent->buttons();
-    windowEvent->pointerMotion.button  = qevent->button();
+    windowEvent->pointerMotion.buttons = _getButtons( qevent->buttons( ));
+    windowEvent->pointerMotion.button  = _getButton( qevent->button( ));
     QApplication::postEvent( _eventHandler, windowEvent );
 }
 
@@ -201,7 +225,7 @@ void GLWidget::wheelEvent( QWheelEvent* qevent )
         windowEvent->pointerWheel.yAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     }
-    windowEvent->pointerWheel.buttons = qevent->buttons();
+    windowEvent->pointerWheel.buttons = _getButtons( qevent->buttons( ));
     windowEvent->pointerWheel.button  = PTR_BUTTON_NONE;
     QApplication::postEvent( _eventHandler, windowEvent );
 }

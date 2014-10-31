@@ -27,6 +27,10 @@
 #include "../global.h"
 #include "../pipe.h"
 
+#ifdef EQUALIZER_USE_QT4
+#  include "../qt/window.h"
+#endif
+
 
 namespace eq
 {
@@ -334,10 +338,22 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     }
 
     GLXContext shCtx = 0;
-    const WindowIF* shareGLXWindow =
-            dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
-    if( shareGLXWindow )
-        shCtx = shareGLXWindow->getGLXContext();
+    const SystemWindow* shareWindow = getSharedContextWindow();
+    if( shareWindow )
+    {
+        const WindowIF* shareGLXWindow =
+                                 dynamic_cast< const WindowIF* >( shareWindow );
+        if( shareGLXWindow )
+            shCtx = shareGLXWindow->getGLXContext();
+#ifdef EQUALIZER_USE_QT4
+        else if( dynamic_cast< const qt::WindowIF* >( shareWindow ))
+        {
+            // allows sharing with Qt window
+            shareWindow->makeCurrent();
+            shCtx = glXGetCurrentContext();
+        }
+#endif
+    }
 
     int type = GLX_RGBA_TYPE;
     if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == PBUFFER &&
