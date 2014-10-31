@@ -88,14 +88,14 @@ uint32_t _getKey( const QKeyEvent& keyEvent )
 // Qt buttons 2 & 3 are inversed with EQ (X11/AGL/WGL)
 uint32_t _getButtons( const Qt::MouseButtons& eventButtons )
 {
-    if( (eventButtons & (Qt::MiddleButton | Qt::RightButton)) ==
-                                          (Qt::MiddleButton | Qt::RightButton) )
+    if( (eventButtons & (Qt::MidButton | Qt::RightButton)) ==
+                                             (Qt::MidButton | Qt::RightButton) )
     {
         return eventButtons;
     }
 
     uint32_t buttons = eventButtons;
-    if( eventButtons & Qt::MiddleButton || eventButtons & Qt::RightButton )
+    if( eventButtons & Qt::MidButton || eventButtons & Qt::RightButton )
         buttons ^= PTR_BUTTON2 | PTR_BUTTON3;
     return buttons;
 }
@@ -104,7 +104,7 @@ uint32_t _getButton( const Qt::MouseButton button )
 {
     if( button == Qt::RightButton )
         return PTR_BUTTON2;
-    if( button == Qt::MiddleButton )
+    if( button == Qt::MidButton )
         return PTR_BUTTON3;
     return button;
 }
