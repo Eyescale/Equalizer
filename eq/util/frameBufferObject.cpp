@@ -43,7 +43,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
 
 FrameBufferObject::~FrameBufferObject()
 {
-    exit();
+    this->exit();
     for( size_t i = 0; i < _colors.size(); ++i )
     {
         delete _colors[i];

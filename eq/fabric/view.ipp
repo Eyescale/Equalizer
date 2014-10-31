@@ -159,7 +159,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _capabilities;
     if( dirtyBits & DIRTY_MODE )
     {
-        uint32_t mode;
+        uint32_t mode( 0 );
         is >> mode;
         activateMode( Mode( mode ));
     }

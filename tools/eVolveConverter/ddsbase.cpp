@@ -702,7 +702,7 @@ unsigned char *readPVMvolume(const char *filename,
       {
       if (strncmp((char *)data,"PVM2\n",5)==0) version=2;
       else if (strncmp((char *)data,"PVM3\n",5)==0) version=3;
-      else return(NULL);
+      else { free(data); return(NULL); }
 
       if (sscanf((char *)&data[5],"%u %u %u\n%g %g %g\n",width,height,depth,&sx,&sy,&sz)!=6) ERRORMSG();
       if (*width<1 || *height<1 || *depth<1 || sx<=0.0f || sy<=0.0f || sz<=0.0f) ERRORMSG();

@@ -31,6 +31,7 @@ ROITracker::Area::Area( const PixelViewport& pvp_,
 
 ROITracker::ROITracker()
     : _needsUpdate( false )
+    , _lastStage( 0 )
 {
     _ticket   = reinterpret_cast< uint8_t* >( this );
     _prvFrame = new stde::hash_map< uint32_t, Stage >;

@@ -55,7 +55,7 @@ Accum::Accum( const GLEWContext* const glewContext )
 
 Accum::~Accum()
 {
-    exit();
+    this->exit();
     delete _impl;
 }
 

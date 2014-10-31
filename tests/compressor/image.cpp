@@ -280,6 +280,9 @@ int main( int argc, char **argv )
                         LBERROR << "Unknown image pixel data type" << std::endl;
                         channelSize = 0;
                 }
+                if( channelSize == 0 )
+                    continue;
+
                 const int64_t nElem = size / channelSize;
 
                 switch( channelSize )

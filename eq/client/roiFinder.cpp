@@ -49,6 +49,15 @@ static const char* shaderRBInfo = &seeds;
 
 
 ROIFinder::ROIFinder()
+    : _dim()
+    , _w( 0 )
+    , _h( 0 )
+    , _wh( 0 )
+    , _wb( 0 )
+    , _hb( 0 )
+    , _wbhb( 0 )
+    , _histX()
+    , _histY()
 {
     _tmpAreas[0].pvp       = PixelViewport( 0, 0, 0, 0 );
     _tmpAreas[0].hole      = PixelViewport( 0, 0, 0, 0 );

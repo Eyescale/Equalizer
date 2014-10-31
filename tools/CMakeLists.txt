@@ -57,6 +57,7 @@ eq_add_tool(eqServer
   )
 
 list(APPEND CPPCHECK_EXTRA_ARGS --suppress=invalidscanf
+  --suppress=invalidscanf_libc
   --suppress=variableScope --suppress=invalidPointerCast
   --suppress=invalidPrintfArgType_sint) # Yes, it's that bad.
 
