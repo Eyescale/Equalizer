@@ -136,18 +136,8 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
 
 
     eq::Strings filenames;
-#ifdef EQ_RELEASE
-#  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-    filenames.push_back( "../share/Equalizer/data" );
-#  else
-    filenames.push_back( std::string( EQ_INSTALL_DIR ) +
-                         std::string( "share/Equalizer/data" ));
-    filenames.push_back( std::string( "/usr/share/Equalizer/data" ));
-#  endif
-#else
-    filenames.push_back( std::string( EQ_SOURCE_DIR ) +
-                         std::string( "examples/eqPly" ));
-#endif
+    filenames.push_back( lunchbox::getExecutablePath() +
+                         "/../share/Equalizer/data" );
 
     if( !userDefinedModelPath.empty( ))
     {

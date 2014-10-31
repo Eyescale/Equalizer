@@ -151,8 +151,8 @@ void EventHandler::_syncButtonState( WPARAM wParam )
 {
     uint32_t buttons = PTR_BUTTON_NONE;
     if( wParam & MK_LBUTTON )  buttons |= PTR_BUTTON1;
-    if( wParam & MK_MBUTTON )  buttons |= PTR_BUTTON2;
-    if( wParam & MK_RBUTTON )  buttons |= PTR_BUTTON3;
+    if( wParam & MK_RBUTTON )  buttons |= PTR_BUTTON2;
+    if( wParam & MK_MBUTTON )  buttons |= PTR_BUTTON3;
     if( wParam & MK_XBUTTON1 ) buttons |= PTR_BUTTON4;
     if( wParam & MK_XBUTTON2 ) buttons |= PTR_BUTTON5;
 
@@ -262,7 +262,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _computePointerDelta( event );
             break;
 
-        case WM_MBUTTONDOWN:
+        case WM_RBUTTONDOWN:
             _buttonState |= PTR_BUTTON2;
             event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
@@ -273,7 +273,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _computePointerDelta( event );
             break;
 
-        case WM_RBUTTONDOWN:
+        case WM_MBUTTONDOWN:
             _buttonState |= PTR_BUTTON3;
             event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
@@ -313,7 +313,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _computePointerDelta( event );
             break;
 
-        case WM_MBUTTONUP:
+        case WM_RBUTTONUP:
             _buttonState &= ~PTR_BUTTON2;
             event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
@@ -324,7 +324,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _computePointerDelta( event );
             break;
 
-        case WM_RBUTTONUP:
+        case WM_MBUTTONUP:
             _buttonState &= ~PTR_BUTTON3;
             event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );

@@ -49,18 +49,8 @@ LocalInitData::LocalInitData()
     , _color( true )
     , _isResident( false )
 {
-#ifdef EQ_RELEASE
-#  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-    _filenames.push_back( "../share/Equalizer/data" );
-#  else
-    _filenames.push_back( std::string( EQ_INSTALL_DIR ) +
-                          std::string( "share/Equalizer/data" ));
-    _filenames.push_back( std::string( "/usr/share/Equalizer/data" ));
-#  endif
-#else
-    _filenames.push_back( std::string( EQ_SOURCE_DIR ) +
-                          std::string( "examples/eqPly" ));
-#endif
+    _filenames.push_back( lunchbox::getExecutablePath() +
+                          "/../share/Equalizer/data" );
 }
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )

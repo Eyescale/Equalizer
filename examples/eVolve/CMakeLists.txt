@@ -43,5 +43,7 @@ eq_add_example(eVolve
     fragmentShader.glsl
   )
 
+file(COPY Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
+  DESTINATION ${PROJECT_BINARY_DIR}/share/Equalizer/data)
 install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
   DESTINATION share/Equalizer/data COMPONENT apps)

@@ -51,17 +51,8 @@ InitData::InitData()
     , _precision( 2 )
     , _brightness( 1.0f )
     , _alpha( 1.0f )
-#ifdef EQ_RELEASE
-#  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-    , _filename( "../share/Equalizer/data/Bucky32x32x32_d.raw" )
-#  else
-    , _filename( std::string( EQ_INSTALL_DIR ) +
-                 std::string( "share/Equalizer/data/Bucky32x32x32_d.raw" ))
-#  endif
-#else
-    , _filename( std::string( EQ_SOURCE_DIR ) +
-                 std::string( "examples/eVolve/Bucky32x32x32_d.raw" ))
-#endif
+    , _filename( lunchbox::getExecutablePath() +
+                 "/../share/Equalizer/data/Bucky32x32x32_d.raw" )
 {}
 
 InitData::~InitData()

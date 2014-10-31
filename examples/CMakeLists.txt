@@ -18,9 +18,6 @@ else() # installed examples
   find_package(Equalizer @VERSION@ REQUIRED)
   include_directories(${EQUALIZER_INCLUDE_DIRS})
 
-  set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${PROJECT_BINARY_DIR}/" -DEQ_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
-  add_definitions(${EQ_DEFINITIONS})
-
   include(configure)
   include(CMakeParseArguments)
   set(EQ_AGL_USED @EQ_AGL_USED@)
