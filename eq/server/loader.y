@@ -853,7 +853,7 @@ viewMode:
 
 viewAttributes: /*null*/ | viewAttributes viewAttribute
 viewAttribute:
-     EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER STRING
+     EQTOKEN_DISPLAYCLUSTER STRING
      {
         view->setSAttribute( eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
      }

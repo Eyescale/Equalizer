@@ -18,7 +18,18 @@ server
             }
         }
         observer{}
-        layout{ view { observer 0 DisplayCluster "localhost" name "1-pipe.DC.eqc" }}
+        layout
+        {
+            view
+            {
+                name "1-pipe.DC.eqc"
+                observer 0
+                attributes
+                {
+                    DisplayCluster "localhost"
+                }
+            }
+        }
         canvas
         {
             layout 0
