@@ -27,7 +27,7 @@ namespace detail
 class EventICommand
 {
 public:
-    EventICommand() {}
+    EventICommand() : eventType( 0 ) {}
 
     uint32_t eventType;
 };

@@ -27,6 +27,7 @@ namespace server
 {
 
 FrameData::FrameData()
+    : _frameNumber( 0 )
 {
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
     _data.frameType = eq::Frame::TYPE_MEMORY;

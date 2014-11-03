@@ -28,8 +28,15 @@ namespace eq
 class ROIEmptySpaceFinder
 {
 public:
-    ROIEmptySpaceFinder() : _limAbs( 200 ), _limRel( .002f ), _mask( 0 ) {}
-    virtual ~ROIEmptySpaceFinder(){};
+    ROIEmptySpaceFinder()
+        : _w( 0 )
+        , _h( 0 )
+        , _limAbs( 200 )
+        , _limRel( .002f )
+        , _mask( 0 )
+    {}
+
+    virtual ~ROIEmptySpaceFinder() {}
 
     /** Updated data structure from a given mask. Limits should be
         re-initialized after calling this function */

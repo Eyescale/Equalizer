@@ -128,7 +128,7 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
 
     if( dirtyBits & DIRTY_LAYOUT )
     {
-        uint32_t index;
+        uint32_t index( 0 );
         is >> index;
         activateLayout( index );
     }

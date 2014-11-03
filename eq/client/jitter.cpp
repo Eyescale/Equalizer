@@ -40,18 +40,22 @@
 
 namespace eq
 {
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j2[2] = { Vector2f( 0.246490f,  0.249999f ),
                            Vector2f( -0.246490f, -0.249999f ) };
 
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j3[3] = { Vector2f( -0.373411f, -0.250550f ),
                            Vector2f( 0.256263f,  0.368119f ),
                            Vector2f( 0.117148f, -0.117570f ) };
 
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j4[4] = { Vector2f( -0.208147f,  0.353730f ),
                            Vector2f( 0.203849f, -0.353780f ),
                            Vector2f( -0.292626f, -0.149945f ),
                            Vector2f( 0.296924f,  0.149994f ) };
 
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j8[8] = { Vector2f( -0.334818f,  0.435331f ),
                            Vector2f( 0.286438f, -0.393495f ),
                            Vector2f( 0.459462f,  0.141540f ),
@@ -61,6 +65,7 @@ Vector2f Jitter::j8[8] = { Vector2f( -0.334818f,  0.435331f ),
                            Vector2f(  0.102254f,  0.299133f ),
                            Vector2f(  0.164216f, -0.054399f )};
 
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j15[15] = { Vector2f( 0.285561f,  0.188437f ),
                              Vector2f( 0.360176f, -0.065688f ),
                              Vector2f( -0.111751f,  0.275019f),
@@ -77,6 +82,7 @@ Vector2f Jitter::j15[15] = { Vector2f( 0.285561f,  0.188437f ),
                              Vector2f(  0.451636f, -0.300013f ),
                              Vector2f( -0.370610f,  0.387504f ) };
 
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j24[24] = { Vector2f( 0.030245f,  0.136384f ),
                              Vector2f( 0.018865f, -0.348867f ),
                              Vector2f( -0.350114f, -0.472309f ),
@@ -102,6 +108,7 @@ Vector2f Jitter::j24[24] = { Vector2f( 0.030245f,  0.136384f ),
                              Vector2f( -0.003102f, -0.154402f ),
                              Vector2f( 0.297997f, -0.417965f ) };
 
+// cppcheck-suppress arrayIndexOutOfBounds
 Vector2f Jitter::j66[66] = { Vector2f( 0.266377f, -0.218171f ),
                              Vector2f( -0.170919f, -0.429368f ),
                              Vector2f( 0.047356f, -0.387135f ),

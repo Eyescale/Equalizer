@@ -108,8 +108,8 @@ private:
     struct Area
     {
         Area()
-            : valid( false )
-        {};
+            : emptySize( 0 ),  valid( false )
+        {}
         Area( PixelViewport pvp_ )
             : emptySize( 0 ), pvp ( pvp_ ), valid( false )
         {}

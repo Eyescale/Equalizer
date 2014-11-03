@@ -42,6 +42,7 @@ namespace server
         Equalizer();
         Equalizer( const fabric::Equalizer& );
         Equalizer( const Equalizer& );
+        // cppcheck-suppress passedByValue
         Equalizer& operator=( const fabric::Equalizer& );
         virtual ~Equalizer();
 
