@@ -20,7 +20,8 @@
 
 #include <eq/client/api.h>
 
-#include <eq/client/event.h> // base class
+#include <eq/fabric/event.h> // base class
+#include <eq/client/types.h>
 #include <QEvent> // base class
 
 namespace eq

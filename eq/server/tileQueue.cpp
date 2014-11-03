@@ -161,7 +161,7 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     const std::string& name = tileQueue->getName();
     os << "name      \"" << name << "\"" << std::endl;
 
-    const eq::Vector2i& size = tileQueue->getTileSize();
+    const Vector2i& size = tileQueue->getTileSize();
     if( size != Vector2i::ZERO )
         os << "size      " << size << std::endl;
 

@@ -33,10 +33,8 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/log.h>
-#include <eq/client/statistic.h>
-
 #include <eq/fabric/commands.h>
+#include <eq/fabric/statistic.h>
 #include <eq/fabric/paths.h>
 
 #include <co/objectICommand.h>
@@ -437,7 +435,7 @@ void Channel::removeListener(  ChannelListener* listener )
 }
 
 void Channel::_fireLoadData( const uint32_t frameNumber,
-                             const Statistics& statistics,
+                             const fabric::Statistics& statistics,
                              const Viewport& region )
 {
     LB_TS_SCOPED( _serverThread );

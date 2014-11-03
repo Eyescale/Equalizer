@@ -23,7 +23,6 @@
 #include "client.h"
 #include "config.h"
 #include "error.h"
-#include "event.h"
 #include "gl.h"
 #include "global.h"
 #include "log.h"
@@ -37,6 +36,7 @@
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/event.h>
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/task.h>
 

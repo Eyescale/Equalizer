@@ -6,8 +6,8 @@ if(CUDA_FOUND)
 endif()
 
 add_subdirectory(fabric)
+add_subdirectory(server)
 add_subdirectory(client)
 add_subdirectory(admin)
-add_subdirectory(server)
 
 install(FILES eq.h defines.h DESTINATION include/eq COMPONENT dev)

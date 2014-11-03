@@ -22,7 +22,7 @@
 #include "../compound.h"
 #include "../log.h"
 
-#include <eq/client/statistic.h>
+#include <eq/fabric/statistic.h>
 #include <lunchbox/debug.h>
 
 namespace eq

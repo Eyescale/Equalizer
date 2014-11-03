@@ -48,6 +48,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
+#include <eq/fabric/frameData.h>
 #include <eq/fabric/task.h>
 #include <eq/fabric/tile.h>
 

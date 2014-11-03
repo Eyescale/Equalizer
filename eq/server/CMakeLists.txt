@@ -134,7 +134,7 @@ set(AUTOCONFIG
     config/server.cpp
 )
 
-set(SERVER_LIBRARIES Equalizer)
+set(SERVER_LIBRARIES EqualizerFabric)
 if(HWSD_FOUND)
   list(APPEND SOURCES ${AUTOCONFIG})
   list(APPEND SERVER_LIBRARIES ${HWSD_LIBRARIES})
@@ -151,7 +151,7 @@ target_link_libraries(EqualizerServer ${SERVER_LIBRARIES})
 set_target_properties(EqualizerServer
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
-if (MSVC)
+if(MSVC)
   install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerServer.pdb
     DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
   install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerServer.pdb

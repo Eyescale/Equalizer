@@ -22,6 +22,7 @@
 #include "colorMask.h"
 #include "compound.h"
 #include "frame.h"
+#include "log.h"
 #include "node.h"
 #include "observer.h"
 #include "pipe.h"
@@ -29,8 +30,6 @@
 #include "view.h"
 #include "window.h"
 #include "tileQueue.h"
-
-#include <eq/client/log.h>
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
@@ -359,8 +358,8 @@ uint32_t ChannelUpdateVisitor::_getDrawBuffer( const Compound* compound ) const
     return _drawBuffer[ 0 ][ dc.doublebuffered ][ eye ];
 }
 
-eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
-    const
+fabric::ColorMask
+ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound) const
 {
     if( compound->getInheritIAttribute( Compound::IATTR_STEREO_MODE ) !=
         fabric::ANAGLYPH )

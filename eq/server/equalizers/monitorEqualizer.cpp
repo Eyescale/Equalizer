@@ -120,7 +120,7 @@ void MonitorEqualizer::_updateViewports()
         Frame* outputFrame = frameFinder.getResult();
 
         _outputFrames.push_back( outputFrame );
-        _viewports.push_back( eq::Viewport::FULL );
+        _viewports.push_back( Viewport::FULL );
 
         if( outputFrame )
         {

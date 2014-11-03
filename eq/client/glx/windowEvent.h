@@ -18,7 +18,8 @@
 #ifndef EQ_GLX_WINDOWEVENT_H
 #define EQ_GLX_WINDOWEVENT_H
 
-#include <eq/client/event.h>
+#include <eq/fabric/event.h>
+#include <eq/client/types.h>
 #include <eq/client/gl.h>
 
 namespace eq

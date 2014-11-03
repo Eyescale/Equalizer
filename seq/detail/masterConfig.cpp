@@ -26,7 +26,7 @@
 #  include <eq/client/configEvent.h>
 #endif
 #include <eq/fabric/configVisitor.h>
-#include <eq/client/event.h>
+#include <eq/fabric/event.h>
 #include <eq/client/eventICommand.h>
 
 namespace seq

@@ -30,7 +30,6 @@
 #include "window.h"
 #ifdef EQUALIZER_USE_HWSD
 #  include "config/server.h"
-#  include <eq/client/global.h>
 #endif
 
 #include <eq/fabric/commands.h>

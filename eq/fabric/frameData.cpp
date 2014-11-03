@@ -1,5 +1,7 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,25 +17,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_WGL_WINDOWEVENT_H
-#define EQ_WGL_WINDOWEVENT_H
+#include "frameData.h"
 
-#include <eq/fabric/event.h>        // base class
-#include <eq/client/types.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {
-namespace wgl
+namespace fabric
 {
-    /** A window-system event for a WindowIF */
-    class WindowEvent : public Event
-    {
-    public:
-        UINT uMsg;     //!< The windows message @version 1.0
-        WPARAM wParam; //!< Extra message data @version 1.0
-        LPARAM lParam; //!< Extra message data @version 1.0
-    };
-}
-}
-#endif // EQ_WGL_WINDOWEVENT_H
 
+void FrameData::serialize( co::DataOStream& os ) const
+{
+    os << pvp << frameType << buffers << period << phase << range
+       << pixel << subpixel << zoom;
+}
+
+void FrameData::deserialize( co::DataIStream& is )
+{
+    is >> pvp >> frameType >> buffers >> period >> phase >> range
+       >> pixel >> subpixel >> zoom;
+}
+
+}
+}

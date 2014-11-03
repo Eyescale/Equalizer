@@ -22,7 +22,6 @@
 #include "../channelListener.h" // base class
 #include "equalizer.h"          // base class
 
-#include <eq/client/types.h>
 #include <eq/fabric/range.h>    // member
 #include <eq/fabric/viewport.h> // member
 

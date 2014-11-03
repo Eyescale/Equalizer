@@ -22,7 +22,6 @@
 #include "../channelListener.h" // base class
 #include "equalizer.h"          // base class
 
-#include <eq/client/types.h>
 #include <eq/fabric/range.h>    // member
 #include <eq/fabric/viewport.h> // member
 
@@ -91,13 +90,13 @@ namespace server
         {
             Data() : channel( 0 ), taskID( 0 ), destTaskID( 0 )
                    , time( -1 ), assembleTime( 0 ) {}
-            Channel*     channel;
-            uint32_t     taskID;
-            uint32_t     destTaskID;
-            eq::Viewport vp;
-            eq::Range    range;
-            int64_t      time;
-            int64_t      assembleTime;
+            Channel* channel;
+            uint32_t taskID;
+            uint32_t destTaskID;
+            Viewport vp;
+            Range    range;
+            int64_t  time;
+            int64_t  assembleTime;
         };
 
         typedef std::vector< Data > LBDatas;
@@ -135,7 +134,7 @@ namespace server
         void _removeEmpty( LBDatas& items );
 
         void _computeSplit( Node* node, const float time, LBDatas* sortedData,
-                            const eq::Viewport& vp, const eq::Range& range );
+                            const Viewport& vp, const Range& range );
         void _assign( Compound* compound, const Viewport& vp,
                       const Range& range );
 

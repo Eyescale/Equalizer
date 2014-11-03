@@ -21,7 +21,8 @@
 #include <eq/defines.h>
 #ifdef AGL
 
-#include <eq/client/event.h> // base class
+#include <eq/fabric/event.h> // base class
+#include <eq/client/types.h>
 
 namespace eq
 {

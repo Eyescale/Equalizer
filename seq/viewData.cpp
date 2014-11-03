@@ -21,7 +21,7 @@
 #ifndef EQ_2_0_API
 #  include <eq/client/configEvent.h>
 #endif
-#include <eq/client/event.h>
+#include <eq/fabric/event.h>
 #include <eq/client/eventICommand.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>

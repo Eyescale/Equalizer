@@ -22,7 +22,7 @@
 #include "../config.h"
 #include "../log.h"
 
-#include <eq/client/statistic.h>
+#include <eq/fabric/statistic.h>
 #include <lunchbox/debug.h>
 
 #define USE_AVERAGE
@@ -250,13 +250,13 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
     int64_t endTime   = 0;
     for( size_t i = 0; i < statistics.size(); ++i )
     {
-        const eq::Statistic& data = statistics[i];
+        const Statistic& data = statistics[i];
         switch( data.type )
         {
-            case eq::Statistic::CHANNEL_CLEAR:
-            case eq::Statistic::CHANNEL_DRAW:
-            case eq::Statistic::CHANNEL_ASSEMBLE:
-            case eq::Statistic::CHANNEL_READBACK:
+            case Statistic::CHANNEL_CLEAR:
+            case Statistic::CHANNEL_DRAW:
+            case Statistic::CHANNEL_ASSEMBLE:
+            case Statistic::CHANNEL_READBACK:
                 startTime = LB_MIN( startTime, data.startTime );
                 endTime   = LB_MAX( endTime, data.endTime );
                 break;
