@@ -538,6 +538,11 @@ global:
         eq::server::Global::instance()->setChannelSAttribute(
             eq::server::Channel::SATTR_DUMP_IMAGE, $2 );
      }
+     | EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER STRING
+     {
+        eq::server::Global::instance()->setViewSAttribute(
+            eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
+     }
 
 connectionType:
     EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
@@ -741,8 +746,7 @@ channel: EQTOKEN_CHANNEL '{'
 channelFields: /*null*/ | channelFields channelField
 channelField:
     EQTOKEN_NAME STRING { channel->setName( $2 ); }
-    | EQTOKEN_ATTRIBUTES '{'
-    channelAttributes '}'
+    | EQTOKEN_ATTRIBUTES '{' channelAttributes '}'
     | EQTOKEN_VIEWPORT viewport
         {
             if( $2[2] > 1 || $2[3] > 1 )
@@ -811,8 +815,8 @@ view: EQTOKEN_VIEW '{' { view = new eq::server::View( layout ); }
           viewFields '}' { view = 0; }
 viewFields: /*null*/ | viewFields viewField
 viewField:
-    EQTOKEN_NAME STRING { view->setName( $2 ); }
-    | EQTOKEN_DISPLAYCLUSTER STRING { view->setDisplayCluster( $2 ); }
+    EQTOKEN_ATTRIBUTES '{' viewAttributes '}'
+    | EQTOKEN_NAME STRING { view->setName( $2 ); }
     | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport
@@ -851,8 +855,7 @@ viewAttributes: /*null*/ | viewAttributes viewAttribute
 viewAttribute:
      EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER STRING
      {
-        eq::view::Global::instance()->setViewSAttribute(
-            eq::server::Channel::SATTR_DISPLAYCLUSTER, $2 );
+        view->setSAttribute( eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
      }
 
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas( config ); }
