@@ -61,10 +61,9 @@ class Window;
 class WindowSettings;
 class WindowSystem;
 struct ConfigEvent; //!< @deprecated
-struct Event;
 struct PixelData;
-struct PointerEvent;
-struct Statistic;
+
+using namespace fabric::eventEnums;
 
 using fabric::ANAGLYPH;
 using fabric::ASYNC;
@@ -87,15 +86,20 @@ using fabric::WINDOW;
 
 using fabric::ColorMask;
 using fabric::DrawableConfig;
+using fabric::Event;
 using fabric::Frustum;
 using fabric::Frustumf;
 using fabric::GPUInfo;
 using fabric::IAttribute;
+using fabric::KeyEvent;
 using fabric::Pixel;
 using fabric::PixelViewport;
 using fabric::Projection;
+using fabric::PointerEvent;
 using fabric::Range;
 using fabric::RenderContext;
+using fabric::ResizeEvent;
+using fabric::Statistic;
 using fabric::SubPixel;
 using fabric::Tile;
 using fabric::Viewport;
@@ -164,12 +168,8 @@ typedef std::vector< Layout* > Layouts;
 typedef std::vector< Segment* > Segments;
 /** A vector of pointers to eq::View */
 typedef std::vector< View* > Views;
-/** A vector of eq::Viewport */
-typedef std::vector< Viewport > Viewports;
 /** A vector of eq::PixelViewport */
 typedef std::vector< PixelViewport > PixelViewports;
-/** A vector of eq::Statistic events */
-typedef std::vector< Statistic > Statistics;
 
 /** A const_iterator over a eq::Config vector */
 typedef Configs::const_iterator ConfigsCIter;
@@ -199,12 +199,8 @@ typedef Layouts::const_iterator LayoutsCIter;
 typedef Segments::const_iterator SegmentsCIter;
 /** A const_iterator over a eq::View vector */
 typedef Views::const_iterator ViewsCIter;
-/** A const_iterator over a eq::Viewport vector */
-typedef Viewports::const_iterator ViewportsCIter;
 /** A const_iterator over a eq::PixelViewport vector */
 typedef PixelViewports::const_iterator PixelViewportsCIter;
-/** A const_iterator over a eq::Statistic events vector */
-typedef Statistics::const_iterator StatisticsCIter;
 
 /** A reference-counted pointer to an eq::Client */
 typedef lunchbox::RefPtr< Client >        ClientPtr;
@@ -239,8 +235,10 @@ using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
 using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
 using fabric::CMD_CONFIG_EVENT;
 
+using fabric::Statistics;   //!< A vector of Statistic events
 using fabric::Strings;      //!< A vector of std::strings
 using fabric::StringsCIter; //!< A const_iterator over a std::string vector
+using fabric::Viewports;    //!< A vector of eq::Viewport
 
 /** Frustum culling helper */
 typedef vmml::frustum_culler< float >  FrustumCullerf;

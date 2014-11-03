@@ -20,8 +20,6 @@
 
 #include "types.h"
 
-#include <eq/client/types.h>
-
 namespace eq
 {
 namespace server

@@ -19,8 +19,6 @@
 
 #include "compound.h"
 
-#include <eq/client/log.h>
-
 namespace eq
 {
 namespace server

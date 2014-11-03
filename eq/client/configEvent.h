@@ -18,7 +18,9 @@
 #ifndef EQ_CONFIGEVENT_H
 #define EQ_CONFIGEVENT_H
 
-#include <eq/client/event.h>   // member
+#include <eq/fabric/event.h>   // member
+#include <eq/client/api.h>
+#include <eq/client/types.h>
 
 namespace eq
 {

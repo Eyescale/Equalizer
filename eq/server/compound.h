@@ -26,7 +26,7 @@
 #include "visitorResult.h"         // enum
 #include "types.h"
 
-#include <eq/client/frame.h>
+#include <eq/fabric/frame.h>      // enum Frame::Buffer
 #include <eq/fabric/projection.h> // used in inline method
 #include <eq/fabric/range.h>      // member
 #include <eq/fabric/subPixel.h>   // member
@@ -196,8 +196,8 @@ public:
      *
      * @param buffer the compound image buffer to add.
      */
-    void enableBuffer( const eq::Frame::Buffer buffer )
-    { _data.buffers |= buffer; }
+    void enableBuffer( const eq::fabric::Frame::Buffer buffer )
+        { _data.buffers |= buffer; }
 
     /** @return the image buffers used by this compound. */
     uint32_t getBuffers() const { return _data.buffers; }
@@ -228,7 +228,7 @@ public:
     float getMaxFPS() const                    { return _data.maxFPS; }
 
     void setUsage( const float usage )
-    { LBASSERT( usage >= 0.f ); _usage = usage; }
+        { LBASSERT( usage >= 0.f ); _usage = usage; }
     float getUsage() const                     { return _usage; }
 
     void setTaskID( const uint32_t id )        { _taskID = id; }

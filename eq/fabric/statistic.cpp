@@ -27,6 +27,8 @@
 
 namespace eq
 {
+namespace fabric
+{
 namespace
 {
 struct StatisticData
@@ -111,4 +113,5 @@ std::ostream& operator << ( std::ostream& os, const Statistic& event )
     return os;
 }
 
+}
 }

@@ -22,6 +22,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/error.h>
+#include <eq/fabric/eventEnums.h>
 #include <eq/fabric/vmmlib.h>
 #include <co/types.h>
 #include <lunchbox/refPtr.h>
@@ -39,6 +40,7 @@ namespace eq
 {
 namespace fabric
 {
+using namespace eventEnums;
 class Client;
 class ColorMask;
 class ConfigParams;
@@ -60,12 +62,18 @@ class Zoom;
 struct CanvasPath;
 struct ChannelPath;
 struct DrawableConfig;
+struct Event;
+struct FrameData;
 struct GPUInfo;
+struct KeyEvent;
 struct LayoutPath;
 struct NodePath;
+struct ResizeEvent;
 struct ObserverPath;
 struct PipePath;
+struct PointerEvent;
 struct SegmentPath;
+struct Statistic;
 struct ViewPath;
 struct WindowPath;
 
@@ -84,6 +92,11 @@ template< class, class, class, class, class, class, class > class Config;
 template< class > class LeafVisitor;
 template< class, class > class ElementVisitor;
 template< class, class, class, class, class> class ConfigVisitor;
+
+/** A vector of eq::Statistic events */
+typedef std::vector< Statistic > Statistics;
+/** A vector of eq::Viewport */
+typedef std::vector< Viewport > Viewports;
 
 using co::Strings;
 using co::StringsCIter;

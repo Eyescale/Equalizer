@@ -19,10 +19,10 @@
 
 #include "config.h"
 #include "client.h"
-#include "event.h"
 #include "eventICommand.h"
 #include "server.h"
 
+#include <eq/fabric/event.h>
 #include <eq/fabric/paths.h>
 #include <eq/fabric/commands.h>
 #include <co/bufferConnection.h>

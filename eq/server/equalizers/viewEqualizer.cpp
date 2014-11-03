@@ -23,7 +23,7 @@
 #include "../log.h"
 #include "../pipe.h"
 
-#include <eq/client/statistic.h>
+#include <eq/fabric/statistic.h>
 
 #include <set>
 
@@ -596,15 +596,15 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     int64_t transmitTime = 0;
     for( size_t i = 0; i < statistics.size() && !loadSet; ++i )
     {
-        const eq::Statistic& data = statistics[i];
+        const Statistic& data = statistics[i];
         if( data.task != taskID ) // data from another compound
             continue;
 
         switch( data.type )
         {
-        case eq::Statistic::CHANNEL_CLEAR:
-        case eq::Statistic::CHANNEL_DRAW:
-        case eq::Statistic::CHANNEL_READBACK:
+        case Statistic::CHANNEL_CLEAR:
+        case Statistic::CHANNEL_DRAW:
+        case Statistic::CHANNEL_READBACK:
             startTime = LB_MIN( startTime, data.startTime );
             endTime   = LB_MAX( endTime, data.endTime );
             break;
@@ -618,7 +618,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
             break;
 
             // assemble blocks on input frames, stop using subsequent data
-        case eq::Statistic::CHANNEL_ASSEMBLE:
+        case Statistic::CHANNEL_ASSEMBLE:
             loadSet = true;
             break;
 

@@ -75,7 +75,7 @@ void Global::_setupDefaults()
         _nodeIAttributes[i] = fabric::UNDEFINED;
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
-    _nodeIAttributes[Node::IATTR_HINT_AFFINITY] = AUTO;
+    _nodeIAttributes[Node::IATTR_HINT_AFFINITY] = fabric::AUTO;
     _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] =
         "ssh -n %h %c --eq-logfile %q%d/%h.%n.log%q";
 #ifdef WIN32
@@ -90,7 +90,7 @@ void Global::_setupDefaults()
 
     _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = fabric::ON;
     _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = fabric::OFF;
-    _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = AUTO;
+    _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = fabric::AUTO;
 
     // window
     for( uint32_t i=0; i<WindowSettings::IATTR_ALL; ++i )

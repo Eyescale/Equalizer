@@ -25,7 +25,6 @@
 #include "windowEvent.h"
 
 #include "../config.h"
-#include "../event.h"
 #include "../log.h"
 #include "../node.h"
 #include "../window.h"

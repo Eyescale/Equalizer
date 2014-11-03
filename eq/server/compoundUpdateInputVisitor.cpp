@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,10 +20,10 @@
 
 #include "frame.h"
 #include "frameData.h"
+#include "log.h"
 #include "tileQueue.h"
 #include "server.h"
 
-#include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
 
 namespace eq
@@ -40,7 +40,7 @@ CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
 VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
     if( !compound->isActive( ))
-        return TRAVERSE_PRUNE;    
+        return TRAVERSE_PRUNE;
 
     _updateQueues( compound );
     _updateFrames( compound );
@@ -148,7 +148,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
             {
                 frame->commit();
                 LBLOG( LOG_ASSEMBLY )
-                    << "Input frame  \"" << name << "\" on channel \"" 
+                    << "Input frame  \"" << name << "\" on channel \""
                     << channel->getName() << "\" id " << frame->getID() << " v"
                     << frame->getVersion() << "\" tile pos "
                     << frame->getOffset() << ' ' << frame->getZoom()
@@ -160,7 +160,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
 }
 
 void CompoundUpdateInputVisitor::_updateZoom( const Compound* compound,
-                                              Frame* frame, 
+                                              Frame* frame,
                                               const Frame* outputFrame )
 {
     Zoom zoom = frame->getNativeZoom();

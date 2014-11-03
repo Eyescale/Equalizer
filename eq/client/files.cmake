@@ -106,7 +106,6 @@ set(CLIENT_PUBLIC_HEADERS
   configStatistics.h
   cudaContext.h
   error.h
-  event.h
   eventICommand.h
   eventHandler.h
   exception.h
@@ -131,7 +130,6 @@ set(CLIENT_PUBLIC_HEADERS
   pixelData.h
   segment.h
   server.h
-  statistic.h
   statisticSampler.h
   system.h
   systemPipe.h
@@ -169,7 +167,6 @@ set(CLIENT_SOURCES
   cudaContext.cpp
   detail/channel.ipp
   detail/fileFrameWriter.cpp
-  event.cpp
   eventHandler.cpp
   eventICommand.cpp
   frame.cpp
@@ -195,7 +192,6 @@ set(CLIENT_SOURCES
   roiTracker.cpp
   segment.cpp
   server.cpp
-  statistic.cpp
   systemPipe.cpp
   systemWindow.cpp
   version.cpp

@@ -22,13 +22,13 @@
 #include "window.h"
 #include "windowEvent.h"
 #include "../config.h"
-#include "../event.h"
 #include "../global.h"
 #include "../log.h"
 #include "../os.h"
 #include "../pipe.h"
 #include "../window.h"
 
+#include <eq/fabric/event.h>
 #include <lunchbox/lockable.h>
 #include <lunchbox/perThread.h>
 #include <lunchbox/scopedMutex.h>

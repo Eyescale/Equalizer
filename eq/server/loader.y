@@ -668,8 +668,8 @@ pipeField:
     | EQTOKEN_DEVICE   UNSIGNED        { eqPipe->setDevice( $2 ); }
     | EQTOKEN_VIEWPORT viewport
         {
-            eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],
-                                                      (int)$2[2], (int)$2[3] ));
+            eqPipe->setPixelViewport( eq::fabric::PixelViewport
+                        ( (int)$2[0], (int)$2[1], (int)$2[2], (int)$2[3] ));
         }
 pipeAttributes: /*null*/ | pipeAttributes pipeAttribute
 pipeAttribute:
@@ -696,10 +696,11 @@ windowField:
     | EQTOKEN_VIEWPORT viewport
         {
             if( $2[2] > 1 || $2[3] > 1 )
-                window->setPixelViewport( eq::PixelViewport( (int)$2[0],
-                                          (int)$2[1], (int)$2[2], (int)$2[3] ));
+                window->setPixelViewport( eq::fabric::PixelViewport
+                        ( (int)$2[0], (int)$2[1], (int)$2[2], (int)$2[3] ));
             else
-                window->setViewport( eq::Viewport($2[0], $2[1], $2[2], $2[3]));
+                window->setViewport( eq::fabric::Viewport($2[0], $2[1],
+                                                          $2[2], $2[3]));
         }
 windowAttributes: /*null*/ | windowAttributes windowAttribute
 windowAttribute:
@@ -750,10 +751,11 @@ channelField:
     | EQTOKEN_VIEWPORT viewport
         {
             if( $2[2] > 1 || $2[3] > 1 )
-                channel->setPixelViewport( eq::PixelViewport( (int)$2[0],
-                                          (int)$2[1], (int)$2[2], (int)$2[3] ));
+                channel->setPixelViewport( eq::fabric::PixelViewport
+                    ( (int)$2[0], (int)$2[1], (int)$2[2], (int)$2[3] ));
             else
-                channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
+                channel->setViewport(eq::fabric::Viewport( $2[0], $2[1],
+                                                           $2[2], $2[3]));
         }
     | EQTOKEN_DRAWABLE '[' { flags = eq::server::Channel::FB_WINDOW; }
          drawables ']' { channel->setDrawable( flags ); flags = 0; }
@@ -820,7 +822,8 @@ viewField:
     | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport
-        { view->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
+        { view->setViewport( eq::fabric::Viewport( $2[0], $2[1],
+                                                   $2[2], $2[3] ));}
     | wall       { view->setWall( wall ); }
     | projection { view->setProjection( projection ); }
     | EQTOKEN_OBSERVER STRING
@@ -914,7 +917,8 @@ segmentField:
     | EQTOKEN_EYE  '['   { segment->setEyes( eq::fabric::EYE_UNDEFINED );}
         segmentEyes  ']'
     | EQTOKEN_VIEWPORT viewport
-        { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
+        { segment->setViewport( eq::fabric::Viewport( $2[0], $2[1],
+                                                      $2[2], $2[3] ));}
     | swapBarrier { segment->setSwapBarrier( swapBarrier ); swapBarrier = 0; }
     | wall       { segment->setWall( wall ); }
     | projection { segment->setProjection( projection ); }
@@ -981,17 +985,18 @@ compoundField:
     | EQTOKEN_BUFFER '[' { flags = eq::fabric::Frame::BUFFER_NONE; }
         buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
     | EQTOKEN_VIEWPORT viewport
-        { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
+        { eqCompound->setViewport( eq::fabric::Viewport( $2[0], $2[1],
+                                                         $2[2], $2[3] ));}
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
-        { eqCompound->setRange( eq::Range( $3, $4 )); }
+        { eqCompound->setRange( eq::fabric::Range( $3, $4 )); }
     | EQTOKEN_PERIOD UNSIGNED { eqCompound->setPeriod( $2 ); }
     | EQTOKEN_PHASE  UNSIGNED { eqCompound->setPhase( $2 ); }
     | EQTOKEN_ZOOM '[' FLOAT FLOAT ']'
-        { eqCompound->setZoom( eq::Zoom( $3, $4 )); }
+        { eqCompound->setZoom( eq::fabric::Zoom( $3, $4 )); }
     | EQTOKEN_PIXEL '[' UNSIGNED UNSIGNED UNSIGNED UNSIGNED ']'
-        { eqCompound->setPixel( eq::Pixel( $3, $4, $5, $6 )); }
+        { eqCompound->setPixel( eq::fabric::Pixel( $3, $4, $5, $6 )); }
     | EQTOKEN_SUBPIXEL '[' UNSIGNED UNSIGNED ']'
-        { eqCompound->setSubPixel( eq::SubPixel( $3, $4 )); }
+        { eqCompound->setSubPixel( eq::fabric::SubPixel( $3, $4 )); }
     | wall { eqCompound->setWall( wall ); }
     | projection { eqCompound->setProjection( projection ); }
     | loadBalancer
@@ -1107,35 +1112,35 @@ drawable:
     | EQTOKEN_FBO_DEPTH   { flags |= eq::server::Channel::FBO_DEPTH; }
     | EQTOKEN_FBO_STENCIL { flags |= eq::server::Channel::FBO_STENCIL; }
 
-wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } wallFields '}'
+wall: EQTOKEN_WALL '{' { wall = eq::fabric::Wall(); } wallFields '}'
 
 wallFields:  /*null*/ | wallFields wallField
 wallField:
     EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']'
-        { wall.bottomLeft = eq::Vector3f( $3, $4, $5 ); }
+        { wall.bottomLeft = eq::fabric::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_BOTTOM_RIGHT  '[' FLOAT FLOAT FLOAT ']'
-        { wall.bottomRight = eq::Vector3f( $3, $4, $5 ); }
+        { wall.bottomRight = eq::fabric::Vector3f( $3, $4, $5 ); }
     |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
-        { wall.topLeft = eq::Vector3f( $3, $4, $5 ); }
+        { wall.topLeft = eq::fabric::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_TYPE wallType
 
 wallType:
-    EQTOKEN_FIXED { wall.type = eq::Wall::TYPE_FIXED; }
-    | EQTOKEN_HMD { wall.type = eq::Wall::TYPE_HMD; }
+    EQTOKEN_FIXED { wall.type = eq::fabric::Wall::TYPE_FIXED; }
+    | EQTOKEN_HMD { wall.type = eq::fabric::Wall::TYPE_HMD; }
 
-projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); }
+projection: EQTOKEN_PROJECTION '{' { projection = eq::fabric::Projection(); }
                 projectionFields '}'
 
 projectionFields:  /*null*/ | projectionFields projectionField
 projectionField:
     EQTOKEN_ORIGIN  '[' FLOAT FLOAT FLOAT ']'
-        { projection.origin = eq::Vector3f( $3, $4, $5 ); }
+        { projection.origin = eq::fabric::Vector3f( $3, $4, $5 ); }
     | EQTOKEN_DISTANCE FLOAT
         { projection.distance = $2; }
     | EQTOKEN_FOV  '[' FLOAT FLOAT ']'
-        { projection.fov = eq::Vector2f( $3, $4 ); }
+        { projection.fov = eq::fabric::Vector2f( $3, $4 ); }
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
-        { projection.hpr = eq::Vector3f( $3, $4, $5 ); }
+        { projection.hpr = eq::fabric::Vector3f( $3, $4, $5 ); }
 
 loadBalancer:
     EQTOKEN_LOADBALANCER '{' loadBalancerFields '}'
@@ -1160,10 +1165,10 @@ loadBalancerField:
     | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ); }
     | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']'
-        { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )); }
+        { loadEqualizer->setBoundary( eq::fabric::Vector2i( $3, $4 )); }
     | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ); }
     | EQTOKEN_RESISTANCE '[' UNSIGNED UNSIGNED ']'
-        { loadEqualizer->setResistance( eq::Vector2i( $3, $4 )); }
+        { loadEqualizer->setResistance( eq::fabric::Vector2i( $3, $4 )); }
     | EQTOKEN_RESISTANCE FLOAT  { loadEqualizer->setResistance( $2 ); }
 
 loadBalancerMode:
@@ -1258,13 +1263,13 @@ loadEqualizerFields: /* null */ | loadEqualizerFields loadEqualizerField
 loadEqualizerField:
     EQTOKEN_DAMPING FLOAT            { loadEqualizer->setDamping( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']'
-                 { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )); }
+                 { loadEqualizer->setBoundary( eq::fabric::Vector2i( $3, $4 )); }
     | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT
                            { loadEqualizer->setAssembleOnlyLimit( $2 ); }
     | EQTOKEN_BOUNDARY FLOAT        { loadEqualizer->setBoundary( $2 ); }
     | EQTOKEN_MODE loadEqualizerMode    { loadEqualizer->setMode( $2 ); }
     | EQTOKEN_RESISTANCE '[' UNSIGNED UNSIGNED ']'
-        { loadEqualizer->setResistance( eq::Vector2i( $3, $4 )); }
+        { loadEqualizer->setResistance( eq::fabric::Vector2i( $3, $4 )); }
     | EQTOKEN_RESISTANCE FLOAT  { loadEqualizer->setResistance( $2 ); }
 
 loadEqualizerMode:
@@ -1277,11 +1282,11 @@ treeEqualizerFields: /* null */ | treeEqualizerFields treeEqualizerField
 treeEqualizerField:
     EQTOKEN_DAMPING FLOAT            { treeEqualizer->setDamping( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']'
-                 { treeEqualizer->setBoundary( eq::Vector2i( $3, $4 )); }
+                 { treeEqualizer->setBoundary( eq::fabric::Vector2i( $3, $4 )); }
     | EQTOKEN_BOUNDARY FLOAT        { treeEqualizer->setBoundary( $2 ); }
     | EQTOKEN_MODE treeEqualizerMode    { treeEqualizer->setMode( $2 ); }
     | EQTOKEN_RESISTANCE '[' UNSIGNED UNSIGNED ']'
-        { treeEqualizer->setResistance( eq::Vector2i( $3, $4 )); }
+        { treeEqualizer->setResistance( eq::fabric::Vector2i( $3, $4 )); }
     | EQTOKEN_RESISTANCE FLOAT  { treeEqualizer->setResistance( $2 ); }
 
 treeEqualizerMode:
@@ -1294,7 +1299,7 @@ tileEqualizerFields: /* null */ | tileEqualizerFields tileEqualizerField
 tileEqualizerField:
     EQTOKEN_NAME STRING                   { tileEqualizer->setName( $2 ); }
     | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'
-                   { tileEqualizer->setTileSize( eq::Vector2i( $3, $4 )); }
+                   { tileEqualizer->setTileSize( eq::fabric::Vector2i( $3, $4 )); }
 
 swapBarrier:
     EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
@@ -1324,11 +1329,12 @@ frameField:
     EQTOKEN_NAME STRING { frame->setName( $2 ); }
     | EQTOKEN_TYPE frameType
     | EQTOKEN_VIEWPORT viewport
-        { frame->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3])); }
+        { frame->setViewport(eq::fabric::Viewport( $2[0], $2[1],
+                                                   $2[2], $2[3])); }
     | EQTOKEN_BUFFER '[' { flags = eq::fabric::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
     | EQTOKEN_ZOOM '[' FLOAT FLOAT ']'
-        { frame->setNativeZoom( eq::Zoom( $3, $4 )); }
+        { frame->setNativeZoom( eq::fabric::Zoom( $3, $4 )); }
 
 frameType:
     EQTOKEN_TEXTURE { frame->setType( eq::fabric::Frame::TYPE_TEXTURE ); }
@@ -1350,7 +1356,7 @@ tileQueueFields: /*null*/ | tileQueueFields tileQueueField
 tileQueueField:
     EQTOKEN_NAME STRING { tileQueue->setName( $2 ); }
     | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'
-        { tileQueue->setTileSize( eq::Vector2i( $3, $4 )); }
+        { tileQueue->setTileSize( eq::fabric::Vector2i( $3, $4 )); }
 
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:

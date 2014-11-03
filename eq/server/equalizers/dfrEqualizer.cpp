@@ -22,7 +22,7 @@
 #include "../config.h"
 #include "../log.h"
 
-#include <eq/client/statistic.h>
+#include <eq/fabric/statistic.h>
 #include <eq/fabric/zoom.h>
 #include <lunchbox/debug.h>
 
@@ -91,11 +91,11 @@ void DFREqualizer::notifyUpdatePre( Compound* compound, const uint32_t/*frame*/)
     //LBINFO << _current << ": " << factor << " = " << newZoom << std::endl;
 
     // clip zoom factor to min( 128px ), max( channel pvp )
-    const Compound*          parent = compound->getParent();
-    const eq::PixelViewport& pvp    = parent->getInheritPixelViewport();
+    const Compound*      parent = compound->getParent();
+    const PixelViewport& pvp    = parent->getInheritPixelViewport();
 
-    const Channel*           channel    = compound->getChannel();
-    const eq::PixelViewport& channelPVP = channel->getPixelViewport();
+    const Channel*       channel    = compound->getChannel();
+    const PixelViewport& channelPVP = channel->getPixelViewport();
 
     const float minZoom = 128.f / LB_MIN( static_cast< float >( pvp.h ),
                                           static_cast< float >( pvp.w ));
@@ -119,13 +119,13 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
     int64_t endTime = 0;
     for( size_t i = 0; i < statistics.size(); ++i )
     {
-        const eq::Statistic& data = statistics[i];
+        const Statistic& data = statistics[i];
         switch( data.type )
         {
-            case eq::Statistic::CHANNEL_CLEAR:
-            case eq::Statistic::CHANNEL_DRAW:
-            case eq::Statistic::CHANNEL_ASSEMBLE:
-            case eq::Statistic::CHANNEL_READBACK:
+            case Statistic::CHANNEL_CLEAR:
+            case Statistic::CHANNEL_DRAW:
+            case Statistic::CHANNEL_ASSEMBLE:
+            case Statistic::CHANNEL_READBACK:
                 endTime = LB_MAX( endTime, data.endTime );
                 break;
 
