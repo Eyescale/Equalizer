@@ -40,6 +40,7 @@ set(HEADERS
     init.h
     layout.h
     loader.h
+    localServer.h
     log.h
     node.h
     observer.h
@@ -111,6 +112,7 @@ set(SOURCES
     loader.cpp
     loader.l
     loader.y
+    localServer.cpp
     node.cpp
     nodeFactory.cpp
     nodeFactory.h
@@ -119,7 +121,6 @@ set(SOURCES
     pipe.cpp
     segment.cpp
     server.cpp
-    startLocalServer.cpp
     tileQueue.cpp
     view.cpp
     window.cpp
