@@ -87,6 +87,7 @@ Channel::Channel( Window* parent )
         , _segment( 0 )
         , _state( STATE_STOPPED )
         , _lastDrawCompound( 0 )
+        , _private( 0 )
 {
     const Global* global = Global::instance();
     for( unsigned i = 0; i < IATTR_ALL; ++i )
@@ -108,6 +109,7 @@ Channel::Channel( const Channel& from )
         , _segment( 0 )
         , _state( STATE_STOPPED )
         , _lastDrawCompound( 0 )
+        , _private( 0 )
 {
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }

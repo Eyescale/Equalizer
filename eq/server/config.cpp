@@ -67,6 +67,7 @@ Config::Config( ServerPtr parent )
         , _state( STATE_UNUSED )
         , _needsFinish( false )
         , _lastCheck( 0 )
+        , _private( 0 )
 {
     const Global* global = Global::instance();
     for( int i=0; i < FATTR_ALL; ++i )

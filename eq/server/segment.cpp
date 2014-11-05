@@ -40,6 +40,7 @@ typedef fabric::Segment< Canvas, Segment, Channel > Super;
 
 Segment::Segment( Canvas* parent )
         : Super( parent )
+        , _private( 0 )
 {
 }
 

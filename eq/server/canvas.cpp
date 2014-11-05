@@ -45,6 +45,7 @@ typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 Canvas::Canvas( Config* parent )
         : Super( parent )
         , _state( STATE_STOPPED )
+        , _private( 0 )
 {}
 
 Canvas::~Canvas()
