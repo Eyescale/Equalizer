@@ -49,6 +49,7 @@ typedef co::CommandFunc<View> ViewFunc;
 
 View::View( Layout* parent )
         : Super( parent )
+        , _private( 0 )
 {
     const Global* global = Global::instance();
     for( unsigned i = 0; i < SATTR_ALL; ++i )

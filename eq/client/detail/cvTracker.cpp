@@ -18,8 +18,9 @@
 #include "cvTracker.h"
 
 #include "../config.h"
-#include "../event.h"
 #include "../observer.h"
+
+#include <eq/fabric/event.h>
 
 #define FACE_CONFIG std::string( OPENCV_INSTALL_PATH ) +            \
     "/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml"
