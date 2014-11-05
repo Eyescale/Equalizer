@@ -57,10 +57,10 @@ namespace server
          *
          * @param vp the fractional viewport.
          */
-        void setViewport( const eq::Viewport& vp ) { _vp = vp; }
+        void setViewport( const Viewport& vp ) { _vp = vp; }
 
         /** @return the fractional viewport. */
-        const eq::Viewport& getViewport() const { return _vp; }
+        const Viewport& getViewport() const { return _vp; }
 
         /**
          * Set the frame buffers to be read or write by this frame.
@@ -142,10 +142,10 @@ namespace server
         const Vector2i& getNativeOffset() const { return _native.getOffset(); }
 
         /** Set the native frame zoom factor. */
-        void setNativeZoom( const eq::Zoom& zoom ) { _native.setZoom( zoom ); }
+        void setNativeZoom( const Zoom& zoom ) { _native.setZoom( zoom ); }
 
         /** @return the native zoom factor. */
-        const eq::Zoom& getNativeZoom() const { return _native.getZoom(); }
+        const Zoom& getNativeZoom() const { return _native.getZoom(); }
         //@}
 
     private:
@@ -153,7 +153,7 @@ namespace server
         Compound* _compound;
 
         /** Frame-specific data. */
-        eq::Viewport _vp;
+        Viewport _vp;
         uint32_t _buffers;
         Type _type;
 

@@ -25,7 +25,7 @@
 #include "segment.h"
 #include "view.h"
 #include "window.h"
-#include <eq/client/log.h>
+
 
 namespace eq
 {

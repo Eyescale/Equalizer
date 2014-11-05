@@ -28,8 +28,8 @@
 #include <eq/fabric/subPixel.h>      // member
 
 #include <co/object.h>               // base class
-#include <lunchbox/monitor.h>         // member
-#include <lunchbox/spinLock.h>        // member
+#include <lunchbox/monitor.h>        // member
+#include <lunchbox/spinLock.h>       // member
 
 namespace eq
 {
@@ -296,27 +296,7 @@ public:
     EQ_API void disableBuffer( const Frame::Buffer buffer );
     //@}
 
-    /** @internal */
-    struct Data
-    {
-        Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
-               , phase( 0 ) {}
-
-        PixelViewport pvp;
-        fabric::Frame::Type frameType;
-        uint32_t      buffers;
-        uint32_t      period;
-        uint32_t      phase;
-        Range         range;     //<! database-range of src wrt to dest
-        Pixel         pixel;     //<! pixel decomposition of source
-        SubPixel      subpixel;  //<! subpixel decomposition of source
-        Zoom          zoom;
-
-        EQ_API void serialize( co::DataOStream& os ) const;
-        EQ_API void deserialize( co::DataIStream& is );
-    };
-
-    const Data& getData() const; //!< @internal
+    const fabric::FrameData& getData() const; //!< @internal
 
     /** @internal */
     bool addImage( const co::ObjectVersion& frameDataVersion,
@@ -324,7 +304,7 @@ public:
                    const uint32_t buffers, const bool useAlpha,
                    uint8_t* data );
     void setReady( const co::ObjectVersion& frameData,
-                   const FrameData::Data& data ); //!< @internal
+                   const fabric::FrameData& data ); //!< @internal
 
 protected:
     virtual ChangeType getChangeType() const { return INSTANCE; }
@@ -350,22 +330,6 @@ private:
 
 /** Print the frame data to the given output stream. @version 1.4 */
 EQ_API std::ostream& operator << ( std::ostream&, const FrameData& );
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::FrameData::Data& value )
-{
-    byteswap( value.pvp );
-    byteswap( value.frameType );
-    byteswap( value.buffers );
-    byteswap( value.period );
-    byteswap( value.phase );
-    byteswap( value.range );
-    byteswap( value.pixel );
-    byteswap( value.subpixel );
-    byteswap( value.zoom );
-}
 }
 
 #endif // EQ_FRAMEDATA_H

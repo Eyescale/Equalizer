@@ -21,13 +21,13 @@
 #include "config.h"
 #include "frame.h"
 #include "frameData.h"
+#include "log.h"
 #include "server.h"
 #include "tileQueue.h"
 #include "window.h"
 
 #include "tiles/zigzagStrategy.h"
 
-#include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/tile.h>
 
@@ -145,7 +145,7 @@ void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
         uint32_t buffers = frame->getBuffers();
 
         frameData->setType( frame->getType() );
-        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ?
+        frameData->setBuffers( buffers == Frame::BUFFER_UNDEFINED ?
                                    compound->getInheritBuffers() : buffers );
 
         // 4) (source) render context
@@ -261,7 +261,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
         zoom_1.y() = 1.0f / zoom.y();
     }
 
-    if( frame->getType( ) == eq::Frame::TYPE_TEXTURE )
+    if( frame->getType( ) == Frame::TYPE_TEXTURE )
     {
         FrameData* frameData = frame->getMasterData();
         frameData->setZoom( zoom_1 ); // textures are zoomed by input frame

@@ -19,9 +19,12 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   equalizerTypes.h
   error.h
   errorRegistry.h
+  event.h
+  eventEnums.h
   eye.h
   focusMode.h
   frame.h
+  frameData.h
   frustum.h
   global.h
   gpuInfo.h
@@ -43,6 +46,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   renderContext.h
   segment.h
   server.h
+  statistic.h
   subPixel.h
   swapBarrier.h
   task.h
@@ -79,8 +83,10 @@ set(EQ_FABRIC_SOURCES
   equalizer.cpp
   error.cpp
   errorRegistry.cpp
+  event.cpp
   eye.cpp
   frame.cpp
+  frameData.cpp
   frustum.cpp
   global.cpp
   iAttribute.cpp
@@ -90,6 +96,7 @@ set(EQ_FABRIC_SOURCES
   projection.cpp
   range.cpp
   renderContext.cpp
+  statistic.cpp
   subPixel.cpp
   swapBarrier.cpp
   viewport.cpp

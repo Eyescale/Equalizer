@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "localServer.h"
+
 #include "server.h"
 
 #include "global.h"
@@ -28,6 +30,10 @@
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
     compound { channel \"channel\" wall { }}}}"
 
+namespace eq
+{
+namespace server
+{
 namespace
 {
 class ServerThread : public lunchbox::Thread
@@ -65,12 +71,9 @@ private:
 
 static ServerThread _serverThread;
 }
-#pragma warning(push)
-#pragma warning(disable: 4190)
-extern "C" EQSERVER_API
-co::Connection* eqsStartLocalServer( const std::string& config )
+
+co::ConnectionPtr startLocalServer( const std::string& config )
 {
-#pragma warning(pop)
     if( _serverThread.isRunning( ))
     {
         LBWARN << "Only one app-local per process server allowed" << std::endl;
@@ -125,11 +128,13 @@ co::Connection* eqsStartLocalServer( const std::string& config )
         return 0;
     }
 
-    connection->ref(); // WAR "C" linkage
-    return connection.get();
+    return connection;
 }
 
-extern "C" EQSERVER_API void eqsJoinLocalServer()
+void joinLocalServer()
 {
     _serverThread.join();
+}
+
+}
 }

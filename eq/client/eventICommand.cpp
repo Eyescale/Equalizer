@@ -17,7 +17,7 @@
 
 #include "eventICommand.h"
 
-#include "event.h"
+#include <eq/fabric/event.h>
 
 namespace eq
 {

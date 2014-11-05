@@ -30,8 +30,6 @@
 #include "../window.h"
 #include "../equalizers/loadEqualizer.h"
 
-#include <eq/client/frame.h>
-#include <eq/client/windowSystem.h>
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/gpuInfo.h>
 
@@ -647,7 +645,7 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels,
 
     Compound* compound = new Compound( root );
     compound->setName( name );
-    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+    compound->setBuffers( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH );
     if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
     {
         if( params.getEqualizer().getMode() != LoadEqualizer::MODE_DB )
@@ -694,12 +692,12 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         if( i+1 == children.end( ) ) // last - correct rounding 'error'
         {
             drawChild->setRange(
-                eq::Range( static_cast< float >( start )/100000.f, 1.f ));
+                Range( static_cast< float >( start )/100000.f, 1.f ));
         }
         else
             drawChild->setRange(
-                eq::Range( static_cast< float >( start )/100000.f,
-                           static_cast< float >( start + step )/100000.f ));
+                Range( static_cast< float >( start )/100000.f,
+                       static_cast< float >( start + step )/100000.f ));
 
         size_t y = 0;
         for( CompoundsCIter j = children.begin(); j != children.end(); ++j )
@@ -722,8 +720,8 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 eq::server::Frame* outputFrame = new eq::server::Frame;
                 outputFrame->setName( frameName.str( ));
                 outputFrame->setViewport( vp );
-                outputFrame->setBuffers( eq::Frame::BUFFER_COLOR |
-                                         eq::Frame::BUFFER_DEPTH );
+                outputFrame->setBuffers( Frame::BUFFER_COLOR |
+                                         Frame::BUFFER_DEPTH );
                 drawChild->addOutputFrame( outputFrame );
 
                 // input tiles from other channels
@@ -782,7 +780,7 @@ Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
                                        fabric::ConfigParams params )
 {
     // TODO: Optimized compositing?
-    root->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+    root->setBuffers( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH );
     const Channels& dbChannels = _filter( channels, " mt mp " );
     Compound* compound = _addDSCompound( root, dbChannels );
 

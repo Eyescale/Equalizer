@@ -19,13 +19,13 @@
 #include "view.h"
 
 #include "config.h"
-#include "event.h"
 #include "pipe.h"
 #include "layout.h"
 #include "observer.h"
 #include "server.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/event.h>
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>

@@ -28,11 +28,9 @@
 #include "server.h"
 #include "window.h"
 
-#include <eq/client/event.h>
-#include <eq/client/error.h>
-
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/event.h>
 #include <eq/fabric/paths.h>
 
 #include <co/barrier.h>
@@ -272,7 +270,7 @@ bool Node::launch()
             return true;
     }
 
-    sendError( ERROR_NODE_LAUNCH ) << _host;
+    sendError( fabric::ERROR_NODE_LAUNCH ) << _host;
     return false;
 }
 
@@ -318,7 +316,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
                 data << desc->getHostname() << ' ';
             }
 
-            sendError( ERROR_NODE_CONNECT ) << _host;
+            sendError( fabric::ERROR_NODE_CONNECT ) << _host;
             _state = STATE_FAILED;
             return false;
         }

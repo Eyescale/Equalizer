@@ -33,6 +33,7 @@
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/drawableConfig.h>
+#include <eq/fabric/event.h>
 #include <eq/fabric/errorRegistry.h>
 #include <eq/fabric/equalizerTypes.h>
 #include <eq/fabric/iAttribute.h>

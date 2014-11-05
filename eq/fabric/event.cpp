@@ -27,6 +27,8 @@
 
 namespace eq
 {
+namespace fabric
+{
 namespace
 {
 /** String representation of event types. */
@@ -183,4 +185,5 @@ std::ostream& operator << ( std::ostream& os, const MagellanEvent& event )
               << event.zRotation;
 }
 
+}
 }

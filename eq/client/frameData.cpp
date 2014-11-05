@@ -28,6 +28,7 @@
 #include "roiFinder.h"
 
 #include <eq/fabric/drawableConfig.h>
+#include <eq/fabric/frameData.h>
 #include <eq/util/objectManager.h>
 #include <co/commandFunc.h>
 #include <co/connectionDescription.h>
@@ -60,7 +61,7 @@ public:
         , depthCompressor( EQ_COMPRESSOR_AUTO )
     {}
 
-    eq::FrameData::Data data;
+    fabric::FrameData data;
 
     Images images;
     Images imageCache;
@@ -198,7 +199,7 @@ void FrameData::disableBuffer( const Frame::Buffer buffer )
     _impl->data.buffers &= ~buffer;
 }
 
-const FrameData::Data& FrameData::getData() const
+const fabric::FrameData& FrameData::getData() const
 {
     return _impl->data;
 }
@@ -238,18 +239,6 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     clear();
     _impl->data.deserialize( is );
     LBLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
-}
-
-void FrameData::Data::serialize( co::DataOStream& os ) const
-{
-    os << pvp << frameType << buffers << period << phase << range
-       << pixel << subpixel << zoom;
-}
-
-void FrameData::Data::deserialize( co::DataIStream& is )
-{
-    is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom;
 }
 
 void FrameData::clear()
@@ -455,7 +444,7 @@ void FrameData::setReady()
 }
 
 void FrameData::setReady( const co::ObjectVersion& frameData,
-                          const FrameData::Data& data )
+                          const fabric::FrameData& data )
 {
     clear();
     LBASSERT(  frameData.version.high() == 0 );

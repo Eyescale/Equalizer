@@ -21,7 +21,6 @@
 #include "equalizer.h"          // base class
 #include "../channelListener.h" // nested base class
 
-#include <eq/client/types.h>
 #include <lunchbox/hash.h>
 #include <deque>
 #include <map>

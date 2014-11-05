@@ -136,7 +136,7 @@ Compound::~Compound()
 Compound::Data::Data()
         : channel( 0 )
         , overdraw( Vector4i::ZERO )
-        , buffers( eq::Frame::BUFFER_UNDEFINED )
+        , buffers( Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
         , period( LB_UNDEFINED_UINT32 )
@@ -1083,8 +1083,8 @@ void Compound::register_()
         Frame* frame = *i;
         server->registerObject( frame );
         frame->setAutoObsolete( latency );
-        LBLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName()
-                                  << "\" id " << frame->getID() << std::endl;
+        LBLOG( LOG_ASSEMBLY ) << "Output frame \"" << frame->getName()
+                              << "\" id " << frame->getID() << std::endl;
     }
 
     for( Frames::const_iterator i = _inputFrames.begin();
@@ -1093,8 +1093,8 @@ void Compound::register_()
         Frame* frame = *i;
         server->registerObject( frame );
         frame->setAutoObsolete( latency );
-        LBLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName()
-                                  << "\" id " << frame->getID() << std::endl;
+        LBLOG( LOG_ASSEMBLY ) << "Input frame \"" << frame->getName()
+                              << "\" id " << frame->getID() << std::endl;
     }
 
     for( TileQueuesCIter i = _inputTileQueues.begin();
@@ -1103,8 +1103,8 @@ void Compound::register_()
         TileQueue* queue = *i;
         server->registerObject( queue );
         queue->setAutoObsolete( latency );
-        LBLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName()
-                                  << "\" id " << queue->getID() << std::endl;
+        LBLOG( LOG_ASSEMBLY ) << "Input queue \"" << queue->getName()
+                              << "\" id " << queue->getID() << std::endl;
     }
 
     for( TileQueuesCIter i = _outputTileQueues.begin();
@@ -1113,8 +1113,8 @@ void Compound::register_()
         TileQueue* queue = *i;
         server->registerObject( queue );
         queue->setAutoObsolete( latency );
-        LBLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName()
-                                  << "\" id " << queue->getID() << std::endl;
+        LBLOG( LOG_ASSEMBLY ) << "Output queue \"" << queue->getName()
+                              << "\" id " << queue->getID() << std::endl;
     }
 }
 
@@ -1275,8 +1275,8 @@ void Compound::_updateInheritRoot()
     if( _inherit.phase == LB_UNDEFINED_UINT32 )
         _inherit.phase = 0;
 
-    if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
-        _inherit.buffers = eq::Frame::BUFFER_COLOR;
+    if( _inherit.buffers == Frame::BUFFER_UNDEFINED )
+        _inherit.buffers = Frame::BUFFER_COLOR;
 
     if( _inherit.iAttributes[IATTR_STEREO_MODE] == UNDEFINED )
         _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::AUTO;
@@ -1342,7 +1342,7 @@ void Compound::_updateInheritNode()
 
     _inherit.maxFPS = _data.maxFPS;
 
-    if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
+    if( _data.buffers != Frame::BUFFER_UNDEFINED )
         _inherit.buffers = _data.buffers;
 
     if( _data.iAttributes[IATTR_STEREO_MODE] != UNDEFINED )
@@ -1588,11 +1588,11 @@ std::ostream& operator << ( std::ostream& os, const Compound& compound )
     }
 
     const uint32_t buffers = compound.getBuffers();
-    if( buffers != eq::Frame::BUFFER_UNDEFINED )
+    if( buffers != Frame::BUFFER_UNDEFINED )
     {
         os << "buffers  [";
-        if( buffers & eq::Frame::BUFFER_COLOR )  os << " COLOR";
-        if( buffers & eq::Frame::BUFFER_DEPTH )  os << " DEPTH";
+        if( buffers & Frame::BUFFER_COLOR )  os << " COLOR";
+        if( buffers & Frame::BUFFER_DEPTH )  os << " DEPTH";
         os << " ]" << std::endl;
     }
 

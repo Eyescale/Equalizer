@@ -33,6 +33,8 @@
 #include <eq/fabric/nodeType.h>
 #include <eq/fabric/view.h>
 
+#include <eq/server/localServer.h>
+
 #include <co/iCommand.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -75,12 +77,6 @@ public:
 
 typedef co::CommandFunc<Client> ClientFunc;
 
-static co::ConnectionPtr _startLocalServer();
-static void _joinLocalServer();
-
-typedef co::Connection* (*eqsStartLocalServer_t)( const std::string& file );
-typedef void (*eqsJoinLocalServer_t)();
-
 typedef fabric::Client Super;
 /** @endcond */
 
@@ -119,7 +115,8 @@ bool Client::connectServer( ServerPtr server )
     }
 
     // Use app-local server if no explicit server was set
-    co::ConnectionPtr connection = _startLocalServer();
+    co::ConnectionPtr connection =
+            server::startLocalServer( Global::getConfigFile( ));
     if( !connection )
         return false;
 
@@ -131,77 +128,6 @@ bool Client::connectServer( ServerPtr server )
     _impl->localServers.insert( server.get( ));
     return true;
 }
-
-/** @cond IGNORE */
-namespace
-{
-    lunchbox::DSO _libeqserver;
-}
-
-co::ConnectionPtr _startLocalServer()
-{
-    Strings dirNames;
-    dirNames.push_back( "" );
-
-    // install dir
-    dirNames.push_back( lunchbox::getExecutablePath() + "/../lib64/" );
-    dirNames.push_back( lunchbox::getExecutablePath() + "/../lib/" );
-
-#ifdef _MSC_VER
-    const std::string libName = "EqualizerServer.dll";
-#elif defined (_WIN32)
-    const std::string libName = "libEqualizerServer.dll";
-#elif defined (Darwin)
-    dirNames.push_back( "/opt/local/lib/" ); // MacPorts
-    const std::string libName = "libEqualizerServer.dylib";
-#else
-    const std::string libName = "libEqualizerServer.so";
-#endif
-
-    while( !_libeqserver.isOpen() && !dirNames.empty( ))
-    {
-        _libeqserver.open( dirNames.back() + libName );
-        dirNames.pop_back();
-    }
-
-    if( !_libeqserver.isOpen( ))
-    {
-        LBWARN << "Can't open Equalizer server library" << std::endl;
-        return 0;
-    }
-
-    eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
-        _libeqserver.getFunctionPointer( "eqsStartLocalServer" );
-
-    if( !eqsStartLocalServer )
-    {
-        LBWARN << "Can't find server entry function eqsStartLocalServer"
-               << std::endl;
-        return 0;
-    }
-
-    co::ConnectionPtr conn = eqsStartLocalServer( Global::getConfigFile( ));
-    if( conn )
-        conn->unref(); // WAR "C" linkage
-    return conn;
-}
-
-static void _joinLocalServer()
-{
-    eqsJoinLocalServer_t eqsJoinLocalServer = (eqsJoinLocalServer_t)
-        _libeqserver.getFunctionPointer( "eqsJoinLocalServer" );
-
-    if( !eqsJoinLocalServer )
-    {
-        LBWARN << "Can't find server entry function eqsJoinLocalServer"
-               << std::endl;
-        return;
-    }
-
-    eqsJoinLocalServer();
-    _libeqserver.close();
-}
-/** @endcond */
 
 bool Client::disconnectServer( ServerPtr server )
 {
@@ -217,7 +143,7 @@ bool Client::disconnectServer( ServerPtr server )
     // shut down process-local server (see _startLocalServer)
     LBASSERT( server->isConnected( ));
     const bool success = server->shutdown();
-    _joinLocalServer();
+    server::joinLocalServer();
     server->setClient( 0 );
 
     LBASSERT( !server->isConnected( ));

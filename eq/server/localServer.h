@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,25 +15,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_WGL_WINDOWEVENT_H
-#define EQ_WGL_WINDOWEVENT_H
+#ifndef EQSERVER_LOCALSERVER_H
+#define EQSERVER_LOCALSERVER_H
 
-#include <eq/fabric/event.h>        // base class
-#include <eq/client/types.h>
+#include "api.h"
+#include "types.h"
 
 namespace eq
 {
-namespace wgl
+namespace server
 {
-    /** A window-system event for a WindowIF */
-    class WindowEvent : public Event
-    {
-    public:
-        UINT uMsg;     //!< The windows message @version 1.0
-        WPARAM wParam; //!< Extra message data @version 1.0
-        LPARAM lParam; //!< Extra message data @version 1.0
-    };
-}
-}
-#endif // EQ_WGL_WINDOWEVENT_H
 
+EQSERVER_API co::ConnectionPtr startLocalServer( const std::string& config );
+
+EQSERVER_API void joinLocalServer();
+
+}
+}
+
+#endif // EQSERVER_LOCALSERVER_H

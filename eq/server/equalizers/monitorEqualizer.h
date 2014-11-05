@@ -20,7 +20,6 @@
 
 #include "equalizer.h"          // base class
 
-#include <eq/client/types.h>
 #include <deque>
 #include <map>
 
@@ -60,7 +59,7 @@ namespace server
             output frame zoom value */
         void _updateZoomAndOffset();
 
-        eq::Viewports _viewports;
+        Viewports _viewports;
         Frames _outputFrames;
     };
 }

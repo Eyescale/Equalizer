@@ -23,7 +23,6 @@
 #include "state.h"  // enum
 #include "types.h"
 
-#include <eq/client/types.h>
 #include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member

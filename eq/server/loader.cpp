@@ -5,30 +5,30 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "loader.h" 
+#include "loader.h"
 
-#include "canvas.h" 
-#include "compound.h" 
+#include "canvas.h"
+#include "compound.h"
 #include "configVisitor.h"
-#include "connectionDescription.h" 
-#include "config.h" 
-#include "global.h" 
-#include "layout.h" 
-#include "node.h" 
-#include "observer.h" 
-#include "segment.h" 
-#include "view.h" 
+#include "connectionDescription.h"
+#include "config.h"
+#include "global.h"
+#include "layout.h"
+#include "node.h"
+#include "observer.h"
+#include "segment.h"
+#include "view.h"
 
 #include <eq/fabric/elementVisitor.h>
 
@@ -71,7 +71,7 @@ public:
         {
             if( !_candidate ) // not testing a candidate (see above)
                 return TRAVERSE_PRUNE;
-            
+
             const Channel* channel = compound->getChannel();
             if( !channel )
                 return TRAVERSE_CONTINUE;
@@ -145,34 +145,34 @@ namespace
 static void _addDestinationViews( Compound* compound )
 {
     Channel* channel = compound->getChannel();
-    
+
     if( channel ) // stand-alone channel
     {
         if( channel->getView( ))
             return;
-        
+
         Config* config = compound->getConfig();
         Layout* layout = new Layout( config );
         View*   view   = new View( layout );
-        *static_cast< eq::Frustum* >( view ) = compound->getFrustum();
-        
+        *static_cast< fabric::Frustum* >( view ) = compound->getFrustum();
+
         Canvas* canvas = new Canvas( config );
         canvas->addLayout( layout );
-        
+
         Segment* segment = new Segment( canvas );
         segment->setChannel( channel );
-        
+
         config->activateCanvas( canvas );
-        
+
         Channel* newChannel = config->findChannel( segment, view );
         LBASSERT( newChannel );
-        
+
         compound->setChannel( newChannel );
         compound->setViewport( Viewport::FULL );
-        
+
         return;
     }
-       
+
     // segment group
     Compounds segments;
     const Compounds& children = compound->getChildren();
@@ -189,19 +189,19 @@ static void _addDestinationViews( Compound* compound )
         else
             _addDestinationViews( child );
     }
-    
+
     if( segments.empty( ))
         return;
 
     Config* config = compound->getConfig();
     Layout* layout = new Layout( config );
-    View*   view   = new View( layout );        
+    View*   view   = new View( layout );
     Canvas* canvas = new Canvas( config );
 
     canvas->addLayout( layout );
-    *static_cast< eq::Frustum* >( canvas ) = compound->getFrustum();
-    
-    for( Compounds::const_iterator i = segments.begin(); 
+    *static_cast< fabric::Frustum* >( canvas ) = compound->getFrustum();
+
+    for( Compounds::const_iterator i = segments.begin();
          i != segments.end(); ++i )
     {
         Compound* child = *i;
@@ -209,7 +209,7 @@ static void _addDestinationViews( Compound* compound )
 
         segment->setChannel( child->getChannel( ));
         segment->setViewport( child->getViewport( ));
-        *static_cast< eq::Frustum* >( segment ) = child->getFrustum();
+        *static_cast< fabric::Frustum* >( segment ) = child->getFrustum();
     }
 
     config->activateCanvas( canvas );
@@ -219,7 +219,7 @@ static void _addDestinationViews( Compound* compound )
         Segment* segment = canvas->getSegments()[ i ];
         Channel* newChannel = config->findChannel( segment, view );
         LBASSERT( newChannel );
-        
+
         segments[i]->setChannel( newChannel );
         segments[i]->setViewport( Viewport::FULL );
     }
@@ -270,7 +270,7 @@ class AddObserverVisitor : public ServerVisitor
             LBASSERT( observers.size() == 1 );
 
             view->setObserver( observers.front( ));
-            return TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE;
         }
 };
 

@@ -35,9 +35,8 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/error.h>
-
 #include <eq/fabric/commands.h>
+#include <eq/fabric/event.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
 

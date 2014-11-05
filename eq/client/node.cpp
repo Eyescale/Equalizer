@@ -33,6 +33,7 @@
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/frameData.h>
 #include <eq/fabric/task.h>
 
 #include <co/barrier.h>
@@ -746,7 +747,7 @@ bool Node::_cmdFrameDataReady( co::ICommand& cmd )
 
     const co::ObjectVersion& frameDataVersion =
                                             command.read< co::ObjectVersion >();
-    const FrameData::Data& data = command.read< FrameData::Data >();
+    const fabric::FrameData& data = command.read< fabric::FrameData >();
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << frameDataVersion
                           << std::endl;

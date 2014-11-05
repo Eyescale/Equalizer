@@ -26,7 +26,6 @@
 #include "state.h"         // enum
 #include "visitorResult.h" // enum
 
-#include <eq/client/event.h>
 #include <eq/fabric/config.h> // base class
 #include <lunchbox/monitor.h> // member
 
