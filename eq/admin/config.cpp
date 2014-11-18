@@ -24,8 +24,11 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "observer.h"
+#include "pipe.h"
+#include "segment.h"
 #include "server.h"
 #include "view.h"
+#include "window.h"
 
 namespace eq
 {
@@ -75,25 +78,58 @@ template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template void eq::admin::Config::Super::find< type >( const co::uint128_t&, \
+    template void eq::admin::Config::Super::find< type >( const uint128_t&, \
                                                           type** );
 
+FIND_ID_TEMPLATE1( eq::admin::Canvas );
 FIND_ID_TEMPLATE1( eq::admin::Channel );
 FIND_ID_TEMPLATE1( eq::admin::Layout );
+FIND_ID_TEMPLATE1( eq::admin::Node );
 FIND_ID_TEMPLATE1( eq::admin::Observer );
+FIND_ID_TEMPLATE1( eq::admin::Pipe );
+FIND_ID_TEMPLATE1( eq::admin::Segment );
+FIND_ID_TEMPLATE1( eq::admin::View );
+FIND_ID_TEMPLATE1( eq::admin::Window );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template type* eq::admin::Config::Super::find< type >( const co::uint128_t& );
+    template type* eq::admin::Config::Super::find< type >( const uint128_t& );
 
-FIND_ID_TEMPLATE2( eq::admin::Observer );
+FIND_ID_TEMPLATE2( eq::admin::Canvas );
+FIND_ID_TEMPLATE2( eq::admin::Channel );
 FIND_ID_TEMPLATE2( eq::admin::Layout );
+FIND_ID_TEMPLATE2( eq::admin::Node );
+FIND_ID_TEMPLATE2( eq::admin::Observer );
+FIND_ID_TEMPLATE2( eq::admin::Pipe );
+FIND_ID_TEMPLATE2( eq::admin::Segment );
 FIND_ID_TEMPLATE2( eq::admin::View );
+FIND_ID_TEMPLATE2( eq::admin::Window );
 
 #define FIND_NAME_TEMPLATE1( type )\
     template void eq::admin::Config::Super::find< type >(const std::string&, \
                                                          const type** ) const;
-FIND_NAME_TEMPLATE1( eq::admin::Observer );
+FIND_NAME_TEMPLATE1( eq::admin::Canvas );
+FIND_NAME_TEMPLATE1( eq::admin::Channel );
 FIND_NAME_TEMPLATE1( eq::admin::Layout );
+FIND_NAME_TEMPLATE1( eq::admin::Node );
+FIND_NAME_TEMPLATE1( eq::admin::Observer );
+FIND_NAME_TEMPLATE1( eq::admin::Pipe );
+FIND_NAME_TEMPLATE1( eq::admin::Segment );
+FIND_NAME_TEMPLATE1( eq::admin::View );
+FIND_NAME_TEMPLATE1( eq::admin::Window );
+
+#define FIND_NAME_TEMPLATE2( type )                                     \
+    template type*                                                      \
+    eq::admin::Config::Super::find< type >( const std::string& );
+
+FIND_NAME_TEMPLATE2( eq::admin::Canvas );
+FIND_NAME_TEMPLATE2( eq::admin::Channel );
+FIND_NAME_TEMPLATE2( eq::admin::Layout );
+FIND_NAME_TEMPLATE2( eq::admin::Node );
+FIND_NAME_TEMPLATE2( eq::admin::Observer );
+FIND_NAME_TEMPLATE2( eq::admin::Pipe );
+FIND_NAME_TEMPLATE2( eq::admin::Segment );
+FIND_NAME_TEMPLATE2( eq::admin::View );
+FIND_NAME_TEMPLATE2( eq::admin::Window );
 
 
 #define CONST_FIND_NAME_TEMPLATE2( type )                               \
@@ -103,7 +139,9 @@ FIND_NAME_TEMPLATE1( eq::admin::Layout );
 CONST_FIND_NAME_TEMPLATE2( eq::admin::Canvas );
 CONST_FIND_NAME_TEMPLATE2( eq::admin::Channel );
 CONST_FIND_NAME_TEMPLATE2( eq::admin::Layout );
+CONST_FIND_NAME_TEMPLATE2( eq::admin::Node );
 CONST_FIND_NAME_TEMPLATE2( eq::admin::Observer );
+CONST_FIND_NAME_TEMPLATE2( eq::admin::Pipe );
+CONST_FIND_NAME_TEMPLATE2( eq::admin::Segment );
 CONST_FIND_NAME_TEMPLATE2( eq::admin::View );
-
-
+CONST_FIND_NAME_TEMPLATE2( eq::admin::Window );
