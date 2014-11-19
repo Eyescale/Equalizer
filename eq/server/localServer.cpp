@@ -49,9 +49,14 @@ public:
             return Thread::start();
         }
 
+    eq::server::ServerPtr getServer()
+        {
+            return _server;
+        }
+
 protected:
 
-    virtual void run()
+    void run() final
         {
             _server->run();
             _server->close();
@@ -72,12 +77,12 @@ private:
 static ServerThread _serverThread;
 }
 
-co::ConnectionPtr startLocalServer( const std::string& config )
+bool startLocalServer( const std::string& config )
 {
     if( _serverThread.isRunning( ))
     {
         LBWARN << "Only one app-local per process server allowed" << std::endl;
-        return 0;
+        return false;
     }
 
     eq::server::Loader loader;
@@ -95,7 +100,7 @@ co::ConnectionPtr startLocalServer( const std::string& config )
     if( !server )
     {
         LBERROR << "Failed to load configuration" << std::endl;
-        return 0;
+        return false;
     }
 
     eq::server::Loader::addOutputCompounds( server );
@@ -106,6 +111,23 @@ co::ConnectionPtr startLocalServer( const std::string& config )
     // TODO: ref count is 2 since config holds ServerPtr
     // LBASSERTINFO( server->getRefCount() == 1, server );
 
+    if( !server->listen( ))
+    {
+        LBERROR << "Failed to setup server listener" << std::endl;
+        return false;
+    }
+
+    if( !_serverThread.start( server ))
+    {
+        LBERROR << "Failed to start server thread" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+co::ConnectionPtr connectLocalServer()
+{
     co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
     desc->type = co::CONNECTIONTYPE_PIPE;
     co::ConnectionPtr connection = co::Connection::create( desc );
@@ -116,17 +138,8 @@ co::ConnectionPtr startLocalServer( const std::string& config )
     }
 
     co::ConnectionPtr sibling = connection->acceptSync();
-    if( !server->listen( sibling ))
-    {
-        LBERROR << "Failed to setup server listener" << std::endl;
-        return 0;
-    }
 
-    if( !_serverThread.start( server ))
-    {
-        LBERROR << "Failed to start server thread" << std::endl;
-        return 0;
-    }
+    _serverThread.getServer()->addConnection( sibling );
 
     return connection;
 }

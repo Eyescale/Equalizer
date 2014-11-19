@@ -43,7 +43,7 @@ source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt ${ADMIN_HEADERS} ${ADMIN_SOURCES})
 
 add_library(EqualizerAdmin SHARED ${ADMIN_HEADERS} ${ADMIN_SOURCES})
-target_link_libraries(EqualizerAdmin EqualizerFabric)
+target_link_libraries(EqualizerAdmin EqualizerFabric EqualizerServer)
 set_target_properties(EqualizerAdmin
   PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
 
