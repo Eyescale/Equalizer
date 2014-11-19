@@ -102,7 +102,7 @@ Client::~Client()
 
 bool Client::connectServer( ServerPtr server )
 {
-    if( Super::connectServer( server.get( )))
+    if( Super::connectServer( server ))
     {
         server->setClient( this );
         return true;
@@ -115,13 +115,11 @@ bool Client::connectServer( ServerPtr server )
     }
 
     // Use app-local server if no explicit server was set
-    co::ConnectionPtr connection =
-            server::startLocalServer( Global::getConfigFile( ));
-    if( !connection )
+    if( !server::startLocalServer( Global::getConfigFile( )))
         return false;
 
-    if( !connect( server.get(), connection ))
-        // giving up
+    co::ConnectionPtr connection = server::connectLocalServer();
+    if( !connection || !connect( server, connection ))
         return false;
 
     server->setClient( this );
