@@ -25,7 +25,6 @@
 #include <lunchbox/buffer.h>
 
 #define glewGetContext() glewContext
-#define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
 
 namespace eq
 {
@@ -460,7 +459,17 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
     const eq_uint64_t size = dims[1] * dims[3] * _depth;
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-#ifdef EQ_ASYNC_PBO
+        // async RB through texture
+        if( !GLEW_ARB_pixel_buffer_object )
+        {
+            const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
+            _initAsyncTexture( glewContext, pvp.w, pvp.h );
+            _texture->setExternalFormat( _format, _type );
+            _texture->copyFromFrameBuffer( _internalFormat, pvp );
+            _resizeBuffer( size );
+            return;
+        }
+
         if( _initPBO( glewContext, size ))
         {
             EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
@@ -469,13 +478,6 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
             glFlush(); // Fixes https://github.com/Eyescale/Equalizer/issues/118
             return;
         }
-#else  // else async RB through texture
-        const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
-        _initAsyncTexture( glewContext, pvp.w, pvp.h );
-        _asyncTexture->setExternalFormat( _format, _type );
-        _asyncTexture->copyFromFrameBuffer( _internalFormat, pvp );
-        return;
-#endif
         // else
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
@@ -518,7 +520,13 @@ void CompressorReadDrawPixels::finishDownload(
 
     LBASSERT( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER );
 
-#ifdef EQ_ASYNC_PBO
+    // async RB through texture
+    if( !GLEW_ARB_pixel_buffer_object )
+    {
+        *out = _downloadTexture( glewContext, KEEP_TEXTURE );
+        return;
+    }
+
     if( _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
@@ -537,9 +545,6 @@ void CompressorReadDrawPixels::finishDownload(
         }
     }
     *out = _buffer.getData();
-#else  // async RB through texture
-    *out = _downloadTexture( glewContext, KEEP_TEXTURE );
-#endif
 }
 
 }

@@ -63,7 +63,7 @@ public:
 
     void frameViewFinish( eq::Channel * channel )
     {
-        if( !channel->getSAttribute(channel->SATTR_DUMP_IMAGE).empty( ))
+        if( !channel->getSAttribute( channel->SATTR_DUMP_IMAGE ).empty( ))
             frameWriter.write( channel );
 
     #ifdef EQUALIZER_USE_DISPLAYCLUSTER
