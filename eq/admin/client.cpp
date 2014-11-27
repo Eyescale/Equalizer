@@ -20,6 +20,8 @@
 #include "server.h"
 #include <co/global.h>
 
+#include <eq/server/localServer.h>
+
 namespace eq
 {
 namespace admin
@@ -42,7 +44,16 @@ Client::~Client()
 
 bool Client::connectServer( ServerPtr server )
 {
-    if( !Super::connectServer( server.get( )))
+    // connect to local server, if any
+    co::ConnectionPtr connection = server::connectLocalServer();
+    if( connection && connect( server, connection ))
+    {
+        server->setClient( this );
+        server->map();
+        return true;
+    }
+
+    if( !Super::connectServer( server ))
         return false;
 
     server->setClient( this );
