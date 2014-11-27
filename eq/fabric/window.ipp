@@ -304,9 +304,10 @@ Window< P, W, C, Settings >::getIAttributeString( const WindowSettings::IAttribu
 }
 
 template< class P, class W, class C, class Settings >
-Settings& Window< P, W, C, Settings >::_getSettings()
+void Window< P, W, C, Settings >::setSettings( const Settings& settings )
 {
-    return _data.windowSettings;
+    _data.windowSettings = settings;
+    setDirty( DIRTY_SETTINGS );
 }
 
 template< class P, class W, class C, class Settings >

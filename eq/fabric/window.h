@@ -117,6 +117,9 @@ namespace fabric
 
         /** @name Attributes */
         //@{
+        /** Set the settings of this window. @version 1.8.0 */
+        EQFABRIC_INL void setSettings( const Settings& settings );
+
         /** @return the settings of this window. @version 1.7.2 */
         EQFABRIC_INL const Settings& getSettings() const;
 
@@ -171,9 +174,6 @@ namespace fabric
 
         /** @internal */
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
-
-        /** @internal */
-        EQFABRIC_INL Settings& _getSettings();
 
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
