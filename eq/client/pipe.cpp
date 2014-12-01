@@ -789,7 +789,7 @@ WindowSystem Pipe::getWindowSystem() const
 
 EventOCommand Pipe::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::PIPE_ERROR, getID(), error );
+    return getConfig()->sendError( Event::PIPE_ERROR, Error( error, getID( )));
 }
 
 bool Pipe::processEvent( const Event& event )

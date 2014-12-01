@@ -86,6 +86,7 @@ using fabric::WINDOW;
 
 using fabric::ColorMask;
 using fabric::DrawableConfig;
+using fabric::Errors;
 using fabric::Event;
 using fabric::Frustum;
 using fabric::Frustumf;

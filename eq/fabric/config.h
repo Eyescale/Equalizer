@@ -227,8 +227,7 @@ namespace fabric
         /** @internal */
         EQFABRIC_INL EventOCommand sendError( co::NodePtr node,
                                               const uint32_t event,
-                                              const uint128_t& originator,
-                                              const uint32_t error );
+                                              const Error& error );
 
         virtual void changeLatency( const uint32_t ) { /* NOP */ }//!< @internal
         virtual bool mapViewObjects() const { return false; } //!< @internal

@@ -21,7 +21,7 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/fabric/api.h>
-#include <eq/fabric/error.h>
+#include <eq/fabric/errorCodes.h>
 #include <eq/fabric/eventEnums.h>
 #include <eq/fabric/vmmlib.h>
 #include <co/types.h>
@@ -45,6 +45,7 @@ class Client;
 class ColorMask;
 class ConfigParams;
 class Equalizer;
+class Error;
 class ErrorRegistry;
 class Frustum;
 class Pixel;
@@ -93,6 +94,8 @@ template< class > class LeafVisitor;
 template< class, class > class ElementVisitor;
 template< class, class, class, class, class> class ConfigVisitor;
 
+/** A vector of eq::fabric::Error */
+typedef std::vector< Error > Errors;
 /** A vector of eq::Statistic events */
 typedef std::vector< Statistic > Statistics;
 /** A vector of eq::Viewport */

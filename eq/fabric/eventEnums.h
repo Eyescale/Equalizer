@@ -18,6 +18,8 @@
 #ifndef EQFABRIC_EVENTENUMS_H
 #define EQFABRIC_EVENTENUMS_H
 
+#include <lunchbox/types.h>
+
 namespace eq
 {
 namespace fabric

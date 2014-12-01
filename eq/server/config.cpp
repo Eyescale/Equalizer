@@ -537,11 +537,9 @@ void Config::restore()
     Super::restore();
 }
 
-EventOCommand Config::sendError( const uint32_t type,
-                                 const uint128_t& originator,
-                                 const uint32_t error )
+EventOCommand Config::sendError( const uint32_t type, const Error& error )
 {
-    return Super::sendError( findApplicationNetNode(), type, originator, error);
+    return Super::sendError( findApplicationNetNode(), type, error );
 }
 
 //---------------------------------------------------------------------------
@@ -722,8 +720,6 @@ bool Config::_updateNodes( const bool canFail )
         LBWARN << "Config has no running channels, will exit" << std::endl;
         return false;
     }
-    if( canFail )
-        return true;
 
     return !failure;
 }
