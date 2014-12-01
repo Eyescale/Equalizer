@@ -110,7 +110,7 @@ bool Window::configInit()
         return false;
     }
 
-    const bool success = configInitGLXDrawable( fbConfig );
+    bool success = configInitGLXDrawable( fbConfig );
     XFree( fbConfig );
 
     if( !success || !_impl->xDrawable )
@@ -123,7 +123,7 @@ bool Window::configInit()
     initGLEW();
     _initSwapSync();
     if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == FBO )
-        configInitFBO();
+        success = configInitFBO();
 
     return success;
 }

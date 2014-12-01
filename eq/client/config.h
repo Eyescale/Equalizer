@@ -406,9 +406,13 @@ public:
      * @param error the error message.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t type,
-                                    const uint128_t& originator,
-                                    const uint32_t error );
+    EQ_API EventOCommand sendError( const uint32_t type, const Error& error );
+
+    /** @return the errors since the last call to this method.
+     *  @version 1.8.0
+     */
+    EQ_API Errors getErrors();
+
     /**
      * Get the next event.
      *

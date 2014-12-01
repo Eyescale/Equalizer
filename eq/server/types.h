@@ -110,6 +110,7 @@ typedef lunchbox::RefPtr< Server > ServerPtr;
 typedef lunchbox::RefPtr< const Server > ConstServerPtr;
 
 using fabric::DrawableConfig;
+using fabric::Error;
 using fabric::Event;
 using fabric::EventOCommand;
 using fabric::Frustumf;

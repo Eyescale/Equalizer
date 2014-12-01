@@ -39,6 +39,8 @@ int main( const int argc, char** argv )
 
     TEST( !config->init( eq::uint128_t( )));
     TEST( !config->isRunning( ));
+    TEST( config->getErrors().size() == 3 );
+    TEST( config->getErrors().empty( ));
 
     server->releaseConfig( config );
     TEST( client->disconnectServer( server ));

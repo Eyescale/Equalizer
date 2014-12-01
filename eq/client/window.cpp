@@ -397,6 +397,7 @@ bool Window::configInitSystemWindow( const uint128_t& )
     if( !systemWindow->configInit( ))
     {
         LBWARN << "System window initialization failed" << std::endl;
+        systemWindow->configExit();
         delete systemWindow;
         return false;
     }
@@ -643,7 +644,7 @@ void Window::_updateEvent( Event& event )
 
 EventOCommand Window::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::WINDOW_ERROR, getID(), error );
+    return getConfig()->sendError( Event::WINDOW_ERROR, Error( error, getID()));
 }
 
 bool Window::processEvent( const Event& event )

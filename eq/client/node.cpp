@@ -467,7 +467,7 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
 
 EventOCommand Node::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::NODE_ERROR, getID(), error );
+    return getConfig()->sendError( Event::NODE_ERROR, Error( error, getID( )));
 }
 
 bool Node::processEvent( const Event& event )

@@ -157,6 +157,9 @@ public:
 
     /** true while the config is initialized and no window has exited. */
     bool running;
+
+    /** Errors from last call to update() */
+    Errors errors;
 };
 }
 
@@ -617,11 +620,16 @@ EventOCommand Config::sendEvent( const uint32_t type )
     return cmd;
 }
 
-EventOCommand Config::sendError( const uint32_t type,
-                                 const uint128_t& originator,
-                                 const uint32_t error )
+EventOCommand Config::sendError( const uint32_t type, const Error& error )
 {
-    return Super::sendError( getApplicationNode(), type, originator, error );
+    return Super::sendError( getApplicationNode(), type, error );
+}
+
+Errors Config::getErrors()
+{
+    Errors errors;
+    errors.swap(_impl->errors );
+    return errors;
 }
 
 EventICommand Config::getNextEvent( const uint32_t timeout ) const
@@ -688,9 +696,8 @@ bool Config::_handleNewEvent( EventICommand& command )
     case Event::WINDOW_ERROR:
     case Event::CHANNEL_ERROR:
     {
-        const uint128_t& originator = command.read< uint128_t >();
-        const Error error = Error( command.read< uint32_t >( ));
-        LBWARN << error << " from " << originator;
+        const Error& error = command.read< Error >();
+        LBWARN << error;
         if( error.getCode() < ERROR_CUSTOM )
         {
             while( command.hasData( ))
@@ -700,6 +707,7 @@ bool Config::_handleNewEvent( EventICommand& command )
             }
         }
         LBWARN << std::endl;
+        _impl->errors.push_back( error );
         return false;
     }
     }
