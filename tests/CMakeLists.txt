@@ -1,7 +1,7 @@
 
 # Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
 #
-# Change this number when adding tests to force a CMake run: 4
+# Change this number when adding tests to force a CMake run: 5
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(COPY compressor/images ${PROJECT_SOURCE_DIR}/examples/configs
@@ -15,6 +15,6 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
 
-set(TEST_LIBRARIES Equalizer EqualizerServer EqualizerFabric Sequel
-  ${Boost_LIBRARIES})
+set(TEST_LIBRARIES Equalizer EqualizerAdmin EqualizerServer EqualizerFabric
+  Sequel ${Boost_LIBRARIES})
 include(CommonCTest)
