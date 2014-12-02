@@ -71,6 +71,12 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
 {
     LB_TS_THREAD( _thread );
 
+    // Check for frame dimensions
+    GLint maxViewportDims[2];
+    glGetIntegerv( GL_MAX_VIEWPORT_DIMS, &maxViewportDims[0] );
+    if( width > maxViewportDims[0] || height > maxViewportDims[1] )
+        return Error( ERROR_FRAMEBUFFER_INVALID_SIZE );
+
     if( _fboID )
         return Error( ERROR_FRAMEBUFFER_INITIALIZED );
 
