@@ -880,7 +880,8 @@ const PixelViewports& Channel::getRegions() const
 
 EventOCommand Channel::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::CHANNEL_ERROR, getID(), error );
+    return getConfig()->sendError( Event::CHANNEL_ERROR,
+                                   Error( error, getID( )));
 }
 
 bool Channel::processEvent( const Event& event )

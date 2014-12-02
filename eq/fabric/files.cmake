@@ -18,6 +18,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   equalizer.h
   equalizerTypes.h
   error.h
+  errorCodes.h
   errorRegistry.h
   event.h
   eventEnums.h

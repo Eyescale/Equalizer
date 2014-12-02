@@ -20,6 +20,9 @@
 #include "errorRegistry.h"
 #include "global.h"
 
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
+
 namespace eq
 {
 namespace fabric
@@ -152,48 +155,70 @@ void _exitErrors()
         registry.eraseString( _errors[i].code );
 }
 
-Error::Error( const uint32_t code )
-    : code_( code )
+Error::Error()
+    : _code( ERROR_NONE )
+    , _originator()
+{}
+
+Error::Error( const uint32_t code, const uint128_t& originator )
+    : _code( code )
+    , _originator( originator )
 {}
 
 Error& Error::operator = ( const ErrorCode code )
 {
-    code_ = code; return *this;
+    _code = code;
+    return *this;
 }
 
 Error::operator bool_t() const
 {
-    return code_ != ERROR_NONE ? &Error::bool_true : 0;
+    return _code != ERROR_NONE ? &Error::bool_true : 0;
 }
 
 bool Error::operator ! () const
 {
-    return code_ == ERROR_NONE;\
+    return _code == ERROR_NONE;\
 }
 
 uint32_t Error::getCode() const
 {
-    return code_;
+    return _code;
+}
+
+const uint128_t& Error::getOriginator() const
+{
+    return _originator;
 }
 
 bool Error::operator == ( const Error& rhs ) const
 {
-    return code_ == rhs.code_;
+    return _code == rhs._code;
 }
 
 bool Error::operator != ( const Error& rhs ) const
 {
-    return code_ != rhs.code_;
+    return _code != rhs._code;
 }
 
 bool Error::operator == ( const uint32_t code ) const
 {
-    return code_ == code;
+    return _code == code;
 }
 
 bool Error::operator != ( const uint32_t code ) const
 {
-    return code_ != code;
+    return _code != code;
+}
+
+void Error::serialize( co::DataOStream& os ) const
+{
+    os << _code << _originator;
+}
+
+void Error::deserialize( co::DataIStream& is )
+{
+    is >> _code >> _originator;
 }
 
 std::ostream& operator << ( std::ostream& os, const Error& error )
