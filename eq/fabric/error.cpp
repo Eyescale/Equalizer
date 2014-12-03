@@ -53,6 +53,7 @@ ErrorData _errors[] = {
     { ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
       "Framebuffer incomplete, missing read buffer" },
     { ERROR_FRAMEBUFFER_INITIALIZED, "FBO already initialized" },
+    { ERROR_FRAMEBUFFER_INVALID_SIZE, "FBO size not supported" },
 
     { ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
       "Device not found, not enough CUDA devices" },
