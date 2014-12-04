@@ -79,7 +79,7 @@ EventHandler::EventHandler( WindowIF* window )
     {
         if( spnav_x11_open( display, window->getXDrawable( )) == -1 )
         {
-            LBWARN << "Failed to connect to the space navigator daemon"
+            LBINFO << "Cannot connect to the space navigator daemon"
                    << std::endl;
             return;
         }
