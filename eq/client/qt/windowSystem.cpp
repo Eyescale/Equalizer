@@ -138,11 +138,11 @@ void WindowSystem::_setupFactory()
                                                  QThread* )),
                   Qt::BlockingQueuedConnection );
 
-    app->connect( this, SIGNAL(destroyWidget( GLWidget* )),
-                  _factory, SLOT(onDestroyWidget( GLWidget* )));
+    app->connect( this, SIGNAL(destroyWidget( QGLWidget* )),
+                  _factory, SLOT(onDestroyWidget( QGLWidget* )));
 }
 
-void WindowSystem::_deleteGLWidget( GLWidget* widget )
+void WindowSystem::_deleteGLWidget( QGLWidget* widget )
 {
     destroyWidget( widget );
 }
