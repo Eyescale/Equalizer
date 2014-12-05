@@ -716,14 +716,11 @@ void Window::_initSwapSync()
         return;
 
     if( GLXEW_SGI_swap_control )
-    {
         glXSwapIntervalSGI( (swapSync < 0) ? 1 : swapSync );
-    }
     else
-        LBWARN << "GLX_SGI_swap_control not supported, ignoring window "
+        LBINFO << "GLX_SGI_swap_control not supported, ignoring window "
                << "swapsync hint " << IAttribute( swapSync ) << std::endl;
 }
-
 
 void Window::configExit()
 {
