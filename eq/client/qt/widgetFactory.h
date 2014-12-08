@@ -35,7 +35,7 @@ class WidgetFactory : public QObject
 
 public slots:
     GLWidget* onCreateWidget( eq::Window*, const WindowSettings&, QThread* );
-    void onDestroyWidget( GLWidget* );
+    void onDestroyWidget( QGLWidget* );
 };
 }
 }

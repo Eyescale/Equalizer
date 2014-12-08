@@ -18,6 +18,8 @@
 #ifndef EQ_QT_TYPES_H
 #define EQ_QT_TYPES_H
 
+class QGLWidget;
+
 namespace eq
 {
 /**

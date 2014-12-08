@@ -30,7 +30,7 @@ namespace detail
 class Window
 {
 public:
-    Window( GLWidget* glWidget_,
+    Window( QGLWidget* glWidget_,
             eq::qt::Window::DeleteGLWidgetFunc deleteGLWidget_ )
         : glWidget( glWidget_ )
         , deleteGLWidget( deleteGLWidget_ )
@@ -44,13 +44,13 @@ public:
             delete glWidget;
     }
 
-    GLWidget* glWidget;
+    QGLWidget* glWidget;
     const eq::qt::Window::DeleteGLWidgetFunc deleteGLWidget;
 };
 }
 
 Window::Window( NotifierInterface& parent, const WindowSettings& settings,
-                GLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget )
+                QGLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget )
     : WindowIF( parent, settings )
     , _impl( new detail::Window( glWidget, deleteGLWidget ))
 {
@@ -70,8 +70,11 @@ bool Window::configInit()
     pvp.h = _impl->glWidget->height();
     setPixelViewport( pvp );
 
-    _impl->glWidget->setParent( this );
-    initEventHandler();
+    if( getGLWidget( ))
+    {
+        getGLWidget()->setParent( this );
+        initEventHandler();
+    }
 
     makeCurrent();
     initGLEW();
@@ -112,9 +115,14 @@ void Window::leaveNVSwapBarrier()
 {
 }
 
-GLWidget* Window::getGLWidget() const
+QGLWidget* Window::getQGLWidget() const
 {
     return _impl->glWidget;
+}
+
+GLWidget* Window::getGLWidget() const
+{
+    return dynamic_cast< GLWidget* >( _impl->glWidget );
 }
 
 bool Window::processEvent( const WindowEvent& event )
@@ -124,12 +132,14 @@ bool Window::processEvent( const WindowEvent& event )
 
 void Window::initEventHandler()
 {
-    _impl->glWidget->initEventHandler();
+    if( getGLWidget( ))
+        getGLWidget()->initEventHandler();
 }
 
 void Window::exitEventHandler()
 {
-    _impl->glWidget->exitEventHandler();
+    if( getGLWidget( ))
+        getGLWidget()->exitEventHandler();
 }
 
 }

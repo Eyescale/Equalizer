@@ -49,20 +49,20 @@ class Window : public WindowIF
 {
 public:
     /**
-     * Function invoked to delete the GLWidget from the destructor.
+     * Function invoked to delete the QGLWidget from the destructor.
      * @version 1.7.3
      */
-    typedef boost::function< void( GLWidget* ) > DeleteGLWidgetFunc;
+    typedef boost::function< void( QGLWidget* ) > DeleteGLWidgetFunc;
 
     /**
      * Construct a new Qt system window.
      *
-     * If no DeleteGLWidgetFunc is given, the GLWidget is destroyed using
+     * If no DeleteGLWidgetFunc is given, the QGLWidget is destroyed using
      * delete.
      * @version 1.7.3
      */
     Window( NotifierInterface& parent, const WindowSettings& settings,
-            GLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget = 0 );
+            QGLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget = 0 );
 
     /** Destruct this Qt window. @version 1.7.3 */
     ~Window() final;
@@ -102,6 +102,7 @@ public:
     /** Implementation untested for Qt. @version 1.7.3 */
     void leaveNVSwapBarrier();
 
+    QGLWidget* getQGLWidget() const;
     GLWidget* getGLWidget() const;
 
     /** @version 1.7.3 */

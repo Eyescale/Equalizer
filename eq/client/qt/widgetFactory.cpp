@@ -114,14 +114,16 @@ GLWidget* WidgetFactory::onCreateWidget( eq::Window* window,
                                          const WindowSettings& settings,
                                          QThread* renderThread LB_UNUSED )
 {
-    const GLWidget* shareGLWidget = 0;
+    const QGLWidget* shareGLWidget = 0;
     const SystemWindow* shareContextWindow =
                         window->getSharedContextWindow()->getSystemWindow();
+    if( !shareContextWindow )
+        shareContextWindow = settings.getSharedContextWindow();
     if( shareContextWindow )
     {
         const Window* qtWindow =
                          static_cast< const Window* >( shareContextWindow );
-        shareGLWidget = qtWindow->getGLWidget();
+        shareGLWidget = qtWindow->getQGLWidget();
     }
 
     GLWidget* glWidget = new GLWidget( _createQGLFormat( settings ),
@@ -155,7 +157,7 @@ GLWidget* WidgetFactory::onCreateWidget( eq::Window* window,
     return glWidget;
 }
 
-void WidgetFactory::onDestroyWidget( GLWidget* widget )
+void WidgetFactory::onDestroyWidget( QGLWidget* widget )
 {
     delete widget;
 }

@@ -35,7 +35,7 @@ public:
 signals:
     eq::qt::GLWidget* createWidget( eq::Window*, const WindowSettings&,
                                     QThread* );
-    void destroyWidget( GLWidget* );
+    void destroyWidget( QGLWidget* );
 
 private:
     std::string getName() const final;
@@ -51,7 +51,7 @@ private:
     bool _useSystemWindowSystem( const WindowSettings& settings,
                                  const eq::Window* sharedWindow );
     void _setupFactory();
-    void _deleteGLWidget( GLWidget* widget );
+    void _deleteGLWidget( QGLWidget* widget );
 
     WidgetFactory* _factory;
 };
