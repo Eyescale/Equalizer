@@ -152,22 +152,30 @@ int main( const int argc, char** argv )
 
 bool _checkGPU( eq::ClientPtr client )
 {
+    eq::Global::setConfigFile( "configs/config.eqc" );
+    eq::server::Global::instance()->setConfigIAttribute(
+        eq::server::Config::IATTR_ROBUSTNESS, eq::OFF );
+
     eq::ServerPtr server = new eq::Server;
     TEST( client->connectServer( server ));
 
     eq::fabric::ConfigParams configParams;
     eq::Config* config = server->chooseConfig( configParams );
-    if( config )
+    if( config && config->init( eq::uint128_t( )))
     {
+        config->exit();
         server->releaseConfig( config );
         client->disconnectServer( server );
         return true;
     }
 
+    if( config )
+        server->releaseConfig( config );
     std::cerr << "Can't get configuration - no GPU available?" << std::endl;
     client->disconnectServer( server );
     return false;
 }
+
 
 void _testConfig( eq::ClientPtr client, const std::string& filename )
 {
