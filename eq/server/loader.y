@@ -819,6 +819,10 @@ viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_ATTRIBUTES '{' viewAttributes '}'
     | EQTOKEN_NAME STRING { view->setName( $2 ); }
+    | EQTOKEN_DISPLAYCLUSTER STRING /* backward compat */
+      {
+        view->setSAttribute( eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
+      }
     | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport
