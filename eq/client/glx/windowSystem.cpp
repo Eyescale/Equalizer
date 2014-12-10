@@ -107,7 +107,7 @@ static class : WindowSystemIF
         XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( ));
         if( !fontStruct )
         {
-            LBWARN << "Can't load font " << font.str() << ", using fixed"
+            LBINFO << "Can't load font " << font.str() << ", using fixed"
                    << std::endl;
             fontStruct = XLoadQueryFont( display, "fixed" );
         }
