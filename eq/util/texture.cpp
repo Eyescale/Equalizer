@@ -277,7 +277,6 @@ void Texture::upload( const int32_t width, const int32_t height,
 
 void Texture::download( void* buffer ) const
 {
-    LB_TS_THREAD( _thread );
     LBASSERT( isValid( ));
     glBindTexture( _impl->target, _impl->name );
     glGetTexImage( _impl->target, 0, _impl->format, _impl->type, buffer );
