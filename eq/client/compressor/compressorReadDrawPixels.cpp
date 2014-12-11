@@ -375,8 +375,10 @@ void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
 
     _texture->setGLEWContext( glewContext );
     _texture->init( _internalFormat, w, h );
-}
 
+    // ensure texture exists in tfer thread, might need fence for Tesla GPUs
+    glFlush();
+}
 
 void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
                                          const eq_uint64_t  inDims[4],
