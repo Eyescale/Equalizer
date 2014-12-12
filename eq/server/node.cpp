@@ -57,6 +57,13 @@ std::string _sAttributeStrings[] = {
 std::string _cAttributeStrings[] = {
     S_MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE )
 };
+
+void _addEnv( std::ostringstream& stream, const char* key )
+{
+    char* env = getenv( key );
+    if( env )
+        stream << key << "=" << env << " ";
+}
 }
 
 Node::Node( Config* parent )
@@ -413,9 +420,9 @@ std::string Node::_createRemoteCommand() const
 #  endif
 
     stringStream << "env "; // XXX
-    char* env = getenv( libPath );
-    if( env )
-        stringStream << libPath << "=" << env << " ";
+    _addEnv( stringStream, libPath );
+    _addEnv( stringStream, "PATH" );
+    _addEnv( stringStream, "PYTHONPATH" );
 
     for( int i=0; environ[i] != 0; ++i )
     {
@@ -444,9 +451,6 @@ std::string Node::_createRemoteCommand() const
     {
         program = workDir + '/' + program; // add workDir to relative path
     }
-#else
-    if( program[0] != '/' )
-        program = workDir + '/' + program;
 #endif
 
     const std::string ownData = getServer()->serialize();

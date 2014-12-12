@@ -34,7 +34,7 @@ NodeFactory* Global::_nodeFactory = 0;
 #ifdef EQUALIZER_USE_HWSD
 std::string Global::_configFile = hwsd::NodeInfo::getLocalSession();
 #else
-std::string Global::_configFile = "config.eqc";
+std::string Global::_configFile = "configs/config.eqc";
 #endif
 
 #ifdef AGL

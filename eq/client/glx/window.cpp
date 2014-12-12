@@ -708,17 +708,17 @@ const GLXEWContext* Window::glxewGetContext() const
 
 void Window::_initSwapSync()
 {
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == OFF )
+    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) !=  WINDOW )
         return;
 
-    const int32_t swapSync = getIAttribute( WindowSettings::IATTR_HINT_SWAPSYNC );
-    if( swapSync == AUTO ) // leave it alone
+    const int32_t swapSync = getIAttribute(WindowSettings::IATTR_HINT_SWAPSYNC);
+    if( swapSync == AUTO || swapSync == UNDEFINED ) // leave it alone
         return;
 
     if( GLXEW_SGI_swap_control )
         glXSwapIntervalSGI( (swapSync < 0) ? 1 : swapSync );
     else
-        LBINFO << "GLX_SGI_swap_control not supported, ignoring window "
+        LBWARN << "GLX_SGI_swap_control not supported, ignoring window "
                << "swapsync hint " << IAttribute( swapSync ) << std::endl;
 }
 
