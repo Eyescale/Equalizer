@@ -113,11 +113,11 @@ public:
     EQ_API void   deleteEqAccum( const void* key );
 
     /** @internal */
-    EQ_API lunchbox::Uploader* getEqUploader( const void* key ) const;
+    EQ_API pression::Uploader* getEqUploader( const void* key ) const;
     /** @internal */
-    EQ_API lunchbox::Uploader* newEqUploader( const void* key );
+    EQ_API pression::Uploader* newEqUploader( const void* key );
     /** @internal */
-    EQ_API lunchbox::Uploader* obtainEqUploader( const void* key );
+    EQ_API pression::Uploader* obtainEqUploader( const void* key );
     /** @internal */
     EQ_API void   deleteEqUploader( const void* key );
 

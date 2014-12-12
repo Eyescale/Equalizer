@@ -59,7 +59,7 @@
 #include <co/sendToken.h>
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 
 #ifdef EQUALIZER_USE_GLSTATS
 #  include "detail/statsRenderer.h"
@@ -1464,7 +1464,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
         if( isCompressed )
         {
-            BOOST_FOREACH( const lunchbox::CompressorChunk& chunk,
+            BOOST_FOREACH( const pression::CompressorChunk& chunk,
                            data->compressedData.chunks )
             {
                 const uint64_t dataSize = chunk.getNumBytes();

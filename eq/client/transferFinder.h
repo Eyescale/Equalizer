@@ -18,15 +18,15 @@
 #ifndef EQ_TRANSFERFINDER_H
 #define EQ_TRANSFERFINDER_H
 
-#include <lunchbox/plugin.h>
-#include <lunchbox/pluginVisitor.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugin.h>
+#include <pression/pluginVisitor.h>
+#include <pression/plugins/compressor.h>
 
 namespace eq
 {
 namespace
 {
-class TransferFinder : public lunchbox::ConstPluginVisitor
+class TransferFinder : public pression::ConstPluginVisitor
 {
 public:
     TransferFinder( const uint32_t internal, const uint32_t external,
@@ -42,7 +42,7 @@ public:
 
     virtual ~TransferFinder() {}
 
-    virtual fabric::VisitorResult visit( const lunchbox::Plugin& plugin,
+    virtual fabric::VisitorResult visit( const pression::Plugin& plugin,
                                          const EqCompressorInfo& info )
     {
         if(( (info.capabilities & caps_) == caps_ )                &&

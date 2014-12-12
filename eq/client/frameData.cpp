@@ -36,7 +36,7 @@
 #include <co/dataOStream.h>
 #include <lunchbox/monitor.h>
 #include <lunchbox/scopedMutex.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 
 #include <boost/foreach.hpp>
 
@@ -534,7 +534,7 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
             const uint32_t compressor = header->compressorName;
             if( compressor > EQ_COMPRESSOR_NONE )
             {
-                lunchbox::CompressorChunks chunks;
+                pression::CompressorChunks chunks;
                 const uint32_t nChunks = header->nChunks;
                 chunks.reserve( nChunks );
 
@@ -543,11 +543,11 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
                     const uint64_t size = *reinterpret_cast< uint64_t*>( data );
                     data += sizeof( uint64_t );
 
-                    chunks.push_back( lunchbox::CompressorChunk( data, size ));
+                    chunks.push_back( pression::CompressorChunk( data, size ));
                     data += size;
                 }
                 pixelData.compressedData =
-                    lunchbox::CompressorResult( compressor, chunks );
+                    pression::CompressorResult( compressor, chunks );
             }
             else
             {

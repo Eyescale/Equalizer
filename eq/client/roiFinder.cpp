@@ -33,7 +33,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <lunchbox/os.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 
 
 namespace eq

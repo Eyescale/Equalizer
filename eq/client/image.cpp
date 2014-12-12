@@ -32,13 +32,13 @@
 #include <co/global.h>
 
 #include <lunchbox/buffer.h>
-#include <lunchbox/compressor.h>
-#include <lunchbox/decompressor.h>
-#include <lunchbox/downloader.h>
 #include <lunchbox/memoryMap.h>
 #include <lunchbox/omp.h>
-#include <lunchbox/pluginRegistry.h>
-#include <lunchbox/uploader.h>
+#include <pression/compressor.h>
+#include <pression/decompressor.h>
+#include <pression/downloader.h>
+#include <pression/pluginRegistry.h>
+#include <pression/uploader.h>
 
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -111,9 +111,9 @@ enum ActivePlugin
 struct Attachment
 {
     ActivePlugin active;
-    lunchbox::Compressor compressor[ PLUGIN_ALL ];
-    lunchbox::Decompressor decompressor[ PLUGIN_ALL ];
-    lunchbox::Downloader downloader[ PLUGIN_ALL ];
+    pression::Compressor compressor[ PLUGIN_ALL ];
+    pression::Decompressor decompressor[ PLUGIN_ALL ];
+    pression::Downloader downloader[ PLUGIN_ALL ];
 
     float quality; //!< the minimum quality
 
@@ -346,12 +346,12 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
 
 namespace
 {
-class CompressorFinder : public lunchbox::ConstPluginVisitor
+class CompressorFinder : public pression::ConstPluginVisitor
 {
 public:
     CompressorFinder( const uint32_t token ) : token_( token ) {}
 
-    virtual fabric::VisitorResult visit( const lunchbox::Plugin&,
+    virtual fabric::VisitorResult visit( const pression::Plugin&,
                                          const EqCompressorInfo& info )
     {
         if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
@@ -372,11 +372,11 @@ private:
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const lunchbox::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const pression::PluginRegistry& registry = co::Global::getPluginRegistry();
     CompressorFinder finder( getExternalFormat( buffer ));
     registry.accept( finder );
 
-    LBLOG( lunchbox::LOG_PLUGIN )
+    LBLOG( LOG_PLUGIN )
         << "Found " << finder.result.size() << " compressors for token type 0x"
         << std::hex << getExternalFormat( buffer ) << std::dec << std::endl;
     return finder.result;
@@ -404,8 +404,8 @@ void Image::setAlphaUsage( const bool enabled )
         return;
 
     _impl->ignoreAlpha = !enabled;
-    _impl->color.memory.compressedData = lunchbox::CompressorResult();
-    _impl->depth.memory.compressedData = lunchbox::CompressorResult();
+    _impl->color.memory.compressedData = pression::CompressorResult();
+    _impl->depth.memory.compressedData = pression::CompressorResult();
 }
 
 void Image::setQuality( const Frame::Buffer buffer, const float quality )
@@ -463,7 +463,7 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                     const Vector2i& position, util::ObjectManager& om ) const
 {
     // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
-    lunchbox::Uploader* uploader = om.obtainEqUploader(
+    pression::Uploader* uploader = om.obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
@@ -545,7 +545,7 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager& glObjects )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
-    attachment.memory.compressedData = lunchbox::CompressorResult();
+    attachment.memory.compressedData = pression::CompressorResult();
 
     if( _impl->type == Frame::TYPE_TEXTURE )
     {
@@ -570,7 +570,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
                            const util::Texture* texture, const GLEWContext* gl )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
+    pression::Downloader& downloader = attachment.downloader[attachment.active];
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
@@ -657,7 +657,7 @@ void Image::_finishReadback( const Frame::Buffer buffer,
     if( memory.state != Memory::DOWNLOAD )
         return;
 
-    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
+    pression::Downloader& downloader = attachment.downloader[attachment.active];
     const uint32_t inputToken = memory.internalFormat;
     const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
     uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
@@ -790,8 +790,8 @@ void Image::setPixelViewport( const PixelViewport& pvp )
     _impl->pvp = pvp;
     _impl->color.memory.state = Memory::INVALID;
     _impl->depth.memory.state = Memory::INVALID;
-    _impl->color.memory.compressedData = lunchbox::CompressorResult();
-    _impl->depth.memory.compressedData = lunchbox::CompressorResult();
+    _impl->color.memory.compressedData = pression::CompressorResult();
+    _impl->depth.memory.compressedData = pression::CompressorResult();
 }
 
 void Image::clearPixelData( const Frame::Buffer buffer )
@@ -838,7 +838,7 @@ void Image::validatePixelData( const Frame::Buffer buffer )
     Memory& memory = _impl->getAttachment( buffer ).memory;
     memory.useLocalBuffer();
     memory.state = Memory::VALID;
-    memory.compressedData = lunchbox::CompressorResult();
+    memory.compressedData = pression::CompressorResult();
 }
 
 void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
@@ -849,7 +849,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.pixelSize = pixels.pixelSize;
     memory.pvp       = pixels.pvp;
     memory.state     = Memory::INVALID;
-    memory.compressedData = lunchbox::CompressorResult();
+    memory.compressedData = pression::CompressorResult();
     memory.hasAlpha = false;
 
     const EqCompressorInfos& transferrers = _impl->findTransferers( buffer,
@@ -929,10 +929,10 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Compressor& compressor = attachment.compressor[attachment.active];
+    pression::Compressor& compressor = attachment.compressor[attachment.active];
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        attachment.memory.compressedData = lunchbox::CompressorResult();
+        attachment.memory.compressedData = pression::CompressorResult();
         compressor.clear();
         return true;
     }
@@ -940,7 +940,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     if( compressor.uses( name ))
         return true;
 
-    attachment.memory.compressedData = lunchbox::CompressorResult();
+    attachment.memory.compressedData = pression::CompressorResult();
     compressor.setup( co::Global::getPluginRegistry(), name );
     LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
@@ -955,7 +955,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
     LBASSERT( gl );
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    lunchbox::Downloader& downloader = attachment.downloader[attachment.active];
+    pression::Downloader& downloader = attachment.downloader[attachment.active];
 
     if( name <= EQ_COMPRESSOR_NONE )
     {
@@ -981,7 +981,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
 uint32_t Image::getDownloaderName( const Frame::Buffer buffer ) const
 {
     const Attachment& attachment = _impl->getAttachment( buffer );
-    const lunchbox::Downloader& downloader =
+    const pression::Downloader& downloader =
         attachment.downloader[attachment.active];
     if( downloader.isGood( ))
         return downloader.getInfo().name;
@@ -1006,7 +1006,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         return memory;
     }
 
-    lunchbox::Compressor& compressor = attachment.compressor[attachment.active];
+    pression::Compressor& compressor = attachment.compressor[attachment.active];
 
     if( !compressor.isGood() ||
         compressor.getInfo().tokenType != getExternalFormat( buffer ) ||
