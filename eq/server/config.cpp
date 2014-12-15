@@ -862,8 +862,8 @@ void Config::_startFrame( const uint128_t& frameID )
 
     ++_currentFrame;
     ++_incarnation;
-    LBLOG( lunchbox::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
-                               << std::endl;
+    LBLOG( LOG_TASKS ) << "----- Start Frame ----- " << _currentFrame
+                       << std::endl;
 
     for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
@@ -949,7 +949,7 @@ void Config::_flushAllFrames()
             node->flushFrames( _currentFrame );
     }
 
-    LBLOG( lunchbox::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
+    LBLOG( LOG_TASKS ) << "--- Flush All Frames -- " << std::endl;
 }
 
 void Config::changeLatency( const uint32_t latency )
