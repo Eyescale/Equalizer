@@ -22,7 +22,7 @@
 
 #include <eq/client/image.h>
 #include <eq/client/gl.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 
 namespace eq
 {
