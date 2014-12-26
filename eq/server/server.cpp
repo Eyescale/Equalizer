@@ -304,7 +304,7 @@ bool Server::_cmdReleaseConfig( co::ICommand& command )
     }
 
     node->send( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY ) << requestID;
-    LBLOG( lunchbox::LOG_ANY ) << "----- Released Config -----" << std::endl;
+    LBVERB << "Released config " << configID << std::endl;
     return true;
 }
 

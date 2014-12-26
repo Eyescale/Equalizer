@@ -36,7 +36,7 @@
 #include <eq/fabric/init.h>
 #include <co/global.h>
 #include <lunchbox/file.h>
-#include <lunchbox/pluginRegistry.h>
+#include <pression/pluginRegistry.h>
 
 #ifdef _WIN32
 #pragma warning( push )
@@ -317,7 +317,7 @@ bool _parseArguments( const int argc, char** argv )
 
 void _initPlugins()
 {
-    lunchbox::PluginRegistry& plugins = co::Global::getPluginRegistry();
+    pression::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
     plugins.addDirectory( lunchbox::getExecutablePath() +
                           "/../share/Equalizer/plugins" ); // install dir
@@ -363,7 +363,7 @@ void _initPlugins()
 
 void _exitPlugins()
 {
-    lunchbox::PluginRegistry& plugins = co::Global::getPluginRegistry();
+    pression::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
     plugins.removeDirectory( lunchbox::getExecutablePath() +
                              "/../share/Equalizer/plugins" );

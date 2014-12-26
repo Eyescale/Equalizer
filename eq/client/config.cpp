@@ -47,9 +47,9 @@
 
 #include <lunchbox/clock.h>
 #include <lunchbox/monitor.h>
-#include <lunchbox/plugins/compressor.h>
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/spinLock.h>
+#include <pression/plugins/compressor.h>
 
 #ifdef EQUALIZER_USE_GLSTATS
 #  include <GLStats/GLStats.h>
@@ -397,8 +397,8 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     ++_impl->currentFrame;
     send( getServer(), fabric::CMD_CONFIG_START_FRAME ) << frameID;
 
-    LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- "
-                               << _impl->currentFrame << std::endl;
+    LBLOG( LOG_TASKS ) << "---- Started Frame ---- " << _impl->currentFrame
+                       << std::endl;
     stat.event.data.statistic.frameNumber = _impl->currentFrame;
     return _impl->currentFrame;
 }
@@ -470,8 +470,8 @@ uint32_t Config::finishFrame()
     _updateStatistics();
     _releaseObjects();
 
-    LBLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
-                               << " (" << _impl->currentFrame << ')'<<std::endl;
+    LBLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameToFinish
+                       << " (" << _impl->currentFrame << ')' << std::endl;
     return frameToFinish;
 }
 
@@ -480,7 +480,7 @@ uint32_t Config::finishAllFrames()
     if( _impl->finishedFrame == _impl->currentFrame )
         return _impl->currentFrame;
 
-    LBLOG( lunchbox::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
+    LBLOG( LOG_TASKS ) << "-- Finish All Frames --" << std::endl;
     send( getServer(), fabric::CMD_CONFIG_FINISH_ALL_FRAMES );
 
     ClientPtr client = getClient();
@@ -500,7 +500,7 @@ uint32_t Config::finishAllFrames()
     handleEvents();
     _updateStatistics();
     _releaseObjects();
-    LBLOG( lunchbox::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
+    LBLOG( LOG_TASKS ) << "-- Finished All Frames --" << std::endl;
     return _impl->currentFrame;
 }
 

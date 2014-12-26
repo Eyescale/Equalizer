@@ -19,7 +19,7 @@
 
 #include "pixelData.h"
 
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 
 namespace eq
 {
@@ -39,7 +39,7 @@ void PixelData::reset()
     externalFormat = EQ_COMPRESSOR_DATATYPE_NONE;
     pixelSize = 0;
     pixels = 0;
-    compressedData = lunchbox::CompressorResult();
+    compressedData = pression::CompressorResult();
     compressorName = EQ_COMPRESSOR_INVALID;
     compressorFlags = 0;
 }

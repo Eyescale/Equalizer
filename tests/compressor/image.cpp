@@ -28,10 +28,10 @@
 
 #include <lunchbox/clock.h>
 #include <lunchbox/file.h>
-#include <lunchbox/plugin.h>
-#include <lunchbox/pluginRegistry.h>
-#include <lunchbox/pluginVisitor.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugin.h>
+#include <pression/pluginRegistry.h>
+#include <pression/pluginVisitor.h>
+#include <pression/plugins/compressor.h>
 
 #include <numeric>
 #include <fstream>
@@ -46,10 +46,10 @@
 
 namespace
 {
-class Finder : public lunchbox::ConstPluginVisitor
+class Finder : public pression::ConstPluginVisitor
 {
 public:
-    virtual lunchbox::VisitorResult visit( const lunchbox::Plugin&,
+    virtual lunchbox::VisitorResult visit( const pression::Plugin&,
                                            const EqCompressorInfo& info )
     {
         if( !(info.capabilities & EQ_COMPRESSOR_TRANSFER) )
@@ -123,7 +123,7 @@ int main( int argc, char **argv )
     eq::Image destImage;
 
     // For each compressor...
-    const lunchbox::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const pression::PluginRegistry& registry = co::Global::getPluginRegistry();
     Finder finder;
     registry.accept( finder );
     std::vector< uint32_t >& names = finder.names;
@@ -211,7 +211,7 @@ int main( int argc, char **argv )
                                         std::ios::out | std::ios::binary );
                     TEST( comp.is_open( ));
 
-                    BOOST_FOREACH( const lunchbox::CompressorChunk& chunk,
+                    BOOST_FOREACH( const pression::CompressorChunk& chunk,
                                    pixels.compressedData.chunks )
                     {
                         comp.write( reinterpret_cast<const char*>( chunk.data ),
