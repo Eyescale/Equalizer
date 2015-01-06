@@ -26,7 +26,7 @@
 #include "../configEvent.h"
 
 #include <lunchbox/perThread.h>
-#include <dc/Stream.h>
+#include <deflect/Stream.h>
 
 namespace eq
 {
@@ -101,9 +101,9 @@ void EventHandler::_processEvents( const Proxy* proxy )
 
     while( _proxy->hasNewEvent( ))
     {
-        const ::dc::Event& dcEvent = _proxy->getEvent();
+        const deflect::Event& dcEvent = _proxy->getEvent();
 
-        if( dcEvent.type == ::dc::Event::EVT_CLOSE )
+        if( dcEvent.type == deflect::Event::EVT_CLOSE )
         {
             _proxy->stopRunning();
             ConfigEvent configEvent;
@@ -122,15 +122,15 @@ void EventHandler::_processEvents( const Proxy* proxy )
 
         switch( dcEvent.type )
         {
-        case ::dc::Event::EVT_KEY_PRESS:
-        case ::dc::Event::EVT_KEY_RELEASE:
-            event.type = dcEvent.type == ::dc::Event::EVT_KEY_PRESS ?
+        case deflect::Event::EVT_KEY_PRESS:
+        case deflect::Event::EVT_KEY_RELEASE:
+            event.type = dcEvent.type == deflect::Event::EVT_KEY_PRESS ?
                                           Event::KEY_PRESS : Event::KEY_RELEASE;
             event.keyPress.key = dcEvent.key;
             break;
-        case ::dc::Event::EVT_PRESS:
-        case ::dc::Event::EVT_RELEASE:
-            event.type = dcEvent.type == ::dc::Event::EVT_PRESS ?
+        case deflect::Event::EVT_PRESS:
+        case deflect::Event::EVT_RELEASE:
+            event.type = dcEvent.type == deflect::Event::EVT_PRESS ?
                                           Event::CHANNEL_POINTER_BUTTON_PRESS :
                                           Event::CHANNEL_POINTER_BUTTON_RELEASE;
             event.pointerButtonPress.x = x;
@@ -145,9 +145,9 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.pointerButtonPress.button = event.pointerButtonPress.buttons;
             _computePointerDelta( event );
             break;
-        case ::dc::Event::EVT_DOUBLECLICK:
+        case deflect::Event::EVT_DOUBLECLICK:
             break;
-        case ::dc::Event::EVT_MOVE:
+        case deflect::Event::EVT_MOVE:
             event.type = Event::CHANNEL_POINTER_MOTION;
             event.pointerMotion.x = x;
             event.pointerMotion.y = y;
@@ -162,7 +162,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.pointerMotion.button = event.pointerMotion.buttons;
             _computePointerDelta( event );
             break;
-        case ::dc::Event::EVT_WHEEL:
+        case deflect::Event::EVT_WHEEL:
             event.type = Event::CHANNEL_POINTER_WHEEL;
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
@@ -173,7 +173,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
                 event.pointerWheel.yAxis = dcEvent.dy > 0 ? 1 : -1;
             _computePointerDelta( event );
             break;
-        case ::dc::Event::EVT_NONE:
+        case deflect::Event::EVT_NONE:
         default:
             break;
         }

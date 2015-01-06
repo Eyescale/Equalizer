@@ -71,7 +71,7 @@
 
 #include "detail/channel.ipp"
 
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
 #  include "dc/proxy.h"
 #endif
 
@@ -231,7 +231,7 @@ const GLEWContext* Channel::glewGetContext() const
 
 bool Channel::configExit()
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     delete _impl->_dcProxy;
     _impl->_dcProxy = 0;
 #endif
@@ -243,7 +243,7 @@ bool Channel::configExit()
 
 bool Channel::configInit( const uint128_t& )
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     if( getView() &&
         !getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER ).empty( ))
     {

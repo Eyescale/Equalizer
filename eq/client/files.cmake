@@ -38,8 +38,8 @@ set(GLX_SOURCES
   glx/types.cpp
 )
 
-if(DISPLAYCLUSTER_FOUND)
-  set(DISPLAYCLUSTER_SOURCES
+if(DEFLECT_FOUND)
+  set(DEFLECT_SOURCES
     dc/connection.h
     dc/eventHandler.cpp
     dc/eventHandler.h
@@ -154,7 +154,7 @@ set(CLIENT_HEADERS
   )
 
 set(CLIENT_SOURCES
-  ${DISPLAYCLUSTER_SOURCES}
+  ${DEFLECT_SOURCES}
   canvas.cpp
   channel.cpp
   channelStatistics.cpp

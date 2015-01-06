@@ -20,7 +20,7 @@
 #include "eventHandler.h"
 #include "X11Connection.h"
 
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
 #  include "../dc/connection.h"
 #  include "../dc/eventHandler.h"
 #endif
@@ -60,7 +60,7 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 
         case co::ConnectionSet::EVENT_DATA:
         {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
             co::ConnectionPtr connection = _connections.getConnection();
             const dc::Connection* dcConnection =
                 dynamic_cast< const dc::Connection* >( connection.get( ));
@@ -89,7 +89,7 @@ void MessagePump::dispatchOne( const uint32_t timeout )
 void MessagePump::dispatchAll()
 {
     EventHandler::dispatch();
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     dc::EventHandler::processEvents();
 #endif
 }
@@ -123,7 +123,7 @@ void MessagePump::deregister( Display* display )
 
 void MessagePump::register_( dc::Proxy* dcProxy LB_UNUSED )
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     if( ++_referenced[ dcProxy ] == 1 )
         _connections.addConnection( new dc::Connection( dcProxy ));
 #endif
@@ -131,7 +131,7 @@ void MessagePump::register_( dc::Proxy* dcProxy LB_UNUSED )
 
 void MessagePump::deregister( dc::Proxy* dcProxy LB_UNUSED  )
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     if( --_referenced[ dcProxy ] == 0 )
     {
         const co::Connections& connections = _connections.getConnections();
