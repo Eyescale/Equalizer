@@ -19,7 +19,7 @@
 #define EQ_DC_PROXY_H
 
 #include <eq/client/types.h>
-#include <dc/types.h>
+#include <deflect/types.h>
 
 namespace eq
 {
@@ -63,7 +63,7 @@ public:
     void stopRunning();
 
     /** @return the latest window Event. @sa hasNewEvent() */
-    ::dc::Event getEvent() const;
+    deflect::Event getEvent() const;
 
 private:
     detail::Proxy* const _impl;

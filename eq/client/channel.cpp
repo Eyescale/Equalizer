@@ -59,7 +59,7 @@
 #include <co/sendToken.h>
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 
 #ifdef EQUALIZER_USE_GLSTATS
 #  include "detail/statsRenderer.h"
@@ -71,7 +71,7 @@
 
 #include "detail/channel.ipp"
 
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
 #  include "dc/proxy.h"
 #endif
 
@@ -231,7 +231,7 @@ const GLEWContext* Channel::glewGetContext() const
 
 bool Channel::configExit()
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     delete _impl->_dcProxy;
     _impl->_dcProxy = 0;
 #endif
@@ -243,7 +243,7 @@ bool Channel::configExit()
 
 bool Channel::configInit( const uint128_t& )
 {
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     if( getView() &&
         !getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER ).empty( ))
     {
@@ -1464,7 +1464,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
         if( isCompressed )
         {
-            BOOST_FOREACH( const lunchbox::CompressorChunk& chunk,
+            BOOST_FOREACH( const pression::CompressorChunk& chunk,
                            data->compressedData.chunks )
             {
                 const uint64_t dataSize = chunk.getNumBytes();

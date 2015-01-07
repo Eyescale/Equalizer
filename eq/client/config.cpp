@@ -47,9 +47,9 @@
 
 #include <lunchbox/clock.h>
 #include <lunchbox/monitor.h>
-#include <lunchbox/plugins/compressor.h>
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/spinLock.h>
+#include <pression/plugins/compressor.h>
 
 #ifdef EQUALIZER_USE_GLSTATS
 #  include <GLStats/GLStats.h>

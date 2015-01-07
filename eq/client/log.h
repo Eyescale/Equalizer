@@ -19,14 +19,15 @@
 #define EQ_LOG_H
 
 #include <eq/fabric/log.h>
+#include <pression/log.h>
 
 namespace eq
 {
     /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
     enum LogTopics
     {
-        LOG_PLUGIN   = lunchbox::LOG_PLUGIN,    //!< Plugin usage (2)
         LOG_BUG      = lunchbox::LOG_BUG,       //!< Potential bugs (4)
+        LOG_PLUGIN   = pression::LOG_PLUGIN,    //!< Plugin usage (16)
         LOG_INIT     = fabric::LOG_INIT,        //!< Initialization (512)
         LOG_ASSEMBLY = fabric::LOG_ASSEMBLY,    //!< Compositing tasks (1024)
         LOG_TASKS    = fabric::LOG_TASKS,       //!< Rendering tasks (2048)

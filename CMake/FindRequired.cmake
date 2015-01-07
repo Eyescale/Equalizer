@@ -71,6 +71,10 @@ common_package(Boost 1.41.0 COMPONENTS program_options filesystem system thread 
 if(NOT Boost_FOUND AND NOT BOOST_FOUND)
   set(FIND_REQUIRED_FAILED "${FIND_REQUIRED_FAILED} Boost")
 endif()
+common_package(Pression 1.0  QUIET)
+if(NOT Pression_FOUND AND NOT PRESSION_FOUND)
+  set(FIND_REQUIRED_FAILED "${FIND_REQUIRED_FAILED} Pression")
+endif()
 
 if(FIND_REQUIRED_FAILED)
   set(FOUND_REQUIRED FALSE)

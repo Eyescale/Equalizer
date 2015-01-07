@@ -32,7 +32,7 @@
 #include <eq/util/texture.h>
 
 #include <lunchbox/buffer.h>
-#include <dc/Stream.h>
+#include <deflect/Stream.h>
 
 namespace eq
 {
@@ -41,7 +41,7 @@ namespace dc
 namespace detail
 {
 
-::dc::Stream::Future make_ready_future( bool value )
+deflect::Stream::Future make_ready_future( bool value )
 {
     boost::promise< bool > promise;
     promise.set_value( value );
@@ -72,7 +72,7 @@ public:
                _channel->getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER );
         const std::string& name =
              _channel->getView()->getSAttribute( View::SATTR_PIXELSTREAM_NAME );
-        _stream = new ::dc::Stream( name, dcHost );
+        _stream = new deflect::Stream( name, dcHost );
         if( !_stream->isConnected( ))
         {
             LBWARN << "Could not connect to DisplayCluster host: " << dcHost
@@ -117,21 +117,21 @@ public:
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        ::dc::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
-                                       bytesPerPixel );
-        ::dc::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
-                                         ::dc::RGBA, offsX, offsY );
-        imageWrapper.compressionPolicy = ::dc::COMPRESSION_ON;
+        deflect::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
+                                            bytesPerPixel );
+        deflect::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
+                                              deflect::RGBA, offsX, offsY );
+        imageWrapper.compressionPolicy = deflect::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
 
         _sendFuture = _stream->asyncSend( imageWrapper );
     }
 
-    ::dc::Stream* _stream;
+    deflect::Stream* _stream;
     EventHandler* _eventHandler;
     eq::Channel* _channel;
     lunchbox::Bufferb buffer;
-    ::dc::Stream::Future _sendFuture;
+    deflect::Stream::Future _sendFuture;
     bool _running;
     util::Texture* _texture;
 
@@ -213,7 +213,7 @@ void Proxy::stopRunning()
     _impl->_running = false;
 }
 
-::dc::Event Proxy::getEvent() const
+deflect::Event Proxy::getEvent() const
 {
     return _impl->_stream->getEvent();
 }

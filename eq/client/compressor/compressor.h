@@ -19,7 +19,7 @@
 #ifndef EQ_PLUGIN_COMPRESSOR
 #define EQ_PLUGIN_COMPRESSOR
 
-#include <lunchbox/plugins/compressor.h>
+#include <pression/plugins/compressor.h>
 #include <lunchbox/buffer.h>
 #include <vector>
 

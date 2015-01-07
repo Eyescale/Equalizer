@@ -28,7 +28,7 @@
 #include <lunchbox/hash.h>
 #include <lunchbox/os.h>
 #include <lunchbox/referenced.h>
-#include <lunchbox/uploader.h>
+#include <pression/uploader.h>
 #include <string.h>
 
 //#define EQ_OM_TRACE_ALLOCATIONS
@@ -51,7 +51,7 @@ typedef stde::hash_map< const void*, FrameBufferObject* > FBOHash;
 typedef stde::hash_map< const void*, PixelBufferObject* > PBOHash;
 typedef stde::hash_map< const void*, util::BitmapFont* > FontHash;
 typedef stde::hash_map< const void*, Accum* > AccumHash;
-typedef stde::hash_map< const void*, lunchbox::Uploader* > UploaderHash;
+typedef stde::hash_map< const void*, pression::Uploader* > UploaderHash;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
 typedef stde::hash_map< const void*, std::string > UploaderAllocs;
 #endif
@@ -285,7 +285,7 @@ void ObjectManager::deleteAll()
     for( UploaderHash::const_iterator i = _impl->eqUploaders.begin();
          i != _impl->eqUploaders.end(); ++i )
     {
-        lunchbox::Uploader* uploader = i->second;
+        pression::Uploader* uploader = i->second;
         LBVERB << "Delete uploader " << i->first << " @" << (void*)uploader
                << std::endl;
         uploader->clear();
@@ -632,7 +632,7 @@ void ObjectManager::deleteEqAccum( const void* key )
 }
 
 // eq::CompressorData object functions
-lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
+pression::Uploader* ObjectManager::getEqUploader( const void* key ) const
 {
     UploaderHash::const_iterator i = _impl->eqUploaders.find( key );
     if( i == _impl->eqUploaders.end( ))
@@ -641,7 +641,7 @@ lunchbox::Uploader* ObjectManager::getEqUploader( const void* key ) const
     return i->second;
 }
 
-lunchbox::Uploader* ObjectManager::newEqUploader( const void* key )
+pression::Uploader* ObjectManager::newEqUploader( const void* key )
 {
     if( _impl->eqUploaders.find( key ) != _impl->eqUploaders.end( ))
     {
@@ -649,7 +649,7 @@ lunchbox::Uploader* ObjectManager::newEqUploader( const void* key )
         return 0;
     }
 
-    lunchbox::Uploader* compressor = new lunchbox::Uploader;
+    pression::Uploader* compressor = new pression::Uploader;
     _impl->eqUploaders[ key ] = compressor;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     std::ostringstream out;
@@ -660,9 +660,9 @@ lunchbox::Uploader* ObjectManager::newEqUploader( const void* key )
     return compressor;
 }
 
-lunchbox::Uploader* ObjectManager::obtainEqUploader( const void* key )
+pression::Uploader* ObjectManager::obtainEqUploader( const void* key )
 {
-    lunchbox::Uploader* compressor = getEqUploader( key );
+    pression::Uploader* compressor = getEqUploader( key );
     if( compressor )
         return compressor;
     return newEqUploader( key );
@@ -674,7 +674,7 @@ void ObjectManager::deleteEqUploader( const void* key )
     if( i == _impl->eqUploaders.end( ))
         return;
 
-    lunchbox::Uploader* uploader = i->second;
+    pression::Uploader* uploader = i->second;
     _impl->eqUploaders.erase( i );
 #ifdef EQ_OM_TRACE_ALLOCATIONS
     _impl->eqUploaderAllocs.erase( key );

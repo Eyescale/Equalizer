@@ -25,7 +25,7 @@
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
 
-#include <lunchbox/compressorResult.h>          // member
+#include <pression/compressorResult.h>          // member
 
 namespace eq
 {
@@ -85,7 +85,7 @@ struct PixelData : public boost::noncopyable
     void* pixels;
 
     /** The compressed pixel data blocks. @version 1.9.1 */
-    lunchbox::CompressorResult compressedData;
+    pression::CompressorResult compressedData;
 
     /** The compressor used to produce compressedData. @version 1.0 */
     uint32_t compressorName;
