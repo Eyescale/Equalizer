@@ -21,7 +21,7 @@
 
 #include <eq/fabric/drawableConfig.h>
 
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
 #  include "../dc/proxy.h"
 #endif
 
@@ -45,7 +45,7 @@ public:
             : state( STATE_STOPPED )
             , fbo( 0 )
             , initialSize( Vector2i::ZERO )
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
             , _dcProxy( 0 )
 #endif
         {
@@ -66,7 +66,7 @@ public:
         if( !channel->getSAttribute( channel->SATTR_DUMP_IMAGE ).empty( ))
             frameWriter.write( channel );
 
-    #ifdef EQUALIZER_USE_DISPLAYCLUSTER
+    #ifdef EQUALIZER_USE_DEFLECT
         if( _dcProxy )
         {
             if( !_dcProxy->isRunning( ))
@@ -117,7 +117,7 @@ public:
     /** The number of the last finished frame. */
     lunchbox::Monitor< uint32_t > finishedFrame;
 
-#ifdef EQUALIZER_USE_DISPLAYCLUSTER
+#ifdef EQUALIZER_USE_DEFLECT
     dc::Proxy* _dcProxy;
 #endif
 
