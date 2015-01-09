@@ -34,7 +34,6 @@ before_install:
  - sudo apt-get install -qq git-svn || /bin/true
  - sudo apt-get install -qq lcov || /bin/true
  - sudo apt-get install -qq libavahi-client-dev || /bin/true
- - sudo apt-get install -qq libbluetooth-dev || /bin/true
  - sudo apt-get install -qq libboost-date-time-dev || /bin/true
  - sudo apt-get install -qq libboost-filesystem-dev || /bin/true
  - sudo apt-get install -qq libboost-program-options-dev || /bin/true

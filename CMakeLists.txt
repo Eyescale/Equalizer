@@ -9,6 +9,8 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
+include(SubProject)
+
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "8")
@@ -16,11 +18,6 @@ set(VERSION_PATCH "0")
 set(VERSION_ABI 180)
 
 include(Common)
-include(Buildyard)
-
-if(BUILDYARD_STOP)
-  return()
-endif()
 
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
 option(EQUALIZER_USE_HWLOC "Test for hwloc support (experimental)" OFF)

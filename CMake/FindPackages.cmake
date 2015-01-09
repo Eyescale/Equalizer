@@ -397,7 +397,7 @@ if(Qt4_name)
   endif()
 endif()
 
-set(EQUALIZER_BUILD_DEBS autoconf;automake;avahi-daemon;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;libavahi-client-dev;libbluetooth-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libboost-thread-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libleveldb-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libturbojpeg;libudt-dev;libx11-dev;openmpi-bin;pkg-config;subversion)
+set(EQUALIZER_BUILD_DEBS autoconf;automake;avahi-daemon;bison;cmake;doxygen;flex;freeglut3-dev;git;git-review;libavahi-client-dev;libboost-date-time-dev;libboost-filesystem-dev;libboost-program-options-dev;libboost-regex-dev;libboost-serialization-dev;libboost-system-dev;libboost-test-dev;libboost-thread-dev;libgl1-mesa-dev;libglewmx1.6-dev;libhwloc-dev;libibverbs-dev;libjpeg-turbo8-dev;libleveldb-dev;libopencv-dev;libopenmpi-dev;libopenscenegraph-dev;libqt4-dev;librdmacm-dev;libspnav-dev;libturbojpeg;libudt-dev;libx11-dev;openmpi-bin;pkg-config;subversion)
 
 set(EQUALIZER_DEPENDS vmmlib;Lunchbox;Collage;OpenGL;Boost;Pression;X11;hwsd;GLStats;hwloc;OpenSceneGraph;OpenCV;VRPN;Deflect;MAGELLAN;GLEW_MX;Qt4)
 

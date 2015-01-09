@@ -41,7 +41,7 @@ namespace dc
 namespace detail
 {
 
-deflect::Stream::Future make_ready_future( bool value )
+deflect::Stream::Future make_ready_future( const bool value )
 {
     boost::promise< bool > promise;
     promise.set_value( value );
