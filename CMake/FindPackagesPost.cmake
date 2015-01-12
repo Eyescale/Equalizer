@@ -23,8 +23,11 @@ if(X11_FOUND)
   set(EQ_GLX_USED 1)
 endif()
 
-if(Qt4_FOUND OR QT4_FOUND)
+if(Qt4_FOUND OR QT4_FOUND AND QT_VERSION VERSION_GREATER 4.6)
   set(EQ_QT_USED 1)
+else()
+  set(QT4_FOUND)
+  set(Qt4_FOUND)
 endif()
 
 if(APPLE)

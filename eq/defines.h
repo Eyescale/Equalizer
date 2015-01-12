@@ -23,7 +23,7 @@
 #ifdef __APPLE__
 #  include <eq/definesDarwin.h>
 #endif
-#ifdef __linux
+#ifdef __linux__
 #  include <eq/definesLinux.h>
 #endif
 #ifdef _WIN32 //_MSC_VER
