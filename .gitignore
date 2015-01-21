@@ -22,6 +22,7 @@ CMakeLists.txt.user*
 CMake/common
 Makefile
 Collage/
+Deflect/
 GLStats/
 Lunchbox/
 Pression/
