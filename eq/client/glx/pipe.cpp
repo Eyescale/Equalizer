@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2009, Maxim Makhinya
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -125,7 +125,6 @@ void Pipe::configExit()
     XCloseDisplay( xDisplay );
     LBVERB << "Closed X display " << xDisplay << std::endl;
 }
-
 
 std::string Pipe::getXDisplayString()
 {
@@ -261,6 +260,10 @@ bool Pipe::_configInitGLXEW()
     {
         LBVERB << "Pipe GLXEW initialization successful" << std::endl;
         success = configInitGL();
+
+        const char* glVersion = (const char*)glGetString( GL_VERSION );
+        if( success && glVersion )
+            _maxOpenGLVersion = static_cast<float>( atof( glVersion ));
     }
     else
         sendError( ERROR_GLXPIPE_GLXEWINIT_FAILED )

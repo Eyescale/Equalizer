@@ -32,6 +32,7 @@
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
+#include <eq/util/shader.h>
 #include <lunchbox/os.h>
 #include <pression/plugins/compressor.h>
 
@@ -600,20 +601,13 @@ void ROIFinder::_readbackInfo( util::ObjectManager& glObjects )
 #else
         const GLchar* fShaderPtr = roiFragmentShaderRGB_glsl.c_str();
 #endif
-        EQ_GL_CALL( glShaderSource( shader, 1, &fShaderPtr, 0 ));
-        EQ_GL_CALL( glCompileShader( shader ));
-
-        GLint status;
-        glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
-        if( !status )
-            LBERROR << "Failed to compile fragment shader for ROI finder"
-                    << std::endl;
-
+        LBCHECK( util::shader::compile( shader, fShaderPtr ));
         program = glObjects.newProgram( shaderRBInfo );
 
         EQ_GL_CALL( glAttachShader( program, shader ));
         EQ_GL_CALL( glLinkProgram( program ));
 
+        GLint status;
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {

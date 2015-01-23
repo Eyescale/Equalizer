@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -56,6 +56,9 @@ public:
     enum IAttribute
     {
         // Note: also update string array initialization in window.ipp
+        IATTR_HINT_CORE_PROFILE,     //!< Core profile context if possible
+        IATTR_HINT_OPENGL_MAJOR,     //!< Major version for GL context creation
+        IATTR_HINT_OPENGL_MINOR,     //!< Minor version for GL context creation
         IATTR_HINT_STEREO,           //!< Active stereo
         IATTR_HINT_DOUBLEBUFFER,     //!< Front and back buffer
         IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable

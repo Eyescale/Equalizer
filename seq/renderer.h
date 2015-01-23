@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -162,6 +163,12 @@ public:
 
     /** @return the application instance for this renderer. @version 1.0 */
     const Application& getApplication() const { return app_; }
+
+    /** @return the object manager of this renderer. @version 1.0 */
+    SEQ_API const ObjectManager& getObjectManager() const;
+
+    /** @return the object manager of this renderer. @version 1.0 */
+    SEQ_API ObjectManager& getObjectManager();
 
     /**
      * Create a new per-view data instance.

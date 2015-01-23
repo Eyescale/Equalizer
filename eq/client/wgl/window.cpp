@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Maxim Makhinya
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -893,27 +894,47 @@ HGLRC Window::createWGLContext()
 {
     LBASSERT( _impl->_wglDC );
 
+    const WindowIF* shareWGLWindow =
+            dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
+    HGLRC shareCtx = 0;
+    if( shareWGLWindow )
+        shareCtx = shareWGLWindow->getWGLContext();
+
+    const bool coreContext =
+        getIAttribute( WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+
     // create context
-    HGLRC context =
-            wglCreateContext( _impl->_wglAffinityDC ? _impl->_wglAffinityDC
-                                                    : _impl->_wglDC );
+    HGLRC context = 0;
+    if( wglCreateContextAttribsARB && coreContext )
+    {
+        int attribList[] = {
+            WGL_CONTEXT_MAJOR_VERSION_ARB,
+            getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MAJOR ),
+            WGL_CONTEXT_MINOR_VERSION_ARB,
+            getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MINOR ),
+            WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+            0
+        };
+
+        context = wglCreateContextAttribsARB( _impl->_wglAffinityDC ?
+            _impl->_wglAffinityDC : _impl->_wglDC, shareCtx, attribList );
+    }
+    else
+    {
+        context = wglCreateContext( _impl->_wglAffinityDC
+                                      ? _impl->_wglAffinityDC : _impl->_wglDC );
+    }
+
     if( !context )
     {
-        sendError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED)
+        sendError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED )
             << lunchbox::sysError();
         return 0;
     }
 
     // share context
-    const WindowIF* shareWGLWindow =
-                dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
-    if( shareWGLWindow )
-    {
-        HGLRC shareCtx = shareWGLWindow->getWGLContext();
-        if( shareCtx && !wglShareLists( shareCtx, context ))
-            LBWARN << "Context sharing failed: " << lunchbox::sysError
-                   << std::endl;
-    }
+    if( !coreContext && shareCtx && !wglShareLists( shareCtx, context ))
+        LBWARN << "Context sharing failed: " << lunchbox::sysError << std::endl;
 
     return context;
 }

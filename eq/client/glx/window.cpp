@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2009, Maxim Makhinya
+/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,11 +21,12 @@
 
 #include "eventHandler.h"
 #include "messagePump.h"
-#include "pipe.h"
 #include "windowEvent.h"
 
+#include "../error.h"
 #include "../global.h"
-#include "../pipe.h"
+
+#include <co/objectOCommand.h>
 
 #ifdef EQUALIZER_USE_QT4
 #  include "../qt/window.h"
@@ -363,10 +364,32 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
         type = GLX_RGBA_FLOAT_TYPE;
     }
 
-    GLXContext context = GLXEW_VERSION_1_3 ?
-        glXCreateNewContext( _impl->xDisplay, fbConfig[0], type, shCtx, True ):
-        glXCreateContextWithConfigSGIX( _impl->xDisplay, fbConfig[0], type,
-                                        shCtx, True );
+    GLXContext context = 0;
+    if( glXCreateContextAttribsARB &&
+        getIAttribute( WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON )
+    {
+        int attribList[] = {
+            GLX_CONTEXT_MAJOR_VERSION_ARB,
+            getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MAJOR ),
+            GLX_CONTEXT_MINOR_VERSION_ARB,
+            getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MINOR ),
+            GLX_RENDER_TYPE, type,
+            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+            None
+        };
+
+        context = glXCreateContextAttribsARB( _impl->xDisplay, fbConfig[0],
+                                              shCtx, True, attribList );
+    }
+    else
+    {
+        if( GLXEW_VERSION_1_3 )
+            context = glXCreateNewContext( _impl->xDisplay, fbConfig[0], type,
+                                           shCtx, True );
+        else
+            context = glXCreateContextWithConfigSGIX( _impl->xDisplay,
+                                               fbConfig[0], type, shCtx, True );
+    }
 
 #ifdef Darwin
     // WAR http://xquartz.macosforge.org/trac/ticket/466

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -45,6 +46,16 @@ Renderer::~Renderer()
 co::Object* Renderer::getFrameData()
 {
     return _pipe->getFrameData();
+}
+
+const ObjectManager& Renderer::getObjectManager() const
+{
+    return _window->getObjectManager();
+}
+
+ObjectManager& Renderer::getObjectManager()
+{
+    return _window->getObjectManager();
 }
 
 const Frustumf& Renderer::getFrustum() const

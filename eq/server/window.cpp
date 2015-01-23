@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -527,37 +528,43 @@ void Window::output( std::ostream& os ) const
             attrPrinted = true;
         }
 
-        os << ( i== WindowSettings::IATTR_HINT_STEREO ?
+        os << ( i == WindowSettings::IATTR_HINT_CORE_PROFILE ?
+                    "hint_core_profile  " :
+                i == WindowSettings::IATTR_HINT_OPENGL_MAJOR ?
+                    "hint_opengl_major  " :
+                i == WindowSettings::IATTR_HINT_OPENGL_MINOR ?
+                    "hint_opengl_minor  " :
+                i == WindowSettings::IATTR_HINT_STEREO ?
                     "hint_stereo        " :
-                i== WindowSettings::IATTR_HINT_DOUBLEBUFFER ?
+                i == WindowSettings::IATTR_HINT_DOUBLEBUFFER ?
                     "hint_doublebuffer  " :
-                i== WindowSettings::IATTR_HINT_FULLSCREEN ?
+                i == WindowSettings::IATTR_HINT_FULLSCREEN ?
                     "hint_fullscreen    " :
-                i== WindowSettings::IATTR_HINT_DECORATION ?
+                i == WindowSettings::IATTR_HINT_DECORATION ?
                     "hint_decoration    " :
-                i== WindowSettings::IATTR_HINT_SWAPSYNC ?
+                i == WindowSettings::IATTR_HINT_SWAPSYNC ?
                     "hint_swapsync      " :
-                i== WindowSettings::IATTR_HINT_DRAWABLE ?
+                i == WindowSettings::IATTR_HINT_DRAWABLE ?
                     "hint_drawable      " :
-                i== WindowSettings::IATTR_HINT_STATISTICS ?
+                i == WindowSettings::IATTR_HINT_STATISTICS ?
                     "hint_statistics    " :
-                i== WindowSettings::IATTR_HINT_SCREENSAVER ?
+                i == WindowSettings::IATTR_HINT_SCREENSAVER ?
                     "hint_screensaver   " :
-                i== WindowSettings::IATTR_HINT_GRAB_POINTER ?
+                i == WindowSettings::IATTR_HINT_GRAB_POINTER ?
                     "hint_grab_pointer  " :
-                i== WindowSettings::IATTR_PLANES_COLOR ?
+                i == WindowSettings::IATTR_PLANES_COLOR ?
                     "planes_color       " :
-                i== WindowSettings::IATTR_PLANES_ALPHA ?
+                i == WindowSettings::IATTR_PLANES_ALPHA ?
                     "planes_alpha       " :
-                i== WindowSettings::IATTR_PLANES_DEPTH ?
+                i == WindowSettings::IATTR_PLANES_DEPTH ?
                     "planes_depth       " :
-                i== WindowSettings::IATTR_PLANES_STENCIL ?
+                i == WindowSettings::IATTR_PLANES_STENCIL ?
                     "planes_stencil     " :
-                i== WindowSettings::IATTR_PLANES_ACCUM ?
+                i == WindowSettings::IATTR_PLANES_ACCUM ?
                     "planes_accum       " :
-                i== WindowSettings::IATTR_PLANES_ACCUM_ALPHA ?
+                i == WindowSettings::IATTR_PLANES_ACCUM_ALPHA ?
                     "planes_accum_alpha " :
-                i== WindowSettings::IATTR_PLANES_SAMPLES ?
+                i == WindowSettings::IATTR_PLANES_SAMPLES ?
                     "planes_samples     " : "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

@@ -35,6 +35,8 @@ class Texture;
 class BitmapFont;
 class ObjectManager;
 
+namespace shader {}
+
 /** A vector of pointers to eq::util::Texture */
 typedef std::vector< Texture* >  Textures;
 

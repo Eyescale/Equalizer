@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -96,6 +96,9 @@ void Global::_setupDefaults()
     for( uint32_t i=0; i<WindowSettings::IATTR_ALL; ++i )
         _windowIAttributes[i] = fabric::UNDEFINED;
 
+    _windowIAttributes[WindowSettings::IATTR_HINT_CORE_PROFILE] = fabric::OFF;
+    _windowIAttributes[WindowSettings::IATTR_HINT_OPENGL_MAJOR] = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_HINT_OPENGL_MINOR] = fabric::AUTO;
     _windowIAttributes[WindowSettings::IATTR_HINT_STEREO]       = fabric::AUTO;
     _windowIAttributes[WindowSettings::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
     _windowIAttributes[WindowSettings::IATTR_HINT_FULLSCREEN]   = fabric::OFF;

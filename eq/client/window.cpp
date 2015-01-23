@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,6 +30,7 @@
 #include "nodeFactory.h"
 #include "pipe.h"
 #include "server.h"
+#include "systemPipe.h"
 #include "systemWindow.h"
 #include "windowStatistics.h"
 
@@ -380,6 +381,21 @@ bool Window::configInit( const uint128_t& initID )
 
     LBASSERT( !_systemWindow );
 
+    int glMajorVersion = 1;
+    int glMinorVersion = 1;
+    if( getPipe()->getSystemPipe()->getMaxOpenGLVersion() != AUTO )
+    {
+        float maj, min;
+        min = modff( getPipe()->getSystemPipe()->getMaxOpenGLVersion(), &maj );
+        glMajorVersion = static_cast< int >( maj );
+        glMinorVersion = static_cast< int >( min*10.f );
+    }
+
+    if( getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MAJOR ) == AUTO )
+        setIAttribute( WindowSettings::IATTR_HINT_OPENGL_MAJOR, glMajorVersion);
+    if( getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MINOR ) == AUTO )
+        setIAttribute( WindowSettings::IATTR_HINT_OPENGL_MINOR, glMinorVersion);
+
     return configInitSystemWindow( initID ) && configInitGL( initID );
 }
 
@@ -457,21 +473,26 @@ const util::BitmapFont* Window::getMediumFont()
 
 bool Window::configInitGL( const uint128_t& )
 {
-    glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
-    glEnable( GL_DEPTH_TEST );
-    glDepthFunc( GL_LESS );
+    const bool coreProfile = getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( !coreProfile )
+    {
+        EQ_GL_CALL( glEnable( GL_LIGHTING ));
+        EQ_GL_CALL( glEnable( GL_LIGHT0 ));
 
-    glEnable( GL_LIGHTING );
-    glEnable( GL_LIGHT0 );
+        EQ_GL_CALL( glColorMaterial( GL_FRONT_AND_BACK,
+                                     GL_AMBIENT_AND_DIFFUSE ));
+        EQ_GL_CALL( glEnable( GL_COLOR_MATERIAL ));
+    }
 
-    glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
-    glEnable( GL_COLOR_MATERIAL );
+    EQ_GL_CALL( glEnable( GL_SCISSOR_TEST )); // to constrain channel viewport
+    EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
+    EQ_GL_CALL( glDepthFunc( GL_LESS ));
+    EQ_GL_CALL( glClearDepth( 1.f ));
 
-    glClearDepth( 1.f );
-
-    glClear( GL_COLOR_BUFFER_BIT );
+    EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT ));
     swapBuffers();
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ));
 
     return true;
 }

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2014, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,6 +37,14 @@ QGLFormat _createQGLFormat( const WindowSettings& settings )
 {
     // defaults: http://qt-project.org/doc/qt-4.8/qglformat.html#QGLFormat
     QGLFormat format;
+
+    const int coreProfile = getAttribute( IATTR_HINT_CORE_PROFILE );
+    if( coreProfile == ON )
+    {
+        format.setVersion( getAttribute( IATTR_HINT_OPENGL_MAJOR ),
+                           getAttribute( IATTR_HINT_OPENGL_MINOR ) );
+        format.setProfile( QGLFormat::CoreProfile );
+    }
 
     const int colorSize = getAttribute( IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == eq::AUTO )

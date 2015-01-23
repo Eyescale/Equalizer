@@ -305,7 +305,8 @@ void Channel::frameClear( const uint128_t& )
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         const Vector3ub color = getUniqueColor();
-        glClearColor( color.r()/255.f, color.g()/255.f, color.b()/255.f, 0.f );
+        EQ_GL_CALL( glClearColor( color.r()/255.f, color.g()/255.f,
+                                  color.b()/255.f, 0.f ));
     }
 #endif // NDEBUG
 
@@ -316,6 +317,11 @@ void Channel::frameDraw( const uint128_t& )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
+
+    const bool coreProfile = getWindow()->getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( coreProfile )
+        return;
 
     EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
     EQ_GL_CALL( glLoadIdentity( ));
@@ -396,13 +402,19 @@ void Channel::setupAssemblyState()
 {
     EQ_GL_CALL( bindFrameBuffer( ));
     const PixelViewport& pvp = getPixelViewport();
-    Compositor::setupAssemblyState( pvp, glewGetContext( ));
+    const bool coreProfile = getWindow()->getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( !coreProfile )
+        Compositor::setupAssemblyState( pvp, glewGetContext( ));
 }
 
 void Channel::resetAssemblyState()
 {
     EQ_GL_CALL( bindFrameBuffer( ));
-    Compositor::resetAssemblyState();
+    const bool coreProfile = getWindow()->getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( !coreProfile )
+        Compositor::resetAssemblyState();
 }
 
 void Channel::_overrideContext( RenderContext& context )
@@ -512,7 +524,8 @@ void Channel::applyColorMask() const
 {
     LB_TS_THREAD( _pipeThread );
     const ColorMask& colorMask = getDrawBufferMask();
-    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+    EQ_GL_CALL( glColorMask( colorMask.red, colorMask.green, colorMask.blue,
+                             true ));
 }
 
 void Channel::applyViewport() const
@@ -828,7 +841,10 @@ void Channel::drawStatistics()
 {
     const PixelViewport& pvp = getPixelViewport();
     LBASSERT( pvp.hasArea( ));
-    if( !pvp.hasArea( ))
+    Window* window = getWindow();
+    const bool coreProfile = window->getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( !pvp.hasArea() || coreProfile )
         return;
 
     //----- setup
@@ -836,18 +852,16 @@ void Channel::drawStatistics()
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
+    EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
+    EQ_GL_CALL( glLoadIdentity( ));
     applyScreenFrustum();
 
-    glMatrixMode( GL_MODELVIEW );
-    glDisable( GL_LIGHTING );
+    EQ_GL_CALL( glMatrixMode( GL_MODELVIEW ));
+    EQ_GL_CALL( glDisable( GL_LIGHTING ));
 
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glDisable( GL_COLOR_LOGIC_OP );
-
-    Window* window = getWindow();
+    EQ_GL_CALL( glEnable( GL_BLEND ));
+    EQ_GL_CALL( glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ));
+    EQ_GL_CALL( glDisable( GL_COLOR_LOGIC_OP ));
 
 #ifdef EQUALIZER_USE_GLSTATS
     const util::BitmapFont* font = window->getSmallFont();
@@ -862,13 +876,18 @@ void Channel::drawStatistics()
     renderer.draw( data );
 #endif
 
-    glColor3f( 1.f, 1.f, 1.f );
+    EQ_GL_CALL( glColor3f( 1.f, 1.f, 1.f ));
     window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
 void Channel::outlineViewport()
 {
+    const bool coreProfile = getWindow()->getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( coreProfile )
+        return;
+
     setupAssemblyState();
     glDisable( GL_LIGHTING );
 
