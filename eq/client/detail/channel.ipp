@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
- *               2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2012-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,9 +18,13 @@
  */
 
 #include "../channel.h"
+#include "../image.h"
+#include "../resultImageListener.h"
 #include "fileFrameWriter.h"
 
 #include <eq/fabric/drawableConfig.h>
+
+#include <boost/foreach.hpp>
 
 #ifdef EQUALIZER_USE_DEFLECT
 #  include "../dc/proxy.h"
@@ -42,42 +47,87 @@ class Channel
 {
 public:
     Channel()
-            : state( STATE_STOPPED )
-            , fbo( 0 )
-            , initialSize( Vector2i::ZERO )
+        : state( STATE_STOPPED )
+        , fbo( 0 )
+        , initialSize( Vector2i::ZERO )
 #ifdef EQUALIZER_USE_DEFLECT
-            , _dcProxy( 0 )
+        , _dcProxy( 0 )
 #endif
-        {
-            lunchbox::RNG rng;
-            color.r() = rng.get< uint8_t >();
-            color.g() = rng.get< uint8_t >();
-            color.b() = rng.get< uint8_t >();
-        }
+    {
+        lunchbox::RNG rng;
+        color.r() = rng.get< uint8_t >();
+        color.g() = rng.get< uint8_t >();
+        color.b() = rng.get< uint8_t >();
+    }
 
     ~Channel()
-        {
-            statistics->clear();
-            LBASSERT( !fbo );
-        }
-
-    void frameViewFinish( eq::Channel * channel )
     {
-        if( !channel->getSAttribute( channel->SATTR_DUMP_IMAGE ).empty( ))
-            frameWriter.write( channel );
+        framebufferImage.flush();
+        statistics->clear();
+        LBASSERT( !fbo );
+    }
 
-    #ifdef EQUALIZER_USE_DEFLECT
-        if( _dcProxy )
+    void addResultImageListener( ResultImageListener* listener )
+    {
+        LBASSERT( std::find( resultImageListeners.begin(),
+                             resultImageListeners.end(), listener ) ==
+                  resultImageListeners.end( ));
+
+        resultImageListeners.push_back( listener );
+    }
+
+    void removeResultImageListener( ResultImageListener* listener )
+    {
+        ResultImageListeners::iterator i =
+                std::find( resultImageListeners.begin(),
+                           resultImageListeners.end(), listener );
+        if( i != resultImageListeners.end( ))
+            resultImageListeners.erase( i );
+    }
+
+    void frameViewFinish( eq::Channel& channel )
+    {
+        if( channel.getSAttribute( channel.SATTR_DUMP_IMAGE ).empty( ))
+            removeResultImageListener( &frameWriter );
+        else
         {
-            if( !_dcProxy->isRunning( ))
-            {
-                delete _dcProxy;
-                _dcProxy = 0;
-            }
-            else
-                _dcProxy->swapBuffer();
+            ResultImageListeners::iterator i =
+                    std::find( resultImageListeners.begin(),
+                               resultImageListeners.end(), &frameWriter );
+            if( i == resultImageListeners.end( ))
+                addResultImageListener( &frameWriter );
         }
-    #endif
+
+#ifdef EQUALIZER_USE_DEFLECT
+        if( _dcProxy && !_dcProxy->isRunning( ))
+        {
+            delete _dcProxy;
+            _dcProxy = 0;
+        }
+#endif
+
+        if( resultImageListeners.empty( ))
+            return;
+
+        downloadFramebuffer( channel );
+        BOOST_FOREACH( ResultImageListener* listener, resultImageListeners )
+            listener->notifyNewImage( channel, framebufferImage );
+    }
+
+    void downloadFramebuffer( eq::Channel& channel )
+    {
+        framebufferImage.setAlphaUsage( true );
+        framebufferImage.setQuality( eq::Frame::BUFFER_COLOR, 1.0f );
+        framebufferImage.setStorageType( eq::Frame::TYPE_MEMORY );
+        framebufferImage.setInternalFormat( eq::Frame::BUFFER_COLOR, GL_RGBA );
+
+        if( framebufferImage.startReadback( eq::Frame::BUFFER_COLOR,
+                                            channel.getPixelViewport(),
+                                            channel.getZoom(),
+                                            channel.getObjectManager( )))
+        {
+            framebufferImage.finishReadback( channel.glewGetContext( ));
+        }
     }
 
     /** The channel's drawable config (FBO). */
@@ -116,6 +166,13 @@ public:
 
     /** The number of the last finished frame. */
     lunchbox::Monitor< uint32_t > finishedFrame;
+
+    /** Listeners that get notified on each new rendered image */
+    typedef std::vector< ResultImageListener* > ResultImageListeners;
+    ResultImageListeners resultImageListeners;
+
+    /** Image of the current framebuffer if result listeners are present */
+    eq::Image framebufferImage;
 
 #ifdef EQUALIZER_USE_DEFLECT
     dc::Proxy* _dcProxy;

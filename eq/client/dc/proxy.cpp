@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013-2014, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
+/* Copyright (c) 2013-2015, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 
 #include "../channel.h"
 #include "../gl.h"
+#include "../image.h"
 #include "../pipe.h"
 #include "../systemWindow.h"
 #include "../view.h"
@@ -57,7 +58,6 @@ public:
         , _channel( ch )
         , _sendFuture( make_ready_future( false ))
         , _running( false )
-        , _texture( 0 )
     {
         const DrawableConfig& dc = _channel->getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -89,38 +89,34 @@ public:
         // wait for completion of previous send
         _sendFuture.wait();
 
-        if( _texture )
-            _texture->flush();
-
-        delete _texture;
         delete _eventHandler;
         delete _stream;
     }
 
-    void swapBuffer()
+    void notifyNewImage( const eq::Channel& channel LB_UNUSED,
+                         const eq::Image& image )
     {
+        LBASSERT( &channel == _channel );
+
         // wait for completion of previous send
         _running = _sendFuture.get();
 
-        const PixelViewport& pvp = _channel->getPixelViewport();
-        const size_t bytesPerPixel = 4;
-        const size_t newSize = pvp.w * pvp.h * bytesPerPixel;
-        buffer.resize( newSize );
+        // copy pixels to perform swapYAxis()
+        const size_t dataSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
+        buffer.replace( image.getPixelPointer( Frame::BUFFER_COLOR ), dataSize);
+        const PixelViewport& pvp = image.getPixelViewport();
+        deflect::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
+                                     image.getPixelSize( Frame::BUFFER_COLOR ));
 
-        // OPT: use FBO texture directly to download
-        if( !_fboDownload( ))
-            _textureDownload();
-
+        // determine image offset wrt global view
         const Viewport& vp = _channel->getViewport();
         const int32_t width = pvp.w / vp.w;
         const int32_t height = pvp.h / vp.h;
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        deflect::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
-                                            bytesPerPixel );
         deflect::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
-                                              deflect::RGBA, offsX, offsY );
+                                            deflect::BGRA, offsX, offsY );
         imageWrapper.compressionPolicy = deflect::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
 
@@ -133,53 +129,25 @@ public:
     lunchbox::Bufferb buffer;
     deflect::Stream::Future _sendFuture;
     bool _running;
-    util::Texture* _texture;
-
-private:
-    bool _fboDownload()
-    {
-        const SystemWindow* sysWindow = _channel->getWindow()->getSystemWindow();
-        const util::FrameBufferObject* fbo = sysWindow->getFrameBufferObject();
-        if( !fbo || fbo->getColorTextures().size() != 1 )
-            return false;
-
-        const util::Texture* texture = fbo->getColorTextures().front();
-        const PixelViewport& pvp = _channel->getPixelViewport();
-        if( texture->getWidth() != pvp.w || texture->getHeight() != pvp.h )
-            return false;
-
-        texture->download( buffer.getData( ));
-        return true;
-    }
-
-    void _textureDownload()
-    {
-        if( !_texture )
-            _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB,
-                            _channel->getObjectManager().glewGetContext( ));
-
-        const PixelViewport& pvp = _channel->getPixelViewport();
-        _texture->copyFromFrameBuffer( GL_RGBA, pvp );
-        // Needed as copyFromFrameBuffer only grows the texture!
-        _texture->resize( pvp.w, pvp.h );
-        _texture->download( buffer.getData( ));
-    }
 };
 }
 
 Proxy::Proxy( Channel* channel )
-    : _impl( new detail::Proxy( channel ))
+    : ResultImageListener()
+    , _impl( new detail::Proxy( channel ))
 {
+    channel->addResultImageListener( this );
 }
 
 Proxy::~Proxy()
 {
+    _impl->_channel->removeResultImageListener( this );
     delete _impl;
 }
 
-void Proxy::swapBuffer()
+void Proxy::notifyNewImage( const eq::Channel& channel, const eq::Image& image )
 {
-    _impl->swapBuffer();
+    _impl->notifyNewImage( channel, image );
 
     if( !_impl->_eventHandler && _impl->_stream->registerForEvents( true ))
     {
