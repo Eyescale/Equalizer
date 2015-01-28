@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -359,6 +359,27 @@ public:
      * @param latency the new latency.
      */
     void changeLatency( const uint32_t latency );
+
+    /**
+     * Add a listener that gets notified everytime a new frame was rendered for
+     * a destination channel.
+     *
+     * The channel does not take ownership of the listener. The notification
+     * always happens in the render thread.
+     *
+     * @param listener the new listener to add
+     * @version 1.8
+     */
+    EQ_API void addResultImageListener( ResultImageListener* listener );
+
+    /**
+     * Remove a result image listener to stop receival of notifications on new
+     * images.
+     *
+     * @param listener the new listener to remove
+     * @version 1.8
+     */
+    EQ_API void removeResultImageListener( ResultImageListener* listener );
 
 protected:
     /** @internal */

@@ -1,4 +1,5 @@
-/* Copyright (c) 2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2013-2015, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,9 +18,8 @@
 #ifndef EQ_FILE_FRAME_WRITER_H
 #define EQ_FILE_FRAME_WRITER_H
 
-#include <eq/client/image.h>
-
-#include <string>
+#include <eq/client/resultImageListener.h> // base class
+#include <eq/client/types.h>
 
 namespace eq
 {
@@ -27,19 +27,17 @@ namespace detail
 {
 
 /**
- * Persist the color buffer of a channel to a file. 
+ * Persist the color buffer of a channel to a file.
  * The name of the file is Channel::SATTR_DUMP_IMAGE.rgb
  */
-class FileFrameWriter
+class FileFrameWriter : public ResultImageListener
 {
 public:
     FileFrameWriter();
     ~FileFrameWriter();
 
-    void write( eq::Channel* channel );
-
-private:
-    eq::Image _image;
+    void notifyNewImage( const eq::Channel& channel,
+                         const eq::Image& image ) final;
 };
 
 }

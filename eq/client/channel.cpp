@@ -1,7 +1,7 @@
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
- *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- * 				      2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -475,7 +475,7 @@ void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
 
 void Channel::frameViewFinish( const uint128_t& )
 {
-    _impl->frameViewFinish( this );
+    _impl->frameViewFinish( *this );
 }
 
 void Channel::setupAssemblyState()
@@ -565,6 +565,16 @@ void Channel::changeLatency( const uint32_t latency )
     }
 #endif //NDEBUG
     _impl->statistics->resize( latency + 1 );
+}
+
+void Channel::addResultImageListener( ResultImageListener* listener )
+{
+    _impl->addResultImageListener( listener );
+}
+
+void Channel::removeResultImageListener( ResultImageListener* listener )
+{
+    _impl->removeResultImageListener( listener );
 }
 
 //---------------------------------------------------------------------------

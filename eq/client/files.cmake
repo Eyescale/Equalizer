@@ -1,6 +1,6 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
-#               2012 Daniel Nachbaur <danielnachbaur@gmail.com>
+# Copyright (c) 2010-2015 Stefan Eilemann <eile@eyescale.ch>
+#                         Daniel Pfeifer <daniel@pfeifer-mail.de>
+#                         Daniel Nachbaur <danielnachbaur@gmail.com>
 
 set(AGL_HEADERS
   agl/eventHandler.h
@@ -128,6 +128,7 @@ set(CLIENT_PUBLIC_HEADERS
   os.h
   pipe.h
   pixelData.h
+  resultImageListener.h
   segment.h
   server.h
   statisticSampler.h
