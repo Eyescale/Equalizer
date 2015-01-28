@@ -145,9 +145,12 @@ else()
   message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 endif()
 
-include(DoxygenRule) # must be after all targets
+set(DOXYGEN_EXTRA_INPUT "@CMAKE_INSTALL_PREFIX@/include/seq @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples")
+set(DOXYGEN_EXTRA_EXCLUDE "@CMAKE_INSTALL_PREFIX@/include/eq/admin @CMAKE_INSTALL_PREFIX@/include/GL")
+
 include(CPackConfig)
 include(PackageConfig)
+include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179

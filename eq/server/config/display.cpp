@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.h>
  *               2012-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -49,6 +49,14 @@ void _choosePixelViewport( Window& window )
     if( width == fabric::UNDEFINED && height == fabric::UNDEFINED )
     {
         window.setViewport( Viewport( .25f, .2f, .5f, .5f ));
+
+        // Make the window aspect ratio 16:10, assuming square pixels
+        PixelViewport pvp = window.getPixelViewport();
+        pvp.w = pvp.h * 1.6f;
+
+        // Position window in the middle of the first monitor, assuming 16:10 AR
+        pvp.x = pvp.w / 2;
+        window.setPixelViewport( pvp );
         return;
     }
 
