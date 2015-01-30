@@ -1,4 +1,5 @@
-/* Copyright (c) 2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2013-2015, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,11 +28,11 @@
 
 namespace
 {
-std::string _buildFileName( const eq::Channel* channel )
+std::string _buildFileName( const eq::Channel& channel )
 {
     std::stringstream name;
-    name << channel->getSAttribute( eq::Channel::SATTR_DUMP_IMAGE )
-         << channel->getPipe()->getCurrentFrame() << ".rgb";
+    name << channel.getSAttribute( eq::Channel::SATTR_DUMP_IMAGE )
+         << channel.getPipe()->getCurrentFrame() << ".rgb";
     return name.str();
 }
 }
@@ -41,30 +42,20 @@ namespace eq
 namespace detail
 {
 FileFrameWriter::FileFrameWriter()
+    : ResultImageListener()
 {
-    _image.setAlphaUsage( true );
-    _image.setQuality( eq::Frame::BUFFER_COLOR, 1.0f );
-    _image.setStorageType( eq::Frame::TYPE_MEMORY );
-    _image.setInternalFormat( eq::Frame::BUFFER_COLOR, GL_RGBA );
 }
 
-void FileFrameWriter::write( eq::Channel* channel )
+void FileFrameWriter::notifyNewImage( const eq::Channel& channel,
+                                      const eq::Image& image )
 {
-    if( _image.startReadback( eq::Frame::BUFFER_COLOR,
-                              channel->getPixelViewport(),
-                              channel->getZoom(), channel->getObjectManager( )))
-    {
-        _image.finishReadback( channel->glewGetContext( ));
-    }
-
     const std::string& fileName = _buildFileName( channel );
-    if( !_image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
+    if( !image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
         LBWARN << "Could not write file " << fileName << std::endl;
 }
 
 FileFrameWriter::~FileFrameWriter()
 {
-    _image.flush();
 }
 
 }

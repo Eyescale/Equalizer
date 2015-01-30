@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
+/* Copyright (c) 2013-2015, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 #ifndef EQ_DC_PROXY_H
 #define EQ_DC_PROXY_H
 
+#include <eq/client/resultImageListener.h> // base class
 #include <eq/client/types.h>
 #include <deflect/types.h>
 
@@ -28,7 +29,7 @@ namespace dc
 namespace detail { class Proxy; }
 
 /** @internal */
-class Proxy : public boost::noncopyable
+class Proxy : public ResultImageListener
 {
 public:
     /** Construct a DisplayCluster proxy associated to a destination channel. */
@@ -37,11 +38,9 @@ public:
     /** Destruct the DisplayCluster proxy. */
     ~Proxy();
 
-    /** Stream the pixel data of the currently bound buffer to DisplayCluster.
-     *
-     * Has to be called from Channel::frameViewFinish.
-     */
-    void swapBuffer();
+    /** Stream the given image to DisplayCluster. */
+    void notifyNewImage( const eq::Channel& channel,
+                         const eq::Image& image ) final;
 
     /** @return the associated destination channel. */
     Channel* getChannel();
