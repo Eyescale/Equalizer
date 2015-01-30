@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2015 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
@@ -10,7 +10,6 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
 
 include(GitExternal)
 include(SubProject)
-
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "8")
@@ -109,7 +108,8 @@ if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
 
-install(FILES CMake/common/FindGLEW_MX.cmake CMake/EqGLLibraries.cmake
+common_install(RELATIVE
+  FILES CMake/common/FindGLEW_MX.cmake CMake/EqGLLibraries.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)
