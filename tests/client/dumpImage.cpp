@@ -32,7 +32,7 @@
 #ifdef EQUALIZER_USE_HWSD
 static const unsigned int WIDTH = 200;
 static const unsigned int HEIGHT = 100;
-static const unsigned int BYTES_PER_PIXEL = 1;
+static const unsigned int BYTES_PER_PIXEL = 4;
 static const unsigned int HEADER_SIZE = 512;
 static const size_t EXPECTED_SIZE = ( WIDTH * HEIGHT * BYTES_PER_PIXEL )
                                       + HEADER_SIZE;
@@ -43,27 +43,27 @@ static const std::string GENERATED_FILENAME = PREFIX + "1.rgb";
 namespace
 {
 
-class TestPipe: public eq::Pipe
+class TestWindow: public eq::Window
 {
 public:
-    TestPipe( eq::Node* parent )
-        : eq::Pipe( parent )
+    TestWindow( eq::Pipe* parent )
+        : eq::Window( parent )
     {
     }
 
     virtual bool configInit( const co::uint128_t& initID )
     {
         setPixelViewport( eq::PixelViewport( 0, 0, WIDTH, HEIGHT ));
-        return eq::Pipe::configInit( initID );
+        return eq::Window::configInit( initID );
     }
 };
 
 class TestNodeFactory: public eq::NodeFactory
 {
 public:
-    virtual eq::Pipe* createPipe( eq::Node* parent )
+    virtual eq::Window* createWindow( eq::Pipe* parent )
     {
-        return new TestPipe( parent );
+        return new TestWindow( parent );
     }
 };
 }
@@ -115,7 +115,9 @@ int main( const int argc, char** argv )
     // 5.- Verify results
     TESTINFO( boost::filesystem::exists( GENERATED_FILENAME ),
               GENERATED_FILENAME );
-    TEST( EXPECTED_SIZE == boost::filesystem::file_size( GENERATED_FILENAME ));
+    TESTINFO( EXPECTED_SIZE == boost::filesystem::file_size( GENERATED_FILENAME ),
+              EXPECTED_SIZE << " != " <<
+              boost::filesystem::file_size( GENERATED_FILENAME ));
 
     // 6.- Remove generated file
     ::remove( GENERATED_FILENAME.c_str( ));
