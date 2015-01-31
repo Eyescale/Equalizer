@@ -6,7 +6,7 @@ if(GLEW_MX_FOUND)
   set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
 else()
   set(GLEW_VERSION 1.9.0)
-  set(GLEW_DIR ${CMAKE_BINARY_DIR}/glew-${GLEW_VERSION})
+  set(GLEW_DIR ${PROJECT_BINARY_DIR}/glew-${GLEW_VERSION})
   set(GLEW_MX_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
   set(GLEW_LIBRARY "GLEW_MX_Equalizer")
   set(GLEW_TGZ ${CMAKE_CURRENT_SOURCE_DIR}/GLEW/glew-${GLEW_VERSION}.tgz)
@@ -14,7 +14,7 @@ else()
   if(NOT EXISTS ${GLEW_DIR})
     message(STATUS "  Extracting GLEW to ${GLEW_DIR}")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-      ${GLEW_TGZ} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+      ${GLEW_TGZ} WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 
     # 'Fix' glxew.h
     set(_glxew_h "${GLEW_DIR}/include/GL/glxew.h")
