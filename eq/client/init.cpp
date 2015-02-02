@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -39,15 +39,16 @@
 #include <pression/pluginRegistry.h>
 
 #ifdef _WIN32
-#pragma warning( push )
-#pragma warning( disable : 4275 4251 )
+#  pragma warning( push )
+#  pragma warning( disable : 4275 4251 )
 #endif
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #ifdef _WIN32
-#pragma warning( pop )
+#  pragma warning( pop )
 #endif
 
 #include <fstream>

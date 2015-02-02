@@ -43,6 +43,7 @@
 #include <co/objectICommand.h>
 
 #include <lunchbox/sleep.h>
+#include <boost/foreach.hpp>
 
 #include "channelStopFrameVisitor.h"
 #include "configDeregistrator.h"
