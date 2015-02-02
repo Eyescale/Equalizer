@@ -28,8 +28,6 @@
 #include <lunchbox/atomic.h>
 #include <lunchbox/compiler.h>
 
-#include <boost/noncopyable.hpp>
-
 #include <map>
 #include <vector>
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -42,6 +42,7 @@
 #include <eq/fabric/paths.h>
 #include <lunchbox/os.h>
 #include <lunchbox/stdExt.h>
+#include <boost/foreach.hpp>
 
 #include <algorithm>
 #include <math.h>
