@@ -103,7 +103,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc)
 
-set(EQUALIZER_DEPENDENT_LIBRARIES Lunchbox Collage)
+set(EQUALIZER_DEPENDENT_LIBRARIES vmmlib Lunchbox Collage)
 if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEPENDENT_LIBRARIES GLEW_MX)
 endif()
