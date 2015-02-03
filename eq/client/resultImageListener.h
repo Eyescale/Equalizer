@@ -47,8 +47,7 @@ public:
      * @param image the new image, valid only in the current frame
      * @version 1.8
      */
-    virtual void notifyNewImage( const Channel& channel,
-                                 const Image& image ) = 0;
+    virtual void notifyNewImage( Channel& channel, const Image& image ) = 0;
 };
 
 }

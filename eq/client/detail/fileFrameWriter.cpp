@@ -46,7 +46,7 @@ FileFrameWriter::FileFrameWriter()
 {
 }
 
-void FileFrameWriter::notifyNewImage( const eq::Channel& channel,
+void FileFrameWriter::notifyNewImage( eq::Channel& channel,
                                       const eq::Image& image )
 {
     const std::string& fileName = _buildFileName( channel );

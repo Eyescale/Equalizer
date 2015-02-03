@@ -39,8 +39,7 @@ public:
     ~Proxy();
 
     /** Stream the given image to DisplayCluster. */
-    void notifyNewImage( const eq::Channel& channel,
-                         const eq::Image& image ) final;
+    void notifyNewImage( eq::Channel& channel, const eq::Image& image ) final;
 
     /** @return the associated destination channel. */
     Channel* getChannel();

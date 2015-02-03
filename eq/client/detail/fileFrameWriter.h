@@ -36,8 +36,7 @@ public:
     FileFrameWriter();
     ~FileFrameWriter();
 
-    void notifyNewImage( const eq::Channel& channel,
-                         const eq::Image& image ) final;
+    void notifyNewImage( eq::Channel& channel, const eq::Image& image ) final;
 };
 
 }
