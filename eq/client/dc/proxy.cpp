@@ -93,7 +93,7 @@ public:
         delete _stream;
     }
 
-    void notifyNewImage( const eq::Channel& channel LB_UNUSED,
+    void notifyNewImage( eq::Channel& channel LB_UNUSED,
                          const eq::Image& image )
     {
         LBASSERT( &channel == _channel );
@@ -145,7 +145,7 @@ Proxy::~Proxy()
     delete _impl;
 }
 
-void Proxy::notifyNewImage( const eq::Channel& channel, const eq::Image& image )
+void Proxy::notifyNewImage( eq::Channel& channel, const eq::Image& image )
 {
     _impl->notifyNewImage( channel, image );
 
