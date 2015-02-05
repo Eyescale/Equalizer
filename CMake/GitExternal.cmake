@@ -1,5 +1,4 @@
-# Configures an external git repository
-#
+# configures an external git repository
 # Usage:
 #  * Automatically reads, parses and updates a .gitexternals file if it only
 #    contains lines in the form "# <directory> <giturl> <gittag>".
@@ -8,8 +7,7 @@
 #    update target to bump the tag to the master revision by
 #    recreating .gitexternals.
 #  * Provides function
-#    git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE]
-#      [RESET <files>])
+#    git_external(<directory> <giturl> <gittag> [NO_UPDATE, VERBOSE] [RESET <files>])
 #  git_external_manage(<file>)
 #
 # [optional] Flags which control behaviour
@@ -22,10 +20,6 @@
 #  VERBOSE
 #    When set, displays information about git commands that are executed
 #
-# CMake variables
-#  GIT_EXTERNAL_USER_FORK If set, a remote called 'user' is set up for github
-#    repositories, pointing to github.com/<user>/<project>. Defaults to user
-#    name or GIT_EXTERNAL_USER environment variable.
 
 find_package(Git)
 if(NOT GIT_EXECUTABLE)
@@ -33,17 +27,6 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
-
-set(GIT_EXTERNAL_USER $ENV{GIT_EXTERNAL_USER})
-if(NOT GIT_EXTERNAL_USER)
-  if(MSVC)
-    set(GIT_EXTERNAL_USER $ENV{USERNAME})
-  else()
-    set(GIT_EXTERNAL_USER $ENV{USER})
-  endif()
-endif()
-set(GIT_EXTERNAL_USER_FORK ${GIT_EXTERNAL_USER} CACHE STRING
-  "Github user name used to setup remote for user forks")
 
 macro(GIT_EXTERNAL_MESSAGE msg)
   if(${GIT_EXTERNAL_VERBOSE})
@@ -66,14 +49,6 @@ function(GIT_EXTERNAL DIR REPO TAG)
     if(nok)
       message(FATAL_ERROR "${DIR} git clone failed: ${error}\n")
     endif()
-  endif()
-  if(GIT_EXTERNAL_USER_FORK AND REPO MATCHES ".*github.com.*")
-    string(REGEX REPLACE "(.*github.com[\\/:]).*(\\/.*)"
-      "\\1${GIT_EXTERNAL_USER_FORK}\\2" GIT_EXTERNAL_USER_REPO ${REPO})
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" remote add user ${GIT_EXTERNAL_USER_REPO}
-      RESULT_VARIABLE nok ERROR_VARIABLE error
-      WORKING_DIRECTORY "${DIR}")
   endif()
 
   if(IS_DIRECTORY "${DIR}/.git")
