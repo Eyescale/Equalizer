@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *               2011, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -17,15 +17,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "types.h"
-#include "compound.h"
-#include "config.h"
-#include "tileQueue.h"
-#include "compoundVisitor.h"
-#include "server.h"
-#include "view.h"
+#include <eq/server/equalizers/tileEqualizer.h>
 
-#include "tileEqualizer.h"
+#include <eq/server/compound.h>
+#include <eq/server/compoundVisitor.h>
+#include <eq/server/config.h>
+#include <eq/server/server.h>
+#include <eq/server/tileQueue.h>
+#include <eq/server/view.h>
 
 namespace eq
 {
