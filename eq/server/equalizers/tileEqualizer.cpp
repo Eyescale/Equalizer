@@ -17,14 +17,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/server/equalizers/tileEqualizer.h>
+#include "tileEqualizer.h"
 
-#include <eq/server/compound.h>
-#include <eq/server/compoundVisitor.h>
-#include <eq/server/config.h>
-#include <eq/server/server.h>
-#include <eq/server/tileQueue.h>
-#include <eq/server/view.h>
+#include "../compound.h"
+#include "../compoundVisitor.h"
+#include "../config.h"
+#include "../server.h"
+#include "../tileQueue.h"
+#include "../view.h"
 
 namespace eq
 {
