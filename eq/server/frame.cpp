@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -34,6 +34,7 @@ Frame::Frame()
         : _compound( 0 )
         , _buffers( BUFFER_UNDEFINED )
         , _type( TYPE_MEMORY )
+        , _native()
         , _masterFrameData( 0 )
 {
     setNativeZoom( Zoom( 0.f, 0.f )); //set invalid zoom to detect 'set' state
@@ -47,6 +48,7 @@ Frame::Frame( const Frame& from )
         , _vp( from._vp )
         , _buffers( from._buffers )
         , _type( from._type )
+        , _native( from._native )
         , _masterFrameData( 0 )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
@@ -139,7 +141,7 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
         }
 
         data->setFrameNumber( frameNumber );
-    
+
         _datas.push_front( data );
         _frameData[i] = data;
         _getInputNodes( i ).clear();
@@ -155,7 +157,7 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
     {
         // eye pass not used && no output frame for eye pass
         const Eye eye = Eye( 1<<i );
-        if( compound->isInheritActive( eye ) && _frameData[i] )     
+        if( compound->isInheritActive( eye ) && _frameData[i] )
         {
             frame->_frameData[i] = _frameData[i];
             _inputFrames[i].push_back( frame );
@@ -193,7 +195,7 @@ std::ostream& operator << ( std::ostream& os, const Frame& frame )
     const Frame::Type frameType = frame.getType();
     if( frameType != Frame::TYPE_MEMORY )
         os  << frameType;
-    
+
     const Viewport& vp = frame.getViewport();
     if( vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
