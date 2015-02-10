@@ -51,7 +51,7 @@ public:
             for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
             {
                 const eq::Layout* layout = *j;
-                if( layout->getName() == name &&
+                if( layout && layout->getName() == name &&
                     canvas->useLayout( j - layouts.begin( )))
                 {
                     _update = true;
