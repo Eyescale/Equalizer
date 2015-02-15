@@ -1,23 +1,19 @@
-@echo off
+@echo OFF
+REM Simple one-click batch file for executing a Debug, x64 build using Visual
+REM Studio 2013 aka vc12 compiler. Note that cmake.exe and git.exe must be part
+REM of %PATH%.
 
-set CMAKE="%PROGRAMFILES%\CMake 2.8\bin\cmake.exe"
-set SUBWCREV="%PROGRAMFILES%\TortoiseSVN\bin\SubWCRev.exe"
-set DESTINATION="C:\Equalizer"
+REM load environment for Visual Studio 2013
+call "%VS120COMNTOOLS%"vsvars32.bat
 
-call "%VS90COMNTOOLS%vsvars32.bat"
+REM do initial configuration if required
+if not exist build (
+  mkdir build
+  cd /D build
+  cmake .. -G "Visual Studio 12 Win64"
+) else (
+  cd /D build
+)
 
-if not exist build\NUL md build
-cd build
-
-%CMAKE% -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Debug -G "NMake Makefiles" ..
-
-nmake preinstall
-
-%CMAKE% -DCOMPONENT=Unspecified -DCMAKE_INSTALL_PREFIX=%DESTINATION% -P cmake_install.cmake
-%CMAKE% -DCOMPONENT=dev         -DCMAKE_INSTALL_PREFIX=%DESTINATION% -P cmake_install.cmake
-%CMAKE% -DCOMPONENT=tools       -DCMAKE_INSTALL_PREFIX=%DESTINATION% -P cmake_install.cmake
-%CMAKE% -DCOMPONENT=vmmlib      -DCMAKE_INSTALL_PREFIX=%DESTINATION% -P cmake_install.cmake
-
-%SUBWCREV% .. > "%DESTINATION%\include\eq\Version.txt"
-
+msbuild /p:Configuration=Debug;Platform=x64 /m ALL_BUILD.vcxproj
 pause
