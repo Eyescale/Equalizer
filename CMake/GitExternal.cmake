@@ -106,7 +106,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
       endforeach()
 
       # fetch latest update
-      execute_process(COMMAND "${GIT_EXECUTABLE}" fetch --all -q
+      execute_process(COMMAND "${GIT_EXECUTABLE}" fetch origin -q
         RESULT_VARIABLE nok ERROR_VARIABLE error
         WORKING_DIRECTORY "${DIR}")
       if(nok)
@@ -199,7 +199,7 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
             "${CMAKE_CURRENT_BINARY_DIR}/gitupdate${GIT_EXTERNAL_NAME}.cmake")
           file(WRITE "${GIT_EXTERNAL_SCRIPT}" "
 include(${CMAKE_CURRENT_LIST_DIR}/GitExternal.cmake)
-execute_process(COMMAND ${GIT_EXECUTABLE} fetch --all -q
+execute_process(COMMAND ${GIT_EXECUTABLE} fetch origin -q
   WORKING_DIRECTORY ${DIR})
 execute_process(
   COMMAND ${GIT_EXECUTABLE} show-ref --hash=7 refs/remotes/origin/master
@@ -232,7 +232,7 @@ endif()")
             COMMAND ${GIT_EXECUTABLE} add -f .
             COMMAND ${GIT_EXECUTABLE} commit -m "Flatten ${REPO} into ${DIR} at ${TAG}" . ${CMAKE_CURRENT_SOURCE_DIR}/.gitexternals
             COMMENT "Flatten ${REPO} into ${DIR}"
-            DEPENDS make-branch
+            DEPENDS make_branch_${PROJECT_NAME}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
           add_dependencies(flatten_git_external
             flatten_git_external_${GIT_EXTERNAL_NAME})
