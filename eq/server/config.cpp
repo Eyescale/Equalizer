@@ -296,7 +296,7 @@ void Config::activateCanvas( Canvas* canvas )
                         << " using channel @" << (void*)channel << std::endl;
                 }
 
-                if( channel->getWindow()->isAttached() )
+                if( channel->getWindow()->isAttached( ))
                     // parent is already registered - register channel as well
                     getServer()->registerObject( channel );
             }
@@ -323,7 +323,7 @@ void Config::updateCanvas( Canvas* canvas )
             const Channels& channels = view->getChannels();
 
             if( channels.empty( ))
-                LBWARN << "New view without destination channels will be ignored"
+                LBWARN << "View without destination channels will be ignored"
                        << std::endl;
 
             for( ChannelsCIter k = channels.begin(); k != channels.end(); ++k )

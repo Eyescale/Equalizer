@@ -253,6 +253,9 @@ void Channel::deactivate()
 
 void Channel::setOutput( View* view, Segment* segment )
 {
+    if( _view == view && _segment == segment )
+        return;
+
     LBASSERT( !_view && !_segment );
     LBASSERT( view && segment );
 

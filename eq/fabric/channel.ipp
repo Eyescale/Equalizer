@@ -76,7 +76,6 @@ Channel< W, C >::Channel( const Channel& from )
 template< class W, class C >
 void Channel< W, C >::init()
 {
-    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
@@ -156,7 +155,7 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
         else // consume unused data
             is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) +
                                    sizeof( _data.nativeContext.pvp ) +
-                                   sizeof( _data.fixedVP ) + sizeof( _maxSize ));
+                                   sizeof( _data.fixedVP ) +sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _drawable >> _data.nativeContext.view
