@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,6 +37,7 @@ namespace eq
     using fabric::ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
     using fabric::ERROR_FRAMEBUFFER_INITIALIZED;
     using fabric::ERROR_FRAMEBUFFER_INVALID_SIZE;
+    using fabric::ERROR_FRAMEBUFFER_INVALID_SAMPLES;
     using fabric::ERROR_CUDACONTEXT_DEVICE_NOTFOUND;
     using fabric::ERROR_CUDACONTEXT_INIT_FAILED;
     using fabric::ERROR_CUDACONTEXT_MISSING_SUPPORT;

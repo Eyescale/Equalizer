@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2009, Makhinya Maxim
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -57,6 +57,12 @@ public:
     /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
     EQ_API void bindFrameBuffer() const override;
 
+    /** Bind the window's draw FBO, used for multisampling. @version 1.9 */
+    EQ_API void bindDrawFrameBuffer() const override;
+
+    /** Update the window's FBO from the multisampled FBO. @version 1.9 */
+    EQ_API void updateFrameBuffer() const override;
+
     /** Flush all command buffers. @version 1.5.2 */
     EQ_API void flush() override;
 
@@ -101,6 +107,9 @@ public:
     EQ_API void queryDrawableConfig( DrawableConfig& ) override;
 
 private:
+    bool _createFBO( util::FrameBufferObject*& fbo, const int samplesSize );
+    void _destroyFBO( util::FrameBufferObject*& fbo );
+
     detail::GLWindow* const _impl;
 
     GLEWContext* glewGetContext();

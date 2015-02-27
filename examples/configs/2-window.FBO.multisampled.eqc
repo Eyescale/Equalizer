@@ -1,0 +1,76 @@
+#Equalizer 1.1 ascii
+# Example configuration serving a planar powerwall from a single, multisampled FBO
+
+global
+{
+    EQ_WINDOW_IATTR_HINT_DECORATION OFF
+}
+
+server
+{
+    connection { hostname "127.0.0.1" }
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    attributes{ hint_drawable FBO planes_samples 16 }
+                    viewport [ 100 450 960 300 ]
+                    channel { name "buffer" }
+                }
+                window
+                {
+                    name "left"
+                    viewport [ 98 100 480 300 ]
+                    channel { name "channel1" }
+                }
+                window
+                {
+                    name "right"
+                    viewport [ 582 100 480 300 ]
+                    channel { name "channel2" }
+                }
+            }
+        }
+
+        observer {}
+        layout { view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall
+            {
+                bottom_left  [ -1.6 -.5 -1 ]
+                bottom_right [  1.6 -.5 -1 ]
+                top_left     [ -1.6  .5 -1 ]
+            }
+            segment { channel "buffer" }
+            segment { channel "channel1" viewport [ 0 0 .5 1 ] }
+            segment { channel "channel2" viewport [ .5 0 .5 1 ] }
+        }
+        compound
+        {
+            compound
+            {
+                channel ( segment 0 view 0 )
+                outputframe { viewport [ 0 0 .5 1 ] name "left" type texture }
+                outputframe { viewport [ .5 0 .5 1 ] name "right" type texture }
+            }
+            compound
+            {
+                channel ( segment 1 view 0 )
+                task [ CLEAR ASSEMBLE ]
+                inputframe { name "left" }
+            }
+            compound
+            {
+                channel ( segment 2 view 0 )
+                task [ CLEAR ASSEMBLE ]
+                inputframe { name "right" }
+            }
+        }
+    }
+}

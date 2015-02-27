@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -152,7 +153,7 @@ public:
 
     /** Create and bind a texture to the current FBO. @version 1.0 */
     EQ_API void bindToFBO( const unsigned target, const int32_t width,
-                           const int32_t height );
+                           const int32_t height, const int32_t samples = 1 );
 
     /** Resize the texture. @version 1.0 */
     EQ_API void resize( const int32_t width, const int32_t height );

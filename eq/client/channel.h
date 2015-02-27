@@ -259,6 +259,12 @@ public:
      * @version 1.0
      */
     EQ_API void bindFrameBuffer();
+
+    /**
+     * Rebind the window draw buffer.
+     * @version 1.9
+     */
+    EQ_API void bindDrawFrameBuffer();
     //@}
 
     /** @name Region of Interest. */

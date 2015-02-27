@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,6 +40,7 @@ enum ErrorCode
     ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
     ERROR_FRAMEBUFFER_INITIALIZED,
     ERROR_FRAMEBUFFER_INVALID_SIZE,
+    ERROR_FRAMEBUFFER_INVALID_SAMPLES,
     ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
     ERROR_CUDACONTEXT_INIT_FAILED,
     ERROR_CUDACONTEXT_MISSING_SUPPORT,

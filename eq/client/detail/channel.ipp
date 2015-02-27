@@ -50,6 +50,7 @@ public:
 #ifdef EQUALIZER_USE_DEFLECT
         , _dcProxy( 0 )
 #endif
+        , _updateFrameBuffer( false )
     {
         lunchbox::RNG rng;
         color.r() = rng.get< uint8_t >();
@@ -170,6 +171,8 @@ public:
 
     /** Dumps images when the channel is configured to do so */
     FileFrameWriter frameWriter;
+
+    bool _updateFrameBuffer;
 };
 
 }

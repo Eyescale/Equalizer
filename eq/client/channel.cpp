@@ -517,7 +517,27 @@ void Channel::applyBuffer()
 void Channel::bindFrameBuffer()
 {
     LB_TS_THREAD( _pipeThread );
-    getWindow()->bindFrameBuffer();
+    const Window* window = getWindow();
+    if( !window->getSystemWindow( ))
+       return;
+
+    if( _impl->_updateFrameBuffer )
+    {
+        window->updateFrameBuffer();
+        _impl->_updateFrameBuffer = false;
+    }
+    window->bindFrameBuffer();
+}
+
+void Channel::bindDrawFrameBuffer()
+{
+    LB_TS_THREAD( _pipeThread );
+    const Window* window = getWindow();
+    if( !window->getSystemWindow( ))
+       return;
+
+    window->bindDrawFrameBuffer();
+    _impl->_updateFrameBuffer = true;
 }
 
 void Channel::applyColorMask() const
@@ -1607,10 +1627,12 @@ bool Channel::_cmdFrameClear( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
                        << " " << context << std::endl;
 
+    bindDrawFrameBuffer();
     _overrideContext( context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( context.frameID );
     resetContext();
+    bindFrameBuffer();
 
     return true;
 }
@@ -1624,6 +1646,7 @@ bool Channel::_cmdFrameDraw( co::ICommand& cmd )
     LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << command
                        << " " << context << std::endl;
 
+    bindDrawFrameBuffer();
     _overrideContext( context );
     const uint32_t frameNumber = getCurrentFrame();
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this, frameNumber,
@@ -1637,6 +1660,7 @@ bool Channel::_cmdFrameDraw( co::ICommand& cmd )
     _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
     resetContext();
+    bindFrameBuffer();
 
     return true;
 }

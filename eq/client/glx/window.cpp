@@ -250,7 +250,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
     }
 
     const int samplesSize  = getIAttribute( WindowSettings::IATTR_PLANES_SAMPLES );
-    if( samplesSize >= 0 )
+    if( samplesSize >= 0 && drawableHint != FBO )
     {
         attributes.push_back( GLX_SAMPLE_BUFFERS );
         attributes.push_back( 1 );

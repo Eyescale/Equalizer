@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2015, Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -63,13 +64,15 @@ public:
      * @param colorFormat The internal color texture format, e.g., GL_RGBA.
      * @param depthSize The bit depth of the depth attachment.
      * @param stencilSize The bit depth of the stencil attachment.
+     * @param samplesSize The number of multisamples.
      * @return ERROR_NONE on success, Error code on failure.
      * @sa resize()
      * @version 1.0
      */
     EQ_API Error init( const int32_t width, const int32_t height,
                        const unsigned colorFormat, const int32_t depthSize,
-                       const int32_t stencilSize );
+                       const int32_t stencilSize,
+                       const int32_t samplesSize = 1 );
 
     /** De-initialize the Frame Buffer Object. @version 1.0 */
     EQ_API void exit();
@@ -77,17 +80,20 @@ public:
     /**
      * Bind to the Frame Buffer Object.
      *
-     * The FBO becomes the read and draw buffer of the current context.
+     * The FBO becomes the read and/or draw buffer of the current context,
+     * depending on the given target.
+     * @param target the framebuffer target to bind, default read and draw
      * @version 1.0
      */
-    EQ_API void bind();
+    EQ_API void bind( const uint32_t target = 0x8D40 /*GL_FRAMEBUFFER_EXT*/ );
 
     /**
      * Unbind any Frame Buffer Object and use the default drawable for the
      * current context.
+     * @param target the framebuffer target to unbind, default read and draw
      * @version 1.0
      */
-    EQ_API void unbind();
+    EQ_API void unbind( const uint32_t target = 0x8D40 /*GL_FRAMEBUFFER_EXT*/ );
 
     /**
      * Resize the FBO.

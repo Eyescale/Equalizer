@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2015, Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -67,7 +68,8 @@ bool FrameBufferObject::addColorTexture()
 Error FrameBufferObject::init( const int32_t width, const int32_t height,
                                const GLuint colorFormat,
                                const int32_t depthSize,
-                               const int32_t stencilSize )
+                               const int32_t stencilSize,
+                               const int32_t samplesSize )
 {
     LB_TS_THREAD( _thread );
 
@@ -76,6 +78,12 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
     EQ_GL_CALL( glGetIntegerv( GL_MAX_VIEWPORT_DIMS, &maxViewportDims[0] ));
     if( width > maxViewportDims[0] || height > maxViewportDims[1] )
         return Error( ERROR_FRAMEBUFFER_INVALID_SIZE );
+
+    // Check for MAX_SAMPLES
+    GLint maxSamples;
+    glGetIntegerv( GL_MAX_SAMPLES, &maxSamples );
+    if( samplesSize < 0 || samplesSize > maxSamples )
+        return Error( ERROR_FRAMEBUFFER_INVALID_SAMPLES );
 
     if( _fboID )
         return Error( ERROR_FRAMEBUFFER_INITIALIZED );
@@ -92,17 +100,19 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
     for( unsigned i = 0; i < _colors.size(); ++i )
     {
         _colors[i]->init( colorFormat, width, height );
-        _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height );
+        _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height,
+                               samplesSize );
     }
     if( stencilSize > 0 && ( GLEW_EXT_packed_depth_stencil || coreContext ))
     {
         _depth.init( GL_DEPTH24_STENCIL8, width, height );
-        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height );
+        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height,
+                          samplesSize );
     }
     else if( depthSize > 0 )
     {
         _depth.init( GL_DEPTH_COMPONENT, width, height );
-        _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
+        _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height, samplesSize );
     }
 
     const Error error = _checkStatus();
@@ -171,16 +181,16 @@ Error FrameBufferObject::_checkStatus()
     }
 }
 
-void FrameBufferObject::bind()
+void FrameBufferObject::bind( const uint32_t target )
 {
     LB_TS_THREAD( _thread );
     LBASSERT( _fboID );
-    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
+    EQ_GL_CALL( glBindFramebufferEXT( target, _fboID ));
 }
 
-void FrameBufferObject::unbind()
+void FrameBufferObject::unbind( const uint32_t target )
 {
-    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ));
+    EQ_GL_CALL( glBindFramebufferEXT( target, 0 ));
 }
 
 Error FrameBufferObject::resize( const int32_t width, const int32_t height )

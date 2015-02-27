@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -240,6 +240,12 @@ public:
 
     /** @internal Bind the window's FBO, if it uses one. */
     EQ_API virtual void bindFrameBuffer() const;
+
+    /** @internal Bind the window's draw (aka multisampled) FBO, if it uses one. */
+    EQ_API virtual void bindDrawFrameBuffer() const;
+
+    /** @internal Blit from multisampled FBO to window FBO */
+    EQ_API virtual void updateFrameBuffer() const;
 
     /** @internal Notify this window that the viewport has changed. */
     EQ_API virtual void notifyViewportChanged();
