@@ -54,11 +54,10 @@ if(MSVC) # the custom command below doesn't work on VS
 endif()
 
 # create and install .bin files
-function(INSTALL_PLY IN OUT) # + command prefix
+function(INSTALL_PLY IN OUT) # + command
   set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${OUT}")
-  add_custom_target(${OUT}
-    COMMAND ${ARGN} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter"
-                "${CMAKE_CURRENT_SOURCE_DIR}/${IN}"
+  add_custom_target(${OUT} ALL
+    COMMAND ${ARGN} "${CMAKE_CURRENT_SOURCE_DIR}/${IN}"
     COMMAND ${CMAKE_COMMAND} -E copy ${BIN_FILE}
                                      ${PROJECT_BINARY_DIR}/share/Equalizer/data
     DEPENDS "${IN}" eqPlyConverter
@@ -82,7 +81,8 @@ foreach(PLY_FILE ${PLY_FILES})
         else()
           set(BIN_POSTFIX "le${BIN_POSTFIX}")
         endif()
-        install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}" arch -${ARCH})
+        install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
+          arch -${ARCH} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
       endforeach()
     endif()
   else()
@@ -96,7 +96,8 @@ foreach(PLY_FILE ${PLY_FILES})
     else()
       set(BIN_POSTFIX "le${BIN_POSTFIX}")
     endif()
-    install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}")
+    install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
   endif()
   file(COPY ${PLY_FILE} DESTINATION ${PROJECT_BINARY_DIR}/share/Equalizer/data)
   install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT apps)
