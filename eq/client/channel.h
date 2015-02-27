@@ -119,9 +119,6 @@ public:
     /** const-version of getNativeView() @version 1.0 */
     EQ_API const View* getNativeView() const;
 
-    /** @return the FBO used as an alternate frame buffer. @version 1.0*/
-    EQ_API util::FrameBufferObject* getFrameBufferObject();
-
     /** @return a fixed unique color for this channel. @version 1.0 */
     EQ_API const Vector3ub& getUniqueColor() const;
 
@@ -258,13 +255,7 @@ public:
     EQ_API virtual void applyOrthoTransform() const;
 
     /**
-     * Apply the current alternate frame buffer.
-     * @version 1.0
-     */
-    EQ_API virtual void applyFrameBufferObject();
-
-    /**
-     * Rebind the current alternate FBO of the channel or window.
+     * Rebind the window frame buffer.
      * @version 1.0
      */
     EQ_API void bindFrameBuffer();
@@ -590,9 +581,6 @@ private:
     //-------------------- Methods --------------------
     /** Setup the current rendering context. */
     void _overrideContext( RenderContext& context );
-
-    /** Initialize the FBO */
-    bool _configInitFBO();
 
     /** Initialize the channel's drawable config. */
     void _initDrawableConfig();

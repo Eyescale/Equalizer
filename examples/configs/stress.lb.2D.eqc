@@ -16,27 +16,28 @@ server
             {
                 window
                 {
+                    attributes { hint_drawable FBO }
                     viewport [ .25 .2 .5 .5 ]
-                    channel { name "buffer0" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer1" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer2" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer3" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer4" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer5" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer6" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer7" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer8" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer9" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer10" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer11" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer12" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer13" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer14" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer15" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer16" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer17" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer18" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
-                    channel { name "buffer19" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer0" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer1" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer2" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer3" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer4" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer5" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer6" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer7" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer8" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer9" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer10" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer11" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer12" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer13" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer14" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer15" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer16" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer17" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer18" viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer19" viewport [ 0 0 1 .5 ] }
 
                     channel { name "channel" }
                 }
@@ -96,5 +97,5 @@ server
             inputframe { name "frame.buffer14" }
             inputframe { name "frame.buffer15" }
         }
-    }    
+    }
 }

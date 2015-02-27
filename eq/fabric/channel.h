@@ -36,20 +36,6 @@ public:
     typedef LeafVisitor< C > Visitor; //!< The channel visitor type
     typedef W Parent; //!< The parent window type
 
-    /**
-     * The drawable format defines the components used as an alternate drawable
-     * for this channel. If an alternate drawable is configured, the channel
-     * uses the appropriate targets in place of the window's frame buffer.
-     * @version 1.0
-     */
-    enum Drawable
-    {
-        FB_WINDOW   = LB_BIT_NONE, //!< Use the window's frame buffer
-        FBO_COLOR   = LB_BIT1,     //!< Use an FBO for color values
-        FBO_DEPTH   = LB_BIT2,     //!< Use an FBO for depth values
-        FBO_STENCIL = LB_BIT3      //!< Use an FBO for stencil values
-    };
-
     /** @name Data Access */
     //@{
     /** @internal Initialize this channel (calls virtual methods) */
@@ -100,12 +86,6 @@ public:
      * @version 1.0
      */
     EQFABRIC_INL void setNearFar( const float nearPlane, const float farPlane );
-
-    /**
-     * @return the channel's framebuffer attachment configuration.
-     * @version 1.0
-     */
-    uint32_t getDrawable() const { return _drawable; }
 
     /**
      * Perform a depth-first traversal of this channel.
@@ -361,8 +341,6 @@ protected:
     /** @internal @sa Serializable::setDirty() */
     EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
-    void setDrawable( const uint32_t drawable ); //!< @internal
-
     /** @name Render context access */
     //@{
     /** @internal Override the channel's native render context. */
@@ -435,9 +413,6 @@ private:
 
     /** String attributes. */
     std::string _sAttributes[SATTR_ALL];
-
-    /** An alternate drawable config. */
-    uint32_t _drawable;
 
     /** Overdraw limiter */
     Vector2i    _maxSize;

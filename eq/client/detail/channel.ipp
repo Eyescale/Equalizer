@@ -48,7 +48,6 @@ class Channel
 public:
     Channel()
         : state( STATE_STOPPED )
-        , fbo( 0 )
         , initialSize( Vector2i::ZERO )
 #ifdef EQUALIZER_USE_DEFLECT
         , _dcProxy( 0 )
@@ -64,7 +63,6 @@ public:
     {
         framebufferImage.flush();
         statistics->clear();
-        LBASSERT( !fbo );
     }
 
     void addResultImageListener( ResultImageListener* listener )
@@ -130,14 +128,11 @@ public:
         }
     }
 
-    /** The channel's drawable config (FBO). */
+    /** The channel's drawable config. */
     DrawableConfig drawableConfig;
 
     /** The configInit/configExit state. */
     State state;
-
-    /** Used as an alternate drawable. */
-    util::FrameBufferObject* fbo;
 
     /** A random, unique color for this channel. */
     Vector3ub color;

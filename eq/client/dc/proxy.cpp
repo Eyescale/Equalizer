@@ -28,7 +28,6 @@
 #include "../windowSystem.h"
 
 #include <eq/fabric/drawableConfig.h>
-#include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <eq/util/texture.h>
 

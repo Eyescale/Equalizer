@@ -1465,9 +1465,8 @@ void Compound::_updateInheritStereo()
 
     const Window* window = _inherit.channel->getWindow();
     const bool stereoWindow = window->getDrawableConfig().stereo;
-    const bool usesFBO =  window &&
-        (( window->getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
-         _inherit.channel->getDrawable() != Channel::FB_WINDOW );
+    const bool usesFBO =  window && window->getIAttribute(
+                WindowSettings::IATTR_HINT_DRAWABLE ) == fabric::FBO;
 
     if( stereoWindow && !usesFBO )
         _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;

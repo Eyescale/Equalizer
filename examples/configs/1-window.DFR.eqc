@@ -12,15 +12,18 @@ server
             {
                 window
                 {
-                    name "Dynamic Frame Resize"
-                    viewport [ 20 100 480 300 ]
-
+                    attributes { hint_drawable FBO }
+                    viewport [ 0 0 2048 2048 ]
                     channel
                     {
                         name "buffer"
-                        viewport [ 0 0 2048 2048 ]
-                        drawable [ FBO_COLOR FBO_DEPTH ]
                     }
+                }
+                window
+                {
+                    name "Dynamic Frame Resize"
+                    viewport [ 20 100 480 300 ]
+
                     channel
                     {
                         name "channel"

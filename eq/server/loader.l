@@ -243,10 +243,6 @@ READBACK                        { return EQTOKEN_READBACK; }
 COLOR                           { return EQTOKEN_COLOR; }
 DEPTH                           { return EQTOKEN_DEPTH; }
 viewport                        { return EQTOKEN_VIEWPORT; }
-drawable                        { return EQTOKEN_DRAWABLE; }
-FBO_COLOR                       { return EQTOKEN_FBO_COLOR; }
-FBO_DEPTH                       { return EQTOKEN_FBO_DEPTH; }
-FBO_STENCIL                     { return EQTOKEN_FBO_STENCIL; }
 range                           { return EQTOKEN_RANGE; }
 period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }

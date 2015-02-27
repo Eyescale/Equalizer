@@ -45,7 +45,6 @@
 #include "window.h"
 
 #include <eq/util/accum.h>
-#include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/frameData.h>
@@ -216,9 +215,6 @@ const DrawableConfig& Channel::getDrawableConfig() const
 {
     const Window* window = getWindow();
     LBASSERT( window );
-    if( _impl->fbo )
-        return _impl->drawableConfig;
-
     return window->getDrawableConfig();
 }
 
@@ -235,9 +231,6 @@ bool Channel::configExit()
     delete _impl->_dcProxy;
     _impl->_dcProxy = 0;
 #endif
-
-    delete _impl->fbo;
-    _impl->fbo = 0;
     return true;
 }
 
@@ -251,87 +244,14 @@ bool Channel::configInit( const uint128_t& )
         _impl->_dcProxy = new dc::Proxy( this );
     }
 #endif
-    return _configInitFBO();
-}
-
-bool Channel::_configInitFBO()
-{
-    const uint32_t drawable = getDrawable();
-    if( drawable == FB_WINDOW )
-        return true;
-
-    const Window* window = getWindow();
-    if( !window->getSystemWindow()  ||
-        !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
-    {
-        sendError( ERROR_FBO_UNSUPPORTED );
-        return false;
-    }
-
-    // needs glew initialized (see above)
-    _impl->fbo = new util::FrameBufferObject( glewGetContext( ));
-
-    int depthSize = 0;
-    if( drawable & FBO_DEPTH )
-    {
-        depthSize = window->getIAttribute( WindowSettings::IATTR_PLANES_DEPTH );
-        if( depthSize < 1 )
-            depthSize = 24;
-    }
-
-    int stencilSize = 0;
-    if( drawable & FBO_STENCIL )
-    {
-        stencilSize =
-                window->getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
-        if( stencilSize < 1 )
-            stencilSize = 1;
-    }
-
-    const PixelViewport& pvp = getNativePixelViewport();
-    const Error error = _impl->fbo->init( pvp.w, pvp.h,
-                                          window->getColorFormat(), depthSize,
-                                          stencilSize );
-    if( !error )
-        return true;
-
-    sendError( error.getCode( ));
-    delete _impl->fbo;
-    _impl->fbo = 0;
-    return false;
+    return true;
 }
 
 void Channel::_initDrawableConfig()
 {
     const Window* window = getWindow();
     _impl->drawableConfig = window->getDrawableConfig();
-    if( !_impl->fbo )
-        return;
-
-    const util::Textures& colors = _impl->fbo->getColorTextures();
-    if( !colors.empty( ))
-    {
-        switch( colors.front()->getType( ))
-        {
-            case GL_FLOAT:
-                _impl->drawableConfig.colorBits = 32;
-                break;
-            case GL_HALF_FLOAT:
-                _impl->drawableConfig.colorBits = 16;
-                break;
-            case GL_UNSIGNED_INT_10_10_10_2:
-                _impl->drawableConfig.colorBits = 10;
-                break;
-
-            default:
-                LBUNIMPLEMENTED;
-            case GL_UNSIGNED_BYTE:
-                _impl->drawableConfig.colorBits = 8;
-                break;
-        }
-    }
 }
-
 
 void Channel::notifyViewportChanged()
 {
@@ -515,11 +435,6 @@ Frustumf Channel::getScreenFrustum() const
                          -1.f, 1.f );
 }
 
-util::FrameBufferObject* Channel::getFrameBufferObject()
-{
-    return _impl->fbo;
-}
-
 View* Channel::getView()
 {
     LB_TS_THREAD( _pipeThread );
@@ -580,26 +495,11 @@ void Channel::removeResultImageListener( ResultImageListener* listener )
 //---------------------------------------------------------------------------
 // apply convenience methods
 //---------------------------------------------------------------------------
-void Channel::applyFrameBufferObject()
-{
-    LB_TS_THREAD( _pipeThread );
-    if( _impl->fbo )
-    {
-        const PixelViewport& pvp = getNativePixelViewport();
-        const Error error = _impl->fbo->resize( pvp.w, pvp.h );
-        if( error )
-            sendError( error.getCode( ));
-        _impl->fbo->bind();
-    }
-    else if( GLEW_EXT_framebuffer_object )
-        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
-}
-
 void Channel::applyBuffer()
 {
     LB_TS_THREAD( _pipeThread );
     const Window* window = getWindow();
-    if( !_impl->fbo && window->getSystemWindow()->getFrameBufferObject() == 0 )
+    if( !window->getSystemWindow()->getFrameBufferObject( ))
     {
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
@@ -615,10 +515,7 @@ void Channel::bindFrameBuffer()
     if( !window->getSystemWindow( ))
        return;
 
-   if( _impl->fbo )
-       applyFrameBufferObject();
-   else
-       window->bindFrameBuffer();
+    window->bindFrameBuffer();
 }
 
 void Channel::applyColorMask() const
