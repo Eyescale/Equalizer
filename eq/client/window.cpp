@@ -571,13 +571,17 @@ bool Window::configExitSystemWindow()
 
 void Window::makeCurrent( const bool useCache ) const
 {
-    _systemWindow->makeCurrent( useCache );
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->makeCurrent( useCache );
     // _pipe->setCurrent done by SystemWindow::makeCurrent
 }
 
 void Window::bindFrameBuffer() const
 {
-    _systemWindow->bindFrameBuffer( );
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->bindFrameBuffer( );
 }
 
 void Window::swapBuffers()

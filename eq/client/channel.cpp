@@ -247,12 +247,6 @@ bool Channel::configInit( const uint128_t& )
     return true;
 }
 
-void Channel::_initDrawableConfig()
-{
-    const Window* window = getWindow();
-    _impl->drawableConfig = window->getDrawableConfig();
-}
-
 void Channel::notifyViewportChanged()
 {
     const PixelViewport oldPVP = getPixelViewport();
@@ -511,11 +505,7 @@ void Channel::applyBuffer()
 void Channel::bindFrameBuffer()
 {
     LB_TS_THREAD( _pipeThread );
-    const Window* window = getWindow();
-    if( !window->getSystemWindow( ))
-       return;
-
-    window->bindFrameBuffer();
+    getWindow()->bindFrameBuffer();
 }
 
 void Channel::applyColorMask() const
@@ -1513,10 +1503,7 @@ bool Channel::_cmdConfigInit( co::ICommand& cmd )
         result = configInit( command.read< uint128_t >( ));
 
         if( result )
-        {
-            _initDrawableConfig();
             _impl->state = STATE_RUNNING;
-        }
     }
     else
         sendError( ERROR_CHANNEL_WINDOW_NOTRUNNING );

@@ -22,8 +22,6 @@
 #include "../resultImageListener.h"
 #include "fileFrameWriter.h"
 
-#include <eq/fabric/drawableConfig.h>
-
 #include <boost/foreach.hpp>
 
 #ifdef EQUALIZER_USE_DEFLECT
@@ -127,9 +125,6 @@ public:
             framebufferImage.finishReadback( channel.glewGetContext( ));
         }
     }
-
-    /** The channel's drawable config. */
-    DrawableConfig drawableConfig;
 
     /** The configInit/configExit state. */
     State state;
