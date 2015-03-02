@@ -22,8 +22,6 @@
 #include "../resultImageListener.h"
 #include "fileFrameWriter.h"
 
-#include <eq/fabric/drawableConfig.h>
-
 #include <boost/foreach.hpp>
 
 #ifdef EQUALIZER_USE_DEFLECT
@@ -48,7 +46,6 @@ class Channel
 public:
     Channel()
         : state( STATE_STOPPED )
-        , fbo( 0 )
         , initialSize( Vector2i::ZERO )
 #ifdef EQUALIZER_USE_DEFLECT
         , _dcProxy( 0 )
@@ -64,7 +61,6 @@ public:
     {
         framebufferImage.flush();
         statistics->clear();
-        LBASSERT( !fbo );
     }
 
     void addResultImageListener( ResultImageListener* listener )
@@ -130,14 +126,8 @@ public:
         }
     }
 
-    /** The channel's drawable config (FBO). */
-    DrawableConfig drawableConfig;
-
     /** The configInit/configExit state. */
     State state;
-
-    /** Used as an alternate drawable. */
-    util::FrameBufferObject* fbo;
 
     /** A random, unique color for this channel. */
     Vector3ub color;

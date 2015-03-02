@@ -47,7 +47,6 @@ template< class W, class C >
 Channel< W, C >::Channel( W* parent )
         : _window( parent )
         , _context( &_data.nativeContext )
-        , _drawable( FB_WINDOW )
         , _maxSize( Vector2i::ZERO )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
@@ -61,7 +60,6 @@ Channel< W, C >::Channel( const Channel& from )
         , _window( from._window )
         , _data( from._data )
         , _context( &_data.nativeContext )
-        , _drawable( from._drawable )
         , _maxSize( from._maxSize )
 {
     _window->_addChannel( static_cast< C* >( this ));
@@ -127,8 +125,7 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _data.nativeContext.vp << _data.nativeContext.pvp
            << _data.fixedVP << _maxSize;
     if( dirtyBits & DIRTY_MEMBER )
-        os << _drawable << _data.nativeContext.view
-           << _data.nativeContext.overdraw;
+        os << _data.nativeContext.view << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << _data.nativeContext.frustum;
     if( dirtyBits & DIRTY_CAPABILITIES )
@@ -158,8 +155,7 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
                                    sizeof( _data.fixedVP ) +sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
-        is >> _drawable >> _data.nativeContext.view
-           >> _data.nativeContext.overdraw;
+        is >> _data.nativeContext.view  >> _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> _data.nativeContext.frustum;
     if( dirtyBits & DIRTY_CAPABILITIES )
@@ -274,13 +270,6 @@ void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
         _context->ortho.near_plane() = nearPlane;
         _context->ortho.far_plane()  = farPlane;
     }
-}
-
-template< class W, class C >
-void Channel< W, C >::setDrawable( const uint32_t drawable )
-{
-    _drawable = drawable;
-    setDirty( DIRTY_MEMBER );
 }
 
 template< class W, class C >
@@ -400,28 +389,6 @@ std::ostream& operator << ( std::ostream& os,
         os << "viewport " << pvp << std::endl;
     }
 
-
-    const uint32_t drawable = channel.getDrawable();
-    if( drawable != C::FB_WINDOW )
-    {
-        os << "drawable [";
-
-        if ((drawable & C::FBO_COLOR) != 0 )
-        {
-           os << " FBO_COLOR";
-        }
-
-        if ((drawable & C::FBO_DEPTH) != 0)
-        {
-           os << " FBO_DEPTH";
-        }
-        if ((drawable & C::FBO_STENCIL) != 0)
-        {
-           os << " FBO_STENCIL";
-        }
-
-        os << " ]" << std::endl;
-    }
     os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
        << lunchbox::enableFlush;
 
