@@ -14,8 +14,8 @@ if(APPLE)
   endif()
   if(EQ_GLX_USED)
     list(APPEND EQ_GL_LIBRARIES GL)
-    set(OPENGL_glu_LIBRARY GLU) # see FindOpenGL.cmake...
-    link_directories(/opt/X11/lib /usr/X11R6/lib)
+    # see FindOpenGL.cmake...
+    find_library(OPENGL_glu_LIBRARY GLU PATHS /opt/X11/lib /usr/X11R6/lib)
   endif()
 else()
   list(APPEND EQ_GL_LIBRARIES ${OPENGL_gl_LIBRARY})
