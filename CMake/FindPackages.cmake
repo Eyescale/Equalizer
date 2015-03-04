@@ -68,7 +68,7 @@ common_package(VRPN 07.30   )
 common_package(Deflect 0.4   )
 common_package(MAGELLAN    )
 common_package(GLEW_MX    )
-common_package(Qt4 4.6   COMPONENTS QtCore QtGui QtOpenGL)
+common_package(Qt4 4.8   COMPONENTS QtCore QtGui QtOpenGL)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
   include(${PROJECT_SOURCE_DIR}/CMake/FindPackagesPost.cmake)
