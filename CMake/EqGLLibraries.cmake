@@ -21,6 +21,11 @@ else()
   list(APPEND EQ_GL_LIBRARIES ${OPENGL_gl_LIBRARY})
 endif()
 
+if(EQ_GLX_USED)
+  # The GLEW_MX finder checks for glxew symbols only if X11_FOUND is set:
+  find_package(X11 QUIET REQUIRED)
+endif()
+
 if(NOT GLEW_MX_FOUND)
   find_package(GLEW_MX QUIET)
   if(NOT GLEW_MX_FOUND)
