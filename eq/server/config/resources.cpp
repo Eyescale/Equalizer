@@ -236,6 +236,8 @@ bool Resources::discover( ServerPtr server, Config* config,
     size_t gpuCounter = 0;
     uint128_t appNodeID;
 
+    std::string excludedDisplays; // for VGL_EXCLUDE
+
     for( hwsd::GPUInfosCIter i = gpuInfos.begin(); i != gpuInfos.end(); ++i )
     {
         const hwsd::GPUInfo& info = *i;
@@ -312,7 +314,16 @@ bool Resources::discover( ServerPtr server, Config* config,
             name << "display";
         }
         else
+        {
             name << "GPU" << ++gpuCounter;
+            if( info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL &&
+                info.device != LB_UNDEFINED_UINT32 )
+            {
+                std::ostringstream displayString;
+                displayString << ":" << info.port << "." << info.device;
+                excludedDisplays += displayString.str() + ";";
+            }
+        }
 
         if( mpNode ) // multi-process resource
         {
@@ -381,6 +392,9 @@ bool Resources::discover( ServerPtr server, Config* config,
 
         config->setServerConnections( connections );
     }
+
+    if( !excludedDisplays.empty( ))
+        ::setenv("VGL_EXCLUDE", excludedDisplays.c_str(), 1 /*overwrite*/ );
 
     return true;
 }
