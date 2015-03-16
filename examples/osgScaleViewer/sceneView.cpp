@@ -546,7 +546,8 @@ bool SceneView::cullStage(const osg::Matrixd& projection,const osg::Matrixd& mod
     // If the camera has a cullCallback execute the callback which has the
     // requirement that it must traverse the camera's children.
     {
-       osg::NodeCallback* callback = _camera->getCullCallback();
+        osg::NodeCallback* callback = dynamic_cast< osg::NodeCallback* >(
+            _camera->getCullCallback( ));
        if (callback) (*callback)(_camera.get(), cullVisitor);
        else cullVisitor->traverse(*_camera);
     }
