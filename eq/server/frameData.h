@@ -85,6 +85,7 @@ namespace server
          *
          * @param type frame storage type.
          */
+        // cppcheck-suppress passedByValue
         void setType( const fabric::Frame::Type type )
             { _data.frameType = type; }
         //@}

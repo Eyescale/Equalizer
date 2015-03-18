@@ -104,7 +104,7 @@ bool Config::init()
 
 bool Config::exit()
 {
-    const bool ret = eq::Config::exit();
+    const bool ret = eq::Config::exit(); // cppcheck-suppress unreachableCode
     _deregisterData();
     _closeAdminServer();
 

@@ -66,7 +66,7 @@ bool Pipe::configInit( const eq::uint128_t& initID )
     const uint32_t precision = initData.getPrecision();
     LBINFO << "Loading model " << filename << std::endl;
 
-    _renderer = new Renderer( filename.c_str(), precision );
+    _renderer = new Renderer( filename, precision );
     LBASSERT( _renderer );
 
     if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))

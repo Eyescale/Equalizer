@@ -15,6 +15,11 @@ list(APPEND CPPCHECK_EXTRA_ARGS
   --suppress=*:${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   --suppress=*:${CMAKE_CURRENT_SOURCE_DIR}/loader.l)
 
+if(CPCHECK_VERSION VERSION_LESS 1.68)
+  list(APPEND CPPCHECK_EXTRA_ARGS --suppress=operatorEqVarError:
+    ${CMAKE_CURRENT_SOURCE_DIR}/equalizers/equalizer.cpp)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(equalizers)

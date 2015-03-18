@@ -110,7 +110,7 @@ int main( int argc, char** argv )
     delete app;
 #endif
 
-    eq::exit();
+    eq::exit(); // cppcheck-suppress unreachableCode
     eqPly::exitErrors();
     return ret;
 }

@@ -81,7 +81,7 @@ bool Config::loadInitData( const eq::uint128_t& id )
 
 bool Config::exit()
 {
-    const bool ret = eq::Config::exit();
+    const bool ret = eq::Config::exit(); // cppcheck-suppress unreachableCode
     _deregisterData();
 
     return ret;

@@ -37,7 +37,7 @@ namespace eVolve
 
 struct SliceClipper
 {
-    SliceClipper(){};
+    SliceClipper();
 
     static const int    nSequence[8][8];
     static const float  sequence[64];

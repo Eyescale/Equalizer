@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@ namespace eVolve
     class Pipe : public eq::Pipe
     {
     public:
-        Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
+        Pipe( eq::Node* parent ) : eq::Pipe( parent ), _renderer( 0 ) {}
 
         const FrameData& getFrameData() const { return _frameData; }
 
@@ -51,7 +51,7 @@ namespace eVolve
         virtual eq::WindowSystem selectWindowSystem() const;
         virtual bool configInit( const eq::uint128_t& initID );
         virtual bool configExit();
-        virtual void frameStart( const eq::uint128_t& frameID, 
+        virtual void frameStart( const eq::uint128_t& frameID,
                                  const uint32_t frameNumber );
 
     private:

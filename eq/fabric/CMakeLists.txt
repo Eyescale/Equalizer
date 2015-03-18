@@ -3,6 +3,8 @@
 
 include(files.cmake)
 
+list(APPEND CPPCHECK_EXTRA_ARGS -DEQFABRIC_API=)
+
 add_library(EqualizerFabric SHARED
   ${EQ_FABRIC_PUBLIC_HEADERS} ${EQ_FABRIC_SOURCES} ${EQ_FABRIC_HEADERS})
 target_link_libraries(EqualizerFabric ${COLLAGE_LIBRARIES})

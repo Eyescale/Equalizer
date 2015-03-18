@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
+/* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch>
  * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@
 
 Tracker::Tracker()
         : _running( false ),
+          _fd( 0 ),
           _worldToEmitter( eq::Matrix4f::IDENTITY ),
           _sensorToObject( eq::Matrix4f::IDENTITY )
 {
@@ -58,7 +59,7 @@ bool Tracker::init( const std::string& port )
       LBERROR << "Duplicate tracker initialisation" << std::endl;
       return false;
    }
- 
+
    _fd = open( port.c_str(), O_RDWR | O_EXCL );
    if( _fd < 0 )
    {
@@ -76,7 +77,7 @@ bool Tracker::init( const std::string& port )
       return false;
    }
 
-   termio.c_cflag &= ~(CSIZE|PARENB|CSTOPB|PARODD|HUPCL|CRTSCTS); 
+   termio.c_cflag &= ~(CSIZE|PARENB|CSTOPB|PARODD|HUPCL|CRTSCTS);
    termio.c_cflag |= CS8|CREAD|CLOCAL;
    termio.c_iflag &= ~(IXON|IXANY|IMAXBEL|BRKINT|IGNPAR|PARMRK|
                        INPCK|ISTRIP|INLCR|IGNCR|ICRNL);
@@ -113,7 +114,7 @@ bool Tracker::init( const std::string& port )
       LBERROR << "Write error: " << lunchbox::sysError << std::endl;
 
    usleep( 10000 ); //give enough time for initializing
-   
+
    if( _update( )) //try an update to see if it works
        _running = true;
 
@@ -174,7 +175,7 @@ bool Tracker::_update()
    pos.x() = ypos;
    if( pos.x() > 16320 )             //32640 / 2 = 16320
       pos.x() -= 32640;
-   
+
    pos.y() = zpos;
    if( pos.y() > 16320 )
       pos.y() -= 32640;

@@ -1,6 +1,9 @@
 
 include(files.cmake)
 
+list(APPEND CPPCHECK_EXTRA_ARGS
+  --suppress=*:${CMAKE_CURRENT_SOURCE_DIR}/plyfile.cpp)
+
 add_definitions(-DPLYLIB_SHARED)
 add_library(triply SHARED ${LIB_SOURCES} ${PUBLIC_HEADERS} ${LIB_HEADERS})
 

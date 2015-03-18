@@ -49,7 +49,6 @@ Equalizer::Equalizer( const Equalizer& from )
     , _active( from._active )
 {}
 
-// cppcheck-suppress operatorEqVarError
 Equalizer& Equalizer::operator = ( const fabric::Equalizer& from )
 {
     fabric::Equalizer::operator = ( from );
