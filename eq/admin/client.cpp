@@ -34,6 +34,7 @@ typedef fabric::Client Super;
 Client::Client()
     : Super()
     , _mainThreadQueue( co::Global::getCommandQueueLimit( ))
+    , _private( 0 )
 {
 }
 

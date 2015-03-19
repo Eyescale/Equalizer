@@ -60,6 +60,7 @@ RawVolumeModel::RawVolumeModel( const std::string& filename  )
         , _tW( 0 )
         , _tH( 0 )
         , _tD( 0 )
+        , _resolution( 0 )
         , _hasDerivatives( true )
         , _glewContext( 0 )
 {}
@@ -369,7 +370,7 @@ static bool readDimensionsAndScaling
     if( w<1 || h<1 || d<1 ||
         volScaling.W<0.001 ||
         volScaling.H<0.001 ||
-        volScaling.W<0.001    )
+        volScaling.D<0.001    )
     {
         LBERROR << "volume scaling is incorrect, check header file"<< std::endl;
         return false;

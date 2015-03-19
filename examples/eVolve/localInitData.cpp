@@ -47,7 +47,7 @@ LocalInitData::LocalInitData()
         , _ortho( false )
 {}
 
-const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
+LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
     _maxFrames   = from._maxFrames;
     _isResident  = from._isResident;
@@ -126,7 +126,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     {
         LBERROR << "Error parsing command line: " << exception.what()
                 << std::endl;
-        eq::exit();
+        eq::exit(); // cppcheck-suppress unreachableCode
         ::exit( EXIT_FAILURE );
     }
 
@@ -134,7 +134,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     if( showHelp )
     {
         std::cout << options << std::endl;
-        eq::exit();
+        eq::exit(); // cppcheck-suppress unreachableCode
         ::exit( EXIT_SUCCESS );
     }
 

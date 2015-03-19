@@ -3,6 +3,14 @@
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+if(CPPCHECK_VERSION VERSION_LESS 1.68)
+  list(APPEND CPPCHECK_EXTRA_ARGS
+    --suppress=invalidscanf:${CMAKE_CURRENT_SOURCE_DIR}/rawVolModel.cpp)
+else()
+  list(APPEND CPPCHECK_EXTRA_ARGS
+    --suppress=invalidscanf_libc:${CMAKE_CURRENT_SOURCE_DIR}/rawVolModel.cpp)
+endif()
+
 eq_add_example(eVolve
   HEADERS
     channel.h

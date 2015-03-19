@@ -121,7 +121,6 @@ private:
 typedef vmml::vector< 3, Index >    Triangle;
 typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
 typedef vmml::vector< 4, float >    BoundingSphere;
-// cppcheck-suppress unnecessaryForwardDeclaration
 typedef ArrayWrapper< float, 2 >    Range;
 
 // maximum triangle count per leaf node (keep in mind that the number of

@@ -129,13 +129,13 @@ void Frame::setAlphaUsage( const bool useAlpha )
         _impl->frameData->setAlphaUsage( useAlpha );
 }
 
-void Frame::setQuality( const Frame::Buffer buffer, const float quality )
+void Frame::setQuality( const Buffer buffer, const float quality )
 {
     if( _impl->frameData )
         _impl->frameData->setQuality( buffer, quality );
 }
 
-void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+void Frame::useCompressor( const Buffer buffer, const uint32_t name )
 {
     if( _impl->frameData )
         _impl->frameData->useCompressor( buffer, name );

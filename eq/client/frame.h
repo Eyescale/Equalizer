@@ -122,12 +122,10 @@ namespace detail{ class Frame; }
         EQ_API void setAlphaUsage( const bool useAlpha );
 
         /** Set the minimum quality after compression. @version 1.0 */
-        EQ_API void setQuality( const Frame::Buffer buffer,
-                                   const float quality );
+        EQ_API void setQuality( const Buffer buffer, const float quality );
 
         /** Sets a compressor for compression for following transmissions. */
-        EQ_API void useCompressor( const Frame::Buffer buffer,
-                                   const uint32_t name );
+        EQ_API void useCompressor( const Buffer buffer, const uint32_t name );
         //@}
 
         /** @name Operations */

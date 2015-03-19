@@ -46,7 +46,7 @@ namespace eVolve
         bool               getOrtho()       const { return _ortho;  }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
 
-        const LocalInitData& operator = ( const LocalInitData& from );
+        LocalInitData& operator = ( const LocalInitData& from );
 
     private:
         uint32_t    _maxFrames;

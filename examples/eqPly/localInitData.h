@@ -54,7 +54,7 @@ namespace eqPly
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
 
-        const LocalInitData& operator = ( const LocalInitData& from );
+        LocalInitData& operator = ( const LocalInitData& from );
 
     private:
         eq::Strings _filenames;

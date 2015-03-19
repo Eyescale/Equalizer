@@ -62,11 +62,9 @@ namespace eVolve
     */
     struct VolumeScaling
     {
-        // cppcheck-suppress unusedStructMember
+        VolumeScaling() : W( 0 ), H( 0 ), D( 0 ) {}
         float W;    //!< width  scale
-        // cppcheck-suppress unusedStructMember
         float H;    //!< height scale
-        // cppcheck-suppress unusedStructMember
         float D;    //!< depth  scale
     };
 
@@ -107,9 +105,6 @@ namespace eVolve
                                 const eq::Range&               range );
 
     private:
-        bool _lFailed( char* msg )
-            { LBERROR << msg << std::endl; return false; }
-
         struct VolumePart
         {
             GLuint                  volume; //!< 3D texture ID

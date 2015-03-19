@@ -103,7 +103,8 @@ void Channel::frameDraw( const eq::uint128_t& spin )
     // render six axis-aligned colored quads around the origin
     for( int i = 0; i < 6; i++ )
     {
-        glColor3f( i&1 ? 0.5f : 1.0f, i&2 ? 1.0f : 0.5f, i&4 ? 1.0f : 0.5f );
+        glColor3f( (i&1) ? 0.5f : 1.0f, (i&2) ? 1.0f : 0.5f,
+                   (i&4) ? 1.0f : 0.5f );
 
         glNormal3f( 0.0f, 0.0f, 1.0f );
         glBegin( GL_TRIANGLE_STRIP );

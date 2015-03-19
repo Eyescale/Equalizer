@@ -69,6 +69,13 @@ namespace eVolve
         3, 6, 7, 7,
         4, 3, 6, 7 };
 
+SliceClipper::SliceClipper()
+    : shaderVertices()
+    , frontIndex( 0 )
+    , sliceDistance( 0 )
+    , planeStart( 0 )
+{
+}
 
 void SliceClipper::updatePerFrameInfo( const eq::Matrix4d& modelviewM,
                                        const double newSliceDistance,

@@ -61,7 +61,7 @@ int main( const int argc, char** argv )
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         LBERROR << "Equalizer init failed" << std::endl;
-        eq::exit();
+        eq::exit(); // cppcheck-suppress unreachableCode
         eVolve::exitErrors();
         return EXIT_FAILURE;
     }
@@ -75,7 +75,7 @@ int main( const int argc, char** argv )
     if( !client->initLocal( argc, argv ))
     {
         LBERROR << "Can't init client" << std::endl;
-        eq::exit();
+        eq::exit(); // cppcheck-suppress unreachableCode
         eVolve::exitErrors();
         return EXIT_FAILURE;
     }
@@ -90,7 +90,7 @@ int main( const int argc, char** argv )
                   client->getRefCount() - 1 );
     client = 0;
 
-    eq::exit();
+    eq::exit(); // cppcheck-suppress unreachableCode
     eVolve::exitErrors();
     return ret;
 }
