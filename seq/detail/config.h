@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 
 #ifndef EQSEQUEL_DETAIL_CONFIG_H
 #define EQSEQUEL_DETAIL_CONFIG_H
@@ -47,6 +51,8 @@ namespace detail
         virtual void unmapData() { /* nop */ }
 
         co::Object* getInitData();
+	
+	virtual ObjectMap* getObjectMap();
 
     protected:
         virtual ~Config() {}

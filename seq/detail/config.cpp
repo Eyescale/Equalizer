@@ -47,5 +47,10 @@ co::Object* Config::getInitData()
     return _objects->getInitData( initData );
 }
 
+ObjectMap* Config::getObjectMap()
+{
+    return _objects;	
+}
+
 }
 }
