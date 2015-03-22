@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 
 #include "config.h"
 

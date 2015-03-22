@@ -16,6 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #include "application.h"
 
 #include "error.h"
@@ -23,6 +27,7 @@
 #include "renderer.h"
 #include "viewData.h"
 #include "detail/application.h"
+#include "detail/objectMap.h"
 #include "detail/config.h"
 
 #include <eq/client/config.h>
@@ -58,6 +63,32 @@ eq::Config* Application::getConfig()
     if( !_impl )
         return 0;
     return _impl->getConfig();
+}
+
+bool Application::registerObject( co::Object* object, const uint32_t type )
+{
+    if( !_impl || !_impl->getConfig() ){
+       return false;
+    }
+
+    seq::detail::ObjectMap* objectMap = _impl->getConfig()->getObjectMap();
+    
+    if( !objectMap ) return false;
+
+    return objectMap->register_( object, type );
+}
+
+bool Application::deregister( co::Object* object )
+{
+    if( !_impl || !_impl->getConfig() ){
+       return false;
+    }
+
+    seq::detail::ObjectMap* objectMap = _impl->getConfig()->getObjectMap();
+    
+    if( !objectMap ) return false;
+    
+    return objectMap->deregister( object );
 }
 
 void Application::destroyRenderer( Renderer* renderer )

@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #ifndef EQSEQUEL_RENDERER_H
 #define EQSEQUEL_RENDERER_H
 
@@ -209,6 +213,9 @@ public:
     SEQ_API virtual void destroyObject( co::Object* object,
                                         const uint32_t type );
     //@}
+
+    co::Object*	mapObject( const uint128_t& identifier, co::Object* instance );
+    bool unmap( co::Object* object );
 
 private:
     detail::Renderer* const _impl;

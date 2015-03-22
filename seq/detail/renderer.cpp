@@ -15,11 +15,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #include "renderer.h"
 
 #include "channel.h"
 #include "pipe.h"
 #include "window.h"
+#include "objectMap.h"
 
 #include <seq/renderer.h>
 
@@ -40,6 +45,28 @@ Renderer::~Renderer()
 {
     LBASSERT( !_pipe );
     LBASSERT( !_channel );
+}
+
+co::Object* Renderer::mapObject( const uint128_t& identifier, co::Object* instance )
+{
+    if( !_pipe ) return 0;
+   
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+
+    if( !objectMap ) return 0;
+   
+    return objectMap->map(identifier, instance);
+}
+
+bool Renderer::unmap( co::Object* object )
+{
+    if( !_pipe ) return false;
+    
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+
+    if( !objectMap ) return false;
+   
+    return objectMap->unmap(object);
 }
 
 co::Object* Renderer::getFrameData()
