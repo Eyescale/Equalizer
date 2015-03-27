@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -124,6 +124,9 @@
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_PIPE_IATTR_HINT_AFFINITY
 %token EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER
+%token EQTOKEN_WINDOW_IATTR_HINT_CORE_PROFILE
+%token EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MAJOR
+%token EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MINOR
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
@@ -147,6 +150,9 @@
 %token EQTOKEN_PIPE
 %token EQTOKEN_WINDOW
 %token EQTOKEN_ATTRIBUTES
+%token EQTOKEN_HINT_CORE_PROFILE
+%token EQTOKEN_HINT_OPENGL_MAJOR
+%token EQTOKEN_HINT_OPENGL_MINOR
 %token EQTOKEN_HINT_STEREO
 %token EQTOKEN_HINT_DOUBLEBUFFER
 %token EQTOKEN_HINT_FULLSCREEN
@@ -418,6 +424,21 @@ global:
      {
          eq::server::Global::instance()->setPipeIAttribute(
              eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_CORE_PROFILE IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::server::WindowSettings::IATTR_HINT_CORE_PROFILE, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MAJOR IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::server::WindowSettings::IATTR_HINT_OPENGL_MAJOR, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MINOR IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::server::WindowSettings::IATTR_HINT_OPENGL_MINOR, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
@@ -700,7 +721,13 @@ windowField:
         }
 windowAttributes: /*null*/ | windowAttributes windowAttribute
 windowAttribute:
-    EQTOKEN_HINT_STEREO IATTR
+    EQTOKEN_HINT_CORE_PROFILE IATTR
+        { window->setIAttribute( eq::server::WindowSettings::IATTR_HINT_CORE_PROFILE, $2 ); }
+    | EQTOKEN_HINT_OPENGL_MAJOR IATTR
+        { window->setIAttribute( eq::server::WindowSettings::IATTR_HINT_OPENGL_MAJOR, $2 ); }
+    | EQTOKEN_HINT_OPENGL_MINOR IATTR
+        { window->setIAttribute( eq::server::WindowSettings::IATTR_HINT_OPENGL_MINOR, $2 ); }
+    | EQTOKEN_HINT_STEREO IATTR
         { window->setIAttribute( eq::server::WindowSettings::IATTR_HINT_STEREO, $2 ); }
     | EQTOKEN_HINT_DOUBLEBUFFER IATTR
         { window->setIAttribute( eq::server::WindowSettings::IATTR_HINT_DOUBLEBUFFER, $2 ); }

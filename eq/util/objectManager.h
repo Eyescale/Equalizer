@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -82,30 +83,35 @@ public:
     EQ_API unsigned getList( const void* key ) const;
     EQ_API unsigned newList( const void* key, const int num = 1 );
     EQ_API unsigned obtainList( const void* key, const int num = 1 );
-    EQ_API void   deleteList( const void* key );
+    EQ_API void     deleteList( const void* key );
+
+    EQ_API unsigned getVertexArray( const void* key ) const;
+    EQ_API unsigned newVertexArray( const void* key );
+    EQ_API unsigned obtainVertexArray( const void* key );
+    EQ_API void     deleteVertexArray( const void* key );
 
     EQ_API unsigned getTexture( const void* key ) const;
     EQ_API unsigned newTexture( const void* key );
     EQ_API unsigned obtainTexture( const void* key );
-    EQ_API void   deleteTexture( const void* key );
+    EQ_API void     deleteTexture( const void* key );
 
-    EQ_API bool   supportsBuffers() const;
+    EQ_API bool     supportsBuffers() const;
     EQ_API unsigned getBuffer( const void* key ) const;
     EQ_API unsigned newBuffer( const void* key );
     EQ_API unsigned obtainBuffer( const void* key );
-    EQ_API void   deleteBuffer( const void* key );
+    EQ_API void     deleteBuffer( const void* key );
 
-    EQ_API bool   supportsPrograms() const;
+    EQ_API bool     supportsPrograms() const;
     EQ_API unsigned getProgram( const void* key ) const;
     EQ_API unsigned newProgram( const void* key );
     EQ_API unsigned obtainProgram( const void* key );
-    EQ_API void   deleteProgram( const void* key );
+    EQ_API void     deleteProgram( const void* key );
 
-    EQ_API bool   supportsShaders() const;
+    EQ_API bool     supportsShaders() const;
     EQ_API unsigned getShader( const void* key ) const;
     EQ_API unsigned newShader( const void* key, const unsigned type );
     EQ_API unsigned obtainShader( const void* key, const unsigned type );
-    EQ_API void   deleteShader( const void* key );
+    EQ_API void     deleteShader( const void* key );
 
     EQ_API Accum* getEqAccum( const void* key ) const;
     EQ_API Accum* newEqAccum( const void* key );

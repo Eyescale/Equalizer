@@ -435,7 +435,7 @@ void Channel::_testDepthAssemble()
         _sendEvent( ASSEMBLE, msec, area, formatType.str(), 0, 0 );
 
         // GLSL
-        if( GLEW_VERSION_2_0 )
+        if( GLEW_VERSION_3_3 )
         {
             formatType.str("");
             formatType << "depth, GLSL,  " << i+1 << " images";

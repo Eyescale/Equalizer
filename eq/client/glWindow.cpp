@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2012-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2009, Makhinya Maxim
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -100,7 +100,11 @@ void GLWindow::initGLEW()
     if( _impl->glewInitialized )
         return;
 
+    // http://sourceforge.net/p/glew/patches/40/
+    glewExperimental = true;
+
     const GLenum result = glewInit();
+    glGetError(); // eat GL errors from buggy glew implementation
     if( result != GLEW_OK )
         LBWARN << "GLEW initialization failed: " << std::endl;
     else
@@ -129,8 +133,7 @@ GLEWContext* GLWindow::glewGetContext()
 
 bool GLWindow::configInitFBO()
 {
-    if( !_impl->glewInitialized ||
-        !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
+    if( !_impl->glewInitialized || !GLEW_EXT_framebuffer_object )
     {
         sendError( ERROR_FBO_UNSUPPORTED );
         return false;
@@ -210,28 +213,64 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     else
         drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
 
+    if( drawableConfig.glVersion >= 3.2f )
+    {
+        GLint mask;
+        EQ_GL_CALL( glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask ));
+        drawableConfig.coreProfile = mask & GL_CONTEXT_CORE_PROFILE_BIT;
+    }
+
     // Framebuffer capabilities
     GLboolean result;
-    glGetBooleanv( GL_STEREO,       &result );
+    EQ_GL_CALL( glGetBooleanv( GL_STEREO, &result ));
     drawableConfig.stereo = result;
 
-    glGetBooleanv( GL_DOUBLEBUFFER, &result );
+    EQ_GL_CALL( glGetBooleanv( GL_DOUBLEBUFFER, &result ));
     drawableConfig.doublebuffered = result;
 
-    GLint stencilBits;
-    glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
+    GLint stencilBits, colorBits, alphaBits, accumBits;
+    stencilBits = colorBits = alphaBits = accumBits = 0;
+    if( drawableConfig.coreProfile )
+    {
+        if( getFrameBufferObject( ))
+        {
+            glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
+                GL_DEPTH_STENCIL_ATTACHMENT,
+                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits );
+            // eat GL error if no stencil attachment; should return '0' bits
+            // according to spec, but gives GL_INVALID_OPERATION
+            glGetError();
+            EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
+                                                               &colorBits ));
+            EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
+                                                               &alphaBits ));
+        }
+        else
+        {
+            EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
+                GL_FRONT_LEFT, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
+                                                               &stencilBits ));
+            EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
+                GL_FRONT_LEFT, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
+                                                               &colorBits ));
+            EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
+                GL_FRONT_LEFT, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
+                                                               &alphaBits ));
+        }
+    }
+    else
+    {
+        EQ_GL_CALL( glGetIntegerv( GL_STENCIL_BITS, &stencilBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_RED_BITS, &colorBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_ALPHA_BITS, &alphaBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits ));
+    }
+
     drawableConfig.stencilBits = stencilBits;
-
-    GLint colorBits;
-    glGetIntegerv( GL_RED_BITS, &colorBits );
     drawableConfig.colorBits = colorBits;
-
-    GLint alphaBits;
-    glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
     drawableConfig.alphaBits = alphaBits;
-
-    GLint accumBits;
-    glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
     drawableConfig.accumBits = accumBits * 4;
 
     LBINFO << "Window drawable config: " << drawableConfig << std::endl;

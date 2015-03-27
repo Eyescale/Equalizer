@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,6 +36,7 @@
 
 #include <eq/util/accum.h>
 #include <eq/util/objectManager.h>
+#include <eq/util/shader.h>
 
 #include <co/global.h>
 #include <lunchbox/debug.h>
@@ -243,6 +244,15 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
 
     if( _isSubPixelDecomposition( frames ))
     {
+        const bool coreProfile = channel->getWindow()->getIAttribute(
+                    WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+        if( coreProfile )
+        {
+            LBERROR << "No support for sub pixel assembly for OpenGL core"
+                       "profile, skipping assemble" << std::endl;
+            return 0;
+        }
+
         if( !accum )
         {
             accum = _obtainAccum( channel );
@@ -360,6 +370,15 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     LBVERB << "Unsorted GPU assembly" << std::endl;
     if( _isSubPixelDecomposition( frames ))
     {
+        const bool coreProfile = channel->getWindow()->getIAttribute(
+                    WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+        if( coreProfile )
+        {
+            LBERROR << "No support for sub pixel assembly for OpenGL core"
+                       "profile, skipping assemble" << std::endl;
+            return 0;
+        }
+
         uint32_t count = 0;
 
         if( !accum )
@@ -1091,6 +1110,15 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 
 void Compositor::assembleImage( const Image* image, const ImageOp& op )
 {
+    const bool coreProfile = op.channel->getWindow()->getIAttribute(
+                WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+    if( coreProfile && op.pixel != Pixel::ALL )
+    {
+        LBERROR << "No support for pixel assembly for OpenGL core profile,"
+                   "skipping assemble" << std::endl;
+        return;
+    }
+
     ImageOp operation = op;
     operation.buffers = Frame::BUFFER_NONE;
 
@@ -1131,20 +1159,20 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 
     // mark stencil buffer where pixel shall not pass
     // TODO: OPT!
-    glClear( GL_STENCIL_BUFFER_BIT );
-    glEnable( GL_STENCIL_TEST );
-    glEnable( GL_DEPTH_TEST );
+    EQ_GL_CALL( glClear( GL_STENCIL_BUFFER_BIT ));
+    EQ_GL_CALL( glEnable( GL_STENCIL_TEST ));
+    EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
 
-    glStencilFunc( GL_ALWAYS, 1, 1 );
-    glStencilOp( GL_REPLACE, GL_REPLACE, GL_REPLACE );
+    EQ_GL_CALL( glStencilFunc( GL_ALWAYS, 1, 1 ));
+    EQ_GL_CALL( glStencilOp( GL_REPLACE, GL_REPLACE, GL_REPLACE ));
 
-    glLineWidth( 1.0f );
-    glDepthMask( false );
-    glColorMask( false, false, false, false );
+    EQ_GL_CALL( glLineWidth( 1.0f ));
+    EQ_GL_CALL( glDepthMask( false ));
+    EQ_GL_CALL( glColorMask( false, false, false, false ));
 
     const PixelViewport& pvp = image->getPixelViewport();
 
-    glPixelZoom( float( op.pixel.w ), float( op.pixel.h ));
+    EQ_GL_CALL( glPixelZoom( float( op.pixel.w ), float( op.pixel.h )));
 
     if( op.pixel.w > 1 )
     {
@@ -1188,13 +1216,14 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         glEnd();
     }
 
-    glDisable( GL_DEPTH_TEST );
-    glStencilFunc( GL_EQUAL, 0, 1 );
-    glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+    EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
+    EQ_GL_CALL( glStencilFunc( GL_EQUAL, 0, 1 ));
+    EQ_GL_CALL( glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP ));
 
     const ColorMask& colorMask = op.channel->getDrawBufferMask();
-    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
-    glDepthMask( true );
+    EQ_GL_CALL( glColorMask( colorMask.red, colorMask.green, colorMask.blue,
+                             true ));
+    EQ_GL_CALL( glDepthMask( true ));
 }
 
 void Compositor::clearStencilBuffer( const ImageOp& op )
@@ -1202,13 +1231,19 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
     if( op.pixel == Pixel::ALL )
         return;
 
-    glPixelZoom( 1.f, 1.f );
-    glDisable( GL_STENCIL_TEST );
+    EQ_GL_CALL( glPixelZoom( 1.f, 1.f ));
+    EQ_GL_CALL( glDisable( GL_STENCIL_TEST ));
 }
 
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
-    _drawPixels( image, op, Frame::BUFFER_COLOR );
+    // cppcheck-suppress unreadVariable
+    Channel* channel = op.channel;
+
+    if( GLEW_VERSION_3_3 )
+        _drawPixelsGLSL( image, op, Frame::BUFFER_COLOR );
+    else
+        _drawPixelsFF( image, op, Frame::BUFFER_COLOR );
     declareRegion( image, op );
 #if 0
     static lunchbox::a_int32_t counter;
@@ -1218,13 +1253,77 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 #endif
 }
 
-void Compositor::_drawPixels( const Image* image, const ImageOp& op,
-                              const Frame::Buffer which )
+void Compositor::_drawPixelsFF( const Image* image, const ImageOp& op,
+                                const Frame::Buffer which )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-    LBLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
+    LBLOG( LOG_ASSEMBLY ) << "_drawPixelsFF " << pvp << " offset " << op.offset
                           << std::endl;
 
+    if( !_setupDrawPixels( image, op, which ))
+        return;
+
+    const Vector4f& coords = _getCoords( op, pvp );
+
+    EQ_GL_CALL( glDisable( GL_LIGHTING ));
+    EQ_GL_CALL( glEnable( GL_TEXTURE_RECTANGLE_ARB ));
+
+    EQ_GL_CALL( glColor3f( 1.0f, 1.0f, 1.0f ));
+
+    glBegin( GL_QUADS );
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f( coords[0], coords[2], 0.0f );
+
+        glTexCoord2f( float( pvp.w ), 0.0f );
+        glVertex3f( coords[1], coords[2], 0.0f );
+
+        glTexCoord2f( float( pvp.w ), float( pvp.h ));
+        glVertex3f( coords[1], coords[3], 0.0f );
+
+        glTexCoord2f( 0.0f, float( pvp.h ));
+        glVertex3f( coords[0], coords[3], 0.0f );
+    glEnd();
+
+    // restore state
+    EQ_GL_CALL( glDisable( GL_TEXTURE_RECTANGLE_ARB ));
+
+    if ( which == Frame::BUFFER_COLOR )
+        EQ_GL_CALL( glDepthMask( true ))
+    else
+    {
+        const ColorMask& colorMask = op.channel->getDrawBufferMask();
+        EQ_GL_CALL( glColorMask( colorMask.red, colorMask.green, colorMask.blue,
+                                 true ));
+    }
+}
+
+void Compositor::_drawPixelsGLSL( const Image* image, const ImageOp& op,
+                                  const Frame::Buffer which )
+{
+    const PixelViewport& pvp = image->getPixelViewport();
+    LBLOG( LOG_ASSEMBLY ) << "_drawPixelsGLSL " << pvp << " offset "
+                          << op.offset << std::endl;
+
+    if( !_setupDrawPixels( image, op, which ))
+        return;
+
+    _drawTexturedQuad( op.channel, op, pvp, false );
+
+    // restore state
+    if ( which == Frame::BUFFER_COLOR )
+        EQ_GL_CALL( glDepthMask( true ))
+    else
+    {
+        const ColorMask& colorMask = op.channel->getDrawBufferMask();
+        EQ_GL_CALL( glColorMask( colorMask.red, colorMask.green, colorMask.blue,
+                                 true ));
+    }
+}
+
+bool Compositor::_setupDrawPixels( const Image* image, const ImageOp& op,
+                                   const Frame::Buffer which )
+{
+    const PixelViewport& pvp = image->getPixelViewport();
     const util::Texture* texture = 0;
     if( image->getStorageType() == Frame::TYPE_MEMORY )
     {
@@ -1232,10 +1331,12 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
         Channel* channel = op.channel; // needed for glewGetContext
         util::ObjectManager& objects = channel->getObjectManager();
 
-        if( op.zoom == Zoom::NONE )
+        const bool coreProfile = channel->getWindow()->getIAttribute(
+                    WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
+        if( op.zoom == Zoom::NONE && !coreProfile )
         {
             image->upload( which, 0, op.offset, objects );
-            return;
+            return false;
         }
         util::Texture* ncTexture = objects.obtainEqTexture(
             which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey,
@@ -1251,56 +1352,150 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
         texture = &image->getTexture( which );
     }
 
+    EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     texture->bind();
     texture->applyZoomFilter( op.zoomFilter );
     texture->applyWrap();
 
     if ( which == Frame::BUFFER_COLOR )
-        glDepthMask( false );
+        EQ_GL_CALL( glDepthMask( false ))
     else
     {
         LBASSERT( which == Frame::BUFFER_DEPTH )
-        glColorMask( false, false, false, false );
+        EQ_GL_CALL( glColorMask( false, false, false, false ));
     }
+    return true;
+}
 
-    glDisable( GL_LIGHTING );
-    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+Vector4f Compositor::_getCoords( const ImageOp& op, const PixelViewport& pvp )
+{
+    return Vector4f(
+        op.offset.x() + pvp.x * op.pixel.w + op.pixel.x,
+        op.offset.x() + pvp.getXEnd() * op.pixel.w*op.zoom.x() + op.pixel.x,
+        op.offset.y() + pvp.y * op.pixel.h + op.pixel.y,
+        op.offset.y() + pvp.getYEnd() * op.pixel.h*op.zoom.y() + op.pixel.y );
+}
 
-    glColor3f( 1.0f, 1.0f, 1.0f );
-
-    const float startX = float
-        ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
-    const float endX   = float
-        ( op.offset.x() + pvp.x + pvp.w * op.pixel.w*op.zoom.x() + op.pixel.x );
-    const float startY = float
-        ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
-    const float endY   = float
-        ( op.offset.y() + pvp.y + pvp.h * op.pixel.h*op.zoom.y() + op.pixel.y );
-
-    glBegin( GL_QUADS );
-        glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( startX, startY, 0.0f );
-
-        glTexCoord2f( float( pvp.w ), 0.0f );
-        glVertex3f( endX, startY, 0.0f );
-
-        glTexCoord2f( float( pvp.w ), float( pvp.h ));
-        glVertex3f( endX, endY, 0.0f );
-
-        glTexCoord2f( 0.0f, float( pvp.h ));
-        glVertex3f( startX, endY, 0.0f );
-    glEnd();
-
-    // restore state
-    glDisable( GL_TEXTURE_RECTANGLE_ARB );
-
-    if ( which == Frame::BUFFER_COLOR )
-        glDepthMask( true );
-    else
+template< typename T >
+void Compositor::_drawTexturedQuad( const T* key, const ImageOp& op,
+                                    const PixelViewport& pvp,
+                                    const bool withDepth )
+{
+    util::ObjectManager& om = op.channel->getObjectManager();
+    GLuint program = om.getProgram( key );
+    GLuint vertexArray = om.getVertexArray( key );
+    GLuint vertexBuffer = om.getBuffer( key );
+    GLuint uvBuffer = om.getBuffer( key + 1 );
+    if( program == util::ObjectManager::INVALID )
     {
-        const ColorMask& colorMask = op.channel->getDrawBufferMask();
-        glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+        vertexBuffer = om.newBuffer( key );
+        uvBuffer = om.newBuffer( key + 1 );
+        vertexArray = om.newVertexArray( key );
+        program = om.newProgram( key );
+
+        const char* vertexShaderGLSL = {
+            "#version 330 core\n"
+            "layout(location = 0) in vec3 vert;\n"
+            "layout(location = 1) in vec2 vertTexCoord;\n"
+            "uniform mat4 proj;\n"
+            "out vec2 fragTexCoord;\n"
+            "void main() {\n"
+            "    fragTexCoord = vertTexCoord;\n"
+            "    gl_Position = proj * vec4(vert, 1);\n"
+            "}\n"
+        };
+
+        const char* fragmentShaderGLSL = { withDepth ?
+            "#version 330 core\n"
+            "#extension GL_ARB_texture_rectangle : enable\n"
+            "uniform sampler2DRect color;\n"
+            "uniform sampler2DRect depth;\n"
+            "in vec2 fragTexCoord;\n"
+            "out vec4 finalColor;\n"
+            "void main() {\n"
+            "    finalColor = texture2DRect(color, fragTexCoord);\n"
+            "    gl_FragDepth = texture2DRect(depth, fragTexCoord).x;\n"
+            "}\n"
+                : // no depth
+            "#version 330 core\n"
+            "#extension GL_ARB_texture_rectangle : enable\n"
+            "uniform sampler2DRect color;\n"
+            "in vec2 fragTexCoord;\n"
+            "out vec4 finalColor;\n"
+            "void main() {\n"
+            "    finalColor = texture2DRect(color, fragTexCoord);\n"
+            "}\n"
+        };
+
+        LBCHECK( util::shader::linkProgram( program, vertexShaderGLSL,
+                                            fragmentShaderGLSL ));
+
+        EQ_GL_CALL( glUseProgram( program ));
+
+        GLint colorParam = glGetUniformLocation( program, "color" );
+        EQ_GL_CALL( glUniform1i( colorParam, 0 ));
+        if( withDepth )
+        {
+            const GLint depthParam = glGetUniformLocation( program, "depth" );
+            EQ_GL_CALL( glUniform1i( depthParam, 1 ));
+        }
     }
+
+    const Vector4f& coords = _getCoords( op, pvp );
+    const GLfloat vertices[] = {
+        coords[0], coords[2], 0.0f,
+        coords[1], coords[2], 0.0f,
+        coords[0], coords[3], 0.0f,
+        coords[1], coords[3], 0.0f
+    };
+
+    const GLfloat uvs[] = {
+        0.0f, 0.0f,
+        float( pvp.w ), 0.0f,
+        0.0f, float( pvp.h ),
+        float( pvp.w ), float( pvp.h )
+    };
+
+    eq::Frustumf frustum;
+    frustum.left() = op.channel->getPixelViewport().x;
+    frustum.right() = op.channel->getPixelViewport().getXEnd();
+    frustum.bottom() = op.channel->getPixelViewport().y;
+    frustum.top() = op.channel->getPixelViewport().getYEnd();
+    frustum.far_plane() = 1.0f;
+    frustum.near_plane() = -1.0f;
+    const eq::Matrix4f& proj = frustum.compute_ortho_matrix();
+
+    if( withDepth )
+        EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
+
+    EQ_GL_CALL( glBindVertexArray( vertexArray ));
+    EQ_GL_CALL( glUseProgram( program ));
+
+    const GLuint projection = glGetUniformLocation( program, "proj" );
+    EQ_GL_CALL( glUniformMatrix4fv( projection, 1, GL_FALSE, &proj[0] ));
+
+    EQ_GL_CALL( glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer ));
+    EQ_GL_CALL( glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+                              GL_DYNAMIC_DRAW ));
+    EQ_GL_CALL( glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, 0 ));
+
+    EQ_GL_CALL( glBindBuffer( GL_ARRAY_BUFFER, uvBuffer ));
+    EQ_GL_CALL( glBufferData( GL_ARRAY_BUFFER, sizeof(uvs), uvs,
+                              GL_DYNAMIC_DRAW ));
+    EQ_GL_CALL( glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, 0 ));
+    EQ_GL_CALL( glBindBuffer( GL_ARRAY_BUFFER, 0 ));
+
+    EQ_GL_CALL( glEnableVertexAttribArray( 0 ));
+    EQ_GL_CALL( glEnableVertexAttribArray( 1 ));
+    EQ_GL_CALL( glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 ));
+    EQ_GL_CALL( glDisableVertexAttribArray( 0 ));
+    EQ_GL_CALL( glDisableVertexAttribArray( 1 ));
+
+    EQ_GL_CALL( glBindVertexArray( 0 ));
+    EQ_GL_CALL( glUseProgram( 0 ));
+
+    if( withDepth )
+        EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
 }
 
 void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
@@ -1308,7 +1503,7 @@ void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
     // cppcheck-suppress unreadVariable
     Channel* channel = op.channel;
 
-    if( GLEW_VERSION_2_0 )
+    if( GLEW_VERSION_3_3 )
         assembleImageDB_GLSL( image, op );
     else
         assembleImageDB_FF( image, op );
@@ -1318,49 +1513,49 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
-    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB_FF " << pvp
                           << std::endl;
 
     // Z-Based sort-last assembly
-    glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y );
-    glEnable( GL_STENCIL_TEST );
+    EQ_GL_CALL( glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y ));
+    EQ_GL_CALL( glEnable( GL_STENCIL_TEST ));
 
     // test who is in front and mark in stencil buffer
-    glEnable( GL_DEPTH_TEST );
+    EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
 
     const bool pixelComposite = ( op.pixel != Pixel::ALL );
     if( pixelComposite )
     {   // keep already marked stencil values
-        glStencilFunc( GL_EQUAL, 1, 1 );
-        glStencilOp( GL_KEEP, GL_ZERO, GL_REPLACE );
+        EQ_GL_CALL( glStencilFunc( GL_EQUAL, 1, 1 ));
+        EQ_GL_CALL( glStencilOp( GL_KEEP, GL_ZERO, GL_REPLACE ));
     }
     else
     {
-        glStencilFunc( GL_ALWAYS, 1, 1 );
-        glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
+        EQ_GL_CALL( glStencilFunc( GL_ALWAYS, 1, 1 ));
+        EQ_GL_CALL( glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE ));
     }
 
-    _drawPixels( image, op, Frame::BUFFER_DEPTH );
+    _drawPixelsFF( image, op, Frame::BUFFER_DEPTH );
 
-    glDisable( GL_DEPTH_TEST );
+    EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
 
     // draw front-most, visible pixels using stencil mask
-    glStencilFunc( GL_EQUAL, 1, 1 );
-    glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO );
+    EQ_GL_CALL( glStencilFunc( GL_EQUAL, 1, 1 ));
+    EQ_GL_CALL( glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO ));
 
-    _drawPixels( image, op, Frame::BUFFER_COLOR );
+    _drawPixelsFF( image, op, Frame::BUFFER_COLOR );
 
-    glDisable( GL_STENCIL_TEST );
+    EQ_GL_CALL( glDisable( GL_STENCIL_TEST ));
     declareRegion( image, op );
 }
 
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB_GLSL " << pvp << std::endl;
 
     Channel* channel = op.channel; // needed for glewGetContext
-    util::ObjectManager& objects = channel->getObjectManager();
+    util::ObjectManager& om = channel->getObjectManager();
     const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
 
     const util::Texture* textureColor = 0;
@@ -1372,126 +1567,29 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     }
     else
     {
-        util::Texture* ncTextureColor = objects.obtainEqTexture( colorDBKey,
+        util::Texture* ncTextureColor = om.obtainEqTexture( colorDBKey,
                                                      GL_TEXTURE_RECTANGLE_ARB );
-        util::Texture* ncTextureDepth = objects.obtainEqTexture( depthDBKey,
+        util::Texture* ncTextureDepth = om.obtainEqTexture( depthDBKey,
                                                      GL_TEXTURE_RECTANGLE_ARB );
         const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
 
-        image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, objects );
-        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, objects );
+        image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, om );
+        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, om );
 
         textureColor = ncTextureColor;
         textureDepth = ncTextureDepth;
     }
 
-    GLuint program = objects.getProgram( shaderDBKey );
-    if( program == util::ObjectManager::INVALID )
-    {
-        // Create fragment shader which reads color and depth values from
-        // rectangular textures
-        const GLuint shader = objects.newShader( shaderDBKey,
-                                                  GL_FRAGMENT_SHADER );
-        LBASSERT( shader != util::ObjectManager::INVALID );
-
-        const char* source =
-            "uniform sampler2DRect color; \
-             uniform sampler2DRect depth; \
-             void main(void){ \
-                 gl_FragColor = texture2DRect( color, gl_TexCoord[0].st ); \
-                 gl_FragDepth = texture2DRect( depth, gl_TexCoord[0].st ).x; }";
-
-        EQ_GL_CALL( glShaderSource( shader, 1, &source, 0 ));
-        EQ_GL_CALL( glCompileShader( shader ));
-
-        GLint status;
-        glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
-        if( !status )
-            LBERROR << "Failed to compile fragment shader for DB compositing"
-                    << std::endl;
-
-        program = objects.newProgram( shaderDBKey );
-
-        EQ_GL_CALL( glAttachShader( program, shader ));
-        EQ_GL_CALL( glLinkProgram( program ));
-
-        glGetProgramiv( program, GL_LINK_STATUS, &status );
-        if( !status )
-        {
-            LBWARN << "Failed to link shader program for DB compositing"
-                   << std::endl;
-            return;
-        }
-
-        // use fragment shader and setup uniforms
-        EQ_GL_CALL( glUseProgram( program ));
-
-        const GLint depthParam = glGetUniformLocation( program, "depth" );
-        glUniform1i( depthParam, 0 );
-        const GLint colorParam = glGetUniformLocation( program, "color" );
-        glUniform1i( colorParam, 1 );
-    }
-    else
-    {
-        // use fragment shader
-        EQ_GL_CALL( glUseProgram( program ));
-    }
-
-    if( op.pixel != Pixel::ALL )
-        glPixelZoom( 1.f, 1.f );
-
-    // Enable & download color and depth textures
-    glEnable( GL_TEXTURE_RECTANGLE_ARB );
-
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE1 ));
-    textureColor->bind();
-    textureColor->applyZoomFilter( op.zoomFilter );
-
-    EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     textureDepth->bind();
     textureDepth->applyZoomFilter( op.zoomFilter );
 
-    // Draw a quad using shader & textures in the right place
-    glEnable( GL_DEPTH_TEST );
-    glColor3f( 1.0f, 1.0f, 1.0f );
+    EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
+    textureColor->bind();
+    textureColor->applyZoomFilter( op.zoomFilter );
 
-    const float startX = float
-        ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
-    const float endX   = float
-        ( op.offset.x() + pvp.getXEnd() * op.pixel.w*op.zoom.x() + op.pixel.x );
-    const float startY = float
-        ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
-    const float endY   = float
-        ( op.offset.y() + pvp.getYEnd() * op.pixel.h*op.zoom.y() + op.pixel.y );
+    _drawTexturedQuad( shaderDBKey, op, pvp, true );
 
-    const float w = float( pvp.w );
-    const float h = float( pvp.h );
-
-    glBegin( GL_TRIANGLE_STRIP ); {
-        glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
-        glMultiTexCoord2f( GL_TEXTURE1, 0.0f, 0.0f );
-        glVertex3f( startX, startY, 0.0f );
-
-        glMultiTexCoord2f( GL_TEXTURE0, w, 0.0f );
-        glMultiTexCoord2f( GL_TEXTURE1, w, 0.0f );
-        glVertex3f( endX, startY, 0.0f );
-
-        glMultiTexCoord2f( GL_TEXTURE0, 0.0f, h );
-        glMultiTexCoord2f( GL_TEXTURE1, 0.0f, h );
-        glVertex3f( startX, endY, 0.0f );
-
-        glMultiTexCoord2f( GL_TEXTURE0, w, h );
-        glMultiTexCoord2f( GL_TEXTURE1, w, h );
-        glVertex3f( endX, endY, 0.0f );
-    } glEnd();
-
-    // restore state
-    glDisable( GL_TEXTURE_RECTANGLE_ARB );
-    glDisable( GL_DEPTH_TEST );
-    EQ_GL_CALL( glUseProgram( 0 ));
-
-    if( op.pixel != Pixel::ALL )
-        glPixelZoom( float( op.pixel.w ), float( op.pixel.h ));
     declareRegion( image, op );
 }
 

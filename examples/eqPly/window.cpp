@@ -147,7 +147,7 @@ void Window::_loadLogo()
 
 void Window::_loadShaders()
 {
-    if( _state->getShader( vertexShader_glsl ) != VertexBufferState::INVALID )
+    if( _state->getProgram( getPipe( )) != VertexBufferState::INVALID )
         // already loaded
         return;
 
@@ -159,45 +159,9 @@ void Window::_loadShaders()
         return;
     }
 
-    const GLuint vShader = _state->newShader( vertexShader_glsl,
-                                              GL_VERTEX_SHADER );
-    LBASSERT( vShader != VertexBufferState::INVALID );
-    const GLchar* vShaderPtr = vertexShader_glsl;
-    glShaderSource( vShader, 1, &vShaderPtr, 0 );
-    glCompileShader( vShader );
-
-    GLint status;
-    glGetShaderiv( vShader, GL_COMPILE_STATUS, &status );
-    if( !status )
-    {
-        LBWARN << "Failed to compile vertex shader" << std::endl;
+    const GLuint program = _state->newProgram( getPipe( ));
+    if( !_state->linkProgram( program, vertexShader_glsl, fragmentShader_glsl ))
         return;
-    }
-
-    const GLuint fShader =
-        _state->newShader( fragmentShader_glsl, GL_FRAGMENT_SHADER );
-    LBASSERT( fShader != VertexBufferState::INVALID );
-    const GLchar* fShaderPtr = fragmentShader_glsl;
-    glShaderSource( fShader, 1, &fShaderPtr, 0 );
-    glCompileShader( fShader );
-    glGetShaderiv( fShader, GL_COMPILE_STATUS, &status );
-    if( !status )
-    {
-        LBWARN << "Failed to compile fragment shader" << std::endl;
-        return;
-    }
-
-    const GLuint program = _state->newProgram( getPipe() );
-    LBASSERT( program != VertexBufferState::INVALID );
-    glAttachShader( program, vShader );
-    glAttachShader( program, fShader );
-    glLinkProgram( program );
-    glGetProgramiv( program, GL_LINK_STATUS, &status );
-    if( !status )
-    {
-        LBWARN << "Failed to link shader program" << std::endl;
-        return;
-    }
 
     // turn off OpenGL lighting if we are using our own shaders
     glDisable( GL_LIGHTING );

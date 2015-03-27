@@ -294,6 +294,10 @@ bool Pipe::_configInitWGLEW()
     {
         LBINFO << "Pipe WGLEW initialization successful" << std::endl;
         success = configInitGL();
+
+        const char* glVersion = (const char*)glGetString( GL_VERSION );
+        if( success && glVersion )
+            _maxOpenGLVersion = static_cast<float>( atof( glVersion ));
     }
     else
         sendError( ERROR_WGLPIPE_WGLEWINIT_FAILED )

@@ -7,6 +7,7 @@ set(UTIL_HEADERS
   ../util/frameBufferObject.h
   ../util/objectManager.h
   ../util/pixelBufferObject.h
+  ../util/shader.h
   ../util/texture.h
   ../util/types.h
   )
@@ -18,5 +19,6 @@ set(UTIL_SOURCES
   ../util/frameBufferObject.cpp
   ../util/objectManager.cpp
   ../util/pixelBufferObject.cpp
+  ../util/shader.cpp
   ../util/texture.cpp
   )
