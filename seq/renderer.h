@@ -35,6 +35,7 @@ namespace seq
  */
 class Renderer : public co::ObjectFactory
 {
+friend class detail::Window;
 public:
     /** Construct a new renderer. @version 1.0 */
     SEQ_API Renderer( Application& application );
@@ -207,6 +208,7 @@ public:
     SEQ_API const Matrix4f& getModelMatrix() const;
     //@}
 
+    void    applyScreenFrustum();
     /** @name ObjectFactory interface, forwards to Application instance. */
     //@{
     SEQ_API virtual co::Object* createObject( const uint32_t type );
@@ -216,6 +218,9 @@ public:
 
     co::Object*	mapObject( const uint128_t& identifier, co::Object* instance );
     bool unmap( co::Object* object );
+
+protected:
+    virtual void notifyNewWindow( eq::Window* LB_UNUSED ){};
 
 private:
     detail::Renderer* const _impl;

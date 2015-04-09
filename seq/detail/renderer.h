@@ -35,8 +35,8 @@ namespace detail
         Renderer();
         ~Renderer();
 
-	co::Object* mapObject( const uint128_t& identifier, co::Object* instance = 0 );
-	bool unmap( co::Object* object );
+        co::Object* mapObject( const uint128_t& identifier, co::Object* instance = 0 );
+        bool unmap( co::Object* object );
 
         /** @name Data Access. */
         //@{
@@ -49,6 +49,8 @@ namespace detail
 
         bool useOrtho() const;
         void setNearFar( const float nearPlane, const float farPlane );
+
+        void applyScreenFrustum();
         //@}
 
         /** @name Current context. */

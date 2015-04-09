@@ -85,6 +85,8 @@ bool Window::configInitGL( const uint128_t& )
     }
     const bool ret = renderer->initContext( initData );
 
+    renderer->notifyNewWindow( static_cast<eq::Window*>(this) );
+
     rendererImpl->setWindow( 0 );
     return ret;
 }

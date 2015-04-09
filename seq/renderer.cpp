@@ -23,6 +23,7 @@
 
 #include "application.h"
 #include "viewData.h"
+#include "detail/window.h"
 #include "detail/renderer.h"
 #include "detail/objectMap.h"
 
@@ -147,6 +148,11 @@ const RenderContext& Renderer::getRenderContext() const
 void Renderer::applyModelMatrix()
 {
     _impl->applyModelMatrix();
+}
+
+void Renderer::applyScreenFrustum()
+{
+    _impl->applyScreenFrustum();
 }
 
 co::Object* Renderer::createObject( const uint32_t type )

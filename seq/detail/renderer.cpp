@@ -98,6 +98,13 @@ bool Renderer::useOrtho() const
     return _channel ? _channel->useOrtho() : false;
 }
 
+void Renderer::applyScreenFrustum()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->applyScreenFrustum();
+}
+
 void Renderer::setNearFar( const float nearPlane, const float farPlane )
 {
     LBASSERT( _channel );
