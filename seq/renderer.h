@@ -35,7 +35,9 @@ namespace seq
  */
 class Renderer : public co::ObjectFactory
 {
+
 friend class detail::Window;
+
 public:
     /** Construct a new renderer. @version 1.0 */
     SEQ_API Renderer( Application& application );
@@ -220,7 +222,8 @@ public:
     bool unmap( co::Object* object );
 
 protected:
-    virtual void notifyNewWindow( eq::Window* LB_UNUSED ){};
+    virtual void notifyWindowInitGL( eq::Window* LB_UNUSED ){};
+    virtual void notifyWindowExitGL( eq::Window* LB_UNUSED ){};
 
 private:
     detail::Renderer* const _impl;
