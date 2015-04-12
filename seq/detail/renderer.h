@@ -58,6 +58,8 @@ namespace detail
         void setPipe( Pipe* pipe ) { _pipe = pipe; }
         void setWindow( Window* window );
         void setChannel( Channel* channel );
+
+        const Window* getWindow() const;
         //@}
 
         /** @name Operations. */

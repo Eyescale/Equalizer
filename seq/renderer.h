@@ -211,6 +211,8 @@ public:
     //@}
 
     void    applyScreenFrustum();
+
+    const eq::Window* getCurrentWindow() const;
     /** @name ObjectFactory interface, forwards to Application instance. */
     //@{
     SEQ_API virtual co::Object* createObject( const uint32_t type );
@@ -224,7 +226,7 @@ public:
 protected:
     virtual void notifyWindowInitGL( eq::Window* LB_UNUSED ){};
     virtual void notifyWindowExitGL( eq::Window* LB_UNUSED ){};
-
+    virtual void processWindowEvent( eq::Window* LB_UNUSED, const eq::Event& LB_UNUSED ){};
 private:
     detail::Renderer* const _impl;
     Application& app_;

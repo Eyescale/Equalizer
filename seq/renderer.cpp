@@ -50,6 +50,11 @@ const GLEWContext* Renderer::glewGetContext() const
     return _impl->glewGetContext();
 }
 
+const eq::Window* Renderer::getCurrentWindow() const
+{
+    return _impl->getWindow();
+}
+
 ViewData* Renderer::createViewData()
 {
     return new ViewData;

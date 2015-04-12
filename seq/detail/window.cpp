@@ -23,6 +23,7 @@
 
 #include <seq/renderer.h>
 #include <eq/util/objectManager.h>
+#include <eq/fabric/event.h>
 
 namespace seq
 {
@@ -106,6 +107,13 @@ bool Window::configExitGL()
 
     rendererImpl->setWindow( 0 );
     return ret;
+}
+
+bool Window::processEvent( const eq::Event& event )
+{
+    seq::Renderer* const renderer = getRenderer();
+    renderer->processWindowEvent( this, event );
+    return eq::Window::processEvent(event);
 }
 
 }
