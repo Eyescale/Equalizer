@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
-  ${PROJECT_SOURCE_DIR}/CMake/common)
+  ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
 include(SubProject)
@@ -109,7 +109,8 @@ if(GLEW_MX_FOUND)
 endif()
 
 common_install(RELATIVE
-  FILES CMake/common/FindGLEW_MX.cmake CMake/EqGLLibraries.cmake
+  FILES ${CMAKE_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
+    CMake/EqGLLibraries.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT dev)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq COMPONENT dev)

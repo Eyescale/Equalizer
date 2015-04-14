@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2015 Stefan Eilemann <eile@eyescale.ch>
 #                    2011 Maxim Makhinya <maxmah@gmail.com>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
@@ -83,8 +83,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples)
-install(FILES ${PROJECT_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
-              ${PROJECT_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/common/FindGLEW_MX.cmake
               ${PROJECT_SOURCE_DIR}/CMake/FindPackages.cmake
               ${PROJECT_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
