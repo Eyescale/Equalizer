@@ -29,6 +29,8 @@ using eq::Vector3f;
 using eq::Vector4f;
 using eq::uint128_t;
 using eq::fabric::RenderContext;
+using eq::util::ObjectManager;
+using namespace eq::util::shader;
 
 class Application;
 class ObjectFactory;

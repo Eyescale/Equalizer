@@ -112,7 +112,7 @@ void Channel::frameDraw( const uint128_t& )
 
 void Channel::applyModelMatrix()
 {
-    glMultMatrixf( getModelMatrix().array );
+    EQ_GL_CALL( glMultMatrixf( getModelMatrix().array ));
 }
 
 void Channel::frameViewFinish( const uint128_t& frameID )

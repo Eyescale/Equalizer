@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,6 +36,9 @@ namespace detail
         //@{
         co::Object* getFrameData();
         const GLEWContext* glewGetContext() const { return _glewContext; }
+
+        const ObjectManager& getObjectManager() const;
+        ObjectManager& getObjectManager();
 
         const Frustumf& getFrustum() const;
         const Matrix4f& getViewMatrix() const;

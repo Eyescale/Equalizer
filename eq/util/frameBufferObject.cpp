@@ -73,7 +73,7 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
 
     // Check for frame dimensions
     GLint maxViewportDims[2];
-    glGetIntegerv( GL_MAX_VIEWPORT_DIMS, &maxViewportDims[0] );
+    EQ_GL_CALL( glGetIntegerv( GL_MAX_VIEWPORT_DIMS, &maxViewportDims[0] ));
     if( width > maxViewportDims[0] || height > maxViewportDims[1] )
         return Error( ERROR_FRAMEBUFFER_INVALID_SIZE );
 
@@ -81,8 +81,12 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
         return Error( ERROR_FRAMEBUFFER_INITIALIZED );
 
     // generate and bind the framebuffer
-    glGenFramebuffersEXT( 1, &_fboID );
-    glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
+    EQ_GL_CALL( glGenFramebuffersEXT( 1, &_fboID ));
+    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
+
+    GLint mask;
+    EQ_GL_CALL( glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask ));
+    const bool coreContext = mask & GL_CONTEXT_CORE_PROFILE_BIT;
 
     // create and bind textures
     for( unsigned i = 0; i < _colors.size(); ++i )
@@ -90,7 +94,7 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
         _colors[i]->init( colorFormat, width, height );
         _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height );
     }
-    if( stencilSize > 0 && GLEW_EXT_packed_depth_stencil )
+    if( stencilSize > 0 && ( GLEW_EXT_packed_depth_stencil || coreContext ))
     {
         _depth.init( GL_DEPTH24_STENCIL8, width, height );
         _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height );

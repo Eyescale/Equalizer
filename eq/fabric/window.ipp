@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2010-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,6 +39,9 @@ namespace
 {
 #define MAKE_WINDOW_ATTR_STRING( attr ) ( std::string("EQ_WINDOW_") + #attr )
 std::string _iAttributeStrings[] = {
+    MAKE_WINDOW_ATTR_STRING( IATTR_HINT_CORE_PROFILE ),
+    MAKE_WINDOW_ATTR_STRING( IATTR_HINT_OPENGL_MAJOR ),
+    MAKE_WINDOW_ATTR_STRING( IATTR_HINT_OPENGL_MINOR ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_STEREO ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_FULLSCREEN ),

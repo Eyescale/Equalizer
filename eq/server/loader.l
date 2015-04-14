@@ -1,6 +1,7 @@
 
 %{
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -108,6 +109,9 @@ EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
 EQ_PIPE_IATTR_HINT_AFFINITY      { return EQTOKEN_PIPE_IATTR_HINT_AFFINITY; }
 EQ_PIPE_IATTR_HINT_CUDA_GL_INTEROP { return EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP; }
 EQ_VIEW_SATTR_DISPLAYCLUSTER      { return EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER; }
+EQ_WINDOW_IATTR_HINT_CORE_PROFILE { return EQTOKEN_WINDOW_IATTR_HINT_CORE_PROFILE; }
+EQ_WINDOW_IATTR_HINT_OPENGL_MAJOR { return EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MAJOR; }
+EQ_WINDOW_IATTR_HINT_OPENGL_MINOR { return EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MINOR; }
 EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
 EQ_WINDOW_IATTR_HINT_FULLSCREEN  { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN;}
@@ -143,6 +147,9 @@ hint_doublebuffer               { return EQTOKEN_HINT_DOUBLEBUFFER; }
 hint_fullscreen                 { return EQTOKEN_HINT_FULLSCREEN; }
 hint_statistics                 { return EQTOKEN_HINT_STATISTICS; }
 hint_sendtoken                  { return EQTOKEN_HINT_SENDTOKEN; }
+hint_core_profile               { return EQTOKEN_HINT_CORE_PROFILE; }
+hint_opengl_major               { return EQTOKEN_HINT_OPENGL_MAJOR; }
+hint_opengl_minor               { return EQTOKEN_HINT_OPENGL_MINOR; }
 hint_stereo                     { return EQTOKEN_HINT_STEREO; }
 hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
 hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }

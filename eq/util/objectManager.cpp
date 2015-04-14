@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -145,6 +146,7 @@ public:
 
     GLEWContext glewContext;
     ObjectHash lists;
+    ObjectHash vertexArrays;
     ObjectHash textures;
     ObjectHash buffers;
     ObjectHash programs;
@@ -208,7 +210,7 @@ void ObjectManager::deleteAll()
     {
         const Object& object = i->second;
         LBVERB << "Delete list " << object.id << std::endl;
-        glDeleteLists( object.id, object.num );
+        EQ_GL_CALL( glDeleteLists( object.id, object.num ));
     }
     _impl->lists.clear();
 
@@ -217,7 +219,7 @@ void ObjectManager::deleteAll()
     {
         const Object& object = i->second;
         LBVERB << "Delete texture " << object.id << std::endl;
-        glDeleteTextures( 1, &object.id );
+        EQ_GL_CALL( glDeleteTextures( 1, &object.id ));
     }
     _impl->textures.clear();
 
@@ -226,7 +228,7 @@ void ObjectManager::deleteAll()
     {
         const Object& object = i->second;
         LBVERB << "Delete buffer " << object.id << std::endl;
-        glDeleteBuffers( 1, &object.id );
+        EQ_GL_CALL( glDeleteBuffers( 1, &object.id ));
     }
     _impl->buffers.clear();
 
@@ -235,7 +237,7 @@ void ObjectManager::deleteAll()
     {
         const Object& object = i->second;
         LBVERB << "Delete program " << object.id << std::endl;
-        glDeleteProgram( object.id );
+        EQ_GL_CALL( glDeleteProgram( object.id ));
     }
     _impl->programs.clear();
 
@@ -244,7 +246,7 @@ void ObjectManager::deleteAll()
     {
         const Object& object = i->second;
         LBVERB << "Delete shader " << object.id << std::endl;
-        glDeleteShader( object.id );
+        EQ_GL_CALL( glDeleteShader( object.id ));
     }
     _impl->shaders.clear();
 
@@ -343,8 +345,60 @@ void ObjectManager::deleteList( const void* key )
         return;
 
     const Object& object = i->second;
-    glDeleteLists( object.id, object.num );
+    EQ_GL_CALL( glDeleteLists( object.id, object.num ));
     _impl->lists.erase( i );
+}
+
+// vertex array functions
+
+GLuint ObjectManager::getVertexArray( const void* key ) const
+{
+    ObjectHash::const_iterator i = _impl->vertexArrays.find( key );
+    if( i == _impl->vertexArrays.end( ))
+        return INVALID;
+
+    const Object& object = i->second;
+    return object.id;
+}
+
+GLuint ObjectManager::newVertexArray( const void* key )
+{
+    if( _impl->vertexArrays.find( key ) != _impl->vertexArrays.end( ))
+    {
+        LBWARN << "Requested new vertex array for existing key" << std::endl;
+        return INVALID;
+    }
+
+    GLuint id = INVALID;
+    EQ_GL_CALL( glGenVertexArrays( 1, &id ));
+    if( !id )
+    {
+        LBWARN << "glGenVertexArrays failed: " << glGetError() << std::endl;
+        return INVALID;
+    }
+
+    Object& object   = _impl->vertexArrays[ key ];
+    object.id        = id;
+    return id;
+}
+
+GLuint ObjectManager::obtainVertexArray( const void* key )
+{
+    const GLuint id = getVertexArray( key );
+    if( id != INVALID )
+        return id;
+    return newVertexArray( key );
+}
+
+void ObjectManager::deleteVertexArray( const void* key )
+{
+    ObjectHash::iterator i = _impl->vertexArrays.find( key );
+    if( i == _impl->vertexArrays.end( ))
+        return;
+
+    const Object& object = i->second;
+    EQ_GL_CALL( glDeleteVertexArrays( 1, &object.id ));
+    _impl->vertexArrays.erase( i );
 }
 
 // texture object functions
@@ -395,7 +449,7 @@ void ObjectManager::deleteTexture( const void* key )
         return;
 
     const Object& object = i->second;
-    glDeleteTextures( 1, &object.id );
+    EQ_GL_CALL( glDeleteTextures( 1, &object.id ));
     _impl->textures.erase( i );
 }
 
@@ -426,13 +480,12 @@ GLuint ObjectManager::newBuffer( const void* key )
 
     if( _impl->buffers.find( key ) != _impl->buffers.end() )
     {
-        LBWARN << "Requested new buffer for existing key" << std::endl;
+        LBWARN << "Requested new buffer for existing key " << key << std::endl;
         return INVALID;
     }
 
     GLuint id = INVALID;
     glGenBuffers( 1, &id );
-
     if( id == INVALID )
     {
         LBWARN << "glGenBuffers failed: " << glGetError() << std::endl;
@@ -459,7 +512,7 @@ void ObjectManager::deleteBuffer( const void* key )
         return;
 
     const Object& object = i->second;
-    glDeleteBuffers( 1, &object.id );
+    EQ_GL_CALL( glDeleteBuffers( 1, &object.id ));
     _impl->buffers.erase( i );
 }
 
@@ -521,7 +574,7 @@ void ObjectManager::deleteProgram( const void* key )
         return;
 
     const Object& object = i->second;
-    glDeleteProgram( object.id );
+    EQ_GL_CALL( glDeleteProgram( object.id ));
     _impl->programs.erase( i );
 }
 
@@ -563,7 +616,6 @@ GLuint ObjectManager::newShader( const void* key, const GLenum type )
         return INVALID;
     }
 
-
     Object& object     = _impl->shaders[ key ];
     object.id          = id;
     return id;
@@ -584,7 +636,7 @@ void ObjectManager::deleteShader( const void* key )
         return;
 
     const Object& object = i->second;
-    glDeleteShader( object.id );
+    EQ_GL_CALL( glDeleteShader( object.id ));
     _impl->shaders.erase( i );
 }
 

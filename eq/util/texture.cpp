@@ -85,7 +85,7 @@ void Texture::flush()
         return;
 
     LB_TS_THREAD( _thread );
-    glDeleteTextures( 1, &_impl->name );
+    EQ_GL_CALL( glDeleteTextures( 1, &_impl->name ));
     _impl->name = 0;
     _impl->defined = false;
 }
@@ -231,14 +231,18 @@ void Texture::_grow( const int32_t width, const int32_t height )
 
 void Texture::applyZoomFilter( const ZoomFilter zoomFilter ) const
 {
-    glTexParameteri( _impl->target, GL_TEXTURE_MAG_FILTER, zoomFilter );
-    glTexParameteri( _impl->target, GL_TEXTURE_MIN_FILTER, zoomFilter );
+    EQ_GL_CALL( glTexParameteri( _impl->target, GL_TEXTURE_MAG_FILTER,
+                                 zoomFilter ));
+    EQ_GL_CALL( glTexParameteri( _impl->target, GL_TEXTURE_MIN_FILTER,
+                                 zoomFilter ));
 }
 
 void Texture::applyWrap() const
 {
-    glTexParameteri( _impl->target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    glTexParameteri( _impl->target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    EQ_GL_CALL( glTexParameteri( _impl->target, GL_TEXTURE_WRAP_S,
+                                 GL_CLAMP_TO_EDGE ));
+    EQ_GL_CALL( glTexParameteri( _impl->target, GL_TEXTURE_WRAP_T,
+                                 GL_CLAMP_TO_EDGE ));
 }
 
 void Texture::copyFromFrameBuffer( const GLuint internalFormat,
@@ -256,7 +260,8 @@ void Texture::copyFromFrameBuffer( const GLuint internalFormat,
     else
         resize( _impl->width, _impl->height );
 
-    glCopyTexSubImage2D( _impl->target, 0, 0, 0, pvp.x, pvp.y, pvp.w, pvp.h );
+    EQ_GL_CALL(  glCopyTexSubImage2D( _impl->target, 0, 0, 0, pvp.x, pvp.y,
+                                      pvp.w, pvp.h ));
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
@@ -271,21 +276,22 @@ void Texture::upload( const int32_t width, const int32_t height,
     else
         resize( _impl->width, _impl->height );
 
-    glTexSubImage2D( _impl->target, 0, 0, 0, width, height,
-                     _impl->format, _impl->type, ptr );
+    EQ_GL_CALL( glTexSubImage2D( _impl->target, 0, 0, 0, width, height,
+                                 _impl->format, _impl->type, ptr ));
 }
 
 void Texture::download( void* buffer ) const
 {
     LBASSERT( isValid( ));
-    glBindTexture( _impl->target, _impl->name );
-    glGetTexImage( _impl->target, 0, _impl->format, _impl->type, buffer );
+    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
+    EQ_GL_CALL( glGetTexImage( _impl->target, 0, _impl->format, _impl->type,
+                               buffer ));
 }
 
 void Texture::bind() const
 {
     LBASSERT( _impl->name );
-    glBindTexture( _impl->target, _impl->name );
+    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
 }
 
 void Texture::bindToFBO( const GLenum target, const int32_t width,
@@ -297,11 +303,11 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
 
     _generate();
 
-    glBindTexture( _impl->target, _impl->name );
-    glTexImage2D( _impl->target, 0, _impl->internalFormat, width, height, 0,
-                  _impl->format, _impl->type, 0 );
-    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _impl->target,
-                               _impl->name, 0 );
+    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
+    EQ_GL_CALL( glTexImage2D( _impl->target, 0, _impl->internalFormat, width, height, 0,
+                              _impl->format, _impl->type, 0 ));
+    EQ_GL_CALL( glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target,
+                                           _impl->target, _impl->name, 0 ));
 
     _impl->width = width;
     _impl->height = height;

@@ -300,21 +300,33 @@ void _copy4( eq_uint64_t dst[4], const eq_uint64_t src[4] )
 void _initPackAlignment( const eq_uint64_t width )
 {
     if( (width % 4) == 0 )
-        glPixelStorei( GL_PACK_ALIGNMENT, 4 );
+    {
+        EQ_GL_CALL( glPixelStorei( GL_PACK_ALIGNMENT, 4 ));
+    }
     else if( (width % 2) == 0 )
-        glPixelStorei( GL_PACK_ALIGNMENT, 2 );
+    {
+        EQ_GL_CALL( glPixelStorei( GL_PACK_ALIGNMENT, 2 ));
+    }
     else
-        glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+    {
+        EQ_GL_CALL( glPixelStorei( GL_PACK_ALIGNMENT, 1 ));
+    }
 }
 
 void _initUnpackAlignment( const eq_uint64_t width )
 {
     if( (width % 4) == 0 )
-        glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
+    {
+        EQ_GL_CALL( glPixelStorei( GL_UNPACK_ALIGNMENT, 4 ));
+    }
     else if( (width % 2) == 0 )
-        glPixelStorei( GL_UNPACK_ALIGNMENT, 2 );
+    {
+        EQ_GL_CALL( glPixelStorei( GL_UNPACK_ALIGNMENT, 2 ));
+    }
     else
-        glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+    {
+        EQ_GL_CALL( glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ));
+    }
 }
 }
 
@@ -416,8 +428,9 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        glRasterPos2i( outDims[0], outDims[2] );
-        glDrawPixels( outDims[1], outDims[3], _format, _type, buffer );
+        EQ_GL_CALL( glRasterPos2i( outDims[0], outDims[2] ));
+        EQ_GL_CALL( glDrawPixels( outDims[1], outDims[3], _format, _type,
+                    buffer ));
     }
     else
     {

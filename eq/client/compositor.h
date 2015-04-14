@@ -314,8 +314,22 @@ namespace eq
         /**
          * draw an image to the frame buffer using a texture quad or drawPixels.
          */
-        static void _drawPixels( const Image* image, const ImageOp& op,
-                                 const Frame::Buffer which );
+        static void _drawPixelsFF( const Image* image, const ImageOp& op,
+                                   const Frame::Buffer which );
+
+        static void _drawPixelsGLSL( const Image* image, const ImageOp& op,
+                                     const Frame::Buffer which );
+
+        static bool _setupDrawPixels( const Image* image, const ImageOp& op,
+                                      const Frame::Buffer which );
+
+        static Vector4f _getCoords( const ImageOp& op,
+                                    const PixelViewport& pvp );
+
+        template< typename T >
+        static void _drawTexturedQuad( const T* key,const ImageOp& op,
+                                       const PixelViewport& pvp,
+                                       const bool withDepth );
 
         /** @return the accumulation buffer used for subpixel compositing. */
         static util::Accum* _obtainAccum( Channel* channel );
