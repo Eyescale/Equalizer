@@ -79,7 +79,7 @@ static void _compare( const void* data, const void* destData,
                 continue;
         }
 
-        error += ::abs( double( value[k] ) - double( destValue[k] ));
+        error += ::fabs( double( value[k] ) - double( destValue[k] ));
     }
 
     const double max = ( 1.f - quality ) * std::numeric_limits< T >::max() *
