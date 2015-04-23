@@ -3,7 +3,7 @@ This file lists all changes in the public Equalizer API, latest on top:
 
 -----------------------------------2.0-------------------------------------
 [18c2fa8] Fixed error reporting
-* Config::update() reports false on failing resource, indepentently of
+* Config::update() reports false on failing resource, independently of
   robustness
 * New function Config::getErrors() to get last errors
 * Error class is serializable and contains optional originator ID
