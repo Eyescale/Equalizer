@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2009, Maxim Makhinya
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,6 +76,12 @@ public:
 
     /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
     EQ_API virtual void bindFrameBuffer() const = 0;
+
+    /** Bind the window's draw FBO, used for multisampling. @version 1.9 */
+    EQ_API virtual void bindDrawFrameBuffer() const = 0;
+
+    /** Update the window's FBO from the multisampled FBO. @version 1.9 */
+    EQ_API virtual void updateFrameBuffer() const = 0;
 
     /** Swap the front and back buffer. @version 1.0 */
     EQ_API virtual void swapBuffers() = 0;

@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -295,7 +296,7 @@ void Texture::bind() const
 }
 
 void Texture::bindToFBO( const GLenum target, const int32_t width,
-                         const int32_t height )
+                         const int32_t height, const int32_t samples )
 {
     LB_TS_THREAD( _thread );
     LBASSERT( _impl->internalFormat );
@@ -304,10 +305,17 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
     _generate();
 
     EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
-    EQ_GL_CALL( glTexImage2D( _impl->target, 0, _impl->internalFormat, width, height, 0,
-                              _impl->format, _impl->type, 0 ));
+    EQ_GL_CALL( glTexImage2D( _impl->target, 0, _impl->internalFormat, width,
+                              height, 0, _impl->format, _impl->type, 0 ));
     EQ_GL_CALL( glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target,
                                            _impl->target, _impl->name, 0 ));
+
+    if( samples > 1 )
+    {
+        EQ_GL_CALL( glTexImage2DMultisample( _impl->target, samples,
+                                             _impl->internalFormat, width,
+                                             height, false ));
+    }
 
     _impl->width = width;
     _impl->height = height;

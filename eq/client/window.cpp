@@ -602,7 +602,21 @@ void Window::bindFrameBuffer() const
 {
     LBASSERT( _systemWindow );
     if( _systemWindow )
-        _systemWindow->bindFrameBuffer( );
+        _systemWindow->bindFrameBuffer();
+}
+
+void Window::bindDrawFrameBuffer() const
+{
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->bindDrawFrameBuffer();
+}
+
+void Window::updateFrameBuffer() const
+{
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->updateFrameBuffer();
 }
 
 void Window::swapBuffers()

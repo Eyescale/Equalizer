@@ -109,6 +109,7 @@ void Global::_setupDefaults()
     _windowIAttributes[WindowSettings::IATTR_PLANES_COLOR]      = fabric::AUTO;
     _windowIAttributes[WindowSettings::IATTR_PLANES_DEPTH]      = fabric::AUTO;
     _windowIAttributes[WindowSettings::IATTR_PLANES_STENCIL]    = fabric::AUTO;
+    _windowIAttributes[WindowSettings::IATTR_PLANES_SAMPLES]    = fabric::AUTO;
 #ifdef NDEBUG
     _windowIAttributes[WindowSettings::IATTR_HINT_STATISTICS]   = fabric::FASTEST;
 #else

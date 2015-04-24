@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,7 +55,7 @@ ErrorData _errors[] = {
       "Framebuffer incomplete, missing read buffer" },
     { ERROR_FRAMEBUFFER_INITIALIZED, "FBO already initialized" },
     { ERROR_FRAMEBUFFER_INVALID_SIZE, "FBO size not supported" },
-
+    { ERROR_FRAMEBUFFER_INVALID_SAMPLES, "Multisampled FBO not supported" },
     { ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
       "Device not found, not enough CUDA devices" },
     { ERROR_CUDACONTEXT_INIT_FAILED,

@@ -46,6 +46,7 @@ public:
     GLWindow()
         : glewInitialized( false )
         , fbo( 0 )
+        , fboMultiSample( 0 )
     {
         lunchbox::setZero( &glewContext, sizeof( GLEWContext ));
     }
@@ -65,6 +66,8 @@ public:
 
     /** Frame buffer object for FBO drawables. */
     util::FrameBufferObject* fbo;
+
+    util::FrameBufferObject* fboMultiSample;
 };
 }
 
@@ -139,44 +142,63 @@ bool GLWindow::configInitFBO()
         return false;
     }
 
-    // needs glew initialized (see above)
-    _impl->fbo = new util::FrameBufferObject( &_impl->glewContext );
+    if( !_createFBO( _impl->fbo, 0 ))
+        return false;
 
+    const int samplesSize = getIAttribute(WindowSettings::IATTR_PLANES_SAMPLES);
+    if( samplesSize <= 0 )
+        return true;
+
+    return _createFBO( _impl->fboMultiSample, samplesSize );
+}
+
+void GLWindow::configExitFBO()
+{
+    _destroyFBO( _impl->fboMultiSample );
+    _destroyFBO( _impl->fbo );
+}
+
+bool GLWindow::_createFBO( util::FrameBufferObject*& fbo, const int samplesSize)
+{
     const PixelViewport& pvp = getPixelViewport();
     const GLuint colorFormat = getColorFormat();
 
     int depthSize = getIAttribute( WindowSettings::IATTR_PLANES_DEPTH );
     if( depthSize == AUTO )
-         depthSize = 24;
+        depthSize = 24;
 
     int stencilSize = getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
     if( stencilSize == AUTO )
         stencilSize = 1;
 
-    Error error = _impl->fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
-                                    stencilSize );
+    fbo = new util::FrameBufferObject( &_impl->glewContext,
+                                       samplesSize ? GL_TEXTURE_2D_MULTISAMPLE
+                                                  : GL_TEXTURE_RECTANGLE_ARB );
+    Error error = fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
+                                    stencilSize, samplesSize );
     if( !error )
         return true;
 
     if( getIAttribute( WindowSettings::IATTR_PLANES_STENCIL ) == AUTO )
-        error = _impl->fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 );
+        error = fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0,
+                           samplesSize );
 
     if( !error )
         return true;
 
     sendError( error.getCode( ));
-    delete _impl->fbo;
-    _impl->fbo = 0;
+    delete fbo;
+    fbo = 0;
     return false;
 }
 
-void GLWindow::configExitFBO()
+void GLWindow::_destroyFBO( util::FrameBufferObject*& fbo )
 {
-    if( _impl->fbo )
-        _impl->fbo->exit();
+    if( fbo )
+        fbo->exit();
 
-    delete _impl->fbo;
-    _impl->fbo = 0;
+    delete fbo;
+    fbo = 0;
 }
 
 void GLWindow::bindFrameBuffer() const
@@ -188,6 +210,31 @@ void GLWindow::bindFrameBuffer() const
        _impl->fbo->bind();
    else if( GLEW_EXT_framebuffer_object )
        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
+}
+
+void GLWindow::bindDrawFrameBuffer() const
+{
+    if( !_impl->glewInitialized )
+        return;
+
+    if( _impl->fboMultiSample )
+        _impl->fboMultiSample->bind();
+    else
+        bindFrameBuffer();
+}
+
+void GLWindow::updateFrameBuffer() const
+{
+    if( !_impl->glewInitialized || !_impl->fboMultiSample )
+        return;
+
+    _impl->fboMultiSample->bind( GL_READ_FRAMEBUFFER_EXT );
+    _impl->fbo->bind( GL_DRAW_FRAMEBUFFER_EXT );
+    const PixelViewport& pvp = getPixelViewport();
+    EQ_GL_CALL( glBlitFramebuffer( 0, 0, pvp.w, pvp.h,
+                                   0, 0, pvp.w, pvp.h,
+                                   GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+                                   GL_STENCIL_BUFFER_BIT, GL_NEAREST ));
 }
 
 void GLWindow::flush()
