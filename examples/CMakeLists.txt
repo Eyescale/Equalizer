@@ -111,6 +111,7 @@ endif()
 
 add_subdirectory(eVolve)
 add_subdirectory(eqAsync)
+add_subdirectory(eqCPU)
 add_subdirectory(eqHello)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)

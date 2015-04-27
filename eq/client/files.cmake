@@ -26,6 +26,7 @@ set(GLX_HEADERS
   glx/window.h
   glx/windowEvent.h
   glx/types.h
+  x11/window.h
 )
 
 set(GLX_SOURCES
@@ -36,6 +37,7 @@ set(GLX_SOURCES
   glx/windowSystem.cpp
   glx/X11Connection.h
   glx/types.cpp
+  x11/window.cpp
 )
 
 if(DEFLECT_FOUND)
