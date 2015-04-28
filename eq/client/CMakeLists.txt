@@ -65,7 +65,7 @@ if(EQ_GLX_USED)
   list(APPEND EQ_LIBRARIES ${X11_LIBRARIES})
 endif()
 if(EQ_QT_USED)
-  list(APPEND EQ_LIBRARIES ${QT_LIBRARIES})
+  list(APPEND EQ_LIBRARIES ${Qt5OpenGL_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 endif()
 
 source_group(fabric REGULAR_EXPRESSION .*)

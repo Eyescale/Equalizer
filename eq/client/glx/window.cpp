@@ -28,7 +28,7 @@
 
 #include <co/objectOCommand.h>
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
 #  include "../qt/window.h"
 #endif
 
@@ -346,7 +346,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
                                  dynamic_cast< const WindowIF* >( shareWindow );
         if( shareGLXWindow )
             shCtx = shareGLXWindow->getGLXContext();
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
         else if( dynamic_cast< const qt::WindowIF* >( shareWindow ))
         {
             // allows sharing with Qt window

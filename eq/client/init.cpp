@@ -19,7 +19,7 @@
 
 #include "init.h"
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
 #  include <QApplication>
 #  include "qt/windowSystem.h"
 #endif
@@ -121,7 +121,7 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
     ::XInitThreads();
 #endif
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
     if( QApplication::instance( ))
         _windowSystems.push_back( new qt::WindowSystem );
 #endif
