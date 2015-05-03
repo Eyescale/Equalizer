@@ -105,6 +105,13 @@ void Renderer::applyScreenFrustum()
         _channel->applyScreenFrustum();
 }
 
+void Renderer::applyPerspectiveFrustum()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->applyPerspective();
+}
+
 void Renderer::setNearFar( const float nearPlane, const float farPlane )
 {
     LBASSERT( _channel );

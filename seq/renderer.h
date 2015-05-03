@@ -210,7 +210,8 @@ public:
     SEQ_API const Matrix4f& getModelMatrix() const;
     //@}
 
-    void    applyScreenFrustum();
+    void applyScreenFrustum();
+    void applyPerspectiveFrustum();   
 
     const eq::Window* getCurrentWindow() const;
     /** @name ObjectFactory interface, forwards to Application instance. */
@@ -227,6 +228,7 @@ protected:
     virtual void notifyWindowInitGL( eq::Window* LB_UNUSED ){};
     virtual void notifyWindowExitGL( eq::Window* LB_UNUSED ){};
     virtual void processWindowEvent( eq::Window* LB_UNUSED, const eq::Event& LB_UNUSED ){};
+
 private:
     detail::Renderer* const _impl;
     Application& app_;

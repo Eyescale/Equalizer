@@ -51,6 +51,7 @@ namespace detail
         void setNearFar( const float nearPlane, const float farPlane );
 
         void applyScreenFrustum();
+        void applyPerspectiveFrustum();
         //@}
 
         /** @name Current context. */

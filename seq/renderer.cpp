@@ -160,6 +160,11 @@ void Renderer::applyScreenFrustum()
     _impl->applyScreenFrustum();
 }
 
+void Renderer::applyPerspectiveFrustum()
+{
+    _impl->applyPerspectiveFrustum();
+}
+
 co::Object* Renderer::createObject( const uint32_t type )
 {
     return app_.createObject( type );
