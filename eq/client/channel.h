@@ -532,9 +532,10 @@ protected:
     /**
      * Start updating a destination channel.
      *
-     * Called once on each destination channel, e.g., channels which are
-     * defined by a view/segment intersection, after frameStart to update a
-     * part of a display.
+     * Called once for each destination channel's eye pass, after frameStart()
+     * to update a part of a display. Destination channels are the final display
+     * channels, e.g., channels which are defined by a view/segment
+     * intersection.
      *
      * @param frameID the per-frame identifier.
      * @version 1.0
@@ -544,12 +545,14 @@ protected:
     /**
      * Finish updating a destination channel.
      *
-     * Called once on each destination channel, e.g., channels which are
-     * defined by a view/segment intersection, before frameFinish to update
-     * a part of a view.
+     * Called once for each destination channel's eye pass, before frameFinish()
+     * to update a part of a display. Destination channels are the final display
+     * channels, e.g., channels which are defined by a view/segment
+     * intersection.
      *
      * This is typically used to do operations on the output channel after
-     * it has been fully updated, e.g., to draw a 2D overlay.
+     * it has been fully updated, e.g., to draw a 2D overlay or to perform
+     * post-processing on the rendered image.
      *
      * @param frameID the per-frame identifier.
      * @version 1.0
@@ -638,7 +641,7 @@ private:
                     const std::vector< uint128_t >& nodes,
                     const co::NodeIDs& netNodes );
 
-    /** Get the channel's current input queue. */
+    /** Getsthe channel's current input queue. */
     co::QueueSlave* _getQueue( const uint128_t& queueID );
 
     Frames _getFrames( const co::ObjectVersions& frameIDs,
