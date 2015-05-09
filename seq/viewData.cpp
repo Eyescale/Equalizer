@@ -30,9 +30,9 @@ namespace seq
 {
 ViewData::ViewData()
         : _modelMatrix( eq::Matrix4f::IDENTITY )
-        , _spinX( 5 )
-        , _spinY( 5 )
-        , _advance( 0 )
+        , _spinX( 0 )
+        , _spinY( 0 )
+        , _advance( -2 )
         , _statistics( false )
         , _ortho( false )
 {
@@ -116,8 +116,8 @@ bool ViewData::_handleEvent( const eq::Event& event )
                 return true;
 
             case eq::PTR_BUTTON3:
-                moveModel(  .0005f * event.pointerMotion.dx,
-                           -.0005f * event.pointerMotion.dy, 0.f );
+                moveModel(  .09f * event.pointerMotion.dx,
+                           -.09f * event.pointerMotion.dy, 0.f );
                 return true;
 
             default:
@@ -125,8 +125,8 @@ bool ViewData::_handleEvent( const eq::Event& event )
           }
 
       case eq::Event::CHANNEL_POINTER_WHEEL:
-          moveModel( -0.05f * event.pointerWheel.xAxis, 0.f,
-                      0.05f * event.pointerWheel.yAxis );
+          moveModel( -0.6f * event.pointerWheel.xAxis, 0.f,
+                      0.6f * event.pointerWheel.yAxis );
           return true;
 
       case eq::Event::MAGELLAN_AXIS:
