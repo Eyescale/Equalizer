@@ -42,6 +42,9 @@
 #include <lunchbox/os.h>
 #include <lunchbox/sleep.h>
 
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+
 namespace eq
 {
 namespace server
@@ -405,13 +408,14 @@ std::string Node::_createRemoteCommand() const
     if( program.empty( ))
     {
         LBWARN << "No render client name, auto-launch will fail" << std::endl;
-        return std::string();
+        return program;
     }
 
     //----- environment
     std::ostringstream stringStream;
     const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
 
+    //----- program + args
 #ifndef WIN32
 #  ifdef Darwin
     const char libPath[] = "DYLD_LIBRARY_PATH";
@@ -438,23 +442,16 @@ std::string Node::_createRemoteCommand() const
     stringStream << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
     if( lunchbox::Log::topics != 0 )
         stringStream << "LB_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
+
 #endif // WIN32
+    const boost::filesystem::path absolute =
+        boost::filesystem::system_complete( boost::filesystem::path( program ));
+    program = absolute.native();
 
-    //----- program + args
+
+    const std::string& ownData = getServer()->serialize();
+    const std::string& remoteData = _node->serialize();
     const std::string& workDir = config->getWorkDir();
-#ifdef WIN32
-    LBASSERT( program.length() > 2 );
-    if( !( program[1] == ':' && (program[2] == '/' || program[2] == '\\' )) &&
-        // !( drive letter and full path present )
-        !( program[0] == '/' || program[0] == '\\' ))
-        // !full path without drive letter
-    {
-        program = workDir + '/' + program; // add workDir to relative path
-    }
-#endif
-
-    const std::string ownData = getServer()->serialize();
-    const std::string remoteData = _node->serialize();
     std::string collageGlobals;
     co::Global::toString( collageGlobals );
 
