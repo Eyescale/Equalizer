@@ -182,8 +182,11 @@ bool eqHello::Renderer::_loadShaders()
         return true;
 
     _program = om.newProgram( &_program );
-    if( !seq::linkProgram( _program, vertexShader_glsl, fragmentShader_glsl ))
+    if( !seq::linkProgram( om.glewGetContext(), _program, vertexShader_glsl,
+                           fragmentShader_glsl ))
+    {
         return false;
+    }
 
     EQ_GL_CALL( glUseProgram( _program ));
     _matrixUniform = glGetUniformLocation( _program, "MVP" );

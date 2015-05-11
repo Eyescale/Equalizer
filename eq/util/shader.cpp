@@ -21,6 +21,9 @@
 #include <eq/client/gl.h>
 #include <lunchbox/log.h>
 
+#undef glewGetContext
+#define glewGetContext() glewContext
+
 namespace eq
 {
 namespace util
@@ -28,7 +31,8 @@ namespace util
 namespace shader
 {
 
-bool compile( const unsigned shader, const char* source )
+bool compile( const GLEWContext* glewContext LB_UNUSED, const unsigned shader,
+              const char* source )
 {
     EQ_GL_CALL( glShaderSource( shader, 1, &source, 0 ));
     EQ_GL_CALL( glCompileShader( shader ));
@@ -45,7 +49,8 @@ bool compile( const unsigned shader, const char* source )
     return true;
 }
 
-bool linkProgram( const unsigned program, const char* vertexShaderSource,
+bool linkProgram( const GLEWContext* glewContext LB_UNUSED,
+                  const unsigned program, const char* vertexShaderSource,
                   const char* fragmentShaderSource )
 {
     if( !program || !vertexShaderSource || !fragmentShaderSource )
@@ -56,14 +61,14 @@ bool linkProgram( const unsigned program, const char* vertexShaderSource,
     }
 
     const GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
-    if( !compile( vertexShader, vertexShaderSource ))
+    if( !compile( glewContext, vertexShader, vertexShaderSource ))
     {
         EQ_GL_CALL( glDeleteShader( vertexShader ));
         return false;
     }
 
     const GLuint fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-    if( !compile( fragmentShader, fragmentShaderSource ))
+    if( !compile( glewContext, fragmentShader, fragmentShaderSource ))
     {
         EQ_GL_CALL( glDeleteShader( fragmentShader ));
         return false;

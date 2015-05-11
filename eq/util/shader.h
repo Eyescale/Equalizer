@@ -20,6 +20,7 @@
 #define EQUTIL_SHADER_H
 
 #include <eq/client/api.h>
+#include <eq/client/types.h>
 
 namespace eq
 {
@@ -31,24 +32,28 @@ namespace shader
 /**
  * Compile a shader object from a GLSL source and print errors if any.
  *
+ * @param glewContext the OpenGL function table.
  * @param shader OpenGL shader object
  * @param source GLSL formatted shader source
  * @return true on successful compilation, false otherwise
  * @version 1.9
  */
-EQ_API bool compile( const unsigned shader, const char* source );
+EQ_API bool compile( const GLEWContext* glewContext,
+                     const unsigned shader, const char* source );
 
 /**
  * Link a shader program from a given vertex and fragment GLSL source and print
  * errors if any.
  *
+ * @param glewContext the OpenGL function table.
  * @param program OpenGL shader program
  * @param vertexShaderSource GLSL formatted vertex shader source
  * @param fragmentShaderSource GLSL formatted vertex shader source
  * @return true on successful linking, false otherwise
  * @version 1.9
  */
-EQ_API bool linkProgram( const unsigned program, const char* vertexShaderSource,
+EQ_API bool linkProgram( const GLEWContext* glewContext,
+                         const unsigned program, const char* vertexShaderSource,
                          const char* fragmentShaderSource );
 
 }

@@ -1323,12 +1323,12 @@ void Compositor::_drawPixelsGLSL( const Image* image, const ImageOp& op,
 bool Compositor::_setupDrawPixels( const Image* image, const ImageOp& op,
                                    const Frame::Buffer which )
 {
+    Channel* channel = op.channel; // needed for glewGetContext
     const PixelViewport& pvp = image->getPixelViewport();
     const util::Texture* texture = 0;
     if( image->getStorageType() == Frame::TYPE_MEMORY )
     {
         LBASSERT( image->hasPixelData( which ));
-        Channel* channel = op.channel; // needed for glewGetContext
         util::ObjectManager& objects = channel->getObjectManager();
 
         const bool coreProfile = channel->getWindow()->getIAttribute(
@@ -1381,7 +1381,8 @@ void Compositor::_drawTexturedQuad( const T* key, const ImageOp& op,
                                     const PixelViewport& pvp,
                                     const bool withDepth )
 {
-    util::ObjectManager& om = op.channel->getObjectManager();
+    Channel* channel = op.channel; // needed for glewGetContext
+    util::ObjectManager& om = channel->getObjectManager();
     GLuint program = om.getProgram( key );
     GLuint vertexArray = om.getVertexArray( key );
     GLuint vertexBuffer = om.getBuffer( key );
@@ -1427,7 +1428,8 @@ void Compositor::_drawTexturedQuad( const T* key, const ImageOp& op,
             "}\n"
         };
 
-        LBCHECK( util::shader::linkProgram( program, vertexShaderGLSL,
+        LBCHECK( util::shader::linkProgram( glewGetContext(), program,
+                                            vertexShaderGLSL,
                                             fragmentShaderGLSL ));
 
         EQ_GL_CALL( glUseProgram( program ));
@@ -1457,10 +1459,10 @@ void Compositor::_drawTexturedQuad( const T* key, const ImageOp& op,
     };
 
     eq::Frustumf frustum;
-    frustum.left() = op.channel->getPixelViewport().x;
-    frustum.right() = op.channel->getPixelViewport().getXEnd();
-    frustum.bottom() = op.channel->getPixelViewport().y;
-    frustum.top() = op.channel->getPixelViewport().getYEnd();
+    frustum.left() = channel->getPixelViewport().x;
+    frustum.right() = channel->getPixelViewport().getXEnd();
+    frustum.bottom() = channel->getPixelViewport().y;
+    frustum.top() = channel->getPixelViewport().getYEnd();
     frustum.far_plane() = 1.0f;
     frustum.near_plane() = -1.0f;
     const eq::Matrix4f& proj = frustum.compute_ortho_matrix();
