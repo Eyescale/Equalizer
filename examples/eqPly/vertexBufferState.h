@@ -73,7 +73,8 @@ public:
     bool linkProgram( const unsigned program, const char* vertexShaderSource,
                       const char* fragmentShaderSource )
     {
-        return eq::util::shader::linkProgram( program, vertexShaderSource,
+        return eq::util::shader::linkProgram( _objectManager.glewGetContext(),
+                                              program, vertexShaderSource,
                                               fragmentShaderSource );
     }
 

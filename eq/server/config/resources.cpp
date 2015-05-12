@@ -55,6 +55,12 @@
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
+#ifdef _MSC_VER
+#  include <eq/client/os.h>
+#  define setenv( name, value, overwrite ) \
+    SetEnvironmentVariable( name, value )
+#endif
+
 #define USE_IPv4
 
 namespace eq

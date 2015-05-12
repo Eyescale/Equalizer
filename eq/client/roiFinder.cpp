@@ -601,7 +601,7 @@ void ROIFinder::_readbackInfo( util::ObjectManager& glObjects )
 #else
         const GLchar* fShaderPtr = roiFragmentShaderRGB_glsl.c_str();
 #endif
-        LBCHECK( util::shader::compile( shader, fShaderPtr ));
+        LBCHECK( util::shader::compile( glewGetContext(), shader, fShaderPtr ));
         program = glObjects.newProgram( shaderRBInfo );
 
         EQ_GL_CALL( glAttachShader( program, shader ));
