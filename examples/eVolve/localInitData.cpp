@@ -73,7 +73,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #ifdef WGL
     wsHelp += "WGL ";
 #endif
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
     wsHelp += "Qt ";
 #endif
     wsHelp += ")";

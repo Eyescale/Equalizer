@@ -27,7 +27,7 @@
  */
 
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
 #  include <QApplication>
 #endif
 
@@ -70,7 +70,7 @@ int main( int argc, char** argv )
     eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
     QApplication* app = 0;
     if( initData.getWindowSystem() == "Qt" )
     {
@@ -106,7 +106,7 @@ int main( int argc, char** argv )
     LBASSERTINFO( client->getRefCount() == 1, client );
     client = 0;
 
-#ifdef EQUALIZER_USE_QT4
+#ifdef EQUALIZER_USE_QT5WIDGETS
     delete app;
 #endif
 
