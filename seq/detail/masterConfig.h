@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
- *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,29 +26,29 @@ namespace seq
 {
 namespace detail
 {
-    class MasterConfig : public Config
-    {
-    public:
-        MasterConfig( eq::ServerPtr parent );
+class MasterConfig : public Config
+{
+public:
+    MasterConfig( eq::ServerPtr parent );
 
-        virtual bool init();
-        virtual bool run( co::Object* frameData );
-        virtual bool exit();
+    virtual bool init();
+    virtual bool run( co::Object* frameData );
+    virtual bool exit();
 
-        virtual bool needRedraw() { return _redraw; }
-        virtual uint32_t startFrame();
+    virtual bool needRedraw() { return _redraw; }
+    virtual uint32_t startFrame();
 
-    protected:
-        virtual ~MasterConfig();
+protected:
+    virtual ~MasterConfig();
 #ifndef EQ_2_0_API
-        virtual bool handleEvent( const eq::ConfigEvent* event );
+    virtual bool handleEvent( const eq::ConfigEvent* event );
 #endif
-        virtual bool handleEvent( eq::EventICommand command );
+    virtual bool handleEvent( eq::EventICommand command );
 
-    private:
-        uint128_t _currentViewID;
-        bool _redraw;
-    };
+private:
+    uint128_t _currentViewID;
+    bool _redraw;
+};
 }
 }
 

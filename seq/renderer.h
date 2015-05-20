@@ -236,6 +236,15 @@ public:
 
     /** @return the current model (scene) transformation. @version 1.0 */
     SEQ_API const Matrix4f& getModelMatrix() const;
+
+    /** @return the current rendering area. @version 1.8 */
+    SEQ_API const PixelViewport& getPixelViewport() const;
+
+    /**
+     * @return a unique, stable identifier for the current window.
+     * @version 1.8
+     */
+    SEQ_API uint32_t getWindowID() const;
     //@}
 
     /** @name Distributed Object API */

@@ -97,6 +97,13 @@ const Matrix4f& Renderer::getModelMatrix() const
     return _channel ? _channel->getModelMatrix() : Matrix4f::IDENTITY;
 }
 
+const PixelViewport& Renderer::getPixelViewport() const
+{
+    LBASSERT( _channel );
+    static const PixelViewport nullPVP;
+    return _channel ? _channel->getPixelViewport() : nullPVP;
+}
+
 bool Renderer::useOrtho() const
 {
     LBASSERT( _channel );

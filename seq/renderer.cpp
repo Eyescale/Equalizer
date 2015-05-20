@@ -83,6 +83,17 @@ const Matrix4f& Renderer::getModelMatrix() const
     return _impl->getModelMatrix();
 }
 
+const PixelViewport& Renderer::getPixelViewport() const
+{
+    return _impl->getPixelViewport();
+}
+
+uint32_t Renderer::getWindowID() const
+{
+    const eq::Window* window = _impl->getWindow();
+    return window ? window->getSerial() : CO_INSTANCE_INVALID;
+}
+
 bool Renderer::initContext( co::Object* /*initData*/ )
 {
     return _impl->initContext();
