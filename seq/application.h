@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #ifndef EQSEQUEL_APPLICATION_H
 #define EQSEQUEL_APPLICATION_H
 
@@ -136,6 +140,8 @@ public:
     detail::Application* getImpl() { return _impl; } //!< @internal
     //@}
 
+    bool registerObject( co::Object* object, const uint32_t type );
+    bool deregister( co::Object* object );
 protected:
     /** Destruct this application instance. @version 1.0 */
     SEQ_API virtual ~Application();

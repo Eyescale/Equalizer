@@ -16,6 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #ifndef EQSEQUEL_RENDERER_H
 #define EQSEQUEL_RENDERER_H
 
@@ -32,6 +36,9 @@ namespace seq
  */
 class Renderer : public co::ObjectFactory
 {
+
+friend class detail::Window;
+
 public:
     /** Construct a new renderer. @version 1.0 */
     SEQ_API Renderer( Application& application );
@@ -210,12 +217,24 @@ public:
     SEQ_API const Matrix4f& getModelMatrix() const;
     //@}
 
+    void applyScreenFrustum();
+    void applyPerspectiveFrustum();   
+
+    const eq::Window* getCurrentWindow() const;
     /** @name ObjectFactory interface, forwards to Application instance. */
     //@{
     SEQ_API virtual co::Object* createObject( const uint32_t type );
     SEQ_API virtual void destroyObject( co::Object* object,
                                         const uint32_t type );
     //@}
+
+    co::Object*	mapObject( const uint128_t& identifier, co::Object* instance );
+    bool unmap( co::Object* object );
+
+protected:
+    virtual void notifyWindowInitGL( eq::Window* LB_UNUSED ){};
+    virtual void notifyWindowExitGL( eq::Window* LB_UNUSED ){};
+    virtual void processWindowEvent( eq::Window* LB_UNUSED, const eq::Event& LB_UNUSED ){};
 
 private:
     detail::Renderer* const _impl;

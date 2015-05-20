@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #include "pipe.h"
 
 #include "config.h"
@@ -71,6 +75,11 @@ co::Object* Pipe::getFrameData()
     if( _objects )
         return _objects->getFrameData();
     return 0;
+}
+
+ObjectMap* Pipe::getObjectMap()
+{
+   return _objects;
 }
 
 bool Pipe::configInit( const uint128_t& initID )

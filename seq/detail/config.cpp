@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 
 #include "config.h"
 
@@ -45,6 +49,11 @@ co::Object* Config::getInitData()
 
     co::Object* initData = getApplicationImpl()->getInitData();
     return _objects->getInitData( initData );
+}
+
+ObjectMap* Config::getObjectMap()
+{
+    return _objects;	
 }
 
 }

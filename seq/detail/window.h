@@ -48,6 +48,7 @@ namespace detail
         bool exitContext() { return eq::Window::configExitGL(); }
         //@}
 
+        virtual bool processEvent( const eq::Event& event );
     protected:
         virtual ~Window();
 

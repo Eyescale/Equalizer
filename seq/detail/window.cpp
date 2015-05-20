@@ -23,6 +23,7 @@
 
 #include <seq/renderer.h>
 #include <eq/util/objectManager.h>
+#include <eq/fabric/event.h>
 
 namespace seq
 {
@@ -85,6 +86,8 @@ bool Window::configInitGL( const uint128_t& )
     }
     const bool ret = renderer->initContext( initData );
 
+    renderer->notifyWindowInitGL( static_cast<eq::Window*>(this) );
+
     rendererImpl->setWindow( 0 );
     return ret;
 }
@@ -96,12 +99,21 @@ bool Window::configExitGL()
     seq::Renderer* const renderer = getRenderer();
     const bool last = !getObjectManager().isShared();
 
+    renderer->notifyWindowExitGL( static_cast<eq::Window*>(this) );
+
     bool ret = renderer->exitContext();
     if( last && !renderer->exit( ))
         ret = false;
 
     rendererImpl->setWindow( 0 );
     return ret;
+}
+
+bool Window::processEvent( const eq::Event& event )
+{
+    seq::Renderer* const renderer = getRenderer();
+    renderer->processWindowEvent( this, event );
+    return eq::Window::processEvent(event);
 }
 
 }

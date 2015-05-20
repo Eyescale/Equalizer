@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #ifndef EQSEQUEL_DETAIL_PIPE_H
 #define EQSEQUEL_DETAIL_PIPE_H
 
@@ -38,6 +42,7 @@ namespace detail
         seq::Renderer* getRenderer() { return _renderer; }
         detail::Renderer* getRendererImpl();
         co::Object* getFrameData();
+	ObjectMap* getObjectMap();
         //@}
 
     protected:

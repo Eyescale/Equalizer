@@ -16,11 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* 
+ * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
+ *
+ */
 #include "renderer.h"
 
 #include "channel.h"
 #include "pipe.h"
 #include "window.h"
+#include "objectMap.h"
 
 #include <seq/renderer.h>
 
@@ -41,6 +46,28 @@ Renderer::~Renderer()
 {
     LBASSERT( !_pipe );
     LBASSERT( !_channel );
+}
+
+co::Object* Renderer::mapObject( const uint128_t& identifier, co::Object* instance )
+{
+    if( !_pipe ) return 0;
+   
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+
+    if( !objectMap ) return 0;
+   
+    return objectMap->map(identifier, instance);
+}
+
+bool Renderer::unmap( co::Object* object )
+{
+    if( !_pipe ) return false;
+    
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+
+    if( !objectMap ) return false;
+   
+    return objectMap->unmap(object);
 }
 
 co::Object* Renderer::getFrameData()
@@ -82,6 +109,20 @@ bool Renderer::useOrtho() const
     return _channel ? _channel->useOrtho() : false;
 }
 
+void Renderer::applyScreenFrustum()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->applyScreenFrustum();
+}
+
+void Renderer::applyPerspectiveFrustum()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->applyPerspective();
+}
+
 void Renderer::setNearFar( const float nearPlane, const float farPlane )
 {
     LBASSERT( _channel );
@@ -93,6 +134,11 @@ void Renderer::setWindow( Window* window )
 {
     _window = window;
     _glewContext = window ? window->glewGetContext() : 0;
+}
+
+const Window* Renderer::getWindow() const
+{
+    return _window ? _window : 0;
 }
 
 void Renderer::setChannel( Channel* channel )
