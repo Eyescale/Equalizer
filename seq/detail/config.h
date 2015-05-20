@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,7 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 #ifndef EQSEQUEL_DETAIL_CONFIG_H
 #define EQSEQUEL_DETAIL_CONFIG_H
 
@@ -27,33 +27,34 @@ namespace seq
 {
 namespace detail
 {
-    class Config : public eq::Config
-    {
-    public:
-        Config( eq::ServerPtr parent ) : eq::Config( parent ), _objects(0) {}
+class Config : public eq::Config
+{
+public:
+    Config( eq::ServerPtr parent ) : eq::Config( parent ), _objects(0) {}
 
-        seq::Application* getApplication();
-        detail::Application* getApplicationImpl();
+    seq::Application* getApplication();
+    detail::Application* getApplicationImpl();
 
-        virtual bool init() { LBDONTCALL; return false; }
-        virtual bool run( co::Object* ) { LBDONTCALL; return false; }
-        virtual bool exit() { LBDONTCALL; return false; }
+    bool init() final { LBDONTCALL; return false; }
+    bool run( co::Object* ) final { LBDONTCALL; return false; }
+    bool exit() final { LBDONTCALL; return false; }
 
-        virtual bool needRedraw() { LBDONTCALL; return false; }
-        virtual uint32_t startFrame() { LBDONTCALL; return 0; }
+    bool needRedraw() final { LBDONTCALL; return false; }
+    uint32_t startFrame() final { LBDONTCALL; return 0; }
 
-        virtual bool mapData( const uint128_t& ) { return true; }
-        virtual void syncData( const uint128_t& ) { /* nop */ }
-        virtual void unmapData() { /* nop */ }
+    bool mapData( const uint128_t& ) final { return true; }
+    void syncData( const uint128_t& ) final { /* nop */ }
+    void unmapData() final { /* nop */ }
 
-        co::Object* getInitData();
+    ObjectMap* getObjectMap();
+    co::Object* getInitData();
 
-    protected:
-        virtual ~Config() {}
-        ObjectMap* _objects;
+protected:
+    virtual ~Config() {}
+    ObjectMap* _objects;
 
-    private:
-    };
+private:
+};
 }
 }
 

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,6 +22,7 @@
 #include "channel.h"
 #include "pipe.h"
 #include "window.h"
+#include "objectMap.h"
 
 #include <seq/renderer.h>
 
@@ -31,16 +33,35 @@ namespace detail
 static const RenderContext dummyContext;
 
 Renderer::Renderer()
-        : _glewContext( 0 )
-        , _pipe( 0 )
-        , _window( 0 )
-        , _channel( 0 )
+    : _glewContext( 0 )
+    , _pipe( 0 )
+    , _window( 0 )
+    , _channel( 0 )
 {}
 
 Renderer::~Renderer()
 {
     LBASSERT( !_pipe );
     LBASSERT( !_channel );
+}
+
+co::Object* Renderer::mapObject( const uint128_t& identifier,
+                                 co::Object* instance )
+{
+    if( !_pipe )
+        return 0;
+
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+    return objectMap ? objectMap->map(identifier, instance) : 0;
+}
+
+bool Renderer::unmap( co::Object* object )
+{
+    if( !_pipe )
+        return false;
+
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+    return objectMap ? objectMap->unmap(object) : false;
 }
 
 co::Object* Renderer::getFrameData()
@@ -82,6 +103,20 @@ bool Renderer::useOrtho() const
     return _channel ? _channel->useOrtho() : false;
 }
 
+void Renderer::applyScreenFrustum()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->applyScreenFrustum();
+}
+
+void Renderer::applyPerspectiveFrustum()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->applyPerspective();
+}
+
 void Renderer::setNearFar( const float nearPlane, const float farPlane )
 {
     LBASSERT( _channel );
@@ -93,6 +128,11 @@ void Renderer::setWindow( Window* window )
 {
     _window = window;
     _glewContext = window ? window->glewGetContext() : 0;
+}
+
+const Window* Renderer::getWindow() const
+{
+    return _window;
 }
 
 void Renderer::setChannel( Channel* channel )

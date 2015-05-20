@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,54 +26,63 @@ namespace seq
 {
 namespace detail
 {
-    /** The internal implementation for the renderer. */
-    class Renderer
-    {
-    public:
-        Renderer();
-        ~Renderer();
+/** The internal implementation for the renderer. */
+class Renderer
+{
+public:
+    Renderer();
+    ~Renderer();
 
-        /** @name Data Access. */
-        //@{
-        co::Object* getFrameData();
-        const GLEWContext* glewGetContext() const { return _glewContext; }
+    co::Object* mapObject( const uint128_t& identifier,
+                           co::Object* instance = 0 );
+    bool unmap( co::Object* object );
 
-        const ObjectManager& getObjectManager() const;
-        ObjectManager& getObjectManager();
+    /** @name Data Access. */
+    //@{
+    co::Object* getFrameData();
+    const GLEWContext* glewGetContext() const { return _glewContext; }
 
-        const Frustumf& getFrustum() const;
-        const Matrix4f& getViewMatrix() const;
-        const Matrix4f& getModelMatrix() const;
+    const ObjectManager& getObjectManager() const;
+    ObjectManager& getObjectManager();
 
-        bool useOrtho() const;
-        void setNearFar( const float nearPlane, const float farPlane );
-        //@}
+    const Frustumf& getFrustum() const;
+    const Matrix4f& getViewMatrix() const;
+    const Matrix4f& getModelMatrix() const;
 
-        /** @name Current context. */
-        //@{
-        void setPipe( Pipe* pipe ) { _pipe = pipe; }
-        void setWindow( Window* window );
-        void setChannel( Channel* channel );
-        //@}
+    bool useOrtho() const;
+    void setNearFar( const float nearPlane, const float farPlane );
 
-        /** @name Operations. */
-        //@{
-        bool initContext();
-        bool exitContext();
+    void applyScreenFrustum();
+    void applyPerspectiveFrustum();
+    //@}
 
-        void clear();
+    /** @name Current context. */
+    //@{
+    void setPipe( Pipe* pipe ) { _pipe = pipe; }
+    void setWindow( Window* window );
+    void setChannel( Channel* channel );
 
-        void applyRenderContext();
-        const RenderContext& getRenderContext() const;
-        void applyModelMatrix();
-        //@}
+    const Window* getWindow() const;
+    //@}
 
-    private:
-        const GLEWContext* _glewContext;
-        Pipe* _pipe;
-        Window* _window;
-        Channel* _channel;
-    };
+    /** @name Operations. */
+    //@{
+    bool initContext();
+    bool exitContext();
+
+    void clear();
+
+    void applyRenderContext();
+    const RenderContext& getRenderContext() const;
+    void applyModelMatrix();
+    //@}
+
+private:
+    const GLEWContext* _glewContext;
+    Pipe* _pipe;
+    Window* _window;
+    Channel* _channel;
+};
 }
 }
 

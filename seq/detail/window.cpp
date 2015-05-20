@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,6 +24,7 @@
 
 #include <seq/renderer.h>
 #include <eq/util/objectManager.h>
+#include <eq/fabric/event.h>
 
 namespace seq
 {
@@ -30,7 +32,7 @@ namespace detail
 {
 
 Window::Window( eq::Pipe* parent )
-        : eq::Window( parent )
+    : eq::Window( parent )
 {}
 
 Window::~Window()
@@ -102,6 +104,14 @@ bool Window::configExitGL()
 
     rendererImpl->setWindow( 0 );
     return ret;
+}
+
+bool Window::processEvent( const eq::Event& event )
+{
+    seq::Renderer* const renderer = getRenderer();
+    if( renderer->processEvent( event ))
+        return true;
+    return eq::Window::processEvent( event );
 }
 
 }

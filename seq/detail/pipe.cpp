@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -71,6 +72,11 @@ co::Object* Pipe::getFrameData()
     if( _objects )
         return _objects->getFrameData();
     return 0;
+}
+
+ObjectMap* Pipe::getObjectMap()
+{
+   return _objects;
 }
 
 bool Pipe::configInit( const uint128_t& initID )

@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +21,9 @@
 
 #include "application.h"
 #include "viewData.h"
+#include "detail/window.h"
 #include "detail/renderer.h"
+#include "detail/objectMap.h"
 
 namespace seq
 {
@@ -155,6 +158,16 @@ void Renderer::applyModelMatrix()
     _impl->applyModelMatrix();
 }
 
+void Renderer::applyScreenFrustum()
+{
+    _impl->applyScreenFrustum();
+}
+
+void Renderer::applyPerspectiveFrustum()
+{
+    _impl->applyPerspectiveFrustum();
+}
+
 co::Object* Renderer::createObject( const uint32_t type )
 {
     return app_.createObject( type );
@@ -164,4 +177,17 @@ void Renderer::destroyObject( co::Object* object, const uint32_t type )
 {
     app_.destroyObject( object, type );
 }
+
+co::Object* Renderer::mapObject( const uint128_t& identifier,
+                                 co::Object* instance )
+{
+   return _impl->mapObject( identifier, instance );
+}
+
+bool Renderer::unmap( co::Object* object )
+{
+   return _impl->unmap( object );
+}
+
+
 }
