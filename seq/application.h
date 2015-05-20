@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,10 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #ifndef EQSEQUEL_APPLICATION_H
 #define EQSEQUEL_APPLICATION_H
 
@@ -140,8 +137,30 @@ public:
     detail::Application* getImpl() { return _impl; } //!< @internal
     //@}
 
-    bool registerObject( co::Object* object, const uint32_t type );
-    bool deregister( co::Object* object );
+    /** @name Distributed Object API */
+    //@{
+    /**
+     * Add and register a new object as master instance.
+     *
+     * @param object the new object to add and register
+     * @param type unique object type to create object via slave factory
+     * @return true on success, false otherwise.
+     * @version 1.8
+     * @sa co::ObjectMap::register_()
+     */
+    SEQ_API bool registerObject( co::Object* object, const uint32_t type );
+
+    /**
+     * Remove and deregister an object.
+     *
+     * @param object the object to remove and deregister
+     * @return false if object was not registered, true otherwise
+     * @version 1.8
+     * @sa co::ObjectMap::deregister()
+     */
+    SEQ_API bool deregister( co::Object* object );
+    //@}
+
 protected:
     /** Destruct this application instance. @version 1.0 */
     SEQ_API virtual ~Application();

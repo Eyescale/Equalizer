@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #ifndef EQSEQUEL_RENDERER_H
 #define EQSEQUEL_RENDERER_H
 
@@ -36,9 +33,6 @@ namespace seq
  */
 class Renderer : public co::ObjectFactory
 {
-
-friend class detail::Window;
-
 public:
     /** Construct a new renderer. @version 1.0 */
     SEQ_API Renderer( Application& application );
@@ -158,6 +152,27 @@ public:
      * @version 1.0
      */
     SEQ_API virtual void applyModelMatrix();
+
+    /**
+     * Apply an orthographic frustum for pixel-based 2D operations.
+     *
+     * One unit of the frustum covers one pixel on screen. The frustum is
+     * positioned relative to the eq::View.
+     * @version 1.8
+     */
+    SEQ_API virtual void applyScreenFrustum();
+
+    /**
+     * Apply the perspective frustum matrix for the current rendering task.
+     * @version 1.8
+     */
+    SEQ_API virtual void applyPerspectiveFrustum();
+
+    /**
+     * @warning experimental
+     * @return true when the event was handled, false if not.
+    */
+    SEQ_API virtual bool processEvent( const eq::Event& ) { return false; }
     //@}
 
     /** @name Data Access */
@@ -217,24 +232,37 @@ public:
     SEQ_API const Matrix4f& getModelMatrix() const;
     //@}
 
-    void applyScreenFrustum();
-    void applyPerspectiveFrustum();   
-
-    const eq::Window* getCurrentWindow() const;
-    /** @name ObjectFactory interface, forwards to Application instance. */
+    /** @name Distributed Object API */
     //@{
+    /** @sa seq::Application::createObject() */
     SEQ_API virtual co::Object* createObject( const uint32_t type );
+
+    /** @sa seq::Application::destroyObject() */
     SEQ_API virtual void destroyObject( co::Object* object,
                                         const uint32_t type );
+
+    /**
+     * Map and return an object.
+     *
+     * @param identifier unique object identifier used for map operation
+     * @param instance already created instance to skip factory creation
+     * @return 0 if not registered, the valid instance otherwise
+     * @version 1.8
+     * @sa co::ObjectMap::map()
+     */
+    SEQ_API co::Object* mapObject( const uint128_t& identifier,
+                                   co::Object* instance );
+
+    /**
+     * Unmap an object from the object map.
+     *
+     * @param object the object to unmap
+     * @return false on if object was not mapped, true otherwise
+     * @version 1.0
+     * @sa co::ObjectMap::unmap()
+     */
+    SEQ_API bool unmap( co::Object* object );
     //@}
-
-    co::Object*	mapObject( const uint128_t& identifier, co::Object* instance );
-    bool unmap( co::Object* object );
-
-protected:
-    virtual void notifyWindowInitGL( eq::Window* LB_UNUSED ){};
-    virtual void notifyWindowExitGL( eq::Window* LB_UNUSED ){};
-    virtual void processWindowEvent( eq::Window* LB_UNUSED, const eq::Event& LB_UNUSED ){};
 
 private:
     detail::Renderer* const _impl;

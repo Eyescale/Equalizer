@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,35 +26,35 @@ namespace seq
 {
 namespace detail
 {
-    class Window : public eq::Window
-    {
-    public:
-        Window( eq::Pipe* parent );
+class Window : public eq::Window
+{
+public:
+    Window( eq::Pipe* parent );
 
-        Config* getConfig();
-        Pipe* getPipe();
-        seq::Renderer* getRenderer();
-        detail::Renderer* getRendererImpl();
+    Config* getConfig();
+    Pipe* getPipe();
+    seq::Renderer* getRenderer();
+    detail::Renderer* getRendererImpl();
 
-        /** @name Operations. */
-        //@{
-        virtual void frameStart( const uint128_t& frameID,
-                                 const uint32_t frameNumber );
-        virtual void frameFinish( const uint128_t& frameID,
-                                  const uint32_t frameNumber );
-        virtual bool configInitGL( const uint128_t& initID );
-        virtual bool configExitGL();
+    /** @name Operations. */
+    //@{
+    void frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+        final;
+    void frameFinish( const uint128_t& frameID, const uint32_t frameNumber )
+        final;
+    bool configInitGL( const uint128_t& initID ) final;
+    bool configExitGL() final;
 
-        bool initContext() { return eq::Window::configInitGL( uint128_t( )); }
-        bool exitContext() { return eq::Window::configExitGL(); }
-        //@}
+    bool processEvent( const eq::Event& event ) final;
 
-        virtual bool processEvent( const eq::Event& event );
-    protected:
-        virtual ~Window();
+    bool initContext() { return eq::Window::configInitGL( uint128_t( )); }
+    bool exitContext() { return eq::Window::configExitGL(); }
+    //@}
 
-    private:
-    };
+
+protected:
+    virtual ~Window();
+};
 }
 }
 

@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #ifndef EQSEQUEL_DETAIL_RENDERER_H
 #define EQSEQUEL_DETAIL_RENDERER_H
 
@@ -29,62 +26,63 @@ namespace seq
 {
 namespace detail
 {
-    /** The internal implementation for the renderer. */
-    class Renderer
-    {
-    public:
-        Renderer();
-        ~Renderer();
+/** The internal implementation for the renderer. */
+class Renderer
+{
+public:
+    Renderer();
+    ~Renderer();
 
-        co::Object* mapObject( const uint128_t& identifier, co::Object* instance = 0 );
-        bool unmap( co::Object* object );
+    co::Object* mapObject( const uint128_t& identifier,
+                           co::Object* instance = 0 );
+    bool unmap( co::Object* object );
 
-        /** @name Data Access. */
-        //@{
-        co::Object* getFrameData();
-        const GLEWContext* glewGetContext() const { return _glewContext; }
+    /** @name Data Access. */
+    //@{
+    co::Object* getFrameData();
+    const GLEWContext* glewGetContext() const { return _glewContext; }
 
-        const ObjectManager& getObjectManager() const;
-        ObjectManager& getObjectManager();
+    const ObjectManager& getObjectManager() const;
+    ObjectManager& getObjectManager();
 
-        const Frustumf& getFrustum() const;
-        const Matrix4f& getViewMatrix() const;
-        const Matrix4f& getModelMatrix() const;
+    const Frustumf& getFrustum() const;
+    const Matrix4f& getViewMatrix() const;
+    const Matrix4f& getModelMatrix() const;
 
-        bool useOrtho() const;
-        void setNearFar( const float nearPlane, const float farPlane );
+    bool useOrtho() const;
+    void setNearFar( const float nearPlane, const float farPlane );
 
-        void applyScreenFrustum();
-        void applyPerspectiveFrustum();
-        //@}
+    void applyScreenFrustum();
+    void applyPerspectiveFrustum();
+    //@}
 
-        /** @name Current context. */
-        //@{
-        void setPipe( Pipe* pipe ) { _pipe = pipe; }
-        void setWindow( Window* window );
-        void setChannel( Channel* channel );
+    /** @name Current context. */
+    //@{
+    void setPipe( Pipe* pipe ) { _pipe = pipe; }
+    void setWindow( Window* window );
+    void setChannel( Channel* channel );
 
-        const Window* getWindow() const;
-        //@}
+    const Window* getWindow() const;
+    //@}
 
-        /** @name Operations. */
-        //@{
-        bool initContext();
-        bool exitContext();
+    /** @name Operations. */
+    //@{
+    bool initContext();
+    bool exitContext();
 
-        void clear();
+    void clear();
 
-        void applyRenderContext();
-        const RenderContext& getRenderContext() const;
-        void applyModelMatrix();
-        //@}
+    void applyRenderContext();
+    const RenderContext& getRenderContext() const;
+    void applyModelMatrix();
+    //@}
 
-    private:
-        const GLEWContext* _glewContext;
-        Pipe* _pipe;
-        Window* _window;
-        Channel* _channel;
-    };
+private:
+    const GLEWContext* _glewContext;
+    Pipe* _pipe;
+    Window* _window;
+    Channel* _channel;
+};
 }
 }
 

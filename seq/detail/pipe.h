@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,10 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #ifndef EQSEQUEL_DETAIL_PIPE_H
 #define EQSEQUEL_DETAIL_PIPE_H
 
@@ -29,38 +26,38 @@ namespace seq
 {
 namespace detail
 {
-    class Pipe : public eq::Pipe
-    {
-    public:
-        Pipe( eq::Node* parent );
+class Pipe : public eq::Pipe
+{
+public:
+    Pipe( eq::Node* parent );
 
-        /** @name Data Access. */
-        //@{
-        seq::Application* getApplication();
-        Config* getConfig();
-        Node* getNode();
-        seq::Renderer* getRenderer() { return _renderer; }
-        detail::Renderer* getRendererImpl();
-        co::Object* getFrameData();
-	ObjectMap* getObjectMap();
-        //@}
+    /** @name Data Access. */
+    //@{
+    seq::Application* getApplication();
+    Config* getConfig();
+    Node* getNode();
+    seq::Renderer* getRenderer() { return _renderer; }
+    detail::Renderer* getRendererImpl();
+    co::Object* getFrameData();
+    ObjectMap* getObjectMap();
+    //@}
 
-    protected:
-        virtual ~Pipe();
+protected:
+    virtual ~Pipe();
 
-        virtual bool configInit( const uint128_t& initID );
-        virtual bool configExit();
+    virtual bool configInit( const uint128_t& initID );
+    virtual bool configExit();
 
-        virtual void frameStart( const uint128_t& frameID,
-                                 const uint32_t frameNumber );
-    private:
-        bool _mapData( const uint128_t& initID );
-        void _syncData( const uint128_t& version );
-        void _unmapData();
+    virtual void frameStart( const uint128_t& frameID,
+                             const uint32_t frameNumber );
+private:
+    bool _mapData( const uint128_t& initID );
+    void _syncData( const uint128_t& version );
+    void _unmapData();
 
-        ObjectMap* _objects;
-        seq::Renderer* _renderer;
-    };
+    ObjectMap* _objects;
+    seq::Renderer* _renderer;
+};
 }
 }
 

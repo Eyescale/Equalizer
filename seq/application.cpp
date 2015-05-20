@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
- *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #include "application.h"
 
 #include "error.h"
@@ -67,28 +64,20 @@ eq::Config* Application::getConfig()
 
 bool Application::registerObject( co::Object* object, const uint32_t type )
 {
-    if( !_impl || !_impl->getConfig() ){
+    if( !_impl || !_impl->getConfig( ))
        return false;
-    }
 
     seq::detail::ObjectMap* objectMap = _impl->getConfig()->getObjectMap();
-    
-    if( !objectMap ) return false;
-
-    return objectMap->register_( object, type );
+    return objectMap ? objectMap->register_( object, type ) : false;
 }
 
 bool Application::deregister( co::Object* object )
 {
-    if( !_impl || !_impl->getConfig() ){
+    if( !_impl || !_impl->getConfig( ))
        return false;
-    }
 
     seq::detail::ObjectMap* objectMap = _impl->getConfig()->getObjectMap();
-    
-    if( !objectMap ) return false;
-    
-    return objectMap->deregister( object );
+    return  objectMap ? objectMap->deregister( object ) : false;
 }
 
 void Application::destroyRenderer( Renderer* renderer )

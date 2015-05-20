@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #include "renderer.h"
 
 #include "application.h"
@@ -59,11 +56,6 @@ ObjectManager& Renderer::getObjectManager()
 const GLEWContext* Renderer::glewGetContext() const
 {
     return _impl->glewGetContext();
-}
-
-const eq::Window* Renderer::getCurrentWindow() const
-{
-    return _impl->getWindow();
 }
 
 ViewData* Renderer::createViewData()
@@ -186,17 +178,14 @@ void Renderer::destroyObject( co::Object* object, const uint32_t type )
     app_.destroyObject( object, type );
 }
 
-co::Object* Renderer::mapObject( const uint128_t& identifier, co::Object* instance )
+co::Object* Renderer::mapObject( const uint128_t& identifier,
+                                 co::Object* instance )
 {
-   if( !_impl ) return 0;
-   
    return _impl->mapObject( identifier, instance );
 }
 
 bool Renderer::unmap( co::Object* object )
 {
-   if( !_impl ) return false;
-
    return _impl->unmap( object );
 }
 

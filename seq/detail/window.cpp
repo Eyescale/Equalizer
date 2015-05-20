@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,7 +32,7 @@ namespace detail
 {
 
 Window::Window( eq::Pipe* parent )
-        : eq::Window( parent )
+    : eq::Window( parent )
 {}
 
 Window::~Window()
@@ -86,8 +87,6 @@ bool Window::configInitGL( const uint128_t& )
     }
     const bool ret = renderer->initContext( initData );
 
-    renderer->notifyWindowInitGL( static_cast<eq::Window*>(this) );
-
     rendererImpl->setWindow( 0 );
     return ret;
 }
@@ -98,8 +97,6 @@ bool Window::configExitGL()
     rendererImpl->setWindow( this );
     seq::Renderer* const renderer = getRenderer();
     const bool last = !getObjectManager().isShared();
-
-    renderer->notifyWindowExitGL( static_cast<eq::Window*>(this) );
 
     bool ret = renderer->exitContext();
     if( last && !renderer->exit( ))
@@ -112,8 +109,9 @@ bool Window::configExitGL()
 bool Window::processEvent( const eq::Event& event )
 {
     seq::Renderer* const renderer = getRenderer();
-    renderer->processWindowEvent( this, event );
-    return eq::Window::processEvent(event);
+    if( renderer->processEvent( event ))
+        return true;
+    return eq::Window::processEvent( event );
 }
 
 }

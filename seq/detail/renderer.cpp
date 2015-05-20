@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* 
- * Additional modifications Petros Kataras <petroskataras@gmail.com> Copyright (c) 2015-2016. 
- *
- */
 #include "renderer.h"
 
 #include "channel.h"
@@ -36,10 +33,10 @@ namespace detail
 static const RenderContext dummyContext;
 
 Renderer::Renderer()
-        : _glewContext( 0 )
-        , _pipe( 0 )
-        , _window( 0 )
-        , _channel( 0 )
+    : _glewContext( 0 )
+    , _pipe( 0 )
+    , _window( 0 )
+    , _channel( 0 )
 {}
 
 Renderer::~Renderer()
@@ -48,26 +45,23 @@ Renderer::~Renderer()
     LBASSERT( !_channel );
 }
 
-co::Object* Renderer::mapObject( const uint128_t& identifier, co::Object* instance )
+co::Object* Renderer::mapObject( const uint128_t& identifier,
+                                 co::Object* instance )
 {
-    if( !_pipe ) return 0;
-   
-    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+    if( !_pipe )
+        return 0;
 
-    if( !objectMap ) return 0;
-   
-    return objectMap->map(identifier, instance);
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+    return objectMap ? objectMap->map(identifier, instance) : 0;
 }
 
 bool Renderer::unmap( co::Object* object )
 {
-    if( !_pipe ) return false;
-    
-    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+    if( !_pipe )
+        return false;
 
-    if( !objectMap ) return false;
-   
-    return objectMap->unmap(object);
+    seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
+    return objectMap ? objectMap->unmap(object) : false;
 }
 
 co::Object* Renderer::getFrameData()
@@ -138,7 +132,7 @@ void Renderer::setWindow( Window* window )
 
 const Window* Renderer::getWindow() const
 {
-    return _window ? _window : 0;
+    return _window;
 }
 
 void Renderer::setChannel( Channel* channel )
