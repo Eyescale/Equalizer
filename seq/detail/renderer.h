@@ -33,10 +33,6 @@ public:
     Renderer();
     ~Renderer();
 
-    co::Object* mapObject( const uint128_t& identifier,
-                           co::Object* instance = 0 );
-    bool unmap( co::Object* object );
-
     /** @name Data Access. */
     //@{
     co::Object* getFrameData();
@@ -45,15 +41,13 @@ public:
     const ObjectManager& getObjectManager() const;
     ObjectManager& getObjectManager();
 
+    const RenderContext& getRenderContext() const;
     const Frustumf& getFrustum() const;
     const Matrix4f& getViewMatrix() const;
     const Matrix4f& getModelMatrix() const;
 
     bool useOrtho() const;
     void setNearFar( const float nearPlane, const float farPlane );
-
-    void applyScreenFrustum();
-    void applyPerspectiveFrustum();
     //@}
 
     /** @name Current context. */
@@ -62,7 +56,7 @@ public:
     void setWindow( Window* window );
     void setChannel( Channel* channel );
 
-    const Window* getWindow() const;
+    const Window* getWindow() const { return _window; }
     //@}
 
     /** @name Operations. */
@@ -73,9 +67,17 @@ public:
     void clear();
 
     void applyRenderContext();
-    const RenderContext& getRenderContext() const;
     void applyModelMatrix();
+
+    void applyScreenFrustum();
+    void applyPerspectiveFrustum();
     //@}
+
+    /** @name Distributed Object API. */
+    //@{
+    co::Object* mapObject( const uint128_t& identifier,
+                           co::Object* instance = 0 );
+    bool unmap( co::Object* object );
 
 private:
     const GLEWContext* _glewContext;

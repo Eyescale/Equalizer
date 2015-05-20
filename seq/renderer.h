@@ -178,7 +178,13 @@ public:
     /** @name Data Access */
     //@{
     detail::Renderer* getImpl() { return _impl; } //!< @internal
-    co::Object* getFrameData(); // @warning experimental
+
+    /**
+     * @return A frame-synchronous instance of the data passed to
+     *         Application::run().
+     * @version 1.8
+     */
+    SEQ_API co::Object* getFrameData();
 
     /** @return the application instance for this renderer. @version 1.0 */
     Application& getApplication() { return app_; }

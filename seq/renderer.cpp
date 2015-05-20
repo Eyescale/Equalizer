@@ -21,9 +21,9 @@
 
 #include "application.h"
 #include "viewData.h"
-#include "detail/window.h"
-#include "detail/renderer.h"
 #include "detail/objectMap.h"
+#include "detail/renderer.h"
+#include "detail/window.h"
 
 namespace seq
 {

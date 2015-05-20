@@ -130,11 +130,6 @@ void Renderer::setWindow( Window* window )
     _glewContext = window ? window->glewGetContext() : 0;
 }
 
-const Window* Renderer::getWindow() const
-{
-    return _window;
-}
-
 void Renderer::setChannel( Channel* channel )
 {
     _channel = channel;

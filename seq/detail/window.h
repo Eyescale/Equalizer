@@ -51,7 +51,6 @@ public:
     bool exitContext() { return eq::Window::configExitGL(); }
     //@}
 
-
 protected:
     virtual ~Window();
 };

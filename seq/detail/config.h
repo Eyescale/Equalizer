@@ -35,16 +35,16 @@ public:
     seq::Application* getApplication();
     detail::Application* getApplicationImpl();
 
-    bool init() final { LBDONTCALL; return false; }
-    bool run( co::Object* ) final { LBDONTCALL; return false; }
-    bool exit() final { LBDONTCALL; return false; }
+    virtual bool init() { LBDONTCALL; return false; }
+    virtual bool run( co::Object* ) { LBDONTCALL; return false; }
+    virtual bool exit() { LBDONTCALL; return false; }
 
-    bool needRedraw() final { LBDONTCALL; return false; }
-    uint32_t startFrame() final { LBDONTCALL; return 0; }
+    virtual bool needRedraw() { LBDONTCALL; return false; }
+    virtual uint32_t startFrame() { LBDONTCALL; return 0; }
 
-    bool mapData( const uint128_t& ) final { return true; }
-    void syncData( const uint128_t& ) final { /* nop */ }
-    void unmapData() final { /* nop */ }
+    virtual bool mapData( const uint128_t& )  { return true; }
+    virtual void syncData( const uint128_t& ) { /* nop */ }
+    virtual void unmapData() { /* nop */ }
 
     ObjectMap* getObjectMap();
     co::Object* getInitData();
