@@ -80,7 +80,7 @@ public:
      */
     EQFABRIC_API uint32_t getTasks() const;
 
-    EQFABRIC_API uint32_t getSerial() const;
+    EQFABRIC_API uint32_t getSerial() const; //!< @internal unique serial number
     //@}
 
     /** @return true if the object has data to commit. @version 1.0 */
