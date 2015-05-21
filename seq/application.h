@@ -21,7 +21,7 @@
 
 #include <co/objectFactory.h> // interface
 #include <seq/types.h>
-#include <eq/client/client.h>               // base class
+#include <eq/client.h>               // base class
 
 namespace seq
 {

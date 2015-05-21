@@ -19,7 +19,7 @@
 #include "accumBufferObject.h"
 #include "accum.h"
 
-#include <eq/client/gl.h>
+#include <eq/gl.h>
 
 namespace eq
 {

@@ -27,10 +27,10 @@
 #include "window.h"
 
 #include <seq/application.h>
-#include <eq/client/config.h>
-#include <eq/client/init.h>
-#include <eq/client/pipe.h>
-#include <eq/client/server.h>
+#include <eq/config.h>
+#include <eq/init.h>
+#include <eq/pipe.h>
+#include <eq/server.h>
 #include <eq/fabric/configParams.h>
 
 namespace seq

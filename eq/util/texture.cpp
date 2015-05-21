@@ -21,8 +21,8 @@
 
 #include <eq/fabric/pixelViewport.h>
 
-#include <eq/client/image.h>
-#include <eq/client/gl.h>
+#include <eq/image.h>
+#include <eq/gl.h>
 #include <pression/plugins/compressor.h>
 
 namespace eq

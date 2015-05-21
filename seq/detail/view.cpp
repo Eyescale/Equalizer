@@ -24,11 +24,11 @@
 #include <seq/application.h>
 #include <seq/renderer.h>
 #include <seq/viewData.h>
-#include <eq/client/config.h>
+#include <eq/config.h>
 #ifndef EQ_2_0_API
-#  include <eq/client/configEvent.h>
+#  include <eq/configEvent.h>
 #endif
-#include <eq/client/eventICommand.h>
+#include <eq/eventICommand.h>
 
 namespace seq
 {

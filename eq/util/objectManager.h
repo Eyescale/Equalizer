@@ -20,7 +20,7 @@
 #define EQUTIL_OBJECTMANAGER_H
 
 #include <eq/util/types.h>
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 namespace eq
 {

@@ -19,7 +19,7 @@
 #define EQSEQUEL_TYPES_H
 
 #include <seq/api.h>
-#include <eq/client/types.h>
+#include <eq/types.h>
 
 namespace seq
 {

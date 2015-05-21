@@ -18,7 +18,7 @@
 #ifndef EQUTIL_BITMAPFONT_H
 #define EQUTIL_BITMAPFONT_H
 
-#include <eq/client/api.h>
+#include <eq/api.h>
 #include <eq/util/types.h>
 
 namespace eq

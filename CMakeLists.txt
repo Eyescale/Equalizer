@@ -9,11 +9,13 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
+include(SubProject)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "8")
 set(VERSION_PATCH "0")
 set(VERSION_ABI 180)
+set(PROJECT_INCLUDE_NAME eq)
 
 include(Common)
 
@@ -31,7 +33,6 @@ set(COMMON_PROJECT_DOMAIN ch.eyescale)
 set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
                           parallel and scalable OpenGL and GPGPU applications.")
 
-set(PROJECT_INCLUDE_NAME eq)
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND FIND_PACKAGES_DEFINES EQ_2_0_API)
 else()

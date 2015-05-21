@@ -33,7 +33,7 @@
 #include "eqAsync.h"
 
 #include <eq/eq.h>
-#include <eq/client/system.h>
+#include <eq/system.h>
 
 namespace eqAsync
 {

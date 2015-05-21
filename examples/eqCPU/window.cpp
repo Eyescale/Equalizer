@@ -27,9 +27,9 @@
  */
 
 #include "window.h"
-#include <eq/client/glx/pipe.h>
-#include <eq/client/x11/window.h>
-#include <eq/client/pipe.h>
+#include <eq/glx/pipe.h>
+#include <eq/x11/window.h>
+#include <eq/pipe.h>
 
 namespace eqCpu
 {

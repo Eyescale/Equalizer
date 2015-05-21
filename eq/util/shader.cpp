@@ -18,7 +18,7 @@
 
 #include "shader.h"
 
-#include <eq/client/gl.h>
+#include <eq/gl.h>
 #include <lunchbox/log.h>
 
 #undef glewGetContext

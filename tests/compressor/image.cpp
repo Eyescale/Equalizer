@@ -18,11 +18,11 @@
 #define TEST_RUNTIME 1200 // seconds
 #include <test.h>
 
-#include <eq/client/frame.h>    // enum Eye
-#include <eq/client/image.h>
-#include <eq/client/init.h>
-#include <eq/client/nodeFactory.h>
-#include <eq/client/pixelData.h>
+#include <eq/frame.h>    // enum Eye
+#include <eq/image.h>
+#include <eq/init.h>
+#include <eq/nodeFactory.h>
+#include <eq/pixelData.h>
 
 #include <co/global.h>
 
