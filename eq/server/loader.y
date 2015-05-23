@@ -238,6 +238,11 @@
 %token EQTOKEN_FOCUS_MODE
 %token EQTOKEN_OPENCV_CAMERA
 %token EQTOKEN_VRPN_TRACKER
+%token EQTOKEN_VRPN_TRACKER_SENSOR
+%token EQTOKEN_ANY
+%token EQTOKEN_LOWEST
+%token EQTOKEN_VRPN_TRACKER_AXIS
+%token EQTOKEN_VRPN_AXIS
 %token EQTOKEN_ROBUSTNESS
 %token EQTOKEN_THREAD_MODEL
 %token EQTOKEN_ASYNC
@@ -318,7 +323,7 @@
     float                   _viewport[4];
 }
 
-%type <_string>           STRING;
+%type <_string>           STRING VRPN_AXIS;
 %type <_character>        CHARACTER;
 %type <_int>              INTEGER IATTR;
 %type <_unsigned>         UNSIGNED colorMask colorMaskBit colorMaskBits;
@@ -826,6 +831,33 @@ observerField:
         { observer->setFocusMode( eq::fabric::FocusMode( $2 )); }
     | EQTOKEN_OPENCV_CAMERA IATTR { observer->setOpenCVCamera( $2 ); }
     | EQTOKEN_VRPN_TRACKER STRING { observer->setVRPNTracker( $2 ); }
+    | EQTOKEN_VRPN_TRACKER_SENSOR INTEGER { observer->setVRPNTrackerSensor( $2 ); }
+    | EQTOKEN_VRPN_TRACKER_SENSOR EQTOKEN_ANY
+    {
+        observer->setVRPNTrackerSensor( eq::fabric::VRPNTrackerSensor::
+                                        UseAnyValidSensorID );
+    }
+    | EQTOKEN_VRPN_TRACKER_SENSOR EQTOKEN_LOWEST
+    {
+        observer->setVRPNTrackerSensor( eq::fabric::VRPNTrackerSensor::
+                                        UseAnyValidSensorID );
+    }
+    | EQTOKEN_VRPN_TRACKER_AXIS VRPN_AXIS
+    {
+        observer->setVRPNTrackerAxis( eq::fabric::VRPNTrackerAxis($2) );
+    }
+    | EQTOKEN_VRPN_TRACKER_AXIS '[' '[' FLOAT FLOAT FLOAT ']'
+                                    '[' FLOAT FLOAT FLOAT ']'
+                                    '[' FLOAT FLOAT FLOAT ']' ']'
+    {
+        observer->setVRPNTrackerAxis( eq::fabric::VRPNTrackerAxis(
+            eq::fabric::Vector3f( $4, $5, $6 ),
+            eq::fabric::Vector3f( $9, $10, $11 ),
+            eq::fabric::Vector3f( $14, $15, $16 )) );
+    }
+
+VRPN_AXIS: EQTOKEN_VRPN_AXIS               { $$ = yytext; }
+
 
 layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout( config ); }
             layoutFields '}' { layout = 0; }
@@ -1451,6 +1483,7 @@ FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }
 INTEGER: EQTOKEN_INTEGER                   { $$ = atoi( yytext ); }
     | UNSIGNED                             { $$ = $1; }
 UNSIGNED: EQTOKEN_UNSIGNED                 { $$ = atoi( yytext ); }
+
 %%
 
 namespace eq

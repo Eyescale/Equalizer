@@ -56,6 +56,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   view.h
   viewport.h
   vmmlib.h
+  vrpnTracker.h
   wall.h
   windowSettings.h
   window.h
@@ -101,6 +102,7 @@ set(EQ_FABRIC_SOURCES
   subPixel.cpp
   swapBarrier.cpp
   viewport.cpp
+  vrpnTracker.cpp
   wall.cpp
   windowSettings.cpp
   zoom.cpp
