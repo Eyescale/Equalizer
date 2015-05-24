@@ -446,8 +446,7 @@ std::string Node::_createRemoteCommand() const
 #endif // WIN32
     const boost::filesystem::path absolute =
         boost::filesystem::system_complete( boost::filesystem::path( program ));
-    program = absolute.native();
-
+    program = absolute.string();
 
     const std::string& ownData = getServer()->serialize();
     const std::string& remoteData = _node->serialize();
