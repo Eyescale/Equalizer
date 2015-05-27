@@ -20,7 +20,7 @@
 #define EQSEQUEL_DETAIL_VIEW_H
 
 #include <seq/types.h>
-#include <eq/client/view.h> // base class
+#include <eq/view.h> // base class
 
 namespace seq
 {

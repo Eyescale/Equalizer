@@ -20,7 +20,7 @@
 #define EQSEQUEL_DETAIL_PIPE_H
 
 #include <seq/types.h>
-#include <eq/client/pipe.h> // base class
+#include <eq/pipe.h> // base class
 
 namespace seq
 {

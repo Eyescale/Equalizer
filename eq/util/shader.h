@@ -19,8 +19,8 @@
 #ifndef EQUTIL_SHADER_H
 #define EQUTIL_SHADER_H
 
-#include <eq/client/api.h>
-#include <eq/client/types.h>
+#include <eq/api.h>
+#include <eq/types.h>
 
 namespace eq
 {

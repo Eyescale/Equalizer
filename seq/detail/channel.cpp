@@ -23,7 +23,7 @@
 
 #include <seq/renderer.h>
 #include <seq/viewData.h>
-#include <eq/client/gl.h>
+#include <eq/gl.h>
 
 namespace seq
 {

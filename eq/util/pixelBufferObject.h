@@ -21,9 +21,9 @@
 
 #include <lunchbox/lock.h>
 
-#include <eq/client/api.h>
-#include <eq/client/error.h> // enum
-#include <eq/client/types.h>
+#include <eq/api.h>
+#include <eq/error.h> // enum
+#include <eq/types.h>
 
 namespace eq
 {

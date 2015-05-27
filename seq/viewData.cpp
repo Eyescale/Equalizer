@@ -20,10 +20,10 @@
 #include "viewData.h"
 
 #ifndef EQ_2_0_API
-#  include <eq/client/configEvent.h>
+#  include <eq/configEvent.h>
 #endif
 #include <eq/fabric/event.h>
-#include <eq/client/eventICommand.h>
+#include <eq/eventICommand.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 

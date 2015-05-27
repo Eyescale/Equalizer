@@ -20,9 +20,8 @@
 #ifndef EQUTIL_TEXTURE_H
 #define EQUTIL_TEXTURE_H
 
-#include <eq/client/frame.h>        // Frame::Buffer enum
-
-#include <lunchbox/thread.h>         // thread debug macro
+#include <eq/frame.h> // Frame::Buffer enum
+#include <lunchbox/thread.h> // thread debug macro
 
 namespace eq
 {

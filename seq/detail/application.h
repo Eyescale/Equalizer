@@ -19,7 +19,7 @@
 #define EQSEQUEL_DETAIL_APPLICATION_H
 
 #include <seq/types.h>
-#include <eq/client/nodeFactory.h> // base class
+#include <eq/nodeFactory.h> // base class
 
 namespace seq
 {

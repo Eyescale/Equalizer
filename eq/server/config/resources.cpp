@@ -56,7 +56,7 @@
 #endif
 
 #ifdef _MSC_VER
-#  include <eq/client/os.h>
+#  include <eq/os.h>
 #  define setenv( name, value, overwrite ) \
     SetEnvironmentVariable( name, value )
 #endif

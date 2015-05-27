@@ -29,7 +29,7 @@
 #ifndef EQ_CPU_CHANNEL_H
 #define EQ_CPU_CHANNEL_H
 
-#include <eq/client/channel.h> // base class
+#include <eq/channel.h> // base class
 
 namespace eqCpu
 {

@@ -27,9 +27,9 @@
  */
 
 #include "channel.h"
-#include <eq/client/x11/window.h>
-#include <eq/client/system.h>
-#include <eq/client/window.h>
+#include <eq/x11/window.h>
+#include <eq/system.h>
+#include <eq/window.h>
 
 namespace eqCpu
 {

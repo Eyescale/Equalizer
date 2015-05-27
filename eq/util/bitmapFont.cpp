@@ -18,8 +18,8 @@
 #include "bitmapFont.h"
 #include "objectManager.h"
 
-#include <eq/client/gl.h>
-#include <eq/client/windowSystem.h>
+#include <eq/gl.h>
+#include <eq/windowSystem.h>
 
 namespace eq
 {

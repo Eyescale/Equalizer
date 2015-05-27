@@ -18,8 +18,8 @@
 #ifndef EQUTIL_TYPES_H
 #define EQUTIL_TYPES_H
 
-#include <eq/client/types.h>
-#include <eq/client/error.h>
+#include <eq/types.h>
+#include <eq/error.h>
 #include <vector>
 
 namespace eq

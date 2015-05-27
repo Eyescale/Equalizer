@@ -29,8 +29,8 @@
 #ifndef EQ_CPU_PIPE_H
 #define EQ_CPU_PIPE_H
 
-#include <eq/client/pipe.h> // base class
-#include <eq/client/windowSystem.h> // used inline
+#include <eq/pipe.h> // base class
+#include <eq/windowSystem.h> // used inline
 
 namespace eqCpu
 {

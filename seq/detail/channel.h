@@ -19,7 +19,7 @@
 #define EQSEQUEL_DETAIL_CHANNEL_H
 
 #include <seq/types.h>
-#include <eq/client/channel.h> // base class
+#include <eq/channel.h> // base class
 
 namespace seq
 {

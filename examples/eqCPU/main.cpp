@@ -29,11 +29,11 @@
 #include "channel.h"
 #include "pipe.h"
 #include "window.h"
-#include <eq/client/client.h>
-#include <eq/client/config.h>
-#include <eq/client/init.h>
-#include <eq/client/nodeFactory.h>
-#include <eq/client/server.h>
+#include <eq/client.h>
+#include <eq/config.h>
+#include <eq/init.h>
+#include <eq/nodeFactory.h>
+#include <eq/server.h>
 #include <eq/fabric/configParams.h>
 
 class NodeFactory : public eq::NodeFactory

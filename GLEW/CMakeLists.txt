@@ -1,5 +1,5 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011-2013 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2015 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#                         Stefan Eilemann <eile@eyescale.ch>
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
@@ -8,7 +8,7 @@ else()
   set(GLEW_VERSION 1.9.0)
   set(GLEW_DIR ${PROJECT_BINARY_DIR}/glew-${GLEW_VERSION})
   set(GLEW_MX_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
-  set(GLEW_LIBRARY "GLEW_MX_Equalizer")
+  set(GLEW_LIBRARY GLEW_MX_Equalizer)
   set(GLEW_TGZ ${CMAKE_CURRENT_SOURCE_DIR}/GLEW/glew-${GLEW_VERSION}.tgz)
 
   if(NOT EXISTS ${GLEW_DIR})
@@ -48,8 +48,10 @@ else()
                         FOLDER "Libraries" VERSION ${GLEW_VERSION})
 
   install(TARGETS ${GLEW_LIBRARY}
+    EXPORT ${CMAKE_PROJECT_NAME}Targets
     ARCHIVE DESTINATION ${LIBRARY_DIR} COMPONENT dev
     RUNTIME DESTINATION bin COMPONENT lib
     LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib)
+
   message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked statically to Equalizer.")
 endif()

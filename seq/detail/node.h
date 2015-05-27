@@ -19,7 +19,7 @@
 #define EQSEQUEL_DETAIL_NODE_H
 
 #include <seq/types.h>
-#include <eq/client/node.h> // base class
+#include <eq/node.h> // base class
 
 namespace seq
 {

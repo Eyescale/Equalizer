@@ -1,32 +1,113 @@
 
-# Copyright (c) 2011-2013 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
 
-include(files.cmake)
+set(EQUALIZERFABRIC_PUBLIC_HEADERS
+  api.h
+  base.h
+  canvas.h
+  channel.h
+  client.h
+  colorMask.h
+  commands.h
+  config.h
+  configParams.h
+  configVisitor.h
+  drawableConfig.h
+  elementVisitor.h
+  equalizer.h
+  equalizerTypes.h
+  error.h
+  errorCodes.h
+  errorRegistry.h
+  event.h
+  eventEnums.h
+  eye.h
+  focusMode.h
+  frame.h
+  frameData.h
+  frustum.h
+  global.h
+  gpuInfo.h
+  iAttribute.h
+  init.h
+  layout.h
+  leafVisitor.h
+  log.h
+  node.h
+  nodeType.h
+  object.h
+  observer.h
+  paths.h
+  pipe.h
+  pixel.h
+  pixelViewport.h
+  projection.h
+  range.h
+  renderContext.h
+  segment.h
+  server.h
+  statistic.h
+  subPixel.h
+  swapBarrier.h
+  task.h
+  tile.h
+  types.h
+  view.h
+  viewport.h
+  vmmlib.h
+  wall.h
+  windowSettings.h
+  window.h
+  zoom.h
+  )
+
+set(EQUALIZERFABRIC_HEADERS
+  nameFinder.h
+  canvas.ipp
+  channel.ipp
+  config.ipp
+  layout.ipp
+  node.ipp
+  observer.ipp
+  pipe.ipp
+  segment.ipp
+  server.ipp
+  view.ipp
+  window.ipp
+  )
+
+set(EQUALIZERFABRIC_SOURCES
+  client.cpp
+  colorMask.cpp
+  configParams.cpp
+  equalizer.cpp
+  error.cpp
+  errorRegistry.cpp
+  event.cpp
+  eye.cpp
+  frame.cpp
+  frameData.cpp
+  frustum.cpp
+  global.cpp
+  iAttribute.cpp
+  init.cpp
+  object.cpp
+  pixel.cpp
+  projection.cpp
+  range.cpp
+  renderContext.cpp
+  statistic.cpp
+  subPixel.cpp
+  swapBarrier.cpp
+  viewport.cpp
+  wall.cpp
+  windowSettings.cpp
+  zoom.cpp
+  )
+
+set(EQUALIZERFABRIC_LINK_LIBRARIES ${COLLAGE_LIBRARIES})
+set(PROJECT_INCLUDE_NAME eq/fabric)
+set(EQUALIZERFABRIC_OMIT_PROJECT_HEADER ON)
 
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQFABRIC_API=)
-
-add_library(EqualizerFabric SHARED
-  ${EQ_FABRIC_PUBLIC_HEADERS} ${EQ_FABRIC_SOURCES} ${EQ_FABRIC_HEADERS})
-target_link_libraries(EqualizerFabric ${COLLAGE_LIBRARIES})
-set_target_properties(EqualizerFabric
-  PROPERTIES VERSION ${VERSION} SOVERSION ${VERSION_ABI})
-
-install(FILES ${EQ_FABRIC_PUBLIC_HEADERS}
-  DESTINATION include/eq/fabric COMPONENT dev)
-
-if (MSVC)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/EqualizerFabric.pdb
-    DESTINATION bin COMPONENT dev CONFIGURATIONS Debug)
-  install(FILES ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/EqualizerFabric.pdb
-    DESTINATION bin COMPONENT dev CONFIGURATIONS RelWithDebInfo)
-endif()
-
-install(TARGETS EqualizerFabric
-        ARCHIVE DESTINATION lib COMPONENT dev
-        RUNTIME DESTINATION bin COMPONENT lib
-        LIBRARY DESTINATION lib COMPONENT lib)
-
-source_group(\\ REGULAR_EXPRESSION .*)
-source_group(\\ FILES CMakeLists.txt)
-source_group(fabric FILES ${EQ_FABRIC_PUBLIC_HEADERS} ${EQ_FABRIC_HEADERS}
-             ${EQ_FABRIC_SOURCES})
+common_library(EqualizerFabric)

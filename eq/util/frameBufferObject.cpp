@@ -19,7 +19,7 @@
 
 #include "frameBufferObject.h"
 
-#include <eq/client/gl.h>
+#include <eq/gl.h>
 #include <eq/fabric/pixelViewport.h>
 
 #ifdef _WIN32

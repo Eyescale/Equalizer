@@ -20,7 +20,7 @@
 #define EQSEQUEL_DETAIL_WINDOW_H
 
 #include <seq/types.h>
-#include <eq/client/window.h> // base class
+#include <eq/window.h> // base class
 
 namespace seq
 {

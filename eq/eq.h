@@ -20,7 +20,7 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
-#  include <eq/client/base.h>
+#  include <eq/base.h>
 #  include <eq/util/base.h>
 #  include <eq/fabric/base.h>
 #  include <co/co.h>

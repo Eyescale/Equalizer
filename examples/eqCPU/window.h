@@ -29,7 +29,7 @@
 #ifndef EQ_CPU_WINDOW_H
 #define EQ_CPU_WINDOW_H
 
-#include <eq/client/window.h> // base class
+#include <eq/window.h> // base class
 
 namespace eqCpu
 {

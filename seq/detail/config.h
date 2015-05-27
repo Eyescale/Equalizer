@@ -20,8 +20,8 @@
 #define EQSEQUEL_DETAIL_CONFIG_H
 
 #include <seq/types.h>
-#include <eq/client/config.h> // base class
-#include <eq/client/server.h> // RefPtr usage
+#include <eq/config.h> // base class
+#include <eq/server.h> // RefPtr usage
 
 namespace seq
 {

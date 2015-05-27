@@ -25,7 +25,7 @@
 #include "pixelBufferObject.h"
 #include "texture.h"
 
-#include <eq/client/gl.h>
+#include <eq/gl.h>
 #include <lunchbox/hash.h>
 #include <lunchbox/os.h>
 #include <lunchbox/referenced.h>

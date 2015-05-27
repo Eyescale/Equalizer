@@ -18,7 +18,7 @@
 
 #include "pixelBufferObject.h"
 
-#include <eq/client/gl.h>
+#include <eq/gl.h>
 #include <lunchbox/debug.h>
 #include <lunchbox/scopedMutex.h>
 
