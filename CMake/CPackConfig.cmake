@@ -8,6 +8,7 @@ set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${PROJECT_SOURCE_DIR}/doc/RelNotes.md)
 set(CPACK_RESOURCE_FILE_README ${CPACK_PACKAGE_DESCRIPTION_FILE})
+set(CPACK_PACKAGE_LICENSE "LGPL")
 
 set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
