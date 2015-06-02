@@ -29,7 +29,9 @@
 #    repositories, pointing to github.com/<user>/<project>. Defaults to user
 #    name or GIT_EXTERNAL_USER environment variable.
 
-find_package(Git)
+if(NOT GIT_FOUND)
+  find_package(Git QUIET)
+endif()
 if(NOT GIT_EXECUTABLE)
   return()
 endif()
