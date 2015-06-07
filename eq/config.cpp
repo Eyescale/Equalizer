@@ -61,6 +61,10 @@
 #include "frameVisitor.h"
 #include "initVisitor.h"
 
+#ifdef EQUALIZER_USE_QT5WIDGETS
+# include <QApplication>
+#endif
+
 namespace eq
 {
 namespace
@@ -298,7 +302,13 @@ bool Config::init( const uint128_t& initID )
     send( getServer(), fabric::CMD_CONFIG_INIT ) << initID << request;
 
     while( !request.isReady( ))
+    {
+#ifdef EQUALIZER_USE_QT5WIDGETS
+        if( QApplication::instance( ))
+            QApplication::instance()->processEvents();
+#endif
         client->processCommand();
+    }
 
     _impl->running = request.wait();
     localNode->enableSendOnRegister();
@@ -675,6 +685,10 @@ void Config::handleEvents()
 
         handleEvent( event );
     }
+#ifdef EQUALIZER_USE_QT5WIDGETS
+        if( QApplication::instance( ))
+            QApplication::instance()->processEvents();
+#endif
 }
 
 bool Config::_handleNewEvent( EventICommand& command )

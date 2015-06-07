@@ -18,7 +18,15 @@
 #ifndef EQ_QT_TYPES_H
 #define EQ_QT_TYPES_H
 
-class QGLWidget;
+class QOpenGLContext;
+
+class QObject;
+class QExposeEvent;
+class QHideEvent;
+class QResizeEvent;
+class QMouseEvent;
+class QWheelEvent;
+class QKeyEvent;
 
 namespace eq
 {
@@ -30,9 +38,7 @@ namespace qt
 {
 
 class EventHandler;
-class GLWidget;
 class Pipe;
-class WidgetFactory;
 class Window;
 class WindowIF;
 class WindowEvent;

@@ -124,6 +124,11 @@ const util::FrameBufferObject* GLWindow::getFrameBufferObject() const
     return _impl->fbo;
 }
 
+util::FrameBufferObject* GLWindow::getFrameBufferObject()
+{
+    return _impl->fbo;
+}
+
 const GLEWContext* GLWindow::glewGetContext() const
 {
     return &_impl->glewContext;

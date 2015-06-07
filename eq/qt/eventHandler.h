@@ -22,13 +22,16 @@
 #include <eq/eventHandler.h> // base class
 #include <QObject> // base class
 
-
 namespace eq
 {
 namespace qt
 {
 
-/** The event handler for Qt windows. */
+/** The event handler for Qt windows.
+
+    Reposts Qt window, mouse and keyboard events to itself in the shape
+    of a Qt user event that contains an Equalizer event.
+*/
 class EventHandler : public QObject, public eq::EventHandler
 {
 public:
@@ -38,10 +41,36 @@ public:
     /** Destruct the Qt event handler. @version  1.7.3 */
     ~EventHandler() final;
 
+    void exposeEvent();
+    void hideEvent();
+    void resizeEvent( QResizeEvent* );
+    void closeEvent();
+
+    void mousePressEvent( QMouseEvent* );
+    void mouseReleaseEvent( QMouseEvent* );
+    void mouseMoveEvent( QMouseEvent* );
+#ifndef QT_NO_WHEELEVENT
+    void wheelEvent( QWheelEvent* );
+#endif
+    void keyPressEvent( QKeyEvent* );
+    void keyReleaseEvent( QKeyEvent* );
+
 private:
     bool event( QEvent* evt ) override;
 
     WindowIF& _window;
+
+    WindowEvent* _translateEvent( QEvent* );
+
+    WindowEvent* _simpleWindowEvent( eq::Event::Type type );
+    WindowEvent* _resizeEvent( QResizeEvent* );
+    WindowEvent* _mousePressEvent( QMouseEvent* );
+    WindowEvent* _mouseReleaseEvent( QMouseEvent* );
+    WindowEvent* _mouseMoveEvent( QMouseEvent* );
+#ifndef QT_NO_WHEELEVENT
+    WindowEvent* _wheelEvent( QWheelEvent* );
+#endif
+    WindowEvent* _keyEvent( QKeyEvent*, eq::Event::Type type );
 };
 }
 }

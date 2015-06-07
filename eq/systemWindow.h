@@ -111,6 +111,8 @@ public:
     /** @return the FBO of this window, or 0. @version 1.0 */
     virtual const util::FrameBufferObject* getFrameBufferObject()
         const { return 0; }
+    /** @return the FBO of this window, or 0. @version 1.0 */
+    virtual util::FrameBufferObject* getFrameBufferObject() { return 0; }
     //@}
 
     /**

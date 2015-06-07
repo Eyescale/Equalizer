@@ -64,14 +64,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   os.h
   pipe.h
   pixelData.h
-  qt/eventHandler.h
-  qt/glWidget.h
-  qt/messagePump.h
-  qt/types.h
-  qt/widgetFactory.h
-  qt/window.h
-  qt/windowEvent.h
-  qt/windowSystem.h
   resultImageListener.h
   segment.h
   server.h
@@ -107,6 +99,18 @@ set(EQUALIZER_PUBLIC_HEADERS
   util/texture.h
   util/types.h
   )
+
+if(EQ_QT_USED)
+  list(APPEND EQUALIZER_PUBLIC_HEADERS
+    qt/eventHandler.h
+    qt/messagePump.h
+    qt/types.h
+    qt/window.h
+    qt/shareContextWindow.h
+    qt/windowEvent.h
+    qt/windowSystem.h
+    )
+endif()
 
 set(EQUALIZER_HEADERS
   detail/fileFrameWriter.h
@@ -238,19 +242,16 @@ endif()
 
 if(EQ_QT_USED)
   qt5_wrap_cpp(QT_MOC_OUTFILES
-    qt/widgetFactory.h
     qt/windowSystem.h)
   list(APPEND EQUALIZER_SOURCES
     ${QT_MOC_OUTFILES}
     qt/eventHandler.cpp
-    qt/glWidget.cpp
     qt/messagePump.cpp
-    qt/widgetFactory.cpp
     qt/window.cpp
     qt/windowSystem.cpp
     )
   list(APPEND EQUALIZER_LINK_LIBRARIES
-    ${Qt5OpenGL_LIBRARIES} ${Qt5Widgets_LIBRARIES})
+    ${Qt5Core_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 endif()
 
 if(OpenCV_FOUND)

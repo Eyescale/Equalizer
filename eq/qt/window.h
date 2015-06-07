@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *               2014, Stefan.Eilemann@epfl.ch
+ *               2015, Juan Hernando <jhernando@fi.upm.es>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,14 +21,14 @@
 #define EQ_QT_WINDOW_H
 
 #include <eq/qt/types.h>
-#include <eq/glWindow.h>       // base class
-#include <boost/function/function1.hpp> // used as parameter
+#include <eq/glWindow.h> // base class
+
+#include <QtGlobal>
 
 namespace eq
 {
 namespace qt
 {
-namespace detail { class Window; }
 
 /** The interface defining the minimum functionality for a Qt window. */
 class WindowIF : public GLWindow
@@ -44,25 +45,29 @@ public:
 #  pragma clang diagnostic pop
 };
 
+namespace detail { class Window; }
+
 /** Equalizer default implementation of a Qt window */
 class Window : public WindowIF
 {
 public:
     /**
-     * Function invoked to delete the QGLWidget from the destructor.
-     * @version 1.7.3
-     */
-    typedef boost::function< void( QGLWidget* ) > DeleteGLWidgetFunc;
-
-    /**
-     * Construct a new Qt system window.
+     * Create a new window using Qt
      *
-     * If no DeleteGLWidgetFunc is given, the QGLWidget is destroyed using
-     * delete.
-     * @version 1.7.3
+     * The actual window will be a QWindow or a QOffscreenSurface depending
+     * onthe window settings.
+     * The window won't be realized until configInit is called.
+     *
+     * @param parent The eq::Window parent window interface that uses this
+     *        system window.
+     * @param settings The window settings. The GL context format will be
+     *        derived from these.
+     * @param shareContext An optional OpenGL context to share with.
+     *
+     * @version 1.8.0
      */
     Window( NotifierInterface& parent, const WindowSettings& settings,
-            QGLWidget* glWidget, DeleteGLWidgetFunc deleteGLWidget = 0 );
+            QOpenGLContext* shareContext = 0 );
 
     /** Destruct this Qt window. @version 1.7.3 */
     ~Window() final;
@@ -72,6 +77,9 @@ public:
     /**
      * Initialize this window for the Qt window system.
      *
+     * The window will be only usable by the thread that invokes this
+     * functions. Otherwise Qt thread affinity constraints will be violated.
+     *
      * @return true if the initialization was successful, false otherwise.
      * @version 1.7.3
      */
@@ -80,12 +88,15 @@ public:
     /** @version 1.7.3 */
     void configExit() override;
 
-    /** @version 1.7.3 */
-    EQ_API virtual void initEventHandler();
-
-    /** @version 1.7.3 */
-    EQ_API virtual void exitEventHandler();
     //@}
+
+    /** Return the the Open GL used by this window.
+
+        The context won't be ready to be used until configInit is called.
+
+        @version 1.8.0
+    */
+    QOpenGLContext* getContext() const;
 
     /** @name Operations. */
     //@{
@@ -102,12 +113,21 @@ public:
     /** Implementation untested for Qt. @version 1.7.3 */
     void leaveNVSwapBarrier();
 
-    QGLWidget* getQGLWidget() const;
-    GLWidget* getGLWidget() const;
-
     /** @version 1.7.3 */
     EQ_API bool processEvent( const WindowEvent& event ) override;
     //@}
+
+    /** Return the object to which forward Qt events.
+
+        Use this object to make Qt events reach eq::Config when using this
+        window for offscreen rendering with shared context mode (e.g. to
+        embed Equalizer output into a Qt GUI).
+
+        Don't send events directly to the object unless you know what you're
+        doing, use QApplication::postEvent instead.
+
+        @version 1.8.0 */
+    QObject* getEventProcessor();
 
 private:
     detail::Window* const _impl;

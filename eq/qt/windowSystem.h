@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -32,11 +33,6 @@ public:
     EQ_API WindowSystem();
     EQ_API ~WindowSystem();
 
-signals:
-    eq::qt::GLWidget* createWidget( eq::Window*, const WindowSettings&,
-                                    QThread* );
-    void destroyWidget( QGLWidget* );
-
 private:
     std::string getName() const final;
     eq::SystemWindow* createWindow( eq::Window* window,
@@ -50,10 +46,6 @@ private:
 
     bool _useSystemWindowSystem( const WindowSettings& settings,
                                  const eq::Window* sharedWindow );
-    void _setupFactory();
-    void _deleteGLWidget( QGLWidget* widget );
-
-    WidgetFactory* _factory;
 };
 
 }

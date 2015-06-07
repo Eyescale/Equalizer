@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2015, Juan Hernando <jhernando@fi.upm.es>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,18 +20,14 @@
 #pragma warning( disable: 4407 ) // see lunchbox/commandFunc.h
 #include <eq/window.h> // be first to avoid max/min name clashes on Win32
 
-#include "windowSystem.h"
-
-#include "glWidget.h"
 #include "messagePump.h"
-#include "widgetFactory.h"
+#include "windowSystem.h"
 #include "window.h"
+#include "shareContextWindow.h"
 
-#include <boost/bind.hpp>
 #include <eq/client.h>
 #include <QApplication>
 #include <QThread>
-
 
 namespace eq
 {
@@ -48,18 +45,32 @@ eq::WindowSystem getSystemWindowSystem()
     return eq::WindowSystem( "WGL" );
 #endif
 }
+
+QOpenGLContext* _getShareContext( const WindowSettings& settings )
+{
+    const SystemWindow* shareWindow = settings.getSharedContextWindow();
+
+    const Window* window = dynamic_cast< const Window* >( shareWindow );
+    if( window )
+        // This only works if configInit has already been called in the
+        // window.
+        return window->getContext();
+    const ShareContextWindow* dummyWindow =
+        dynamic_cast< const ShareContextWindow* >( shareWindow );
+    if( dummyWindow )
+        return dummyWindow->getContext();
+    return 0;
+}
+
 }
 
 WindowSystem::WindowSystem()
-    : QObject()
-    , _factory( 0 )
 {
     qRegisterMetaType< WindowSettings >( "WindowSettings" );
 }
 
 WindowSystem::~WindowSystem()
 {
-    delete _factory;
 }
 
 std::string WindowSystem::getName() const
@@ -71,17 +82,18 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
     if( _useSystemWindowSystem( settings, window->getSharedContextWindow()))
         return getSystemWindowSystem().createWindow( window, settings );
 
+    QOpenGLContext* context = _getShareContext( settings );
+
     LBINFO << "Using qt::Window" << std::endl;
 
-    if( !_factory )
-        _setupFactory();
+    // The following statement is not cross-platform.
+    // In the onscreen window case, a QWindow is used. According to the Qt
+    // documentation, some platforms require this object be created in the
+    // main GUI thread, however it doesn't tell which are those
+    // platforms. Since we don't care about mobile OSes, we are happy if this
+    // works on Window, Mac and Linux.
+    return new Window( *window, settings, context );
 
-    window->getClient()->interruptMainThread();
-    GLWidget* widget = createWidget( window, settings,
-                                     QThread::currentThread( ));
-
-    return new Window( *window, settings, widget,
-                       boost::bind( &WindowSystem::destroyWidget, this, _1 ));
 }
 
 eq::SystemPipe* WindowSystem::createPipe( eq::Pipe* pipe )
@@ -123,28 +135,6 @@ bool WindowSystem::_useSystemWindowSystem( const WindowSettings& settings,
     const int32_t windowDrawable = sharedWindow->getSettings().getIAttribute(
                                           WindowSettings::IATTR_HINT_DRAWABLE );
     return windowDrawable == eq::PBUFFER || windowDrawable == eq::OFF;
-}
-
-void WindowSystem::_setupFactory()
-{
-    QCoreApplication* app = QApplication::instance();
-    _factory = new WidgetFactory;
-    _factory->moveToThread( app->thread( ));
-
-    app->connect( this, SIGNAL(createWidget( eq::Window*, const WindowSettings&,
-                                             QThread* )),
-                  _factory, SLOT(onCreateWidget( eq::Window*,
-                                                 const WindowSettings&,
-                                                 QThread* )),
-                  Qt::BlockingQueuedConnection );
-
-    app->connect( this, SIGNAL(destroyWidget( QGLWidget* )),
-                  _factory, SLOT(onDestroyWidget( QGLWidget* )));
-}
-
-void WindowSystem::_deleteGLWidget( QGLWidget* widget )
-{
-    destroyWidget( widget );
 }
 
 }

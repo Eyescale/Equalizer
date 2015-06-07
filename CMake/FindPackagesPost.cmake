@@ -23,7 +23,7 @@ if(X11_FOUND)
   set(EQ_GLX_USED 1)
 endif()
 
-if(Qt5Widgets_FOUND)
+if(Qt5Gui_FOUND AND Qt5Gui_VERSION VERSION_GREATER 5.0)
   set(EQ_QT_USED 1)
 endif()
 
