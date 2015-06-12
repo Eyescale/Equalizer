@@ -23,10 +23,7 @@ if(X11_FOUND)
   set(EQ_GLX_USED 1)
 endif()
 
-if(Qt4_FOUND OR QT4_FOUND AND QTVERSION VERSION_LESS 4.7)
-  set(QT4_FOUND)
-  set(Qt4_FOUND)
-else()
+if(Qt5Widgets_FOUND)
   set(EQ_QT_USED 1)
 endif()
 
