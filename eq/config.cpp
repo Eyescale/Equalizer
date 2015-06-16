@@ -62,7 +62,7 @@
 #include "initVisitor.h"
 
 #ifdef EQUALIZER_USE_QT5WIDGETS
-# include <QApplication>
+#  include <QApplication>
 #endif
 
 namespace eq
@@ -686,8 +686,8 @@ void Config::handleEvents()
         handleEvent( event );
     }
 #ifdef EQUALIZER_USE_QT5WIDGETS
-        if( QApplication::instance( ))
-            QApplication::instance()->processEvents();
+    if( QApplication::instance( ))
+        QApplication::instance()->processEvents();
 #endif
 }
 

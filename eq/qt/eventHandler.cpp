@@ -184,7 +184,10 @@ bool EventHandler::event( QEvent* qevent )
         return false;
     }
 
-    WindowEvent* windowEvent  = dynamic_cast< WindowEvent* >( qevent );
+    WindowEvent* windowEvent = dynamic_cast< WindowEvent* >( qevent );
+    if( !windowEvent )
+        return false;
+
     switch( windowEvent->eq::Event::type )
     {
     case Event::WINDOW_POINTER_MOTION:

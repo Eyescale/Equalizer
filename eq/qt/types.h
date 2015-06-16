@@ -18,15 +18,15 @@
 #ifndef EQ_QT_TYPES_H
 #define EQ_QT_TYPES_H
 
-class QOpenGLContext;
-
-class QObject;
+class QEvent;
 class QExposeEvent;
 class QHideEvent;
-class QResizeEvent;
-class QMouseEvent;
-class QWheelEvent;
 class QKeyEvent;
+class QMouseEvent;
+class QObject;
+class QOpenGLContext;
+class QResizeEvent;
+class QWheelEvent;
 
 namespace eq
 {

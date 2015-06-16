@@ -275,7 +275,7 @@ private:
     QScopedPointer<QOpenGLContext> _context;
     bool _isCurrent;
 
-    lunchbox::Monitor<bool> _exposed;
+    lunchbox::Monitorb _exposed;
 
     void _adjustEqWindowSize( eq::qt::Window& window )
     {
@@ -437,7 +437,7 @@ bool Window::processEvent( const WindowEvent& event )
     if( getFrameBufferObject() &&
         event.eq::Event::type == eq::Event::WINDOW_RESIZE )
     {
-        getFrameBufferObject()->resize(event.resize.w, event.resize.h);
+        getFrameBufferObject()->resize( event.resize.w, event.resize.h );
     }
     return SystemWindow::processEvent( event );
 }

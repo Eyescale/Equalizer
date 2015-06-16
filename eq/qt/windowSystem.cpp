@@ -49,16 +49,16 @@ eq::WindowSystem getSystemWindowSystem()
 QOpenGLContext* _getShareContext( const WindowSettings& settings )
 {
     const SystemWindow* shareWindow = settings.getSharedContextWindow();
-
     const Window* window = dynamic_cast< const Window* >( shareWindow );
     if( window )
-        // This only works if configInit has already been called in the
-        // window.
+        // This only works if configInit has already been called in the window
         return window->getContext();
+
     const ShareContextWindow* dummyWindow =
         dynamic_cast< const ShareContextWindow* >( shareWindow );
     if( dummyWindow )
         return dummyWindow->getContext();
+
     return 0;
 }
 
@@ -88,12 +88,11 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
 
     // The following statement is not cross-platform.
     // In the onscreen window case, a QWindow is used. According to the Qt
-    // documentation, some platforms require this object be created in the
-    // main GUI thread, however it doesn't tell which are those
-    // platforms. Since we don't care about mobile OSes, we are happy if this
-    // works on Window, Mac and Linux.
+    // documentation, some platforms require this object be created in the main
+    // GUI thread, however it doesn't tell which are those platforms. Since we
+    // don't care about mobile OSes, we are happy if this works on Window, Mac
+    // and Linux.
     return new Window( *window, settings, context );
-
 }
 
 eq::SystemPipe* WindowSystem::createPipe( eq::Pipe* pipe )

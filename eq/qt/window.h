@@ -29,6 +29,7 @@ namespace eq
 {
 namespace qt
 {
+namespace detail { class Window; }
 
 /** The interface defining the minimum functionality for a Qt window. */
 class WindowIF : public GLWindow
@@ -44,8 +45,6 @@ public:
     virtual bool processEvent( const WindowEvent& event ) = 0;
 #  pragma clang diagnostic pop
 };
-
-namespace detail { class Window; }
 
 /** Equalizer default implementation of a Qt window */
 class Window : public WindowIF

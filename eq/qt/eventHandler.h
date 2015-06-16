@@ -49,9 +49,7 @@ public:
     void mousePressEvent( QMouseEvent* );
     void mouseReleaseEvent( QMouseEvent* );
     void mouseMoveEvent( QMouseEvent* );
-#ifndef QT_NO_WHEELEVENT
     void wheelEvent( QWheelEvent* );
-#endif
     void keyPressEvent( QKeyEvent* );
     void keyReleaseEvent( QKeyEvent* );
 
@@ -67,9 +65,7 @@ private:
     WindowEvent* _mousePressEvent( QMouseEvent* );
     WindowEvent* _mouseReleaseEvent( QMouseEvent* );
     WindowEvent* _mouseMoveEvent( QMouseEvent* );
-#ifndef QT_NO_WHEELEVENT
     WindowEvent* _wheelEvent( QWheelEvent* );
-#endif
     WindowEvent* _keyEvent( QKeyEvent*, eq::Event::Type type );
 };
 }
