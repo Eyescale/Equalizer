@@ -125,7 +125,7 @@ public:
 
     virtual ~Window() {}
     virtual QOpenGLContext* getContext() const = 0;
-    virtual void makeCurrent( bool cache ) = 0;
+    virtual void makeCurrent( const bool cache ) = 0;
     virtual void doneCurrent() = 0;
     virtual void swapBuffers() = 0;
     virtual bool configInit( eq::qt::Window& window ) = 0;
@@ -364,10 +364,9 @@ Window* _createWindow( WindowIF& parent,
 {
     const int32_t drawable =
         settings.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
-    if( drawable == eq::PBUFFER or drawable == eq::FBO )
+    if( drawable == eq::PBUFFER || drawable == eq::FBO )
         return new QOffscreenSurfaceWrapper( parent, settings, sharedContext );
-    else
-        return new QWindowWrapper( parent, settings, sharedContext );
+    return new QWindowWrapper( parent, settings, sharedContext );
 }
 }
 
