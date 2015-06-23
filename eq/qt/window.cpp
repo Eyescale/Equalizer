@@ -27,8 +27,8 @@
 #include <QEventLoop>
 #include <QExposeEvent>
 #include <QOpenGLContext>
-#include <QPointer>
 #include <QOffscreenSurface>
+#include <QPointer>
 #include <QWindow>
 
 namespace eq
@@ -125,7 +125,7 @@ public:
 
     virtual ~Window() {}
     virtual QOpenGLContext* getContext() const = 0;
-    virtual void makeCurrent( const bool cache ) = 0;
+    virtual void makeCurrent() = 0;
     virtual void doneCurrent() = 0;
     virtual void swapBuffers() = 0;
     virtual bool configInit( eq::qt::Window& window ) = 0;
@@ -147,7 +147,6 @@ public:
                     QOpenGLContext* shareContext = 0 )
         : detail::Window( parent_ )
         , _context( new QOpenGLContext )
-        , _isCurrent( false )
         , _exposed( false )
     {
         const QSurfaceFormat& format_ = _createFormat( settings );
@@ -165,15 +164,11 @@ public:
         return _context.data();
     }
 
-    void makeCurrent( const bool cache ) final
+    void makeCurrent() final
     {
-        if( !_isCurrent || !cache )
-        {
-            _isCurrent = _context->makeCurrent( this );
-            if( !_isCurrent )
-                LBWARN << "QOpenGLContext::makeCurrent failed: "
-                       << _context.data() << std::endl;
-        }
+        if( !_context->makeCurrent( this ))
+            LBWARN << "QOpenGLContext::makeCurrent failed: "
+                   << _context.data() << std::endl;
     }
 
     void doneCurrent() final
@@ -310,15 +305,11 @@ public:
         return _context.data();
     }
 
-    void makeCurrent( const bool cache ) final
+    void makeCurrent() final
     {
-        if( !_isCurrent || !cache )
-        {
-            _isCurrent = _context->makeCurrent( this );
-            if( !_isCurrent )
-                LBWARN << "QOpenGLContext::makeCurrent failed: "
-                       << _context.data() << std::endl;
-        }
+        if( _context->makeCurrent( this ))
+            LBWARN << "QOpenGLContext::makeCurrent failed: "
+                   << _context.data() << std::endl;
     }
 
     void doneCurrent() final
@@ -413,7 +404,13 @@ QOpenGLContext* Window::getContext() const
 
 void Window::makeCurrent( const bool cache ) const
 {
-    _impl->makeCurrent( cache );
+    if( cache && isCurrent( ))
+        return;
+    // Making the real GL context current first
+    _impl->makeCurrent();
+    // Then calling GLWindow::makeCurrent to handle the FBO binding and
+    // caching state
+    WindowIF::makeCurrent();
 }
 
 void Window::swapBuffers()

@@ -65,11 +65,11 @@ public:
      *
      * @version 1.8.0
      */
-    Window( NotifierInterface& parent, const WindowSettings& settings,
-            QOpenGLContext* shareContext = 0 );
+    EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
+                   QOpenGLContext* shareContext = 0 );
 
     /** Destruct this Qt window. @version 1.7.3 */
-    ~Window() final;
+    EQ_API ~Window() final;
 
     /** @name Qt initialization */
     //@{
@@ -82,10 +82,10 @@ public:
      * @return true if the initialization was successful, false otherwise.
      * @version 1.7.3
      */
-    bool configInit() override;
+    EQ_API bool configInit() override;
 
     /** @version 1.7.3 */
-    void configExit() override;
+    EQ_API void configExit() override;
 
     //@}
 
@@ -95,22 +95,22 @@ public:
 
         @version 1.8.0
     */
-    QOpenGLContext* getContext() const;
+    EQ_API QOpenGLContext* getContext() const;
 
     /** @name Operations. */
     //@{
     /** @version 1.7.3 */
-    void makeCurrent( const bool cache = true ) const override;
+    EQ_API void makeCurrent( const bool cache = true ) const override;
 
     /** @version 1.7.3 */
-    void swapBuffers() override;
+    EQ_API void swapBuffers() override;
 
     /** Implementation untested for Qt. @version 1.7.3 */
-    void joinNVSwapBarrier( const uint32_t group,
-                            const uint32_t barrier ) override;
+    EQ_API void joinNVSwapBarrier( const uint32_t group,
+                                   const uint32_t barrier ) override;
 
     /** Implementation untested for Qt. @version 1.7.3 */
-    void leaveNVSwapBarrier();
+    EQ_API void leaveNVSwapBarrier();
 
     /** @version 1.7.3 */
     EQ_API bool processEvent( const WindowEvent& event ) override;
