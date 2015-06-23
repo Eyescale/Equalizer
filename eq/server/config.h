@@ -20,7 +20,7 @@
 #ifndef EQSERVER_CONFIG_H
 #define EQSERVER_CONFIG_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "types.h"
 #include "server.h"        // used in inline method
 #include "state.h"         // enum

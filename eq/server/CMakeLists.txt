@@ -2,8 +2,8 @@
 #                         Stefan Eilemann <eile@eyescale.ch>
 #                         Daniel Nachbaur <danielnachbaur@gmail.com>
 
-find_package(BISON REQUIRED)
-find_package(FLEX  REQUIRED)
+common_package(BISON REQUIRED)
+common_package(FLEX  REQUIRED)
 
 bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   COMPILE_FLAGS "-l -p eqLoader_")
@@ -24,7 +24,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DYY_NEVER_INTERACTIVE)
 
 set(PUBLIC_HEADERS
-    api.h
     canvas.h
     channel.h
     channelListener.h
@@ -154,7 +153,8 @@ if(HWSD_FOUND)
   endforeach()
 endif()
 
-set(PROJECT_INCLUDE_NAME eq/server)
-set(EQUALIZERSERVER_OMIT_PROJECT_HEADER ON)
+set(EQUALIZERSERVER_INCLUDE_NAME eq/server)
+set(EQUALIZERSERVER_NAMESPACE eqserver)
+set(EQUALIZERSERVER_OMIT_LIBRARY_HEADER ON)
 
 common_library(EqualizerServer)

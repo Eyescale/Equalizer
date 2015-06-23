@@ -18,7 +18,7 @@
 #ifndef EQSERVER_EQUALIZER_H
 #define EQSERVER_EQUALIZER_H
 
-#include "../api.h"
+#include <eq/server/api.h>
 #include "../compoundListener.h" // base class
 #include "../types.h"
 #include <eq/fabric/equalizer.h> // base class

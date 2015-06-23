@@ -30,7 +30,7 @@
 #ifndef PLYLIB_VERTEXBUFFERNODE_H
 #define PLYLIB_VERTEXBUFFERNODE_H
 
-#include "api.h"
+#include <triply/api.h>
 #include "vertexBufferBase.h"
 
 namespace triply
@@ -40,9 +40,9 @@ class VertexBufferNode : public VertexBufferBase
 {
 public:
     VertexBufferNode() : _left( 0 ), _right( 0 ) {}
-    PLYLIB_API virtual ~VertexBufferNode();
+    TRIPLY_API virtual ~VertexBufferNode();
 
-    PLYLIB_API void draw( VertexBufferState& state ) const override;
+    TRIPLY_API void draw( VertexBufferState& state ) const override;
     Index getNumberOfVertices() const override
         { return _left->getNumberOfVertices()+_right->getNumberOfVertices(); }
 
@@ -52,16 +52,16 @@ public:
     VertexBufferBase* getRight() override { return _right; }
 
 protected:
-    PLYLIB_API void toStream( std::ostream& os ) override;
-    PLYLIB_API void fromMemory( char** addr, VertexBufferData& globalData )
+    TRIPLY_API void toStream( std::ostream& os ) override;
+    TRIPLY_API void fromMemory( char** addr, VertexBufferData& globalData )
         override;
 
-    PLYLIB_API void setupTree( VertexData& data, const Index start,
+    TRIPLY_API void setupTree( VertexData& data, const Index start,
                                const Index length, const Axis axis,
                                const size_t depth,
                                VertexBufferData& globalData ) override;
-    PLYLIB_API const BoundingSphere& updateBoundingSphere() override;
-    PLYLIB_API void updateRange() override;
+    TRIPLY_API const BoundingSphere& updateBoundingSphere() override;
+    TRIPLY_API void updateRange() override;
 
 private:
     friend class VertexBufferDist;

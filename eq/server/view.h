@@ -20,7 +20,7 @@
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "types.h"
 
 #include <eq/fabric/view.h>     // base class

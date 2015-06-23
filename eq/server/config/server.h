@@ -19,7 +19,7 @@
 #ifndef EQSERVER_CONFIG_SERVER_H
 #define EQSERVER_CONFIG_SERVER_H
 
-#include "../api.h"
+#include <eq/server/api.h>
 #include "../types.h"
 
 namespace eq

@@ -31,7 +31,7 @@
 #ifndef PLYLIB_VERTEXBUFFERDIST_H
 #define PLYLIB_VERTEXBUFFERDIST_H
 
-#include "api.h"
+#include <triply/api.h>
 #include "typedefs.h"
 
 #include <co/co.h>
@@ -42,22 +42,22 @@ namespace triply
 class VertexBufferDist : public co::Object
 {
 public:
-    PLYLIB_API VertexBufferDist();
-    PLYLIB_API VertexBufferDist( triply::VertexBufferRoot* root );
-    PLYLIB_API virtual ~VertexBufferDist();
+    TRIPLY_API VertexBufferDist();
+    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot* root );
+    TRIPLY_API virtual ~VertexBufferDist();
 
-    PLYLIB_API void registerTree( co::LocalNodePtr node );
-    PLYLIB_API void deregisterTree();
+    TRIPLY_API void registerTree( co::LocalNodePtr node );
+    TRIPLY_API void deregisterTree();
 
-    PLYLIB_API triply::VertexBufferRoot* loadModel( co::NodePtr master,
+    TRIPLY_API triply::VertexBufferRoot* loadModel( co::NodePtr master,
                                                     co::LocalNodePtr localNode,
                                                     const eq::uint128_t& modelID );
 protected:
-    PLYLIB_API VertexBufferDist( VertexBufferRoot* root,
+    TRIPLY_API VertexBufferDist( VertexBufferRoot* root,
                                  VertexBufferBase* node );
 
-    PLYLIB_API virtual void getInstanceData( co::DataOStream& os );
-    PLYLIB_API virtual void applyInstanceData( co::DataIStream& is );
+    TRIPLY_API virtual void getInstanceData( co::DataOStream& os );
+    TRIPLY_API virtual void applyInstanceData( co::DataIStream& is );
 
 private:
     VertexBufferRoot* _root;

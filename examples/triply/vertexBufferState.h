@@ -31,7 +31,7 @@
 #ifndef PLYLIB_VERTEXBUFFERSTATE_H
 #define PLYLIB_VERTEXBUFFERSTATE_H
 
-#include "api.h"
+#include <triply/api.h>
 #include "typedefs.h"
 #include <map>
 
@@ -46,40 +46,40 @@ public:
         INVALID = 0 //<! return value for failed operations.
     };
 
-    PLYLIB_API virtual bool useColors() const { return _useColors; }
-    PLYLIB_API virtual void setColors( const bool colors ) { _useColors = colors; }
-    PLYLIB_API virtual bool stopRendering() const { return false; }
-    PLYLIB_API virtual RenderMode getRenderMode() const { return _renderMode; }
-    PLYLIB_API virtual void setRenderMode( const RenderMode mode );
-    PLYLIB_API virtual bool useFrustumCulling() const { return _useFrustumCulling; }
-    PLYLIB_API virtual void setFrustumCulling( const bool frustumCullingState )
+    TRIPLY_API virtual bool useColors() const { return _useColors; }
+    TRIPLY_API virtual void setColors( const bool colors ) { _useColors = colors; }
+    TRIPLY_API virtual bool stopRendering() const { return false; }
+    TRIPLY_API virtual RenderMode getRenderMode() const { return _renderMode; }
+    TRIPLY_API virtual void setRenderMode( const RenderMode mode );
+    TRIPLY_API virtual bool useFrustumCulling() const { return _useFrustumCulling; }
+    TRIPLY_API virtual void setFrustumCulling( const bool frustumCullingState )
         { _useFrustumCulling = frustumCullingState; }
 
-    PLYLIB_API void setProjectionModelViewMatrix( const Matrix4f& pmv )
+    TRIPLY_API void setProjectionModelViewMatrix( const Matrix4f& pmv )
         { _pmvMatrix = pmv; }
-    PLYLIB_API const Matrix4f& getProjectionModelViewMatrix() const
+    TRIPLY_API const Matrix4f& getProjectionModelViewMatrix() const
         { return _pmvMatrix; }
 
-    PLYLIB_API void setRange( const Range& range ) { _range = range; }
-    PLYLIB_API const Range& getRange() const { return _range; }
+    TRIPLY_API void setRange( const Range& range ) { _range = range; }
+    TRIPLY_API const Range& getRange() const { return _range; }
 
-    PLYLIB_API void resetRegion();
-    PLYLIB_API void updateRegion( const BoundingBox& box );
-    PLYLIB_API virtual void declareRegion( const Vector4f& ) {}
-    PLYLIB_API Vector4f getRegion() const;
+    TRIPLY_API void resetRegion();
+    TRIPLY_API void updateRegion( const BoundingBox& box );
+    TRIPLY_API virtual void declareRegion( const Vector4f& ) {}
+    TRIPLY_API Vector4f getRegion() const;
 
-    PLYLIB_API virtual GLuint getDisplayList( const void* key ) = 0;
-    PLYLIB_API virtual GLuint newDisplayList( const void* key ) = 0;
-    PLYLIB_API virtual GLuint getBufferObject( const void* key ) = 0;
-    PLYLIB_API virtual GLuint newBufferObject( const void* key ) = 0;
-    PLYLIB_API virtual void deleteAll() = 0;
+    TRIPLY_API virtual GLuint getDisplayList( const void* key ) = 0;
+    TRIPLY_API virtual GLuint newDisplayList( const void* key ) = 0;
+    TRIPLY_API virtual GLuint getBufferObject( const void* key ) = 0;
+    TRIPLY_API virtual GLuint newBufferObject( const void* key ) = 0;
+    TRIPLY_API virtual void deleteAll() = 0;
 
-    PLYLIB_API const GLEWContext* glewGetContext() const
+    TRIPLY_API const GLEWContext* glewGetContext() const
         { return _glewContext; }
 
 protected:
-    PLYLIB_API VertexBufferState( const GLEWContext* glewContext );
-    PLYLIB_API virtual ~VertexBufferState() {}
+    TRIPLY_API VertexBufferState( const GLEWContext* glewContext );
+    TRIPLY_API virtual ~VertexBufferState() {}
 
     Matrix4f      _pmvMatrix; //!< projection * modelView matrix
     Range         _range; //!< normalized [0,1] part of the model to draw
@@ -101,14 +101,14 @@ private:
     typedef GLMap::const_iterator GLMapCIter;
 
 public:
-    PLYLIB_API VertexBufferStateSimple( const GLEWContext* glewContext )
+    TRIPLY_API VertexBufferStateSimple( const GLEWContext* glewContext )
         : VertexBufferState( glewContext ) {}
 
-    PLYLIB_API virtual GLuint getDisplayList( const void* key );
-    PLYLIB_API virtual GLuint newDisplayList( const void* key );
-    PLYLIB_API virtual GLuint getBufferObject( const void* key );
-    PLYLIB_API virtual GLuint newBufferObject( const void* key );
-    PLYLIB_API virtual void deleteAll();
+    TRIPLY_API virtual GLuint getDisplayList( const void* key );
+    TRIPLY_API virtual GLuint newDisplayList( const void* key );
+    TRIPLY_API virtual GLuint getBufferObject( const void* key );
+    TRIPLY_API virtual GLuint newBufferObject( const void* key );
+    TRIPLY_API virtual void deleteAll();
 
 private:
     GLMap  _displayLists;

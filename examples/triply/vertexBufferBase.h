@@ -31,7 +31,7 @@
 #ifndef PLYLIB_VERTEXBUFFERBASE_H
 #define PLYLIB_VERTEXBUFFERBASE_H
 
-#include "api.h"
+#include <triply/api.h>
 #include "typedefs.h"
 #include <fstream>
 
@@ -48,9 +48,9 @@ class VertexBufferBase
 public:
     virtual ~VertexBufferBase() {};
 
-    PLYLIB_API virtual void draw( VertexBufferState& state ) const = 0;
-    PLYLIB_API void drawBoundingSphere( VertexBufferState& state ) const;
-    PLYLIB_API virtual Index getNumberOfVertices() const = 0;
+    TRIPLY_API virtual void draw( VertexBufferState& state ) const = 0;
+    TRIPLY_API void drawBoundingSphere( VertexBufferState& state ) const;
+    TRIPLY_API virtual Index getNumberOfVertices() const = 0;
 
     const BoundingSphere& getBoundingSphere() const
         { return _boundingSphere; }
@@ -62,7 +62,7 @@ public:
     virtual VertexBufferBase* getLeft() { return 0; }
     virtual VertexBufferBase* getRight() { return 0; }
 
-    PLYLIB_API virtual const BoundingSphere& updateBoundingSphere() = 0;
+    TRIPLY_API virtual const BoundingSphere& updateBoundingSphere() = 0;
 
 protected:
     VertexBufferBase() : _boundingSphere( 0.0f )

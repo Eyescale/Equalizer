@@ -19,7 +19,7 @@
 #ifndef EQSERVER_WINDOW_H
 #define EQSERVER_WINDOW_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "state.h"          // enum
 #include "types.h"
 #include "visitorResult.h"  // enum

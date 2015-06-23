@@ -31,7 +31,7 @@
 #ifndef PLYLIB_VERTEXBUFFERROOT_H
 #define PLYLIB_VERTEXBUFFERROOT_H
 
-#include "api.h"
+#include <triply/api.h>
 #include "vertexBufferData.h"
 #include "vertexBufferNode.h"
 
@@ -42,14 +42,14 @@ namespace triply
 class VertexBufferRoot : public VertexBufferNode
 {
 public:
-    PLYLIB_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
+    TRIPLY_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
 
-    PLYLIB_API virtual void cullDraw( VertexBufferState& state ) const;
-    PLYLIB_API virtual void draw( VertexBufferState& state ) const;
+    TRIPLY_API virtual void cullDraw( VertexBufferState& state ) const;
+    TRIPLY_API virtual void draw( VertexBufferState& state ) const;
 
-    PLYLIB_API void setupTree( VertexData& data );
-    PLYLIB_API bool writeToFile( const std::string& filename );
-    PLYLIB_API bool readFromFile( const std::string& filename );
+    TRIPLY_API void setupTree( VertexData& data );
+    TRIPLY_API bool writeToFile( const std::string& filename );
+    TRIPLY_API bool readFromFile( const std::string& filename );
     bool hasColors() const { return !_data.colors.empty(); }
 
     void useInvertedFaces() { _invertFaces = true; }
@@ -57,8 +57,8 @@ public:
     const std::string& getName() const { return _name; }
 
 protected:
-    PLYLIB_API virtual void toStream( std::ostream& os );
-    PLYLIB_API virtual void fromMemory( char* start );
+    TRIPLY_API virtual void toStream( std::ostream& os );
+    TRIPLY_API virtual void fromMemory( char* start );
 
 private:
     bool _constructFromPly( const std::string& filename );

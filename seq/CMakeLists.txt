@@ -1,7 +1,6 @@
 # Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
 
 set(SEQUEL_PUBLIC_HEADERS
-    api.h
     application.h
     error.h
     objectType.h
@@ -43,6 +42,6 @@ set(SEQUEL_SOURCES
   )
 
 set(SEQUEL_LINK_LIBRARIES Equalizer)
-
-set(PROJECT_INCLUDE_NAME seq)
+set(SEQUEL_NAMESPACE seq)
+set(SEQUEL_INCLUDE_NAME seq)
 common_library(Sequel)
