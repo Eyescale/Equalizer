@@ -66,7 +66,10 @@ template<> inline void byteswap( eq::fabric::Vector2ui& value )
 }
 
 template<> inline void byteswap( eq::fabric::Vector2i& value )
-    { byteswap( reinterpret_cast< eq::fabric::Vector2ui& >( value )); }
+{
+    byteswap( value.x( ));
+    byteswap( value.y( ));
+}
 
 template<> inline void byteswap( eq::fabric::Vector2f& value )
 {
@@ -98,7 +101,12 @@ template<> inline void byteswap( eq::fabric::Vector4ui& value )
 }
 
 template<> inline void byteswap( eq::fabric::Vector4i& value )
-    { byteswap( reinterpret_cast< eq::fabric::Vector4ui& >( value )); }
+{
+    byteswap( value.x( ));
+    byteswap( value.y( ));
+    byteswap( value.z( ));
+    byteswap( value.w( ));
+}
 
 template<> inline void byteswap( eq::fabric::Vector4ub& ) { /*NOP*/ }
 template<> inline void byteswap( eq::fabric::Vector3ub& ) { /*NOP*/ }
