@@ -1,6 +1,6 @@
 # -*- mode: cmake -*-
 git_subproject(vmmlib https://github.com/Eyescale/vmmlib.git 67e94ce)
-git_subproject(Lunchbox https://github.com/Eyescale/Lunchbox.git 99a20c2)
+git_subproject(Lunchbox https://github.com/Eyescale/Lunchbox.git d039511)
 git_subproject(Pression https://github.com/Eyescale/Pression.git 5ddcaf3)
 git_subproject(hwsd https://github.com/Eyescale/hwsd.git f88e2ff)
 git_subproject(Collage https://github.com/Eyescale/Collage.git 1c08423)

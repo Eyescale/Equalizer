@@ -68,7 +68,7 @@ bool Client::connectServer( co::NodePtr server )
         if( !connDesc->fromString( address ))
             LBWARN << "Can't parse server address " << address << std::endl;
         LBASSERT( address.empty( ));
-        LBINFO << "Connecting server " << connDesc->toString() << std::endl;
+        LBDEBUG << "Connecting server " << connDesc->toString() << std::endl;
 
         server->addConnectionDescription( connDesc );
     }

@@ -44,10 +44,6 @@
 #include <lunchbox/os.h>
 #include <pression/plugins/compressor.h>
 
-#ifdef EQ_USE_PARACOMP
-#  include <pcapi.h>
-#endif
-
 using lunchbox::Monitor;
 
 namespace eq
@@ -803,17 +799,6 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
 
     const PixelViewport&  pvp    = image->getPixelViewport();
 
-#ifdef EQ_USE_PARACOMP_DEPTH
-    if( pvp == destPVP && offset == eq::Vector2i::ZERO )
-    {
-        // Use Paracomp to composite
-        if( _mergeImage_PC( PC_COMP_DEPTH, destColor, destDepth, image ))
-            return;
-
-        LBWARN << "Paracomp compositing failed, using fallback" << std::endl;
-    }
-#endif
-
     const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
@@ -896,18 +881,6 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     LBASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
     LBASSERT( image->hasAlpha( ));
 
-#ifdef EQ_USE_PARACOMP_BLEND
-    if( pvp == destPVP && offset == eq::Vector2i::ZERO )
-    {
-        // Use Paracomp to composite
-        if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
-            LBWARN << "Paracomp compositing failed, using fallback"
-                   << std::endl;
-        else
-            return; // Go to next input image
-    }
-#endif
-
     const int32_t* color = reinterpret_cast< const int32_t* >
                                ( image->getPixelPointer( Frame::BUFFER_COLOR ));
 
@@ -943,145 +916,6 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
         }
     }
 }
-
-#ifdef EQ_USE_PARACOMP
-namespace
-{
-static unsigned glToPCFormat( const unsigned glFormat, const unsigned glType )
-{
-    switch( glFormat )
-    {
-        case GL_RGBA:
-        case GL_RGBA8:
-            if( glType == GL_UNSIGNED_BYTE )
-                return PC_PF_RGBA8;
-            break;
-
-        case GL_BGRA:
-            if( glType == GL_UNSIGNED_BYTE )
-                return PC_PF_BGRA8;
-            break;
-
-        case GL_BGR:
-            if( glType == GL_UNSIGNED_BYTE )
-                return PC_PF_BGR8;
-            break;
-
-        case GL_DEPTH_COMPONENT:
-            if( glType == GL_FLOAT )
-                return PC_PF_Z32F;
-            break;
-    }
-
-    return 0;
-}
-}
-#endif
-
-#ifdef EQ_USE_PARACOMP
-bool Compositor::_mergeImage_PC( int operation, void* destColor,
-                                 void* destDepth, const Image* source )
-{
-    const unsigned colorFormat =
-        glToPCFormat( source->getFormat( Frame::BUFFER_COLOR ),
-                      source->getType(   Frame::BUFFER_COLOR ));
-
-    if( colorFormat == 0 )
-    {
-        LBWARN << "Format or type of image not supported by Paracomp" << std::endl;
-        return false;
-    }
-
-    PCchannel input[2];
-    PCchannel output[2];
-
-    input[0].pixelFormat  = colorFormat;
-    input[0].size         = source->getDepth( Frame::BUFFER_COLOR );
-    output[0].pixelFormat = colorFormat;
-    output[0].size        = source->getDepth( Frame::BUFFER_COLOR );
-
-    const PixelViewport& pvp = source->getPixelViewport();
-    LBASSERT( pvp == source->getPixelViewport( ));
-
-    input[0].xOffset   = 0;
-    input[0].yOffset   = 0;
-    input[0].width     = pvp.w;
-    input[0].height    = pvp.h;
-    input[0].rowLength = pvp.w * input[0].size;
-    input[0].address   = source->getPixelPointer( Frame::BUFFER_COLOR );
-
-    output[0].xOffset   = 0;
-    output[0].yOffset   = 0;
-    output[0].width     = pvp.w;
-    output[0].height    = pvp.h;
-    output[0].rowLength = pvp.w * output[0].size;
-    output[0].address   = destColor;
-
-    const bool useDepth = ( operation == PC_COMP_DEPTH );
-    if( useDepth )
-    {
-        const unsigned depthFormat =
-            glToPCFormat( source->getFormat( Frame::BUFFER_DEPTH ),
-                          source->getType(   Frame::BUFFER_DEPTH ));
-
-        if( depthFormat == 0 )
-        {
-            LBWARN << "Format or type of image not supported by Paracomp"
-                   << std::endl;
-            return false;
-        }
-
-        input[1].pixelFormat  = depthFormat;
-        input[1].size         = source->getDepth( Frame::BUFFER_DEPTH );
-        output[1].pixelFormat = depthFormat;
-        output[1].size        = source->getDepth( Frame::BUFFER_DEPTH );
-
-        input[1].xOffset   = 0;
-        input[1].yOffset   = 0;
-        input[1].width     = pvp.w;
-        input[1].height    = pvp.h;
-        input[1].rowLength = pvp.w * input[1].size;
-        input[1].address   = source->getPixelPointer( Frame::BUFFER_DEPTH );
-
-        output[1].xOffset   = 0;
-        output[1].yOffset   = 0;
-        output[1].width     = pvp.w;
-        output[1].height    = pvp.h;
-        output[1].rowLength = pvp.w * output[1].size;
-        output[1].address   = destDepth;
-    }
-
-
-    PCchannel* inputImages[2]     = { output, input };
-    PCchannel* outputImage[1]     = { output };
-    PCuint     nInputChannels[2]  = { 1, 1 };
-    PCuint     nOutputChannels[1] = { 1 };
-
-    if( useDepth )
-    {
-        nInputChannels[ 0 ]  = 2;
-        nInputChannels[ 1 ]  = 2;
-        nOutputChannels[ 0 ] = 2;
-    }
-
-    const PCerr error = pcCompositeEXT( operation,
-                                        2, nInputChannels, inputImages,
-                                        1, nOutputChannels, outputImage );
-    if( error != PC_NO_ERROR )
-    {
-        LBWARN << "Paracomp compositing failed: " << error << std::endl;
-        return false;
-    }
-
-    LBINFO << "Paracomp compositing successful" << std::endl;
-    return true;
-}
-#else // EQ_USE_PARACOMP
-bool Compositor::_mergeImage_PC( int, void*, void*, const Image* )
-{
-    return false;
-}
-#endif // else not EQ_USE_PARACOMP
 
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {

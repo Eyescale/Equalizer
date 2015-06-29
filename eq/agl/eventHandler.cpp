@@ -192,7 +192,7 @@ bool EventHandler::handleEvent( EventRef eventRef )
              break;
 
         default:
-            LBINFO << "Unknown event class " << GetEventClass( eventRef )
+            LBDEBUG << "Unknown event class " << GetEventClass( eventRef )
                    << std::endl;
             return false;
     }
@@ -247,7 +247,7 @@ void EventHandler::_processWindowEvent( WindowEvent& event )
             break;
 
         default:
-            LBINFO << "Unhandled window event " << GetEventKind( eventRef )
+            LBDEBUG << "Unhandled window event " << GetEventKind( eventRef )
                    << std::endl;
             event.type = Event::UNKNOWN;
             break;
@@ -394,7 +394,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             return true;
         }
         default:
-            LBINFO << "Unhandled mouse event " << GetEventKind( eventRef )
+            LBDEBUG << "Unhandled mouse event " << GetEventKind( eventRef )
                    << std::endl;
             event.type = Event::UNKNOWN;
             return true;
@@ -418,7 +418,7 @@ void EventHandler::_processKeyEvent( WindowEvent& event )
             break;
 
         default:
-            LBINFO << "Unhandled keyboard event " << GetEventKind( eventRef )
+            LBDEBUG << "Unhandled keyboard event " << GetEventKind( eventRef )
                    << std::endl;
             event.type = Event::UNKNOWN;
             break;
@@ -590,7 +590,7 @@ void EventHandler::initMagellan( Node* node LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_MAGELLAN
     if( _magellanNode )
-        LBINFO << "Space Mouse already installed" << std::endl;
+        LBDEBUG << "Space Mouse already installed" << std::endl;
     else if( !InstallConnexionHandlers )
         LBWARN << "Space Mouse drivers not installed" << std::endl;
     else if( InstallConnexionHandlers( _magellanEventHandler, 0, 0 ) != noErr )
@@ -605,7 +605,7 @@ void EventHandler::initMagellan( Node* node LB_UNUSED)
                                                kConnexionClientModeTakeOver,
                                                kConnexionMaskAll );
         _magellanNode = node;
-        LBINFO << "Space Mouse installed" << std::endl;
+        LBDEBUG << "Space Mouse installed" << std::endl;
     }
 #endif
 }

@@ -222,7 +222,7 @@ public:
 void RenderThread::run()
 {
     LB_TS_THREAD( _pipe->_pipeThread );
-    LBINFO << "Entered pipe thread" << std::endl;
+    LBDEBUG << "Entered pipe thread" << std::endl;
 
     eq::Pipe* pipe = _pipe; // _pipe gets cleared on exit
     pipe->_impl->state.waitEQ( STATE_MAPPED );
@@ -328,7 +328,7 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-    LBINFO << "Set up pipe message pump for " << _impl->windowSystem
+    LBDEBUG << "Set up pipe message pump for " << _impl->windowSystem
            << std::endl;
 
     Config* config = getConfig();
@@ -430,8 +430,8 @@ int32_t Pipe::_getAutoAffinity() const
     hwloc_topology_destroy( topology );
     return cpuIndex + lunchbox::Thread::SOCKET;
 #else
-    LBINFO << "Automatic thread placement not supported, no hwloc GL support"
-           << std::endl;
+    LBDEBUG << "Automatic thread placement not supported, no hwloc GL support"
+            << std::endl;
 #endif
     return lunchbox::Thread::NONE;
 }
@@ -818,7 +818,7 @@ bool Pipe::configInit( const uint128_t& initID )
 #ifdef EQUALIZER_USE_CUDA
     if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
     {
-        LBINFO << "Initializing CUDAContext" << std::endl;
+        LBDEBUG << "Initializing CUDAContext" << std::endl;
         ComputeContext* computeCtx = new CUDAContext( this );
 
         if( !computeCtx->configInit() )

@@ -105,7 +105,6 @@ void Pipe::_setCGDisplayID( CGDirectDisplayID id )
 void Pipe::configExit()
 {
     _setCGDisplayID( kCGNullDirectDisplay );
-    LBINFO << "Reset CG displayID " << std::endl;
 }
 
 }

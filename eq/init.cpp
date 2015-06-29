@@ -62,10 +62,6 @@
 #  define MAXPATHLEN 1024
 #endif
 
-#ifdef EQ_USE_PARACOMP
-#  include <pcapi.h>
-#endif
-
 namespace arg = boost::program_options;
 
 namespace eq
@@ -104,15 +100,15 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 
     if( ++_initialized > 1 ) // not first
     {
-        LBINFO << "Equalizer client library initialized more than once"
-               << std::endl;
+        LBERROR << "Equalizer client library initialized more than once"
+                << std::endl;
         return true;
     }
 
     if( !_parseArguments( argc, argv ))
         return false;
-    LBINFO << "Equalizer v" << Version::getString() << " initializing"
-           << std::endl;
+    LBDEBUG << "Equalizer v" << Version::getString() << " initializing"
+            << std::endl;
 
 #ifdef AGL
     GetCurrentEventQueue();
@@ -124,16 +120,6 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 #ifdef EQUALIZER_USE_QT5WIDGETS
     if( QApplication::instance( ))
         _windowSystems.push_back( new qt::WindowSystem );
-#endif
-
-#ifdef EQ_USE_PARACOMP
-    LBINFO << "Initializing Paracomp library" << std::endl;
-    PCerr err = pcSystemInitialize( 0 );
-    if( err != PC_NO_ERROR )
-    {
-        LBERROR << "Paracomp initialization failed: " << err << std::endl;
-        return false;
-    }
 #endif
 
     LBASSERT( nodeFactory );
@@ -163,10 +149,6 @@ bool exit()
     }
     if( --_initialized > 0 ) // not last
         return true;
-
-#ifdef EQ_USE_PARACOMP
-    pcSystemFinalize();
-#endif
 
     BOOST_FOREACH( WindowSystemIF* windowSystem, _windowSystems )
         delete windowSystem;

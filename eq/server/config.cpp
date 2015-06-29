@@ -341,7 +341,7 @@ void Config::updateCanvas( Canvas* canvas )
     }
 
     canvas->init();
-    LBINFO << *this << std::endl;
+    LBDEBUG << *this << std::endl;
 }
 
 Observer* Config::createObserver()
@@ -987,7 +987,7 @@ bool Config::_cmdInit( co::ICommand& cmd )
         exit();
 
     sync();
-    LBINFO << "Config init " << (result ? "successful" : "failed") << std::endl;
+    LBDEBUG << "Config init " << (result ? "successful" : "failed") << std::endl;
 
     const uint128_t version = commit();
     send( command.getRemoteNode(),
@@ -1009,7 +1009,7 @@ bool Config::_cmdExit( co::ICommand& cmd )
         result = false;
     }
 
-    LBINFO << "Config exit " << (result ? "successful" : "failed") << std::endl;
+    LBDEBUG << "Config exit " << (result ? "successful" : "failed") << std::endl;
     send( command.getRemoteNode(), fabric::CMD_CONFIG_EXIT_REPLY )
             << command.read< uint32_t >() << result;
     return true;
