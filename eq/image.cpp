@@ -1354,7 +1354,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( !addr )
     {
-        LBINFO << "Can't open " << filename << " for reading" << std::endl;
+        LBERROR << "Can't open " << filename << " for reading" << std::endl;
         return false;
     }
 

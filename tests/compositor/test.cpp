@@ -89,9 +89,6 @@ int main( int, char **argv )
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
 
     // 2) DB assembly test
-#ifdef EQ_USE_PARACOMP_DEPTH
-    std::cout << "Using Paracomp PC compositing (depth)" << std::endl;
-#endif
     const eq::Images& images = frameData->getImages();
 
     image = images[0];
@@ -147,9 +144,6 @@ int main( int, char **argv )
               << std::endl;
 
     // 3) alpha-blend assembly test
-#ifdef EQ_USE_PARACOMP_BLEND
-     std::cout << "Using Paracomp PC compositing (blend)" << std::endl;
-#endif
     frameData->clear();
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
 

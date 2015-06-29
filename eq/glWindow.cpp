@@ -325,7 +325,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     drawableConfig.alphaBits = alphaBits;
     drawableConfig.accumBits = accumBits * 4;
 
-    LBINFO << "Window drawable config: " << drawableConfig << std::endl;
+    LBDEBUG << "Window drawable config: " << drawableConfig << std::endl;
 }
 
 }

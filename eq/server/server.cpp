@@ -105,7 +105,7 @@ void Server::init()
         LBWARN << "No configurations loaded" << std::endl;
 #endif
 
-    LBINFO << lunchbox::disableFlush << lunchbox::disableHeader
+    LBDEBUG << lunchbox::disableFlush << lunchbox::disableHeader
            << "Running server: " << std::endl
            << lunchbox::indent << Global::instance() << *this
            << lunchbox::exdent << lunchbox::enableHeader
@@ -195,7 +195,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
         if( config )
         {
             config->register_();
-            LBINFO << lunchbox::disableFlush << lunchbox::disableHeader
+            LBDEBUG << lunchbox::disableFlush << lunchbox::disableHeader
                    << "Configured:" << std::endl
                    << lunchbox::indent << Global::instance() << *this
                    << lunchbox::exdent << lunchbox::enableHeader
@@ -344,7 +344,7 @@ bool Server::_cmdShutdown( co::ICommand& command )
         }
     }
 
-    LBINFO << "Shutting down server" << std::endl;
+    LBDEBUG << "Shutting down server" << std::endl;
 
     _running = false;
     node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY ) << requestID << true;
