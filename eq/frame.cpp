@@ -37,7 +37,7 @@ public:
     ~Frame()
     {
         if( frameData )
-            LBINFO << "FrameData attached in frame destructor" << std::endl;
+            LBDEBUG << "FrameData attached in frame destructor" << std::endl;
     }
 };
 }
