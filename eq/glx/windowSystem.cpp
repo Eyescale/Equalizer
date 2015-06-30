@@ -43,7 +43,7 @@ static class : WindowSystemIF
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
     {
-        LBINFO << "Using glx::Window" << std::endl;
+        LBDEBUG << "Using glx::Window" << std::endl;
         Display* xDisplay = 0;
         GLXEWContext* glxewContext = 0;
         eq::Pipe* pipe = window->getPipe();
@@ -67,7 +67,7 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
     {
-        LBINFO << "Using glx::Pipe" << std::endl;
+        LBDEBUG << "Using glx::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 

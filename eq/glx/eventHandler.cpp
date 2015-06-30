@@ -79,8 +79,8 @@ EventHandler::EventHandler( WindowIF* window )
     {
         if( spnav_x11_open( display, window->getXDrawable( )) == -1 )
         {
-            LBINFO << "Cannot connect to the space navigator daemon"
-                   << std::endl;
+            LBDEBUG << "Cannot connect to the space navigator daemon"
+                    << std::endl;
             return;
         }
         _magellan->display = display;

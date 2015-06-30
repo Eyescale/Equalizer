@@ -928,8 +928,8 @@ void Window::initEventHandler()
     if( _impl->messagePump )
         _impl->messagePump->register_( display );
     else
-        LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
-               << "event dispatch assumed" << std::endl;
+        LBDEBUG << "Using glx::EventHandler without glx::MessagePump, external "
+                << "event dispatch assumed" << std::endl;
 }
 
 void Window::exitEventHandler()
