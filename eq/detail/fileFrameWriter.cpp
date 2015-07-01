@@ -19,23 +19,8 @@
 
 #include <eq/channel.h>
 #include <eq/image.h>
-#include <eq/gl.h>
-#include <eq/pipe.h>
 
 #include <lunchbox/log.h>
-
-#include <sstream>
-
-namespace
-{
-std::string _buildFileName( const eq::Channel& channel )
-{
-    std::stringstream name;
-    name << channel.getSAttribute( eq::Channel::SATTR_DUMP_IMAGE )
-         << channel.getPipe()->getCurrentFrame() << ".rgb";
-    return name.str();
-}
-}
 
 namespace eq
 {
@@ -49,7 +34,10 @@ FileFrameWriter::FileFrameWriter()
 void FileFrameWriter::notifyNewImage( eq::Channel& channel,
                                       const eq::Image& image )
 {
-    const std::string& fileName = _buildFileName( channel );
+    const std::string& prefix =
+            channel.getSAttribute( eq::Channel::SATTR_DUMP_IMAGE );
+    LBASSERT( !prefix.empty( ));
+    const std::string fileName = prefix + channel.getDumpImageFileName();
     if( !image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
         LBWARN << "Could not write file " << fileName << std::endl;
 }

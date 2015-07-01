@@ -342,7 +342,14 @@ public:
                         const Vector2i& position,
                         util::ObjectManager& glObjects ) const;
 
-    /** Write the pixel data as rgb image file. @version 1.0 */
+    /**
+     * Write the pixel data as rgb image file.
+     *
+     * Since version 1.8 (if build with OpenSceneGraph) this function can
+     * write images according to supported plugins, see
+     * http://trac.openscenegraph.org/projects/osg/wiki/Support/UserGuides/Plugins
+     * @version 1.0
+     */
     EQ_API bool writeImage( const std::string& filename,
                             const Frame::Buffer buffer ) const;
 
