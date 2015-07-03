@@ -378,6 +378,13 @@ public:
      */
     EQ_API void removeResultImageListener( ResultImageListener* listener );
 
+    /**
+     * @return filename for image if SATTR_DUMP_IMAGE,
+     *         default "getCurrentFrame().rgb"
+     * @version 1.8
+     */
+    EQ_API virtual std::string getDumpImageFileName() const;
+
 protected:
     /** @internal */
     EQ_API void attach( const uint128_t& id, const uint32_t instanceID );

@@ -51,6 +51,10 @@
 
 #include "transferFinder.h"
 
+#ifdef EQUALIZER_USE_OPENSCENEGRAPH
+#  include <osgDB/WriteFile>
+#endif
+
 namespace eq
 {
 namespace
@@ -1207,6 +1211,18 @@ bool Image::writeImage( const std::string& filename,
             return false;
     }
 
+    if( header.depth == 1 ) // depth
+    {
+        LBASSERT( (header.bytesPerChannel % 4) == 0 );
+        header.depth = 4;
+        header.bytesPerChannel /= 4;
+    }
+    LBASSERT( header.bytesPerChannel > 0 );
+
+    const uint8_t bpc = header.bytesPerChannel;
+    const uint16_t nChannels = header.depth;
+    const size_t depth = nChannels * bpc;
+
     // Swap red & blue where needed
     bool swapRB = false;
     switch( getExternalFormat( buffer ))
@@ -1222,31 +1238,34 @@ bool Image::writeImage( const std::string& filename,
             swapRB = true;
     }
 
-    if( header.depth == 1 ) // depth
+    const boost::filesystem::path path( filename );
+#ifdef EQUALIZER_USE_OPENSCENEGRAPH
+    if( path.extension() != ".rgb" )
     {
-        LBASSERT( (header.bytesPerChannel % 4) == 0 );
-        header.depth = 4;
-        header.bytesPerChannel /= 4;
+        const unsigned char* data =
+             reinterpret_cast<const unsigned char*>( getPixelPointer( buffer ));
+        osg::ref_ptr<osg::Image> osgImage = new osg::Image();
+        osgImage->setImage( pvp.w, pvp.h, depth, getExternalFormat( buffer ),
+                            swapRB ? GL_RGBA : GL_BGRA, GL_UNSIGNED_BYTE,
+                            const_cast< unsigned char* >( data ),
+                            osg::Image::NO_DELETE );
+        return osgDB::writeImageFile( *osgImage, filename );
     }
-    LBASSERT( header.bytesPerChannel > 0 );
+#endif
 
-    strncpy( header.filename, filename.c_str(), 80 );
+    const size_t nBytes = nPixels * depth;
+    const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
 
     if( header.bytesPerChannel > 2 )
         LBWARN << static_cast< int >( header.bytesPerChannel )
                << " bytes per channel not supported by RGB spec" << std::endl;
 
+    strncpy( header.filename, filename.c_str(), 80 );
     header.convert();
     image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
     header.convert();
 
     // Each channel is saved separately
-    const uint8_t bpc = header.bytesPerChannel;
-    const uint16_t nChannels = header.depth;
-    const size_t depth  = nChannels * bpc;
-    const size_t nBytes = nPixels * depth;
-    const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
-
     if( nChannels == 3 || nChannels == 4 )
     {
         // channel one is R or B
@@ -1286,7 +1305,6 @@ bool Image::writeImage( const std::string& filename,
         return true;
     // else also write 8bpp version
 
-    const boost::filesystem::path path( filename );
     const std::string smallFilename = path.parent_path().string() + "/s_" +
 #if BOOST_FILESYSTEM_VERSION == 3
                                       path.filename().string();

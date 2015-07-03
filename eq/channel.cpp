@@ -498,6 +498,13 @@ void Channel::removeResultImageListener( ResultImageListener* listener )
     _impl->removeResultImageListener( listener );
 }
 
+std::string Channel::getDumpImageFileName() const
+{
+    std::stringstream name;
+    name << getCurrentFrame() << ".rgb"; 
+    return name.str();
+}
+
 //---------------------------------------------------------------------------
 // apply convenience methods
 //---------------------------------------------------------------------------
