@@ -105,6 +105,12 @@ public:
     /** @internal @return the command queue to the main node thread. */
     EQ_API virtual co::CommandQueue* getMainThreadQueue();
 
+    /**
+     * Add an active layout programmatically, like --eq-layout does.
+     * @version 1.8
+     */
+    EQ_API void addActiveLayout( const std::string& activeLayout );
+
     /** @internal @return the active layouts given by --eq-layout. */
     const Strings& getActiveLayouts();
 

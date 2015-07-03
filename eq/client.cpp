@@ -298,6 +298,11 @@ co::CommandQueue* Client::getMainThreadQueue()
     return &_impl->queue;
 }
 
+void Client::addActiveLayout( const std::string& activeLayout )
+{
+    _impl->activeLayouts.push_back( activeLayout );
+}
+
 const Strings& Client::getActiveLayouts()
 {
     return _impl->activeLayouts;
