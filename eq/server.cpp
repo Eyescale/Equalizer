@@ -82,6 +82,8 @@ Config* Server::chooseConfig( const fabric::ConfigParams& p )
     ClientPtr client = getClient();
     fabric::ConfigParams params( p );
 
+    if( params.getName().empty( ))
+        params.setName( client->getName( ));
     if( params.getWorkDir().empty( ))
         params.setWorkDir( Global::getWorkDir( ));
     if( params.getRenderClient().empty( ))

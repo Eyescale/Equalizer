@@ -41,6 +41,7 @@
 #include <co/global.h>
 #include <lunchbox/dso.h>
 #include <lunchbox/file.h>
+#include <boost/filesystem/path.hpp>
 
 #ifdef WIN32_API
 #  include <direct.h>  // for chdir
@@ -67,6 +68,7 @@ public:
     {}
 
     CommandQueue queue; //!< The command->node command queue.
+    std::string name;
     Strings activeLayouts;
     ServerSet localServers;
     std::string gpuFilter;
@@ -165,6 +167,12 @@ bool Client::initLocal( const int argc, char** argv )
 {
     bool isClient = false;
     std::string clientOpts;
+
+    if( _impl->name.empty() && argc > 0 && argv )
+    {
+        const boost::filesystem::path prog = argv[0];
+        setName( prog.stem().string( ));
+    }
 
     for( int i=1; i<argc; ++i )
     {
@@ -301,6 +309,16 @@ co::CommandQueue* Client::getMainThreadQueue()
 void Client::addActiveLayout( const std::string& activeLayout )
 {
     _impl->activeLayouts.push_back( activeLayout );
+}
+
+void Client::setName( const std::string& name )
+{
+    _impl->name = name;
+}
+
+const std::string& Client::getName() const
+{
+    return _impl->name;
 }
 
 const Strings& Client::getActiveLayouts()

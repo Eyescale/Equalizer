@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.h>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,7 +54,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
         return 0;
     }
 
-    Display::discoverLocal( config, params.getFlags( ));
+    Display::discoverLocal( config, params );
     const Compounds compounds = Loader::addOutputCompounds( server );
     if( compounds.empty( ))
     {

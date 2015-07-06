@@ -92,8 +92,7 @@ void _choosePixelViewport( Window& window )
 
 }
 
-
-void Display::discoverLocal( Config* config, const uint32_t flags )
+void Display::discoverLocal( Config* config, const ConfigParams& params )
 {
     Node* node = config->findAppNode();
     LBASSERT( node );
@@ -108,7 +107,7 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
     Pipe* pipe = pipes.front();
     Window* window = new Window( pipe );
     _choosePixelViewport( *window );
-    window->setName( pipe->getName() + " window" );
+    window->setName( params.getName( ));
     window->setIAttribute( WindowSettings::IATTR_PLANES_STENCIL, 1 );
 
     Channel* channel = new Channel( window );
@@ -147,7 +146,7 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL );
 
-        if( flags & fabric::ConfigParams::FLAG_MULTIPROCESS_DB &&
+        if( params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS_DB &&
             nodes.size() > 1 )
         {
             for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )

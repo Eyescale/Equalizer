@@ -56,6 +56,7 @@ public:
         }
     }
 
+    std::string name;
     std::string renderClient;
     std::string workDir;
     uint32_t flags;
@@ -87,6 +88,16 @@ ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
 ConfigParams::~ConfigParams()
 {
     delete _impl;
+}
+
+void ConfigParams::setName( const std::string& name )
+{
+    _impl->name = name;
+}
+
+const std::string& ConfigParams::getName() const
+{
+    return _impl->name;
 }
 
 void ConfigParams::setRenderClient( const std::string& renderClient )
@@ -158,13 +169,13 @@ const std::string& ConfigParams::getGPUFilter() const
 
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
-    os << _impl->renderClient << _impl->workDir << _impl->flags
+    os << _impl->name << _impl->renderClient << _impl->workDir << _impl->flags
        << _impl->equalizer << _impl->prefixes << _impl->gpuFilter;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
-    is >> _impl->renderClient >> _impl->workDir >> _impl->flags
+    is >> _impl->name >> _impl->renderClient >> _impl->workDir >> _impl->flags
        >> _impl->equalizer >> _impl->prefixes >> _impl->gpuFilter;
 }
 

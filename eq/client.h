@@ -105,6 +105,17 @@ public:
     /** @internal @return the command queue to the main node thread. */
     EQ_API virtual co::CommandQueue* getMainThreadQueue();
 
+    /** Experimental: interrupt main thread queue @internal */
+    void interruptMainThread();
+
+    /** @name Data Access */
+    //@{
+    /** Set the name of the configuration. @version 1.8 */
+    EQ_API void setName( const std::string& name );
+
+    /** @return the name of the configuration. @version 1.8 */
+    EQ_API const std::string& getName() const;
+
     /**
      * Add an active layout programmatically, like --eq-layout does.
      * @version 1.9
@@ -119,9 +130,7 @@ public:
 
     /** @internal @return the model unit for all views. */
     float getModelUnit() const;
-
-    /** Experimental: interrupt main thread queue @internal */
-    void interruptMainThread();
+    //@}
 
 protected:
     /** Destruct the client. @version 1.0 */
