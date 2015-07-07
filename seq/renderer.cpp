@@ -122,7 +122,7 @@ void Renderer::updateNearFar( const Vector4f& boundingSphere )
     front *= boundingSphere.w();
 
     const Vector3f& translation = getModelMatrix().get_translation();
-    const Vector3f& center = translation - boundingSphere.get_sub_vector< 3 >();
+    const Vector3f& center = translation - boundingSphere.get_sub_vector<3>();
     const Vector3f& nearPoint  = view * ( center - front );
     const Vector3f& farPoint   = view * ( center + front );
 

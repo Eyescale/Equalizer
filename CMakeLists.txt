@@ -38,6 +38,9 @@ if(EQUALIZER_BUILD_2_0_API)
 else()
   list(APPEND COMMON_PACKAGE_DEFINES EQ_1_0_API)
 endif()
+if(APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
+  set(EQ_AGL_USED 1)
+endif()
 
 include(configure)
 

@@ -73,10 +73,10 @@ public:
 
     /** @name Data Access. */
     //@{
-    /** Set the name of the configuration. @version 1.8 */
+    /** Set the name of the configuration. @version 1.10 */
     EQFABRIC_API void setName( const std::string& name );
 
-    /** @return the name of the configuration. @version 1.8 */
+    /** @return the name of the configuration. @version 1.10 */
     EQFABRIC_API const std::string& getName() const;
 
     /**
