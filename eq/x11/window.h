@@ -34,6 +34,7 @@ namespace x11
  * A system window for CPU rendering on X11.
  *
  * Example usage: @include examples/eqCPU/window.cpp
+ * @version 1.9
  */
 class Window : public SystemWindow, public boost::noncopyable
 {

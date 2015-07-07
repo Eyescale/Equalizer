@@ -12,9 +12,9 @@ include(GitExternal)
 include(SubProject)
 
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "8")
+set(VERSION_MINOR "9")
 set(VERSION_PATCH "0")
-set(VERSION_ABI 180)
+set(VERSION_ABI 190)
 set(PROJECT_INCLUDE_NAME eq)
 
 include(Common)
@@ -151,6 +151,9 @@ set(DOXYGEN_EXTRA_EXCLUDE "${CMAKE_INSTALL_PREFIX}/include/eq/admin {CMAKE_INSTA
 
 include(CPackConfig)
 include(PackageConfig)
+
+set(DOXYGEN_MAINPAGE_MD README.md)
+set(DOXYGEN_EXTRA_INPUT ${PROJECT_SOURCE_DIR}/README.md)
 include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}

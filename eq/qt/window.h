@@ -54,7 +54,7 @@ public:
      * Create a new window using Qt
      *
      * The actual window will be a QWindow or a QOffscreenSurface depending
-     * onthe window settings.
+     * on the window settings.
      * The window won't be realized until configInit is called.
      *
      * @param parent The eq::Window parent window interface that uses this
@@ -63,7 +63,7 @@ public:
      *        derived from these.
      * @param shareContext An optional OpenGL context to share with.
      *
-     * @version 1.8.0
+     * @version 1.9
      */
     EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
                    QOpenGLContext* shareContext = 0 );
@@ -89,12 +89,12 @@ public:
 
     //@}
 
-    /** Return the the Open GL used by this window.
-
-        The context won't be ready to be used until configInit is called.
-
-        @version 1.8.0
-    */
+    /**
+     * The context won't be ready to be used until configInit is called.
+     *
+     * @return the Open GL context used by this window.
+     * @version 1.9
+     */
     EQ_API QOpenGLContext* getContext() const;
 
     /** @name Operations. */
@@ -116,17 +116,18 @@ public:
     EQ_API bool processEvent( const WindowEvent& event ) override;
     //@}
 
-    /** Return the object to which forward Qt events.
-
-        Use this object to make Qt events reach eq::Config when using this
-        window for offscreen rendering with shared context mode (e.g. to
-        embed Equalizer output into a Qt GUI).
-
-        Don't send events directly to the object unless you know what you're
-        doing, use QApplication::postEvent instead.
-
-        @version 1.8.0 */
-    QObject* getEventProcessor();
+    /**
+     * Use this object to make Qt events reach eq::Config when using this window
+     * for offscreen rendering with shared context mode (e.g. to embed Equalizer
+     * output into a Qt GUI).
+     *
+     * Don't send events directly to the object unless you know what you're
+     * doing, use QApplication::postEvent instead.
+     *
+     * @return the object to which forward Qt events.
+     * @version 1.9
+     */
+    EQ_API QObject* getEventProcessor();
 
 private:
     detail::Window* const _impl;

@@ -365,7 +365,7 @@ public:
      * always happens in the render thread.
      *
      * @param listener the new listener to add
-     * @version 1.8
+     * @version 1.9
      */
     EQ_API void addResultImageListener( ResultImageListener* listener );
 
@@ -374,14 +374,14 @@ public:
      * images.
      *
      * @param listener the new listener to remove
-     * @version 1.8
+     * @version 1.9
      */
     EQ_API void removeResultImageListener( ResultImageListener* listener );
 
     /**
      * @return filename for image if SATTR_DUMP_IMAGE,
      *         default "getCurrentFrame().rgb"
-     * @version 1.8
+     * @version 1.9
      */
     EQ_API virtual std::string getDumpImageFileName() const;
 
