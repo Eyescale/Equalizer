@@ -321,7 +321,7 @@ const std::string& Client::getName() const
     return _impl->name;
 }
 
-const Strings& Client::getActiveLayouts()
+const Strings& Client::getActiveLayouts() const
 {
     return _impl->activeLayouts;
 }

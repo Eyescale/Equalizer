@@ -123,7 +123,7 @@ public:
     EQ_API void addActiveLayout( const std::string& activeLayout );
 
     /** @internal @return the active layouts given by --eq-layout. */
-    const Strings& getActiveLayouts();
+    const Strings& getActiveLayouts() const;
 
     /** @internal @return the gpu filter regex given by --eq-gpufilter. */
     const std::string& getGPUFilter() const;

@@ -38,7 +38,7 @@ else()
 
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
   add_definitions(-DGLEW_MX=1 -DGLEW_NO_GLU)
-  add_library(${GLEW_LIBRARY} ${GLEW_DIR}/src/glew.c)
+  add_library(${GLEW_LIBRARY} SHARED ${GLEW_DIR}/src/glew.c)
   if(APPLE)
     target_link_libraries(${GLEW_LIBRARY} ${OPENGL_LIBRARIES} GL)
   else()
@@ -53,5 +53,5 @@ else()
     RUNTIME DESTINATION bin COMPONENT lib
     LIBRARY DESTINATION ${LIBRARY_DIR} COMPONENT lib)
 
-  message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked statically to Equalizer.")
+  message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked to Equalizer.")
 endif()

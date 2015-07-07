@@ -180,7 +180,7 @@ bool GLWindow::_createFBO( util::FrameBufferObject*& fbo, const int samplesSize)
                                        samplesSize ? GL_TEXTURE_2D_MULTISAMPLE
                                                   : GL_TEXTURE_RECTANGLE_ARB );
     Error error = fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
-                                    stencilSize, samplesSize );
+                             stencilSize, samplesSize );
     if( !error )
         return true;
 
