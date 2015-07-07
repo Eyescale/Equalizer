@@ -107,7 +107,7 @@ public:
 
     /**
      * Add an active layout programmatically, like --eq-layout does.
-     * @version 1.8
+     * @version 1.9
      */
     EQ_API void addActiveLayout( const std::string& activeLayout );
 

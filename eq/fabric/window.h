@@ -117,7 +117,7 @@ namespace fabric
 
         /** @name Attributes */
         //@{
-        /** Set the settings of this window. @version 1.8.0 */
+        /** Set the settings of this window. @version 1.9 */
         EQFABRIC_INL void setSettings( const Settings& settings );
 
         /** @return the settings of this window. @version 1.7.2 */

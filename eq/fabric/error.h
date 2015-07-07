@@ -51,7 +51,7 @@ public:
     /** @return the error code. @version 1.7.1 */
     EQFABRIC_API uint32_t getCode() const;
 
-    /** @return the ID of the originator, a co::Object. @version 1.8.0 */
+    /** @return the ID of the originator, a co::Object. @version 1.9 */
     EQFABRIC_API const uint128_t& getOriginator() const;
 
     /** @return true if the two errors have the same value. @version 1.7.1*/

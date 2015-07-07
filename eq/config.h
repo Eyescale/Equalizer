@@ -408,7 +408,7 @@ public:
     EQ_API EventOCommand sendError( const uint32_t type, const Error& error );
 
     /** @return the errors since the last call to this method.
-     *  @version 1.8.0
+     *  @version 1.9
      */
     EQ_API Errors getErrors();
 

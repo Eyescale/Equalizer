@@ -24,7 +24,7 @@
 #include <vector>
 
 /**
- * @file client/compressor/compressor.h
+ * @file compressor/compressor.h
  *
  * Compression plugin provided with Equalizer.
  */

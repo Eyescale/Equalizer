@@ -78,7 +78,7 @@ public:
     /** @return the FBO of this window, or 0. @version 1.0 */
     EQ_API const util::FrameBufferObject* getFrameBufferObject() const override;
 
-    /** @return the FBO of this window, or 0. @version 1.8.0 */
+    /** @return the FBO of this window, or 0. @version 1.9 */
     EQ_API util::FrameBufferObject* getFrameBufferObject() override;
     //@}
 

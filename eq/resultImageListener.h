@@ -28,15 +28,15 @@ namespace eq
  * destination channels.
  *
  * @sa Channel::addResultImageListener
- * @version 1.8
+ * @version 1.9
  */
 class ResultImageListener : public boost::noncopyable
 {
 public:
-    /** Construct a new result image listener. @version 1.8 */
+    /** Construct a new result image listener. @version 1.9 */
     ResultImageListener() {}
 
-    /** Destruct the result image listener. @version 1.8 */
+    /** Destruct the result image listener. @version 1.9 */
     virtual ~ResultImageListener() {}
 
     /**
@@ -45,7 +45,7 @@ public:
      *
      * @param channel the destination channel
      * @param image the new image, valid only in the current frame
-     * @version 1.8
+     * @version 1.9
      */
     virtual void notifyNewImage( Channel& channel, const Image& image ) = 0;
 };

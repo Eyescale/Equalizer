@@ -345,7 +345,7 @@ public:
     /**
      * Write the pixel data as rgb image file.
      *
-     * Since version 1.8 (if build with OpenSceneGraph) this function can
+     * Since version 1.9 (if build with OpenSceneGraph) this function can
      * write images according to supported plugins, see
      * http://trac.openscenegraph.org/projects/osg/wiki/Support/UserGuides/Plugins
      * @version 1.0
