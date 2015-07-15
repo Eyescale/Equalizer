@@ -103,7 +103,8 @@ include(CPackConfig)
 include(PackageConfig)
 
 set(DOXYGEN_MAINPAGE_MD README.md)
-set(DOXYGEN_EXTRA_INPUT ${PROJECT_SOURCE_DIR}/README.md)
+set(DOXYGEN_EXTRA_INPUT
+ "${PROJECT_SOURCE_DIR}/README.md @CMAKE_INSTALL_PREFIX@/include/seq")
 include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}

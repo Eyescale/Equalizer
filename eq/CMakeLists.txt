@@ -33,8 +33,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   configEvent.h
   configStatistics.h
   cudaContext.h
-  defines.h
-  eq.h
   eq.h
   error.h
   eventHandler.h
