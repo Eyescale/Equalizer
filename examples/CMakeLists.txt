@@ -92,7 +92,6 @@ add_subdirectory(triply) # build the ply library universal
 
 if(APPLE)
   set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
-  message(STATUS "Building examples for ${CMAKE_OSX_ARCHITECTURES}")
 
   # filter out -arch settings from environment (MacPorts...)
   set(ALL_OSX_ARCHITECTURES ppc ppc64 i386 x86_64)
