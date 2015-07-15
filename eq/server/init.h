@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -18,12 +18,12 @@
 #ifndef EQSERVER_INIT_H
 #define EQSERVER_INIT_H
 
-#include "api.h"
+#include <eq/server/api.h>
 
 /** @file eq/server/init.h */
 namespace eq
 {
-/** 
+/**
  * @brief The Equalizer server library.
  *
  * This namespace implements the server-side functionality for the Equalizer
@@ -42,7 +42,7 @@ namespace server
      *         <code>false</code> otherwise.
      */
     EQSERVER_API bool init( const int argc, char** argv );
-    
+
     /**
      * De-initialize the Equalizer server namespace.
      *

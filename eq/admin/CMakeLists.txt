@@ -3,7 +3,6 @@
 
 set(EQUALIZERADMIN_PUBLIC_HEADERS
   admin.h
-  api.h
   base.h
   canvas.h
   channel.h
@@ -40,7 +39,8 @@ set(EQUALIZERADMIN_SOURCES
   )
 
 set(EQUALIZERADMIN_LINK_LIBRARIES EqualizerFabric EqualizerServer)
-set(PROJECT_INCLUDE_NAME eq/admin)
-set(EQUALIZERADMIN_OMIT_PROJECT_HEADER ON)
+set(EQUALIZERADMIN_INCLUDE_NAME eq/admin)
+set(EQUALIZERADMIN_NAMESPACE eqadmin)
+set(EQUALIZERADMIN_OMIT_LIBRARY_HEADER ON)
 
 common_library(EqualizerAdmin)

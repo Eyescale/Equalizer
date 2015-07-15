@@ -18,7 +18,7 @@
 #ifndef EQSERVER_CONNECTION_DESCRIPTION_H
 #define EQSERVER_CONNECTION_DESCRIPTION_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include <co/connectionDescription.h>
 
 namespace eq

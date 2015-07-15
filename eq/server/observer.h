@@ -19,7 +19,7 @@
 #ifndef EQSERVER_OBSERVER_H
 #define EQSERVER_OBSERVER_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "types.h"
 
 #include <eq/fabric/observer.h>   // base class

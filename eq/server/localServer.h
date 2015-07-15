@@ -18,7 +18,7 @@
 #ifndef EQSERVER_LOCALSERVER_H
 #define EQSERVER_LOCALSERVER_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "types.h"
 
 namespace eq

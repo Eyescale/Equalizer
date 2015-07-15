@@ -2,7 +2,6 @@
 # Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
 
 set(TRIPLY_PUBLIC_HEADERS
-  api.h
   ply.h
   typedefs.h
   vertexBufferBase.h
@@ -26,10 +25,11 @@ set(TRIPLY_SOURCES
 
 set(TRIPLY_LINK_LIBRARIES
   ${COLLAGE_LIBRARIES} ${EQ_GL_LIBRARIES} ${GLEW_LIBRARY})
-set(PROJECT_INCLUDE_NAME triply)
+set(TRIPLY_INCLUDE_NAME triply)
 
 list(APPEND CPPCHECK_EXTRA_ARGS
   --suppress=*:${CMAKE_CURRENT_SOURCE_DIR}/plyfile.cpp)
 
-add_definitions(-DPLYLIB_SHARED)
+set(TRIPLY_OMIT_LIBRARY_HEADER ON)
+set(TRIPLY_NAMESPACE triply)
 common_library(triply)

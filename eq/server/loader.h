@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,7 +19,7 @@
 #ifndef EQSERVER_LOADER_H
 #define EQSERVER_LOADER_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "types.h"
 
 #include <iostream>
@@ -35,9 +35,9 @@ namespace server
         Loader() {}
         virtual ~Loader() {}
 
-        /** 
+        /**
          * Loads a config file.
-         * 
+         *
          * The returned config has to be deleted by the caller.
          *
          * @param filename the name of the config file.
@@ -45,9 +45,9 @@ namespace server
          */
         EQSERVER_API ServerPtr loadFile( const std::string& filename );
 
-        /** 
+        /**
          * Parse a config file given as a parameter.
-         * 
+         *
          * @param config the config file.
          * @return the parsed server.
          */

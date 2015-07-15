@@ -18,7 +18,7 @@
 #ifndef EQSERVER_SEGMENT_H
 #define EQSERVER_SEGMENT_H
 
-#include "api.h"
+#include <eq/server/api.h>
 #include "types.h"
 #include "visitorResult.h"  // enum
 

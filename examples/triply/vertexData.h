@@ -31,7 +31,7 @@
 #ifndef PLYLIB_VERTEXDATA_H
 #define PLYLIB_VERTEXDATA_H
 
-#include "api.h"
+#include <triply/api.h>
 #include "typedefs.h"
 #include <vector>
 
@@ -39,21 +39,21 @@
 // defined elsewhere
 struct PlyFile;
 
-namespace triply 
+namespace triply
 {
     /*  Holds the flat data and offers routines to read, scale and sort it.  */
     class VertexData
     {
     public:
-        PLYLIB_API VertexData();
+        TRIPLY_API VertexData();
 
-        PLYLIB_API bool readPlyFile( const std::string& file );
-        PLYLIB_API void sort( const Index start, const Index length, const Axis axis );
-        PLYLIB_API void scale( const float baseSize = 2.0f );
-        PLYLIB_API void calculateNormals();
-        PLYLIB_API void calculateBoundingBox();
+        TRIPLY_API bool readPlyFile( const std::string& file );
+        TRIPLY_API void sort( const Index start, const Index length, const Axis axis );
+        TRIPLY_API void scale( const float baseSize = 2.0f );
+        TRIPLY_API void calculateNormals();
+        TRIPLY_API void calculateBoundingBox();
         const BoundingBox& getBoundingBox() const { return _boundingBox; }
-        PLYLIB_API Axis getLongestAxis( const size_t start, const size_t elements ) const;
+        TRIPLY_API Axis getLongestAxis( const size_t start, const size_t elements ) const;
 
         void useInvertedFaces() { _invertFaces = true; }
 
@@ -63,7 +63,7 @@ namespace triply
         std::vector< Triangle > triangles;
 
     private:
-        void readVertices( PlyFile* file, const int nVertices, 
+        void readVertices( PlyFile* file, const int nVertices,
                            const bool readColors );
         void readTriangles( PlyFile* file, const int nFaces );
 

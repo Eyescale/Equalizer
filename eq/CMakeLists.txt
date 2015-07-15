@@ -12,7 +12,6 @@ list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZER_DSO_NAME=foo -DEQ_API=)
 add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
 set(EQUALIZER_PUBLIC_HEADERS
-  ${COMMON_INCLUDES}
   agl/eventHandler.h
   agl/messagePump.h
   agl/pipe.h
@@ -93,7 +92,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   windowSystem.h
   x11/window.h
   zoomFilter.h
-  defines.h
   eq.h
   util/accum.h
   util/accumBufferObject.h
@@ -117,7 +115,6 @@ set(EQUALIZER_HEADERS
   )
 
 set(EQUALIZER_SOURCES
-  ${COMMON_SOURCES}
   util/accum.cpp
   util/accumBufferObject.cpp
   util/bitmapFont.cpp
@@ -282,11 +279,8 @@ if(CUDA_FOUND)
   list(APPEND EQUALIZER_LINK_LIBRARIES ${CUDA_LIBRARIES})
 endif()
 
-set(EQUALIZER_OMIT_PROJECT_HEADER ON)
+set(EQUALIZER_OMIT_LIBRARY_HEADER ON)
 common_library(Equalizer)
-
-install(FILES ${OPTIONS_CMAKE} DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
-  COMPONENT dev)
 
 add_subdirectory(fabric)
 add_subdirectory(server)
