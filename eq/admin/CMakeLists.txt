@@ -44,3 +44,4 @@ set(EQUALIZERADMIN_NAMESPACE eqadmin)
 set(EQUALIZERADMIN_OMIT_LIBRARY_HEADER ON)
 
 common_library(EqualizerAdmin)
+target_compile_definitions(EqualizerAdmin PRIVATE EQUALIZERFABRIC_SHARED_INL)
