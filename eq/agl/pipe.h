@@ -52,7 +52,7 @@ public:
      * @return true if the initialization was successful, false otherwise.
      * @version 1.0
      */
-    virtual bool configInit( );
+    bool configInit() override;
 
     /**
      * De-initialize this pipe for the AGL window system.
@@ -60,7 +60,7 @@ public:
      * @return true if the deinitialization was successful, false otherwise.
      * @version 1.0
      */
-    virtual void configExit( );
+    void configExit() override;
     //@}
 
     /** @return the CG display ID for this pipe. @version 1.0 */

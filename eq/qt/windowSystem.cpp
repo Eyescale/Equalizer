@@ -64,7 +64,7 @@ std::string WindowSystem::getName() const
 eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
                                               const WindowSettings& settings )
 {
-    LBINFO << "Using qt::Window" << std::endl;
+    LBDEBUG << "Using qt::Window" << std::endl;
     window->getClient()->interruptMainThread();
     qt::detail::Window* impl = createImpl( settings, QThread::currentThread( ));
     return new Window( *window, settings, impl );

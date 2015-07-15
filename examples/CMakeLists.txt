@@ -25,11 +25,10 @@ else() # installed examples
 
   if(APPLE)
     include_directories(SYSTEM /usr/X11R6/include)
-    set(EQ_EXAMPLES_OSX_ARCHITECTURES "@EQ_EXAMPLES_OSX_ARCHITECTURES@")
+    if(EQ_AGL_USED)
+      find_library(CARBON_LIBRARY Carbon)
+    endif()
   endif(APPLE)
-  if(EQ_AGL_USED)
-    find_library(CARBON_LIBRARY Carbon)
-  endif()
 endif()
 
 include(StringifyShaders)
@@ -91,10 +90,8 @@ install(FILES ${CMAKE_SOURCE_DIR}/CMake/common/StringifyShaders.cmake
 add_subdirectory(triply) # build the ply library universal
 
 if(APPLE)
-  set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
-
   # filter out -arch settings from environment (MacPorts...)
-  set(ALL_OSX_ARCHITECTURES ppc ppc64 i386 x86_64)
+  set(ALL_OSX_ARCHITECTURES i386 x86_64)
   foreach(ARCH ${ALL_OSX_ARCHITECTURES})
     list(FIND CMAKE_OSX_ARCHITECTURES ${ARCH} INDEX)
     if(INDEX EQUAL -1) # Arch not enabled

@@ -48,6 +48,7 @@ include(configure)
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
 
 if(CMAKE_COMPILER_IS_CLANG)
+  # We've got plenty of legitimate hidden virtual functions
   set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -Wno-overloaded-virtual")
 endif()
 
