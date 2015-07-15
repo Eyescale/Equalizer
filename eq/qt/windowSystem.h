@@ -1,7 +1,6 @@
 
 /* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
- *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -16,14 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QObject>
-#include <eq/windowSystem.h>
+#ifndef EQ_QT_WINDOWSYSTEM_H
+#define EQ_QT_WINDOWSYSTEM_H
+
 #include "types.h"
+#include <eq/windowSystem.h> // base class
+#include <QObject>
 
 namespace eq
 {
 namespace qt
 {
+namespace detail { class Window; }
 
 class WindowSystem : public QObject, public WindowSystemIF
 {
@@ -33,7 +36,12 @@ public:
     EQ_API WindowSystem();
     EQ_API ~WindowSystem();
 
+signals:
+    eq::qt::detail::Window* createImpl( const WindowSettings&, QThread* );
+
 private:
+    WindowFactory* _factory;
+
     std::string getName() const final;
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final;
@@ -42,11 +50,9 @@ private:
     bool hasMainThreadEvents() const final { return true; }
     bool setupFont( util::ObjectManager& gl, const void* key,
                     const std::string& name, const uint32_t size ) const final;
-
-
-    bool _useSystemWindowSystem( const WindowSettings& settings,
-                                 const eq::Window* sharedWindow );
 };
 
 }
 }
+
+#endif

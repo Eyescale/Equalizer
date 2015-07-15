@@ -74,9 +74,9 @@ int main( int argc, char** argv )
     QApplication* app = 0;
     if( initData.getWindowSystem() == "Qt" )
     {
-    #ifdef GLX
+#  ifdef __linux__
         ::XInitThreads();
-    #endif
+#  endif
         app = new QApplication( argc, argv );
     }
 #endif

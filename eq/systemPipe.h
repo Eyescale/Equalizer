@@ -27,59 +27,59 @@
 
 namespace eq
 {
+/**
+ * The interface definition for system-specific GPU handling.
+ *
+ * The SystemPipe abstracts all OS-system specific code for handling a GPU,
+ * which facilitates porting to new windowing systems. Each Pipe uses one
+ * SystemPipe, which is initialized in Pipe::configInit. The SystemPipe has to
+ * set the pipe's PixelViewport if it is invalid during configInit().
+ */
+class SystemPipe
+{
+public:
+    /** Create a new SstemPipe for the given eq::Pipe. @version 1.0 */
+    EQ_API explicit SystemPipe( Pipe* parent );
+
+    /** Destroy the SystemPipe. @version 1.0 */
+    EQ_API virtual ~SystemPipe( );
+
+    /** @name Methods forwarded from eq::Pipe. */
+    //@{
+    /** Initialize the GPU. @version 1.0 */
+    EQ_API virtual bool configInit() = 0;
+
+    /** De-initialize the GPU. @version 1.0 */
+    EQ_API virtual void configExit() = 0;
+    //@}
+
+    /** @return the parent Pipe. @version 1.0 */
+    Pipe* getPipe() { return _pipe; }
+
+    /** @return the parent Pipe. @version 1.0 */
+    const Pipe* getPipe() const { return _pipe; }
+
+    /** @return the maximum available OpenGL version on this pipe.
+     *  @version 1.9 */
+    float getMaxOpenGLVersion() const { return _maxOpenGLVersion; }
+
+protected:
+    /** @name Error information. */
+    //@{
     /**
-     * The interface definition for system-specific GPU handling.
-     *
-     * The SystemPipe abstracts all OS-system specific code for handling a GPU,
-     * which facilitates porting to new windowing systems. Each Pipe uses one
-     * SystemPipe, which is initialized in Pipe::configInit. The SystemPipe has
-     * to set the pipe's PixelViewport if it is invalid during configInit().
+     * Send a pipe error event to the application node.
+     * @param error the error code.
+     * @version 1.7.1
      */
-    class SystemPipe
-    {
-    public:
-        /** Create a new SstemPipe for the given eq::Pipe. @version 1.0 */
-        EQ_API SystemPipe( Pipe* parent );
+    EQ_API EventOCommand sendError( const uint32_t error );
+    //@}
 
-        /** Destroy the SystemPipe. @version 1.0 */
-        EQ_API virtual ~SystemPipe( );
+    float _maxOpenGLVersion;
 
-        /** @name Methods forwarded from eq::Pipe. */
-        //@{
-        /** Initialize the GPU. @version 1.0 */
-        EQ_API virtual bool configInit() = 0;
-
-        /** De-initialize the GPU. @version 1.0 */
-        EQ_API virtual void configExit() = 0;
-        //@}
-
-        /** @return the parent Pipe. @version 1.0 */
-        Pipe* getPipe() { return _pipe; }
-
-        /** @return the parent Pipe. @version 1.0 */
-        const Pipe* getPipe() const { return _pipe; }
-
-        /** @return the maximum available OpenGL version on this pipe.
-         *  @version 1.9 */
-        float getMaxOpenGLVersion() const { return _maxOpenGLVersion; }
-
-    protected:
-        /** @name Error information. */
-        //@{
-        /**
-         * Send a pipe error event to the application node.
-         * @param error the error code.
-         * @version 1.7.1
-         */
-        EQ_API EventOCommand sendError( const uint32_t error );
-        //@}
-
-        float _maxOpenGLVersion;
-
-    private:
-        /** The parent eq::Pipe. */
-        Pipe* const _pipe;
-    };
+private:
+    /** The parent eq::Pipe. */
+    Pipe* const _pipe;
+};
 }
 
 #endif // EQ_SYSTEM_PIPE_H

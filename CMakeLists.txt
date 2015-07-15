@@ -12,9 +12,9 @@ include(GitExternal)
 include(SubProject)
 
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "9")
+set(VERSION_MINOR "10")
 set(VERSION_PATCH "0")
-set(VERSION_ABI 190)
+set(VERSION_ABI 191)
 
 set(EQUALIZER_INCLUDE_NAME eq)
 include(Common)
@@ -24,6 +24,7 @@ option(EQUALIZER_USE_HWLOC "Test for hwloc support (experimental)" OFF)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server headers" OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
+option(EQUALIZER_PREFER_QT "Prefer Qt window system over X11 on OS X" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
@@ -58,7 +59,6 @@ endif()
 
 if(APPLE)
   add_definitions(-DDarwin)
-  set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
 endif(APPLE)
 
 list(APPEND EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/")

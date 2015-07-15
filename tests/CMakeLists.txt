@@ -27,8 +27,11 @@ if(APPLE) # test that only one OpenGL (X11 lib or OpenGL framework) is linked
   elseif(EQ_GLX_USED)
     set(EXCLUDED_OPENGL OpenGL.framework)
     set(INCLUDED_OPENGL X11)
+  elseif(EQ_QT_USED)
+    set(EXCLUDED_OPENGL libGL...dylib)
+    set(INCLUDED_OPENGL Qt)
   else()
-    message(WARNING "Equalizer build without AGL and GLX?")
+    message(WARNING "Equalizer build without AGL, GLX and Qt?")
     return()
   endif()
 

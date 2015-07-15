@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,37 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_QT_TYPES_H
-#define EQ_QT_TYPES_H
+#ifndef EQ_QT_WINDOWSYSTEMFACTORY_H
+#define EQ_QT_WINDOWSYSTEMFACTORY_H
 
-class QEvent;
-class QExposeEvent;
-class QHideEvent;
-class QKeyEvent;
-class QMouseEvent;
-class QObject;
-class QOpenGLContext;
-class QResizeEvent;
-class QThread;
-class QWheelEvent;
+#include <eq/types.h>
+#include <QObject>
 
 namespace eq
 {
-/**
- * @namespace eq::qt
- * @brief The system abstraction layer for Qt
- */
 namespace qt
 {
+namespace detail { class Window; }
 
-class EventHandler;
-class Pipe;
-class Window;
-class WindowEvent;
-class WindowFactory;
-class WindowIF;
+class WindowFactory : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    detail::Window* onCreateImpl( const WindowSettings&, QThread* );
+};
 
 }
 }
 
-#endif // EQ_QT_TYPES_H
+#endif

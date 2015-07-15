@@ -155,6 +155,8 @@ public:
         , windowSystem( "GLX" )
 #elif WGL
         , windowSystem( "WGL" )
+#elif EQ_QT_USED
+        , windowSystem( "Qt" )
 #endif
         , state( STATE_STOPPED )
         , currentFrame( 0 )
@@ -318,11 +320,13 @@ void Pipe::setDirty( const uint64_t bits )
 WindowSystem Pipe::selectWindowSystem() const
 {
 #ifdef AGL
-    return WindowSystem( "AGL" ); // prefer over GLX
+    return WindowSystem( "AGL" );
 #elif GLX
     return WindowSystem( "GLX" );
 #elif WGL
     return WindowSystem( "WGL" );
+#elif EQ_QT_USED
+    return WindowSystem( "Qt" );
 #endif
 }
 

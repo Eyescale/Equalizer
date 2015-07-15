@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,37 +15,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_QT_TYPES_H
-#define EQ_QT_TYPES_H
+#ifndef EQ_QT_PIPE_H
+#define EQ_QT_PIPE_H
 
-class QEvent;
-class QExposeEvent;
-class QHideEvent;
-class QKeyEvent;
-class QMouseEvent;
-class QObject;
-class QOpenGLContext;
-class QResizeEvent;
-class QThread;
-class QWheelEvent;
+#include <eq/systemPipe.h> // base class
 
 namespace eq
 {
-/**
- * @namespace eq::qt
- * @brief The system abstraction layer for Qt
- */
 namespace qt
 {
+/** Handles a GPU/screen through Qt */
+class Pipe : public SystemPipe
+{
+public:
+    /** Create a new Qt pipe for the given eq::Pipe. @version 1.10 */
+    Pipe( eq::Pipe* parent ) : SystemPipe( parent ) {}
 
-class EventHandler;
-class Pipe;
-class Window;
-class WindowEvent;
-class WindowFactory;
-class WindowIF;
+    /** Destroy the Qt Pipe. @version 1.10 */
+    virtual ~Pipe() {}
+
+    /** Initialize the GPU. @version 1.10 */
+    EQ_API bool configInit() override;
+
+    /** De-initialize the GPU. @version 1.10 */
+    void configExit() {}
+};
 
 }
 }
 
-#endif // EQ_QT_TYPES_H
+#endif

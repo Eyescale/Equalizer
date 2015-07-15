@@ -47,6 +47,11 @@
 #  include <direct.h>  // for chdir
 #  define chdir _chdir
 #endif
+#ifdef EQ_QT_USED
+#  include <QApplication>
+#else
+class QApplication;
+#endif
 
 namespace eq
 {
@@ -65,6 +70,7 @@ public:
         : queue( co::Global::getCommandQueueLimit( ))
         , modelUnit( EQ_UNDEFINED_UNIT )
         , running( false )
+        , qtApp( 0 )
     {}
 
     CommandQueue queue; //!< The command->node command queue.
@@ -74,6 +80,23 @@ public:
     std::string gpuFilter;
     float modelUnit;
     bool running;
+    QApplication* qtApp;
+
+    void initQt( int argc LB_UNUSED, char** argv LB_UNUSED )
+    {
+#if EQ_GLX_USED || EQ_WGL_USED || EQ_AGL_USED
+        return;
+#endif
+#ifdef EQ_QT_USED
+        if( !QApplication::instance( ))
+        {
+#  ifdef __linux__
+            ::XInitThreads();
+#  endif
+            qtApp = new QApplication( argc, argv );
+        }
+#endif
+    }
 };
 }
 
@@ -219,6 +242,7 @@ bool Client::initLocal( const int argc, char** argv )
         exitClient();
     }
 
+    _impl->initQt( argc, argv );
     return true;
 }
 
@@ -280,6 +304,10 @@ void Client::clientLoop()
 
 bool Client::exitLocal()
 {
+#ifdef EQ_QT_USED
+    delete _impl->qtApp;
+    _impl->qtApp = 0;
+#endif
     _impl->activeLayouts.clear();
     _impl->modelUnit = EQ_UNDEFINED_UNIT;
     return fabric::Client::exitLocal();

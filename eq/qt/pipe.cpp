@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,37 +15,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_QT_TYPES_H
-#define EQ_QT_TYPES_H
+#include "pipe.h"
 
-class QEvent;
-class QExposeEvent;
-class QHideEvent;
-class QKeyEvent;
-class QMouseEvent;
-class QObject;
-class QOpenGLContext;
-class QResizeEvent;
-class QThread;
-class QWheelEvent;
+#include <eq/pipe.h>
+#include <QDesktopWidget>
 
 namespace eq
 {
-/**
- * @namespace eq::qt
- * @brief The system abstraction layer for Qt
- */
 namespace qt
 {
+bool Pipe::configInit()
+{
+    eq::Pipe* pipe = getPipe();
+    if( pipe->getPixelViewport().isValid( ))
+        return true;
 
-class EventHandler;
-class Pipe;
-class Window;
-class WindowEvent;
-class WindowFactory;
-class WindowIF;
+    QDesktopWidget desktop;
+    const uint32_t device = getPipe()->getDevice();
+    const int qtScreen = device == LB_UNDEFINED_UINT32 ?
+                             desktop.primaryScreen() : int( device );
+    const QRect rect = desktop.availableGeometry( qtScreen );
+
+    pipe->setPixelViewport( PixelViewport( rect.x(), rect.y(),
+                                           rect.width(), rect.height( )));
+    return true;
+}
 
 }
 }
-
-#endif // EQ_QT_TYPES_H
