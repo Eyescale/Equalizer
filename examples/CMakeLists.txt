@@ -33,8 +33,6 @@ else() # installed examples
 endif()
 
 include(StringifyShaders)
-configure_file(${PROJECT_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
-  ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist COPYONLY)
 
 function(EQ_ADD_EXAMPLE NAME)
   cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;SHADERS;LINK_LIBRARIES"
@@ -53,6 +51,8 @@ function(EQ_ADD_EXAMPLE NAME)
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")
   if(AGL) # set preference to 32 bit if AGL is available
+    configure_file(${PROJECT_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
+      ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist COPYONLY)
     set_target_properties(${THIS_TARGET} PROPERTIES MACOSX_BUNDLE_INFO_PLIST
       ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist)
   endif()

@@ -48,7 +48,7 @@ include(configure)
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
 
 if(CMAKE_COMPILER_IS_CLANG)
-  set(COMMON_COMPILER_CXX_FLAGS "${COMMON_COMPILER_CXX_FLAGS} -Wno-overloaded-virtual")
+  set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -Wno-overloaded-virtual")
 endif()
 
 if(MSVC)
