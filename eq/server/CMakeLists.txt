@@ -158,3 +158,4 @@ set(EQUALIZERSERVER_NAMESPACE eqserver)
 set(EQUALIZERSERVER_OMIT_LIBRARY_HEADER ON)
 
 common_library(EqualizerServer)
+target_compile_definitions(EqualizerServer PRIVATE EQUALIZERFABRIC_SHARED_INL)

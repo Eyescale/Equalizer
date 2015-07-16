@@ -125,9 +125,9 @@ public:
     EQ_API void flush();
 
     /** @internal Apply the given texture filtering parameter. */
-    void applyZoomFilter( const ZoomFilter filter ) const;
+    EQ_API void applyZoomFilter( const ZoomFilter filter ) const;
 
-    void applyWrap() const; //<! @internal
+    EQ_API void applyWrap() const; //<! @internal
 
     /**
      * Copy the specified area from the current read buffer to the
