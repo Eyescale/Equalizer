@@ -1,6 +1,7 @@
-# Changelog
+Changelog {#Changelog}
+=========
 
-## git master {#master}
+# git master {#master}
 
 * [463](https://github.com/Eyescale/Equalizer/pull/463):
   Use program name as default window title
@@ -11,7 +12,7 @@
 * [463](https://github.com/Eyescale/Equalizer/pull/463):
   Standalone Qt5 support
 
-## Release 1.9 (07-07-2015) {#Release19}
+# Release 1.9 (07-07-2015) {#Release19}
 
 * [462](https://github.com/Eyescale/Equalizer/pull/462):
   Add eq::Client::addActiveLayout to tweak default autoconfigured layout
@@ -83,7 +84,7 @@
 * [380](https://github.com/Eyescale/Equalizer/pull/380):
   Fix static initialization problem w/ Qt window system
 
-## Release 1.8 (14-10-2014) {#Release18}
+# Release 1.8 (14-10-2014) {#Release18}
 
 * Implemented Qt window system for onscreen windows. Issue
   [21](https://github.com/Eyescale/Equalizer/issues/21) partially done.
@@ -95,7 +96,7 @@
 * Compression is enabled for DisplayCluster streaming
 * DisplayCluster streaming is now asynchronous
 
-## Known Bugs {#Bugs}
+# Known Bugs {#Bugs}
 
 Please refer to the
 [github issue tracker](https://github.com/Eyescale/Equalizer/issues) for

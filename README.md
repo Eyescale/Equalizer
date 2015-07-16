@@ -29,7 +29,9 @@ for further information.
 Equalizer provides the following major features to facilitate the development
 and deployment of scalable OpenGL applications. A
 [detailed feature list](http://www.equalizergraphics.com/features.html) can be
-found on the [Equalizer website](http://www.equalizergraphics.com).
+found on the [Equalizer website](http://www.equalizergraphics.com). The
+[change log](@ref Changelog) lists features, improvements and bug
+fixes introduced in each version.
 
 * Runtime Configurability: An Equalizer application is configured
   automatically or manually at runtime and can be deployed on laptops,
@@ -95,11 +97,11 @@ following variables set up:
     multi-threaded libraries. (default is `ON`)
 
 An example set up would be (typed in Windows command prompt):
-```
+~~~
 setx `BOOST_ROOT`                "F:\boost_1_57_0\"
 setx `BOOST_INCLUDEDIR`          "F:\boost_1_57_0\"
 setx `BOOST_LIBRARYDIR`          "F:\boost_1_57_0\lib32-msvc-12.0\"
 setx `Boost_ADDITIONAL_VERSIONS` "1.57 1.57.0"
 setx `Boost_USE_STATIC_LIBS`     "ON"
 setx `Boost_USE_MULTITHREAD`     "ON"
-```
+~~~

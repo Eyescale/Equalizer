@@ -31,8 +31,7 @@ mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 set(DPUT_HOST ppa:bbp/ppa)
 
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
-set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
-                          parallel and scalable OpenGL and GPGPU applications.")
+set(EQUALIZER_DESCRIPTION "Parallel Rendering Framework")
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND COMMON_PACKAGE_DEFINES EQ_2_0_API)
