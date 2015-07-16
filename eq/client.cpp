@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,7 +48,9 @@
 #  define chdir _chdir
 #endif
 #ifdef EQ_QT_USED
-#  include <QApplication>
+#  include <QApplication> // must be included before any header defining Bool
+
+#  include "os.h"
 #else
 class QApplication;
 #endif

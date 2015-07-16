@@ -22,8 +22,7 @@
 
 #include <eq/qt/types.h>
 #include <eq/glWindow.h> // base class
-
-#include <QObject>
+#include <QObject> // base class
 
 namespace eq
 {

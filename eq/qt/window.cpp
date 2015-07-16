@@ -351,9 +351,9 @@ void Window::onDestroyImpl( detail::Window* window )
     delete window;
 }
 
-Window::Window( NotifierInterface& parent, const WindowSettings& settings,
+Window::Window( NotifierInterface& parent_, const WindowSettings& settings,
                 detail::Window* impl )
-    : WindowIF( parent, settings )
+    : WindowIF( parent_, settings )
     , _impl( impl )
 {
     LBASSERT( impl );
@@ -417,15 +417,15 @@ void Window::leaveNVSwapBarrier()
 {
 }
 
-bool Window::processEvent( const WindowEvent& event )
+bool Window::processEvent( const WindowEvent& event_ )
 {
     // Resizing the FBO if needed
     if( getFrameBufferObject() &&
-        event.eq::Event::type == eq::Event::WINDOW_RESIZE )
+        event_.eq::Event::type == eq::Event::WINDOW_RESIZE )
     {
-        getFrameBufferObject()->resize( event.resize.w, event.resize.h );
+        getFrameBufferObject()->resize( event_.resize.w, event_.resize.h );
     }
-    return SystemWindow::processEvent( event );
+    return SystemWindow::processEvent( event_ );
 }
 
 QObject* Window::getEventProcessor()

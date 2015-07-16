@@ -19,6 +19,10 @@
 
 #include "window.h"
 
+#ifdef EQUALIZER_USE_QT5WIDGETS
+#  include "../qt/window.h" // must be included before any header defining Bool
+#endif
+
 #include "eventHandler.h"
 #include "messagePump.h"
 #include "windowEvent.h"
@@ -27,11 +31,6 @@
 #include "../global.h"
 
 #include <co/objectOCommand.h>
-
-#ifdef EQUALIZER_USE_QT5WIDGETS
-#  include "../qt/window.h"
-#endif
-
 
 namespace eq
 {

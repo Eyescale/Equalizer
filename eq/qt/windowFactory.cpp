@@ -41,9 +41,9 @@ QOpenGLContext* _getShareContext( const WindowSettings& settings )
 }
 
 detail::Window* WindowFactory::onCreateImpl( const WindowSettings& settings,
-                                            QThread* thread )
+                                            QThread* thread_ )
 {
-    return Window::createImpl( settings, _getShareContext( settings ), thread );
+    return Window::createImpl( settings, _getShareContext( settings ), thread_);
 }
 
 }
