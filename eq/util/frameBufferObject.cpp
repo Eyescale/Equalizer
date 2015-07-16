@@ -93,8 +93,10 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
 
     GLint mask;
-    EQ_GL_CALL( glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask ));
-    const bool coreContext = mask & GL_CONTEXT_CORE_PROFILE_BIT;
+    glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask );
+    const GLenum glError = glGetError(); // might get GL_INVALID_ENUM
+    const bool coreContext =
+        glError ? false : mask & GL_CONTEXT_CORE_PROFILE_BIT;
 
     // create and bind textures
     for( unsigned i = 0; i < _colors.size(); ++i )
@@ -117,7 +119,10 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
 
     const Error error = _checkStatus();
     if( error )
+    {
+        LBDEBUG << "FrameBufferObject::init: " << error << std::endl;
         exit();
+    }
     return error;
 }
 

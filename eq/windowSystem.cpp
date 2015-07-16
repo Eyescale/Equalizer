@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -74,8 +74,10 @@ void WindowSystem::_chooseImpl( const std::string& name )
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
         if( !ws->getName().empty( ))
             _impl = ws;
+    if( !_impl )
+        _impl = _stack;
 
-    LBWARN << "Window system " << name << " not supported, " << "using "
+    LBWARN << "Window system '" << name << "' not supported, " << "using "
            << _impl->getName() << " instead." << std::endl;
 }
 

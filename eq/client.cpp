@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,10 +41,18 @@
 #include <co/global.h>
 #include <lunchbox/dso.h>
 #include <lunchbox/file.h>
+#include <boost/filesystem/path.hpp>
 
 #ifdef WIN32_API
 #  include <direct.h>  // for chdir
 #  define chdir _chdir
+#endif
+#ifdef EQ_QT_USED
+#  include <QApplication> // must be included before any header defining Bool
+
+#  include "os.h"
+#else
+class QApplication;
 #endif
 
 namespace eq
@@ -64,14 +72,33 @@ public:
         : queue( co::Global::getCommandQueueLimit( ))
         , modelUnit( EQ_UNDEFINED_UNIT )
         , running( false )
+        , qtApp( 0 )
     {}
 
     CommandQueue queue; //!< The command->node command queue.
+    std::string name;
     Strings activeLayouts;
     ServerSet localServers;
     std::string gpuFilter;
     float modelUnit;
     bool running;
+    QApplication* qtApp;
+
+    void initQt( int argc LB_UNUSED, char** argv LB_UNUSED )
+    {
+#if EQ_GLX_USED || EQ_WGL_USED || EQ_AGL_USED
+        return;
+#endif
+#ifdef EQ_QT_USED
+        if( !QApplication::instance( ))
+        {
+#  ifdef __linux__
+            ::XInitThreads();
+#  endif
+            qtApp = new QApplication( argc, argv );
+        }
+#endif
+    }
 };
 }
 
@@ -166,6 +193,12 @@ bool Client::initLocal( const int argc, char** argv )
     bool isClient = false;
     std::string clientOpts;
 
+    if( _impl->name.empty() && argc > 0 && argv )
+    {
+        const boost::filesystem::path prog = argv[0];
+        setName( prog.stem().string( ));
+    }
+
     for( int i=1; i<argc; ++i )
     {
         if( std::string( "--eq-client" ) == argv[i] )
@@ -211,6 +244,7 @@ bool Client::initLocal( const int argc, char** argv )
         exitClient();
     }
 
+    _impl->initQt( argc, argv );
     return true;
 }
 
@@ -272,6 +306,10 @@ void Client::clientLoop()
 
 bool Client::exitLocal()
 {
+#ifdef EQ_QT_USED
+    delete _impl->qtApp;
+    _impl->qtApp = 0;
+#endif
     _impl->activeLayouts.clear();
     _impl->modelUnit = EQ_UNDEFINED_UNIT;
     return fabric::Client::exitLocal();
@@ -303,7 +341,17 @@ void Client::addActiveLayout( const std::string& activeLayout )
     _impl->activeLayouts.push_back( activeLayout );
 }
 
-const Strings& Client::getActiveLayouts()
+void Client::setName( const std::string& name )
+{
+    _impl->name = name;
+}
+
+const std::string& Client::getName() const
+{
+    return _impl->name;
+}
+
+const Strings& Client::getActiveLayouts() const
 {
     return _impl->activeLayouts;
 }

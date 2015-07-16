@@ -26,6 +26,7 @@ class QMouseEvent;
 class QObject;
 class QOpenGLContext;
 class QResizeEvent;
+class QThread;
 class QWheelEvent;
 
 namespace eq
@@ -40,8 +41,9 @@ namespace qt
 class EventHandler;
 class Pipe;
 class Window;
-class WindowIF;
 class WindowEvent;
+class WindowFactory;
+class WindowIF;
 
 }
 }

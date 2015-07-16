@@ -48,6 +48,7 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
                                                  GL_RGBA32F, 0, 0 );
     if( error )
     {
+        LBDEBUG << "FrameBufferObject init failed: " << error << std::endl;
         exit();
         return false;
     }

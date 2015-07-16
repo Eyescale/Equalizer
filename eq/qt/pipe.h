@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h>
- *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,25 +15,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_CONFIG_DISPLAY_H
-#define EQSERVER_CONFIG_DISPLAY_H
+#ifndef EQ_QT_PIPE_H
+#define EQ_QT_PIPE_H
 
-#include "../types.h"
+#include <eq/systemPipe.h> // base class
 
 namespace eq
 {
-namespace server
+namespace qt
 {
-namespace config
-{
-
-class Display
+/** Handles a GPU/screen through Qt */
+class Pipe : public SystemPipe
 {
 public:
-    static void discoverLocal( Config* config, const ConfigParams& params );
+    /** Create a new Qt pipe for the given eq::Pipe. @version 1.10 */
+    Pipe( eq::Pipe* parent ) : SystemPipe( parent ) {}
+
+    /** Destroy the Qt Pipe. @version 1.10 */
+    virtual ~Pipe() {}
+
+    /** Initialize the GPU. @version 1.10 */
+    EQ_API bool configInit() override;
+
+    /** De-initialize the GPU. @version 1.10 */
+    void configExit() {}
 };
 
 }
 }
-}
-#endif // EQSERVER_CONFIG_DISPLAY_H
+
+#endif

@@ -65,6 +65,7 @@
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #  define GL_TEXTURE_RECTANGLE_ARB 0x84F5
 #endif
+# define EQ_UNKNOWN_GL_ERROR 0x1 // GL error codes seem to start at 0x500
 /** @endcond */
 
 // Error-check macros
@@ -98,4 +99,3 @@ EQ_API std::string glError( const GLenum error );
 #endif // NDEBUG
 
 #endif // EQ_GL_H
-

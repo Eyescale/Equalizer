@@ -35,6 +35,8 @@ std::string glError( const GLenum error )
 {
     switch( error )
     {
+    case EQ_UNKNOWN_GL_ERROR:
+        return std::string( "Failed OpenGL operation returned GL_NO_ERROR" );
     case GL_INVALID_ENUM:
         return std::string( "GL_INVALID_ENUM" );
     case GL_INVALID_VALUE:

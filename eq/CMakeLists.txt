@@ -65,9 +65,10 @@ set(EQUALIZER_PUBLIC_HEADERS
   pixelData.h
   qt/eventHandler.h
   qt/messagePump.h
+  qt/pipe.h
+  qt/shareContextWindow.h
   qt/types.h
   qt/window.h
-  qt/shareContextWindow.h
   qt/windowEvent.h
   qt/windowSystem.h
   resultImageListener.h
@@ -78,6 +79,16 @@ set(EQUALIZER_PUBLIC_HEADERS
   systemPipe.h
   systemWindow.h
   types.h
+  util/accum.h
+  util/accumBufferObject.h
+  util/base.h
+  util/bitmapFont.h
+  util/frameBufferObject.h
+  util/objectManager.h
+  util/pixelBufferObject.h
+  util/shader.h
+  util/texture.h
+  util/types.h
   view.h
   visitorResult.h
   wgl/eventHandler.h
@@ -92,17 +103,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   windowSystem.h
   x11/window.h
   zoomFilter.h
-  eq.h
-  util/accum.h
-  util/accumBufferObject.h
-  util/base.h
-  util/bitmapFont.h
-  util/frameBufferObject.h
-  util/objectManager.h
-  util/pixelBufferObject.h
-  util/shader.h
-  util/texture.h
-  util/types.h
   )
 
 set(EQUALIZER_HEADERS
@@ -238,12 +238,17 @@ endif()
 
 if(EQ_QT_USED)
   qt5_wrap_cpp(QT_MOC_OUTFILES
-    qt/windowSystem.h)
+    qt/window.h
+    qt/windowFactory.h
+    qt/windowSystem.h
+    )
   list(APPEND EQUALIZER_SOURCES
     ${QT_MOC_OUTFILES}
     qt/eventHandler.cpp
     qt/messagePump.cpp
+    qt/pipe.cpp
     qt/window.cpp
+    qt/windowFactory.cpp
     qt/windowSystem.cpp
     )
   list(APPEND EQUALIZER_LINK_LIBRARIES

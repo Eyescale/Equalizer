@@ -28,9 +28,9 @@ namespace qt
 {
 
 /** The event handler for Qt windows.
-
-    Reposts Qt window, mouse and keyboard events to itself in the shape
-    of a Qt user event that contains an Equalizer event.
+ *
+ * Reposts Qt window, mouse and keyboard events to itself in the shape of a Qt
+ * user event that contains an Equalizer event.
 */
 class EventHandler : public QObject, public eq::EventHandler
 {
@@ -54,12 +54,11 @@ public:
     void keyReleaseEvent( QKeyEvent* );
 
 private:
-    bool event( QEvent* evt ) override;
-
     WindowIF& _window;
 
-    WindowEvent* _translateEvent( QEvent* );
+    bool event( QEvent* evt ) override;
 
+    WindowEvent* _translateEvent( QEvent* );
     WindowEvent* _simpleWindowEvent( eq::Event::Type type );
     WindowEvent* _resizeEvent( QResizeEvent* );
     WindowEvent* _mousePressEvent( QMouseEvent* );

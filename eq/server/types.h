@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -109,6 +109,7 @@ typedef Windows::iterator WindowsIter;
 typedef lunchbox::RefPtr< Server > ServerPtr;
 typedef lunchbox::RefPtr< const Server > ConstServerPtr;
 
+using fabric::ConfigParams;
 using fabric::DrawableConfig;
 using fabric::Error;
 using fabric::Event;

@@ -19,6 +19,10 @@
 
 #include "window.h"
 
+#ifdef EQUALIZER_USE_QT5WIDGETS
+#  include "../qt/window.h" // must be included before any header defining Bool
+#endif
+
 #include "eventHandler.h"
 #include "messagePump.h"
 #include "windowEvent.h"
@@ -28,17 +32,14 @@
 
 #include <co/objectOCommand.h>
 
-#ifdef EQUALIZER_USE_QT5WIDGETS
-#  include "../qt/window.h"
-#endif
-
-
 namespace eq
 {
 namespace glx
 {
 namespace detail
 {
+#define getIAttribute( attr ) getIAttribute( WindowSettings::attr )
+
 class Window
 {
 public:
@@ -123,7 +124,7 @@ bool Window::configInit()
     makeCurrent();
     initGLEW();
     _initSwapSync();
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == FBO )
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == FBO )
         success = configInitFBO();
 
     return success;
@@ -144,7 +145,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 
     // build attribute list
     std::vector< int > attributes;
-    const int32_t drawableHint = getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
+    const int32_t drawableHint = getIAttribute( IATTR_HINT_DRAWABLE );
     switch( drawableHint )
     {
       case PBUFFER:
@@ -164,7 +165,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         attributes.push_back( True );
     }
 
-    int colorSize = getIAttribute( WindowSettings::IATTR_PLANES_COLOR );
+    int colorSize = getIAttribute( IATTR_PLANES_COLOR );
     if( colorSize != OFF )
     {
         if( drawableHint == FBO || drawableHint == OFF )
@@ -199,7 +200,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         attributes.push_back( GLX_BLUE_SIZE );
         attributes.push_back( colorSize );
 
-        const int alphaSize = getIAttribute( WindowSettings::IATTR_PLANES_ALPHA );
+        const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
         switch( alphaSize )
         {
           case AUTO:
@@ -218,20 +219,20 @@ GLXFBConfig* Window::chooseGLXFBConfig()
             attributes.push_back( alphaSize > 0 ? alphaSize : colorSize );
         }
     }
-    const int depthSize = getIAttribute( WindowSettings::IATTR_PLANES_DEPTH );
+    const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
     if( depthSize > 0  || depthSize == AUTO )
     {
         attributes.push_back( GLX_DEPTH_SIZE );
         attributes.push_back( depthSize > 0 ? depthSize : 1 );
     }
-    const int stencilSize = getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
+    const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
     if( stencilSize > 0 || stencilSize == AUTO )
     {
         attributes.push_back( GLX_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
-    const int accumSize = getIAttribute( WindowSettings::IATTR_PLANES_ACCUM );
-    const int accumAlpha = getIAttribute( WindowSettings::IATTR_PLANES_ACCUM_ALPHA );
+    const int accumSize = getIAttribute( IATTR_PLANES_ACCUM );
+    const int accumAlpha = getIAttribute( IATTR_PLANES_ACCUM_ALPHA );
     if( accumSize >= 0 )
     {
         attributes.push_back( GLX_ACCUM_RED_SIZE );
@@ -249,7 +250,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         attributes.push_back( accumAlpha );
     }
 
-    const int samplesSize  = getIAttribute( WindowSettings::IATTR_PLANES_SAMPLES );
+    const int samplesSize  = getIAttribute( IATTR_PLANES_SAMPLES );
     if( samplesSize >= 0 && drawableHint != FBO )
     {
         attributes.push_back( GLX_SAMPLE_BUFFERS );
@@ -261,23 +262,23 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 #ifdef Darwin
     // WAR: glDrawBuffer( GL_BACK ) renders only to the left back buffer on a
     // stereo visual on Darwin which creates ugly flickering on mono configs
-    if( getIAttribute( WindowSettings::IATTR_HINT_STEREO ) == ON )
+    if( getIAttribute( IATTR_HINT_STEREO ) == ON )
     {
         attributes.push_back( GLX_STEREO );
         attributes.push_back( true );
     }
 #else
-    if( getIAttribute( WindowSettings::IATTR_HINT_STEREO ) == ON ||
-        ( getIAttribute( WindowSettings::IATTR_HINT_STEREO )   == AUTO &&
-          getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW ))
+    if( getIAttribute( IATTR_HINT_STEREO ) == ON ||
+        ( getIAttribute( IATTR_HINT_STEREO )   == AUTO &&
+          getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( GLX_STEREO );
         attributes.push_back( true );
     }
 #endif
-    if( getIAttribute( WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
-          getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE )     == WINDOW ))
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == ON ||
+        ( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
+          getIAttribute( IATTR_HINT_DRAWABLE )     == WINDOW ))
     {
         attributes.push_back( GLX_DOUBLEBUFFER );
         attributes.push_back( true );
@@ -286,13 +287,13 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 
     // build backoff list, least important attribute last
     std::vector<int> backoffAttributes;
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW )
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW )
     {
-        if( getIAttribute( WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
             backoffAttributes.push_back( GLX_DOUBLEBUFFER );
 
 #ifndef Darwin
-        if( getIAttribute( WindowSettings::IATTR_HINT_STEREO ) == AUTO )
+        if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
             backoffAttributes.push_back( GLX_STEREO );
 #endif
     }
@@ -357,22 +358,22 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     }
 
     int type = GLX_RGBA_TYPE;
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == PBUFFER &&
-        ( getIAttribute( WindowSettings::IATTR_PLANES_COLOR ) == RGBA16F ||
-          getIAttribute( WindowSettings::IATTR_PLANES_COLOR ) == RGBA32F ))
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER &&
+        ( getIAttribute( IATTR_PLANES_COLOR ) == RGBA16F ||
+          getIAttribute( IATTR_PLANES_COLOR ) == RGBA32F ))
     {
         type = GLX_RGBA_FLOAT_TYPE;
     }
 
     GLXContext context = 0;
     if( glXCreateContextAttribsARB &&
-        getIAttribute( WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON )
+        getIAttribute( IATTR_HINT_CORE_PROFILE ) == ON )
     {
         int attribList[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB,
-            getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MAJOR ),
+            getIAttribute( IATTR_HINT_OPENGL_MAJOR ),
             GLX_CONTEXT_MINOR_VERSION_ARB,
-            getIAttribute( WindowSettings::IATTR_HINT_OPENGL_MINOR ),
+            getIAttribute( IATTR_HINT_OPENGL_MINOR ),
             GLX_RENDER_TYPE, type,
             GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
             None
@@ -436,7 +437,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
 
 bool Window::configInitGLXDrawable( GLXFBConfig* fbConfig )
 {
-    switch( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ))
+    switch( getIAttribute( IATTR_HINT_DRAWABLE ))
     {
         case PBUFFER:
             return configInitGLXPBuffer( fbConfig );
@@ -451,8 +452,8 @@ bool Window::configInitGLXDrawable( GLXFBConfig* fbConfig )
 
         default:
             LBWARN << "Unknown drawable type "
-                   << getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE )
-                   << ", using window" << std::endl;
+                   << getIAttribute( IATTR_HINT_DRAWABLE ) << ", using window"
+                   << std::endl;
             // no break;
         case UNDEFINED:
         case WINDOW:
@@ -469,7 +470,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     }
 
     PixelViewport pvp = getPixelViewport();
-    if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
     {
         const int screen = DefaultScreen( _impl->xDisplay );
         pvp.h = DisplayHeight( _impl->xDisplay, screen );
@@ -494,8 +495,8 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     XFlush( _impl->xDisplay );
 
     // Grab keyboard focus in fullscreen mode
-    if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON ||
-        getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) == OFF )
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON ||
+        getIAttribute( IATTR_HINT_DECORATION ) == OFF )
     {
         XGrabKeyboard( _impl->xDisplay, drawable, True, GrabModeAsync,
                        GrabModeAsync, CurrentTime );
@@ -508,7 +509,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
 
 XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 {
-    LBASSERT( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) != PBUFFER );
+    LBASSERT( getIAttribute( IATTR_HINT_DRAWABLE ) != PBUFFER );
 
     if( !_impl->xDisplay )
     {
@@ -541,7 +542,7 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
                     KeyPressMask | KeyReleaseMask | PointerMotionMask |
                     ButtonPressMask | ButtonReleaseMask;
 
-    switch( getIAttribute( WindowSettings::IATTR_HINT_DECORATION ))
+    switch( getIAttribute( IATTR_HINT_DECORATION ))
     {
       case ON:
           wa.override_redirect = False;
@@ -554,7 +555,7 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
       case AUTO:
       default:
           wa.override_redirect =
-              getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON ?
+              getIAttribute( IATTR_HINT_FULLSCREEN ) == ON ?
               True : False;
           break;
     }
@@ -652,8 +653,7 @@ void Window::setXDrawable( XID drawable )
     if( !drawable )
         return;
 
-    const int32_t drawableType =
-                           getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
+    const int32_t drawableType = getIAttribute( IATTR_HINT_DRAWABLE );
     if( drawableType != OFF )
         initEventHandler();
 
@@ -731,7 +731,7 @@ const GLXEWContext* Window::glxewGetContext() const
 
 void Window::_initSwapSync()
 {
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) !=  WINDOW )
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) !=  WINDOW )
         return;
 
     const int32_t swapSync = getIAttribute(WindowSettings::IATTR_HINT_SWAPSYNC);
@@ -770,7 +770,7 @@ void Window::configExit()
 
     if( drawable )
     {
-        if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == PBUFFER )
+        if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
             glXDestroyPbuffer( _impl->xDisplay, drawable );
         else
             XDestroyWindow( _impl->xDisplay, drawable );
@@ -873,8 +873,8 @@ bool Window::processEvent( const WindowEvent& event )
     switch( event.type )
     {
       case Event::WINDOW_POINTER_BUTTON_PRESS:
-        if( getIAttribute( WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
-            getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW &&
+        if( getIAttribute( IATTR_HINT_GRAB_POINTER ) == ON &&
+            getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW &&
             // If no other button was pressed already, capture the mouse
             event.pointerButtonPress.buttons == event.pointerButtonPress.button)
         {
@@ -899,8 +899,8 @@ bool Window::processEvent( const WindowEvent& event )
         break;
 
       case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        if( getIAttribute( WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
-            getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW &&
+        if( getIAttribute( IATTR_HINT_GRAB_POINTER ) == ON &&
+            getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW &&
             // If no button is pressed anymore, release the mouse
             event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
         {

@@ -1,4 +1,16 @@
-# Changelog
+Changelog {#Changelog}
+=========
+
+# git master {#master}
+
+* [463](https://github.com/Eyescale/Equalizer/pull/463):
+  Use program name as default window title
+* [463](https://github.com/Eyescale/Equalizer/pull/463):
+  Improved OpenGL and GLEW compatibility on OS X
+* [463](https://github.com/Eyescale/Equalizer/pull/463):
+  Fixed Qt5 support on OS X
+* [463](https://github.com/Eyescale/Equalizer/pull/463):
+  Standalone Qt5 support
 
 # Release 1.9 (07-07-2015) {#Release19}
 

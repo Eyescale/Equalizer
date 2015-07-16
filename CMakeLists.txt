@@ -12,9 +12,9 @@ include(GitExternal)
 include(SubProject)
 
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "9")
+set(VERSION_MINOR "10")
 set(VERSION_PATCH "0")
-set(VERSION_ABI 190)
+set(VERSION_ABI 191)
 
 set(EQUALIZER_INCLUDE_NAME eq)
 include(Common)
@@ -24,19 +24,22 @@ option(EQUALIZER_USE_HWLOC "Test for hwloc support (experimental)" OFF)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server headers" OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
+option(EQUALIZER_PREFER_QT "Prefer Qt window system over X11 on OS X" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
 set(DPUT_HOST ppa:bbp/ppa)
 
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
-set(EQUALIZER_DESCRIPTION "Parallel rendering framework for the creation of
-                          parallel and scalable OpenGL and GPGPU applications.")
+set(EQUALIZER_DESCRIPTION "Parallel Rendering Framework")
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND COMMON_PACKAGE_DEFINES EQ_2_0_API)
 else()
   list(APPEND COMMON_PACKAGE_DEFINES EQ_1_0_API)
+endif()
+if(APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
+  set(EQ_AGL_USED 1)
 endif()
 
 include(configure)
@@ -44,7 +47,8 @@ include(configure)
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
 
 if(CMAKE_COMPILER_IS_CLANG)
-  set(COMMON_COMPILER_CXX_FLAGS "${COMMON_COMPILER_CXX_FLAGS} -Wno-overloaded-virtual")
+  # We've got plenty of legitimate hidden virtual functions
+  set(COMMON_CXX_FLAGS "${COMMON_CXX_FLAGS} -Wno-overloaded-virtual")
 endif()
 
 if(MSVC)
@@ -55,7 +59,6 @@ endif()
 
 if(APPLE)
   add_definitions(-DDarwin)
-  set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
 endif(APPLE)
 
 list(APPEND EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/")
@@ -100,7 +103,8 @@ include(CPackConfig)
 include(PackageConfig)
 
 set(DOXYGEN_MAINPAGE_MD README.md)
-set(DOXYGEN_EXTRA_INPUT ${PROJECT_SOURCE_DIR}/README.md)
+set(DOXYGEN_EXTRA_INPUT
+ "${PROJECT_SOURCE_DIR}/README.md ${CMAKE_INSTALL_PREFIX}/include/seq")
 include(DoxygenRule) # must be after all targets
 
 set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}

@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h>
- *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,25 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_CONFIG_DISPLAY_H
-#define EQSERVER_CONFIG_DISPLAY_H
+#ifndef EQ_QT_WINDOWSYSTEMFACTORY_H
+#define EQ_QT_WINDOWSYSTEMFACTORY_H
 
-#include "../types.h"
+#include <eq/types.h>
+#include <QObject>
 
 namespace eq
 {
-namespace server
+namespace qt
 {
-namespace config
-{
+namespace detail { class Window; }
 
-class Display
+class WindowFactory : public QObject
 {
-public:
-    static void discoverLocal( Config* config, const ConfigParams& params );
+    Q_OBJECT
+
+public slots:
+    detail::Window* onCreateImpl( const WindowSettings&, QThread* );
 };
 
 }
 }
-}
-#endif // EQSERVER_CONFIG_DISPLAY_H
+
+#endif

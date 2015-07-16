@@ -29,64 +29,59 @@ namespace eq
 {
 namespace agl
 {
+/**
+ * Equalizer default implementation to handle an AGL GPU.
+ *
+ * When using AGLWindow as a system window for any window of a Pipe, the pipe
+ * needs to have an AGLPipe as its SystemPipe.
+ */
+class Pipe : public SystemPipe
+{
+public:
+    /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */
+    Pipe( eq::Pipe* parent );
+
+    /** Destroy the AGL pipe. @version 1.0 */
+    virtual ~Pipe();
+
+    /** @name AGL initialization */
+    //@{
     /**
-     * Equalizer default implementation to handle an AGL GPU.
+     * Initialize this pipe for the AGL window system.
      *
-     * When using AGLWindow as a system window for any window of a Pipe, the
-     * pipe needs to have an AGLPipe as its SystemPipe.
+     * @return true if the initialization was successful, false otherwise.
+     * @version 1.0
      */
-    class Pipe : public SystemPipe
-    {
-    public:
-        /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */
-        Pipe( eq::Pipe* parent );
+    bool configInit() override;
 
-        /** Destroy the AGL pipe. @version 1.0 */
-        virtual ~Pipe( );
+    /**
+     * De-initialize this pipe for the AGL window system.
+     *
+     * @return true if the deinitialization was successful, false otherwise.
+     * @version 1.0
+     */
+    void configExit() override;
+    //@}
 
-        /** @name AGL initialization */
-        //@{
-        /**
-         * Initialize this pipe for the AGL window system.
-         *
-         * @return true if the initialization was successful, false otherwise.
-         * @version 1.0
-         */
-        virtual bool configInit( );
+    /** @return the CG display ID for this pipe. @version 1.0 */
+    CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
 
-        /**
-         * De-initialize this pipe for the AGL window system.
-         *
-         * @return true if the deinitialization was successful, false otherwise.
-         * @version 1.0
-         */
-        virtual void configExit( );
-        //@}
+private:
+    /** @name Data Access. */
+    //@{
+    /**
+     * Set the CG display ID for this pipe.
+     *
+     * This function should only be called from configInit() or configExit().
+     *
+     * @param id the CG display ID for this pipe.
+     */
+    void _setCGDisplayID( CGDirectDisplayID id );
+    //@}
 
-        /** @return the CG display ID for this pipe. @version 1.0 */
-        CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
-
-    private:
-
-        /** @name Data Access. */
-        //@{
-        /**
-         * Set the CG display ID for this pipe.
-         *
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param id the CG display ID for this pipe.
-         */
-        void _setCGDisplayID( CGDirectDisplayID id );
-        //@}
-
-        /** Carbon display identifier. */
-        CGDirectDisplayID _cgDisplayID;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-    };
+    /** Carbon display identifier. */
+    CGDirectDisplayID _cgDisplayID;
+};
 }
 }
 #endif // AGL

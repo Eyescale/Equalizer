@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,9 +40,9 @@ namespace fabric
         Viewport() : x(0.0f), y(0.0f), w(1.0f), h(1.0f)  {}
 
         /** Construct a fractional viewport with default values. @version 1.0 */
-        explicit Viewport( const float x_, const float y_,
-                           const float w_, const float h_ )
-                : x(x_), y(y_), w(w_), h(h_)  {}
+        Viewport( const float x_, const float y_,
+                  const float w_, const float h_ )
+            : x( x_ ), y( y_ ), w( w_ ), h( h_ )  {}
 
         /** Construct a fractional viewport from a Vector4f. @version 1.3.0 */
         explicit Viewport( const Vector4f& from )

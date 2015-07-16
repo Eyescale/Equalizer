@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2015, Juan Hernando <jhernando@fi.upm.es>
+/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Juan Hernando <jhernando@fi.upm.es>
+ *                          Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,11 +20,13 @@
 #include "window.h"
 
 #include "windowEvent.h"
+#include "windowSystem.h"
 #include "eventHandler.h"
 
 #include <eq/util/frameBufferObject.h>
 #include <lunchbox/monitor.h>
 
+#include <QApplication>
 #include <QEventLoop>
 #include <QExposeEvent>
 #include <QOpenGLContext>
@@ -35,13 +38,10 @@ namespace eq
 {
 namespace qt
 {
-namespace detail
-{
-
-#define getAttribute( attr ) settings.getIAttribute( WindowSettings::attr )
-
 namespace
 {
+#define getAttribute( attr ) settings.getIAttribute( WindowSettings::attr )
+
 QSurfaceFormat _createFormat( const WindowSettings& settings )
 {
     // defaults: http://doc.qt.io/qt-5/qsurfaceformat.html
@@ -95,9 +95,7 @@ QSurfaceFormat _createFormat( const WindowSettings& settings )
         format.setSamples( samplesPlanes );
     }
 
-    if( getAttribute( IATTR_HINT_STEREO ) == eq::ON ||
-        ( getAttribute( IATTR_HINT_STEREO ) == eq::AUTO &&
-          getAttribute( IATTR_HINT_DRAWABLE ) == eq::WINDOW ) )
+    if( getAttribute( IATTR_HINT_STEREO ) == eq::ON )
     {
         format.setStereo( true );
     }
@@ -113,50 +111,55 @@ QSurfaceFormat _createFormat( const WindowSettings& settings )
 
     return format;
 }
-
 }
 
+namespace detail
+{
 class Window
 {
 public:
-    Window( WindowIF& parent_ )
-        : _eventHandler( parent_ )
-    {}
+    Window() : _eventHandler( 0 ) {}
 
     virtual ~Window() {}
     virtual QOpenGLContext* getContext() const = 0;
     virtual void makeCurrent() = 0;
     virtual void doneCurrent() = 0;
     virtual void swapBuffers() = 0;
-    virtual bool configInit( eq::qt::Window& window ) = 0;
-
-    virtual QObject *getEventProcessor()
+    virtual bool configInit( eq::qt::Window& window )
     {
-        return &_eventHandler;
+        _eventHandler = new EventHandler( window );
+        return true;
+    }
+    virtual bool configExit()
+    {
+        delete _eventHandler;
+        _eventHandler = 0;
+        return true;
     }
 
+    virtual QObject *getEventProcessor() { return _eventHandler; }
+
 protected:
-    EventHandler _eventHandler;
+    EventHandler* _eventHandler;
 };
 
 class QWindowWrapper : public Window, public QWindow
 {
 public:
-    QWindowWrapper( WindowIF& parent_,
-                    const WindowSettings& settings,
-                    QOpenGLContext* shareContext = 0 )
-        : detail::Window( parent_ )
-        , _context( new QOpenGLContext )
+    QWindowWrapper( const WindowSettings& settings,
+                    QOpenGLContext* shareContext )
+        : _context( new QOpenGLContext )
         , _exposed( false )
     {
         const QSurfaceFormat& format_ = _createFormat( settings );
         setFormat( format_ );
         const PixelViewport& pvp = settings.getPixelViewport();
-        setGeometry(pvp.x, pvp.y, pvp.w, pvp.h);
+        setGeometry( pvp.x, pvp.y, pvp.w, pvp.h );
         setSurfaceType( QSurface::OpenGLSurface );
 
         _context->setFormat( format( ));
         _context->setShareContext( shareContext );
+        show();
     }
 
     QOpenGLContext* getContext() const final
@@ -179,16 +182,14 @@ public:
 
     void swapBuffers() final
     {
-        // This is done to avoid a warning from Qt when the window has been
-        // unexposed (e.g. prematurely closed).
-        if( !isExposed( ))
-            return;
-        _context->swapBuffers( this );
+        if( isExposed( ))
+            _context->swapBuffers( this );
     }
 
     bool configInit( eq::qt::Window& window ) final
     {
-        show();
+        if( !Window::configInit( window ))
+            return false;
 
         // The application thread must be running the event loop somewhere
         // else. Otherwise this code will wait forever.
@@ -200,70 +201,66 @@ public:
         // Adjusting the actual window viewport in case the window manager
         // disobeyed the requested geometry.
         _adjustEqWindowSize( window );
-
         return true;
     }
 
-    QObject *getEventProcessor() final
-    {
-        return this;
-    }
+    QObject *getEventProcessor() final { return this; }
 
 protected:
     void exposeEvent( QExposeEvent* qevent ) final
     {
         _exposed = !qevent->region().isEmpty();
-        _eventHandler.exposeEvent();
+        _eventHandler->exposeEvent();
     }
 
     void hideEvent( QHideEvent* ) final
     {
         _exposed = false;
-        _eventHandler.hideEvent();
+        _eventHandler->hideEvent();
     }
 
     bool event( QEvent *qevent )
     {
         if (qevent->type() == QEvent::Close)
-            _eventHandler.closeEvent();
+            _eventHandler->closeEvent();
 
         return QWindow::event( qevent );
     }
 
     void resizeEvent( QResizeEvent* qevent ) override
     {
-        _eventHandler.resizeEvent( qevent );
+        _eventHandler->resizeEvent( qevent );
     }
 
     void mousePressEvent( QMouseEvent* qevent ) override
     {
-        _eventHandler.mousePressEvent( qevent );
+        _eventHandler->mousePressEvent( qevent );
     }
 
     void mouseReleaseEvent( QMouseEvent* qevent ) override
     {
-        _eventHandler.mouseReleaseEvent( qevent );
+        _eventHandler->mouseReleaseEvent( qevent );
     }
 
     void mouseMoveEvent( QMouseEvent* qevent ) override
     {
-        _eventHandler.mouseMoveEvent( qevent );
+        _eventHandler->mouseMoveEvent( qevent );
     }
 
 #ifndef QT_NO_WHEELEVENT
     void wheelEvent( QWheelEvent* qevent ) override
     {
-        _eventHandler.wheelEvent( qevent );
+        _eventHandler->wheelEvent( qevent );
     }
 #endif
     void keyPressEvent( QKeyEvent* qevent ) override
     {
-        _eventHandler.keyPressEvent( qevent );
+        _eventHandler->keyPressEvent( qevent );
     }
 
     void keyReleaseEvent( QKeyEvent* qevent ) override
     {
-        _eventHandler.keyReleaseEvent( qevent );
+        _eventHandler->keyReleaseEvent( qevent );
     }
 
 private:
@@ -286,11 +283,9 @@ private:
 class QOffscreenSurfaceWrapper : public Window, public QOffscreenSurface
 {
 public:
-    QOffscreenSurfaceWrapper( WindowIF& parent_,
-                              const WindowSettings& settings,
-                              QOpenGLContext* shareContext = 0 )
-        : detail::Window( parent_ )
-        , _context( new QOpenGLContext )
+    QOffscreenSurfaceWrapper( const WindowSettings& settings,
+                              QOpenGLContext* shareContext )
+        : _context( new QOpenGLContext )
         , _isCurrent( false )
     {
         const QSurfaceFormat& format_ = _createFormat( settings );
@@ -298,12 +293,10 @@ public:
 
         _context->setFormat( format( ));
         _context->setShareContext( shareContext );
+        create();
     }
 
-    QOpenGLContext* getContext() const final
-    {
-        return _context.data();
-    }
+    QOpenGLContext* getContext() const final { return _context.data(); }
 
     void makeCurrent() final
     {
@@ -320,59 +313,58 @@ public:
 
     void swapBuffers() final
     {
-        if( !isValid())
-
-            return;
-        _context->swapBuffers( this );
+        if( isValid( ))
+            _context->swapBuffers( this );
     }
 
-    bool configInit( eq::qt::Window& ) final
+    bool configInit( eq::qt::Window& window ) final
     {
-        // According to Qt docs, this doesn't work on platforms that require
-        // allocation of the surface from the main thread (but I guess this is
-        // mainly the case of mobile OSes)
-        create();
-
-        if( !isValid( ))
-            return false;
-
-        if( !_context->create( ))
-            return false;
-
-        return true;
+        return Window::configInit( window ) && isValid() && _context->create();
     }
 
 private:
-    QScopedPointer<QOpenGLContext> _context;
+    QScopedPointer< QOpenGLContext > _context;
     bool _isCurrent;
 };
-
-namespace
-{
-Window* _createWindow( WindowIF& parent,
-                       const WindowSettings& settings,
-                       QOpenGLContext* sharedContext )
-{
-    const int32_t drawable =
-        settings.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
-    if( drawable == eq::PBUFFER || drawable == eq::FBO )
-        return new QOffscreenSurfaceWrapper( parent, settings, sharedContext );
-    return new QWindowWrapper( parent, settings, sharedContext );
-}
 }
 
+detail::Window* Window::createImpl( const WindowSettings& settings,
+                                    QOpenGLContext* sharedContext,
+                                    QThread* thread LB_UNUSED )
+{
+    const int32_t drawable = getAttribute( WindowSettings::IATTR_HINT_DRAWABLE);
+    detail::Window* window = 0;
+    if( drawable == eq::WINDOW )
+        window = new detail::QWindowWrapper( settings, sharedContext );
+    else
+        window = new detail::QOffscreenSurfaceWrapper( settings, sharedContext);
+
+#if QT_VERSION >= 0x050000
+    window->getContext()->moveToThread( thread );
+#endif
+    LBASSERT( window );
+    return window;
 }
 
-Window::Window( NotifierInterface& parent, const WindowSettings& settings,
-                QOpenGLContext* sharedContext )
-    : WindowIF( parent, settings )
-    , _impl( detail::_createWindow( *this, settings, sharedContext ))
+void Window::onDestroyImpl( detail::Window* window )
 {
+    delete window;
+}
+
+Window::Window( NotifierInterface& parent_, const WindowSettings& settings,
+                detail::Window* impl )
+    : WindowIF( parent_, settings )
+    , _impl( impl )
+{
+    LBASSERT( impl );
+    QCoreApplication* app = QApplication::instance();
+    app->connect( this, SIGNAL( destroyImpl( detail::Window* )),
+                  this, SLOT( onDestroyImpl( detail::Window* )));
 }
 
 Window::~Window()
 {
-    delete _impl;
+    destroyImpl( _impl );
 }
 
 bool Window::configInit()
@@ -393,8 +385,8 @@ void Window::configExit()
     configExitFBO();
     makeCurrent();
     exitGLEW();
-
     _impl->doneCurrent();
+    _impl->configExit();
 }
 
 QOpenGLContext* Window::getContext() const
@@ -406,11 +398,9 @@ void Window::makeCurrent( const bool cache ) const
 {
     if( cache && isCurrent( ))
         return;
-    // Making the real GL context current first
-    _impl->makeCurrent();
-    // Then calling GLWindow::makeCurrent to handle the FBO binding and
-    // caching state
-    WindowIF::makeCurrent();
+
+    _impl->makeCurrent(); // Make real GL context current first
+    WindowIF::makeCurrent(); // Validate FBO binding and caching state
 }
 
 void Window::swapBuffers()
@@ -427,15 +417,15 @@ void Window::leaveNVSwapBarrier()
 {
 }
 
-bool Window::processEvent( const WindowEvent& event )
+bool Window::processEvent( const WindowEvent& event_ )
 {
     // Resizing the FBO if needed
     if( getFrameBufferObject() &&
-        event.eq::Event::type == eq::Event::WINDOW_RESIZE )
+        event_.eq::Event::type == eq::Event::WINDOW_RESIZE )
     {
-        getFrameBufferObject()->resize( event.resize.w, event.resize.h );
+        getFrameBufferObject()->resize( event_.resize.w, event_.resize.h );
     }
-    return SystemWindow::processEvent( event );
+    return SystemWindow::processEvent( event_ );
 }
 
 QObject* Window::getEventProcessor()
