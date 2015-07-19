@@ -103,8 +103,10 @@ void GLWindow::initGLEW()
     if( _impl->glewInitialized )
         return;
 
+#ifndef _MSC_VER
     // http://sourceforge.net/p/glew/patches/40/
     glewExperimental = true;
+#endif
 
     const GLenum result = glewInit();
     glGetError(); // eat GL errors from buggy glew implementation
