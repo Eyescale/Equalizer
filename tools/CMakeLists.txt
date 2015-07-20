@@ -1,21 +1,4 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2013-2014 Stefan.Eilemann@epfl.ch
-
-include(CMakeParseArguments)
-include(PurpleInstallPDB)
-
-macro(EQ_ADD_TOOL NAME)
-  cmake_parse_arguments(THIS "" "" "SOURCES;HEADERS;LINK_LIBRARIES" ${ARGN})
-  set(THIS_TARGET ${NAME})
-  source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS})
-  add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
-  add_executable(${THIS_TARGET} ${THIS_SOURCES} ${THIS_HEADERS})
-  target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES})
-  set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
-    FOLDER "${PROJECT_NAME}/tools")
-  install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT apps)
-  purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT apps)
-endmacro()
+# Copyright (c) 2013-2015 Stefan.Eilemann@epfl.ch
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/examples/include
   ${PROJECT_SOURCE_DIR}/examples)
@@ -24,44 +7,39 @@ list(APPEND CPPCHECK_EXTRA_ARGS -I${PROJECT_SOURCE_DIR}/examples/include
   -I${PROJECT_SOURCE_DIR}/examples)
 
 if(WIN32)
-  eq_add_tool(affinityCheck SOURCES affinityCheck/affinityCheck.cpp
-    LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_gl_LIBRARY}
-    )
+  set(AFFINITYCHECK_SOURCES affinityCheck/affinityCheck.cpp)
+  set(AFFINITYCHECK_LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_gl_LIBRARY})
+  common_application(affinityCheck)
 endif()
 
-eq_add_tool(eqThreadAffinity SOURCES threadAffinity/threadAffinity.cpp
-  LINK_LIBRARIES Equalizer EqualizerServer
-  )
+set(EQTHREADAFFINITY_SOURCES threadAffinity/threadAffinity.cpp)
+set(EQTHREADAFFINITY_LINK_LIBRARIES Equalizer EqualizerServer)
+common_application(eqThreadAffinity)
 
-eq_add_tool(eqPlyConverter
-  HEADERS
-  SOURCES eqPlyConverter/main.cpp
-  LINK_LIBRARIES Equalizer triply
-  )
+set(EQPLYCONVERTER_SOURCES eqPlyConverter/main.cpp)
+set(EQPLYCONVERTER_LINK_LIBRARIES Equalizer triply)
+common_application(eqPlyConverter)
 
-eq_add_tool(eqWindowAdmin
-  SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES EqualizerAdmin
-  )
+set(EQWINDOWADMIN_SOURCES windowAdmin/main.cpp)
+set(EQWINDOWADMIN_LINK_LIBRARIES EqualizerAdmin)
+common_application(eqWindowAdmin)
 
-eq_add_tool(eqServer
-  SOURCES server/eqServer.cpp
-  LINK_LIBRARIES EqualizerServer
-  )
+set(EQSERVER_SOURCES server/eqServer.cpp)
+set(EQSERVER_LINK_LIBRARIES EqualizerServer)
+common_application(eqServer)
 
 list(APPEND CPPCHECK_EXTRA_ARGS --suppress=invalidscanf
   --suppress=invalidscanf_libc
   --suppress=variableScope --suppress=invalidPointerCast
   --suppress=invalidPrintfArgType_sint) # Yes, it's that bad.
 
-eq_add_tool(eVolveConverter
-  HEADERS
-    eVolveConverter/codebase.h
-    eVolveConverter/ddsbase.h
-    eVolveConverter/eVolveConverter.h
-    eVolveConverter/hlp.h
-  SOURCES
-    eVolveConverter/eVolveConverter.cpp
-    eVolveConverter/ddsbase.cpp
-  LINK_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  )
+set(EVOLVECONVERTER_HEADERS
+  eVolveConverter/codebase.h
+  eVolveConverter/ddsbase.h
+  eVolveConverter/eVolveConverter.h
+  eVolveConverter/hlp.h)
+set(EVOLVECONVERTER_SOURCES
+  eVolveConverter/eVolveConverter.cpp
+  eVolveConverter/ddsbase.cpp)
+set(EVOLVECONVERTER_LINK_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
+common_application(eVolveConverter)
