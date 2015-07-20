@@ -332,7 +332,7 @@ detail::Window* Window::createImpl( const WindowSettings& settings,
                                     QOpenGLContext* sharedContext,
                                     QThread* thread LB_UNUSED )
 {
-    const int32_t drawable = getAttribute( WindowSettings::IATTR_HINT_DRAWABLE);
+    const int32_t drawable = getAttribute( IATTR_HINT_DRAWABLE );
     detail::Window* window = 0;
     if( drawable == eq::WINDOW )
         window = new detail::QWindowWrapper( settings, sharedContext );
