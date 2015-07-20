@@ -42,4 +42,5 @@ set(EVOLVECONVERTER_SOURCES
   eVolveConverter/eVolveConverter.cpp
   eVolveConverter/ddsbase.cpp)
 set(EVOLVECONVERTER_LINK_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
+add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 common_application(eVolveConverter)
