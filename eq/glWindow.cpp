@@ -103,7 +103,7 @@ void GLWindow::initGLEW()
     if( _impl->glewInitialized )
         return;
 
-#ifndef _MSC_VER
+#ifdef __linux__
     // http://sourceforge.net/p/glew/patches/40/
     glewExperimental = true;
 #endif
@@ -254,6 +254,10 @@ void GLWindow::finish()
     glFinish();
 }
 
+#define TEST_GLEW_VERSION( MAJOR, MINOR ) \
+    if( GLEW_VERSION_ ## MAJOR ## _ ## MINOR )  \
+        drawableConfig.glewGLVersion = MAJOR ## . ## MINOR ## f;    \
+
 void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
 {
     // GL version
@@ -273,6 +277,26 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
         EQ_GL_CALL( glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask ));
         drawableConfig.coreProfile = mask & GL_CONTEXT_CORE_PROFILE_BIT;
     }
+
+    TEST_GLEW_VERSION( 1, 1 );
+    TEST_GLEW_VERSION( 1, 2 );
+    TEST_GLEW_VERSION( 1, 3 );
+    TEST_GLEW_VERSION( 1, 4 );
+    TEST_GLEW_VERSION( 1, 5 );
+    TEST_GLEW_VERSION( 2, 0 );
+    TEST_GLEW_VERSION( 2, 1 );
+    TEST_GLEW_VERSION( 3, 0 );
+    TEST_GLEW_VERSION( 3, 1 );
+    TEST_GLEW_VERSION( 3, 2 );
+    TEST_GLEW_VERSION( 3, 3 );
+    TEST_GLEW_VERSION( 4, 0 );
+    TEST_GLEW_VERSION( 4, 1 );
+    TEST_GLEW_VERSION( 4, 2 );
+    TEST_GLEW_VERSION( 4, 3 );
+#ifdef GLEW_VERSION_4_5
+    TEST_GLEW_VERSION( 4, 4 );
+    TEST_GLEW_VERSION( 4, 5 );
+#endif
 
     // Framebuffer capabilities
     GLboolean result;

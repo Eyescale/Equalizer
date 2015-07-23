@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master {#master}
 
+* [473](https://github.com/Eyescale/Equalizer/pull/473)
+  Fix OS X OpenGL detection
 * [463](https://github.com/Eyescale/Equalizer/pull/463):
   Use program name as default window title
 * [463](https://github.com/Eyescale/Equalizer/pull/463):

@@ -30,14 +30,15 @@ namespace fabric
     {
         DrawableConfig()
                 : stencilBits(0), colorBits(0), alphaBits(0), accumBits(0)
-                , glVersion( 0.f ), stereo( false ), doublebuffered( false )
-                , coreProfile( false ) {}
+                , glVersion( 0.f ), glewGLVersion( 0.f ), stereo( false )
+                , doublebuffered( false ) , coreProfile( false ) {}
 
         int32_t stencilBits;    //!< Number of stencil bits
         int32_t colorBits;      //!< Number of bits per color component
         int32_t alphaBits;      //!< Number of alpha bits
         int32_t accumBits;      //!< Number of accumulation bits
-        float   glVersion;      //!< OpenGL version
+        float   glVersion;      //!< OpenGL version (glGetString( GL_VERSION ))
+        float   glewGLVersion;  //!< OpenGL version (GLEW detected)
         bool    stereo;         //!< Active stereo supported
         bool    doublebuffered; //!< Doublebuffering supported
         bool    coreProfile;    //!< Core or Compat profile (since OpenGL 3.2)
@@ -46,7 +47,7 @@ namespace fabric
     inline std::ostream& operator << ( std::ostream& os,
                                        const DrawableConfig& config )
     {
-        os << "GL" << config.glVersion;
+        os << "GL" << config.glVersion << "|GLEW" << config.glewGLVersion;
         if( config.glVersion >= 3.2f )
             os << (config.coreProfile ? "|Core" : "|Compat");
         os << "|rgb" << config.colorBits;
@@ -77,4 +78,3 @@ template<> inline void byteswap( eq::fabric::DrawableConfig& value )
 }
 }
 #endif // EQ_DRAWABLECONFIG_H
-
