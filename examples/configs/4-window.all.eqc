@@ -150,6 +150,21 @@ server
         }
         layout
         {
+            name "DB_Active"
+            view
+            {
+                observer 0
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+        }
+        layout
+        {
             name "Eye"
             view
             {
@@ -316,6 +331,7 @@ server
             layout "DB_Stream"
             layout "DB_DirectSend"
             layout "DB_BinarySwap"
+            layout "DB_Active"
             layout "MultiLevel"
 
             layout "DFR"
@@ -867,6 +883,21 @@ server
             }
 
             inputframe { name "f2.c3" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+        }
+
+        compound
+        {
+            channel ( segment 0 layout "DB_Active" view 0 )
+            buffer [ COLOR DEPTH ]
+
+            load_equalizer{ mode DB }
+            compound {}
+            compound { channel "channel2" outputframe {} }
+            compound { channel "channel3" outputframe {} }
+            compound { channel "channel4" outputframe {} }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
             inputframe { name "frame.channel4" }
