@@ -49,8 +49,8 @@ LocalInitData::LocalInitData()
     , _color( true )
     , _isResident( false )
 {
-    _filenames.push_back( lunchbox::getExecutablePath() +
-                          "/../share/Equalizer/data" );
+    _filenames.push_back( lunchbox::getRootPath() +
+                          "/share/Equalizer/data" );
 }
 
 LocalInitData& LocalInitData::operator = ( const LocalInitData& from )

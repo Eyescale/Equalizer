@@ -598,7 +598,7 @@ void Window::configExit( )
     if( getIAttribute( eq::WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
         ChangeDisplaySettings( 0, 0 );
 
-    LBINFO << "Destroyed WGL context and window" << std::endl;
+    LBVERB << "Destroyed WGL context and window" << std::endl;
 }
 
 HDC Window::getWGLAffinityDC()

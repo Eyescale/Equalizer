@@ -292,7 +292,7 @@ bool Pipe::_configInitWGLEW()
     bool success = result == GLEW_OK;
     if( success )
     {
-        LBINFO << "Pipe WGLEW initialization successful" << std::endl;
+        LBDEBUG << "Pipe WGLEW initialization successful" << std::endl;
         success = configInitGL();
 
         const char* glVersion = (const char*)glGetString( GL_VERSION );

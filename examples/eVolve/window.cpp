@@ -87,8 +87,8 @@ bool Window::configInitGL( const eq::uint128_t& )
 namespace
 {
 static const std::string _logoTextureName =
-                              std::string( lunchbox::getExecutablePath() +
-                                          "/../share/Equalizer/data/logo.rgb" );
+                              std::string( lunchbox::getRootPath() +
+                                          "/share/Equalizer/data/logo.rgb" );
 }
 
 void Window::_loadLogo()

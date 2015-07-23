@@ -302,8 +302,8 @@ void _initPlugins()
 {
     pression::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
-    plugins.addDirectory( lunchbox::getExecutablePath() +
-                          "/../share/Equalizer/plugins" ); // install dir
+    plugins.addDirectory( lunchbox::getRootPath() +
+                          "/share/Equalizer/plugins" ); // install dir
     plugins.addDirectory( "/usr/share/Equalizer/plugins" );
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
     plugins.addDirectory( ".eqPlugins" );
@@ -348,10 +348,12 @@ void _exitPlugins()
 {
     pression::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
-    plugins.removeDirectory( lunchbox::getExecutablePath() +
-                             "/../share/Equalizer/plugins" );
+    plugins.removeDirectory( lunchbox::getRootPath() +
+                             "/share/Equalizer/plugins" );
+    plugins.removeDirectory( "/usr/share/Equalizer/plugins" );
     plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
     plugins.removeDirectory( ".eqPlugins" );
+    plugins.removeDirectory( "/opt/local/lib" ); // MacPorts
 
     const char* home = getenv( "HOME" );
     if( home )

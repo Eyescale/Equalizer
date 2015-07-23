@@ -43,7 +43,7 @@ static class : WindowSystemIF
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
     {
-        LBINFO << "Using wgl::Window" << std::endl;
+        LBDEBUG << "Using wgl::Window" << std::endl;
 
         eq::Pipe* pipe = window->getPipe();
         Pipe* wglPipe = dynamic_cast< Pipe* >( pipe->getSystemPipe( ));
@@ -52,7 +52,7 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) final
     {
-        LBINFO << "Using wgl::Pipe" << std::endl;
+        LBDEBUG << "Using wgl::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 

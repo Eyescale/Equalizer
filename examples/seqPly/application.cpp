@@ -136,8 +136,8 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
 
 
     eq::Strings filenames;
-    filenames.push_back( lunchbox::getExecutablePath() +
-                         "/../share/Equalizer/data" );
+    filenames.push_back( lunchbox::getRootPath() +
+                         "/share/Equalizer/data" );
 
     if( !userDefinedModelPath.empty( ))
     {
