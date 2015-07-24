@@ -51,8 +51,8 @@ InitData::InitData()
     , _precision( 2 )
     , _brightness( 1.0f )
     , _alpha( 1.0f )
-    , _filename( lunchbox::getExecutablePath() +
-                 "/../share/Equalizer/data/Bucky32x32x32_d.raw" )
+    , _filename( lunchbox::getRootPath() +
+                 "/share/Equalizer/data/Bucky32x32x32_d.raw" )
 {}
 
 InitData::~InitData()
