@@ -60,7 +60,6 @@ public:
 
     ~Channel()
     {
-        framebufferImage.flush();
         statistics->clear();
     }
 

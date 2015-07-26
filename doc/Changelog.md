@@ -3,7 +3,9 @@ Changelog {#Changelog}
 
 # git master {#master}
 
-* [473](https://github.com/Eyescale/Equalizer/pull/473)
+* [475](https://github.com/Eyescale/Equalizer/pull/475):
+  Fix GL error on exit if frameWriter was used
+* [473](https://github.com/Eyescale/Equalizer/pull/473):
   Fix OS X OpenGL detection
 * [463](https://github.com/Eyescale/Equalizer/pull/463):
   Use program name as default window title
