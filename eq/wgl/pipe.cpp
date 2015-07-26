@@ -89,37 +89,30 @@ bool Pipe::configInit()
         pvp.y = 0;
 
         HDC dc = createWGLDisplayDC();
-        if( dc )
-        {
-            uint32_t device = getPipe()->getDevice();
-            if( device == LB_UNDEFINED_UINT32 )
-                device = 0;
+        if( !dc )
+            return false;
 
-            DISPLAY_DEVICE devInfo;
-            devInfo.cb = sizeof( devInfo );
-            if( EnumDisplayDevices( 0, device, &devInfo, 0 ))
+        uint32_t device = getPipe()->getDevice();
+        if( device == LB_UNDEFINED_UINT32 )
+            device = 0;
+
+        DISPLAY_DEVICE devInfo;
+        devInfo.cb = sizeof( devInfo );
+        if( EnumDisplayDevices( 0, device, &devInfo, 0 ))
+        {
+            DEVMODE devMode;
+            devMode.dmSize = sizeof( devMode );
+            if( EnumDisplaySettings( devInfo.DeviceName,
+                                        ENUM_CURRENT_SETTINGS, &devMode ))
             {
-                DEVMODE devMode;
-                devMode.dmSize = sizeof( devMode );
-                if( EnumDisplaySettings( devInfo.DeviceName,
-                                         ENUM_CURRENT_SETTINGS, &devMode ))
-                {
-                    pvp.x = devMode.dmPosition.x;
-                    pvp.y = devMode.dmPosition.y;
-                }
+                pvp.x = devMode.dmPosition.x;
+                pvp.y = devMode.dmPosition.y;
             }
+        }
 
-            pvp.w = GetDeviceCaps( dc, HORZRES );
-            pvp.h = GetDeviceCaps( dc, VERTRES );
-            DeleteDC( dc );
-        }
-        else
-        {
-            LBWARN << "Can't create display dc query pipe resolution: "
-                   << lunchbox::sysError << std::endl;
-            pvp.w = 2048;
-            pvp.h = 2048;
-        }
+        pvp.w = GetDeviceCaps( dc, HORZRES );
+        pvp.h = GetDeviceCaps( dc, VERTRES );
+        DeleteDC( dc );
     }
 
     getPipe()->setPixelViewport( pvp );
