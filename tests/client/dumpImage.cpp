@@ -26,7 +26,7 @@
 
 #ifdef _WIN32
 #  define setenv( name, value, overwrite ) \
-    SetEnvironmentVariable( name, value )
+    _putenv_s( name, value )
 #endif
 
 #ifdef EQUALIZER_USE_HWSD
