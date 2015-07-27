@@ -109,9 +109,10 @@ bool Window::configExitGL()
 bool Window::processEvent( const eq::Event& event )
 {
     seq::Renderer* const renderer = getRenderer();
-    if( renderer->processEvent( event ))
-        return true;
-    return eq::Window::processEvent( event );
+    
+    bool successProcess = renderer->processEvent( event );
+
+    return eq::Window::processEvent( event ) || successProcess;
 }
 
 }
