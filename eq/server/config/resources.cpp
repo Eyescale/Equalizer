@@ -58,7 +58,7 @@
 #ifdef _MSC_VER
 #  include <eq/os.h>
 #  define setenv( name, value, overwrite ) \
-    SetEnvironmentVariable( name, value )
+    _putenv_s( name, value )
 #endif
 
 #define USE_IPv4

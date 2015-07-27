@@ -231,6 +231,7 @@ bool Channel::configExit()
     delete _impl->_dcProxy;
     _impl->_dcProxy = 0;
 #endif
+    _impl->framebufferImage.flush();
     return true;
 }
 
