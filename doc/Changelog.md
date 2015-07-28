@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master {#master}
 
+* [476](https://github.com/Eyescale/Equalizer/issues/476):
+  Fix slow readback of source channels with empty ROI
 * [475](https://github.com/Eyescale/Equalizer/pull/475):
   Fix GL error on exit if frameWriter was used
 * [473](https://github.com/Eyescale/Equalizer/pull/473):

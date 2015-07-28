@@ -137,7 +137,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
   endif()
 
   file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
-  string(REGEX REPLACE "[:/]" "-" __target "${__dir}")
+  string(REGEX REPLACE "[:/\\.]" "-" __target "${__dir}")
   if(TARGET ${__target}-rebase)
     return()
   endif()
@@ -232,7 +232,7 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
         list(GET DATA 2 TAG)
 
         # Create a unique, flat name
-        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR}_${PROJECT_NAME})
+        string(REPLACE "/" "-" GIT_EXTERNAL_NAME ${DIR}_${PROJECT_NAME})
 
         if(NOT TARGET update_git_external_${GIT_EXTERNAL_NAME}) # not done
           # pull in identified external

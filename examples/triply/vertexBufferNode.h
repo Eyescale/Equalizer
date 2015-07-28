@@ -59,7 +59,8 @@ protected:
     TRIPLY_API void setupTree( VertexData& data, const Index start,
                                const Index length, const Axis axis,
                                const size_t depth,
-                               VertexBufferData& globalData ) override;
+                               VertexBufferData& globalData,
+                               boost::progress_display& ) override;
     TRIPLY_API const BoundingSphere& updateBoundingSphere() override;
     TRIPLY_API void updateRange() override;
 

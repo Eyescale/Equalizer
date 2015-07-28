@@ -249,14 +249,16 @@ public:
      */
     void merge( const PixelViewport& rhs )
     {
-        if( *this == rhs || !rhs.hasArea() )
+        if( *this == rhs || !rhs.isValid( ))
             return;
 
-        if( !hasArea() )
+        if( !hasArea( ))
         {
             *this = rhs;
             return;
         }
+        if( !rhs.hasArea( ))
+            return;
 
         const int32_t sEx =     x +     w;
         const int32_t sEy =     y +     h;

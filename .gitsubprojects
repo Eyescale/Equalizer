@@ -1,8 +1,8 @@
 # -*- mode: cmake -*-
-git_subproject(vmmlib https://github.com/Eyescale/vmmlib.git d8e03ed)
-git_subproject(Lunchbox https://github.com/Eyescale/Lunchbox.git 472b88f)
+git_subproject(vmmlib https://github.com/Eyescale/vmmlib.git 1fe5273)
+git_subproject(Lunchbox https://github.com/Eyescale/Lunchbox.git a452ade)
 git_subproject(Pression https://github.com/Eyescale/Pression.git 7873fa6)
 git_subproject(hwsd https://github.com/Eyescale/hwsd.git fdd970a)
-git_subproject(Collage https://github.com/Eyescale/Collage.git 60acf6d)
+git_subproject(Collage https://github.com/Eyescale/Collage.git 5bc7d47)
 git_subproject(GLStats https://github.com/Eyescale/GLStats.git 5cc56db)
-git_subproject(Deflect https://github.com/BlueBrain/Deflect.git acf80d3)
+git_subproject(Deflect https://github.com/BlueBrain/Deflect.git 1965fb5)
