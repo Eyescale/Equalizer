@@ -116,22 +116,6 @@ struct Event
         WINDOW_HIDE,          //!< A window is hidden
         WINDOW_SHOW,          //!< A window is shown
         WINDOW_SCREENSAVER,   //!< A window screensaver request (Win32 only)
-#ifdef EQ_USE_DEPRECATED
-        POINTER_MOTION,       //!< Pointer movement data in pointerMotion
-        /** Pointer button press data in pointerButtonPress */
-        POINTER_BUTTON_PRESS,
-        /** Pointer button release data in pointerButtonRelease */
-        POINTER_BUTTON_RELEASE,
-        POINTER_WHEEL,        //!< Mouse wheel data in wheel
-        //!< Channel pointer movement data in pointerMotion
-        CHANNEL_POINTER_MOTION = POINTER_MOTION,
-        /** Channel pointer button press data in pointerButtonPress */
-        CHANNEL_POINTER_BUTTON_PRESS = POINTER_BUTTON_PRESS,
-        /** Channel pointer button release data in pointerButtonRelease */
-        CHANNEL_POINTER_BUTTON_RELEASE = POINTER_BUTTON_RELEASE,
-        //!< Window pointer Mouse wheel data in wheel
-        WINDOW_POINTER_WHEEL = POINTER_WHEEL,
-#else
         //!< Channel pointer movement data in pointerMotion
         CHANNEL_POINTER_MOTION,
         /** Channel pointer button press data in pointerButtonPress */
@@ -142,7 +126,6 @@ struct Event
         CHANNEL_POINTER_WHEEL,
         //!< Window pointer Mouse wheel data in wheel
         WINDOW_POINTER_WHEEL,
-#endif
         //!< Window pointer movement data in pointerMotion
         WINDOW_POINTER_MOTION,
         /** Window pointer button press data in pointerButtonPress */

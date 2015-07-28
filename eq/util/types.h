@@ -39,10 +39,6 @@ namespace shader {}
 
 /** A vector of pointers to eq::util::Texture */
 typedef std::vector< Texture* >  Textures;
-
-#ifdef EQ_USE_DEPRECATED
-typedef Textures TextureVector;
-#endif
 }
 }
 #endif // EQUTIL_TYPES_H
