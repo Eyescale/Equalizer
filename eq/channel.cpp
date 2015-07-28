@@ -363,11 +363,8 @@ void Channel::frameReadback( const uint128_t&, const Frames& frames )
     const DrawableConfig& drawable    = getDrawableConfig();
     const PixelViewports& regions     = getRegions();
 
-    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
+    for( Frame* frame : frames )
         frame->startReadback( glObjects, drawable, regions );
-    }
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -502,7 +499,7 @@ void Channel::removeResultImageListener( ResultImageListener* listener )
 std::string Channel::getDumpImageFileName() const
 {
     std::stringstream name;
-    name << getCurrentFrame() << ".rgb"; 
+    name << getCurrentFrame() << ".rgb";
     return name.str();
 }
 
@@ -774,14 +771,12 @@ bool _removeOverlap( PixelViewports& regions )
 void Channel::declareRegion( const PixelViewport& region )
 {
     PixelViewports& regions = _impl->regions;
-
     PixelViewport clippedRegion = region;
     PixelViewport pvp = getPixelViewport();
     pvp.x = 0;
     pvp.y = 0;
 
     clippedRegion.intersect( pvp );
-
     if( clippedRegion.hasArea( ))
     {
         regions.push_back( clippedRegion );
@@ -805,8 +800,8 @@ void Channel::declareRegion( const PixelViewport& region )
 PixelViewport Channel::getRegion() const
 {
     PixelViewport region;
-    for( size_t i = 0; i < _impl->regions.size(); ++i )
-        region.merge( _impl->regions[i] );
+    for( const PixelViewport& pvp : _impl->regions )
+        region.merge( pvp );
 
     return region;
 }
