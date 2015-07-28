@@ -298,7 +298,9 @@ public:
      *
      * The task of this method is to update the window as necessary, and
      * transform the event into an config event to be send to the
-     * application using Config::sendEvent().
+     * application using Config::sendEvent(). Events which can be related to a
+     * channel (eg pointer events) are transformed into their corresponding
+     * channel event and forwarded to Channel::processEvent().
      *
      * @param event the received window system event.
      * @return true when the event was handled, false if not.
