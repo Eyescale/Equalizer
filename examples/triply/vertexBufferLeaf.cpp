@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *          2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,8 +40,9 @@ namespace triply
 /*  Finish partial setup - sort, reindex and merge into global data.  */
 void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                                   const Index length, const Axis axis,
-                                  const size_t /*depth*/,
-                                  VertexBufferData& globalData )
+                                  const size_t depth,
+                                  VertexBufferData& globalData,
+                                  boost::progress_display& progress )
 {
     data.sort( start, length, axis );
     _vertexStart = globalData.vertices.size();
@@ -73,12 +74,8 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
             ++_indexLength;
         }
     }
-
-#ifndef NDEBUG
-    PLYLIBINFO << "setupTree" << "( " << _indexStart << ", " << _indexLength
-             << "; start " << _vertexStart << ", " << _vertexLength
-             << " vertices)." << std::endl;
-#endif
+    if( depth == 3 )
+        ++progress;
 }
 
 
@@ -175,12 +172,6 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.y() = center.y();
     _boundingSphere.z() = center.z();
     _boundingSphere.w() = radius;
-
-#ifndef NDEBUG
-    PLYLIBINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )."
-             << std::endl;
-#endif
-
     return _boundingSphere;
 }
 
@@ -190,11 +181,6 @@ void VertexBufferLeaf::updateRange()
 {
     _range[0] = 1.0f * _indexStart / _globalData.indices.size();
     _range[1] = _range[0] + 1.0f * _indexLength / _globalData.indices.size();
-
-#ifndef NDEBUG
-    PLYLIBINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
-             << " )." << std::endl;
-#endif
 }
 
 #define glewGetContext state.glewGetContext

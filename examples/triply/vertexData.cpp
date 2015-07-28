@@ -165,11 +165,6 @@ bool VertexData::readPlyFile( const std::string& filename )
     }
     PLYLIBASSERT( elemNames != 0 );
 
-    #ifndef NDEBUG
-    PLYLIBINFO << filename << ": " << nPlyElems << " elements, file type = "
-             << fileType << ", version = " << version << std::endl;
-    #endif
-
     for( int i = 0; i < nPlyElems; ++i )
     {
         int nElems;
@@ -178,17 +173,6 @@ bool VertexData::readPlyFile( const std::string& filename )
         PlyProperty** props = ply_get_element_description( file, elemNames[i],
                                                            &nElems, &nProps );
         PLYLIBASSERT( props != 0 );
-
-        #ifndef NDEBUG
-        PLYLIBINFO << "element " << i << ": name = " << elemNames[i] << ", "
-                 << nProps << " properties, " << nElems << " elements"
-                 << std::endl;
-        for( int j = 0; j < nProps; ++j )
-        {
-            PLYLIBINFO << "element " << i << ", property " << j << ": "
-                     << "name = " << props[j]->name << std::endl;
-        }
-        #endif
 
         if( equal_strings( elemNames[i], "vertex" ) )
         {

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -55,14 +55,9 @@ inline static bool _subdivide( const Index length, const size_t depth )
 void VertexBufferNode::setupTree( VertexData& data, const Index start,
                                   const Index length, const Axis axis,
                                   const size_t depth,
-                                  VertexBufferData& globalData )
+                                  VertexBufferData& globalData,
+                                  boost::progress_display& progress )
 {
-#ifndef NDEBUG
-    PLYLIBINFO << "setupTree"
-             << "( " << start << ", " << length << ", " << axis << ", " 
-             << depth << " )." << std::endl;
-#endif
-
     data.sort( start, length, axis );
     const Index median = start + ( length / 2 );
 
@@ -74,7 +69,7 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
         _left = new VertexBufferNode;
     else
         _left = new VertexBufferLeaf( globalData );
-    
+
     // right child will include elements equal to or greater than the median
     const Index rightLength    = ( length + 1 ) / 2;
     const bool  subdivideRight = _subdivide( rightLength, depth );
@@ -83,21 +78,22 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
         _right = new VertexBufferNode;
     else
         _right = new VertexBufferLeaf( globalData );
-    
+
     // move to next axis and continue contruction in the child nodes
-    const Axis newAxisLeft  = subdivideLeft ? 
+    const Axis newAxisLeft  = subdivideLeft ?
                         data.getLongestAxis( start , leftLength  ) : AXIS_X;
 
-    const Axis newAxisRight = subdivideRight ? 
+    const Axis newAxisRight = subdivideRight ?
                         data.getLongestAxis( median, rightLength ) : AXIS_X;
 
     static_cast< VertexBufferNode* >
             ( _left )->setupTree( data, start, leftLength, newAxisLeft, depth+1,
-                                  globalData );
+                                  globalData, progress );
     static_cast< VertexBufferNode* >
         ( _right )->setupTree( data, median, rightLength, newAxisRight, depth+1,
-                               globalData );
-
+                               globalData, progress );
+    if( depth == 3 )
+        ++progress;
 }
 
 
@@ -107,27 +103,21 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     // take the bounding spheres returned by the children
     const BoundingSphere& sphere1 = _left->updateBoundingSphere();
     const BoundingSphere& sphere2 = _right->updateBoundingSphere();
-    
+
     // compute enclosing sphere
     const Vertex center1( sphere1.array );
     const Vertex center2( sphere2.array );
     Vertex c1ToC2     = center2 - center1;
     c1ToC2.normalize();
-    
+
     const Vertex outer1 = center1 - c1ToC2 * sphere1.w();
     const Vertex outer2 = center2 + c1ToC2 * sphere2.w();
 
-    Vertex vertexBoundingSphere = Vertex( outer1 + outer2 ) * 0.5f; 
+    Vertex vertexBoundingSphere = Vertex( outer1 + outer2 ) * 0.5f;
     _boundingSphere.x() = vertexBoundingSphere.x();
     _boundingSphere.y() = vertexBoundingSphere.y();
     _boundingSphere.z() = vertexBoundingSphere.z();
     _boundingSphere.w() = Vertex( outer1 - outer2 ).length() * 0.5f;
-    
-#ifndef NDEBUG
-    PLYLIBINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )." 
-             << std::endl;
-#endif
-    
     return _boundingSphere;
 }
 
@@ -138,15 +128,10 @@ void VertexBufferNode::updateRange()
     // update the children's ranges
     static_cast< VertexBufferNode* >( _left )->updateRange();
     static_cast< VertexBufferNode* >( _right )->updateRange();
-    
+
     // set node range to min/max of the children's ranges
     _range[0] = std::min( _left->getRange()[0], _right->getRange()[0] );
     _range[1] = std::max( _left->getRange()[1], _right->getRange()[1] );
-    
-#ifndef NDEBUG
-    PLYLIBINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
-             << " )." << std::endl;
-#endif
 }
 
 
@@ -164,14 +149,14 @@ void VertexBufferNode::draw( VertexBufferState& state ) const
 /*  Read node from memory and continue with remaining nodes.  */
 void VertexBufferNode::fromMemory( char** addr, VertexBufferData& globalData )
 {
-    // read node itself   
+    // read node itself
     size_t nodeType;
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
     if( nodeType != NODE_TYPE )
         throw MeshException( "Error reading binary file. Expected a regular "
                              "node, but found something else instead." );
     VertexBufferBase::fromMemory( addr, globalData );
-    
+
     // read left child (peek ahead)
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
     if( nodeType != NODE_TYPE && nodeType != LEAF_TYPE )
@@ -183,7 +168,7 @@ void VertexBufferNode::fromMemory( char** addr, VertexBufferData& globalData )
     else
         _left = new VertexBufferLeaf( globalData );
     static_cast< VertexBufferNode* >( _left )->fromMemory( addr, globalData );
-    
+
     // read right child (peek ahead)
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
     if( nodeType != NODE_TYPE && nodeType != LEAF_TYPE )

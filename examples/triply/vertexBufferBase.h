@@ -89,7 +89,8 @@ protected:
     virtual void setupTree( VertexData& data, const Index start,
                             const Index length, const Axis axis,
                             const size_t depth,
-                            VertexBufferData& globalData ) = 0;
+                            VertexBufferData& globalData,
+                            boost::progress_display& ) = 0;
 
     virtual void updateRange() = 0;
 

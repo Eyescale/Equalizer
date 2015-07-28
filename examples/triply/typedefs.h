@@ -62,6 +62,7 @@
 #  define PLYLIBINFO    std::cout
 #endif
 
+#include <boost/progress.hpp>
 #include <exception>
 #include <iostream>
 #include <string>

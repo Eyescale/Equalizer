@@ -35,7 +35,6 @@
 #include "vertexBufferData.h"
 #include "vertexBufferNode.h"
 
-
 namespace triply
 {
 /*  The class for kd-tree root nodes.  */
@@ -47,7 +46,7 @@ public:
     TRIPLY_API virtual void cullDraw( VertexBufferState& state ) const;
     TRIPLY_API virtual void draw( VertexBufferState& state ) const;
 
-    TRIPLY_API void setupTree( VertexData& data );
+    TRIPLY_API void setupTree( VertexData& data, boost::progress_display&  );
     TRIPLY_API bool writeToFile( const std::string& filename );
     TRIPLY_API bool readFromFile( const std::string& filename );
     bool hasColors() const { return !_data.colors.empty(); }

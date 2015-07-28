@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,8 @@ protected:
     virtual void setupTree( VertexData& data, const Index start,
                             const Index length, const Axis axis,
                             const size_t depth,
-                            VertexBufferData& globalData );
+                            VertexBufferData& globalData,
+                            boost::progress_display& );
     virtual const BoundingSphere& updateBoundingSphere();
     virtual void updateRange();
 
