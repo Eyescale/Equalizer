@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master {#master}
 
+* [479](https://github.com/Eyescale/Equalizer/pull/479):
+  Fix mouse wheel direction on AGL
 * [476](https://github.com/Eyescale/Equalizer/issues/476):
   Fix slow readback of source channels with empty ROI
 * [475](https://github.com/Eyescale/Equalizer/pull/475):

@@ -382,10 +382,10 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
 
             switch( axis )
             {
-                case kEventMouseWheelAxisY: // NO typo - y is the primary axis
+                case kEventMouseWheelAxisX:
                     event.pointerWheel.xAxis = delta;
                     return true;
-                case kEventMouseWheelAxisX:
+                case kEventMouseWheelAxisY:
                     event.pointerWheel.yAxis = delta;
                     return true;
                 default:
