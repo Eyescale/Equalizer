@@ -37,6 +37,9 @@ public:
     void postWakeup() override;
     void dispatchAll() override;
     void dispatchOne( const uint32_t timeout = LB_TIMEOUT_INDEFINITE ) override;
+
+private:
+    lunchbox::a_int32_t _wakeup;
 };
 }
 }
