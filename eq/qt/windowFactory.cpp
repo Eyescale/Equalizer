@@ -19,6 +19,7 @@
 
 #include "shareContextWindow.h"
 #include "window.h"
+#include "windowImpl.h"
 
 namespace eq
 {
@@ -41,9 +42,14 @@ QOpenGLContext* _getShareContext( const WindowSettings& settings )
 }
 
 detail::Window* WindowFactory::onCreateImpl( const WindowSettings& settings,
-                                            QThread* thread_ )
+                                             QThread* thread_ )
 {
     return Window::createImpl( settings, _getShareContext( settings ), thread_);
+}
+
+void WindowFactory::onDestroyImpl( detail::Window* window )
+{
+    delete window;
 }
 
 }

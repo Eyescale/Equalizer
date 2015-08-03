@@ -248,6 +248,7 @@ if(EQ_QT_USED)
     qt/messagePump.cpp
     qt/pipe.cpp
     qt/window.cpp
+    qt/windowImpl.h
     qt/windowFactory.cpp
     qt/windowSystem.cpp
     )
