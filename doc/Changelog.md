@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master {#master}
 
+* [481](https://github.com/Eyescale/Equalizer/pull/481):
+  Fix Config::getNextEvent() with definite timeout
 * [467](https://github.com/Eyescale/Equalizer/issues/467):
   Fix CPU load with idle Qt-based windows
 * [479](https://github.com/Eyescale/Equalizer/pull/479):

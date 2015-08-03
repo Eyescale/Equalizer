@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -96,6 +96,7 @@
 #include <eq/init.h>
 #include <eq/layout.h>
 #include <eq/log.h>
+#include <eq/messagePump.h>
 #include <eq/node.h>
 #include <eq/nodeFactory.h>
 #include <eq/observer.h>
