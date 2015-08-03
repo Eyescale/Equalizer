@@ -17,6 +17,8 @@
 
 #include "messagePump.h"
 
+#include <lunchbox/clock.h>
+#include <lunchbox/sleep.h>
 #include <QEventLoop>
 
 namespace eq
@@ -33,14 +35,33 @@ MessagePump::~MessagePump()
 
 void MessagePump::postWakeup()
 {
-    QEventLoop eventLoop;
-    eventLoop.wakeUp();
+    _wakeup = 1;
 }
 
 void MessagePump::dispatchOne( const uint32_t timeout )
 {
+    // dispatchOne / wakeup semantics are not implementable. poll.
+    // * QEventLoop::wakeup does not wakup processEvents( WaitForMoreEvents )
+    // * processEvents( timeout ) returns as soon as there are no events
+
     QEventLoop eventLoop;
-    eventLoop.processEvents( QEventLoop::AllEvents, timeout );
+    lunchbox::Clock _clock;
+    if( eventLoop.processEvents( QEventLoop::AllEvents ))
+        return;
+
+    uint32_t timeLeft = std::max( 0u, timeout - uint32_t( _clock.getTimef( )));
+    while( timeLeft )
+    {
+        if( _wakeup == 1 )
+        {
+            _wakeup = 0;
+            return;
+        }
+        lunchbox::sleep( std::min( 10u, timeLeft ));
+        if( eventLoop.processEvents( QEventLoop::AllEvents ))
+            return;
+        timeLeft = std::max( 0u, timeout - uint32_t( _clock.getTimef( )));
+    }
 }
 
 void MessagePump::dispatchAll()
