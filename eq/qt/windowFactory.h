@@ -33,6 +33,7 @@ class WindowFactory : public QObject
 
 public slots:
     detail::Window* onCreateImpl( const WindowSettings&, QThread* );
+    void onDestroyImpl( detail::Window* window );
 };
 
 }

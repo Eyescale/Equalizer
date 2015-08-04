@@ -90,6 +90,11 @@ int main( int argc, char** argv )
 
     // 3. initialization of local client node
     lunchbox::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
+#ifdef EQUALIZER_USE_QT5WIDGETS
+    // no working multi GPU setup for Qt yet...
+    if( initData.getWindowSystem() == "Qt" )
+        client->addActiveLayout( "Simple" );
+#endif
     if( !client->initLocal( argc, argv ))
     {
         LBERROR << "Can't init client" << std::endl;

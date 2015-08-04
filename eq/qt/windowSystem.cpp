@@ -67,7 +67,13 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
     LBDEBUG << "Using qt::Window" << std::endl;
     window->getClient()->interruptMainThread();
     qt::detail::Window* impl = createImpl( settings, QThread::currentThread( ));
-    return new Window( *window, settings, impl );
+    Window* qtWindow = new Window( *window, settings, impl );
+
+    QCoreApplication* app = QApplication::instance();
+    app->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
+                  _factory, SLOT( onDestroyImpl( detail::Window* )));
+
+    return qtWindow;
 }
 
 eq::SystemPipe* WindowSystem::createPipe( eq::Pipe* pipe )

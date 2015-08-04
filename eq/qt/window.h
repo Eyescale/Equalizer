@@ -130,9 +130,6 @@ public:
      */
     EQ_API QObject* getEventProcessor();
 
-public slots:
-    void onDestroyImpl( detail::Window* );
-
 signals:
     void destroyImpl( detail::Window* );
 

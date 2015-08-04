@@ -15,12 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/api.h>
-#define CO_WORKER_API EQ_API
-#include <co/worker.ipp>
-#undef CO_WORKER_API
-
 #include "commandQueue.h"
+
+#include <co/worker.ipp>
 
 // eq::Worker typedef in types.h
 template class co::WorkerThread< eq::CommandQueue >;
