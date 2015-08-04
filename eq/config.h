@@ -421,7 +421,7 @@ public:
      * method does not block if the given timeout is 0. Not thread safe.
      *
      * @param timeout time in ms to wait for incoming events
-     * @return the event command.
+     * @return the event command, or an invalid command on timeout
      * @version 1.5.1
      * @sa Client::processCommand()
      */
