@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,7 +102,7 @@ void Client::processCommand( const uint32_t timeout )
     co::CommandQueue* queue = getMainThreadQueue();
     LBASSERT( queue );
     co::ICommand command = queue->pop( timeout );
-    if( !command.isValid( )) // just a wakeup()
+    if( !command.isValid( )) // wakeup() or timeout
         return;
 
     LBCHECK( command( ));

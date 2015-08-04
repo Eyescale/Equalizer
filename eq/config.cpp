@@ -40,7 +40,6 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
 
-#include <co/exception.h>
 #include <co/object.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -496,17 +495,7 @@ uint32_t Config::finishAllFrames()
     ClientPtr client = getClient();
     const uint32_t timeout = getTimeout();
     while( _impl->finishedFrame < _impl->currentFrame )
-    {
-        try
-        {
-            client->processCommand( timeout );
-        }
-        catch( const co::Exception& e )
-        {
-            LBWARN << e.what() << std::endl;
-            break;
-        }
-    }
+        client->processCommand( timeout );
     handleEvents();
     _updateStatistics();
     _releaseObjects();
