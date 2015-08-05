@@ -60,7 +60,7 @@ bool Client::connectServer( co::NodePtr server )
         connDesc = new co::ConnectionDescription;
         connDesc->port = EQ_DEFAULT_PORT;
 
-        const std::string globalServer = Global::getServer();
+        const std::string& globalServer = Global::getServer();
         const char* envServer = getenv( "EQ_SERVER" );
         std::string address = !globalServer.empty() ? globalServer :
                                envServer            ? envServer : "localhost";
