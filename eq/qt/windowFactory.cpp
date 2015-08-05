@@ -17,7 +17,6 @@
 
 #include "windowFactory.h"
 
-#include "shareContextWindow.h"
 #include "window.h"
 #include "windowImpl.h"
 
@@ -25,26 +24,11 @@ namespace eq
 {
 namespace qt
 {
-namespace
-{
-QOpenGLContext* _getShareContext( const WindowSettings& settings )
-{
-    const SystemWindow* shareWindow = settings.getSharedContextWindow();
-    const Window* window = dynamic_cast< const Window* >( shareWindow );
-    if( window )
-        // This only works if configInit has already been called in the window
-        return window->getContext();
-
-    const ShareContextWindow* dummyWindow =
-        dynamic_cast< const ShareContextWindow* >( shareWindow );
-    return dummyWindow ? dummyWindow->getContext() : 0;
-}
-}
 
 detail::Window* WindowFactory::onCreateImpl( const WindowSettings& settings,
                                              QThread* thread_ )
 {
-    return Window::createImpl( settings, _getShareContext( settings ), thread_);
+    return Window::createImpl( settings, thread_ );
 }
 
 void WindowFactory::onDestroyImpl( detail::Window* window )

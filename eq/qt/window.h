@@ -133,13 +133,15 @@ public:
      */
     EQ_API QObject* getEventProcessor();
 
+    /** Move OpenGLContext object to given thread. @version 1.10 */
+    void moveContextToThread( QThread* thread );
+
 signals:
     void destroyImpl( detail::Window* );
 
 private:
     detail::Window* const _impl;
-    static detail::Window* createImpl( const WindowSettings&, QOpenGLContext*,
-                                       QThread* );
+    static detail::Window* createImpl( const WindowSettings&, QThread* );
     friend class WindowFactory;
 };
 }

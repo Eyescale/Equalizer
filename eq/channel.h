@@ -54,7 +54,9 @@ public:
     EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
     EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
-    void waitFrameFinished( const uint32_t frame ) const; //!< @internal
+
+    /** @internal */
+    bool waitFrameFinished( uint32_t frame, uint32_t timeout ) const;
 
     /**
      * @return true if this channel is stopped, false otherwise.
@@ -654,7 +656,8 @@ private:
     Frames _getFrames( const co::ObjectVersions& frameIDs,
                        const bool isOutput );
 
-    void _deleteTransferContext();
+    void _createTransferWindow();
+    void _deleteTransferWindow();
 
     /* The command handler functions. */
     bool _cmdConfigInit( co::ICommand& command );
@@ -674,7 +677,8 @@ private:
     bool _cmdFrameViewFinish( co::ICommand& command );
     bool _cmdStopFrame( co::ICommand& command );
     bool _cmdFrameTiles( co::ICommand& command );
-    bool _cmdDeleteTransferContext( co::ICommand& command );
+    bool _cmdCreateTransferWindow( co::ICommand& command );
+    bool _cmdDeleteTransferWindow( co::ICommand& command );
 
     LB_TS_VAR( _pipeThread );
 };

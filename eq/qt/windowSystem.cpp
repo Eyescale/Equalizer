@@ -27,6 +27,7 @@
 #include "pipe.h"
 #include "shareContextWindow.h"
 #include "window.h"
+#include "windowImpl.h"
 #include "windowFactory.h"
 
 #include <eq/client.h>
@@ -65,14 +66,16 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
                                               const WindowSettings& settings )
 {
     LBDEBUG << "Using qt::Window" << std::endl;
+
+    // QWindow creation/destruction must happen in the app thread; unblock main
+    // thread to give QApplication the chance to process the createImpl signal.
+    // Note that even a QOffscreenSurface is backed by a QWindow on some
+    // platforms.
     window->getClient()->interruptMainThread();
     qt::detail::Window* impl = createImpl( settings, QThread::currentThread( ));
     Window* qtWindow = new Window( *window, settings, impl );
-
-    QCoreApplication* app = QApplication::instance();
-    app->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
-                  _factory, SLOT( onDestroyImpl( detail::Window* )));
-
+    qtWindow->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
+                      _factory, SLOT( onDestroyImpl( detail::Window* )));
     return qtWindow;
 }
 

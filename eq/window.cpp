@@ -499,6 +499,7 @@ bool Window::configInitGL( const uint128_t& )
 
 bool Window::createTransferWindow()
 {
+    LB_TS_THREAD( _pipeThread );
     LBASSERT( _systemWindow );
 
     if( _transferWindow )
@@ -522,7 +523,12 @@ bool Window::createTransferWindow()
             _transferWindow = 0;
         }
         else
-            makeCurrentTransfer(); // #177
+        {
+            // #177: It looks like the driver realizes the context on the first
+            // makeCurrent
+            _transferWindow->makeCurrent();
+            _transferWindow->doneCurrent();
+        }
     }
     else
         LBERROR << "Window system " << pipe->getWindowSystem()
@@ -542,15 +548,7 @@ const GLEWContext* Window::getTransferGlewContext()
     return 0;
 }
 
-void Window::makeCurrentTransfer( const bool useCache ) const
-{
-    LBASSERT( _transferWindow );
-    if( _transferWindow )
-        _transferWindow->makeCurrent( useCache );
-}
-
-
-void Window::deleteTransferSystemWindow()
+void Window::deleteTransferWindow()
 {
     if( !_transferWindow )
         return;
@@ -558,6 +556,11 @@ void Window::deleteTransferSystemWindow()
     _transferWindow->configExit();
     delete _transferWindow;
     _transferWindow = 0;
+}
+
+SystemWindow* Window::getTransferWindow()
+{
+    return _transferWindow;
 }
 
 //----------------------------------------------------------------------

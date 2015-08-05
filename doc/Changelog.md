@@ -4,6 +4,8 @@ Changelog {#Changelog}
 # git master {#master}
 
 * [484](https://github.com/Eyescale/Equalizer/pull/484):
+  Fix transfer window deadlock with Qt5
+* [484](https://github.com/Eyescale/Equalizer/pull/484):
   Implement Window::doneCurrent() to make no OpenGL context current in the
   current thread
 * [481](https://github.com/Eyescale/Equalizer/pull/481):

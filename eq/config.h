@@ -115,7 +115,7 @@ public:
     EQ_API int64_t getTime() const;
 
     /** @return the config's message pump, or 0. @version 1.0 */
-    MessagePump* getMessagePump();
+    EQ_API MessagePump* getMessagePump();
 
     /** @internal */
     const Channel* findChannel( const std::string& name ) const

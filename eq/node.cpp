@@ -331,7 +331,7 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
-        const Pipe* pipe = *i;
+        Pipe* pipe = *i;
         LBASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
 
         pipe->waitFrameLocal( frameNumber );
