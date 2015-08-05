@@ -45,6 +45,7 @@ public:
     bool configInit() override;
     void configExit() override;
     void makeCurrent( bool /*cache*/ ) const override {}
+    void doneCurrent() const override {}
     void bindFrameBuffer() const override {}
     void bindDrawFrameBuffer() const override {}
     void updateFrameBuffer() const override {}

@@ -103,6 +103,9 @@ public:
     /** @version 1.7.3 */
     EQ_API void makeCurrent( const bool cache = true ) const override;
 
+    /** @version 1.10 */
+    EQ_API void doneCurrent() const override;
+
     /** @version 1.7.3 */
     EQ_API void swapBuffers() override;
 

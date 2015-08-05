@@ -141,6 +141,15 @@ void Window::makeCurrent( const bool cache ) const
     }
 }
 
+void Window::doneCurrent() const
+{
+    if( !isCurrent( ))
+        return;
+
+    aglSetCurrentContext( 0 );
+    WindowIF::doneCurrent();
+}
+
 void Window::swapBuffers()
 {
     aglSwapBuffers( _impl->aglContext );

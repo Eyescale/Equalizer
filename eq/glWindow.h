@@ -46,6 +46,9 @@ public:
     /** Bind the FBO and update the current cache. @version 1.0 */
     EQ_API void makeCurrent( const bool cache = true ) const override;
 
+    /** Unbind the FBO and remove context from current cache. @version 1.10 */
+    EQ_API void doneCurrent() const override;
+
     /**
      * @return true if this window was last made current in this thread.
      * @version 1.3.2

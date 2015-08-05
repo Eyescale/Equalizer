@@ -595,7 +595,13 @@ void Window::makeCurrent( const bool useCache ) const
     LBASSERT( _systemWindow );
     if( _systemWindow )
         _systemWindow->makeCurrent( useCache );
-    // _pipe->setCurrent done by SystemWindow::makeCurrent
+}
+
+void Window::doneCurrent() const
+{
+    LBASSERT( _systemWindow );
+    if( _systemWindow )
+        _systemWindow->doneCurrent();
 }
 
 void Window::bindFrameBuffer() const

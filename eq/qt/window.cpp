@@ -93,6 +93,15 @@ void Window::makeCurrent( const bool cache LB_UNUSED ) const
     WindowIF::makeCurrent(); // Validate FBO binding and caching state
 }
 
+void Window::doneCurrent() const
+{
+    if( !isCurrent( ))
+        return;
+
+    _impl->doneCurrent();
+    WindowIF::doneCurrent();
+}
+
 void Window::swapBuffers()
 {
     _impl->swapBuffers();

@@ -233,6 +233,12 @@ public:
      */
     EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
+    /**
+     * This results in no context being current in the current thread.
+     * @version 1.10
+     */
+    EQ_API virtual void doneCurrent() const;
+
     /** @internal
      * Make the shared transfer window's drawable and context current.
      */

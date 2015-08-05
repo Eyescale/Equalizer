@@ -196,6 +196,9 @@ public:
     /** @version 1.0 */
     void makeCurrent( const bool cache = true ) const override;
 
+    /** @version 1.10 */
+    void doneCurrent() const override;
+
     /** @version 1.0 */
     void swapBuffers() override;
 
