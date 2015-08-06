@@ -103,6 +103,9 @@ public:
     /** @version 1.7.3 */
     EQ_API void makeCurrent( const bool cache = true ) const override;
 
+    /** @version 1.10 */
+    EQ_API void doneCurrent() const override;
+
     /** @version 1.7.3 */
     EQ_API void swapBuffers() override;
 
@@ -130,13 +133,15 @@ public:
      */
     EQ_API QObject* getEventProcessor();
 
+    /** Move OpenGLContext object to given thread. @version 1.10 */
+    void moveContextToThread( QThread* thread );
+
 signals:
     void destroyImpl( detail::Window* );
 
 private:
     detail::Window* const _impl;
-    static detail::Window* createImpl( const WindowSettings&, QOpenGLContext*,
-                                       QThread* );
+    static detail::Window* createImpl( const WindowSettings&, QThread* );
     friend class WindowFactory;
 };
 }

@@ -250,6 +250,9 @@ public:
     /** @version 1.0 */
     EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
+    /** @version 1.10 */
+    EQ_API virtual void doneCurrent() const;
+
     /** @version 1.0 */
     EQ_API virtual void swapBuffers();
 

@@ -233,10 +233,11 @@ public:
      */
     EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
-    /** @internal
-     * Make the shared transfer window's drawable and context current.
+    /**
+     * This results in no context being current in the current thread.
+     * @version 1.10
      */
-    void makeCurrentTransfer( const bool cache = true ) const;
+    EQ_API virtual void doneCurrent() const;
 
     /** @internal Bind the window's FBO, if it uses one. */
     EQ_API virtual void bindFrameBuffer() const;
@@ -280,7 +281,10 @@ public:
     bool createTransferWindow();
 
     /** @internal delete the shared context window. */
-    void deleteTransferSystemWindow();
+    void deleteTransferWindow();
+
+    /** @internal @return the transfer window, or 0 if not created yet. */
+    SystemWindow* getTransferWindow();
     //@}
 
     /** @name Events */

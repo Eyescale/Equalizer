@@ -93,6 +93,16 @@ void GLWindow::makeCurrent( const bool useCache ) const
     _current = this;
 }
 
+void GLWindow::doneCurrent() const
+{
+    if( !_current )
+        return;
+
+    if( _impl->fbo )
+        _impl->fbo->unbind();
+    _current = 0;
+}
+
 bool GLWindow::isCurrent() const
 {
     return _current == this;

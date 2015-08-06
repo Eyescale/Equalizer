@@ -33,7 +33,7 @@
 namespace eq
 {
 namespace qt
-{    
+{
 namespace detail
 {
 namespace
@@ -300,7 +300,7 @@ public:
 
     void makeCurrent() final
     {
-        if( _context->makeCurrent( this ))
+        if( !_context->makeCurrent( this ))
             LBWARN << "QOpenGLContext::makeCurrent failed: "
                    << _context.data() << std::endl;
     }

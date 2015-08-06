@@ -54,6 +54,7 @@ public:
     bool configInit() final { LBUNIMPLEMENTED; return false; }
     void configExit() final { LBUNIMPLEMENTED }
     void makeCurrent( const bool ) const final { LBUNIMPLEMENTED }
+    void doneCurrent() const final { LBUNIMPLEMENTED }
     void bindFrameBuffer() const final { LBUNIMPLEMENTED }
     void bindDrawFrameBuffer() const final { LBUNIMPLEMENTED }
     void updateFrameBuffer() const final { LBUNIMPLEMENTED }

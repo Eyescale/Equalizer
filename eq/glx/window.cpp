@@ -793,6 +793,16 @@ void Window::makeCurrent( const bool cache ) const
     }
 }
 
+void Window::doneCurrent() const
+{
+    LBASSERT( _impl->xDisplay );
+    if( !isCurrent( ))
+        return;
+
+    glXMakeCurrent( _impl->xDisplay, 0, 0 );
+    WindowIF::doneCurrent();
+}
+
 void Window::swapBuffers()
 {
     LBASSERT( _impl->xDisplay );

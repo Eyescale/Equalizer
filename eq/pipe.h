@@ -147,7 +147,7 @@ public:
      * @param frameNumber the frame number.
      * @sa releaseFrame()
      */
-    EQ_API void waitFrameFinished( const uint32_t frameNumber ) const;
+    EQ_API void waitFrameFinished( const uint32_t frameNumber );
 
     /**
      * Send a pipe error event to the application node.

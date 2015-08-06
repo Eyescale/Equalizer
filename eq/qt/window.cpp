@@ -21,23 +21,42 @@
 #include "windowImpl.h"
 #include "windowEvent.h"
 
+#include "shareContextWindow.h"
+
 namespace eq
 {
 namespace qt
 {
+namespace
+{
+QOpenGLContext* _getShareContext( const WindowSettings& settings )
+{
+    const SystemWindow* shareWindow = settings.getSharedContextWindow();
+    const Window* window = dynamic_cast< const Window* >( shareWindow );
+    if( window )
+        // This only works if configInit has already been called in the window
+        return window->getContext();
+
+    const ShareContextWindow* dummyWindow =
+        dynamic_cast< const ShareContextWindow* >( shareWindow );
+    return dummyWindow ? dummyWindow->getContext() : 0;
+}
+}
 
 detail::Window* Window::createImpl( const WindowSettings& settings,
-                                    QOpenGLContext* sharedContext,
                                     QThread* thread )
 {
+    QOpenGLContext* shareContext = _getShareContext( settings );
+
     const int32_t drawable = getAttribute( IATTR_HINT_DRAWABLE );
     detail::Window* window = 0;
     if( drawable == eq::WINDOW )
-        window = new detail::QWindowWrapper( settings, sharedContext );
+        window = new detail::QWindowWrapper( settings, shareContext );
     else
-        window = new detail::QOffscreenSurfaceWrapper( settings, sharedContext);
+        window = new detail::QOffscreenSurfaceWrapper( settings, shareContext );
 
-    window->getContext()->moveToThread( thread );
+    if( thread )
+        window->getContext()->moveToThread( thread );
     return window;
 }
 
@@ -61,7 +80,10 @@ bool Window::configInit()
     makeCurrent();
     initGLEW();
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == FBO )
+    const int32_t drawable =
+            getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
+    // pbuffer is deprecated in Qt, use FBO instead
+    if( drawable == FBO || drawable == PBUFFER )
         return configInitFBO();
     return true;
 }
@@ -93,6 +115,15 @@ void Window::makeCurrent( const bool cache LB_UNUSED ) const
     WindowIF::makeCurrent(); // Validate FBO binding and caching state
 }
 
+void Window::doneCurrent() const
+{
+    if( !isCurrent( ))
+        return;
+
+    _impl->doneCurrent();
+    WindowIF::doneCurrent();
+}
+
 void Window::swapBuffers()
 {
     _impl->swapBuffers();
@@ -121,6 +152,11 @@ bool Window::processEvent( const WindowEvent& event_ )
 QObject* Window::getEventProcessor()
 {
     return _impl->getEventProcessor();
+}
+
+void Window::moveContextToThread( QThread* thread_ )
+{
+    _impl->getContext()->moveToThread( thread_ );
 }
 
 }

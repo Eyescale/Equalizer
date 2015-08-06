@@ -68,11 +68,18 @@ public:
     /**
      * Make the system window rendering context and drawable current.
      *
-     * This function invalidates the pipe's make current cache. If this function
-     * is not called, Pipe::setCurrent() has to be called appropriately.
+     * This function invalidates the pipe's make current cache.
      * @version 1.0
      */
     EQ_API virtual void makeCurrent( const bool cache = true ) const = 0;
+
+    /**
+     * This results in no context being current in the current thread.
+     *
+     * This function resets the pipe's make current cache.
+     * @version 1.10
+     */
+    EQ_API virtual void doneCurrent() const = 0;
 
     /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
     EQ_API virtual void bindFrameBuffer() const = 0;

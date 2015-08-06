@@ -158,6 +158,15 @@ void Window::makeCurrent( const bool cache ) const
     }
 }
 
+void Window::doneCurrent() const
+{
+    if( !isCurrent( ))
+        return;
+
+    LBCHECK( wglMakeCurrent( 0, 0 ));
+    WindowIF::doneCurrent();
+}
+
 void Window::swapBuffers()
 {
     ::SwapBuffers( _impl->_wglDC );
