@@ -262,7 +262,7 @@ namespace
 template< typename T, typename V > class IDFinder : public V
 {
 public:
-    IDFinder( const uint128_t& id ) : _id( id ), _result( 0 ) {}
+    explicit IDFinder( const uint128_t& id ) : _id( id ), _result( 0 ) {}
     virtual ~IDFinder(){}
 
     virtual VisitorResult visitPre( T* node ) { return visit( node ); }

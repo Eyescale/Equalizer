@@ -66,7 +66,7 @@ class Window : public fabric::Window< Pipe, Window, Channel, WindowSettings >,
 {
 public:
     /** Construct a new window. @version 1.0 */
-    EQ_API Window( Pipe* parent );
+    EQ_API explicit Window( Pipe* parent );
 
     /** Destruct the window. @version 1.0 */
     EQ_API virtual ~Window();

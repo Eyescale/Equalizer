@@ -30,7 +30,7 @@ namespace detail
 class Accum
 {
 public:
-    Accum( const GLEWContext* const gl )
+    explicit Accum( const GLEWContext* const gl )
         : glewContext( gl )
         , abo( 0 )
         , numSteps( 0 )

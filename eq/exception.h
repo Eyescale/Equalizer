@@ -34,7 +34,7 @@ public:
     };
 
     /** Construct a new Exception. */
-    Exception( const uint32_t type ) : co::Exception( type ) {}
+    explicit Exception( const uint32_t type ) : co::Exception( type ) {}
 
     /** Destruct this exception. */
     virtual ~Exception() throw() {}

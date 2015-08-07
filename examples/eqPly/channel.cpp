@@ -610,7 +610,7 @@ void Channel::_drawModel( const Model* scene )
     const eq::Matrix4f model = rotation * position * modelRotation;
 
     state.setProjectionModelViewMatrix( projection * view * model );
-    state.setRange( &getRange().start);
+    state.setRange( triply::Range( &getRange().start ));
 
     const eq::Pipe* pipe = getPipe();
     const GLuint program = state.getProgram( pipe );

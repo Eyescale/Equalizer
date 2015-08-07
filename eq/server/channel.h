@@ -35,13 +35,11 @@ namespace eq
 {
 namespace server
 {
-class ChannelListener;
-
 class Channel : public fabric::Channel< Window, Channel >
 {
 public:
     /** Construct a new channel. */
-    EQSERVER_API Channel( Window* parent );
+    EQSERVER_API explicit Channel( Window* parent );
 
     /** Construct a copy of a channel. */
     Channel( const Channel& from );

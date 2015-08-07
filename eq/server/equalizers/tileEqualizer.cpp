@@ -82,7 +82,7 @@ private:
 class InputQueueDestroyer : public CompoundVisitor
 {
 public:
-    InputQueueDestroyer( const std::string& name )
+    explicit InputQueueDestroyer( const std::string& name )
         : CompoundVisitor()
         , _name( name )
     {

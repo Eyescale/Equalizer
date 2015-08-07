@@ -29,7 +29,7 @@ class Observer : public fabric::Observer< Config, Observer >
 {
 public:
     /** Construct a new observer. @version 1.0 */
-    EQADMIN_API Observer( Config* parent );
+    EQADMIN_API explicit Observer( Config* parent );
 
     /** Destruct this observer. @version 1.0 */
     EQADMIN_API virtual ~Observer();
@@ -47,4 +47,3 @@ public:
 }
 
 #endif // EQADMIN_OBSERVER_H
-

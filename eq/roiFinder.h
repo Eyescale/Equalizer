@@ -110,7 +110,7 @@ private:
         Area()
             : emptySize( 0 ),  valid( false )
         {}
-        Area( PixelViewport pvp_ )
+        explicit Area( PixelViewport pvp_ )
             : emptySize( 0 ), pvp ( pvp_ ), valid( false )
         {}
 
@@ -153,4 +153,3 @@ private:
 }
 
 #endif // EQ_ROI_FINDER_H
-

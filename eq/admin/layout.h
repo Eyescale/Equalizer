@@ -29,7 +29,7 @@ class Layout : public fabric::Layout< Config, Layout, View >
 {
 public:
     /** Construct a new layout. @version 1.0 */
-    EQADMIN_API Layout( Config* parent );
+    EQADMIN_API explicit Layout( Config* parent );
 
     /** Destruct a layout. @version 1.0 */
     EQADMIN_API virtual ~Layout();
@@ -44,4 +44,3 @@ public:
 }
 
 #endif // EQADMIN_LAYOUT_H
-

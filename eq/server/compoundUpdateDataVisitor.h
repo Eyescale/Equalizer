@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,24 +25,22 @@ namespace eq
 {
 namespace server
 {
-    class Channel;
+class Channel;
 
-    /**
-     * The compound visitor updating the inherit data of a compound tree.
-     */
-    class CompoundUpdateDataVisitor : public CompoundVisitor
-    {
-    public:
-        CompoundUpdateDataVisitor( const uint32_t frameNumber );
-        virtual ~CompoundUpdateDataVisitor() {}
+/** The compound visitor updating the inherit data of a compound tree. */
+class CompoundUpdateDataVisitor : public CompoundVisitor
+{
+public:
+    explicit CompoundUpdateDataVisitor( const uint32_t frameNumber );
+    virtual ~CompoundUpdateDataVisitor() {}
 
-        /** Visit all compounds. */
-        virtual VisitorResult visit( Compound* compound );
+    /** Visit all compounds. */
+    virtual VisitorResult visit( Compound* compound );
 
-    private:
-        const uint32_t _frameNumber;
-        void _updateDrawFinish( Compound* compound );
-    };
+private:
+    const uint32_t _frameNumber;
+    void _updateDrawFinish( Compound* compound );
+};
 }
 }
 #endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

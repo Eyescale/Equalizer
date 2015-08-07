@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,66 +32,64 @@ namespace eq
 {
 namespace server
 {
-    /** The canvas. @sa eq::Canvas */
-    class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
+/** The canvas. @sa eq::Canvas */
+class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
+{
+public:
+    /** Construct a new Canvas. */
+    EQSERVER_API explicit Canvas( Config* parent );
+
+    /** Destruct this canvas. */
+    virtual ~Canvas();
+
+    /** @name Data Access */
+    //@{
+    /** @return the Server of this canvas. @version 1.0 */
+    ServerPtr getServer();
+
+    /** @return the segment of the given path. */
+    Segment* getSegment( const SegmentPath& path );
+
+    /** @return true if this canvas is initialized. */
+    bool isStopped() const { return _state == STATE_STOPPED; }
+
+    /** @return true if this canvas is initialized. */
+    bool isRunning() const { return _state == STATE_RUNNING; }
+
+    /** @return true if this canvas should be deleted. */
+    bool needsDelete() const { return _state == STATE_DELETE; }
+    //@}
+
+    /**
+     * @name Operations
+     */
+    //@{
+    void init();
+    void exit();
+
+    /** Schedule deletion of this canvas. */
+    void postDelete();
+    //@}
+
+protected:
+    virtual void activateLayout( const uint32_t index );
+
+private:
+    enum State
     {
-    public:
-        /** Construct a new Canvas. */
-        EQSERVER_API Canvas( Config* parent );
+        STATE_STOPPED = 0,  // next: RUNNING
+        STATE_RUNNING,      // next: STOPPED or DELETE
+        STATE_DELETE,       // next: destructor
+    }
+        _state;
 
-        /** Destruct this canvas. */
-        virtual ~Canvas();
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        /**
-         * @name Data Access
-         */
-        //@{
-        /** @return the Server of this canvas. @version 1.0 */
-        ServerPtr getServer();
+    /** Run-time layout switch */
+    void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
 
-        /** @return the segment of the given path. */
-        Segment* getSegment( const SegmentPath& path );
-
-        /** @return true if this canvas is initialized. */
-        bool isStopped() const { return _state == STATE_STOPPED; }
-
-        /** @return true if this canvas is initialized. */
-        bool isRunning() const { return _state == STATE_RUNNING; }
-
-        /** @return true if this canvas should be deleted. */
-        bool needsDelete() const { return _state == STATE_DELETE; }
-        //@}
-
-        /**
-         * @name Operations
-         */
-        //@{
-        void init();
-        void exit();
-
-        /** Schedule deletion of this canvas. */
-        void postDelete();
-        //@}
-
-    protected:
-        virtual void activateLayout( const uint32_t index );
-
-    private:
-        enum State
-        {
-            STATE_STOPPED = 0,  // next: RUNNING
-            STATE_RUNNING,      // next: STOPPED or DELETE
-            STATE_DELETE,       // next: destructor
-        }
-            _state;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-
-        /** Run-time layout switch */
-        void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
-
-    };
+};
 
 }
 }

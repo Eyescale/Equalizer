@@ -40,7 +40,8 @@ namespace server
 class ChangeLatencyVisitor : public ConfigVisitor
 {
 public:
-    ChangeLatencyVisitor( const uint32_t latency ) : _latency( latency ) {}
+    explicit ChangeLatencyVisitor( const uint32_t latency )
+        : _latency( latency ) {}
 
     virtual VisitorResult visit( Compound* compound )
     {

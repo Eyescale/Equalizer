@@ -29,7 +29,7 @@ class Pipe : public SystemPipe
 {
 public:
     /** Create a new Qt pipe for the given eq::Pipe. @version 1.10 */
-    Pipe( eq::Pipe* parent ) : SystemPipe( parent ) {}
+    explicit Pipe( eq::Pipe* parent ) : SystemPipe( parent ) {}
 
     /** Destroy the Qt Pipe. @version 1.10 */
     virtual ~Pipe() {}

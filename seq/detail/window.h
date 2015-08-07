@@ -29,7 +29,7 @@ namespace detail
 class Window : public eq::Window
 {
 public:
-    Window( eq::Pipe* parent );
+    explicit Window( eq::Pipe* parent );
 
     Config* getConfig();
     Pipe* getPipe();

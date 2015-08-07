@@ -39,16 +39,17 @@ namespace
 class LoadSubscriber : public CompoundVisitor
 {
 public:
-    LoadSubscriber( ChannelListener* listener ) : _listener( listener ) {}
+    explicit LoadSubscriber( ChannelListener* listener )
+        : _listener( listener ) {}
 
     virtual VisitorResult visit( Compound* compound )
-        {
-            Channel*  channel = compound->getChannel();
-            LBASSERT( channel );
-            channel->addListener( _listener );
+    {
+        Channel* channel = compound->getChannel();
+        LBASSERT( channel );
+        channel->addListener( _listener );
 
-            return TRAVERSE_CONTINUE;
-        }
+        return TRAVERSE_CONTINUE;
+    }
 
 private:
     ChannelListener* const _listener;
@@ -57,16 +58,17 @@ private:
 class LoadUnsubscriber : public CompoundVisitor
 {
 public:
-    LoadUnsubscriber( ChannelListener* listener ) : _listener( listener ) {}
+    explicit LoadUnsubscriber( ChannelListener* listener )
+        : _listener( listener ) {}
 
     virtual VisitorResult visit( Compound* compound )
-        {
-            Channel*  channel = compound->getChannel();
-            LBASSERT( channel );
-            channel->removeListener( _listener );
+    {
+        Channel*  channel = compound->getChannel();
+        LBASSERT( channel );
+        channel->removeListener( _listener );
 
-            return TRAVERSE_CONTINUE;
-        }
+        return TRAVERSE_CONTINUE;
+    }
 
 private:
     ChannelListener* const _listener;

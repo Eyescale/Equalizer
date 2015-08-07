@@ -44,7 +44,7 @@ class Channel : public fabric::Channel< Window, Channel >
 {
 public:
     /** Construct a new channel. @version 1.0 */
-    EQ_API Channel( Window* parent );
+    EQ_API explicit Channel( Window* parent );
 
     /** Destruct the channel. @version 1.0 */
     EQ_API virtual ~Channel();

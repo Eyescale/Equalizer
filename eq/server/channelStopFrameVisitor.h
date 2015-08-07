@@ -32,25 +32,25 @@ namespace server
 class ChannelStopFrameVisitor : public ConfigVisitor
 {
 public:
-
-    ChannelStopFrameVisitor( const uint32_t lastFrameNumber )
+    explicit ChannelStopFrameVisitor( const uint32_t lastFrameNumber )
         : _lastFrameNumber( lastFrameNumber ) {}
 
     virtual VisitorResult visit( Channel* channel )
-        {
-            if( !channel->isActive() || !channel->isRunning( ))
-                return TRAVERSE_CONTINUE;
-
-            channel->send( fabric::CMD_CHANNEL_STOP_FRAME ) << _lastFrameNumber;
+    {
+        if( !channel->isActive() || !channel->isRunning( ))
             return TRAVERSE_CONTINUE;
-        }
+
+        channel->send( fabric::CMD_CHANNEL_STOP_FRAME ) << _lastFrameNumber;
+        return TRAVERSE_CONTINUE;
+    }
 
     virtual VisitorResult visitPost( Node* node )
-        {
-            if( node->isRunning() )
-                node->flushSendBuffer();
-            return TRAVERSE_CONTINUE;
-        }
+    {
+        if( node->isRunning() )
+            node->flushSendBuffer();
+        return TRAVERSE_CONTINUE;
+    }
+
 private:
     const uint32_t _lastFrameNumber;
 };

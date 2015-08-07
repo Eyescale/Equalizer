@@ -100,7 +100,9 @@ private:
 template< class T, size_t d > struct ArrayWrapper
 {
     ArrayWrapper() {}
-    ArrayWrapper( const T* from ) { memcpy( data, from, sizeof( data )); }
+    explicit ArrayWrapper( const T* from )
+        { memcpy( data, from, sizeof( data )); }
+
     T& operator[]( const size_t i )
         {
             PLYLIBASSERT( i < d );

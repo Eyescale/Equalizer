@@ -63,7 +63,7 @@ namespace detail
 class ObjectManager : public lunchbox::Referenced
 {
 public:
-    ObjectManager( const GLEWContext* gl )
+    explicit ObjectManager( const GLEWContext* gl )
     {
         if( gl )
             memcpy( &glewContext, gl, sizeof( GLEWContext ));

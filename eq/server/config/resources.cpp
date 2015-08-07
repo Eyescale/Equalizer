@@ -410,7 +410,7 @@ namespace
 class AddSourcesVisitor : public ConfigVisitor
 {
 public:
-    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
+    explicit AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
 
     virtual VisitorResult visitPre( Pipe* pipe )
     {
@@ -815,7 +815,8 @@ Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
         drawChild->addEqualizer( new LoadEqualizer( params.getEqualizer( )));
         drawChild->setName( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
 
-        const Channels& localChannels = _filterLocalChannels( channels, child );
+        const Channels& localChannels = _filterLocalChannels( channels,
+                                                              *child );
         _fill2DCompound( drawChild, localChannels );
     }
 

@@ -28,7 +28,7 @@ class GLException : public Exception
 {
 public:
     /** Construct a new OpenGL Exception. */
-    EQ_API GLException( const uint32_t glError_ );
+    EQ_API explicit GLException( const uint32_t glError_ );
 
     /** Destruct this exception. */
     virtual ~GLException() throw() {}

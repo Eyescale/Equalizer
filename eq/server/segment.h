@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,56 +28,56 @@ namespace eq
 {
 namespace server
 {
-    /** The segment. @sa eq::Segment */
-    class Segment : public fabric::Segment< Canvas, Segment, Channel >
-    {
-    public:
-        /** Construct a new Segment. */
-        EQSERVER_API Segment( Canvas* parent );
+/** The segment. @sa eq::Segment */
+class Segment : public fabric::Segment< Canvas, Segment, Channel >
+{
+public:
+    /** Construct a new Segment. */
+    EQSERVER_API explicit Segment( Canvas* parent );
 
-        /** Destruct this segment. */
-        virtual ~Segment();
+    /** Destruct this segment. */
+    virtual ~Segment();
 
-        /** @name Data Access */
-        //@{
-        /** @return the config of this segment. */
-        Config* getConfig();
+    /** @name Data Access */
+    //@{
+    /** @return the config of this segment. */
+    Config* getConfig();
 
-        /** @return the config of this segment. */
-        const Config* getConfig() const;
+    /** @return the config of this segment. */
+    const Config* getConfig() const;
 
-        /** @return the Server of this segment. */
-        ServerPtr getServer();
+    /** @return the Server of this segment. */
+    ServerPtr getServer();
 
-        /** @return the index path to this segment. */
-        SegmentPath getPath() const;
+    /** @return the index path to this segment. */
+    SegmentPath getPath() const;
 
-        /** Add a destination (View) channel. */
-        void addDestinationChannel( Channel* channel );
+    /** Add a destination (View) channel. */
+    void addDestinationChannel( Channel* channel );
 
-        /** Remove a destination (View) channel. */
-        bool removeDestinationChannel( Channel* channel );
+    /** Remove a destination (View) channel. */
+    bool removeDestinationChannel( Channel* channel );
 
-        /** @return the vector of channels resulting from the segment/view
-         *          intersection. */
-        const Channels& getDestinationChannels() const
-            { return _destinationChannels; }
+    /** @return the vector of channels resulting from the segment/view
+     *          intersection. */
+    const Channels& getDestinationChannels() const
+    { return _destinationChannels; }
 
-        /** @return the vector of destination channels for the given layout. */
-        void findDestinationChannels( const Layout* layout,
-                                      Channels& result ) const;
-        //@}
+    /** @return the vector of destination channels for the given layout. */
+    void findDestinationChannels( const Layout* layout,
+                                  Channels& result ) const;
+    //@}
 
-    protected:
-        virtual void updateFrustum();
+protected:
+    virtual void updateFrustum();
 
-    private:
-        /** The resulting destination channels from the view intersections. */
-        Channels _destinationChannels;
+private:
+    /** The resulting destination channels from the view intersections. */
+    Channels _destinationChannels;
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-    };
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
+};
 }
 }
 #endif // EQSERVER_SEGMENT_H

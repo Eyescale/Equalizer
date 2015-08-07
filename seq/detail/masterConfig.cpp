@@ -121,7 +121,7 @@ namespace
 class ViewUpdateVisitor : public eq::ConfigVisitor
 {
 public:
-    ViewUpdateVisitor( bool &redraw ) : _redraw( redraw ) {}
+    explicit ViewUpdateVisitor( bool &redraw ) : _redraw( redraw ) {}
     virtual~ ViewUpdateVisitor() {}
 
     virtual eq::VisitorResult visit( eq::View* v )

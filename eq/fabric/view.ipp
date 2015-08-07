@@ -219,18 +219,6 @@ float View< L, V, O >::getModelUnit() const
 }
 
 template< class L, class V, class O >
-void View< L, V, O >::setDisplayCluster( const std::string& hostname )
-{
-    setSAttribute( View::SATTR_DISPLAYCLUSTER, hostname );
-}
-
-template< class L, class V, class O >
-const std::string& View< L, V, O >::getDisplayCluster() const
-{
-    return getSAttribute( View::SATTR_DISPLAYCLUSTER );
-}
-
-template< class L, class V, class O >
 void View< L, V, O >::setViewport( const Viewport& viewport )
 {
     _data.viewport = viewport;

@@ -27,36 +27,35 @@ namespace eq
 {
 namespace dc
 {
-    /** @internal The event handler for one DisplayCluster view. */
-    class EventHandler : public eq::EventHandler
-    {
-    public:
-        /** Construct a new DisplayCluster event handler. @version 1.7.1 */
-        EventHandler( Proxy* proxy );
+/** @internal The event handler for one DisplayCluster view. */
+class EventHandler : public eq::EventHandler
+{
+public:
+    /** Construct a new DisplayCluster event handler. @version 1.7.1 */
+    explicit EventHandler( Proxy* proxy );
 
-        /** Destruct the DisplayCluster event handler. @version 1.7.1 */
-        virtual ~EventHandler();
+    /** Destruct the DisplayCluster event handler. @version 1.7.1 */
+    virtual ~EventHandler();
 
-        /**
-         * Dispatch all pending events on the current thread.
-         *
-         * If no event handlers have been constructed by the calling thread,
-         * this function does nothing. This function does not block on events.
-         *
-         * @param proxy if not 0, limit processing to the given dcProxy instance
-         * @version 1.7.1
-         */
-        static void processEvents( const Proxy* proxy = 0 );
+    /**
+     * Dispatch all pending events on the current thread.
+     *
+     * If no event handlers have been constructed by the calling thread, this
+     * function does nothing. This function does not block on events.
+     *
+     * @param proxy if not 0, limit processing to the given dcProxy instance
+     * @version 1.7.1
+     */
+    static void processEvents( const Proxy* proxy = 0 );
 
-    private:
-        /** The corresponding DisplayCluster proxy instance. */
-        Proxy* const _proxy;
+private:
+    /** The corresponding DisplayCluster proxy instance. */
+    Proxy* const _proxy;
 
-        void _processEvents( const Proxy* proxy );
+    void _processEvents( const Proxy* proxy );
 
-        LB_TS_VAR( _thread );
-    };
+    LB_TS_VAR( _thread );
+};
 }
 }
 #endif // EQ_DC_EVENTHANDLER_H
-

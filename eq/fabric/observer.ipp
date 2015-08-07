@@ -146,23 +146,6 @@ ObserverPath Observer< C, O >::getPath() const
     return path;
 }
 
-#ifdef EQ_1_0_API
-template< typename C, typename O >
-void Observer< C, O >::setEyeBase( const float eyeBase )
-{
-    const float eyeBase_2 = eyeBase * .5f;
-    setEyePosition( EYE_LEFT, Vector3f( -eyeBase_2, 0.f, 0.f ));
-    setEyePosition( EYE_CYCLOP, Vector3f::ZERO );
-    setEyePosition( EYE_RIGHT, Vector3f( eyeBase_2, 0.f, 0.f ));
-}
-
-template< typename C, typename O >
-float Observer< C, O >::getEyeBase() const
-{
-    return (getEyePosition( EYE_LEFT ) - getEyePosition( EYE_RIGHT )).length();
-}
-#endif
-
 template< typename C, typename O >
 void Observer< C, O >::setEyePosition( const Eye eye, const Vector3f& pos )
 {

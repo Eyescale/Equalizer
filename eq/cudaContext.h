@@ -31,7 +31,7 @@ class CUDAContext : public ComputeContext
 {
 public:
     /** Create a new CUDA compute context. */
-    EQ_API CUDAContext( Pipe* parent );
+    EQ_API explicit CUDAContext( Pipe* parent );
 
     /** Destroy the context. */
     EQ_API virtual ~CUDAContext( );

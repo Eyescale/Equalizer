@@ -29,7 +29,7 @@ class Channel : public fabric::Channel< Window, Channel >
 {
 public:
     /** Construct a new channel. @version 1.0 */
-    EQADMIN_API Channel( Window* parent );
+    EQADMIN_API explicit Channel( Window* parent );
 
     /** Destruct a channel. @version 1.0 */
     EQADMIN_API virtual ~Channel();
@@ -56,4 +56,3 @@ public:
 }
 
 #endif // EQADMIN_CHANNEL_H
-

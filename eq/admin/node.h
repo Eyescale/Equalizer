@@ -29,7 +29,7 @@ class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
 {
 public:
     /** Construct a new node. @version 1.0 */
-    EQADMIN_API Node( Config* parent );
+    EQADMIN_API explicit Node( Config* parent );
 
     /** Destruct a node. @version 1.0 */
     EQADMIN_API virtual ~Node();
@@ -43,4 +43,3 @@ public:
 }
 
 #endif // EQADMIN_NODE_H
-

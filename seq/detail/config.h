@@ -30,7 +30,8 @@ namespace detail
 class Config : public eq::Config
 {
 public:
-    Config( eq::ServerPtr parent ) : eq::Config( parent ), _objects(0) {}
+    explicit Config( eq::ServerPtr parent )
+        : eq::Config( parent ), _objects(0) {}
 
     seq::Application* getApplication();
     detail::Application* getApplicationImpl();

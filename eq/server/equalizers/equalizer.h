@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,59 +28,59 @@ namespace eq
 {
 namespace server
 {
-    /**
-     * A generic equalizer interface.
-     *
-     * An equalizer is attached to a compound tree, on which it balances render
-     * tasks. It can update its compound tree on the beginnning of each
-     * frame. It has to subscribe to the statistics events needed to perform its
-     * tasks itself.
-     */
-    class Equalizer : public fabric::Equalizer, protected CompoundListener
-    {
-    public:
-        Equalizer();
-        Equalizer( const fabric::Equalizer& );
-        Equalizer( const Equalizer& );
-        // cppcheck-suppress passedByValue
-        Equalizer& operator=( const fabric::Equalizer& );
-        virtual ~Equalizer();
+/**
+ * A generic equalizer interface.
+ *
+ * An equalizer is attached to a compound tree, on which it balances render
+ * tasks. It can update its compound tree on the beginnning of each frame. It
+ * has to subscribe to the statistics events needed to perform its tasks itself.
+ */
+class Equalizer : public fabric::Equalizer, protected CompoundListener
+{
+public:
+    Equalizer();
+    explicit Equalizer( const fabric::Equalizer& );
+    explicit Equalizer( const Equalizer& );
 
-        /** Output to a stream. */
-        virtual void toStream( std::ostream& os ) const = 0;
+    // cppcheck-suppress passedByValue
+    Equalizer& operator = ( const fabric::Equalizer& );
+    virtual ~Equalizer();
 
-        /** @return the compound attached to. */
-        const Compound* getCompound() const { return _compound; }
-        Compound* getCompound()             { return _compound; }
+    /** Output to a stream. */
+    virtual void toStream( std::ostream& os ) const = 0;
 
-        /** @return the config. */
-        const Config* getConfig() const;
+    /** @return the compound attached to. */
+    const Compound* getCompound() const { return _compound; }
+    Compound* getCompound()             { return _compound; }
 
-        /** Attach to a compound and detach the previous compound. */
-        virtual void attach( Compound* );
+    /** @return the config. */
+    const Config* getConfig() const;
 
-        void setActive( bool flag ) { _active = flag; }
-        bool isActive() const { return _active; }
+    /** Attach to a compound and detach the previous compound. */
+    virtual void attach( Compound* );
 
-        virtual uint32_t getType() const = 0;
+    void setActive( bool flag ) { _active = flag; }
+    bool isActive() const { return _active; }
 
-    private:
-        // override in sub-classes to handle dynamic compounds.
-        void notifyChildAdded( Compound*, Compound* ) override
-            { LBUNIMPLEMENTED }
-        void notifyChildRemove( Compound*, Compound* ) override
-            { LBUNIMPLEMENTED }
+    virtual uint32_t getType() const = 0;
 
-        Compound* _compound;       //!< The attached compound
-        bool      _active;
-    };
+private:
+    // override in sub-classes to handle dynamic compounds.
+    void notifyChildAdded( Compound*, Compound* ) override
+    { LBUNIMPLEMENTED }
+    void notifyChildRemove( Compound*, Compound* ) override
+    { LBUNIMPLEMENTED }
 
-    inline std::ostream& operator << ( std::ostream& os, const Equalizer* eq )
-    {
-        if( eq )
-            eq->toStream( os );
-        return os;
-    }
+    Compound* _compound;       //!< The attached compound
+    bool      _active;
+};
+
+inline std::ostream& operator << ( std::ostream& os, const Equalizer* eq )
+{
+    if( eq )
+        eq->toStream( os );
+    return os;
+}
 }
 }
 

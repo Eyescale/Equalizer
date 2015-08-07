@@ -61,7 +61,7 @@ public:
                             ConfigVisitor > Super; //!< base class
 
     /** Construct a new config. @version 1.0 */
-    EQ_API Config( ServerPtr parent );
+    EQ_API explicit Config( ServerPtr parent );
 
     /** Destruct a config. @version 1.0 */
     EQ_API virtual ~Config();

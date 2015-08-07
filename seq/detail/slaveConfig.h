@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,20 +24,20 @@ namespace seq
 {
 namespace detail
 {
-    class SlaveConfig : public Config
-    {
-    public:
-        SlaveConfig( eq::ServerPtr parent ) : Config( parent ) {}
+class SlaveConfig : public Config
+{
+public:
+    explicit SlaveConfig( eq::ServerPtr parent ) : Config( parent ) {}
 
-        virtual bool mapData( const uint128_t& initID );
-        virtual void syncData( const uint128_t& version );
-        virtual void unmapData();
+    virtual bool mapData( const uint128_t& initID );
+    virtual void syncData( const uint128_t& version );
+    virtual void unmapData();
 
-    protected:
-        virtual ~SlaveConfig() {}
+protected:
+    virtual ~SlaveConfig() {}
 
-    private:
-    };
+private:
+};
 }
 }
 

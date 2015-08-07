@@ -49,7 +49,7 @@ class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
 {
 public:
     /** Construct a new node. @version 1.0 */
-    EQ_API Node( Config* parent );
+    EQ_API explicit Node( Config* parent );
 
     /** Destruct the node. @version 1.0 */
     EQ_API virtual ~Node();
