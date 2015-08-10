@@ -22,7 +22,7 @@ namespace detail
 class FrameVisitor : public ConfigVisitor
 {
 public:
-    FrameVisitor( const uint32_t frame ) : frame_( frame ) {}
+    explicit FrameVisitor( const uint32_t frame ) : frame_( frame ) {}
 
     virtual VisitorResult visit( eq::Observer* observer )
     {

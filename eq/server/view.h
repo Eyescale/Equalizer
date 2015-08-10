@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,90 +30,90 @@ namespace eq
 {
 namespace server
 {
-    class View : public fabric::View< Layout, View, Observer >
-    {
-    public:
-        EQSERVER_API View( Layout* parent );
+class View : public fabric::View< Layout, View, Observer >
+{
+public:
+    EQSERVER_API explicit View( Layout* parent );
 
-        virtual ~View();
+    virtual ~View();
 
-        /** @name Data Access. */
-        //@{
-        /** @return the config of this view. */
-        Config* getConfig();
+    /** @name Data Access. */
+    //@{
+    /** @return the config of this view. */
+    Config* getConfig();
 
-        /** @return the config of this view. */
-        const Config* getConfig() const;
+    /** @return the config of this view. */
+    const Config* getConfig() const;
 
-        /** @return the Server of this view. */
-        ServerPtr getServer();
+    /** @return the Server of this view. */
+    ServerPtr getServer();
 
-        /** @return the index path to this view. */
-        ViewPath getPath() const;
+    /** @return the index path to this view. */
+    ViewPath getPath() const;
 
-        /**
-         * Adds a new destination channel to this view.
-         *
-         * @param channel the channel.
-         */
-        void addChannel( Channel* channel );
+    /**
+     * Adds a new destination channel to this view.
+     *
+     * @param channel the channel.
+     */
+    void addChannel( Channel* channel );
 
-        /**
-         * Removes a destination channel from this view.
-         *
-         * @param channel the channel
-         * @return <code>true</code> if the channel was removed,
-         *         <code>false</code> otherwise.
-         */
-        bool removeChannel( Channel* channel );
+    /**
+     * Removes a destination channel from this view.
+     *
+     * @param channel the channel
+     * @return <code>true</code> if the channel was removed,
+     *         <code>false</code> otherwise.
+     */
+    bool removeChannel( Channel* channel );
 
-        /** @return the vector of destination channels. */
-        const Channels& getChannels() const { return _channels; }
+    /** @return the vector of destination channels. */
+    const Channels& getChannels() const { return _channels; }
 
-        /** @name Operations */
-        //@{
-        /**
-         * Trigger a view (de)activation.
-         *
-         * @param canvas The canvas to activate, or 0 to activate for all
-         *               canvases using this view's layout.
-         * @param active true to activate, false to deactivate.
-         */
-        void trigger( const Canvas* canvas, const bool active );
+    /** @name Operations */
+    //@{
+    /**
+     * Trigger a view (de)activation.
+     *
+     * @param canvas The canvas to activate, or 0 to activate for all
+     *               canvases using this view's layout.
+     * @param active true to activate, false to deactivate.
+     */
+    void trigger( const Canvas* canvas, const bool active );
 
-        /**
-         * Activate the given mode on this view.
-         *
-         * @param mode the new rendering mode
-         */
-        virtual void activateMode( const Mode mode );
+    /**
+     * Activate the given mode on this view.
+     *
+     * @param mode the new rendering mode
+     */
+    virtual void activateMode( const Mode mode );
 
-        virtual void updateCapabilities();
+    virtual void updateCapabilities();
 
-        /** Update all segment frusta based on the current settings. */
-        void updateFrusta();
+    /** Update all segment frusta based on the current settings. */
+    void updateFrusta();
 
-        void setSAttribute( const SAttribute attr, const std::string& value )
-            { fabric::View< Layout, View, Observer >::setSAttribute( attr, value ); }
+    void setSAttribute( const SAttribute attr, const std::string& value )
+    { fabric::View< Layout, View, Observer >::setSAttribute( attr, value ); }
 
-        virtual void setDirty( const uint64_t bits ); //!< @internal
-        //@}
+    virtual void setDirty( const uint64_t bits ); //!< @internal
+    //@}
 
-    protected:
-        /** @internal */
-        virtual void deserialize( co::DataIStream&, const uint64_t );
-        virtual void notifyAttached() { _updateChannels(); }
+protected:
+    /** @internal */
+    virtual void deserialize( co::DataIStream&, const uint64_t );
+    virtual void notifyAttached() { _updateChannels(); }
 
-    private:
-        /** The list of channels. */
-        Channels _channels;
+private:
+    /** The list of channels. */
+    Channels _channels;
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        void _updateChannels() const;
-        float _computeFocusRatio( Vector3f& eye );
-    };
+    void _updateChannels() const;
+    float _computeFocusRatio( Vector3f& eye );
+};
 }
 }
 #endif // EQSERVER_VIEW_H

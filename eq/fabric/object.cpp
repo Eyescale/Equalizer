@@ -148,7 +148,7 @@ uint128_t Object::commit( const uint32_t incarnation )
                   _impl->data.userData.version <= version );
 
         if( _impl->userData->isMaster() &&
-            _impl->data.userData != _impl->userData )
+            _impl->data.userData != co::ObjectVersion( _impl->userData ))
         {
             LBASSERTINFO( _impl->data.userData.identifier !=
                           _impl->userData->getID() ||

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
- *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,35 +26,35 @@ namespace seq
 {
 namespace detail
 {
-    class View : public eq::View
-    {
-    public:
-        View( eq::Layout* parent );
+class View : public eq::View
+{
+public:
+    explicit View( eq::Layout* parent );
 
-        /** @name Data Access. */
-        //@{
-        Config* getConfig();
-        Pipe* getPipe();
-        ViewData* getViewData();
-        const ViewData* getViewData() const;
-        //@}
+    /** @name Data Access. */
+    //@{
+    Config* getConfig();
+    Pipe* getPipe();
+    ViewData* getViewData();
+    const ViewData* getViewData() const;
+    //@}
 
-        /** @name Operations. */
-        //@{
+    /** @name Operations. */
+    //@{
 #ifndef EQ_2_0_API
-        bool handleEvent( const eq::ConfigEvent* event );
+    bool handleEvent( const eq::ConfigEvent* event );
 #endif
-        bool handleEvent( const eq::EventICommand& command );
-        bool updateData();
-        //@}
+    bool handleEvent( const eq::EventICommand& command );
+    bool updateData();
+    //@}
 
-    protected:
-        virtual ~View();
-        virtual void notifyAttach();
-        virtual void notifyDetached();
+protected:
+    virtual ~View();
+    virtual void notifyAttach();
+    virtual void notifyDetached();
 
-    private:
-    };
+private:
+};
 }
 }
 

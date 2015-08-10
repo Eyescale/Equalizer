@@ -78,7 +78,7 @@ public:
         { return _glewContext; }
 
 protected:
-    TRIPLY_API VertexBufferState( const GLEWContext* glewContext );
+    TRIPLY_API explicit VertexBufferState( const GLEWContext* glewContext );
     TRIPLY_API virtual ~VertexBufferState() {}
 
     Matrix4f      _pmvMatrix; //!< projection * modelView matrix
@@ -101,8 +101,8 @@ private:
     typedef GLMap::const_iterator GLMapCIter;
 
 public:
-    TRIPLY_API VertexBufferStateSimple( const GLEWContext* glewContext )
-        : VertexBufferState( glewContext ) {}
+    TRIPLY_API explicit VertexBufferStateSimple( const GLEWContext* gl )
+        : VertexBufferState( gl ) {}
 
     TRIPLY_API virtual GLuint getDisplayList( const void* key );
     TRIPLY_API virtual GLuint newDisplayList( const void* key );

@@ -26,7 +26,7 @@ namespace
 class CompoundUpdateActivateVisitor : public eq::server::CompoundVisitor
 {
 public:
-    CompoundUpdateActivateVisitor( const uint32_t frameNumber )
+    explicit CompoundUpdateActivateVisitor( const uint32_t frameNumber )
         : _frameNumber( frameNumber ), _taskID( 0 ) {}
     virtual ~CompoundUpdateActivateVisitor() {}
 

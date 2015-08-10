@@ -29,7 +29,7 @@ namespace detail
 class MasterConfig : public Config
 {
 public:
-    MasterConfig( eq::ServerPtr parent );
+    explicit MasterConfig( eq::ServerPtr parent );
 
     virtual bool init();
     virtual bool run( co::Object* frameData );

@@ -58,7 +58,7 @@ public:
     };
 
     /** Construct a new object manager. */
-    EQ_API ObjectManager( const GLEWContext* const glewContext );
+    EQ_API explicit ObjectManager( const GLEWContext* const glewContext );
 
     /** Construct a new object manager sharing data with another manager. */
     EQ_API ObjectManager( const ObjectManager& shared );

@@ -949,15 +949,15 @@ namespace detail
 {
 struct RBStat
 {
-    RBStat( eq::Channel* channel )
-            : event( Statistic::CHANNEL_READBACK, channel )
-            , uncompressed( 0 )
-            , compressed( 0 )
-        {
-            event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-            event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-            LBASSERT( event.event.data.statistic.frameNumber > 0 );
-        }
+    explicit RBStat( eq::Channel* channel )
+        : event( Statistic::CHANNEL_READBACK, channel )
+        , uncompressed( 0 )
+        , compressed( 0 )
+    {
+        event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+        event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+        LBASSERT( event.event.data.statistic.frameNumber > 0 );
+    }
 
     lunchbox::SpinLock lock;
     ChannelStatistics event;
@@ -966,18 +966,20 @@ struct RBStat
 
     void ref( void* ) { ++_refCount; }
     bool unref( void* )
-        {
-            if( --_refCount > 0 )
-                return false;
+    {
+        if( --_refCount > 0 )
+            return false;
 
-            if( uncompressed > 0 && compressed > 0 )
-                event.event.data.statistic.ratio = float( compressed ) /
-                                                   float( uncompressed );
-            else
-                event.event.data.statistic.ratio = 1.0f;
-            delete this;
-            return true;
+        if( uncompressed > 0 && compressed > 0 )
+        {
+            event.event.data.statistic.ratio = float( compressed ) /
+                                               float( uncompressed );
         }
+        else
+            event.event.data.statistic.ratio = 1.0f;
+        delete this;
+        return true;
+    }
 
     int32_t getRefCount() const { return _refCount; }
 
@@ -1127,7 +1129,6 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 
     stats.data.clear();
     stats.region = Viewport::FULL;
-
     _impl->finishedFrame = frameNumber;
 }
 

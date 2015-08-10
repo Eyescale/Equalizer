@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,116 +36,116 @@ namespace eq
 {
 namespace server
 {
-    /** The pipe. */
-    class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
-    {
-    public:
-        /** Construct a new Pipe. */
-        EQSERVER_API Pipe(  Node* parent );
+/** The pipe. */
+class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
+{
+public:
+    /** Construct a new Pipe. */
+    EQSERVER_API explicit Pipe( Node* parent );
 
-        virtual ~Pipe();
+    virtual ~Pipe();
 
-        ServerPtr getServer();
-        ConstServerPtr getServer() const;
+    ServerPtr getServer();
+    ConstServerPtr getServer() const;
 
-        Config* getConfig();
-        const Config* getConfig() const;
+    Config* getConfig();
+    const Config* getConfig() const;
 
-        co::CommandQueue* getMainThreadQueue();
-        co::CommandQueue* getCommandThreadQueue();
+    co::CommandQueue* getMainThreadQueue();
+    co::CommandQueue* getCommandThreadQueue();
 
-        Channel* getChannel( const ChannelPath& path );
+    Channel* getChannel( const ChannelPath& path );
 
-        /** @return the state of this pipe. */
-        State getState()    const { return _state.get(); }
+    /** @return the state of this pipe. */
+    State getState()    const { return _state.get(); }
 
-        /** @internal */
-        void setState( const State state ) { _state = state; }
+    /** @internal */
+    void setState( const State state ) { _state = state; }
 
-        /** Increase pipe activition count. */
-        void activate();
+    /** Increase pipe activition count. */
+    void activate();
 
-        /** Decrease pipe activition count. */
-        void deactivate();
+    /** Decrease pipe activition count. */
+    void deactivate();
 
-        /** @return if this pipe is actively used for rendering. */
-        bool isActive() const { return (_active != 0); }
+    /** @return if this pipe is actively used for rendering. */
+    bool isActive() const { return (_active != 0); }
 
-        /** @return if this pipe is running. */
-        bool isRunning() const { return _state == STATE_RUNNING; }
+    /** @return if this pipe is running. */
+    bool isRunning() const { return _state == STATE_RUNNING; }
 
-        /**
-         * Add additional tasks this pipe, and all its parents, might
-         * potentially execute.
-         */
-        void addTasks( const uint32_t tasks );
+    /**
+     * Add additional tasks this pipe, and all its parents, might
+     * potentially execute.
+     */
+    void addTasks( const uint32_t tasks );
 
-        /**
-         * @name Data Access
-         */
-        //@{
-        /** The last drawing compound for this entity. @internal */
-        void setLastDrawWindow( const Window* window )
-            { _lastDrawWindow = window; }
-        const Window* getLastDrawWindow() const { return _lastDrawWindow; }
-        //@}
+    /**
+     * @name Data Access
+     */
+    //@{
+    /** The last drawing compound for this entity. @internal */
+    void setLastDrawWindow( const Window* window )
+    { _lastDrawWindow = window; }
+    const Window* getLastDrawWindow() const { return _lastDrawWindow; }
+    //@}
 
-        /**
-         * @name Operations
-         */
-        //@{
-        /** Start initializing this entity. */
-        void configInit( const uint128_t& initID, const uint32_t frameNumber );
+    /**
+     * @name Operations
+     */
+    //@{
+    /** Start initializing this entity. */
+    void configInit( const uint128_t& initID, const uint32_t frameNumber );
 
-        /** Sync initialization of this entity. */
-        bool syncConfigInit();
+    /** Sync initialization of this entity. */
+    bool syncConfigInit();
 
-        /** Start exiting this entity. */
-        void configExit();
+    /** Start exiting this entity. */
+    void configExit();
 
-        /** Sync exit of this entity. */
-        bool syncConfigExit();
+    /** Sync exit of this entity. */
+    bool syncConfigExit();
 
-        /**
-         * Trigger the rendering of a new frame.
-         *
-         * @param frameID a per-frame identifier passed to all rendering
-         *                methods.
-         * @param frameNumber the number of the frame.
-         */
-        void update( const uint128_t& frameID, const uint32_t frameNumber );
-        //@}
+    /**
+     * Trigger the rendering of a new frame.
+     *
+     * @param frameID a per-frame identifier passed to all rendering
+     *                methods.
+     * @param frameNumber the number of the frame.
+     */
+    void update( const uint128_t& frameID, const uint32_t frameNumber );
+    //@}
 
-        co::ObjectOCommand send( const uint32_t cmd );
-        void output( std::ostream& ) const; //!< @internal
+    co::ObjectOCommand send( const uint32_t cmd );
+    void output( std::ostream& ) const; //!< @internal
 
-    protected:
+protected:
 
-        /** @sa co::Object::attachToSession. */
-        virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    /** @sa co::Object::attachToSession. */
+    virtual void attach( const uint128_t& id, const uint32_t instanceID );
 
-        /** @internal Execute the slave remove request. */
-        virtual void removeChild( const uint128_t& id );
+    /** @internal Execute the slave remove request. */
+    virtual void removeChild( const uint128_t& id );
 
-    private:
-        /** Number of activations for this pipe. */
-        uint32_t _active;
+private:
+    /** Number of activations for this pipe. */
+    uint32_t _active;
 
-        friend class Node;
+    friend class Node;
 
-        /** The current state for state change synchronization. */
-        lunchbox::Monitor< State > _state;
+    /** The current state for state change synchronization. */
+    lunchbox::Monitor< State > _state;
 
-        /** The last draw window for this entity. */
-        const Window* _lastDrawWindow;
+    /** The last draw window for this entity. */
+    const Window* _lastDrawWindow;
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        /* command handler functions. */
-        bool _cmdConfigInitReply( co::ICommand& command );
-        bool _cmdConfigExitReply( co::ICommand& command );
-    };
+    /* command handler functions. */
+    bool _cmdConfigInitReply( co::ICommand& command );
+    bool _cmdConfigExitReply( co::ICommand& command );
+};
 }
 }
 #endif // EQSERVER_PIPE_H

@@ -181,7 +181,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.taskID        = compound->getTaskID();
 
     const View* view = destChannel->getView();
-    LBASSERT( context.view == view );
+    LBASSERT( context.view == co::ObjectVersion( view ));
 
     if( view )
     {
@@ -488,4 +488,3 @@ void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
 
 }
 }
-

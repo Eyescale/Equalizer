@@ -29,7 +29,7 @@ class Segment : public fabric::Segment< Canvas, Segment, Channel >
 {
 public:
     /** Construct a new segment. @version 1.0 */
-    EQADMIN_API Segment( Canvas* parent );
+    EQADMIN_API explicit Segment( Canvas* parent );
 
     /** Destruct a segment. @version 1.0 */
     EQADMIN_API virtual ~Segment();
@@ -50,4 +50,3 @@ public:
 }
 
 #endif // EQADMIN_SEGMENT_H
-

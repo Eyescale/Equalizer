@@ -51,7 +51,7 @@ deflect::Stream::Future make_ready_future( const bool value )
 class Proxy : public boost::noncopyable
 {
 public:
-    Proxy( eq::Channel* ch )
+    explicit Proxy( eq::Channel* ch )
         : _stream( 0 )
         , _eventHandler( 0 )
         , _channel( ch )

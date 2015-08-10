@@ -35,7 +35,7 @@ class Renderer : public co::ObjectFactory
 {
 public:
     /** Construct a new renderer. @version 1.0 */
-    SEQ_API Renderer( Application& application );
+    SEQ_API explicit Renderer( Application& application );
 
     /** Destruct this renderer. @version 1.0 */
     SEQ_API virtual ~Renderer();

@@ -323,7 +323,7 @@ public:
 
 protected:
     /** Construct a new channel. @internal */
-    EQFABRIC_INL Channel( W* parent );
+    EQFABRIC_INL explicit Channel( W* parent );
 
     /** Construct a copy of a channel (view/segment dest). @internal */
     Channel( const Channel& from );
@@ -416,9 +416,6 @@ private:
 
     /** Overdraw limiter */
     Vector2i    _maxSize;
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
 };
 
 template< class W, class C > EQFABRIC_INL

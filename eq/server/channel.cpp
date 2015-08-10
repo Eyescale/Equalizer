@@ -57,7 +57,7 @@ namespace
     class ViewFinder : public ConfigVisitor
     {
     public:
-        ViewFinder( const Channel* channel ) : _channel( channel ) {}
+        explicit ViewFinder( const Channel* channel ) : _channel( channel ) {}
         virtual ~ViewFinder(){}
 
         virtual VisitorResult visit( Compound* compound )

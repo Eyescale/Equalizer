@@ -33,7 +33,7 @@ public:
                             ConfigVisitor > Super;
 
     /** Construct a new config. @version 1.0 */
-    EQADMIN_API Config( ServerPtr parent );
+    EQADMIN_API explicit Config( ServerPtr parent );
 
     /** Destruct a config. @version 1.0 */
     EQADMIN_API virtual ~Config();
@@ -62,4 +62,3 @@ public:
 }
 
 #endif // EQADMIN_CONFIG_H
-

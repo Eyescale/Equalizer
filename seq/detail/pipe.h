@@ -29,7 +29,7 @@ namespace detail
 class Pipe : public eq::Pipe
 {
 public:
-    Pipe( eq::Node* parent );
+    explicit Pipe( eq::Node* parent );
 
     /** @name Data Access. */
     //@{

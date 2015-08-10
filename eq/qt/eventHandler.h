@@ -36,7 +36,7 @@ class EventHandler : public QObject, public eq::EventHandler
 {
 public:
     /** Construct a new Qt event handler. @version 1.7.3 */
-    EventHandler( WindowIF& window );
+    explicit EventHandler( WindowIF& window );
 
     /** Destruct the Qt event handler. @version  1.7.3 */
     ~EventHandler() final;

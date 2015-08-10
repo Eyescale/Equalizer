@@ -42,7 +42,7 @@ class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
 {
 public:
     /** Construct a new Node. */
-    EQSERVER_API Node( Config* parent );
+    EQSERVER_API explicit Node( Config* parent );
 
     virtual ~Node();
 

@@ -353,7 +353,7 @@ namespace
 class CompressorFinder : public pression::ConstPluginVisitor
 {
 public:
-    CompressorFinder( const uint32_t token ) : token_( token ) {}
+    explicit CompressorFinder( const uint32_t token ) : token_( token ) {}
 
     virtual fabric::VisitorResult visit( const pression::Plugin&,
                                          const EqCompressorInfo& info )

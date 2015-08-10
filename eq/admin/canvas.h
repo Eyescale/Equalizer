@@ -29,7 +29,7 @@ class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
 {
 public:
     /** Construct a new canvas. @version 1.0 */
-    EQADMIN_API Canvas( Config* parent );
+    EQADMIN_API explicit Canvas( Config* parent );
 
     /** Destruct this canvas. @version 1.0 */
     EQADMIN_API virtual ~Canvas();
@@ -44,4 +44,3 @@ public:
 }
 
 #endif // EQADMIN_CANVAS_H
-

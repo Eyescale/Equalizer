@@ -13,20 +13,20 @@ namespace hlpFuncs
 */
 struct hFile
 {
-    hFile()             : f(NULL) {}
-    hFile( FILE *file ) : f(file) {}
+    hFile() : f( 0 ) {}
+    explicit hFile( FILE *file ) : f( file ) {}
     ~hFile() { if( f ) fclose( f ); }
 
     FILE *f;
 };
 
-template <class T> 
+template <class T>
 T min( T a, T b )
 {
     return (a < b ? a : b);
 }
 
-template <class T> 
+template <class T>
 T max( T a, T b )
 {
     return (a > b ? a : b);

@@ -121,10 +121,10 @@ private:
 class CapabilitiesUpdater : public ConfigVisitor
 {
 public:
-    CapabilitiesUpdater( View* view )
-            : _view( view )
-            , _capabilities( _view->getMaximumCapabilities( ))
-        {}
+    explicit CapabilitiesUpdater( View* view )
+        : _view( view )
+        , _capabilities( _view->getMaximumCapabilities( ))
+    {}
 
     virtual ~CapabilitiesUpdater(){}
 
@@ -153,7 +153,7 @@ private:
 class UseEqualizerVisitor : public ConfigVisitor
 {
 public:
-    UseEqualizerVisitor( const View* view ) : _view( view ) {}
+    explicit UseEqualizerVisitor( const View* view ) : _view( view ) {}
 
     // No need to go down on nodes.
     VisitorResult visitPre( Node* ) override { return TRAVERSE_PRUNE; }
@@ -185,8 +185,7 @@ private:
 class UpdateEqualizersVisitor : public ConfigVisitor
 {
 public:
-
-    UpdateEqualizersVisitor( const View* view ) : _view( view ) {}
+    explicit UpdateEqualizersVisitor( const View* view ) : _view( view ) {}
 
     // No need to go down on nodes.
     VisitorResult visitPre( Node* ) override { return TRAVERSE_PRUNE; }

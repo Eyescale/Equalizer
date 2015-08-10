@@ -32,6 +32,7 @@ namespace server
 
 class Canvas;
 class Channel;
+class ChannelListener;
 class Compound;
 class CompoundListener;
 class CompoundVisitor;

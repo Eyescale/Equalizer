@@ -37,7 +37,7 @@ enum FlushMode
 class CompressorReadDrawPixels : public Compressor
 {
 public:
-    CompressorReadDrawPixels( const unsigned name );
+    explicit CompressorReadDrawPixels( const unsigned name );
     virtual ~CompressorReadDrawPixels();
 
     static void* getNewCompressor( const unsigned name )

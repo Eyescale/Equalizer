@@ -33,7 +33,7 @@ class Proxy : public ResultImageListener
 {
 public:
     /** Construct a DisplayCluster proxy associated to a destination channel. */
-    Proxy( Channel* channel );
+    explicit Proxy( Channel* channel );
 
     /** Destruct the DisplayCluster proxy. */
     ~Proxy();

@@ -29,7 +29,7 @@ class View : public fabric::View< Layout, View, Observer >
 {
 public:
     /** Construct a new view. @version 1.0 */
-    EQADMIN_API View( Layout* parent );
+    EQADMIN_API explicit View( Layout* parent );
 
     /** Destruct this view. @version 1.0 */
     EQADMIN_API virtual ~View();
@@ -50,4 +50,3 @@ public:
 }
 
 #endif // EQADMIN_VIEW_H
-

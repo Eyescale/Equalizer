@@ -106,7 +106,7 @@ void Frame::commitData()
 uint128_t Frame::commit( const uint32_t incarnation )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
-        _setDataVersion( i, _frameData[i] );
+        _setDataVersion( i, co::ObjectVersion( _frameData[i] ));
     return co::Object::commit( incarnation );
 }
 

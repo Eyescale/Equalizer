@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -92,7 +92,7 @@ void Renderer::draw( co::Object* frameDataObj )
     const seq::RenderContext& context = getRenderContext();
 
     _state->setProjectionModelViewMatrix( pmv );
-    _state->setRange( &context.range.start );
+    _state->setRange( triply::Range( &context.range.start ));
     _state->setColors( model->hasColors( ));
 
     model->cullDraw( *_state );

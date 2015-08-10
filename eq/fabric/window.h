@@ -153,7 +153,7 @@ namespace fabric
 
     protected:
         /** @internal Construct a new window. */
-        Window( P* parent );
+        explicit Window( P* parent );
 
         EQFABRIC_INL virtual ~Window(); //!< @internal
         /** @internal */

@@ -27,6 +27,7 @@ namespace eq
 namespace fabric
 {
 /** Base data transport class for nodes. @sa eq::Node */
+// cppcheck-suppress noConstructor
 template< class C, class N, class P, class V > class Node : public Object
 {
 public:
@@ -109,7 +110,8 @@ public:
 
 protected:
     /** @internal Construct a new node. */
-    Node( C* parent );
+    explicit Node( C* parent );
+
     /** @internal Destruct the node. */
     EQFABRIC_INL virtual ~Node();
 

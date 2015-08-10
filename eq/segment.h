@@ -36,7 +36,7 @@ class Segment : public fabric::Segment< Canvas, Segment, Channel >
 {
 public:
     /** Construct a new segment. @version 1.0 */
-    EQ_API Segment( Canvas* parent );
+    EQ_API explicit Segment( Canvas* parent );
 
     /** Destruct a segment. @version 1.0 */
     EQ_API virtual ~Segment();

@@ -40,7 +40,7 @@ class Accum : public boost::noncopyable
 {
 public:
     /** Construct a new accumulation buffer. @version 1.0 */
-    EQ_API Accum( const GLEWContext* const glewContext );
+    EQ_API explicit Accum( const GLEWContext* const glewContext );
 
     /** Destruct the accumulation buffer. @version 1.0 */
     EQ_API ~Accum();

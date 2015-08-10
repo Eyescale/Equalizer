@@ -43,7 +43,7 @@ class VertexBufferDist : public co::Object
 {
 public:
     TRIPLY_API VertexBufferDist();
-    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot* root );
+    TRIPLY_API explicit VertexBufferDist( triply::VertexBufferRoot* root );
     TRIPLY_API virtual ~VertexBufferDist();
 
     TRIPLY_API void registerTree( co::LocalNodePtr node );

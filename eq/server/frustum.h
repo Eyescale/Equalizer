@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,25 +24,23 @@ namespace eq
 {
 namespace server
 {
-    class FrustumData;
+class FrustumData;
 
-    /**
-     * Extends the fabric::Frustum to update server-side generic frustum data.
-     */
-    class Frustum : public fabric::Frustum
-    {
-    public:
-        Frustum( FrustumData& data );
-        Frustum( const Frustum& from, FrustumData& data );
-        virtual ~Frustum(){}
+/** Extends fabric::Frustum to update server-side generic frustum data. */
+class Frustum : public fabric::Frustum
+{
+public:
+    explicit Frustum( FrustumData& data );
+    Frustum( const Frustum& from, FrustumData& data );
+    virtual ~Frustum(){}
 
-    private:
-        FrustumData& _data;
+private:
+    FrustumData& _data;
 
-        /** Update the frustum (wall/projection). */
-        virtual void updateFrustum();
-        virtual void notifyFrustumChanged() { updateFrustum(); }
-    };
+    /** Update the frustum (wall/projection). */
+    virtual void updateFrustum();
+    virtual void notifyFrustumChanged() { updateFrustum(); }
+};
 }
 }
 #endif // EQ_FRUSTUM_H

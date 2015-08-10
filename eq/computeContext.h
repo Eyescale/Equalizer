@@ -38,7 +38,7 @@ public:
     /**
      * Create a new ComputeContext for the given accelerator.
      */
-    EQ_API ComputeContext( Pipe* parent );
+    EQ_API explicit ComputeContext( Pipe* parent );
 
     /** Destroy the ComputeContext. */
     EQ_API virtual ~ComputeContext();

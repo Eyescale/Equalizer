@@ -49,10 +49,10 @@ class Compound
 {
 public:
     /** Construct a new root compound. */
-    EQSERVER_API Compound( Config* parent );
+    EQSERVER_API explicit Compound( Config* parent );
 
     /** Construct a new compound child. */
-    EQSERVER_API Compound( Compound* parent );
+    EQSERVER_API explicit Compound( Compound* parent );
 
     /** Destruct the compound and all children. */
     virtual ~Compound();

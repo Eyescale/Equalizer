@@ -29,7 +29,7 @@ class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
 {
 public:
     /** Construct a new pipe. @version 1.0 */
-    EQADMIN_API Pipe( Node* parent );
+    EQADMIN_API explicit Pipe( Node* parent );
 
     /** Destruct a pipe. @version 1.0 */
     EQADMIN_API virtual ~Pipe();
@@ -48,4 +48,3 @@ public:
 }
 
 #endif // EQADMIN_PIPE_H
-

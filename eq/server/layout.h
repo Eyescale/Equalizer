@@ -38,7 +38,7 @@ class Layout : public fabric::Layout< Config, Layout, View >
 {
 public:
     /** Construct a new Layout. */
-    EQSERVER_API Layout( Config* parent );
+    EQSERVER_API explicit Layout( Config* parent );
 
     /** Destruct this layout. */
     virtual ~Layout();

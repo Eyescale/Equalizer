@@ -39,28 +39,27 @@ namespace
 class OutputFrameFinder : public CompoundVisitor
 {
 public:
-    OutputFrameFinder( const std::string& name  )
-                             : _frame(0)
-                             , _name( name )  {}
+    explicit OutputFrameFinder( const std::string& name  )
+        : _frame(0) , _name( name )  {}
 
     virtual ~OutputFrameFinder(){}
 
     virtual VisitorResult visit( const Compound* compound )
+    {
+        const Frames& outputFrames = compound->getOutputFrames();
+        for( Frames::const_iterator i = outputFrames.begin();
+             i != outputFrames.end(); ++i )
         {
-            const Frames& outputFrames = compound->getOutputFrames();
-            for( Frames::const_iterator i = outputFrames.begin();
-                 i != outputFrames.end(); ++i )
-            {
-                Frame* frame = *i;
+            Frame* frame = *i;
 
-                if ( frame->getName() == _name )
-                {
-                    _frame = frame;
-                    return TRAVERSE_TERMINATE;
-                }
+            if ( frame->getName() == _name )
+            {
+                _frame = frame;
+                return TRAVERSE_TERMINATE;
             }
-            return TRAVERSE_CONTINUE;
         }
+        return TRAVERSE_CONTINUE;
+    }
 
     Frame* getResult() { return _frame; }
 

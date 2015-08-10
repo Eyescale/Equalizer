@@ -51,7 +51,7 @@ class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
 {
 public:
     /** Construct a new canvas. @version 1.0 */
-    EQ_API Canvas( Config* parent );
+    EQ_API explicit Canvas( Config* parent );
 
     /** Destruct this canvas. @version 1.0 */
     EQ_API virtual ~Canvas();
