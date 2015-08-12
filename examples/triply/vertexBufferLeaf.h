@@ -40,7 +40,7 @@ class VertexBufferLeaf : public VertexBufferBase
 public:
     explicit VertexBufferLeaf( VertexBufferData& data )
         : _globalData( data ), _vertexStart( 0 ), _indexStart( 0 )
-        , _indexLength( 0 ) {}
+        , _indexLength( 0 ), _vertexLength( 0 ) {}
     virtual ~VertexBufferLeaf() {}
 
     virtual void draw( VertexBufferState& state ) const;
