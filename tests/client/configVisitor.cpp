@@ -129,6 +129,7 @@ int main( int argc, char **argv )
         TEST( client->disconnectServer( server ));
         // teardown
         TEST( client->exitLocal( ));
+        lunchbox::sleep( 10 );
     }
 
     eq::exit();

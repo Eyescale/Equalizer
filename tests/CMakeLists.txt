@@ -4,7 +4,7 @@
 # Change this number when adding tests to force a CMake run: 5
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
-file(COPY compressor/images ${PROJECT_SOURCE_DIR}/examples/configs
+file(COPY perf/images ${PROJECT_SOURCE_DIR}/examples/configs
   ${COMPOSITOR_IMAGES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB TEST_CONFIGS server/reliability/*.eqc)

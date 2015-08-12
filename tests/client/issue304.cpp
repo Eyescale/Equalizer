@@ -25,7 +25,7 @@ int main( const int argc, char** argv )
     eq::Global::setConfigFile( "configs/issue304.eqc" );
 
     eq::NodeFactory nodeFactory;
-    TEST( eq::init( 0, 0, &nodeFactory ));
+    TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::ClientPtr client = new eq::Client;
     TEST( client->initLocal( argc, argv ));

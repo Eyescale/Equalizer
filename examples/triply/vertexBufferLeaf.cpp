@@ -112,10 +112,10 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.y() = ( _boundingBox[0].y() + _boundingBox[1].y() ) * 0.5f;
     _boundingSphere.z() = ( _boundingBox[0].z() + _boundingBox[1].z() ) * 0.5f;
 
-    _boundingSphere.w()  = LB_MAX( _boundingBox[1].x() - _boundingBox[0].x(),
-                                   _boundingBox[1].y() - _boundingBox[0].y() );
-    _boundingSphere.w()  = LB_MAX( _boundingBox[1].z() - _boundingBox[0].z(),
-                                   _boundingSphere.w() );
+    _boundingSphere.w()  = std::max( _boundingBox[1].x() - _boundingBox[0].x(),
+                                     _boundingBox[1].y() - _boundingBox[0].y());
+    _boundingSphere.w()  = std::max( _boundingBox[1].z() - _boundingBox[0].z(),
+                                     _boundingSphere.w( ));
     _boundingSphere.w() *= .5f;
 
     float  radius        = _boundingSphere.w();
