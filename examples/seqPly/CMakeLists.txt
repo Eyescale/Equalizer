@@ -19,6 +19,5 @@ eq_add_example(seqPly
     ../eqPly/frameData.h
     ../eqPly/frameData.cpp
   LINK_LIBRARIES
-    ${EQUALIZER_SEQUEL_LIBRARY}
-    triply
+    Sequel triply
   )

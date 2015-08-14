@@ -45,7 +45,7 @@ function(EQ_ADD_EXAMPLE NAME)
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
                  ${SHADER_SOURCES})
   target_link_libraries(${THIS_TARGET} ${THIS_LINK_LIBRARIES}
-    ${EQUALIZER_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+    Equalizer ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
                         FOLDER "Examples")

@@ -9,5 +9,5 @@ eq_add_example(eqHello
   SHADERS
     vertexShader.glsl
     fragmentShader.glsl
-  LINK_LIBRARIES ${EQUALIZER_SEQUEL_LIBRARY}
+  LINK_LIBRARIES Sequel
   )

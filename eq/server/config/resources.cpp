@@ -36,22 +36,22 @@
 #include <hwsd/gpuInfo.h>
 #include <hwsd/netInfo.h>
 #include <hwsd/hwsd.h>
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+#ifdef EQUALIZER_USE_hwsd_gpu_cgl
 #  include <hwsd/gpu/cgl/module.h>
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_glx
+#ifdef EQUALIZER_USE_hwsd_gpu_glx
 #  include <hwsd/gpu/glx/module.h>
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+#ifdef EQUALIZER_USE_hwsd_gpu_wgl
 #  include <hwsd/gpu/wgl/module.h>
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+#ifdef EQUALIZER_USE_hwsd_gpu_dns_sd
 #  include <hwsd/gpu/dns_sd/module.h>
 #endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
+#ifdef EQUALIZER_USE_hwsd_net_sys
 #  include <hwsd/net/sys/module.h>
 #endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+#ifdef EQUALIZER_USE_hwsd_net_dns_sd
 #  include <hwsd/net/dns_sd/module.h>
 #endif
 
@@ -160,42 +160,42 @@ hwsd::NetInfos _discoverNetworks( const fabric::ConfigParams& params,
 
 void _configureHwsdModules()
 {
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+#ifdef EQUALIZER_USE_hwsd_gpu_cgl
     hwsd::gpu::cgl::Module::use();
-#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
+#elif defined(EQUALIZER_USE_hwsd_gpu_glx)
     hwsd::gpu::glx::Module::use();
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+#ifdef EQUALIZER_USE_hwsd_gpu_wgl
     hwsd::gpu::wgl::Module::use();
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+#ifdef EQUALIZER_USE_hwsd_gpu_dns_sd
     hwsd::gpu::dns_sd::Module::use();
 #endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
+#ifdef EQUALIZER_USE_hwsd_net_sys
     hwsd::net::sys::Module::use();
 #endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+#ifdef EQUALIZER_USE_hwsd_net_dns_sd
     hwsd::net::dns_sd::Module::use();
 #endif
 }
 
 void _disposeHwsdModules()
 {
-#ifdef EQUALIZER_USE_HWSD_gpu_cgl
+#ifdef EQUALIZER_USE_hwsd_gpu_cgl
     hwsd::gpu::cgl::Module::dispose();
-#elif defined(EQUALIZER_USE_HWSD_gpu_glx)
+#elif defined(EQUALIZER_USE_hwsd_gpu_glx)
     hwsd::gpu::glx::Module::dispose();
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_wgl
+#ifdef EQUALIZER_USE_hwsd_gpu_wgl
     hwsd::gpu::wgl::Module::dispose();
 #endif
-#ifdef EQUALIZER_USE_HWSD_gpu_dns_sd
+#ifdef EQUALIZER_USE_hwsd_gpu_dns_sd
     hwsd::gpu::dns_sd::Module::dispose();
 #endif
-#ifdef EQUALIZER_USE_HWSD_net_sys
+#ifdef EQUALIZER_USE_hwsd_net_sys
     hwsd::net::sys::Module::dispose();
 #endif
-#ifdef EQUALIZER_USE_HWSD_net_dns_sd
+#ifdef EQUALIZER_USE_hwsd_net_dns_sd
     hwsd::net::dns_sd::Module::dispose();
 #endif
 }

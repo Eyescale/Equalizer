@@ -10,4 +10,5 @@ endif()
 
 eq_add_example(eqCPU
   HEADERS channel.h pipe.h window.h
-  SOURCES channel.cpp main.cpp window.cpp)
+  SOURCES channel.cpp main.cpp window.cpp
+  LINK_LIBRARIES ${X11_LIBRARIES})
