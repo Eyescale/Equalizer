@@ -34,18 +34,15 @@ namespace wgl
         /** Destruct this message pump. @version 1.0 */
         virtual ~MessagePump() {}
 
-        EQ_API virtual void postWakeup();
-        EQ_API virtual void dispatchAll();
-        EQ_API virtual void dispatchOne( const uint32_t timeout =
-                                             LB_TIMEOUT_INDEFINITE );
+        EQ_API void postWakeup() override;
+        EQ_API void dispatchAll() override;
+        EQ_API void dispatchOne( const uint32_t timeout =
+                                   LB_TIMEOUT_INDEFINITE ) override;
 
     private:
         /** Thread ID of the receiver. */
         unsigned long _win32ThreadID;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-
+        
         void _initReceiverQueue();
     };
 }

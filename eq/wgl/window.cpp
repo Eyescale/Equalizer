@@ -49,7 +49,7 @@ namespace detail
 class Window
 {
 public:
-    Window( Pipe& pipe )
+    explicit Window( Pipe& pipe )
         : _wglWindow( 0 )
         , _wglPBuffer( 0 )
         , _wglContext( 0 )
@@ -57,6 +57,7 @@ public:
         , _wglDCType( WGL_DC_NONE )
         , _wglAffinityDC( 0 )
         , _wglEventHandler( 0 )
+        , _screenSaverActive( FALSE )
         , _wglNVSwapGroup( 0 )
         , _wglPipe( pipe )
     {}
