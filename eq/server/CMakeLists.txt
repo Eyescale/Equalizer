@@ -141,15 +141,28 @@ else()
   list(APPEND EQUALIZERSERVER_HEADERS ${PUBLIC_HEADERS})
 endif()
 
-set(EQUALIZERSERVER_LINK_LIBRARIES EqualizerFabric)
+set(EQUALIZERSERVER_LINK_LIBRARIES PUBLIC EqualizerFabric)
 if(HWSD_FOUND)
   list(APPEND EQUALIZERSERVER_HEADERS
     config/display.h config/resources.h config/server.h)
   list(APPEND EQUALIZERSERVER_SOURCES
     config/display.cpp config/resources.cpp config/server.cpp)
-  list(APPEND EQUALIZERSERVER_LINK_LIBRARIES ${HWSD_LIBRARIES})
-  foreach(HWSD_COMPONENT ${HWSD_COMPONENTS})
-    add_definitions(-DEQUALIZER_USE_HWSD_${HWSD_COMPONENT})
+
+  set(_hwsd_components hwsd_net_sys)
+  if(HWSD_USE_SERVUS)
+    list(APPEND _hwsd_components hwsd_gpu_dns_sd hwsd_net_dns_sd)
+  endif()
+  if(EQ_GLX_USED)
+    list(APPEND _hwsd_components hwsd_gpu_glx)
+  elseif(EQ_AGL_USED)
+    list(APPEND _hwsd_components hwsd_gpu_cgl)
+  elseif(EQ_WGL_USED)
+    list(APPEND _hwsd_components hwsd_gpu_wgl)
+  endif()
+
+  list(APPEND EQUALIZERSERVER_LINK_LIBRARIES PRIVATE ${_hwsd_components})
+  foreach(_component ${_hwsd_components})
+    add_definitions(-DEQUALIZER_USE_${_component})
   endforeach()
 endif()
 
