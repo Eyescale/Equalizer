@@ -32,7 +32,7 @@ namespace wgl
     {
     public:
         /** Construct a new WGL event handler for the window. @version 1.0 */
-        EQ_API EventHandler( WindowIF* window );
+        EQ_API explicit EventHandler( WindowIF* window );
 
         /** Destruct the WGL event handler. @version 1.0 */
         EQ_API virtual ~EventHandler();

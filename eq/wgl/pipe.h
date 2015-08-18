@@ -33,7 +33,7 @@ namespace wgl
     {
     public:
         /** Construct a new WGL system pipe. @version 1.0 */
-        EQ_API Pipe( eq::Pipe* parent );
+        EQ_API explicit Pipe( eq::Pipe* parent );
 
         /** Destruct this WGL system pipe. @version 1.0 */
         EQ_API virtual ~Pipe( );
@@ -46,7 +46,7 @@ namespace wgl
          * @return true if the initialization was successful, false otherwise.
          * @version 1.0
          */
-        EQ_API virtual bool configInit();
+        EQ_API bool configInit() override;
 
         /** 
          * Deinitialize this pipe for the WGL window system.
@@ -54,7 +54,7 @@ namespace wgl
          * @return true if the deinitialization was successful, false otherwise.
          * @version 1.0
          */
-        EQ_API virtual void configExit();
+        EQ_API void configExit() override;
         //@}
 
         /**
@@ -99,10 +99,7 @@ namespace wgl
     private:
         /** Extended WGL function entries. */
         WGLEWContext* const _wglewContext;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-
+        
         bool _configInitWGLEW();
         bool _getGPUHandle( HGPUNV& handle );
     };
