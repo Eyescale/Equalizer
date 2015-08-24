@@ -7,6 +7,11 @@ endif(MSVC)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(EQPLY_LINK_LIBRARIES EqualizerAdmin triply)
+if(EQ_QT_USED)
+  list(APPEND EQPLY_LINK_LIBRARIES Qt5::Widgets ${X11_LIBRARIES})
+endif()
+
 eq_add_example(eqPly
   HEADERS
     cameraAnimation.h
@@ -43,7 +48,7 @@ eq_add_example(eqPly
     vertexShader.glsl
     fragmentShader.glsl
   LINK_LIBRARIES
-    EqualizerAdmin triply Qt5::Widgets ${X11_LIBRARIES}
+    ${EQPLY_LINK_LIBRARIES}
   )
 
 file(COPY logo.rgb DESTINATION ${CMAKE_BINARY_DIR}/share/Equalizer/data)

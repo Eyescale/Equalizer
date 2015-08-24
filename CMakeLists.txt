@@ -9,7 +9,6 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
-include(SubProject)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "10")
