@@ -36,7 +36,7 @@ namespace detail { class Accum; }
  * use a workaround which needs setTotalSteps() to set up the total number of
  * accumulations done.
  */
-class Accum : public boost::noncopyable
+class Accum
 {
 public:
     /** Construct a new accumulation buffer. @version 1.0 */
@@ -134,6 +134,8 @@ public:
     EQ_API const GLEWContext* glewGetContext() const;
 
 private:
+    Accum( const Accum& ) = delete;
+    Accum& operator=( const Accum& ) = delete;
     detail::Accum* const _impl;
 };
 }

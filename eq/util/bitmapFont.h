@@ -28,7 +28,7 @@ namespace util
 namespace detail { class BitmapFont; }
 
 /** A wrapper around AGL, WGL and GLX bitmap fonts. */
-class BitmapFont : public boost::noncopyable
+class BitmapFont
 {
 public:
     /**
@@ -81,6 +81,8 @@ public:
     EQ_API void draw( const std::string& text ) const;
 
 private:
+    BitmapFont( const BitmapFont& ) = delete;
+    BitmapFont& operator=( const BitmapFont& ) = delete;
     detail::BitmapFont* const _impl;
 };
 }

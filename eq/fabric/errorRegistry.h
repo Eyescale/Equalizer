@@ -20,7 +20,6 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-#include <boost/noncopyable.hpp>
 
 namespace eq
 {
@@ -28,40 +27,43 @@ namespace fabric
 {
 namespace detail { class ErrorRegistry; }
 
-    /**
-     * The registry translating error codes to strings.
-     *
-     * Applications can register custom error strings starting at
-     * eq::ERROR_CUSTOM. Error registration and erasure is not
-     * thread-safe. Equalizer registers errors only during eq::init(). It is
-     * strongly advised to register application-specific errors before
-     * eq::init() and erase them after eq::exit().
-     *
-     * @sa co::Error, eq::Error
-     */
-    class ErrorRegistry : public boost::noncopyable
-    {
-    public:
-        /** @internal Construct an error registry. */
-        ErrorRegistry();
+/**
+ * The registry translating error codes to strings.
+ *
+ * Applications can register custom error strings starting at
+ * eq::ERROR_CUSTOM. Error registration and erasure is not
+ * thread-safe. Equalizer registers errors only during eq::init(). It is
+ * strongly advised to register application-specific errors before
+ * eq::init() and erase them after eq::exit().
+ *
+ * @sa co::Error, eq::Error
+ */
+class ErrorRegistry
+{
+public:
+    /** @internal Construct an error registry. */
+    ErrorRegistry();
 
-        ~ErrorRegistry(); //!< @internal
+    ~ErrorRegistry(); //!< @internal
 
-        /** @return the error string for the given error code. @version 1.0 */
-        EQFABRIC_API const std::string& getString( const uint32_t error ) const;
+    /** @return the error string for the given error code. @version 1.0 */
+    EQFABRIC_API const std::string& getString( const uint32_t error ) const;
 
-        /** Set an error string for the given error code. @version 1.0 */
-        EQFABRIC_API void setString( const uint32_t error,
-                                     const std::string& text );
+    /** Set an error string for the given error code. @version 1.0 */
+    EQFABRIC_API void setString( const uint32_t error,
+                                 const std::string& text );
 
-        /** Clear a given error code string. @version 1.0 */
-        EQFABRIC_API void eraseString( const uint32_t error );
+    /** Clear a given error code string. @version 1.0 */
+    EQFABRIC_API void eraseString( const uint32_t error );
 
-        EQFABRIC_API bool isEmpty() const; //!< @internal
+    EQFABRIC_API bool isEmpty() const; //!< @internal
 
-    private:
-        detail::ErrorRegistry* const _impl;
-    };
+private:
+    ErrorRegistry( const ErrorRegistry& ) = delete;
+    ErrorRegistry& operator=( const ErrorRegistry& ) = delete;
+    detail::ErrorRegistry* const _impl;
+};
+
 }
 }
 #endif // EQFABRIC_ERRORREGISTRY_H

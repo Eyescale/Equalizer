@@ -30,7 +30,7 @@
 namespace eq
 {
 /** Tracks requested areas for ROI. Used to disable ROI when ROI fails. */
-class ROITracker : public boost::noncopyable
+class ROITracker
 {
 public:
     ROITracker();
@@ -75,6 +75,9 @@ public:
     void updateDelay( const PixelViewports& pvps, const uint8_t* ticket );
 
 private:
+    ROITracker( const ROITracker& ) = delete;
+    ROITracker& operator=( const ROITracker& ) = delete;
+
     /** Area of readback */
     struct Area
     {

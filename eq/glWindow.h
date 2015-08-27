@@ -33,7 +33,7 @@ namespace detail { class GLWindow; }
  * It is subclassed by OS-specific implementations which provide the the glue to
  * the actual window system.
  */
-class GLWindow : public SystemWindow, public boost::noncopyable
+class GLWindow : public SystemWindow
 {
 public:
     /** Construct a new OpenGL window. @version 1.7.2 */
@@ -113,6 +113,8 @@ public:
     EQ_API void queryDrawableConfig( DrawableConfig& ) override;
 
 private:
+    GLWindow( const GLWindow& ) = delete;
+    GLWindow& operator=( const GLWindow& ) = delete;
     bool _createFBO( util::FrameBufferObject*& fbo, const int samplesSize );
     void _destroyFBO( util::FrameBufferObject*& fbo );
 

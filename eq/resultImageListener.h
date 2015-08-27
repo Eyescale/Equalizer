@@ -30,7 +30,7 @@ namespace eq
  * @sa Channel::addResultImageListener
  * @version 1.9
  */
-class ResultImageListener : public boost::noncopyable
+class ResultImageListener
 {
 public:
     /** Construct a new result image listener. @version 1.9 */
@@ -48,6 +48,10 @@ public:
      * @version 1.9
      */
     virtual void notifyNewImage( Channel& channel, const Image& image ) = 0;
+
+private:
+    ResultImageListener( const ResultImageListener& ) = delete;
+    ResultImageListener& operator=( const ResultImageListener& ) = delete;
 };
 
 }
