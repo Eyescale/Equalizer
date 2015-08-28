@@ -35,7 +35,7 @@ namespace detail { class Texture; }
  * So far used by the Image and Compositor. The target is assumed to be
  * GL_TEXTURE_RECTANGLE_ARB or GL_TEXTURE_2D.
  */
-class Texture : public boost::noncopyable
+class Texture
 {
 public:
     /**
@@ -190,6 +190,8 @@ public:
     //@}
 
 private:
+    Texture( const Texture& ) = delete;
+    Texture& operator=( const Texture& ) = delete;
     detail::Texture* const _impl;
 
     /**

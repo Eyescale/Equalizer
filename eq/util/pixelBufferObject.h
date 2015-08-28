@@ -41,7 +41,7 @@ namespace detail { class PixelBufferObject; }
  *
  * On correct PBO usage see: http://www.songho.ca/opengl/gl_pbo.html
  */
-class PixelBufferObject : public boost::noncopyable
+class PixelBufferObject
 {
 public:
     /**
@@ -115,6 +115,8 @@ public:
     unsigned getID() const;
 
 private:
+    PixelBufferObject( const PixelBufferObject& ) = delete;
+    PixelBufferObject& operator=( const PixelBufferObject& ) = delete;
     detail::PixelBufferObject* const _impl;
 };
 }

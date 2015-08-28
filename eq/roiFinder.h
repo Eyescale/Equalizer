@@ -31,7 +31,7 @@ namespace eq
  * Processes current rendering target and selects areas for read back.
  * @internal
  */
-class ROIFinder : public boost::noncopyable
+class ROIFinder
 {
 public:
     ROIFinder();
@@ -56,6 +56,9 @@ public:
                                 const uint128_t&       frameID,
                                 util::ObjectManager&   glObjects );
 private:
+    ROIFinder( const ROIFinder& ) = delete;
+    ROIFinder& operator=( const ROIFinder& ) = delete;
+
     struct Area;
 
     const void* _getInfoKey( ) const;
@@ -64,16 +67,9 @@ private:
         actuall read-back */
     void _readbackInfo( util::ObjectManager& glObjects );
 
-    /** Dumpes image that contain _mask and found regions */
-    void _dumpDebug( const GLEWContext* gl, const uint32_t stage = 0 );
-
     /** Clears masks, filles per-block occupancy _mask from _perBlockInfo,
         that was previously read-back from GPU in _readbackInfo */
     void _init( );
-
-    /** For debugging purposes */
-    void _fillWithColor( const PixelViewport& pvp, uint8_t* dst,
-                         const uint8_t val );
 
     /** Updates dimensions and resizes arrays */
     void _resize( const PixelViewport& pvp );
@@ -138,7 +134,6 @@ private:
     int32_t _hb;    //!< _h + 1 (only 1 block currently is used as border)
     int32_t _wbhb;  //!< _wb * _wh (total number of blocks in _mask)
 
-    Vectorub _tmpMask; //!< used only to dump found areas in _dumpDebug
     Vectorub _mask;    //!< mask of occupied blocks (main data)
 
     std::vector<float> _perBlockInfo; //!< buffer for data from GPU

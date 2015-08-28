@@ -32,7 +32,7 @@ namespace detail { class Image; }
  *
  * An image holds color and depth information for one rectangular region.
  */
-class Image : public boost::noncopyable
+class Image
 {
 public:
     /** Construct a new Image. @version 1.0 */
@@ -395,6 +395,8 @@ public:
     //@}
 
 private:
+    Image( const Image& ) = delete;
+    Image& operator=( const Image& )  = delete;
     detail::Image* const _impl;
 
     /** @return a unique key for the frame buffer attachment. */

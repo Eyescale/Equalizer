@@ -65,39 +65,6 @@ ROIFinder::ROIFinder()
     _tmpAreas[0].emptySize = 0;
 }
 
-void ROIFinder::_dumpDebug( const GLEWContext* gl, const uint32_t stage )
-{
-    static uint32_t counter = 0;
-    std::ostringstream ss;
-    ss << "_img_" << ++counter << "_" << stage;
-
-    _tmpImg.reset();
-    _tmpImg.setPixelViewport( PixelViewport( 0, 0, _wb, _hb ));
-
-    _tmpImg.allocDownloader( Frame::BUFFER_COLOR,
-                             EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR,
-                             gl );
-
-    _tmpImg.validatePixelData( Frame::BUFFER_COLOR );
-
-    uint8_t* dst  = _tmpImg.getPixelPointer( Frame::BUFFER_COLOR );
-    uint8_t* src1 = &_mask[0];
-    uint8_t* src2 = &_tmpMask[0];
-
-    memset( dst, 0, _wbhb*3 );
-
-    for( int32_t y = 0; y < _hb; y++ )
-        for( int32_t x = 0; x < _wb; x++ )
-        {
-            dst[0] = *src1++;
-            dst[1] = *src2++;
-            dst += 3;
-        }
-
-    LBWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
-    _tmpImg.writeImages( ss.str( ));
-}
-
 PixelViewport ROIFinder::_getObjectPVP( const PixelViewport& pvp,
                                         const uint8_t*       src )
 {
@@ -177,7 +144,6 @@ void ROIFinder::_resize( const PixelViewport& pvp )
     if( static_cast<int32_t>(_mask.size()) < _wbhb )
     {
         _mask.resize( _wbhb );
-        _tmpMask.resize( _wbhb );
 
         // w * h * sizeof( GL_FLOAT ) * RGBA
         _perBlockInfo.resize( _wh * 4 );
@@ -189,7 +155,6 @@ void ROIFinder::_init( )
 {
     _areasToCheck.clear();
     memset( &_mask[0]   , 0, _mask.size( ));
-    memset( &_tmpMask[0], 0, _tmpMask.size( ));
 
     LBASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _w*_h*4 );
     LBASSERT( static_cast<int32_t>(_mask.size())         >= _wb*_h  );
@@ -207,15 +172,6 @@ void ROIFinder::_init( )
         src += _w*4;
         dst += _wb;
     }
-}
-
-
-void ROIFinder::_fillWithColor( const PixelViewport& pvp,
-                                      uint8_t* dst, const uint8_t val )
-{
-    for( int32_t y = pvp.y; y < pvp.y + pvp.h; y++ )
-        for( int32_t x = pvp.x; x < pvp.x + pvp.w; x++ )
-            dst[ y * _wb + x ] = val;
 }
 
 void ROIFinder::_invalidateAreas( Area* areas, uint8_t num )
@@ -518,13 +474,6 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
     // correct position and sizes
     for( uint32_t i = 0; i < resultPVPs.size(); i++ )
     {
-#ifndef NDEBUG
-        // fill temporary array with found regions to
-        // dump it later in _dumpDebug
-        _fillWithColor( resultPVPs[i], &_tmpMask[0],
-                        uint8_t( 255 - i*200/resultPVPs.size( )));
-#endif
-
         PixelViewport& pvp = resultPVPs[i];
         pvp.x += _pvp.x;
         pvp.y += _pvp.y;
@@ -538,7 +487,6 @@ const void* ROIFinder::_getInfoKey( ) const
 {
     return ( reinterpret_cast< const char* >( this ) + 3 );
 }
-
 
 void ROIFinder::_readbackInfo( util::ObjectManager& glObjects )
 {

@@ -30,7 +30,7 @@
 namespace eq
 {
 /** The pixel data structure manages the pixel information for images. */
-struct PixelData : public boost::noncopyable
+struct PixelData
 {
     /** Construct new pixel data. @version 1.0 */
     EQ_API PixelData();
@@ -91,6 +91,10 @@ struct PixelData : public boost::noncopyable
     uint32_t compressorName;
 
     uint32_t compressorFlags; //!< Flags used for compression. @version 1.0
+
+private:
+    PixelData( const PixelData& ) = delete;
+    PixelData& operator=( const PixelData& ) = delete;
 };
 };
 #endif // EQ_PIXELDATA_H

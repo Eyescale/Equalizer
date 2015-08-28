@@ -36,7 +36,7 @@ namespace x11
  * Example usage: @include examples/eqCPU/window.cpp
  * @version 1.9
  */
-class Window : public SystemWindow, public boost::noncopyable
+class Window : public SystemWindow
 {
 public:
     Window( NotifierInterface& parent, const WindowSettings& settings,
@@ -74,6 +74,8 @@ public:
     virtual void setXDrawable( XID drawable ) { _xDrawable = drawable; }
 
 private:
+    Window( const Window& ) = delete;
+    Window& operator=( const Window& ) = delete;
     XID _createWindow();
     Display* _xDisplay; //!< The display connection (maintained by GLXPipe)
     XID _xDrawable;
