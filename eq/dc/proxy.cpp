@@ -151,7 +151,7 @@ void Proxy::notifyNewImage( eq::Channel& channel, const eq::Image& image )
     if( !_impl->_eventHandler && _impl->_stream->registerForEvents( true ))
     {
         _impl->_eventHandler = new EventHandler( this );
-        LBINFO << "Installed event handler for DisplayCluster" << std::endl;
+        LBDEBUG << "Installed event handler for DisplayCluster" << std::endl;
     }
 }
 

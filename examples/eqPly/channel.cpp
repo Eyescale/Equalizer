@@ -799,13 +799,13 @@ void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )
     {
         // estimate minimal value of near plane based on frustum size
         const eq::Frustumf& frustum = getFrustum();
-        const float width  = fabs( frustum.right() - frustum.left() );
-        const float height = fabs( frustum.top() - frustum.bottom() );
-        const float size   = LB_MIN( width, height );
-        const float minNear = frustum.near_plane() / size * .001f;
+        const float width  = std::fabs( frustum.right() - frustum.left() );
+        const float height = std::fabs( frustum.top() - frustum.bottom() );
+        const float size   = std::min( width, height );
+        const float minNear = std::fabs( frustum.near_plane() / size * .001f );
 
-        const float zNear = LB_MAX( minNear, -nearPoint.z() );
-        const float zFar  = LB_MAX( zNear * 2.f, -farPoint.z() );
+        const float zNear = std::max( minNear, -nearPoint.z() );
+        const float zFar  = std::max( zNear * 2.f, -farPoint.z() );
 
         setNearFar( zNear, zFar );
     }

@@ -111,8 +111,8 @@ static class : WindowSystemIF
 
         if( font == 0 )
         {
-            LBWARN << "Can't load font " << name << ", using Georgia"
-                   << std::endl;
+            LBDEBUG << "Can't load font " << name << ", using Georgia"
+                    << std::endl;
             cfFontName =
                 CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
                                            kCFStringEncodingMacRoman );
