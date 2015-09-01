@@ -1,4 +1,4 @@
-
+W
 /* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
@@ -91,8 +91,8 @@ static class : WindowSystemIF
         HFONT newFont = CreateFontIndirect( &font );
         if( !newFont )
         {
-            LBWARN << "Can't load font " << name << ", using Times New Roman"
-                   << std::endl;
+            LBDEBUG << "Can't load font " << name << ", using Times New Roman"
+                    << std::endl;
 
             strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
             newFont = CreateFontIndirect( &font );
