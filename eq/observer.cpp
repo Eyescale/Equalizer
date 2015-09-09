@@ -101,8 +101,8 @@ void VRPN_CALLBACK trackerCB( void* userdata, const vrpn_TRACKERCB data )
         return; // Only use first sensor
 
     eq::Matrix4f head( eq::Matrix4f::IDENTITY );
-    const vmml::quaternion<float> quat( data.quat[0], data.quat[2],
-                                        -data.quat[1], data.quat[3] );
+    const vmml::quaternion<float> quat( data.quat[0], data.quat[1],
+                                        data.quat[2], data.quat[3] );
     quat.get_rotation_matrix( head );
     head.set_translation( data.pos[0], data.pos[1], data.pos[2] );
 

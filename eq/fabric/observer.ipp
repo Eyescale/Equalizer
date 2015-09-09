@@ -213,6 +213,7 @@ bool Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 
     _data.headMatrix = matrix;
     setDirty( DIRTY_HEAD );
+    LBINFO << matrix.get_translation() << std::endl;
     return true;
 }
 
