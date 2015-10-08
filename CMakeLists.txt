@@ -12,7 +12,7 @@ include(GitExternal)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "10")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 set(VERSION_ABI 191)
 
 set(EQUALIZER_INCLUDE_NAME eq)
