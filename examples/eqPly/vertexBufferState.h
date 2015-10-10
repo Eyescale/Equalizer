@@ -82,10 +82,10 @@ public:
 
     void setChannel( Channel* channel ) { _channel = channel; }
 
-    virtual bool stopRendering( ) const
+    bool stopRendering( ) const override
         { return _channel ? _channel->stopRendering() : false; }
 
-    virtual void declareRegion( const triply::Vector4f& region )
+    void declareRegion( const triply::Vector4f& region ) override
         { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
 
 private:

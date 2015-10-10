@@ -36,22 +36,22 @@ namespace server
     public:
         DFREqualizer();
         virtual ~DFREqualizer();
-        virtual void toStream( std::ostream& os ) const { os << this; }
+        void toStream( std::ostream& os ) const final { os << this; }
 
         /** @sa Equalizer::attach */
-        virtual void attach( Compound* compound );
+        void attach( Compound* compound ) final;
 
         /** @sa CompoundListener::notifyUpdatePre */
-        virtual void notifyUpdatePre( Compound* compound,
-                                      const uint32_t frameNumber );
+        void notifyUpdatePre( Compound* compound,
+                              const uint32_t frameNumber ) final;
 
         /** @sa ChannelListener::notifyLoadData */
-        virtual void notifyLoadData( Channel* channel,
-                                     const uint32_t frameNumber,
-                                     const Statistics& statistics,
-                                     const Viewport& region );
+        void notifyLoadData( Channel* channel,
+                             const uint32_t frameNumber,
+                             const Statistics& statistics,
+                             const Viewport& region ) final;
 
-        virtual uint32_t getType() const { return fabric::DFR_EQUALIZER; }
+        uint32_t getType() const final { return fabric::DFR_EQUALIZER; }
 
     protected:
         void notifyChildAdded( Compound*, Compound* ) override {}

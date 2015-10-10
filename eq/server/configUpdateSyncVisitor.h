@@ -37,7 +37,7 @@ public:
     {}
     virtual ~ConfigUpdateSyncVisitor() {}
 
-    VisitorResult visitPre( Config* )
+    VisitorResult visitPre( Config* ) override
     {
         _runningChannels = 0;
         _failure = false;

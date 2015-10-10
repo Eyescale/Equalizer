@@ -42,7 +42,7 @@ public:
     static void* getNewDecompressor( const unsigned )
         { return new CompressorYUV; }
 
-    virtual void compress( const void* const, const uint64_t, const bool )
+    void compress( const void* const, const eq_uint64_t, const bool ) override
         { LBDONTCALL; }
 
     static bool isCompatible( const GLEWContext* );
