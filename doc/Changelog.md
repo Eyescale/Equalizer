@@ -28,6 +28,10 @@ Changelog {#Changelog}
   Fixed Qt5 support on OS X
 * [463](https://github.com/Eyescale/Equalizer/pull/463):
   Standalone Qt5 support
+* [499](https://github.com/Eyescale/Equalizer/pull/499):
+  Fixes for VirtualGL 2.4.80 with multi-pipe configurations
+* [502](https://github.com/Eyescale/Equalizer/pull/500):
+  Fixed support of multi-pipe configurations in Qt.
 
 # Release 1.9 (07-07-2015) {#Release19}
 

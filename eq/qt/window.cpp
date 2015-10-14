@@ -44,16 +44,17 @@ QOpenGLContext* _getShareContext( const WindowSettings& settings )
 }
 
 detail::Window* Window::createImpl( const WindowSettings& settings,
-                                    QThread* thread )
+                                    QScreen* screen, QThread* thread )
 {
     QOpenGLContext* shareContext = _getShareContext( settings );
 
     const int32_t drawable = getAttribute( IATTR_HINT_DRAWABLE );
     detail::Window* window = 0;
     if( drawable == eq::WINDOW )
-        window = new detail::QWindowWrapper( settings, shareContext );
+        window = new detail::QWindowWrapper( settings, screen, shareContext );
     else
-        window = new detail::QOffscreenSurfaceWrapper( settings, shareContext );
+        window = new detail::QOffscreenSurfaceWrapper( settings, screen,
+                                                       shareContext );
 
     if( thread )
         window->getContext()->moveToThread( thread );
