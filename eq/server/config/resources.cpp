@@ -315,19 +315,23 @@ bool Resources::discover( ServerPtr server, Config* config,
         std::stringstream name;
         if( info.device == LB_UNDEFINED_UINT32 &&
             // VirtualGL display redirects to local GPU (see continue above)
-            !(info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL) )
+            !(info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL ))
         {
             name << "display";
         }
         else
         {
             name << "GPU" << ++gpuCounter;
-            if( info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL &&
+            if( // When running under VirtualGL, GPUs that are not VNC virtual
+                // devices mustn't be interposed.
+                ( info.flags & ( hwsd::GPUInfo::FLAG_VIRTUALGL |
+                                 hwsd::GPUInfo::FLAG_VNC )) ==
+                    hwsd::GPUInfo::FLAG_VIRTUALGL &&
                 info.device != LB_UNDEFINED_UINT32 )
             {
                 std::ostringstream displayString;
                 displayString << ":" << info.port << "." << info.device;
-                excludedDisplays += displayString.str() + ";";
+                excludedDisplays += displayString.str() + ",";
             }
         }
 
