@@ -149,7 +149,7 @@ if(HWSD_FOUND)
     config/display.cpp config/resources.cpp config/server.cpp)
 
   set(_hwsd_components hwsd_net_sys)
-  if(HWSD_USE_SERVUS)
+  if(SERVUS_USE_DNSSD OR SERVUS_USE_AVAHI_CLIENT)
     list(APPEND _hwsd_components hwsd_gpu_dns_sd hwsd_net_dns_sd)
   endif()
   if(EQ_GLX_USED)

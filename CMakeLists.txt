@@ -31,6 +31,8 @@ set(DPUT_HOST ppa:bbp/ppa)
 
 set(COMMON_PROJECT_DOMAIN ch.eyescale)
 set(EQUALIZER_DESCRIPTION "Parallel Rendering Framework")
+set(EQUALIZER_MAINTAINER "Stefan Eilemann <eile@eyescale.ch>")
+set(EQUALIZER_LICENSE LGPL BSD)
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND COMMON_PACKAGE_DEFINES EQ_2_0_API)
