@@ -36,15 +36,15 @@ public:
     ~TileEqualizer() {}
 
     /** @sa CompoundListener::notifyUpdatePre */
-    virtual void notifyUpdatePre( Compound* compound,
-                                  const uint32_t frameNumber );
+    void notifyUpdatePre( Compound* compound,
+                          const uint32_t frameNumber ) final;
 
-    virtual void toStream( std::ostream& os ) const { os << this; }
+    void toStream( std::ostream& os ) const final { os << this; }
     void setName( const std::string& name ) { _name = name; }
 
     const std::string& getName() const { return _name; }
 
-    virtual uint32_t getType() const { return fabric::TILE_EQUALIZER; }
+    uint32_t getType() const final { return fabric::TILE_EQUALIZER; }
 
 protected:
     void notifyChildAdded( Compound*, Compound* ) override {}

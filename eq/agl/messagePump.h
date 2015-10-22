@@ -38,9 +38,9 @@ class MessagePump : public eq::MessagePump
         /** Destruct this message pump. @version 1.0 */
         virtual ~MessagePump();
 
-        virtual void postWakeup();
-        virtual void dispatchAll();
-        virtual void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE);
+        void postWakeup() final;
+        void dispatchAll() final;
+        void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE ) final;
 
     private:
         EventQueueRef _receiverQueue;

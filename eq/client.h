@@ -91,10 +91,10 @@ public:
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-    EQ_API virtual bool initLocal( const int argc, char** argv );
+    EQ_API bool initLocal( const int argc, char** argv ) override;
 
     /** De-initialize a local, listening node. @version 1.1.6 */
-    EQ_API virtual bool exitLocal();
+    EQ_API bool exitLocal() override;
 
     /**
      * @return true if the client has commands pending, false otherwise.
@@ -103,7 +103,7 @@ public:
     EQ_API bool hasCommands();
 
     /** @internal @return the command queue to the main node thread. */
-    EQ_API virtual co::CommandQueue* getMainThreadQueue();
+    EQ_API co::CommandQueue* getMainThreadQueue() override;
 
     /** Experimental: interrupt main thread queue @internal */
     void interruptMainThread();

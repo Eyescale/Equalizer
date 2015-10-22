@@ -308,6 +308,7 @@ void _initPlugins()
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
     plugins.addDirectory( ".eqPlugins" );
     plugins.addDirectory( "/opt/local/lib" ); // MacPorts
+    plugins.addDirectory( "/usr/local/lib" ); // Homebrew
 
     const char* home = getenv( "HOME" );
     if( home )
@@ -354,6 +355,7 @@ void _exitPlugins()
     plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
     plugins.removeDirectory( ".eqPlugins" );
     plugins.removeDirectory( "/opt/local/lib" ); // MacPorts
+    plugins.removeDirectory( "/usr/local/lib" ); // Homebrew
 
     const char* home = getenv( "HOME" );
     if( home )

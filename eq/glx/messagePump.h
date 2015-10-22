@@ -39,9 +39,9 @@ namespace glx
         /** Destruct this message pump. @version 1.0 */
         virtual ~MessagePump();
 
-        virtual void postWakeup();
-        virtual void dispatchAll();
-        virtual void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE);
+        void postWakeup() final;
+        void dispatchAll() final;
+        void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE ) final;
 
         /**
          * Register a new Display connection for event dispatch.

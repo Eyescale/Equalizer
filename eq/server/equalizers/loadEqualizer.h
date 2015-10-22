@@ -41,19 +41,19 @@ public:
     EQSERVER_API LoadEqualizer();
     explicit LoadEqualizer( const fabric::Equalizer& from );
     virtual ~LoadEqualizer();
-    virtual void toStream( std::ostream& os ) const { os << this; }
+    void toStream( std::ostream& os ) const final { os << this; }
 
     /** @sa CompoundListener::notifyUpdatePre */
-    virtual void notifyUpdatePre( Compound* compound,
-                                  const uint32_t frameNumber );
+    void notifyUpdatePre( Compound* compound,
+                          const uint32_t frameNumber ) final;
 
     /** @sa ChannelListener::notifyLoadData */
-    virtual void notifyLoadData( Channel* channel,
-                                 const uint32_t frameNumber,
-                                 const Statistics& statistics,
-                                 const Viewport& region );
+    void notifyLoadData( Channel* channel,
+                         const uint32_t frameNumber,
+                         const Statistics& statistics,
+                         const Viewport& region ) final;
 
-    virtual uint32_t getType() const { return fabric::LOAD_EQUALIZER; }
+    uint32_t getType() const final { return fabric::LOAD_EQUALIZER; }
 
 protected:
     void notifyChildAdded( Compound*, Compound* ) override

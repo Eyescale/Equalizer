@@ -187,7 +187,7 @@ public:
     EQ_API bool update();
 
     /** @sa fabric::Config::setLatency() */
-    EQ_API virtual void setLatency( const uint32_t latency );
+    EQ_API void setLatency( const uint32_t latency ) override;
     //@}
 
     /** @name Object registry. */
@@ -199,7 +199,7 @@ public:
      * local client node.
      * @version 1.0
      */
-    EQ_API virtual bool registerObject( co::Object* object );
+    EQ_API bool registerObject( co::Object* object ) override;
 
     /**
      * Deregister a distributed object.
@@ -210,7 +210,7 @@ public:
      * @param object the object instance.
      * @version 1.0
      */
-    EQ_API virtual void deregisterObject( co::Object* object );
+    EQ_API void deregisterObject( co::Object* object ) override;
 
     /**
      * Map a distributed object.
@@ -228,13 +228,13 @@ public:
                                 const uint128_t& version = co::VERSION_OLDEST );
 
     /** Start mapping a distributed object from a known master. @version 1.0 */
-    EQ_API virtual uint32_t mapObjectNB( co::Object* object,
-                                         const uint128_t& id,
-                                         const uint128_t& version,
-                                         co::NodePtr master );
+    EQ_API uint32_t mapObjectNB( co::Object* object,
+                                 const uint128_t& id,
+                                 const uint128_t& version,
+                                 co::NodePtr master ) override;
 
     /** Finalize the mapping of a distributed object. @version 1.0 */
-    EQ_API virtual bool mapObjectSync( const uint32_t requestID );
+    EQ_API bool mapObjectSync( const uint32_t requestID ) override;
 
     /**
      * Unmap a mapped object.
@@ -243,7 +243,7 @@ public:
      * local client node.
      * @version 1.0
      */
-    EQ_API virtual void unmapObject( co::Object* object );
+    EQ_API void unmapObject( co::Object* object ) override;
 
     /**
      * Synchronize the local object with a remote object.
@@ -473,14 +473,14 @@ public:
 
 protected:
     /** @internal */
-    EQ_API virtual void attach( const uint128_t& id,
-                                const uint32_t instanceID );
+    EQ_API void attach( const uint128_t& id,
+                        const uint32_t instanceID ) override;
 
-    EQ_API virtual void notifyAttached(); //!< @internal
-    EQ_API virtual void notifyDetach(); //!< @internal
+    EQ_API void notifyAttached() override; //!< @internal
+    EQ_API void notifyDetach() override; //!< @internal
     /** @internal */
-    EQ_API virtual void changeLatency( const uint32_t latency );
-    EQ_API virtual bool mapViewObjects() const; //!< @internal
+    EQ_API void changeLatency( const uint32_t latency ) override;
+    EQ_API bool mapViewObjects() const override; //!< @internal
 
 private:
     detail::Config* const _impl;
