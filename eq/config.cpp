@@ -369,8 +369,7 @@ bool Config::update()
     if( finishID == LB_UNDEFINED_UINT32 )
     {
         sync( version );
-        client->unregisterRequest( request.getID( ));
-        request.relinquish();
+        request.unregister();
         handleEvents();
         return true;
     }
