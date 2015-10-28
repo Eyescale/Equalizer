@@ -59,6 +59,11 @@
 #  include <hwloc/gl.h>
 #endif
 
+#ifdef EQUALIZER_USE_QT5WIDGETS
+#  include <QGuiApplication>
+#  include <QRegularExpression>
+#endif
+
 namespace eq
 {
 /** @cond IGNORE */
@@ -317,6 +322,73 @@ void Pipe::setDirty( const uint64_t bits )
     Object::setDirty( bits );
 }
 
+bool Pipe::isWindowSystemAvailable( const std::string& name ) const
+{
+    bool available = false;
+    if( name != "Qt" )
+    {
+#ifdef AGL
+        available = name == "AGL";
+#elif GLX
+        available = name == "GLX";
+#elif WGL
+        available = name == "WGL";
+#endif
+    }
+
+#ifdef EQ_QT_USED
+    if( name != "Qt" )
+        return available;
+
+    // Qt can only use ports that refer to QScreens available to the
+    // QApplication. In Windows and Mac all physical displays are
+    // queriable using platform dependent functions (no idea about virtual
+    // displays like Xming or XQuartz), so we will assume that if Equalizer
+    // was built with Qt support, then all devices can be used by Qt.
+    // (How to choose the right screen for a given device it's a different
+    // story)
+#  ifdef AGL
+    available = true;
+#  elif WGL
+    available = true;
+#  else
+    // For X it's different. Qt can only use screens that are part of the
+    // display server referred by the DISPLAY environmental variable (in
+    // particular its value at the moment of the creation of the QApplication)
+#    ifdef __APPLE__
+    // In MAC this is simpler, because there can only be one display server.
+    return true;
+#    else
+    // There's no way to infer the X server number from the Qt API except
+    // QScreen names, but only under certain conditions. In regular desktop
+    // usage QScreen::name gives a name related to what xrandr prints, so it's
+    // not usable. The names seems to follow the X naming convention
+    // (e.g. host:0.0) when XRANDR is not available (e.g. Xnest) or doesn't
+    // provide information about where the displays are connected (e.g.
+    // headless or Xvnc). These are corner cases so we cannot rely on QScreen.
+    // Therefore, we will infer which port is Qt using directly from DISPLAY.
+
+    // Is the port is undefined that means that the default server must
+    // be used. This should match the Qt display server.
+    if( getPort() == LB_UNDEFINED_UINT32 )
+        return true;
+
+    QGuiApplication* app =
+        dynamic_cast< QGuiApplication* >( QCoreApplication::instance( ));
+    if( !app || !app->primaryScreen() )
+        return false; // Qt won't be able to access anything anyway
+
+    QRegularExpression regex( "^[a-z]*\\:([0-9])+(\\.[0-9]+)?$" );
+    QRegularExpressionMatch match =
+        regex.match( getenv( "DISPLAY" ) ? getenv( "DISPLAY" ) : "" );
+    available = match.captured( 1 ) == QString::number( getPort(), 10 );
+#    endif
+#  endif
+#endif
+
+    return available;
+}
+
 WindowSystem Pipe::selectWindowSystem() const
 {
 #ifdef AGL
@@ -326,6 +398,16 @@ WindowSystem Pipe::selectWindowSystem() const
 #elif WGL
     return WindowSystem( "WGL" );
 #elif EQ_QT_USED
+    if( !pipe.isWindowSystemAvailable( "Qt" ))
+    {
+        // Throwing because there's no reasonable alternative.
+        std::stringstream msg;
+        msg << "Cannot choose windowing system for pipe at port " << getPort()
+            << ". Qt was set as the default, but it cannot be used. In X"
+               " based systems this means that the value of DISPLAY taken by"
+               " Qt refers to a different display server." << std::endl;
+        LBTHROW( std::runtime_error( msg.str( )));
+    }
     return WindowSystem( "Qt" );
 #endif
 }

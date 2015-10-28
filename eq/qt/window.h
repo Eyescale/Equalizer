@@ -23,6 +23,7 @@
 #include <eq/qt/types.h>
 #include <eq/glWindow.h> // base class
 #include <QObject> // base class
+#include <QScreen>
 
 namespace eq
 {
@@ -141,7 +142,8 @@ signals:
 
 private:
     detail::Window* const _impl;
-    static detail::Window* createImpl( const WindowSettings&, QThread* );
+    static detail::Window* createImpl( const WindowSettings&,
+                                       QScreen*, QThread* );
     friend class WindowFactory;
 };
 }

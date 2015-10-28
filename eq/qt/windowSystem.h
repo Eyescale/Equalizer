@@ -37,7 +37,8 @@ public:
     EQ_API ~WindowSystem();
 
 signals:
-    eq::qt::detail::Window* createImpl( const WindowSettings&, QThread* );
+    eq::qt::detail::Window* createImpl( const eq::Pipe*, const WindowSettings&,
+                                        QThread* );
 
 private:
     WindowFactory* _factory;
