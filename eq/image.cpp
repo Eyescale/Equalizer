@@ -1648,6 +1648,39 @@ bool Image::getAlphaUsage() const
     return !_impl->ignoreAlpha;
 }
 
+void Image::postDivideAlpha()
+{
+    switch( getExternalFormat( Frame::BUFFER_COLOR ))
+    {
+    case EQ_COMPRESSOR_DATATYPE_BGRA:
+        break;
+    default:
+        LBERROR << "Unsupported image format for postDivideAlpha(): "
+                << getExternalFormat( Frame::BUFFER_COLOR ) << std::endl;
+        return;
+    }
+
+    uint32_t* data =
+         reinterpret_cast< uint32_t* >( getPixelPointer( Frame::BUFFER_COLOR ));
+    const PixelViewport& pvp = _impl->getMemory( Frame::BUFFER_COLOR ).pvp;
+
+    for( int32_t i = 0; i < pvp.w * pvp.h; ++i, ++data )
+    {
+        uint32_t& pixel = *data;
+        const uint32_t alpha = pixel >> 24;
+        if( alpha != 0 )
+        {
+            const uint32_t red = (pixel >> 16) & 0xff;
+            const uint32_t green = (pixel >> 8) & 0xff;
+            const uint32_t blue = pixel & 0xff;
+            pixel = (( alpha << 24 ) |
+                    (((255 * red) / alpha ) << 16 ) |
+                    (((255 * green) / alpha )  << 8 ) |
+                    ((255 * blue) / alpha ));
+        }
+    }
+}
+
 void Image::setOffset( int32_t x, int32_t y )
 {
     _impl->pvp.x = x;

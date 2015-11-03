@@ -245,6 +245,13 @@ public:
     EQ_API bool getAlphaUsage() const;
 
     /**
+     * Undo premultiplied alpha for ARGB image, e.g. the result of glReadPixels.
+     * Only implemented for external format EQ_COMPRESSOR_DATATYPE_BGRA.
+     * @version 1.10
+     */
+    EQ_API void postDivideAlpha();
+
+    /**
      * Set the minimum quality after a full download-compression path.
      *
      * The automatic selection of a download and compression plugin will never

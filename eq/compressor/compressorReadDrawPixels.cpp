@@ -414,7 +414,6 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
         _texture->setExternalFormat( _format, _type );
         *out = _downloadTexture( glewContext, FLUSH_TEXTURE );
     }
-
 }
 
 void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,

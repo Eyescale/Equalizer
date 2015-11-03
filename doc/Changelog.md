@@ -3,6 +3,9 @@ Changelog {#Changelog}
 
 # git master {#master}
 
+* [506](https://github.com/Eyescale/Equalizer/pull/506):
+  Add eq::Image::postDivideAlpha() to fix premultiplied alpha images from
+  glReadPixels()
 * [484](https://github.com/Eyescale/Equalizer/pull/484):
   Fix transfer window deadlock with Qt5
 * [484](https://github.com/Eyescale/Equalizer/pull/484):
