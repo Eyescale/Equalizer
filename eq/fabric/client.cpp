@@ -54,31 +54,27 @@ bool Client::connectServer( co::NodePtr server )
     if( server->isConnected( ))
         return true;
 
-    co::ConnectionDescriptionPtr connDesc;
-    if( server->getConnectionDescriptions().empty( ))
+    if( !server->getConnectionDescriptions().empty( ))
+        return connect( server );
+
+    co::ConnectionDescriptionPtr connDesc( new co::ConnectionDescription );
+    connDesc->port = EQ_DEFAULT_PORT;
+    const std::string& globalServer = Global::getServer();
+    const char* envServer = getenv( "EQ_SERVER" );
+    std::string address = !globalServer.empty() ? globalServer :
+                           envServer            ? envServer : "localhost";
+    if( !connDesc->fromString( address ))
     {
-        connDesc = new co::ConnectionDescription;
-        connDesc->port = EQ_DEFAULT_PORT;
-
-        const std::string& globalServer = Global::getServer();
-        const char* envServer = getenv( "EQ_SERVER" );
-        std::string address = !globalServer.empty() ? globalServer :
-                               envServer            ? envServer : "localhost";
-
-        if( !connDesc->fromString( address ))
-            LBWARN << "Can't parse server address " << address << std::endl;
-        LBASSERT( address.empty( ));
-        LBDEBUG << "Connecting server " << connDesc->toString() << std::endl;
-
-        server->addConnectionDescription( connDesc );
+        LBWARN << "Can't parse server address " << address << std::endl;
+        return false;
     }
+    LBDEBUG << "Connecting server " << connDesc->toString() << std::endl;
+    server->addConnectionDescription( connDesc );
 
     if( connect( server ))
         return true;
 
-    if( connDesc ) // clean up
-        server->removeConnectionDescription( connDesc );
-
+    server->removeConnectionDescription( connDesc );
     return false;
 }
 

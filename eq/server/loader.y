@@ -578,7 +578,7 @@ serverConnection: EQTOKEN_CONNECTION
         '{' {
                 connectionDescription = new eq::server::ConnectionDescription;
                 connectionDescription->setHostname( "" );
-                connectionDescription->port = EQ_DEFAULT_PORT;
+                connectionDescription->port = 0; // OS chosen port
             }
             connectionFields '}'
             {

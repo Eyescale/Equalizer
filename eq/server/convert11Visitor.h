@@ -46,7 +46,7 @@ class ConvertTo11Visitor : public ServerVisitor
             LBINFO << "Adding default server connection for multi-node config"
                    << std::endl;
             co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
-            desc->port = EQ_DEFAULT_PORT;
+            desc->port = 0; // Let the OS choose the port.
             server->addConnectionDescription( desc );
         }
         return TRAVERSE_CONTINUE;

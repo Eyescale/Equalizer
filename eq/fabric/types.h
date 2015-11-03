@@ -33,7 +33,7 @@
 #  define EQ_DEFAULT_PORT (4242)
 #else
 // #241: Avoid using privilege ports below 1024
-#  define EQ_DEFAULT_PORT ( (getuid() % 64511) + 1024 )
+#  define EQ_DEFAULT_PORT (( getuid() % 64511 ) + 1024 )
 #endif
 
 namespace eq
