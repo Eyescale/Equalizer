@@ -123,6 +123,10 @@ public:
                                             channel.getObjectManager( )))
         {
             framebufferImage.finishReadback( channel.glewGetContext( ));
+
+            // glReadPixels with alpha has ARGB premultiplied format.
+            // Post-divide alpha for image saving etc.
+            framebufferImage.postDivideAlpha();
         }
     }
 
