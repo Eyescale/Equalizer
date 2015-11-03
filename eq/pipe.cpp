@@ -378,7 +378,7 @@ bool Pipe::isWindowSystemAvailable( const std::string& name ) const
     if( !app || !app->primaryScreen() )
         return false; // Qt won't be able to access anything anyway
 
-    QRegularExpression regex( "^[a-z]*\\:([0-9])+(\\.[0-9]+)?$" );
+    QRegularExpression regex( "^[a-z]*\\:([0-9]+)(\\.[0-9]+)?$" );
     QRegularExpressionMatch match =
         regex.match( getenv( "DISPLAY" ) ? getenv( "DISPLAY" ) : "" );
     available = match.captured( 1 ) == QString::number( getPort(), 10 );
