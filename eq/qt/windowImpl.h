@@ -143,10 +143,11 @@ class QWindowWrapper : public Window, public QWindow
 {
 public:
     QWindowWrapper( const WindowSettings& settings,
-                    QOpenGLContext* shareContext )
+                    QScreen* screen_, QOpenGLContext* shareContext )
         : _context( new QOpenGLContext )
         , _exposed( false )
     {
+        setScreen( screen_ );
         const QSurfaceFormat& format_ = _createFormat( settings );
         setFormat( format_ );
         const PixelViewport& pvp = settings.getPixelViewport();
@@ -285,9 +286,10 @@ class QOffscreenSurfaceWrapper : public Window, public QOffscreenSurface
 {
 public:
     QOffscreenSurfaceWrapper( const WindowSettings& settings,
-                              QOpenGLContext* shareContext )
+                              QScreen* screen_, QOpenGLContext* shareContext )
         : _context( new QOpenGLContext )
     {
+        setScreen( screen_ );
         const QSurfaceFormat& format_ = _createFormat( settings );
         setFormat( format_ );
 

@@ -48,8 +48,10 @@ WindowSystem::WindowSystem()
         return;
 
     _factory->moveToThread( app->thread( ));
-    app->connect( this, SIGNAL( createImpl( const WindowSettings&, QThread* )),
-                  _factory, SLOT( onCreateImpl( const WindowSettings&,
+    app->connect( this, SIGNAL( createImpl( const eq::Pipe*,
+                                            const WindowSettings&, QThread* )),
+                  _factory, SLOT( onCreateImpl( const eq::Pipe*,
+                                                const WindowSettings&,
                                                 QThread* )),
                   Qt::BlockingQueuedConnection );
 }
@@ -72,7 +74,8 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
     // Note that even a QOffscreenSurface is backed by a QWindow on some
     // platforms.
     window->getClient()->interruptMainThread();
-    qt::detail::Window* impl = createImpl( settings, QThread::currentThread( ));
+    qt::detail::Window* impl = createImpl( window->getPipe(), settings,
+                                           QThread::currentThread( ));
     Window* qtWindow = new Window( *window, settings, impl );
     qtWindow->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
                       _factory, SLOT( onDestroyImpl( detail::Window* )));

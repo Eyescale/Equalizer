@@ -253,6 +253,16 @@ public:
     EQ_API virtual void setDirty( const uint64_t bits );
 
 protected:
+    /** @name Information queries */
+    //@{
+    /**
+     * @return true if this pipe can use the requested window system given its
+     *         port and device.
+     * @version 1.11
+     */
+    EQ_API bool isWindowSystemAvailable( const std::string& name ) const;
+    //@}
+
     /** @name Operations */
     //@{
     /**
