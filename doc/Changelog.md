@@ -1,13 +1,19 @@
 Changelog {#Changelog}
 =========
 
-# git master {#master}
+# git master
 
 * [506](https://github.com/Eyescale/Equalizer/pull/506):
   eq::ResultImageListener::notifyNewImage() now reports post-divided alpha image
 * [506](https://github.com/Eyescale/Equalizer/pull/506):
   Add eq::Image::postDivideAlpha() to fix premultiplied alpha images from
   glReadPixels()
+* [504](https://github.com/Eyescale/Equalizer/pull/504):
+  Let the OS choose the server port
+* [502](https://github.com/Eyescale/Equalizer/pull/500):
+  Fixed support of multi-pipe configurations in Qt
+* [499](https://github.com/Eyescale/Equalizer/pull/499):
+  Fixes for VirtualGL 2.4.80 with multi-pipe configurations
 * [484](https://github.com/Eyescale/Equalizer/pull/484):
   Fix transfer window deadlock with Qt5
 * [484](https://github.com/Eyescale/Equalizer/pull/484):
@@ -33,12 +39,8 @@ Changelog {#Changelog}
   Fixed Qt5 support on OS X
 * [463](https://github.com/Eyescale/Equalizer/pull/463):
   Standalone Qt5 support
-* [499](https://github.com/Eyescale/Equalizer/pull/499):
-  Fixes for VirtualGL 2.4.80 with multi-pipe configurations
-* [502](https://github.com/Eyescale/Equalizer/pull/500):
-  Fixed support of multi-pipe configurations in Qt.
 
-# Release 1.9 (07-07-2015) {#Release19}
+# Release 1.9 (7-Jul-2015)
 
 * [462](https://github.com/Eyescale/Equalizer/pull/462):
   Add eq::Client::addActiveLayout to tweak default autoconfigured layout
@@ -110,7 +112,7 @@ Changelog {#Changelog}
 * [380](https://github.com/Eyescale/Equalizer/pull/380):
   Fix static initialization problem w/ Qt window system
 
-# Release 1.8 (14-10-2014) {#Release18}
+# Release 1.8 (14-Oct-2014)
 
 * Implemented Qt window system for onscreen windows. Issue
   [21](https://github.com/Eyescale/Equalizer/issues/21) partially done.
@@ -121,9 +123,3 @@ Changelog {#Changelog}
   downstream projects
 * Compression is enabled for DisplayCluster streaming
 * DisplayCluster streaming is now asynchronous
-
-# Known Bugs {#Bugs}
-
-Please refer to the
-[github issue tracker](https://github.com/Eyescale/Equalizer/issues) for
-fixed and open bugs, and to report new bugs.
