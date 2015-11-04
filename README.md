@@ -47,7 +47,14 @@ fixes introduced in each version.
 * Support for Stereo and Immersive Environments: Equalizer supports
   stereo rendering head tracking, head-mounted displays and other
   advanced features for immersive Virtual Reality installations.
+* Detailed @ref Changelog
 
+
+# Known Bugs {#Bugs}
+
+Please refer to the
+[github issue tracker](https://github.com/Eyescale/Equalizer/issues) for
+fixed and open bugs, and to report new bugs.
 
 # Building from source {#Building}
 
@@ -63,20 +70,18 @@ build environment. The following platforms and build environments are tested:
 
 ## Linux, Mac OS X {#Unix}
 
-~~~
-mkdir build
-cd build
-cmake ..
-make
-~~~
+    git clone https://github.com/Eyescale/Equalizer.git
+    mkdir Equalizer/build
+    cd Equalizer/build
+    cmake ..
+    make
 
 ## Windows {#Windows}
+
 If `CMake` and `git` are in PATH, run the following batch script to build using
 Visual Studio 2013:
 
-~~~
-  build.bat
-~~~
+    build.bat
 
 ## A note about BOOST + CMake on Windows
 If your build fails with a `Could NOT find Boost` message, you may have a bad

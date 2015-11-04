@@ -104,17 +104,42 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
         _colors[i]->init( colorFormat, width, height );
         _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height,
                                samplesSize );
+        const Error error = _checkStatus();
+        if( error )
+        {
+            LBDEBUG << "FrameBufferObject::init: " << error << " when binding "
+                    << _colors.size() << " color texture(s) of format 0x"
+                    << std::hex << colorFormat << std::endl;
+            exit();
+            return error;
+        }
     }
     if( stencilSize > 0 && ( GLEW_EXT_packed_depth_stencil || coreContext ))
     {
         _depth.init( GL_DEPTH24_STENCIL8, width, height );
         _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height,
                           samplesSize );
+        const Error error = _checkStatus();
+        if( error )
+        {
+            LBDEBUG << "FrameBufferObject::init: " << error
+                    << " when binding GL_DEPTH24_STENCIL8 texture" << std::endl;
+            exit();
+            return error;
+        }
     }
     else if( depthSize > 0 )
     {
         _depth.init( GL_DEPTH_COMPONENT, width, height );
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height, samplesSize );
+        const Error error = _checkStatus();
+        if( error )
+        {
+            LBDEBUG << "FrameBufferObject::init: " << error
+                    << " when binding GL_DEPTH_COMPONENT texture" << std::endl;
+            exit();
+            return error;
+        }
     }
 
     const Error error = _checkStatus();
