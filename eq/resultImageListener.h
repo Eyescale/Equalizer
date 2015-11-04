@@ -43,6 +43,8 @@ public:
      * Notify on new image, called from rendering thread in
      * Channel::frameViewFinish().
      *
+     * Since version 1.10, the image pixels are post-divided by alpha.
+     *
      * @param channel the destination channel
      * @param image the new image, valid only in the current frame
      * @version 1.9
