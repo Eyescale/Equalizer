@@ -169,7 +169,11 @@ namespace detail
 class Image
 {
 public:
-    Image() : type( eq::Frame::TYPE_MEMORY ), ignoreAlpha( false ) {}
+    Image()
+        : type( eq::Frame::TYPE_MEMORY )
+        , ignoreAlpha( false )
+        , hasPremultipliedAlpha( false )
+    {}
 
     /** The rectangle of the current pixel data. */
     PixelViewport pvp;
@@ -185,6 +189,8 @@ public:
 
     /** Alpha channel significance. */
     bool ignoreAlpha;
+
+    bool hasPremultipliedAlpha;
 
     Attachment& getAttachment( const eq::Frame::Buffer buffer )
     {
@@ -246,6 +252,7 @@ Image::~Image()
 void Image::reset()
 {
     _impl->ignoreAlpha = false;
+    _impl->hasPremultipliedAlpha = false;
     setPixelViewport( PixelViewport( ));
 }
 
@@ -674,6 +681,9 @@ void Image::_finishReadback( const Frame::Buffer buffer,
         attachment.memory.state = Memory::INVALID;
         return;
     }
+
+    if( memory.hasAlpha && buffer == Frame::BUFFER_COLOR )
+        _impl->hasPremultipliedAlpha = true;
 
     flags |= ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
 
@@ -1154,12 +1164,50 @@ bool Image::writeImage( const std::string& filename,
     if( nPixels == 0 || memory.state != Memory::VALID )
         return false;
 
-    std::ofstream image( filename.c_str(), std::ios::out | std::ios::binary );
-    if( !image.is_open( ))
+    const unsigned char* data =
+         reinterpret_cast<const unsigned char*>( getPixelPointer( buffer ));
+
+    unsigned char* convertedData = nullptr;
+
+    // glReadPixels with alpha has ARGB premultiplied format: post-divide alpha
+    if( _impl->hasPremultipliedAlpha &&
+        getExternalFormat( buffer ) == EQ_COMPRESSOR_DATATYPE_BGRA )
     {
-        LBERROR << "Can't open " << filename << " for writing" << std::endl;
-        return false;
+        convertedData = new unsigned char[nPixels*4];
+
+        const uint32_t* bgraData = reinterpret_cast< const uint32_t* >( data );
+        uint32_t* bgraConverted = reinterpret_cast< uint32_t* >( convertedData);
+        for( size_t i = 0; i < nPixels; ++i, ++bgraConverted, ++bgraData )
+        {
+            *bgraConverted = *bgraData;
+            uint32_t& pixel = *bgraConverted;
+            const uint32_t alpha = pixel >> 24;
+            if( alpha != 0 )
+            {
+                const uint32_t red = (pixel >> 16) & 0xff;
+                const uint32_t green = (pixel >> 8) & 0xff;
+                const uint32_t blue = pixel & 0xff;
+                *bgraConverted = (( alpha << 24 ) |
+                                 (((255 * red) / alpha ) << 16 ) |
+                                 (((255 * green) / alpha )  << 8 ) |
+                                 ((255 * blue) / alpha ));
+            }
+        }
     }
+
+    const bool retVal = _writeImage( filename, buffer,
+                                     convertedData ? convertedData : data );
+    delete [] convertedData;
+    return retVal;
+}
+
+bool Image::_writeImage( const std::string& filename,
+                         const Frame::Buffer buffer,
+                         const unsigned char* data_ ) const
+{
+    const Memory& memory = _impl->getMemory( buffer );
+    const PixelViewport& pvp = memory.pvp;
+    const size_t nPixels = pvp.w * pvp.h;
 
     RGBHeader header;
     header.width  = pvp.w;
@@ -1219,10 +1267,6 @@ bool Image::writeImage( const std::string& filename,
     }
     LBASSERT( header.bytesPerChannel > 0 );
 
-    const uint8_t bpc = header.bytesPerChannel;
-    const uint16_t nChannels = header.depth;
-    const size_t depth = nChannels * bpc;
-
     // Swap red & blue where needed
     bool swapRB = false;
     switch( getExternalFormat( buffer ))
@@ -1238,24 +1282,31 @@ bool Image::writeImage( const std::string& filename,
             swapRB = true;
     }
 
+    const uint8_t bpc = header.bytesPerChannel;
+    const uint16_t nChannels = header.depth;
+    const size_t depth = nChannels * bpc;
+
     const boost::filesystem::path path( filename );
 #ifdef EQUALIZER_USE_OPENSCENEGRAPH
     if( path.extension() != ".rgb" )
     {
-        const unsigned char* data =
-             reinterpret_cast<const unsigned char*>( getPixelPointer( buffer ));
         osg::ref_ptr<osg::Image> osgImage = new osg::Image();
         osgImage->setImage( pvp.w, pvp.h, depth, getExternalFormat( buffer ),
                             swapRB ? GL_RGBA : GL_BGRA, GL_UNSIGNED_BYTE,
-                            const_cast< unsigned char* >( data ),
+                            const_cast< unsigned char* >( data_ ),
                             osg::Image::NO_DELETE );
         return osgDB::writeImageFile( *osgImage, filename );
     }
 #endif
 
-    const size_t nBytes = nPixels * depth;
-    const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
+    std::ofstream image( filename.c_str(), std::ios::out | std::ios::binary );
+    if( !image.is_open( ))
+    {
+        LBERROR << "Can't open " << filename << " for writing" << std::endl;
+        return false;
+    }
 
+    const size_t nBytes = nPixels * depth;
     if( header.bytesPerChannel > 2 )
         LBWARN << static_cast< int >( header.bytesPerChannel )
                << " bytes per channel not supported by RGB spec" << std::endl;
@@ -1264,6 +1315,8 @@ bool Image::writeImage( const std::string& filename,
     header.convert();
     image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
     header.convert();
+
+    const char* data = reinterpret_cast< const char* >( data_ );
 
     // Each channel is saved separately
     if( nChannels == 3 || nChannels == 4 )
@@ -1646,39 +1699,6 @@ bool Image::hasAsyncReadback() const
 bool Image::getAlphaUsage() const
 {
     return !_impl->ignoreAlpha;
-}
-
-void Image::postDivideAlpha()
-{
-    switch( getExternalFormat( Frame::BUFFER_COLOR ))
-    {
-    case EQ_COMPRESSOR_DATATYPE_BGRA:
-        break;
-    default:
-        LBERROR << "Unsupported image format for postDivideAlpha(): "
-                << getExternalFormat( Frame::BUFFER_COLOR ) << std::endl;
-        return;
-    }
-
-    uint32_t* data =
-         reinterpret_cast< uint32_t* >( getPixelPointer( Frame::BUFFER_COLOR ));
-    const PixelViewport& pvp = _impl->getMemory( Frame::BUFFER_COLOR ).pvp;
-
-    for( int32_t i = 0; i < pvp.w * pvp.h; ++i, ++data )
-    {
-        uint32_t& pixel = *data;
-        const uint32_t alpha = pixel >> 24;
-        if( alpha != 0 )
-        {
-            const uint32_t red = (pixel >> 16) & 0xff;
-            const uint32_t green = (pixel >> 8) & 0xff;
-            const uint32_t blue = pixel & 0xff;
-            pixel = (( alpha << 24 ) |
-                    (((255 * red) / alpha ) << 16 ) |
-                    (((255 * green) / alpha )  << 8 ) |
-                    ((255 * blue) / alpha ));
-        }
-    }
 }
 
 void Image::setOffset( int32_t x, int32_t y )
