@@ -3,11 +3,10 @@ Changelog {#Changelog}
 
 # git master
 
-* [506](https://github.com/Eyescale/Equalizer/pull/506):
-  eq::ResultImageListener::notifyNewImage() now reports post-divided alpha image
-* [506](https://github.com/Eyescale/Equalizer/pull/506):
-  Add eq::Image::postDivideAlpha() to fix premultiplied alpha images from
-  glReadPixels()
+# Release 1.10 (5-Nov-2015)
+
+* [508](https://github.com/Eyescale/Equalizer/pull/508):
+  Post-divide alpha from pixels in eq::Image::writeImage()
 * [504](https://github.com/Eyescale/Equalizer/pull/504):
   Let the OS choose the server port
 * [502](https://github.com/Eyescale/Equalizer/pull/500):
