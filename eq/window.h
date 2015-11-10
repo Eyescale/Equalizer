@@ -176,14 +176,8 @@ public:
      */
     EQ_API const GLEWContext* glewGetContext() const;
 
-    /** @internal
-     * Creates second system window if necessary and returns its context.
-     *
-     * Should be called from the pipe transfer thread.
-     *
-     * @return shared context for use in the transfer thread.
-     */
-    EQ_API const GLEWContext* getTransferGlewContext();
+    /** @internal @return shared context for used by the transfer thread. */
+    EQ_API const GLEWContext* getTransferGlewContext() const;
 
     /**
      * @internal
@@ -285,6 +279,7 @@ public:
 
     /** @internal @return the transfer window, or 0 if not created yet. */
     SystemWindow* getTransferWindow();
+    const SystemWindow* getTransferWindow() const; //!< @internal
     //@}
 
     /** @name Events */

@@ -1222,7 +1222,7 @@ void Channel::_finishReadback( const co::ObjectVersion& frameDataVersion,
 {
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback" << std::endl;
 
-    Window* window = getWindow();
+    const Window* window = getWindow();
     const SystemWindow* transferWindow = window->getTransferWindow();
     LBASSERT( transferWindow );
     transferWindow->makeCurrent();
