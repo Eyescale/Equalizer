@@ -278,6 +278,7 @@ typedef struct GLEWContextStruct GLEWContext;
 typedef struct WGLEWContextStruct WGLEWContext;
 typedef struct GLXEWContextStruct GLXEWContext;
 namespace GLStats { class Data; }
+class QThread;
 /** @endcond */
 
 #endif // EQ_TYPES_H

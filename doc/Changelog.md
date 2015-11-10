@@ -3,6 +3,9 @@ Changelog {#Changelog}
 
 # git master
 
+* [510](https://github.com/Eyescale/Equalizer/issues/510):
+  Fix async readback deadlock with direct send compositing
+
 # Release 1.10 (5-Nov-2015)
 
 * [508](https://github.com/Eyescale/Equalizer/pull/508):

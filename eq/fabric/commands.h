@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder  <cedric Stalder@gmail.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder  <cedric Stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -177,7 +177,6 @@ namespace fabric
         CMD_CHANNEL_STOP_FRAME,
         CMD_CHANNEL_FRAME_TILES,
         CMD_CHANNEL_FINISH_READBACK,
-        CMD_CHANNEL_CREATE_TRANSFER_WINDOW,
         CMD_CHANNEL_DELETE_TRANSFER_WINDOW,
         CMD_CHANNEL_CUSTOM = CMD_OBJECT_CUSTOM + 30
     };
@@ -204,4 +203,3 @@ namespace fabric
 }
 }
 #endif // EQFABRIC_COMMANDS_H
-
