@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [511](https://github.com/Eyescale/Equalizer/pull/511):
+  Fix exit behaviour on config parse error
 * [510](https://github.com/Eyescale/Equalizer/issues/510):
   Fix async readback deadlock with direct send compositing
 
