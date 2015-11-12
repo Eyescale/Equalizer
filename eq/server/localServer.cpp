@@ -89,13 +89,15 @@ bool startLocalServer( const std::string& config )
 
     if( config.length() > 3 && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
-#ifdef EQUALIZER_USE_HWSD
     else
+    {
+#ifdef EQUALIZER_USE_HWSD
         server = new eq::server::Server; // configured upon Server::chooseConfig
-#endif
-
-    if( !server )
+#else
         server = loader.parseServer( CONFIG );
+#endif
+    }
+
     if( !server )
     {
         LBERROR << "Failed to load configuration" << std::endl;

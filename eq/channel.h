@@ -677,7 +677,6 @@ private:
     bool _cmdFrameViewFinish( co::ICommand& command );
     bool _cmdStopFrame( co::ICommand& command );
     bool _cmdFrameTiles( co::ICommand& command );
-    bool _cmdCreateTransferWindow( co::ICommand& command );
     bool _cmdDeleteTransferWindow( co::ICommand& command );
 
     LB_TS_VAR( _pipeThread );

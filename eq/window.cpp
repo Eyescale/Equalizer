@@ -540,7 +540,7 @@ bool Window::createTransferWindow()
     return _transferWindow != 0;
 }
 
-const GLEWContext* Window::getTransferGlewContext()
+const GLEWContext* Window::getTransferGlewContext() const
 {
     LBASSERT( _transferWindow );
     if( _transferWindow )
@@ -559,6 +559,11 @@ void Window::deleteTransferWindow()
 }
 
 SystemWindow* Window::getTransferWindow()
+{
+    return _transferWindow;
+}
+
+const SystemWindow* Window::getTransferWindow() const
 {
     return _transferWindow;
 }

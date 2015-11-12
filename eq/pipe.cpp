@@ -19,6 +19,12 @@
 
 #include "pipe.h"
 
+// must be included before any header defining Bool
+#ifdef EQ_QT_USED
+#  include "qt/window.h"
+#  include <QThread>
+#endif
+
 #include "channel.h"
 #include "client.h"
 #include "config.h"
@@ -129,6 +135,7 @@ public:
     explicit TransferThread( const uint32_t index )
         : co::Worker( co::Global::getCommandQueueLimit( ))
         , _index( index )
+        , _qThread( nullptr )
         , _stop( false )
     {}
 
@@ -138,14 +145,20 @@ public:
             return false;
         setName( std::string( "Tfer" ) +
                  boost::lexical_cast< std::string >( _index ));
+#ifdef EQ_QT_USED
+        _qThread = QThread::currentThread();
+#endif
         return true;
     }
 
     bool stopRunning() override { return _stop; }
     void postStop() { _stop = true; }
 
+    QThread* getQThread() { return _qThread; }
+
 private:
     uint32_t _index;
+    QThread* _qThread;
     bool _stop; // thread will exit if this is true
 };
 
@@ -1070,6 +1083,11 @@ bool Pipe::startTransferThread()
         return true;
 
     return _impl->transferThread.start();
+}
+
+QThread* Pipe::getTransferQThread()
+{
+    return _impl->transferThread.getQThread();
 }
 
 bool Pipe::hasTransferThread() const

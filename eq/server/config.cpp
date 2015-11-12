@@ -1009,7 +1009,7 @@ bool Config::_cmdExit( co::ICommand& cmd )
         result = false;
     }
 
-    LBDEBUG << "Config exit " << (result ? "successful" : "failed") << std::endl;
+    LBDEBUG << "Config exit " << (result ? "successful" : "failed") <<std::endl;
     send( command.getRemoteNode(), fabric::CMD_CONFIG_EXIT_REPLY )
             << command.read< uint32_t >() << result;
     return true;
