@@ -84,8 +84,9 @@ will not check if they are new enough and the build will fail at the make stage:
     cmake ..
     make
 
-Using git pull to update Equalizer later is not enough, as it does not update 
-CMake/common. Remove the Equalizer folder and do git clone again if needed.
+Using "git pull" to update Equalizer later is not enough, as it does not update 
+CMake/common. Use "git clean -ffdx" instead, or remove the Equalizer folder and 
+do git clone again if needed.
 
 ## Windows {#Windows}
 
