@@ -1,4 +1,3 @@
-W
 /* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
  *
