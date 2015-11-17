@@ -70,23 +70,25 @@ build environment. The following platforms and build environments are tested:
 
 ## Linux, Mac OS X {#Unix}
 
-Remember to remove all traces of previously installed dependencies, as cmake 
-will not check if they are new enough and the build will fail at the make stage:
-
-    rm -rf /usr/include/{eq,co,triply,seq,hwsd,pression,lunchbox}
-    rm -rf /usr/share/{Collage,hwsd,Pression,Lunchbox}
-    rm -rf /usr/lib/lib{triply*,Sequel*,Equalizer*,Collage*,hwsd*,Pression*,Lunchbox*}
-    rm -rf Equalizer
-
     git clone https://github.com/Eyescale/Equalizer.git
     mkdir Equalizer/build
     cd Equalizer/build
     cmake ..
     make
 
-Using "git pull" to update Equalizer later is not enough, as it does not update 
-CMake/common. Use "git clean -ffdx" instead, or remove the Equalizer folder and 
-do git clone again if needed.
+In case of errors, remove all traces of previously installed
+dependencies, as cmake will not check if they are new enough and the
+build may fail:
+
+    rm -rf /usr/include/{eq,co,triply,seq,hwsd,pression,lunchbox}
+    rm -rf /usr/share/{Collage,hwsd,Pression,Lunchbox}
+    rm -rf /usr/lib/lib{triply*,Sequel*,Equalizer*,Collage*,hwsd*,Pression*,Lunchbox*}
+    rm -rf Equalizer
+
+Using "git pull" to update Equalizer later is not enough, as it does not update
+externals and subprojects. Use the 'make rebase' target to update these, or
+if your cmake run fails CMake/common use "git clean -ffdx" to remove
+them all and let cmake re-clone them.
 
 ## Windows {#Windows}
 
