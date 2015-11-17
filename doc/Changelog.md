@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [518](https://github.com/Eyescale/Equalizer/pull/518):
+  Enable customisation of client loop
 * [511](https://github.com/Eyescale/Equalizer/pull/511):
   Fix exit behaviour on config parse error
 * [510](https://github.com/Eyescale/Equalizer/issues/510):

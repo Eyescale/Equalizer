@@ -102,6 +102,9 @@ public:
      */
     EQ_API bool hasCommands();
 
+    /** @return true if the clientLoop() should keep running. @version 1.11 */
+    EQ_API bool isRunning() const;
+
     /** @internal @return the command queue to the main node thread. */
     EQ_API co::CommandQueue* getMainThreadQueue() override;
 
@@ -141,9 +144,10 @@ protected:
      *
      * As long as the node is running, that is, between initLocal() and an exit
      * send from the server, this method executes received commands using
-     * processCommand() and triggers the message pump between commands.
+     * processCommand() and triggers the message pump between commands. This
+     * default implementation performs 'while( isRunning( )) processCommand();'.
      *
-     * @sa Pipe::createMessagePump()
+     * @sa Pipe::createMessagePump(), isRunning(), processCommand()
      * @version 1.0
      */
     EQ_API virtual void clientLoop();
