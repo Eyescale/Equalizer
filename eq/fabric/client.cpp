@@ -86,7 +86,7 @@ bool Client::disconnectServer( co::NodePtr server )
         return false;
     }
 
-    if( co::LocalNode::disconnect( server ))
+    if( disconnect( server ))
         return true;
 
     LBWARN << "Server disconnect failed" << std::endl;
@@ -98,7 +98,7 @@ void Client::processCommand( const uint32_t timeout )
     co::CommandQueue* queue = getMainThreadQueue();
     LBASSERT( queue );
     co::ICommand command = queue->pop( timeout );
-    if( !command.isValid( )) // wakeup() or timeout
+    if( !command.isValid( )) // wakeup() or timeout delivers invalid command
         return;
 
     LBCHECK( command( ));

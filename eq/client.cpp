@@ -71,8 +71,8 @@ public:
     Client()
         : queue( co::Global::getCommandQueueLimit( ))
         , modelUnit( EQ_UNDEFINED_UNIT )
-        , running( false )
         , qtApp( 0 )
+        , running( false )
     {}
 
     CommandQueue queue; //!< The command->node command queue.
@@ -81,8 +81,8 @@ public:
     ServerSet localServers;
     std::string gpuFilter;
     float modelUnit;
-    bool running;
     QApplication* qtApp;
+    bool running;
 
     void initQt( int argc LB_UNUSED, char** argv LB_UNUSED )
     {
@@ -240,6 +240,7 @@ bool Client::initLocal( const int argc, char** argv )
             return false;
         }
 
+        _impl->running = true;
         clientLoop();
         exitClient();
     }
@@ -295,13 +296,8 @@ bool Client::_setupClient( const std::string& clientArgs )
 void Client::clientLoop()
 {
     LBINFO << "Entered client loop" << std::endl;
-
-    _impl->running = true;
-    while( _impl->running )
+    while( isRunning( ))
         processCommand();
-
-    // cleanup
-    _impl->queue.flush();
 }
 
 bool Client::exitLocal()
@@ -317,6 +313,7 @@ bool Client::exitLocal()
 
 void Client::exitClient()
 {
+    _impl->queue.flush();
     bool ret = exitLocal();
     LBINFO << "Exit " << lunchbox::className( this ) << " process used "
            << getRefCount() << std::endl;
@@ -329,6 +326,11 @@ void Client::exitClient()
 bool Client::hasCommands()
 {
     return !_impl->queue.isEmpty();
+}
+
+bool Client::isRunning() const
+{
+    return _impl->running;
 }
 
 co::CommandQueue* Client::getMainThreadQueue()
