@@ -1041,6 +1041,9 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
             const int64_t time = getConfig()->getTime();
             frameDraw( context.frameID );
             drawTime += getConfig()->getTime() - time;
+            // Set to full region if application has declared nothing
+            if( !getRegion().isValid( ))
+                declareRegion( getPixelViewport( ));
         }
 
         if( tasks & fabric::TASK_READBACK )
@@ -1694,7 +1697,7 @@ bool Channel::_cmdFrameDraw( co::ICommand& cmd )
                              finish ? NICEST : AUTO );
 
     frameDraw( context.frameID );
-    // Update ROI for server equalizers
+    // Set to full region if application has declared nothing
     if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
     const size_t index = frameNumber % _impl->statistics->size();
