@@ -65,7 +65,7 @@ std::string _iAttributeStrings[] = {
 
 template< class P, class W, class C, class Settings >
 Window< P, W, C, Settings >::Window( P* parent )
-        : _pipe( parent )
+    : _pipe( parent )
 {
     LBASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
@@ -74,7 +74,7 @@ Window< P, W, C, Settings >::Window( P* parent )
 
 template< class P, class W, class C, class Settings >
 Window< P, W, C, Settings >::BackupData::BackupData()
-        : fixedVP( true )
+    : fixedVP( true )
 {
 }
 
