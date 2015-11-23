@@ -34,10 +34,16 @@
 #    This is a global option which has the same effect as the VERBOSE option,
 #    with the difference that output information will be produced for all
 #    external repos when set.
+#  GIT_EXTERNAL_TAG
+#    If set, git external tags referring to a SHA1 (not a branch) will be
+#    overwritten by this value.
 #
 # CMake or environment variables:
-#  GITHUB_USER If set, a remote called 'user' is set up for github
-#    repositories, pointing to github.com/<user>/<project>.
+#  GITHUB_USER
+#    If set, a remote called 'user' is set up for github repositories, pointing
+#    to git@github.com:<user>/<project>. Also, this remote is used by default
+#    for 'git push'.
+
 
 if(NOT GIT_FOUND)
   find_package(Git QUIET)
@@ -67,8 +73,12 @@ function(JOIN VALUES GLUE OUTPUT)
   set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
 endfunction()
 
-function(GIT_EXTERNAL DIR REPO TAG)
+function(GIT_EXTERNAL DIR REPO tag)
   cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW" "" "RESET" ${ARGN})
+  set(TAG ${tag})
+  if(GIT_EXTERNAL_TAG AND "${tag}" MATCHES "^[0-9a-f]+$")
+    set(TAG ${GIT_EXTERNAL_TAG})
+  endif()
 
   # check if we had a previous external of the same name
   string(REGEX REPLACE "[:/]" "_" TARGET "${DIR}")
@@ -95,9 +105,11 @@ function(GIT_EXTERNAL DIR REPO TAG)
     set(_clone_options --recursive)
     if(GIT_EXTERNAL_LOCAL_SHALLOW)
       list(APPEND _clone_options --depth 1 --branch ${TAG})
+    else()
+      set(_msg_tag "[${TAG}]")
     endif()
     JOIN("${_clone_options}" " " _msg_text)
-    message(STATUS "git clone ${_msg_text} ${REPO} ${DIR}")
+    message(STATUS "git clone ${_msg_text} ${REPO} ${DIR} ${_msg_tag}")
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" clone ${_clone_options} ${REPO} ${DIR}
       RESULT_VARIABLE nok ERROR_VARIABLE error
@@ -127,17 +139,24 @@ function(GIT_EXTERNAL DIR REPO TAG)
     endif()
   endif()
 
-  # set up "user" remote for github forks
+  # set up "user" remote for github forks and make it default for 'git push'
   if(GITHUB_USER AND REPO MATCHES ".*github.com.*")
-    string(REGEX REPLACE "(.*github.com[\\/:]).*(\\/.*)" "\\1${GITHUB_USER}\\2"
+    string(REGEX REPLACE ".*(github.com)[\\/:]().*(\\/.*)" "git@\\1:\\2${GITHUB_USER}\\3"
       GIT_EXTERNAL_USER_REPO ${REPO})
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" remote add user ${GIT_EXTERNAL_USER_REPO}
       OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${DIR}")
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" config remote.pushdefault user
+      OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY "${DIR}")
   endif()
 
-  file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
-  string(REGEX REPLACE "[:/]" "-" __target "${__dir}")
+  if(COMMON_SOURCE_DIR)
+    file(RELATIVE_PATH __dir ${COMMON_SOURCE_DIR} ${DIR})
+  else()
+    file(RELATIVE_PATH __dir ${CMAKE_SOURCE_DIR} ${DIR})
+  endif()
+  string(REGEX REPLACE "[:/\\.]" "-" __target "${__dir}")
   if(TARGET ${__target}-rebase)
     return()
   endif()
@@ -147,7 +166,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "if(NOT IS_DIRECTORY \"${DIR}/.git\")\n"
     "  message(FATAL_ERROR \"Can't update git external ${__dir}: Not a git repository\")\n"
     "endif()\n"
-    # check if we are already on the requested tag
+    # check if we are already on the requested tag (nothing to do)
     "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rev-parse --short HEAD\n"
     "  OUTPUT_VARIABLE currentref OUTPUT_STRIP_TRAILING_WHITESPACE\n"
     "  WORKING_DIRECTORY \"${DIR}\")\n"
@@ -167,7 +186,7 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "    WORKING_DIRECTORY \"${DIR}\")\n"
     "endforeach()\n"
     "\n"
-    # fetch latest update
+    # fetch updates
     "execute_process(COMMAND \"${GIT_EXECUTABLE}\" fetch origin -q\n"
     "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
     "  WORKING_DIRECTORY \"${DIR}\")\n"
@@ -175,30 +194,42 @@ function(GIT_EXTERNAL DIR REPO TAG)
     "  message(FATAL_ERROR \"Fetch for ${__dir} failed:\n   \${error}\")\n"
     "endif()\n"
     "\n"
-    # update tag
-    "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase FETCH_HEAD\n"
-    "  RESULT_VARIABLE nok ERROR_VARIABLE error OUTPUT_VARIABLE output\n"
-    "  WORKING_DIRECTORY \"${DIR}\")\n"
-    "if(nok)\n"
-    "  execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase --abort\n"
-    "    WORKING_DIRECTORY \"${DIR}\" ERROR_QUIET OUTPUT_QUIET)\n"
-    "  message(FATAL_ERROR \"Rebase ${__dir} failed:\n\${output}\${error}\")\n"
-    "endif()\n"
-    "\n"
-    # checkout requested tag
-    "execute_process(\n"
-    "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
-    "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
-    "  WORKING_DIRECTORY \"${DIR}\")\n"
-    "if(nok)\n"
-    "  message(FATAL_ERROR \"git checkout ${TAG} in ${__dir} failed: ${error}\n\")\n"
-    "endif()\n"
+  )
+  if("${TAG}" MATCHES "^[0-9a-f]+$")
+    # requested TAG is a SHA1, just switch to it
+    file(APPEND ${__rebase_cmake}
+      # checkout requested tag
+      "execute_process(\n"
+      "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
+      "  RESULT_VARIABLE nok ERROR_VARIABLE error\n"
+      "  WORKING_DIRECTORY \"${DIR}\")\n"
+      "if(nok)\n"
+      "  message(FATAL_ERROR \"git checkout ${TAG} in ${__dir} failed: ${error}\n\")\n"
+      "endif()\n"
     )
+  else()
+    # requested TAG is a branch
+    file(APPEND ${__rebase_cmake}
+      # switch to requested branch
+      "execute_process(\n"
+      "  COMMAND \"${GIT_EXECUTABLE}\" checkout -q \"${TAG}\"\n"
+      "  OUTPUT_QUIET ERROR_QUIET WORKING_DIRECTORY \"${DIR}\")\n"
+      # try to rebase it
+      "execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase FETCH_HEAD\n"
+      "  RESULT_VARIABLE nok ERROR_VARIABLE error OUTPUT_VARIABLE output\n"
+      "  WORKING_DIRECTORY \"${DIR}\")\n"
+      "if(nok)\n"
+      "  execute_process(COMMAND \"${GIT_EXECUTABLE}\" rebase --abort\n"
+      "    WORKING_DIRECTORY \"${DIR}\" ERROR_QUIET OUTPUT_QUIET)\n"
+      "  message(FATAL_ERROR \"Rebase ${__dir} failed:\n\${output}\${error}\")\n"
+      "endif()\n"
+    )
+  endif()
 
   if(NOT GIT_EXTERNAL_SCRIPT_MODE)
     add_custom_target(${__target}-rebase
       COMMAND ${CMAKE_COMMAND} -P ${__rebase_cmake}
-      COMMENT "Rebasing ${__dir}")
+      COMMENT "Rebasing ${__dir} [${TAG}]")
     set_target_properties(${__target}-rebase PROPERTIES
       EXCLUDE_FROM_DEFAULT_BUILD ON FOLDER git)
     if(NOT TARGET rebase)
@@ -232,7 +263,7 @@ if(EXISTS ${GIT_EXTERNALS} AND NOT GIT_EXTERNAL_SCRIPT_MODE)
         list(GET DATA 2 TAG)
 
         # Create a unique, flat name
-        string(REPLACE "/" "_" GIT_EXTERNAL_NAME ${DIR}_${PROJECT_NAME})
+        string(REPLACE "/" "-" GIT_EXTERNAL_NAME ${DIR}_${PROJECT_NAME})
 
         if(NOT TARGET update_git_external_${GIT_EXTERNAL_NAME}) # not done
           # pull in identified external

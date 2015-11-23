@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [520](https://github.com/Eyescale/Equalizer/issues/520)
+  Fix tile decomposition without ROI broken
 * [518](https://github.com/Eyescale/Equalizer/pull/518):
   Enable customisation of client loop
 * [511](https://github.com/Eyescale/Equalizer/pull/511):
