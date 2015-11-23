@@ -71,6 +71,13 @@ public:
         start += rhs.start * w;
     }
 
+    /** Merge the two ranges (form the union). @version 1.11 */
+    void merge( const Range& rhs )
+    {
+        start = std::min( start, rhs.start );
+        end = std::max( end, rhs.end );
+    }
+
     float start; //!< The start position
     float end;   //!< The end position
 

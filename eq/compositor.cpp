@@ -483,11 +483,6 @@ Frame* Compositor::waitFrame( WaitHandle* handle )
             // pings timed out nodes
             const bool pinged = config->getLocalNode()->pingIdleNodes();
 
-            // TODO: make input frames have node info (node of origin): It would
-            // be helpful to know which node was supposed to send each frame.
-            // May be we should send this info in the ChannelFrameAssemblePacket.
-            // eile: Not sure. let's discuss.
-
             if( config->getTime() >= time || !pinged )
             {
                 delete handle;
@@ -536,7 +531,7 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,
 
 #if 0
     static uint32_t counter = 0;
-    ostringstream stringstream;
+    std::ostringstream stringstream;
     stringstream << "Image_" << ++counter;
     result->writeImages( stringstream.str( ));
 #endif
@@ -869,7 +864,7 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
                                    const Image* image,
                                    const Vector2i& offset )
 {
-    LBVERB << "CPU-Blend assembly"<< std::endl;
+    LBVERB << "CPU-Blend assembly" << std::endl;
 
     int32_t* destColor = reinterpret_cast< int32_t* >( dest );
 

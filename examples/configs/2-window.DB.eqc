@@ -12,6 +12,7 @@ server
             {
                 window
                 {
+                    name "Source"
                     viewport [ .05 .3 .4 .4 ]
                     channel
                     {
@@ -20,6 +21,7 @@ server
                 }
                 window
                 {
+                    name "Destination and source"
                     viewport [ .55 .3 .4 .4 ]
                     attributes{ planes_stencil ON }
 
@@ -44,18 +46,18 @@ server
         {
             channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
-            
+
             compound
             {
                 range   [ 0 .5 ]
             }
             compound
-            { 
+            {
                 channel "channel2"
                 range   [ .5 1 ]
                 outputframe { name "frame.channel2" }
             }
             inputframe { name "frame.channel2" }
         }
-    }    
+    }
 }

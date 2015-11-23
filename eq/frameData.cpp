@@ -98,7 +98,7 @@ FrameData::~FrameData()
 {
     clear();
 
-    BOOST_FOREACH( Image* image, _impl->imageCache )
+    for( Image* image : _impl->imageCache )
     {
         LBLOG( LOG_BUG ) << "Unflushed image in FrameData destructor"
                           << std::endl;
