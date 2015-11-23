@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,196 +29,193 @@ namespace eq
 {
 namespace detail{ class Frame; }
 
+/**
+ * A holder for a frame data and related parameters.
+ *
+ * A Frame has to be set up with a FrameData which ultimately holds the pixel
+ * data using images. Input and output frames provided by the eq::Channel are
+ * set up correctly with FrameData to connect one output frame to one ore more
+ * input frames. Some Frame parameters are (input-)frame-specific, while others
+ * are set by the output frame on its data and therefore shared between all
+ * input frames.
+ */
+class Frame : public fabric::Frame
+{
+public:
+    /** Construct a new frame. @version 1.0 */
+    EQ_API Frame();
+
+    /** Destruct the frame. @version 1.0 */
+    EQ_API virtual ~Frame();
+
+    /** @name Data Access */
+    //@{
     /**
-     * A holder for a frame data and related parameters.
-     *
-     * A Frame has to be set up with a FrameData which ultimately holds the
-     * pixel data using images. Input and output frames provided by the
-     * eq::Channel are set up correctly with FrameData to connect one output
-     * frame to one ore more input frames. Some Frame parameters are
-     * (input-)frame-specific, while others are set by the output frame on its
-     * data and therefore shared between all input frames.
+     * @return the database range relative to the destination channel.
+     * @version 1.0
      */
-    class Frame : public fabric::Frame
-    {
-    public:
-        /** Construct a new frame. @version 1.0 */
-        EQ_API Frame();
+    EQ_API const Range& getRange() const;
 
-        /** Destruct the frame. @version 1.0 */
-        EQ_API virtual ~Frame();
+    /**
+     * @return the pixel parameters relative to the destination channel.
+     * @version 1.0
+     */
+    EQ_API const Pixel& getPixel() const;
 
-        /** @name Data Access */
-        //@{
-        /** @return the name of the frame. @version 1.0 */
-        EQ_API const std::string& getName() const;
+    /**
+     * @return the subpixel parameters wrt the destination channel.
+     * @version 1.0
+     */
+    EQ_API const SubPixel& getSubPixel() const;
 
-        /**
-         * @return the database range relative to the destination channel.
-         * @version 1.0
-         */
-        EQ_API const Range& getRange() const;
+    /**
+     * @return the DPlex period relative to the destination channel.
+     * @version 1.0
+     */
+    EQ_API uint32_t getPeriod() const;
 
-        /**
-         * @return the pixel parameters relative to the destination channel.
-         * @version 1.0
-         */
-        EQ_API const Pixel& getPixel() const;
+    /**
+     * @return the DPlex phase relative to the destination channel.
+     * @version 1.0
+     */
+    EQ_API uint32_t getPhase() const;
 
-        /**
-         * @return the subpixel parameters wrt the destination channel.
-         * @version 1.0
-         */
-        EQ_API const SubPixel& getSubPixel() const;
+    /**
+     * Set the filter applied to zoomed assemble operations.
+     * @version 1.0
+     */
+    EQ_API void setZoomFilter( const ZoomFilter zoomFilter );
 
-        /**
-         * @return the DPlex period relative to the destination channel.
-         * @version 1.0
-         */
-        EQ_API uint32_t getPeriod() const;
+    /**
+     * @return the filter applied to zoomed assemble operations.
+     * @version 1.0
+     */
+    EQ_API ZoomFilter getZoomFilter() const;
 
-        /**
-         * @return the DPlex phase relative to the destination channel.
-         * @version 1.0
-         */
-        EQ_API uint32_t getPhase() const;
+    /** @return all images of this frame. @version 1.0 */
+    EQ_API const Images& getImages() const;
 
-        /**
-         * Set the filter applied to zoomed assemble operations.
-         * @version 1.0
-         */
-        EQ_API void setZoomFilter( const ZoomFilter zoomFilter );
+    /** Set the data for this frame. @version 1.3.2 */
+    EQ_API void setFrameData( FrameDataPtr data );
 
-        /**
-         * @return the filter applied to zoomed assemble operations.
-         * @version 1.0
-         */
-        EQ_API ZoomFilter getZoomFilter() const;
+    /** @return the frame's data. @version 1.3.2 */
+    EQ_API FrameDataPtr getFrameData();
 
-        /** @return all images of this frame. @version 1.0 */
-        EQ_API const Images& getImages() const;
+    /** @return the frame's data. @version 1.4 */
+    EQ_API ConstFrameDataPtr getFrameData() const;
 
-        /** Set the data for this frame. @version 1.3.2 */
-        EQ_API void setFrameData( FrameDataPtr data );
+    /** @return the enabled frame buffer attachments. @version 1.0 */
+    EQ_API uint32_t getBuffers() const;
 
-        /** @return the frame's data. @version 1.3.2 */
-        EQ_API FrameDataPtr getFrameData();
+    /**
+     * Disable the usage of a frame buffer attachment for all images.
+     *
+     * @param buffer the buffer to disable.
+     * @version 1.0
+     */
+    EQ_API void disableBuffer( const Buffer buffer );
 
-        /** @return the frame's data. @version 1.4 */
-        EQ_API ConstFrameDataPtr getFrameData() const;
+    /** Set alpha usage for newly allocated images. @version 1.0 */
+    EQ_API void setAlphaUsage( const bool useAlpha );
 
-        /** @return the enabled frame buffer attachments. @version 1.0 */
-        EQ_API uint32_t getBuffers() const;
+    /** Set the minimum quality after compression. @version 1.0 */
+    EQ_API void setQuality( const Buffer buffer, const float quality );
 
-        /**
-         * Disable the usage of a frame buffer attachment for all images.
-         *
-         * @param buffer the buffer to disable.
-         * @version 1.0
-         */
-        EQ_API void disableBuffer( const Buffer buffer );
+    /** Sets a compressor for compression for following transmissions. */
+    EQ_API void useCompressor( const Buffer buffer, const uint32_t name );
+    //@}
 
-        /** Set alpha usage for newly allocated images. @version 1.0 */
-        EQ_API void setAlphaUsage( const bool useAlpha );
+    /** @name Operations */
+    //@{
+    /** @internal Recycle images attached to the frame data. */
+    EQ_API void clear();
 
-        /** Set the minimum quality after compression. @version 1.0 */
-        EQ_API void setQuality( const Buffer buffer, const float quality );
+    /** @internal Deallocate all data from the given object manager. */
+    void deleteGLObjects( util::ObjectManager& om );
 
-        /** Sets a compressor for compression for following transmissions. */
-        EQ_API void useCompressor( const Buffer buffer, const uint32_t name );
-        //@}
+    /**
+     * Read back an image.
+     *
+     * The image is added to the data, existing images are retained.
+     *
+     * @param glObjects the GL object manager for the current GL context.
+     * @param config the configuration of the source frame buffer.
+     * @version 1.0
+     */
+    EQ_API void readback( util::ObjectManager& glObjects,
+                          const DrawableConfig& config );
 
-        /** @name Operations */
-        //@{
-        /** @internal Recycle images attached  to the frame data. */
-        EQ_API void clear();
+    /**
+     * Read back a set of images.
+     *
+     * The images are added to the data, existing images are retained.
+     *
+     * @param glObjects the GL object manager for the current GL context.
+     * @param config the configuration of the source frame buffer.
+     * @param regions the areas to read back.
+     * @version 1.0
+     */
+    EQ_API void readback( util::ObjectManager& glObjects,
+                          const DrawableConfig& config,
+                          const PixelViewports& regions );
 
-        /** @internal Deallocate all data from the given object manager. */
-        void deleteGLObjects( util::ObjectManager& om );
+    /**
+     * Start reading back a set of images for this frame.
+     *
+     * The newly read images are added to the data, existing images are
+     * retained. The finish for the new images has to be done by the caller. The
+     * regions are relative to the current OpenGL viewport.
+     *
+     * @param glObjects the GL object manager for the current GL context.
+     * @param config the configuration of the source frame buffer.
+     * @param regions the areas to read back.
+     * @return the new images which need finishReadback.
+     * @version 1.3.2
+     */
+    EQ_API Images startReadback( util::ObjectManager& glObjects,
+                                 const DrawableConfig& config,
+                                 const PixelViewports& regions );
 
-        /**
-         * Read back an image.
-         *
-         * The image is added to the data, existing images are retained.
-         *
-         * @param glObjects the GL object manager for the current GL context.
-         * @param config the configuration of the source frame buffer.
-         * @version 1.0
-         */
-        EQ_API void readback( util::ObjectManager& glObjects,
-                              const DrawableConfig& config );
+    /**
+     * Set the frame ready.
+     *
+     * Equalizer sets the frame automatically ready after readback and after
+     * network transmission.
+     * @version 1.0
+     */
+    void setReady();
 
-        /**
-         * Read back a set of images.
-         *
-         * The images are added to the data, existing images are retained.
-         *
-         * @param glObjects the GL object manager for the current GL context.
-         * @param config the configuration of the source frame buffer.
-         * @param regions the areas to read back.
-         * @version 1.0
-         */
-        EQ_API void readback( util::ObjectManager& glObjects,
-                              const DrawableConfig& config,
-                              const PixelViewports& regions );
+    /**
+     * Test the readiness of the frame.
+     *
+     * @return true if the frame is ready, false if not.
+     * @version 1.0
+     */
+    EQ_API bool isReady() const;
 
-        /**
-         * Start reading back a set of images for this frame.
-         *
-         * The newly read images are added to the data, existing images are
-         * retained. The finish for the new images has to be done by the
-         * caller. The regions are relative to the current OpenGL viewport.
-         *
-         * @param glObjects the GL object manager for the current GL context.
-         * @param config the configuration of the source frame buffer.
-         * @param regions the areas to read back.
-         * @return the new images which need finishReadback.
-         * @version 1.3.2
-         */
-        EQ_API Images startReadback( util::ObjectManager& glObjects,
-                                     const DrawableConfig& config,
-                                     const PixelViewports& regions );
+    /** Wait for the frame to become available. @version 1.0 */
+    EQ_API void waitReady( const uint32_t timeout =
+                           LB_TIMEOUT_INDEFINITE ) const;
 
-        /**
-         * Set the frame ready.
-         *
-         * Equalizer sets the frame automatically ready after readback and after
-         * network transmission.
-         * @version 1.0
-         */
-        void setReady();
+    /**
+     * Add a listener which will be incremented when the frame is ready.
+     *
+     * @param listener the listener.
+     * @version 1.0
+     */
+    void addListener( lunchbox::Monitor<uint32_t>& listener );
 
-        /**
-         * Test the readiness of the frame.
-         *
-         * @return true if the frame is ready, false if not.
-         * @version 1.0
-         */
-        EQ_API bool isReady() const;
+    /**
+     * Remove a frame listener.
+     *
+     * @param listener the listener.
+     * @version 1.0
+     */
+    void removeListener( lunchbox::Monitor<uint32_t>& listener );
+    //@}
 
-        /** Wait for the frame to become available. @version 1.0 */
-        EQ_API void waitReady( const uint32_t timeout =
-                               LB_TIMEOUT_INDEFINITE ) const;
-
-        /**
-         * Add a listener which will be incremented when the frame is ready.
-         *
-         * @param listener the listener.
-         * @version 1.0
-         */
-        void addListener( lunchbox::Monitor<uint32_t>& listener );
-
-        /**
-         * Remove a frame listener.
-         *
-         * @param listener the listener.
-         * @version 1.0
-         */
-        void removeListener( lunchbox::Monitor<uint32_t>& listener );
-        //@}
-
-    private:
-        detail::Frame* const _impl;
-    };
+private:
+    detail::Frame* const _impl;
+};
 };
 #endif // EQ_FRAME_H

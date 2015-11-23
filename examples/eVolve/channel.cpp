@@ -267,7 +267,7 @@ void Channel::_orderFrames( eq::Frames& frames )
     const eq::Matrix4f& modelView = useOrtho() ? eq::Matrix4f::IDENTITY :
                                                  _computeModelView();
 
-    //calculate modelview inversed transposed matrix
+    // calculate modelview inversed+transposed matrix
     eq::Matrix3f modelviewITM;
     eq::Matrix4f modelviewIM;
     modelView.inverse( modelviewIM );
