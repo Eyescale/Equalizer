@@ -1,7 +1,6 @@
-
-# Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
 #
-# Change this number when adding tests to force a CMake run: 5
+# Change this number when adding tests to force a CMake run: 6
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(COPY perf/images ${PROJECT_SOURCE_DIR}/examples/configs
