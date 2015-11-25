@@ -892,6 +892,7 @@ void Channel::drawStatistics()
     EQ_GL_CALL( glEnable( GL_BLEND ));
     EQ_GL_CALL( glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ));
     EQ_GL_CALL( glDisable( GL_COLOR_LOGIC_OP ));
+    EQ_GL_CALL( glCullFace( GL_BACK ));
 
 #ifdef EQUALIZER_USE_GLSTATS
     const util::BitmapFont* font = window->getSmallFont();
