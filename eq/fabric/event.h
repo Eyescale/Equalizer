@@ -48,14 +48,14 @@ struct ResizeEvent
 /** Event for a pointer (mouse) motion or click. @version 1.0 */
 struct PointerEvent
 {
-    int32_t x;             //!< X position relative to entity
-    int32_t y;             //!< Y position relative to entity (0 is on top)
-    int32_t dx;            //!< X position change since last event
-    int32_t dy;            //!< Y position change since last event
-    uint32_t buttons;      //!< current state of all buttons
-    uint32_t button;       //!< fired button
-    int32_t xAxis;         //!< x wheel rotation
-    int32_t yAxis;         //!< y wheel rotation
+    int32_t x;        //!< X position relative to entity
+    int32_t y;        //!< Y position relative to entity (0 is on top)
+    int32_t dx;       //!< X position change since last event
+    int32_t dy;       //!< Y position change since last event
+    uint32_t buttons; //!< current state of all buttons
+    uint32_t button;  //!< fired button
+    float xAxis;      //!< x wheel rotation in clicks
+    float yAxis;      //!< y wheel rotation in clicks
 };
 
 /** Event for a key press or release. @version 1.0 */

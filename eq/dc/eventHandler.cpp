@@ -160,18 +160,18 @@ void EventHandler::_processEvents( const Proxy* proxy )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
 
             event.pointerMotion.button = event.pointerMotion.buttons;
-            _computePointerDelta( event );
+            event.pointerMotion.dx = dcEvent.dx * pvp.w;
+            event.pointerMotion.dy = dcEvent.dy * pvp.h;
             break;
         case deflect::Event::EVT_WHEEL:
             event.type = Event::CHANNEL_POINTER_WHEEL;
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
             event.pointerWheel.buttons = PTR_BUTTON_NONE;
-            if( dcEvent.dx != 0 )
-                event.pointerWheel.xAxis = dcEvent.dx > 0 ? 1 : -1;
-            if( dcEvent.dy != 0 )
-                event.pointerWheel.yAxis = dcEvent.dy > 0 ? 1 : -1;
-            _computePointerDelta( event );
+            event.pointerWheel.xAxis = dcEvent.dx / 40.f;
+            event.pointerWheel.yAxis = dcEvent.dy / 40.f;
+            event.pointerMotion.dx = -dcEvent.dx;
+            event.pointerMotion.dy = -dcEvent.dy;
             break;
         case deflect::Event::EVT_NONE:
         default:
