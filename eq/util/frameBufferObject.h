@@ -33,7 +33,11 @@ namespace util
 class FrameBufferObject
 {
 public:
-    /** Construct a new Frame Buffer Object. @version 1.0 */
+    /**
+     * Construct a new Frame Buffer Object. The first color texture is
+     * automatically created.
+     * @version 1.0
+     */
     EQ_API FrameBufferObject( const GLEWContext* const glewContext,
                               const unsigned textureTarget = 0x84F5
                               /*GL_TEXTURE_RECTANGLE_ARB*/ );
@@ -44,10 +48,9 @@ public:
     /**
      * Add one color texture to the FBO.
      *
-     * The first color texture is automatically created in the constructor. The
-     * maximum number of textures per FBO is 16. Added color textures will have
-     * the same format as the existing texture(s). This method has to be called
-     * on an uninitialized FBO.
+     * The maximum number of textures per FBO is 16. Added color textures will
+     * have the same format as the existing texture(s). This method has to be
+     * called on an uninitialized FBO.
      *
      * @return false if color texture can't be added, otherwise true.
      * @version 1.0
