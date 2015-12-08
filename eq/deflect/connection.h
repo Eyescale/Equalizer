@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_DC_CONNECTION_H
-#define EQ_DC_CONNECTION_H
+#ifndef EQ_DEFLECT_CONNECTION_H
+#define EQ_DEFLECT_CONNECTION_H
 
 #include "proxy.h"
 #include <co/connection.h>
@@ -24,14 +24,14 @@
 
 namespace eq
 {
-namespace dc
+namespace deflect
 {
 /**
  * @internal
- * A DisplayCluster connection wrapper.
+ * A Deflect connection wrapper.
  *
- * This class is used to monitor multiple DisplayCluster connections for
- * events using a co::ConnectionSet.
+ * This class is used to monitor multiple Deflect connections for events using a
+ * co::ConnectionSet.
  */
 class Connection : public co::Connection
 {

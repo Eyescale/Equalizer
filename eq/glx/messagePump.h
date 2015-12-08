@@ -29,46 +29,48 @@ namespace eq
 {
 namespace glx
 {
-    /** A message pump receiving and dispatching X11 events. */
-    class MessagePump : public eq::MessagePump
-    {
-    public:
-        /** Construct a new X11 message pump. @version 1.0 */
-        MessagePump();
 
-        /** Destruct this message pump. @version 1.0 */
-        virtual ~MessagePump();
+/** A message pump receiving and dispatching X11 events. */
+class MessagePump : public eq::MessagePump
+{
+public:
+    /** Construct a new X11 message pump. @version 1.0 */
+    MessagePump();
 
-        void postWakeup() final;
-        void dispatchAll() final;
-        void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE ) final;
+    /** Destruct this message pump. @version 1.0 */
+    virtual ~MessagePump();
 
-        /**
-         * Register a new Display connection for event dispatch.
-         *
-         * The registrations are referenced, that is, multiple registrations of
-         * the same display cause the Display to be added once to the event
-         * set, but require the same amount of deregistrations to stop event
-         * dispatch on the connection. Not threadsafe.
-         *
-         * @sa EventHandler
-         * @version 1.0
-         */
-        void register_( Display* display );
+    void postWakeup() final;
+    void dispatchAll() final;
+    void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE ) final;
 
-        /** Deregister a Display connection from event dispatch. @version 1.0 */
-        void deregister( Display* display );
+    /**
+     * Register a new Display connection for event dispatch.
+     *
+     * The registrations are referenced, that is, multiple registrations of
+     * the same display cause the Display to be added once to the event
+     * set, but require the same amount of deregistrations to stop event
+     * dispatch on the connection. Not threadsafe.
+     *
+     * @sa EventHandler
+     * @version 1.0
+     */
+    void register_( Display* display );
 
-        /** Register a new DC connection for event dispatch. @version 1.7.1 */
-        void register_( dc::Proxy* dcProxy ) override;
+    /** Deregister a Display connection from event dispatch. @version 1.0 */
+    void deregister( Display* display );
 
-        /** Deregister a DC connection from event dispatch. @version 1.7.1 */
-        void deregister( dc::Proxy* dcProxy ) override;
+    /** Register a new Deflect connection for event dispatch. @version 1.7.1 */
+    void register_( deflect::Proxy* dcProxy ) override;
 
-    private:
-        co::ConnectionSet _connections; //!< Registered Display connections
-        stde::hash_map< void*, size_t > _referenced; //!< # of registrations
-    };
+    /** Deregister a Deflect connection from event dispatch. @version 1.7.1 */
+    void deregister( deflect::Proxy* dcProxy ) override;
+
+private:
+    co::ConnectionSet _connections; //!< Registered Display connections
+    stde::hash_map< void*, size_t > _referenced; //!< # of registrations
+};
+
 }
 }
 #endif //EQ_GLX_MESSAGEPUMP_H

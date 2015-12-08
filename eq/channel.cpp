@@ -77,7 +77,7 @@
 #include "detail/channel.ipp"
 
 #ifdef EQUALIZER_USE_DEFLECT
-#  include "dc/proxy.h"
+#  include "deflect/proxy.h"
 #endif
 
 namespace eq
@@ -234,8 +234,8 @@ const GLEWContext* Channel::glewGetContext() const
 bool Channel::configExit()
 {
 #ifdef EQUALIZER_USE_DEFLECT
-    delete _impl->_dcProxy;
-    _impl->_dcProxy = 0;
+    delete _impl->_deflectProxy;
+    _impl->_deflectProxy = 0;
 #endif
     _impl->framebufferImage.flush();
     return true;
@@ -247,8 +247,8 @@ bool Channel::configInit( const uint128_t& )
     if( getView() &&
         !getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER ).empty( ))
     {
-        LBASSERT( !_impl->_dcProxy );
-        _impl->_dcProxy = new dc::Proxy( this );
+        LBASSERT( !_impl->_deflectProxy );
+        _impl->_deflectProxy = new deflect::Proxy( this );
     }
 #endif
     return true;

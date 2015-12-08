@@ -21,8 +21,8 @@
 #include "X11Connection.h"
 
 #ifdef EQUALIZER_USE_DEFLECT
-#  include "../dc/connection.h"
-#  include "../dc/eventHandler.h"
+#  include "../deflect/connection.h"
+#  include "../deflect/eventHandler.h"
 #endif
 
 #include <lunchbox/debug.h>
@@ -62,10 +62,10 @@ void MessagePump::dispatchOne( const uint32_t timeout )
         {
 #ifdef EQUALIZER_USE_DEFLECT
             co::ConnectionPtr connection = _connections.getConnection();
-            const dc::Connection* dcConnection =
-                dynamic_cast< const dc::Connection* >( connection.get( ));
+            const deflect::Connection* dcConnection =
+                dynamic_cast< const deflect::Connection* >( connection.get( ));
             if( dcConnection )
-               dc::EventHandler::processEvents( dcConnection->getProxy( ));
+               deflect::EventHandler::processEvents( dcConnection->getProxy( ));
             else
 #endif
             EventHandler::dispatch();
@@ -90,7 +90,7 @@ void MessagePump::dispatchAll()
 {
     EventHandler::dispatch();
 #ifdef EQUALIZER_USE_DEFLECT
-    dc::EventHandler::processEvents();
+    deflect::EventHandler::processEvents();
 #endif
 }
 
@@ -121,15 +121,15 @@ void MessagePump::deregister( Display* display )
     }
 }
 
-void MessagePump::register_( dc::Proxy* dcProxy LB_UNUSED )
+void MessagePump::register_( deflect::Proxy* dcProxy LB_UNUSED )
 {
 #ifdef EQUALIZER_USE_DEFLECT
     if( ++_referenced[ dcProxy ] == 1 )
-        _connections.addConnection( new dc::Connection( dcProxy ));
+        _connections.addConnection( new deflect::Connection( dcProxy ));
 #endif
 }
 
-void MessagePump::deregister( dc::Proxy* dcProxy LB_UNUSED  )
+void MessagePump::deregister( deflect::Proxy* dcProxy LB_UNUSED  )
 {
 #ifdef EQUALIZER_USE_DEFLECT
     if( --_referenced[ dcProxy ] == 0 )
@@ -139,8 +139,8 @@ void MessagePump::deregister( dc::Proxy* dcProxy LB_UNUSED  )
              i != connections.end(); ++i )
         {
             co::ConnectionPtr connection = *i;
-            const dc::Connection* dcConnection =
-                dynamic_cast< const dc::Connection* >( connection.get( ));
+            const deflect::Connection* dcConnection =
+                dynamic_cast< const deflect::Connection* >( connection.get( ));
             if( dcConnection && dcConnection->getProxy() == dcProxy )
             {
                 _connections.removeConnection( connection );

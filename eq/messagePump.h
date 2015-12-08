@@ -47,12 +47,12 @@ public:
     virtual void dispatchOne( const uint32_t timeout =
                               LB_TIMEOUT_INDEFINITE ) = 0;
 
-    /** Register a new DC connection for event dispatch. @version 1.7.1 */
-    virtual void register_( dc::Proxy* )
+    /** Register a new Deflect connection for event dispatch. @version 1.7.1 */
+    virtual void register_( deflect::Proxy* )
         { LBWARN << "Missing message pump for Deflect" << std::endl; }
 
-    /** Deregister a DC connection from event dispatch. @version 1.7.1 */
-    virtual void deregister( dc::Proxy* ) { /*Not implemented*/ }
+    /** Deregister a Deflect connection from event dispatch. @version 1.7.1 */
+    virtual void deregister( deflect::Proxy* ) { /*Not implemented*/ }
 };
 }
 
