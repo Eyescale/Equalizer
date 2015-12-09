@@ -257,6 +257,18 @@ public:
     EQ_API virtual void applyOrthoTransform() const;
 
     /**
+     * Apply the state for pixel-based 2D overlay rendering operations.
+     * @version 1.11
+     */
+    EQ_API void applyOverlayState();
+
+    /**
+     * Reset the overlay state setup by applyOverlayState()
+     * @version 1.11
+     */
+    EQ_API void resetOverlayState();
+
+    /**
      * Rebind the window frame buffer.
      * @version 1.0
      */

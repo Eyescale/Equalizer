@@ -349,7 +349,6 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
         }
     }
 
-    applyViewport();
     _drawOverlay();
     _drawHelp();
 
@@ -644,28 +643,21 @@ void Channel::_drawOverlay()
     if( !texture )
         return;
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    applyScreenFrustum();
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_LIGHTING );
-    glColor3f( 1.0f, 1.0f, 1.0f );
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    applyOverlayState();
+    EQ_GL_CALL( glDisable( GL_COLOR_LOGIC_OP ));
+    EQ_GL_CALL( glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ));
 
     // logo
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    EQ_GL_CALL( glEnable( GL_BLEND ));
+    EQ_GL_CALL( glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ));
     const GLenum target = texture->getTarget();
-    glEnable( target );
+    EQ_GL_CALL( glEnable( target ));
     texture->bind();
-    glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    EQ_GL_CALL( glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR ));
+    EQ_GL_CALL( glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR ));
 
-    const float tWidth = float( texture->getWidth( ) );
-    const float tHeight = float( texture->getHeight( ) );
+    const float tWidth = float( texture->getWidth( ));
+    const float tHeight = float( texture->getHeight( ));
 
     const float width = target == GL_TEXTURE_2D ? 1.0f : tWidth;
     const float height = target == GL_TEXTURE_2D ? 1.0f : tHeight;
@@ -685,10 +677,9 @@ void Channel::_drawOverlay()
 
     } glEnd();
 
-    glDisable( target );
-    glDisable( GL_BLEND );
-    glEnable( GL_LIGHTING );
-    glEnable( GL_DEPTH_TEST );
+    EQ_GL_CALL( glDisable( target ));
+    EQ_GL_CALL( glDisable( GL_BLEND ));
+    resetOverlayState();
 }
 
 void Channel::_drawHelp()
@@ -699,16 +690,7 @@ void Channel::_drawHelp()
     if( !frameData.showHelp() && message.empty( ))
         return;
 
-    applyBuffer();
-    applyViewport();
-    setupAssemblyState();
-
-    glLogicOp( GL_XOR );
-    glEnable( GL_COLOR_LOGIC_OP );
-    glDisable( GL_LIGHTING );
-    glDisable( GL_DEPTH_TEST );
-
-    glColor3f( 1.f, 1.f, 1.f );
+    applyOverlayState();
 
     const eq::PixelViewport& pvp = getPixelViewport();
     const eq::Viewport& vp = getViewport();
@@ -738,11 +720,6 @@ void Channel::_drawHelp()
         font->draw( message );
     }
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    applyScreenFrustum();
-    glMatrixMode( GL_MODELVIEW );
-
     if( frameData.showHelp( ))
     {
         const eq::util::BitmapFont* font = getWindow()->getSmallFont();
@@ -762,8 +739,7 @@ void Channel::_drawHelp()
         glRasterPos3f( 10.f, y, 0.99f );
         font->draw( help );
     }
-
-    resetAssemblyState();
+    resetOverlayState();
 }
 
 void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )

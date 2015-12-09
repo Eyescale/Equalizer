@@ -640,6 +640,33 @@ void Channel::applyOrthoTransform() const
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
 }
 
+void Channel::applyOverlayState()
+{
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
+
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    applyScreenFrustum();
+
+    EQ_GL_CALL( glLogicOp( GL_XOR ));
+    EQ_GL_CALL( glEnable( GL_COLOR_LOGIC_OP ));
+    EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
+    EQ_GL_CALL( glDisable( GL_LIGHTING ));
+    EQ_GL_CALL( glCullFace( GL_BACK ));
+
+    EQ_GL_CALL( glColor3f( 1.f, 1.f, 1.f ));
+}
+
+void Channel::resetOverlayState()
+{
+    EQ_GL_CALL( glDisable( GL_COLOR_LOGIC_OP ));
+    EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
+    EQ_GL_CALL( glEnable( GL_LIGHTING ));
+    resetAssemblyState();
+}
+
 namespace
 {
 static Vector2f* _lookupJitterTable( const uint32_t size )
@@ -878,21 +905,11 @@ void Channel::drawStatistics()
         return;
 
     //----- setup
-    EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( applyViewport( ));
-    EQ_GL_CALL( setupAssemblyState( ));
+    applyOverlayState();
 
-    EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
-    EQ_GL_CALL( glLoadIdentity( ));
-    applyScreenFrustum();
-
-    EQ_GL_CALL( glMatrixMode( GL_MODELVIEW ));
-    EQ_GL_CALL( glDisable( GL_LIGHTING ));
-
+    EQ_GL_CALL( glDisable( GL_COLOR_LOGIC_OP ));
     EQ_GL_CALL( glEnable( GL_BLEND ));
     EQ_GL_CALL( glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA ));
-    EQ_GL_CALL( glDisable( GL_COLOR_LOGIC_OP ));
-    EQ_GL_CALL( glCullFace( GL_BACK ));
 
 #ifdef EQUALIZER_USE_GLSTATS
     const util::BitmapFont* font = window->getSmallFont();
@@ -907,9 +924,12 @@ void Channel::drawStatistics()
     renderer.draw( data );
 #endif
 
+    EQ_GL_CALL( glEnable( GL_COLOR_LOGIC_OP ));
     EQ_GL_CALL( glColor3f( 1.f, 1.f, 1.f ));
     window->drawFPS();
-    EQ_GL_CALL( resetAssemblyState( ));
+
+    EQ_GL_CALL( glDisable( GL_BLEND ));
+    resetOverlayState();
 }
 
 void Channel::outlineViewport()
@@ -919,8 +939,7 @@ void Channel::outlineViewport()
     if( coreProfile )
         return;
 
-    setupAssemblyState();
-    glDisable( GL_LIGHTING );
+    applyOverlayState();
 
     const eq::PixelViewport& region = getRegion();
     glColor3f( .5f, .5f, .5f );
@@ -940,7 +959,7 @@ void Channel::outlineViewport()
         glVertex3f( pvp.x + .5f,         pvp.getYEnd() - .5f, 0.f );
     } glEnd();
 
-    resetAssemblyState();
+    resetOverlayState();
 }
 
 namespace detail

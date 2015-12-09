@@ -459,14 +459,7 @@ void Channel::_drawHelp()
     if( !frameData.showHelp() && message.empty( ))
         return;
 
-    applyBuffer();
-    applyViewport();
-    setupAssemblyState();
-
-    glDisable( GL_LIGHTING );
-    glDisable( GL_DEPTH_TEST );
-
-    glColor3f( 1.f, 1.f, 1.f );
+    applyOverlayState();
 
     if( frameData.showHelp( ))
     {
@@ -517,6 +510,6 @@ void Channel::_drawHelp()
         font->draw( message );
     }
 
-    EQ_GL_CALL( resetAssemblyState( ));
+    resetOverlayState();
 }
 }

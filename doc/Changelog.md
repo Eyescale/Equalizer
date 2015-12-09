@@ -3,9 +3,11 @@ Changelog {#Changelog}
 
 # git master
 
-* [527](https://github.com/Eyescale/Equalizer/issues/527)
+* [528](https://github.com/Eyescale/Equalizer/issues/528):
+  Add apply/resetOverlayState in Channel for 2D overlay rendering  
+* [527](https://github.com/Eyescale/Equalizer/issues/527):
   Fix Deflect wheel event to consider pixel delta from pinch
-* [520](https://github.com/Eyescale/Equalizer/issues/520)
+* [520](https://github.com/Eyescale/Equalizer/issues/520):
   Fix tile decomposition without ROI broken
 * [518](https://github.com/Eyescale/Equalizer/pull/518):
   Enable customisation of client loop
