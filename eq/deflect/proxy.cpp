@@ -55,6 +55,7 @@ public:
         , _channel( channel )
         , _sendFuture( make_ready_future( false ))
         , _running( false )
+        , _navigationMode( Proxy::MODE_ROTATE )
     {
         const DrawableConfig& dc = _channel->getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -99,9 +100,9 @@ public:
 
         // copy pixels to perform swapYAxis()
         const size_t dataSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
-        buffer.replace( image.getPixelPointer( Frame::BUFFER_COLOR ), dataSize);
+        _buffer.replace( image.getPixelPointer( Frame::BUFFER_COLOR ), dataSize);
         const PixelViewport& pvp = image.getPixelViewport();
-        ::deflect::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
+        ::deflect::ImageWrapper::swapYAxis( _buffer.getData(), pvp.w, pvp.h,
                                      image.getPixelSize( Frame::BUFFER_COLOR ));
 
         // determine image offset wrt global view
@@ -111,7 +112,7 @@ public:
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        ::deflect::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
+        ::deflect::ImageWrapper imageWrapper( _buffer.getData(), pvp.w, pvp.h,
                                               ::deflect::BGRA, offsX, offsY );
         imageWrapper.compressionPolicy = ::deflect::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
@@ -122,9 +123,10 @@ public:
     ::deflect::Stream* _stream;
     EventHandler* _eventHandler;
     Channel* _channel;
-    lunchbox::Bufferb buffer;
+    lunchbox::Bufferb _buffer;
     ::deflect::Stream::Future _sendFuture;
     bool _running;
+    Proxy::NavigationMode _navigationMode;
 };
 
 Proxy::Proxy( Channel* channel )
@@ -178,6 +180,28 @@ void Proxy::stopRunning()
 ::deflect::Event Proxy::getEvent() const
 {
     return _impl->_stream->getEvent();
+}
+
+void Proxy::setNavigationMode( Proxy::NavigationMode mode )
+{
+    _impl->_navigationMode = mode;
+}
+
+Proxy::NavigationMode Proxy::getNavigationMode() const
+{
+    return _impl->_navigationMode;
+}
+
+std::string Proxy::getHelp() const
+{
+    switch( _impl->_navigationMode )
+    {
+    case MODE_PAN:
+        return "Pan mode";
+    case MODE_ROTATE:
+    default:
+        return "Rotate mode";
+    }
 }
 
 }

@@ -3,9 +3,12 @@ Changelog {#Changelog}
 
 # git master
 
-* [528](https://github.com/Eyescale/Equalizer/issues/528):
+* [529](https://github.com/Eyescale/Equalizer/pull/529):
+  Pan/rotate mode switch for deflect::Proxy on tap & hold,
+  add Channel::frameDrawOverlay()
+* [529](https://github.com/Eyescale/Equalizer/pull/529):
   Add apply/resetOverlayState in Channel for 2D overlay rendering  
-* [527](https://github.com/Eyescale/Equalizer/issues/527):
+* [527](https://github.com/Eyescale/Equalizer/pull/527):
   Fix Deflect wheel event to consider pixel delta from pinch
 * [520](https://github.com/Eyescale/Equalizer/issues/520):
   Fix tile decomposition without ROI broken

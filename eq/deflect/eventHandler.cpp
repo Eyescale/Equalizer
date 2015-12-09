@@ -120,6 +120,9 @@ void EventHandler::_processEvents( const Proxy* proxy )
         const float x = deflectEvent.mouseX * pvp.w;
         const float y = deflectEvent.mouseY * pvp.h;
 
+        if( _proxy-> getNavigationMode() == Proxy::MODE_PAN )
+            std::swap( deflectEvent.mouseLeft, deflectEvent.mouseRight );
+
         switch( deflectEvent.type )
         {
         case ::deflect::Event::EVT_KEY_PRESS:
@@ -173,6 +176,18 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.pointerMotion.dx = -deflectEvent.dx;
             event.pointerMotion.dy = -deflectEvent.dy;
             break;
+        case ::deflect::Event::EVT_TAP_AND_HOLD:
+        {
+            const Proxy::NavigationMode mode =
+                    _proxy->getNavigationMode() == Proxy::MODE_PAN
+                        ? Proxy::MODE_ROTATE : Proxy::MODE_PAN;
+            _proxy->setNavigationMode( mode );
+            Event windowEvent;
+            windowEvent.originator = window->getID();
+            windowEvent.serial = window->getSerial();
+            windowEvent.type = Event::WINDOW_EXPOSE;
+            window->processEvent( windowEvent );
+        } break;
         case ::deflect::Event::EVT_NONE:
         default:
             break;
