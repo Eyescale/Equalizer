@@ -36,45 +36,44 @@
 
 namespace eq
 {
-namespace dc
-{
-namespace detail
+namespace deflect
 {
 
-deflect::Stream::Future make_ready_future( const bool value )
+::deflect::Stream::Future make_ready_future( const bool value )
 {
     boost::promise< bool > promise;
     promise.set_value( value );
     return promise.get_future();
 }
 
-class Proxy : public boost::noncopyable
+class Proxy::Impl : public boost::noncopyable
 {
 public:
-    explicit Proxy( eq::Channel* ch )
+    explicit Impl( Channel* channel )
         : _stream( 0 )
         , _eventHandler( 0 )
-        , _channel( ch )
+        , _channel( channel )
         , _sendFuture( make_ready_future( false ))
         , _running( false )
+        , _navigationMode( Proxy::MODE_ROTATE )
     {
         const DrawableConfig& dc = _channel->getDrawableConfig();
         if( dc.colorBits != 8 )
         {
             LBWARN << "Can only stream 8-bit RGB(A) framebuffers to "
-                   << "DisplayCluster, got " << dc.colorBits << " color bits"
+                   << "Deflect host, got " << dc.colorBits << " color bits"
                    << std::endl;
             return;
         }
 
-        const std::string& dcHost =
+        const std::string& deflectHost =
                _channel->getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER );
         const std::string& name =
              _channel->getView()->getSAttribute( View::SATTR_PIXELSTREAM_NAME );
-        _stream = new deflect::Stream( name, dcHost );
+        _stream = new ::deflect::Stream( name, deflectHost );
         if( !_stream->isConnected( ))
         {
-            LBWARN << "Could not connect to DisplayCluster host: " << dcHost
+            LBWARN << "Could not connect to Deflect host: " << deflectHost
                    << std::endl;
             return;
         }
@@ -83,7 +82,7 @@ public:
         _sendFuture = make_ready_future( true );
     }
 
-    ~Proxy()
+    ~Impl()
     {
         // wait for completion of previous send
         _sendFuture.wait();
@@ -92,8 +91,7 @@ public:
         delete _stream;
     }
 
-    void notifyNewImage( eq::Channel& channel LB_UNUSED,
-                         const eq::Image& image )
+    void notifyNewImage( Channel& channel LB_UNUSED, const Image& image )
     {
         LBASSERT( &channel == _channel );
 
@@ -102,9 +100,9 @@ public:
 
         // copy pixels to perform swapYAxis()
         const size_t dataSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
-        buffer.replace( image.getPixelPointer( Frame::BUFFER_COLOR ), dataSize);
+        _buffer.replace( image.getPixelPointer( Frame::BUFFER_COLOR ), dataSize);
         const PixelViewport& pvp = image.getPixelViewport();
-        deflect::ImageWrapper::swapYAxis( buffer.getData(), pvp.w, pvp.h,
+        ::deflect::ImageWrapper::swapYAxis( _buffer.getData(), pvp.w, pvp.h,
                                      image.getPixelSize( Frame::BUFFER_COLOR ));
 
         // determine image offset wrt global view
@@ -114,26 +112,26 @@ public:
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        deflect::ImageWrapper imageWrapper( buffer.getData(), pvp.w, pvp.h,
-                                            deflect::BGRA, offsX, offsY );
-        imageWrapper.compressionPolicy = deflect::COMPRESSION_ON;
+        ::deflect::ImageWrapper imageWrapper( _buffer.getData(), pvp.w, pvp.h,
+                                              ::deflect::BGRA, offsX, offsY );
+        imageWrapper.compressionPolicy = ::deflect::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
 
         _sendFuture = _stream->asyncSend( imageWrapper );
     }
 
-    deflect::Stream* _stream;
+    ::deflect::Stream* _stream;
     EventHandler* _eventHandler;
-    eq::Channel* _channel;
-    lunchbox::Bufferb buffer;
-    deflect::Stream::Future _sendFuture;
+    Channel* _channel;
+    lunchbox::Bufferb _buffer;
+    ::deflect::Stream::Future _sendFuture;
     bool _running;
+    Proxy::NavigationMode _navigationMode;
 };
-}
 
 Proxy::Proxy( Channel* channel )
     : ResultImageListener()
-    , _impl( new detail::Proxy( channel ))
+    , _impl( new Impl( channel ))
 {
     channel->addResultImageListener( this );
 }
@@ -141,17 +139,16 @@ Proxy::Proxy( Channel* channel )
 Proxy::~Proxy()
 {
     _impl->_channel->removeResultImageListener( this );
-    delete _impl;
 }
 
-void Proxy::notifyNewImage( eq::Channel& channel, const eq::Image& image )
+void Proxy::notifyNewImage( Channel& channel, const Image& image )
 {
     _impl->notifyNewImage( channel, image );
 
     if( !_impl->_eventHandler && _impl->_stream->registerForEvents( true ))
     {
         _impl->_eventHandler = new EventHandler( this );
-        LBDEBUG << "Installed event handler for DisplayCluster" << std::endl;
+        LBDEBUG << "Installed event handler for Deflect proxy" << std::endl;
     }
 }
 
@@ -180,9 +177,31 @@ void Proxy::stopRunning()
     _impl->_running = false;
 }
 
-deflect::Event Proxy::getEvent() const
+::deflect::Event Proxy::getEvent() const
 {
     return _impl->_stream->getEvent();
+}
+
+void Proxy::setNavigationMode( Proxy::NavigationMode mode )
+{
+    _impl->_navigationMode = mode;
+}
+
+Proxy::NavigationMode Proxy::getNavigationMode() const
+{
+    return _impl->_navigationMode;
+}
+
+std::string Proxy::getHelp() const
+{
+    switch( _impl->_navigationMode )
+    {
+    case MODE_PAN:
+        return "Pan mode";
+    case MODE_ROTATE:
+    default:
+        return "Rotate mode";
+    }
 }
 
 }

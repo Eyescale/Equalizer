@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_DC_EVENTHANDLER_H
-#define EQ_DC_EVENTHANDLER_H
+#ifndef EQ_DEFLECT_EVENTHANDLER_H
+#define EQ_DEFLECT_EVENTHANDLER_H
 
 #include <eq/eventHandler.h> // base class
 #include <eq/types.h>        // basic typedefs
@@ -25,16 +25,16 @@
 
 namespace eq
 {
-namespace dc
+namespace deflect
 {
-/** @internal The event handler for one DisplayCluster view. */
+/** @internal The event handler for one Deflect stream. */
 class EventHandler : public eq::EventHandler
 {
 public:
-    /** Construct a new DisplayCluster event handler. @version 1.7.1 */
+    /** Construct a new Deflect event handler. @version 1.7.1 */
     explicit EventHandler( Proxy* proxy );
 
-    /** Destruct the DisplayCluster event handler. @version 1.7.1 */
+    /** Destruct the Deflect event handler. @version 1.7.1 */
     virtual ~EventHandler();
 
     /**
@@ -49,7 +49,7 @@ public:
     static void processEvents( const Proxy* proxy = 0 );
 
 private:
-    /** The corresponding DisplayCluster proxy instance. */
+    /** The corresponding Deflect proxy instance. */
     Proxy* const _proxy;
 
     void _processEvents( const Proxy* proxy );

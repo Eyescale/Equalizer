@@ -257,6 +257,18 @@ public:
     EQ_API virtual void applyOrthoTransform() const;
 
     /**
+     * Apply the state for pixel-based 2D overlay rendering operations.
+     * @version 1.11
+     */
+    EQ_API void applyOverlayState();
+
+    /**
+     * Reset the overlay state setup by applyOverlayState()
+     * @version 1.11
+     */
+    EQ_API void resetOverlayState();
+
+    /**
      * Rebind the window frame buffer.
      * @version 1.0
      */
@@ -567,6 +579,16 @@ protected:
      * @version 1.0
      */
     EQ_API virtual void frameViewFinish( const uint128_t& frameID );
+
+    /**
+     * Draw 2D overlay content on a destination channel.
+     *
+     * This is called by frameViewFinish().
+     *
+     * @param frameID the per-frame identifier.
+     * @version 1.11
+     */
+    EQ_API virtual void frameDrawOverlay( const uint128_t& frameID );
     //@}
 
     /** Start a batch of tile rendering operations. @version 1.1.6 */

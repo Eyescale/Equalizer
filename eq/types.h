@@ -265,7 +265,7 @@ class ExitVisitor; //!< @internal
 class FrameVisitor; //!< @internal
 }
 
-namespace dc { class Proxy; }
+namespace deflect { class Proxy; }
 /** @endcond */
 }
 

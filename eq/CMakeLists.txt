@@ -185,11 +185,11 @@ set(EQUALIZER_LINK_LIBRARIES
 
 if(DEFLECT_FOUND)
   list(APPEND EQUALIZER_SOURCES
-    dc/connection.h
-    dc/eventHandler.cpp
-    dc/eventHandler.h
-    dc/proxy.cpp
-    dc/proxy.h
+    deflect/connection.h
+    deflect/eventHandler.cpp
+    deflect/eventHandler.h
+    deflect/proxy.cpp
+    deflect/proxy.h
     )
   list(APPEND EQUALIZER_LINK_LIBRARIES Deflect)
 endif()

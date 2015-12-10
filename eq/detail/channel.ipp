@@ -25,7 +25,7 @@
 #include <boost/foreach.hpp>
 
 #ifdef EQUALIZER_USE_DEFLECT
-#  include "../dc/proxy.h"
+#  include "../deflect/proxy.h"
 #endif
 
 namespace eq
@@ -48,7 +48,7 @@ public:
         : state( STATE_STOPPED )
         , initialSize( Vector2i::ZERO )
 #ifdef EQUALIZER_USE_DEFLECT
-        , _dcProxy( 0 )
+        , _deflectProxy( 0 )
 #endif
         , _updateFrameBuffer( false )
     {
@@ -95,10 +95,10 @@ public:
         }
 
 #ifdef EQUALIZER_USE_DEFLECT
-        if( _dcProxy && !_dcProxy->isRunning( ))
+        if( _deflectProxy && !_deflectProxy->isRunning( ))
         {
-            delete _dcProxy;
-            _dcProxy = 0;
+            delete _deflectProxy;
+            _deflectProxy = 0;
         }
 #endif
 
@@ -165,7 +165,7 @@ public:
     eq::Image framebufferImage;
 
 #ifdef EQUALIZER_USE_DEFLECT
-    dc::Proxy* _dcProxy;
+    deflect::Proxy* _deflectProxy;
 #endif
 
     /** Dumps images when the channel is configured to do so */

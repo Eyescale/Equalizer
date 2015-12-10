@@ -30,7 +30,7 @@
 
 namespace eq
 {
-namespace dc
+namespace deflect
 {
 namespace
 {
@@ -39,7 +39,7 @@ static lunchbox::PerThread< EventHandlers > _eventHandlers;
 }
 
 EventHandler::EventHandler( Proxy* proxy )
-        : _proxy( proxy )
+    : _proxy( proxy )
 {
     LBASSERT( proxy );
 
@@ -47,19 +47,19 @@ EventHandler::EventHandler( Proxy* proxy )
         _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
-    eq::Pipe* pipe = proxy->getChannel()->getPipe();
+    Pipe* pipe = proxy->getChannel()->getPipe();
     MessagePump* messagePump = pipe->isThreaded() ? pipe->getMessagePump() :
                                             pipe->getConfig()->getMessagePump();
     if( messagePump )
         messagePump->register_( proxy );
     else
-        LBINFO << "Using dc::EventHandler without MessagePump, "
+        LBINFO << "Using deflect::EventHandler without MessagePump, "
                << "external event dispatch assumed" << std::endl;
 }
 
 EventHandler::~EventHandler()
 {
-    eq::Pipe* pipe = _proxy->getChannel()->getPipe();
+    Pipe* pipe = _proxy->getChannel()->getPipe();
     MessagePump* messagePump =
         dynamic_cast<MessagePump*>( pipe->isThreaded() ?
                                     pipe->getMessagePump() :
@@ -96,14 +96,14 @@ void EventHandler::_processEvents( const Proxy* proxy )
         return;
 
     const PixelViewport& pvp = _proxy->getChannel()->getPixelViewport();
-    eq::Channel* channel = _proxy->getChannel();
-    eq::Window* window = channel->getWindow();
+    Channel* channel = _proxy->getChannel();
+    Window* window = channel->getWindow();
 
     while( _proxy->hasNewEvent( ))
     {
-        const deflect::Event& dcEvent = _proxy->getEvent();
+        ::deflect::Event deflectEvent = _proxy->getEvent();
 
-        if( dcEvent.type == deflect::Event::EVT_CLOSE )
+        if( deflectEvent.type == ::deflect::Event::EVT_CLOSE )
         {
             _proxy->stopRunning();
             ConfigEvent configEvent;
@@ -117,63 +117,78 @@ void EventHandler::_processEvents( const Proxy* proxy )
         event.serial = channel->getSerial();
         event.type = Event::UNKNOWN;
 
-        const float x = dcEvent.mouseX * pvp.w;
-        const float y = dcEvent.mouseY * pvp.h;
+        const float x = deflectEvent.mouseX * pvp.w;
+        const float y = deflectEvent.mouseY * pvp.h;
 
-        switch( dcEvent.type )
+        if( _proxy-> getNavigationMode() == Proxy::MODE_PAN )
+            std::swap( deflectEvent.mouseLeft, deflectEvent.mouseRight );
+
+        switch( deflectEvent.type )
         {
-        case deflect::Event::EVT_KEY_PRESS:
-        case deflect::Event::EVT_KEY_RELEASE:
-            event.type = dcEvent.type == deflect::Event::EVT_KEY_PRESS ?
+        case ::deflect::Event::EVT_KEY_PRESS:
+        case ::deflect::Event::EVT_KEY_RELEASE:
+            event.type = deflectEvent.type == ::deflect::Event::EVT_KEY_PRESS ?
                                           Event::KEY_PRESS : Event::KEY_RELEASE;
-            event.keyPress.key = dcEvent.key;
+            event.keyPress.key = deflectEvent.key;
             break;
-        case deflect::Event::EVT_PRESS:
-        case deflect::Event::EVT_RELEASE:
-            event.type = dcEvent.type == deflect::Event::EVT_PRESS ?
+        case ::deflect::Event::EVT_PRESS:
+        case ::deflect::Event::EVT_RELEASE:
+            event.type = deflectEvent.type == ::deflect::Event::EVT_PRESS ?
                                           Event::CHANNEL_POINTER_BUTTON_PRESS :
                                           Event::CHANNEL_POINTER_BUTTON_RELEASE;
             event.pointerButtonPress.x = x;
             event.pointerButtonPress.y = y;
 
-            if( dcEvent.mouseLeft )
+            if( deflectEvent.mouseLeft )
                 event.pointerButtonPress.buttons |= PTR_BUTTON1;
-            if( dcEvent.mouseMiddle )
+            if( deflectEvent.mouseMiddle )
                 event.pointerButtonPress.buttons |= PTR_BUTTON2;
-            if( dcEvent.mouseRight )
+            if( deflectEvent.mouseRight )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
             event.pointerButtonPress.button = event.pointerButtonPress.buttons;
             _computePointerDelta( event );
             break;
-        case deflect::Event::EVT_DOUBLECLICK:
+        case ::deflect::Event::EVT_DOUBLECLICK:
             break;
-        case deflect::Event::EVT_MOVE:
+        case ::deflect::Event::EVT_MOVE:
             event.type = Event::CHANNEL_POINTER_MOTION;
             event.pointerMotion.x = x;
             event.pointerMotion.y = y;
 
-            if( dcEvent.mouseLeft )
+            if( deflectEvent.mouseLeft )
                 event.pointerButtonPress.buttons |= PTR_BUTTON1;
-            if( dcEvent.mouseMiddle )
+            if( deflectEvent.mouseMiddle )
                 event.pointerButtonPress.buttons |= PTR_BUTTON2;
-            if( dcEvent.mouseRight )
+            if( deflectEvent.mouseRight )
                 event.pointerButtonPress.buttons |= PTR_BUTTON3;
 
             event.pointerMotion.button = event.pointerMotion.buttons;
-            event.pointerMotion.dx = dcEvent.dx * pvp.w;
-            event.pointerMotion.dy = dcEvent.dy * pvp.h;
+            event.pointerMotion.dx = deflectEvent.dx * pvp.w;
+            event.pointerMotion.dy = deflectEvent.dy * pvp.h;
             break;
-        case deflect::Event::EVT_WHEEL:
+        case ::deflect::Event::EVT_WHEEL:
             event.type = Event::CHANNEL_POINTER_WHEEL;
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
             event.pointerWheel.buttons = PTR_BUTTON_NONE;
-            event.pointerWheel.xAxis = dcEvent.dx / 40.f;
-            event.pointerWheel.yAxis = dcEvent.dy / 40.f;
-            event.pointerMotion.dx = -dcEvent.dx;
-            event.pointerMotion.dy = -dcEvent.dy;
+            event.pointerWheel.xAxis = deflectEvent.dx / 40.f;
+            event.pointerWheel.yAxis = deflectEvent.dy / 40.f;
+            event.pointerMotion.dx = -deflectEvent.dx;
+            event.pointerMotion.dy = -deflectEvent.dy;
             break;
-        case deflect::Event::EVT_NONE:
+        case ::deflect::Event::EVT_TAP_AND_HOLD:
+        {
+            const Proxy::NavigationMode mode =
+                    _proxy->getNavigationMode() == Proxy::MODE_PAN
+                        ? Proxy::MODE_ROTATE : Proxy::MODE_PAN;
+            _proxy->setNavigationMode( mode );
+            Event windowEvent;
+            windowEvent.originator = window->getID();
+            windowEvent.serial = window->getSerial();
+            windowEvent.type = Event::WINDOW_EXPOSE;
+            window->processEvent( windowEvent );
+        } break;
+        case ::deflect::Event::EVT_NONE:
         default:
             break;
         }
