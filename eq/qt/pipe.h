@@ -38,7 +38,7 @@ public:
     EQ_API bool configInit() override;
 
     /** De-initialize the GPU. @version 1.10 */
-    void configExit() {}
+    void configExit() override {}
 };
 
 }

@@ -411,7 +411,7 @@ WindowSystem Pipe::selectWindowSystem() const
 #elif WGL
     return WindowSystem( "WGL" );
 #elif EQ_QT_USED
-    if( !pipe.isWindowSystemAvailable( "Qt" ))
+    if( !isWindowSystemAvailable( "Qt" ))
     {
         // Throwing because there's no reasonable alternative.
         std::stringstream msg;
