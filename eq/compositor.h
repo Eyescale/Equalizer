@@ -86,10 +86,9 @@ class EQ_API Compositor
      * @return the number of different subpixel steps assembled.
      * @version 1.0
      */
-    static uint32_t assembleFramesSorted( const Frames& frames,
-                                          Channel* channel,
-                                          util::Accum* accum,
-                                          const bool blendAlpha = false );
+    static uint32_t blendFrames( const Frames& frames, Channel* channel,
+                                 util::Accum* accum );
+
 
     /**
      * Assemble all frames in the order they become available directly on the

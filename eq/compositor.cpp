@@ -231,9 +231,8 @@ util::Accum* Compositor::_obtainAccum( Channel* channel )
     return accum;
 }
 
-uint32_t Compositor::assembleFramesSorted( const Frames& frames,
-                                           Channel* channel, util::Accum* accum,
-                                           const bool blendAlpha )
+uint32_t Compositor::blendFrames( const Frames& frames, Channel* channel,
+                                  util::Accum* accum )
 {
     if( frames.empty( ))
         return 0;
@@ -263,8 +262,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         while( !framesLeft.empty( ))
         {
             Frames current = _extractOneSubPixel( framesLeft );
-            const uint32_t subCount = assembleFramesSorted( current, channel,
-                                                            accum, blendAlpha );
+            const uint32_t subCount = blendFrames( current, channel, accum );
             LBASSERT( subCount < 2 );
 
             if( subCount > 0 )
@@ -276,16 +274,13 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         return count;
     }
 
-    if( blendAlpha )
-    {
-        glEnable( GL_BLEND );
-        LBASSERT( GLEW_EXT_blend_func_separate );
-        glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
-    }
+    glEnable( GL_BLEND );
+    LBASSERT( GLEW_EXT_blend_func_separate );
+    glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 
     uint32_t count = 0;
-    if( _useCPUAssembly( frames, channel, blendAlpha ))
-        count |= assembleFramesCPU( frames, channel, blendAlpha );
+    if( _useCPUAssembly( frames, channel, true ))
+        count |= assembleFramesCPU( frames, channel, true );
     else
     {
         const uint32_t timeout = channel->getConfig()->getTimeout();
@@ -307,9 +302,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         }
     }
 
-    if( blendAlpha )
-        glDisable( GL_BLEND );
-
+    glDisable( GL_BLEND );
     return count;
 }
 
