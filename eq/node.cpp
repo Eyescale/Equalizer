@@ -712,7 +712,7 @@ bool Node::_cmdFrameDataTransmit( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
 
     const co::ObjectVersion& frameDataVersion =
-                                             command.read< co::ObjectVersion >();
+                                            command.read< co::ObjectVersion >();
     const PixelViewport& pvp = command.read< PixelViewport >();
     const Zoom& zoom = command.read< Zoom >();
     const uint32_t buffers = command.read< uint32_t >();
@@ -747,7 +747,8 @@ bool Node::_cmdFrameDataReady( co::ICommand& cmd )
 
     const co::ObjectVersion& frameDataVersion =
                                             command.read< co::ObjectVersion >();
-    const fabric::FrameData& data = command.read< fabric::FrameData >();
+    fabric::FrameData data;
+    data.deserialize( command );
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << frameDataVersion
                           << std::endl;

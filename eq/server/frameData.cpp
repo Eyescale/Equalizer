@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,19 +29,18 @@ namespace server
 FrameData::FrameData()
     : _frameNumber( 0 )
 {
-    _data.buffers = fabric::Frame::BUFFER_UNDEFINED;
-    _data.frameType = fabric::Frame::TYPE_MEMORY;
+    setBuffers( fabric::Frame::BUFFER_UNDEFINED );
 }
 
 void FrameData::getInstanceData( co::DataOStream& os )
 {
-    _data.serialize( os );
+    serialize( os );
 }
 
 void FrameData::applyInstanceData( co::DataIStream& is )
 {
     LBUNREACHABLE;
-    _data.deserialize( is );
+    deserialize( is );
 }
 
 }

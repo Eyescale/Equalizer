@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
@@ -1365,7 +1365,6 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
     uint32_t commandBuffers = Frame::BUFFER_NONE;
     uint64_t imageDataSize = 0;
-
     {
         uint64_t rawSize( 0 );
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS,
@@ -1891,10 +1890,11 @@ bool Channel::_cmdFrameSetReadyNode( co::ICommand& cmd )
                     << frameNumber << std::endl;
             continue;
         }
-        co::ObjectOCommand( co::Connections( 1, toNode->getConnection( )),
+        co::ObjectOCommand os( co::Connections( 1, toNode->getConnection( )),
                             fabric::CMD_NODE_FRAMEDATA_READY,
-                            co::COMMANDTYPE_OBJECT, *i, CO_INSTANCE_ALL )
-            << frameDataVersion << frameData->getData();
+                               co::COMMANDTYPE_OBJECT, *i, CO_INSTANCE_ALL );
+        os << frameDataVersion;
+        frameData->serialize( os );
     }
 
     _unrefFrame( frameNumber );

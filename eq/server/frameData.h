@@ -28,7 +28,7 @@ namespace eq
 namespace server
 {
 /** A holder for a Frame Data and parameters. */
-class FrameData : public co::Object
+class FrameData : public fabric::FrameData, public co::Object
 {
 public:
     /** Construct a new FrameData. */
@@ -40,47 +40,14 @@ public:
     void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
     uint32_t getFrameNumber() const { return _frameNumber; }
 
-    /** Set the data's area within the channel */
-    void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
-
     /** Set the position of the data relative to the window. */
     void setOffset( const Vector2i& offset ) { _offset = offset; }
     /** @return the position of the data relative to the window. */
     const Vector2i& getOffset() const { return _offset; }
 
-    /** Set the (color, depth) buffers of the source frame. */
-    void setBuffers( const uint32_t buffers ) { _data.buffers = buffers; }
-    uint32_t getBuffers() const { return _data.buffers; }
-
-    /** Set the source range wrt dest channel. */
-    void setRange( const Range& range ) { _data.range = range; }
-
-    /** Set the source pixel decomposition wrt dest channel. */
-    void setPixel( const Pixel& pixel ) { _data.pixel = pixel; }
-
-    /** Set the source pixel decomposition wrt dest channel. */
-    void setSubPixel( const SubPixel& subpixel ) { _data.subpixel = subpixel; }
-
-    /** Set the source DPlex period wrt dest channel. */
-    void setPeriod( const uint32_t period ) { _data.period = period; }
-
-    /** Set the source DPlex phase wrt dest channel. */
-    void setPhase( const uint32_t phase ) { _data.phase = phase; }
-
     /** Set the output frame zoom factor. */
-    void setZoom( const Zoom& zoom ) { _zoom = zoom; }
+    void setZoom( const Zoom& zoom_ ) { _zoom = zoom_; }
     const Zoom& getZoom() const { return _zoom; }
-
-    /** return the frame storage type. */
-    fabric::Frame::Type getType() const { return _data.frameType; }
-
-    /**
-     * Set the frame storage type.
-     *
-     * @param type frame storage type.
-     */
-    // cppcheck-suppress passedByValue
-    void setType( const fabric::Frame::Type type ) { _data.frameType = type; }
     //@}
 
 protected:
@@ -91,7 +58,6 @@ protected:
 
 private:
     friend class Frame;
-    fabric::FrameData _data;
 
     /** The zoom factor of the output frame after readback. */
     Zoom _zoom;
