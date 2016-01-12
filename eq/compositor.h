@@ -81,15 +81,11 @@ class EQ_API Compositor
      * @param frames the frames to assemble.
      * @param channel the destination channel.
      * @param accum the accumulation buffer.
-     * @param blendAlpha blend color-only images if they have an alpha
-     *                   channel
      * @return the number of different subpixel steps assembled.
-     * @version 1.0
+     * @version 1.11
      */
-    static uint32_t assembleFramesSorted( const Frames& frames,
-                                          Channel* channel,
-                                          util::Accum* accum,
-                                          const bool blendAlpha = false );
+    static uint32_t blendFrames( const Frames& frames, Channel* channel,
+                                 util::Accum* accum );
 
     /**
      * Assemble all frames in the order they become available directly on the

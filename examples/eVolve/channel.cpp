@@ -359,8 +359,7 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
     // blend DB frames in order
     try
     {
-        eq::Compositor::assembleFramesSorted( dbFrames, this, 0,
-                                              true /*blendAlpha*/ );
+        eq::Compositor::blendFrames( dbFrames, this, 0 );
     }
     catch( const co::Exception& e )
     {
