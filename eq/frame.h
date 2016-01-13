@@ -2,6 +2,7 @@
 /* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Enrique <egparedes@ifi.uzh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -169,12 +170,14 @@ public:
      * @param glObjects the GL object manager for the current GL context.
      * @param config the configuration of the source frame buffer.
      * @param regions the areas to read back.
+     * @param context the render context producing the pixel data.
      * @return the new images which need finishReadback.
      * @version 1.3.2
      */
     EQ_API Images startReadback( util::ObjectManager& glObjects,
                                  const DrawableConfig& config,
-                                 const PixelViewports& regions );
+                                 const PixelViewports& regions,
+                                 const RenderContext& context );
 
     /**
      * Set the frame ready.

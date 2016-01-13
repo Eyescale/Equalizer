@@ -1,7 +1,8 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Enrique <egparedes@ifi.uzh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -126,6 +127,9 @@ public:
 
     /** @return zoom factor to be used for compositing. */
     EQ_API const Zoom& getZoom() const;
+
+    /** @return the rendering context which created this image, or a default. */
+    EQ_API const RenderContext& getContext() const;
 
     /**
      * Set a compressor to be used during transmission of the image.
@@ -277,37 +281,19 @@ public:
 
     /** @name Operations */
     //@{
-#ifndef EQ_2_0_API
-    /**
-     * Read back an image from the frame buffer.
-     *
-     * @param buffers bit-wise combination of the Frame::Buffer components.
-     * @param pvp the area of the frame buffer wrt the drawable.
-     * @param zoom the scale factor to apply during readback.
-     * @param glObjects the GL object manager for the current GL context.
-     * @return true when data was read back, false on error.
-     * @version 1.0
-     * @deprecated @sa startReadback(), finishReadback()
-     */
-    EQ_API bool readback( const uint32_t buffers, const PixelViewport& pvp,
-                          const Zoom& zoom, util::ObjectManager& glObjects);
-
-    /* @deprecated Use finishReadback without Zoom */
-    EQ_API void finishReadback( const Zoom&, const GLEWContext* );
-#endif
-
     /**
      * Start reading back an image from the frame buffer.
      *
      * @param buffers bit-wise combination of the Frame::Buffer components.
      * @param pvp the area of the frame buffer wrt the drawable.
+     * @param context the render context producing the pixel data.
      * @param zoom the scale factor to apply during readback.
      * @param glObjects the GL object manager for the current GL context.
      * @return true when the operation requires a finishReadback().
      * @version 1.3.2
      */
-    EQ_API bool startReadback( const uint32_t buffers,
-                               const PixelViewport& pvp, const Zoom& zoom,
+    EQ_API bool startReadback( const uint32_t buffers, const PixelViewport& pvp,
+                               const RenderContext& context, const Zoom& zoom,
                                util::ObjectManager& glObjects );
 
     /** @internal Start reading back data from a texture. */
@@ -391,6 +377,9 @@ public:
 
     /** @internal */
     EQ_API uint32_t getDownloaderName( const Frame::Buffer buffer ) const;
+
+    /** @internal render context for received image */
+    EQ_API void setContext( const RenderContext& context );
     //@}
 
 private:

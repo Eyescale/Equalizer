@@ -852,7 +852,6 @@ void Channel::declareRegion( const PixelViewport& region )
         regions.push_back( PixelViewport( 0, 0, 0, 0 ));
 }
 
-
 PixelViewport Channel::getRegion() const
 {
     PixelViewport region;

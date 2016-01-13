@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Enrique <egparedes@ifi.uzh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -133,23 +134,6 @@ public:
     /** Deallocate all transfer and compression plugins on all images. */
     EQ_API void resetPlugins();
 
-#ifndef EQ_2_0_API
-    /**
-     * Read back an image for this frame data.
-     *
-     * The newly read image is added to the data using newImage(). Existing
-     * images are retained.
-     *
-     * @param frame the corresponding output frame holder.
-     * @param glObjects the GL object manager for the current GL context.
-     * @param config the configuration of the source frame buffer.
-     * @version 1.0
-     * @deprecated @sa startReadback()
-     */
-    void readback( const Frame& frame, util::ObjectManager& glObjects,
-                   const DrawableConfig& config );
-#endif
-
     /**
      * Start reading back a set of images for this frame data.
      *
@@ -160,13 +144,15 @@ public:
      * @param glObjects the GL object manager for the current GL context.
      * @param config the configuration of the source frame buffer.
      * @param regions the areas to read back.
+     * @param context the render context producing the pixel data.
      * @return the new images which need finishReadback.
      * @version 1.3.0
      */
     Images startReadback( const Frame& frame,
                           util::ObjectManager& glObjects,
                           const DrawableConfig& config,
-                          const PixelViewports& regions );
+                          const PixelViewports& regions,
+                          const RenderContext& context );
 
     /**
      * Set the frame data ready.

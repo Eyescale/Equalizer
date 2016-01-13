@@ -842,7 +842,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     {
         const Image* image = *i;
         ImageOp op = operation;
-        op.zoom.apply( image->getZoom() );
+        op.zoom.apply( image->getZoom( ));
         op.zoomFilter = (operation.zoom == Zoom::NONE) ?
                                         FILTER_NEAREST : frame->getZoomFilter();
         assembleImage( image, op );

@@ -173,8 +173,8 @@ void Channel::_testFormats( float applyZoom )
                 clock.reset();
                 while( clock.getTime64() < 100 /*ms*/ )
                 {
-                    image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom,
-                                          glObjects );
+                    image->startReadback( eq::Frame::BUFFER_COLOR, pvp,
+                                          getContext(), zoom, glObjects );
                     image->finishReadback( glObjects.glewGetContext( ));
                     ++nLoops;
                 }
@@ -247,7 +247,7 @@ void Channel::_testTiledOperations()
     LBASSERT( images[0] );
 
     const eq::PixelViewport& pvp    = getPixelViewport();
-    const eq::Vector2i     offset( pvp.x, pvp.y );
+    const eq::Vector2i offset( pvp.x, pvp.y );
 
     eq::Vector2i area;
     area.x() = pvp.w;
@@ -286,7 +286,7 @@ void Channel::_testTiledOperations()
             image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP,
+            image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP, getContext(),
                                   eq::Zoom::NONE, glObjects );
             image->finishReadback( glObjects.glewGetContext( ));
             msec += clock.getTimef();
@@ -316,7 +316,7 @@ void Channel::_testTiledOperations()
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, getContext(),
                                   eq::Zoom::NONE, glObjects );
             image->finishReadback( glObjects.glewGetContext( ));
             msec += clock.getTimef();
@@ -408,7 +408,7 @@ void Channel::_testDepthAssemble()
         image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
         image->startReadback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
-                              pvp, eq::Zoom::NONE, glObjects );
+                              pvp, getContext(), eq::Zoom::NONE, glObjects );
         image->finishReadback( glObjects.glewGetContext( ));
         LBASSERT( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
         LBASSERT( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));

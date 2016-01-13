@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -278,6 +278,9 @@ public:
 
     /** @warning Undocumented - may not be supported in the future */
     uint32_t getTaskID() const { return _context->taskID; }
+
+    /** @internal @return the current render context. */
+    const RenderContext& getContext() const { return *_context; }
     //@}
 
     /** @name Attributes */
@@ -344,13 +347,11 @@ protected:
     /** @name Render context access */
     //@{
     /** @internal Override the channel's native render context. */
-    void overrideContext( RenderContext& context ) { _context = &context; }
+    void overrideContext( const RenderContext& context )
+        { _data.overrideContext = context; _context = &_data.overrideContext; }
 
     /** @internal Re-set the channel's native render context. */
     void resetContext() { _context = &_data.nativeContext; }
-
-    /** @internal @return the current render context. */
-    const RenderContext& getContext() const { return *_context; }
 
     /** @internal @return the native render context. */
     const RenderContext& getNativeContext() const
@@ -397,6 +398,9 @@ private:
         /** The native render context parameters of this channel. */
         RenderContext nativeContext;
 
+        /** Overridden context data. */
+        RenderContext overrideContext;
+
         /** Bitmask of supported capabilities */
         uint64_t capabilities;
 
@@ -405,7 +409,7 @@ private:
     }
         _data, _backup;
 
-    /** The current rendering context. */
+    /** The current rendering context, points to native or override context. */
     RenderContext* _context;
 
     /** Integer attributes. */
