@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 
 #include "config.h"
 #include "configEvent.h"
+#include "eqPly.h"
 #include "view.h"
 #include "modelAssigner.h"
 
@@ -636,8 +637,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'r':
         case 'R':
-            _frameData.toggleRenderMode();
+        {
+            std::ostringstream os;
+            os << "Switched to " <<  _frameData.toggleRenderMode();
+            _setMessage( os.str( ));
             return true;
+        }
         case 'g':
         case 'G':
             _switchViewMode();
@@ -920,10 +925,10 @@ void Config::_adjustEyeBase( const float delta )
         observer->setEyePosition( eq::EYE_RIGHT,
                                   observer->getEyePosition( eq::EYE_RIGHT ) +
                                   eq::Vector3f( delta, 0.f, 0.f ));
-        std::ostringstream stream;
-        stream << "Set eyes to " << observer->getEyePosition( eq::EYE_LEFT )
-               << ", " <<  observer->getEyePosition( eq::EYE_RIGHT );
-        _setMessage( stream.str( ));
+        std::ostringstream os;
+        os << "Set eyes to " << observer->getEyePosition( eq::EYE_LEFT ) << ", "
+           <<  observer->getEyePosition( eq::EYE_RIGHT );
+        _setMessage( os.str( ));
     }
 }
 
