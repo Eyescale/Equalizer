@@ -204,6 +204,7 @@ void Channel::_testFormats( float applyZoom )
 
             // write
             eq::Compositor::ImageOp op;
+            op.image = image;
             op.channel = this;
             op.buffers = eq::Frame::BUFFER_COLOR;
             op.offset = offset;
@@ -214,7 +215,7 @@ void Channel::_testFormats( float applyZoom )
             try
             {
                 clock.reset();
-                eq::Compositor::assembleImage( image, op );
+                eq::Compositor::assembleImage( op );
                 glFinish();
                 const float msec = clock.getTimef() / float( nLoops );
                 const GLenum error = glGetError(); // release mode
@@ -341,8 +342,10 @@ void Channel::_testTiledOperations()
 
         clock.reset();
         for( unsigned j = 0; j <= tiles; ++j )
-            eq::Compositor::assembleImage( images[j], op );
-
+        {
+            op.image = images[j];
+            eq::Compositor::assembleImage( op );
+        }
         msec = clock.getTimef();
         _sendEvent( ASSEMBLE, msec, area, formatType.str(), 0, 0 );
 
@@ -429,8 +432,10 @@ void Channel::_testDepthAssemble()
 
         clock.reset();
         for( unsigned j = 0; j <= i; ++j )
-            eq::Compositor::assembleImageDB_FF( images[j], op );
-
+        {
+            op.image = images[j];
+            eq::Compositor::assembleImageDB_FF( op );
+        }
         float msec = clock.getTimef();
         _sendEvent( ASSEMBLE, msec, area, formatType.str(), 0, 0 );
 
@@ -442,7 +447,10 @@ void Channel::_testDepthAssemble()
 
             clock.reset();
             for( unsigned j = 0; j <= i; ++j )
-                eq::Compositor::assembleImageDB_GLSL( images[j], op );
+            {
+                op.image = images[j];
+                eq::Compositor::assembleImageDB_GLSL( op );
+            }
             msec = clock.getTimef();
             _sendEvent( ASSEMBLE, msec, area, formatType.str(), 0, 0 );
         }

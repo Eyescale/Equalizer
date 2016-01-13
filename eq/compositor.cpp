@@ -518,9 +518,10 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,
 
     // assemble result on dest channel
     ImageOp operation;
+    operation.image = result;
     operation.channel = channel;
     operation.buffers = Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
-    assembleImage( result, operation );
+    assembleImage( operation );
 
 #if 0
     static uint32_t counter = 0;
@@ -835,21 +836,22 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.buffers = frame->getBuffers();
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
-    operation.zoom    = frame->getZoom();
-    operation.zoom.apply( frame->getFrameData()->getZoom( ));
 
-    for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
+    Zoom frameZoom = frame->getZoom();
+    frameZoom.apply( frame->getFrameData()->getZoom( ));
+
+    for( const Image* image : images )
     {
-        const Image* image = *i;
-        ImageOp op = operation;
-        op.zoom.apply( image->getZoom( ));
-        op.zoomFilter = (operation.zoom == Zoom::NONE) ?
+        operation.image = image;
+        operation.zoom = frameZoom;
+        operation.zoom.apply( image->getZoom( ));
+        operation.zoomFilter = (operation.zoom == Zoom::NONE) ?
                                         FILTER_NEAREST : frame->getZoomFilter();
-        assembleImage( image, op );
+        assembleImage( operation );
     }
 }
 
-void Compositor::assembleImage( const Image* image, const ImageOp& op )
+void Compositor::assembleImage( const ImageOp& op )
 {
     const bool coreProfile = op.channel->getWindow()->getIAttribute(
                 WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
@@ -867,8 +869,8 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     for( unsigned i = 0; i<2; ++i )
     {
         if( (op.buffers & buffer[i]) &&
-            ( image->hasPixelData( buffer[i] ) ||
-              image->hasTextureData( buffer[i] )) )
+            ( op.image->hasPixelData( buffer[i] ) ||
+              op.image->hasTextureData( buffer[i] )) )
         {
             operation.buffers |= buffer[i];
         }
@@ -880,12 +882,12 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
         return;
     }
 
-    setupStencilBuffer( image, operation );
+    setupStencilBuffer( operation );
 
     if( operation.buffers == Frame::BUFFER_COLOR )
-        assembleImage2D( image, operation );
+        assembleImage2D( operation );
     else if( operation.buffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
-        assembleImageDB( image, operation );
+        assembleImageDB( operation );
     else
         LBWARN << "Don't know how to assemble using buffers "
                << operation.buffers << std::endl;
@@ -893,7 +895,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     clearStencilBuffer( operation );
 }
 
-void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
+void Compositor::setupStencilBuffer( const ImageOp& op )
 {
     if( op.pixel == Pixel::ALL )
         return;
@@ -911,7 +913,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     EQ_GL_CALL( glDepthMask( false ));
     EQ_GL_CALL( glColorMask( false, false, false, false ));
 
-    const PixelViewport& pvp = image->getPixelViewport();
+    const PixelViewport& pvp = op.image->getPixelViewport();
 
     EQ_GL_CALL( glPixelZoom( float( op.pixel.w ), float( op.pixel.h )));
 
@@ -976,32 +978,31 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
     EQ_GL_CALL( glDisable( GL_STENCIL_TEST ));
 }
 
-void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
+void Compositor::assembleImage2D( const ImageOp& op )
 {
     // cppcheck-suppress unreadVariable
     Channel* channel = op.channel;
 
     if( GLEW_VERSION_3_3 )
-        _drawPixelsGLSL( image, op, Frame::BUFFER_COLOR );
+        _drawPixelsGLSL( op, Frame::BUFFER_COLOR );
     else
-        _drawPixelsFF( image, op, Frame::BUFFER_COLOR );
-    declareRegion( image, op );
+        _drawPixelsFF( op, Frame::BUFFER_COLOR );
+    declareRegion( op );
 #if 0
     static lunchbox::a_int32_t counter;
     std::ostringstream stringstream;
     stringstream << "Image_" << ++counter;
-    image->writeImages( stringstream.str( ));
+    op.image->writeImages( stringstream.str( ));
 #endif
 }
 
-void Compositor::_drawPixelsFF( const Image* image, const ImageOp& op,
-                                const Frame::Buffer which )
+void Compositor::_drawPixelsFF( const ImageOp& op, const Frame::Buffer which )
 {
-    const PixelViewport& pvp = image->getPixelViewport();
+    const PixelViewport& pvp = op.image->getPixelViewport();
     LBLOG( LOG_ASSEMBLY ) << "_drawPixelsFF " << pvp << " offset " << op.offset
                           << std::endl;
 
-    if( !_setupDrawPixels( image, op, which ))
+    if( !_setupDrawPixels( op, which ))
         return;
 
     const Vector4f& coords = _getCoords( op, pvp );
@@ -1038,14 +1039,13 @@ void Compositor::_drawPixelsFF( const Image* image, const ImageOp& op,
     }
 }
 
-void Compositor::_drawPixelsGLSL( const Image* image, const ImageOp& op,
-                                  const Frame::Buffer which )
+void Compositor::_drawPixelsGLSL( const ImageOp& op, const Frame::Buffer which )
 {
-    const PixelViewport& pvp = image->getPixelViewport();
+    const PixelViewport& pvp = op.image->getPixelViewport();
     LBLOG( LOG_ASSEMBLY ) << "_drawPixelsGLSL " << pvp << " offset "
                           << op.offset << std::endl;
 
-    if( !_setupDrawPixels( image, op, which ))
+    if( !_setupDrawPixels( op, which ))
         return;
 
     _drawTexturedQuad( op.channel, op, pvp, false );
@@ -1061,22 +1061,21 @@ void Compositor::_drawPixelsGLSL( const Image* image, const ImageOp& op,
     }
 }
 
-bool Compositor::_setupDrawPixels( const Image* image, const ImageOp& op,
-                                   const Frame::Buffer which )
+bool Compositor::_setupDrawPixels( const ImageOp& op, const Frame::Buffer which)
 {
     Channel* channel = op.channel; // needed for glewGetContext
-    const PixelViewport& pvp = image->getPixelViewport();
+    const PixelViewport& pvp = op.image->getPixelViewport();
     const util::Texture* texture = 0;
-    if( image->getStorageType() == Frame::TYPE_MEMORY )
+    if( op.image->getStorageType() == Frame::TYPE_MEMORY )
     {
-        LBASSERT( image->hasPixelData( which ));
+        LBASSERT( op.image->hasPixelData( which ));
         util::ObjectManager& objects = channel->getObjectManager();
 
         const bool coreProfile = channel->getWindow()->getIAttribute(
                     WindowSettings::IATTR_HINT_CORE_PROFILE ) == ON;
         if( op.zoom == Zoom::NONE && !coreProfile )
         {
-            image->upload( which, 0, op.offset, objects );
+            op.image->upload( which, 0, op.offset, objects );
             return false;
         }
         util::Texture* ncTexture = objects.obtainEqTexture(
@@ -1085,12 +1084,12 @@ bool Compositor::_setupDrawPixels( const Image* image, const ImageOp& op,
         texture = ncTexture;
 
         const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
-        image->upload( which, ncTexture, offset, objects );
+        op.image->upload( which, ncTexture, offset, objects );
     }
     else // texture image
     {
-        LBASSERT( image->hasTextureData( which ));
-        texture = &image->getTexture( which );
+        LBASSERT( op.image->hasTextureData( which ));
+        texture = &op.image->getTexture( which );
     }
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
@@ -1241,23 +1240,21 @@ void Compositor::_drawTexturedQuad( const T* key, const ImageOp& op,
         EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
 }
 
-void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
+void Compositor::assembleImageDB( const ImageOp& op )
 {
     // cppcheck-suppress unreadVariable
     Channel* channel = op.channel;
 
     if( GLEW_VERSION_3_3 )
-        assembleImageDB_GLSL( image, op );
+        assembleImageDB_GLSL( op );
     else
-        assembleImageDB_FF( image, op );
+        assembleImageDB_FF( op );
 }
 
-void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
+void Compositor::assembleImageDB_FF( const ImageOp& op )
 {
-    const PixelViewport& pvp = image->getPixelViewport();
-
-    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB_FF " << pvp
-                          << std::endl;
+    const PixelViewport& pvp = op.image->getPixelViewport();
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB_FF " << pvp << std::endl;
 
     // Z-Based sort-last assembly
     EQ_GL_CALL( glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y ));
@@ -1278,7 +1275,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
         EQ_GL_CALL( glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE ));
     }
 
-    _drawPixelsFF( image, op, Frame::BUFFER_DEPTH );
+    _drawPixelsFF( op, Frame::BUFFER_DEPTH );
 
     EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
 
@@ -1286,27 +1283,28 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     EQ_GL_CALL( glStencilFunc( GL_EQUAL, 1, 1 ));
     EQ_GL_CALL( glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO ));
 
-    _drawPixelsFF( image, op, Frame::BUFFER_COLOR );
+    _drawPixelsFF( op, Frame::BUFFER_COLOR );
 
     EQ_GL_CALL( glDisable( GL_STENCIL_TEST ));
-    declareRegion( image, op );
+    declareRegion( op );
 }
 
-void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
+void Compositor::assembleImageDB_GLSL( const ImageOp& op )
 {
-    const PixelViewport& pvp = image->getPixelViewport();
+    const PixelViewport& pvp = op.image->getPixelViewport();
     LBLOG( LOG_ASSEMBLY ) << "assembleImageDB_GLSL " << pvp << std::endl;
 
     Channel* channel = op.channel; // needed for glewGetContext
     util::ObjectManager& om = channel->getObjectManager();
-    const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
+    const bool useImageTexture =
+        op.image->getStorageType() == Frame::TYPE_TEXTURE;
 
     const util::Texture* textureColor = 0;
     const util::Texture* textureDepth = 0;
     if ( useImageTexture )
     {
-        textureColor = &image->getTexture( Frame::BUFFER_COLOR );
-        textureDepth = &image->getTexture( Frame::BUFFER_DEPTH );
+        textureColor = &op.image->getTexture( Frame::BUFFER_COLOR );
+        textureDepth = &op.image->getTexture( Frame::BUFFER_DEPTH );
     }
     else
     {
@@ -1316,8 +1314,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                                                      GL_TEXTURE_RECTANGLE_ARB );
         const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
 
-        image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, om );
-        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, om );
+        op.image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, om );
+        op.image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, om );
 
         textureColor = ncTextureColor;
         textureDepth = ncTextureDepth;
@@ -1333,15 +1331,15 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 
     _drawTexturedQuad( shaderDBKey, op, pvp, true );
 
-    declareRegion( image, op );
+    declareRegion( op );
 }
 
-void Compositor::declareRegion( const Image* image, const ImageOp& op )
+void Compositor::declareRegion( const ImageOp& op )
 {
     if( !op.channel )
         return;
 
-    const eq::PixelViewport area = image->getPixelViewport() + op.offset;
+    const eq::PixelViewport area = op.image->getPixelViewport() + op.offset;
     op.channel->declareRegion( area );
 }
 

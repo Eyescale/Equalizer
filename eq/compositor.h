@@ -45,10 +45,10 @@ class EQ_API Compositor
     /** A structure describing an image assembly task. */
     struct ImageOp
     {
-        ImageOp() : channel( 0 ), buffers( 0 )
-                  , offset( Vector2i::ZERO )
-                  , zoomFilter( FILTER_LINEAR ) {}
+        ImageOp() : image( 0 ), channel( 0 ), buffers( 0 )
+                  , offset( Vector2i::ZERO ) , zoomFilter( FILTER_LINEAR ) {}
 
+        const Image* image;    //!< The image to assemble
         Channel* channel;      //!< The destination channel
         uint32_t buffers;      //!< The Frame buffer attachments to use
         Vector2i offset;       //!< The offset wrt destination window
@@ -150,20 +150,16 @@ class EQ_API Compositor
     /**
      * Assemble an image into the frame buffer.
      *
-     * @param image the input image.
      * @param operation an ImageOp struct describing the operation.
      */
-    static void assembleImage( const Image* image,
-                               const ImageOp& operation );
+    static void assembleImage( const ImageOp& operation );
 
     /**
      * Setup the stencil buffer for a pixel compound recomposition.
      *
-     * @param image the image to be assembled.
      * @param operation the assembly parameters.
      */
-    static void setupStencilBuffer( const Image* image,
-                                    const ImageOp& operation );
+    static void setupStencilBuffer( const ImageOp& operation );
 
     /**
      * Clear the stencil buffer after a pixel compound recomposition.
@@ -186,22 +182,21 @@ class EQ_API Compositor
     static void resetAssemblyState();
 
     /** Start a tile-based assembly of the image color attachment. */
-    static void assembleImage2D( const Image* image, const ImageOp& op );
+    static void assembleImage2D( const ImageOp& op );
     /** Start a Z-based assembly of the image color and depth attachment. */
-    static void assembleImageDB( const Image* image, const ImageOp& op );
+    static void assembleImageDB( const ImageOp& op );
 
     /**
      * Start a Z-based assembly of the image color and depth attachment, based
      * on OpenGL 1.1 functionality.
      */
-    static void assembleImageDB_FF( const Image* image, const ImageOp& op );
+    static void assembleImageDB_FF( const ImageOp& op );
 
     /**
      * Start a Z-based assembly of the image color and depth attachment,
      * using GLSL.
      */
-    static void assembleImageDB_GLSL( const Image* image,
-                                      const ImageOp& op );
+    static void assembleImageDB_GLSL( const ImageOp& op );
     //@}
 
     /** @name Region of Interest. */
@@ -212,7 +207,7 @@ class EQ_API Compositor
      * Called from all assembleImage methods.
      * @version 1.3
      */
-    static void declareRegion( const Image* image, const ImageOp& op );
+    static void declareRegion( const ImageOp& op );
     //@}
 
     /** @name Early assembly. */
@@ -279,19 +274,15 @@ class EQ_API Compositor
     /**
      * draw an image to the frame buffer using a texture quad or drawPixels.
      */
-    static void _drawPixelsFF( const Image* image, const ImageOp& op,
-                               const Frame::Buffer which );
+    static void _drawPixelsFF( const ImageOp& op, Frame::Buffer which );
+    static void _drawPixelsGLSL( const ImageOp& op, Frame::Buffer which );
 
-    static void _drawPixelsGLSL( const Image* image, const ImageOp& op,
-                                 const Frame::Buffer which );
-
-    static bool _setupDrawPixels( const Image* image, const ImageOp& op,
-                                  const Frame::Buffer which );
+    static bool _setupDrawPixels( const ImageOp& op, Frame::Buffer which );
 
     static Vector4f _getCoords( const ImageOp& op, const PixelViewport& pvp );
 
     template< typename T >
-    static void _drawTexturedQuad( const T* key,const ImageOp& op,
+    static void _drawTexturedQuad( const T* key, const ImageOp& op,
                                    const PixelViewport& pvp,
                                    const bool withDepth );
 
