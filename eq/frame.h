@@ -135,18 +135,6 @@ public:
     void deleteGLObjects( util::ObjectManager& om );
 
     /**
-     * Read back an image.
-     *
-     * The image is added to the data, existing images are retained.
-     *
-     * @param glObjects the GL object manager for the current GL context.
-     * @param config the configuration of the source frame buffer.
-     * @version 1.0
-     */
-    EQ_API void readback( util::ObjectManager& glObjects,
-                          const DrawableConfig& config );
-
-    /**
      * Read back a set of images.
      *
      * The images are added to the data, existing images are retained.
@@ -154,11 +142,13 @@ public:
      * @param glObjects the GL object manager for the current GL context.
      * @param config the configuration of the source frame buffer.
      * @param regions the areas to read back.
+     * @param context the render context producing the pixel data.
      * @version 1.0
      */
     EQ_API void readback( util::ObjectManager& glObjects,
                           const DrawableConfig& config,
-                          const PixelViewports& regions );
+                          const PixelViewports& regions,
+                          const RenderContext& context );
 
     /**
      * Start reading back a set of images for this frame.

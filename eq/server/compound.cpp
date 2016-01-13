@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                           Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                           Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -1599,7 +1599,6 @@ std::ostream& operator << ( std::ostream& os, const Compound& compound )
     {
         os << "task     [";
         if( tasks &  fabric::TASK_CLEAR )    os << " CLEAR";
-        if( tasks &  fabric::TASK_CULL )     os << " CULL";
         if( compound.isLeaf() &&
             ( tasks &  fabric::TASK_DRAW ))  os << " DRAW";
         if( tasks &  fabric::TASK_ASSEMBLE ) os << " ASSEMBLE";

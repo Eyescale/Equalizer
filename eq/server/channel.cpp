@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -444,12 +444,8 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
                              const Viewport& region )
 {
     LB_TS_SCOPED( _serverThread );
-
-    for( ChannelListeners::const_iterator i = _listeners.begin();
-         i != _listeners.end(); ++i )
-    {
-        (*i)->notifyLoadData( this, frameNumber, statistics, region );
-    }
+    for( ChannelListener* listener : _listeners )
+        listener->notifyLoadData( this, frameNumber, statistics, region );
 }
 
 //===========================================================================

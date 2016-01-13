@@ -142,8 +142,7 @@ public:
     uint32_t getReadBuffer() const { return _context->buffer; }
 
     /** @return the current color mask for glColorMask. @version 1.0 */
-    const ColorMask& getDrawBufferMask() const
-        { return _context->bufferMask; }
+    const ColorMask& getDrawBufferMask() const { return _context->bufferMask; }
 
     /**
      * @return the current pixel viewport for glViewport and glScissor.

@@ -856,7 +856,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     if( coreProfile && op.pixel != Pixel::ALL )
     {
         LBERROR << "No support for pixel assembly for OpenGL core profile,"
-                   "skipping assemble" << std::endl;
+                   "skipping image" << std::endl;
         return;
     }
 

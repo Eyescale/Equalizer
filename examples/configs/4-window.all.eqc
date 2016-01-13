@@ -608,13 +608,13 @@ server
             compound
             {
                 task [ CLEAR ASSEMBLE ]
-                eye [ LEFT  CYCLOP]
+                eye [ LEFT  CYCLOP ]
                 inputframe { name "frame.channel2" }
             }
             compound
             {
                 task [ CLEAR ASSEMBLE ]
-                eye [ RIGHT  CYCLOP]
+                eye [ RIGHT  CYCLOP ]
                 inputframe { name "frame.channel3" }
             }
         }
