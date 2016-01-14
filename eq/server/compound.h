@@ -217,9 +217,9 @@ public:
     void setPixel( const Pixel& pixel )    { _data.pixel = pixel; }
     const Pixel& getPixel() const          { return _data.pixel; }
 
-    void setSubPixel( const SubPixel& subpixel )
-    { _data.subpixel = subpixel; }
-    const SubPixel& getSubPixel() const    { return _data.subpixel; }
+    void setSubPixel( const SubPixel& subPixel )
+        { _data.subPixel = subPixel; }
+    const SubPixel& getSubPixel() const    { return _data.subPixel; }
 
     void setZoom( const Zoom& zoom )       { _data.zoom = zoom; }
     const Zoom& getZoom() const            { return _data.zoom; }
@@ -323,7 +323,7 @@ public:
     const PixelViewport& getInheritPixelViewport() const { return _inherit.pvp;}
     const Range& getInheritRange()   const { return _inherit.range; }
     const Pixel& getInheritPixel()   const { return _inherit.pixel; }
-    const SubPixel& getInheritSubPixel() const { return _inherit.subpixel; }
+    const SubPixel& getInheritSubPixel() const { return _inherit.subPixel; }
     const Zoom& getInheritZoom()     const { return _inherit.zoom; }
     uint32_t getInheritPeriod()          const { return _inherit.period; }
     uint32_t getInheritPhase()           const { return _inherit.phase; }
@@ -535,7 +535,7 @@ private:
         Vector4i          overdraw;
         Range             range;
         Pixel             pixel;
-        SubPixel          subpixel;
+        SubPixel          subPixel;
         FrustumData       frustumData;
         Zoom              zoom;
         uint32_t          buffers;

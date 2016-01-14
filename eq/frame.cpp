@@ -20,7 +20,6 @@
 
 #include "frameData.h"
 #include "image.h"
-#include <eq/fabric/renderContext.h>
 #include <eq/util/objectManager.h>
 
 namespace eq
@@ -81,31 +80,6 @@ ConstFrameDataPtr Frame::getFrameData() const
 uint32_t Frame::getBuffers() const
 {
     return _impl->frameData->getBuffers();
-}
-
-const Pixel& Frame::getPixel() const
-{
-    return _impl->frameData->getPixel();
-}
-
-const SubPixel& Frame::getSubPixel() const
-{
-    return _impl->frameData->getSubPixel();
-}
-
-const Range& Frame::getRange() const
-{
-    return _impl->frameData->getRange();
-}
-
-uint32_t Frame::getPeriod() const
-{
-    return _impl->frameData->getPeriod();
-}
-
-uint32_t Frame::getPhase() const
-{
-    return _impl->frameData->getPhase();
 }
 
 const Images& Frame::getImages() const

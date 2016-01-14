@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,49 +37,46 @@
 
 namespace eVolve
 {
-    class InitData;
+class Channel : public eq::Channel
+{
+public:
+    Channel( eq::Window* parent );
 
-    class Channel : public eq::Channel
-    {
-    public:
-        Channel( eq::Window* parent );
+protected:
+    virtual ~Channel() {}
 
-    protected:
-        virtual ~Channel() {}
+    bool configInit( const eq::uint128_t& initID ) override;
+    bool configExit() override;
 
-        bool configInit( const eq::uint128_t& initID ) override;
-        bool configExit() override;
+    void frameStart( const eq::uint128_t& frameID,
+                     const uint32_t frameNumber ) override;
 
-        void frameStart( const eq::uint128_t& frameID,
-                         const uint32_t frameNumber ) override;
+    void frameDraw( const eq::uint128_t& frameID ) override;
+    void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
+    void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
+    void frameViewFinish( const eq::uint128_t& frameID ) override;
+    void frameClear( const eq::uint128_t& frameID ) override;
 
-        void frameDraw( const eq::uint128_t& frameID ) override;
-        void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
-        void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
-        void frameViewFinish( const eq::uint128_t& frameID ) override;
-        void frameClear( const eq::uint128_t& frameID ) override;
+    bool useOrtho() const override;
 
-        bool useOrtho() const override;
+    void clearViewport( const eq::PixelViewport &pvp );
 
-        void clearViewport( const eq::PixelViewport &pvp );
+private:
+    void _startAssemble();
 
-    private:
-        void _startAssemble();
+    void _orderImages( eq::ImageOps& images );
 
-        void _orderFrames( eq::Frames& frames );
+    eq::Matrix4f _computeModelView() const;
 
-        eq::Matrix4f _computeModelView() const;
+    const FrameData& _getFrameData() const;
 
-        const FrameData& _getFrameData() const;
+    void _drawLogo();
+    void _drawHelp();
 
-        void _drawLogo();
-        void _drawHelp();
-
-        eq::Vector3f _bgColor;   //!< background color
-        eq::Frame    _frame;     //!< Readback buffer for DB compositing
-        eq::Range    _drawRange; //!< The range from the last draw of this frame
-        const bool   _taint;     //!< True if EQ_TAINT_CHANNELS is set
-    };
+    eq::Vector3f _bgColor;   //!< background color
+    eq::Image    _image;     //!< Readback buffer for DB compositing
+    const bool   _taint;     //!< True if EQ_TAINT_CHANNELS is set
+};
 
 }
 

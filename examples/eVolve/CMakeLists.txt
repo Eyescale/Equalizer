@@ -1,5 +1,5 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2013 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010-2016 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#                         Stefan Eilemann <eile@eyescale.ch>
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -18,9 +18,9 @@ eq_add_example(eVolve
     eVolve.h
     error.h
     frameData.h
-    framesOrderer.h
     glslShaders.h
     hlp.h
+    imageOrderer.h
     initData.h
     localInitData.h
     node.h
@@ -35,7 +35,6 @@ eq_add_example(eVolve
     error.cpp
     eVolve.cpp
     frameData.cpp
-    framesOrderer.cpp
     glslShaders.cpp
     initData.cpp
     localInitData.cpp

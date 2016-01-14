@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *

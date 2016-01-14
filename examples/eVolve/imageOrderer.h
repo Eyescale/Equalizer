@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007-2016 Maxim Makhinya
+ *                         Stefan.Eilemann@epfl.ch
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,82 +27,86 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "framesOrderer.h"
+#ifndef EVOLVE_IMAGE_ORDERER_H
+#define EVOLVE_IMAGE_ORDERER_H
+
+#include <eq/imageOp.h>
 
 namespace eVolve
 {
-
-static bool cmpRangesDec(const eq::Frame* frame1, const eq::Frame* frame2)
+/** @cond IGNORE */
+namespace
 {
-    return frame1->getRange().start < frame2->getRange().start;
+bool _cmpRangesDec( const eq::ImageOp& a, const eq::ImageOp& b )
+{
+    return a.image->getContext().range.start <
+           b.image->getContext().range.start;
 }
 
-
-static bool cmpRangesInc(const eq::Frame* frame1, const eq::Frame* frame2)
+bool _cmpRangesInc( const eq::ImageOp& a, const eq::ImageOp& b )
 {
-    return frame1->getRange().start > frame2->getRange().start;
+    return a.image->getContext().range.start >
+           b.image->getContext().range.start;
+}
 }
 
-
-void orderFrames( eq::Frames& frames, const eq::Matrix4d& modelviewM,
-                  const eq::Matrix3d& modelviewITM,
+void orderImages( eq::ImageOps& images, const eq::Matrix4f& modelviewM,
+                  const eq::Matrix3f& modelviewITM,
                   const eq::Matrix4f& rotation, const bool orthographic )
 {
     if( orthographic )
     {
         const bool orientation = rotation.array[10] < 0;
-        sort( frames.begin(), frames.end(),
-              orientation ? cmpRangesInc : cmpRangesDec );
+        std::sort( images.begin(), images.end(),
+                   orientation ? _cmpRangesInc : _cmpRangesDec );
         return;
     }
     // else perspective projection
 
-    eq::Vector3d norm = modelviewITM * eq::Vector3d( 0.0, 0.0, 1.0 );
-    norm.normalize();
-
-    sort( frames.begin(), frames.end(), cmpRangesInc );
+    std::sort( images.begin(), images.end(), _cmpRangesInc );
 
     // cos of angle between normal and vectors from center
-    std::vector<double> dotVals;
+    std::vector< float > dotVals;
+    eq::Vector3f norm = modelviewITM * eq::Vector3f( 0.f, 0.f, 1.f );
+    norm.normalize();
 
     // of projection to the middle of slices' boundaries
-    for( eq::Frames::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( const eq::ImageOp& op : images )
     {
-        const eq::Frame* frame = *i;
-        const double     px    = -1.0 + frame->getRange().end*2.0;
-
-        const eq::Vector4d pS = modelviewM * eq::Vector4d( 0.0, 0.0, px , 1.0 );
-        eq::Vector3d pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
+        const float px = -1.f + op.image->getContext().range.end * 2.f;
+        const eq::Vector4f pS = modelviewM * eq::Vector4f( 0.f, 0.f, px , 1.f );
+        eq::Vector3f pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
         pSsub.normalize();
-        dotVals.push_back( norm.dot( pSsub ));
+        dotVals.emplace_back( norm.dot( pSsub ));
     }
 
-    const eq::Vector4d pS = modelviewM * eq::Vector4d( 0.0, 0.0,-1.0, 1.0 );
-    eq::Vector3d pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
+    const eq::Vector4f pS = modelviewM * eq::Vector4f( 0.f, 0.f,-1.f, 1.f );
+    eq::Vector3f pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
     pSsub.normalize();
-    dotVals.push_back( norm.dot( pSsub ));
+    dotVals.emplace_back( norm.dot( pSsub ));
+
     //check if any slices need to be rendered in reverse order
     size_t minPos = std::numeric_limits< size_t >::max();
-    for( size_t i=0; i<dotVals.size()-1; i++ )
+    for( size_t i = 0; i < dotVals.size() - 1; ++i )
         if( dotVals[i] > 0 && dotVals[i+1] > 0 )
             minPos = static_cast< int >( i );
 
-    const size_t nFrames = frames.size();
+    const size_t nImages = images.size();
     minPos++;
-    if( minPos < frames.size()-1 )
+    if( minPos < images.size()-1 )
     {
-        eq::Frames framesTmp = frames;
+        eq::ImageOps imagesTmp = images;
 
         // copy slices that should be rendered first
-        memcpy( &frames[ nFrames-minPos-1 ], &framesTmp[0],
-                (minPos+1)*sizeof( eq::Frame* ) );
- 
+        memcpy( &images[ nImages-minPos-1 ], &imagesTmp[0],
+                (minPos+1)*sizeof( eq::ImageOp ));
+
          // copy slices that should be rendered last, in reverse order
-        for( size_t i=0; i<nFrames-minPos-1; i++ )
-            frames[ i ] = framesTmp[ nFrames-i-1 ];
+        for( size_t i=0; i < nImages-minPos-1; ++i )
+            images[ i ] = imagesTmp[ nImages-i-1 ];
     }
 }
-
+/** @endcond */
 }
 
+#endif //EVOLVE_IMAGE_ORDERER_H

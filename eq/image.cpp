@@ -258,6 +258,7 @@ void Image::reset()
     _impl->ignoreAlpha = false;
     _impl->hasPremultipliedAlpha = false;
     setPixelViewport( PixelViewport( ));
+    setContext( RenderContext( ));
 }
 
 void Image::flush()
@@ -583,7 +584,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
 
     if( !downloader.supports( inputToken, noAlpha, flags ))
         downloader.setup( co::Global::getPluginRegistry(), inputToken,
-                           attachment.quality, noAlpha, flags, gl );
+                          attachment.quality, noAlpha, flags, gl );
 
     if( !downloader.isGood( ))
     {

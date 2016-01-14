@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
- *                           Daniel Nachbaur <danielnachbaur@gmail.com>
- *                           Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -525,7 +525,7 @@ RenderContext Compound::setupRenderContext( const Eye eye ) const
     context.vp = _inherit.vp;
     context.range = _inherit.range;
     context.pixel = _inherit.pixel;
-    context.subpixel = _inherit.subpixel;
+    context.subPixel = _inherit.subPixel;
     context.zoom = _inherit.zoom;
     context.period = _inherit.period;
     context.phase = _inherit.phase;
@@ -1230,7 +1230,7 @@ void Compound::update( const uint32_t frameNumber )
 void Compound::updateInheritData( const uint32_t frameNumber )
 {
     _data.pixel.validate();
-    _data.subpixel.validate();
+    _data.subPixel.validate();
     _data.zoom.validate();
 
     if( isRoot( ))
@@ -1344,7 +1344,7 @@ void Compound::_updateInheritNode()
 
     _inherit.range.apply( _data.range );
     _inherit.pixel.apply( _data.pixel );
-    _inherit.subpixel.apply( _data.subpixel );
+    _inherit.subPixel.apply( _data.subPixel );
 
     if( _data.eyes != fabric::EYE_UNDEFINED )
         _inherit.eyes = _data.eyes;
@@ -1627,9 +1627,9 @@ std::ostream& operator << ( std::ostream& os, const Compound& compound )
     if( pixel.isValid() && pixel != Pixel::ALL )
         os << pixel << std::endl;
 
-    const SubPixel& subpixel = compound.getSubPixel();
-    if( subpixel.isValid() && subpixel != SubPixel::ALL )
-            os << subpixel << std::endl;
+    const SubPixel& subPixel = compound.getSubPixel();
+    if( subPixel.isValid() && subPixel != SubPixel::ALL )
+            os << subPixel << std::endl;
 
     const Zoom& zoom = compound.getZoom();
     if( zoom.isValid() && zoom != Zoom::NONE )

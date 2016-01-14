@@ -60,6 +60,7 @@ class Window;
 class WindowSettings;
 class WindowSystem;
 struct ConfigEvent; //!< @deprecated
+struct ImageOp;
 struct PixelData;
 
 using namespace fabric::eventEnums;
@@ -170,6 +171,8 @@ typedef std::vector< Segment* > Segments;
 typedef std::vector< View* > Views;
 /** A vector of eq::PixelViewport */
 typedef std::vector< PixelViewport > PixelViewports;
+/** A vector of image compositing operations. */
+typedef std::vector< ImageOp > ImageOps;
 
 /** A const_iterator over a eq::Config vector */
 typedef Configs::const_iterator ConfigsCIter;

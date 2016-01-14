@@ -52,36 +52,6 @@ public:
     /** @name Data Access */
     //@{
     /**
-     * @return the database range relative to the destination channel.
-     * @version 1.0
-     */
-    EQ_API const Range& getRange() const;
-
-    /**
-     * @return the pixel parameters relative to the destination channel.
-     * @version 1.0
-     */
-    EQ_API const Pixel& getPixel() const;
-
-    /**
-     * @return the subpixel parameters wrt the destination channel.
-     * @version 1.0
-     */
-    EQ_API const SubPixel& getSubPixel() const;
-
-    /**
-     * @return the DPlex period relative to the destination channel.
-     * @version 1.0
-     */
-    EQ_API uint32_t getPeriod() const;
-
-    /**
-     * @return the DPlex phase relative to the destination channel.
-     * @version 1.0
-     */
-    EQ_API uint32_t getPhase() const;
-
-    /**
      * Set the filter applied to zoomed assemble operations.
      * @version 1.0
      */

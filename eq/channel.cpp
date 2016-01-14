@@ -370,7 +370,8 @@ void Channel::frameReadback( const uint128_t&, const Frames& frames )
     const DrawableConfig& drawable    = getDrawableConfig();
 
     for( Frame* frame : frames )
-        frame->startReadback( glObjects, drawable, PixelViewports( 1, region ));
+        frame->startReadback( glObjects, drawable, PixelViewports( 1, region ),
+                              getContext( ));
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -1033,7 +1034,6 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
                            const co::ObjectVersions& frameIDs )
 {
     _overrideContext( context );
-
     frameTilesStart( context.frameID );
 
     RBStatPtr stat;
@@ -1060,15 +1060,8 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
             break;
 
         const Tile& tile = tileCmd.read< Tile >();
-        context.apply( tile );
-
-        const PixelViewport tilePVP = context.pvp;
-
-        if ( !isLocal )
-        {
-            context.pvp.x = 0;
-            context.pvp.y = 0;
-        }
+        context.apply( tile, isLocal );
+        _overrideContext( context );
 
         if( tasks & fabric::TASK_CLEAR )
         {
@@ -1111,8 +1104,8 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
                 {
                     Image* image = images[j];
                     const PixelViewport& pvp = image->getPixelViewport();
-                    image->setOffset( pvp.x + tilePVP.x,
-                                      pvp.y + tilePVP.y );
+                    image->setOffset( pvp.x + tile.pvp.x,
+                                      pvp.y + tile.pvp.y );
                 }
             }
 
@@ -1409,8 +1402,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
         if( rawSize > 0 )
             compressEvent.event.data.statistic.ratio =
-            static_cast< float >( imageDataSize ) /
-            static_cast< float >( rawSize );
+                float( imageDataSize ) / float( rawSize );
     }
 
     if( pixelDatas.empty( ))
@@ -1432,7 +1424,8 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                                 co::COMMANDTYPE_OBJECT, nodeID,
                                 CO_INSTANCE_ALL );
     command << frameDataVersion << image->getPixelViewport() << image->getZoom()
-            << commandBuffers << frameNumber << image->getAlphaUsage();
+            << image->getContext() << commandBuffers << frameNumber
+            << image->getAlphaUsage();
     command.sendHeader( imageDataSize );
 
 #ifndef NDEBUG

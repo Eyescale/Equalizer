@@ -327,8 +327,8 @@ Images FrameData::startReadback( const Frame& frame,
 
         pvp -= frame.getOffset();
         pvp.apply( frameZoom );
-        image->setOffset( (pvp.x - framePVP.x) * _pixel.w,
-                          (pvp.y - framePVP.y) * _pixel.h );
+        image->setOffset( (pvp.x - framePVP.x) * context.pixel.w,
+                          (pvp.y - framePVP.y) * context.pixel.h );
     }
     return images;
 }
@@ -409,8 +409,8 @@ void FrameData::removeListener( Listener& listener )
 
 bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
                           const PixelViewport& pvp, const Zoom& zoom,
-                          const uint32_t buffers_, const bool useAlpha,
-                          uint8_t* data )
+                          const RenderContext& context, const uint32_t buffers_,
+                          const bool useAlpha, uint8_t* data )
 {
     LBASSERT( _impl->readyVersion < frameDataVersion.version.low( ));
     if( _impl->readyVersion >= frameDataVersion.version.low( ))
@@ -468,6 +468,7 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
             }
 
             image->setZoom( zoom );
+            image->setContext( context );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }

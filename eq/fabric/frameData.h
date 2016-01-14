@@ -23,10 +23,7 @@
 #include <eq/fabric/types.h>
 
 #include <eq/fabric/frame.h>         // for Frame::Type
-#include <eq/fabric/pixelViewport.h> // member
-#include <eq/fabric/pixel.h>         // member
-#include <eq/fabric/range.h>         // member
-#include <eq/fabric/subPixel.h>      // member
+#include <eq/fabric/renderContext.h> // member
 
 namespace eq
 {
@@ -35,8 +32,7 @@ namespace fabric
 class FrameData
 {
 public:
-    FrameData() : _frameType( Frame::TYPE_MEMORY ), _buffers( 0 ), _period( 1 )
-                , _phase( 0 ) {}
+    FrameData() : _frameType( Frame::TYPE_MEMORY ), _buffers( 0 ) {}
 
     /**
      * Set the covered area for readbacks.
@@ -59,35 +55,12 @@ public:
     /** @return the (color, depth) buffers of the source frame. */
     uint32_t getBuffers() const { return _buffers; }
 
-    /** Set the source range wrt dest channel. */
-    void setRange( const Range& range ) { _range = range; }
+    /** Set the source context decomposition wrt dest channel. */
+    void setContext( const RenderContext& context ) { _context = context; }
 
-    /** @return the source range wrt dest channel. */
-    const Range& getRange() const { return _range; }
-
-    /** Set the source pixel decomposition wrt dest channel. */
-    void setPixel( const Pixel& pixel ) { _pixel = pixel; }
-
-    /** @return the source pixel decomposition wrt dest channel. */
-    const Pixel& getPixel() const { return _pixel; }
-
-    /** Set the source pixel decomposition wrt dest channel. */
-    void setSubPixel( const SubPixel& subpixel ) { _subpixel = subpixel; }
-
-    /** @return the source pixel decomposition wrt dest channel. */
-    const SubPixel& getSubPixel() const { return _subpixel; }
-
-    /** Set the source DPlex period wrt dest channel. */
-    void setPeriod( const uint32_t period ) { _period = period; }
-
-    /** @return the source DPlex period wrt dest channel. */
-    uint32_t getPeriod() const { return _period; }
-
-    /** Set the source DPlex phase wrt dest channel. */
-    void setPhase( const uint32_t phase ) { _phase = phase; }
-
-    /** @return the source DPlex phase wrt dest channel. */
-    uint32_t getPhase() const { return _phase; }
+    /** @return the source context decomposition wrt dest channel. */
+    const RenderContext& getContext() const { return _context; }
+    RenderContext& getContext() { return _context; }
 
     /** Set additional zoom for input frames. */
     void setZoom( const Zoom& zoom ) { _zoom = zoom; }
@@ -110,14 +83,10 @@ public:
 
 protected:
     PixelViewport _pvp;
-    Range         _range;     //<! database-range of src wrt to dest
-    Pixel         _pixel;     //<! pixel decomposition of source
-    SubPixel      _subpixel;  //<! subpixel decomposition of source
+    RenderContext _context; //<! source channel render context
     Zoom          _zoom;
     Frame::Type   _frameType;
     uint32_t      _buffers;
-    uint32_t      _period;
-    uint32_t      _phase;
     template< class T > friend void lunchbox::byteswap( T& );
 };
 
@@ -129,14 +98,10 @@ namespace lunchbox
 template<> inline void byteswap( eq::fabric::FrameData& value )
 {
     byteswap( value._pvp );
+    byteswap( value._context );
+    byteswap( value._zoom );
     byteswap( value._frameType );
     byteswap( value._buffers );
-    byteswap( value._period );
-    byteswap( value._phase );
-    byteswap( value._range );
-    byteswap( value._pixel );
-    byteswap( value._subpixel );
-    byteswap( value._zoom );
 }
 }
 

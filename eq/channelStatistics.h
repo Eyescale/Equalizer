@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,10 +32,9 @@ public:
      * Construct a statistics sampler and sample the start time.
      * @version 1.0
      */
-    explicit EQ_API ChannelStatistics( const Statistic::Type type,
-                                       Channel* channel,
-                                       uint32_t frame = LB_UNDEFINED_UINT32,
-                                       const int32_t hint = AUTO );
+    EQ_API ChannelStatistics( const Statistic::Type type, Channel* channel,
+                              uint32_t frame = LB_UNDEFINED_UINT32,
+                              const int32_t hint = AUTO );
     /**
      * Destruct the sampler, sample the end time and send the event.
      * @version 1.0

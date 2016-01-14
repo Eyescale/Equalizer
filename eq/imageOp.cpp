@@ -1,7 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
- *                          Daniel Nachbaur <danielnachbaur@gmail.com>
- *                          Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2016, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,25 +15,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "frameData.h"
+#include "imageOp.h"
 
-#include <co/dataIStream.h>
-#include <co/dataOStream.h>
+#include "frame.h"
+#include "frameData.h"
+#include "image.h"
 
 namespace eq
 {
-namespace fabric
+ImageOp::ImageOp( const Frame* frame, const Image* img )
+    : image( img )
+    , buffers( frame->getFrameData()->getBuffers( ))
+    , offset( frame->getFrameData()->getContext().offset )
+    , zoom( frame->getZoom( ))
 {
-
-void FrameData::serialize( co::DataOStream& os ) const
-{
-    os << _pvp << _context << _zoom << _frameType << _buffers;
-}
-
-void FrameData::deserialize( co::DataIStream& is )
-{
-    is >> _pvp >> _context >> _zoom >> _frameType >> _buffers;
-}
-
+    ConstFrameDataPtr data = frame->getFrameData();
+    zoom.apply( data->getZoom( ));
+    zoom.apply( image->getZoom( ));
+    zoomFilter = zoom == Zoom::NONE ? FILTER_NEAREST : frame->getZoomFilter();
 }
 }

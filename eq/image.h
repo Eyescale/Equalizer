@@ -128,6 +128,9 @@ public:
     /** @return zoom factor to be used for compositing. */
     EQ_API const Zoom& getZoom() const;
 
+    /** Set the render context producing this image. */
+    EQ_API void setContext( const RenderContext& context );
+
     /** @return the rendering context which created this image, or a default. */
     EQ_API const RenderContext& getContext() const;
 
@@ -377,9 +380,6 @@ public:
 
     /** @internal */
     EQ_API uint32_t getDownloaderName( const Frame::Buffer buffer ) const;
-
-    /** @internal render context for received image */
-    EQ_API void setContext( const RenderContext& context );
     //@}
 
 private:

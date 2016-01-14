@@ -198,8 +198,8 @@ public:
     /** @internal */
     bool addImage( const co::ObjectVersion& frameDataVersion,
                    const PixelViewport& pvp, const Zoom& zoom,
-                   const uint32_t buffers, const bool useAlpha,
-                   uint8_t* data );
+                   const RenderContext& context, const uint32_t buffers,
+                   const bool useAlpha, uint8_t* data );
     void setReady( const co::ObjectVersion& frameData,
                    const fabric::FrameData& data ); //!< @internal
 

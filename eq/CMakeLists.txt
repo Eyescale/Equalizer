@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2016 Stefan Eilemann <eile@eyescale.ch>
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
 if(CUDA_FOUND)
@@ -52,6 +52,7 @@ set(EQUALIZER_PUBLIC_HEADERS
   glx/window.h
   glx/windowEvent.h
   image.h
+  imageOp.h
   init.h
   layout.h
   log.h
@@ -145,6 +146,7 @@ set(EQUALIZER_SOURCES
   global.cpp
   half.cpp
   image.cpp
+  imageOp.cpp
   init.cpp
   jitter.cpp
   layout.cpp

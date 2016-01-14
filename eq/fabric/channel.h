@@ -237,7 +237,7 @@ public:
      * @return the subpixel decomposition for the current rendering task.
      * @version 1.0
      */
-    const SubPixel& getSubPixel() const { return _context->subpixel; }
+    const SubPixel& getSubPixel() const { return _context->subPixel; }
 
     /**
      * @return the up/downscale zoom factor for the current rendering task.
@@ -278,7 +278,7 @@ public:
     /** @warning Undocumented - may not be supported in the future */
     uint32_t getTaskID() const { return _context->taskID; }
 
-    /** @internal @return the current render context. */
+    /** @return the current render context. */
     const RenderContext& getContext() const { return *_context; }
     //@}
 
@@ -347,7 +347,7 @@ protected:
     //@{
     /** @internal Override the channel's native render context. */
     void overrideContext( const RenderContext& context )
-        { _data.overrideContext = context; _context = &_data.overrideContext; }
+        { _overrideContext = context; _context = &_overrideContext; }
 
     /** @internal Re-set the channel's native render context. */
     void resetContext() { _context = &_data.nativeContext; }
@@ -370,11 +370,11 @@ protected:
 
     enum DirtyBits
     {
-        DIRTY_ATTRIBUTES    = Object::DIRTY_CUSTOM << 0, //   64
-        DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 1, //  128
-        DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2, //  256
-        DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3, //  512
-        DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4, // 1024
+        DIRTY_ATTRIBUTES    = Object::DIRTY_CUSTOM << 0,
+        DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 1,
+        DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2,
+        DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
+        DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4,
         DIRTY_CHANNEL_BITS =
         DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER |
         DIRTY_FRUSTUM | DIRTY_OBJECT_BITS
@@ -397,9 +397,6 @@ private:
         /** The native render context parameters of this channel. */
         RenderContext nativeContext;
 
-        /** Overridden context data. */
-        RenderContext overrideContext;
-
         /** Bitmask of supported capabilities */
         uint64_t capabilities;
 
@@ -407,6 +404,9 @@ private:
         bool fixedVP;
     }
         _data, _backup;
+
+    /** Overridden context data. */
+    RenderContext _overrideContext;
 
     /** The current rendering context, points to native or override context. */
     RenderContext* _context;
