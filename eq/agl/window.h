@@ -146,10 +146,10 @@ public:
      * @return true if the initialization was successful, false otherwise.
      * @version 1.0
      */
-    EQ_API virtual bool configInit();
+    EQ_API bool configInit() override;
 
     /** @version 1.0 */
-    EQ_API virtual void configExit( );
+    EQ_API void configExit() override;
 
     /**
      * Choose a pixel format based on the window's attributes.
@@ -254,20 +254,20 @@ public:
     /** @name Operations. */
     //@{
     /** @version 1.0 */
-    EQ_API virtual void makeCurrent( const bool cache = true ) const;
+    EQ_API void makeCurrent( const bool cache = true ) const override;
 
     /** @version 1.10 */
-    EQ_API virtual void doneCurrent() const;
+    EQ_API void doneCurrent() const override;
 
     /** @version 1.0 */
-    EQ_API virtual void swapBuffers();
+    EQ_API void swapBuffers() override;
 
     /** Not implemented for AGL. @version 1.0 */
-    EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
-                                           const uint32_t barrier );
+    EQ_API void joinNVSwapBarrier( const uint32_t group,
+                                   const uint32_t barrier ) override;
 
     /** @version 1.0 */
-    EQ_API virtual bool processEvent( const WindowEvent& event );
+    EQ_API bool processEvent( const WindowEvent& event ) override;
     //@}
 
 private:
