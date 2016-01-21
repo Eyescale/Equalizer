@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -155,13 +155,13 @@ void FrameData::togglePilotMode()
     setDirty( DIRTY_FLAGS );
 }
 
-void FrameData::toggleRenderMode()
+triply::RenderMode FrameData::toggleRenderMode()
 {
     _renderMode = static_cast< triply::RenderMode >(
         ( _renderMode + 1) % triply::RENDER_MODE_ALL );
 
-    LBINFO << "Switched to " << _renderMode << std::endl;
     setDirty( DIRTY_FLAGS );
+    return _renderMode;
 }
 
 void FrameData::toggleCompression()
