@@ -155,7 +155,7 @@ namespace fabric
         Vector3f getV() const { return topLeft - bottomLeft; }
 
         /** @return the perpendicular vector. @version 1.1 */
-        Vector3f getW() const { return getU().cross( getV( )); }
+        Vector3f getW() const { return vmml::cross( getU(), getV( )); }
 
         Vector3f bottomLeft;  //!< The bottom-left corner
         Vector3f bottomRight; //!< The bottom-right corner

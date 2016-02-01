@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -64,25 +64,23 @@ Projection& Projection::operator = ( const Wall& wall )
     const float width  = u.normalize();
     const float height = v.normalize();
 
-    Vector3f w;
-    w.cross( u, v );
-
+    const Vector3f w = vmml::cross( u, v );
     const Vector3f center( (wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
                            (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
                            (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f );
-    
+
     if ( distance <= std::numeric_limits< float >::epsilon( ))
-        distance = center.length(); 
+        distance = center.length();
 
     Matrix3f  mat;
     mat.array[0] = u[0];
     mat.array[1] = u[1];
     mat.array[2] = u[2];
-             
+
     mat.array[3] = v[0];
     mat.array[4] = v[1];
     mat.array[5] = v[2];
-             
+
     mat.array[6] = w[0];
     mat.array[7] = w[1];
     mat.array[8] = w[2];
@@ -94,26 +92,26 @@ Projection& Projection::operator = ( const Wall& wall )
     const float cosH = cosf(hpr[0]);
     hpr[0] =  RAD2DEG(hpr[0]);
 
-    if( fabs( cosH ) > std::numeric_limits< float >::epsilon( ))      
+    if( fabs( cosH ) > std::numeric_limits< float >::epsilon( ))
     {
-        float tr_x      =  mat.array[8] / cosH;     
+        float tr_x      =  mat.array[8] / cosH;
         float tr_y      = -mat.array[5] / cosH;
         hpr[1]  = RAD2DEG( atan2f( tr_y, tr_x ));
 
-        tr_x      =  mat.array[0] / cosH;          
+        tr_x      =  mat.array[0] / cosH;
         tr_y      = -mat.array[1] / cosH;
         hpr[2]  = RAD2DEG( atan2f( tr_y, tr_x ));
     }
-    else                                  
+    else
     {
-        hpr[1]  = 0.f;         
+        hpr[1]  = 0.f;
 
-        const float tr_x = mat.array[4];  
+        const float tr_x = mat.array[4];
         const float tr_y = mat.array[3];
 
         hpr[2]  = RAD2DEG( atan2f( tr_y, tr_x ));
     }
-    
+
     origin = center - w * distance;
     return *this;
 }

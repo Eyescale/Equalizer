@@ -41,7 +41,7 @@ void FrustumData::applyWall( const fabric::Wall& wall )
 {
     Vector3f u = wall.bottomRight - wall.bottomLeft;
     Vector3f v = wall.topLeft - wall.bottomLeft;
-    Vector3f w = u.cross( v );
+    Vector3f w = vmml::cross( u, v );
 
     _type   = wall.type;
     _width  = u.normalize();
