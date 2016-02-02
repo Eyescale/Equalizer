@@ -33,19 +33,16 @@ namespace eqPly
 {
 
 FrameData::FrameData()
-        : _rotation( eq::Matrix4f::ZERO )
-        , _modelRotation( eq::Matrix4f::ZERO )
-        , _position( eq::Vector3f::ZERO )
-        , _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
-        , _colorMode( COLOR_MODEL )
-        , _quality( 1.0f )
-        , _ortho( false )
-        , _statistics( false )
-        , _help( false )
-        , _wireframe( false )
-        , _pilotMode( false )
-        , _idle( false )
-        , _compression( true )
+    : _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
+    , _colorMode( COLOR_MODEL )
+    , _quality( 1.0f )
+    , _ortho( false )
+    , _statistics( false )
+    , _help( false )
+    , _wireframe( false )
+    , _pilotMode( false )
+    , _idle( false )
+    , _compression( true )
 {
     reset();
 }
@@ -229,9 +226,9 @@ void FrameData::setRotation( const eq::Vector3f& rotation )
 void FrameData::setModelRotation(  const eq::Vector3f& rotation )
 {
     _modelRotation = eq::Matrix4f::IDENTITY;
-    _modelRotation.rotate_x( rotation.x() );
-    _modelRotation.rotate_y( rotation.y() );
-    _modelRotation.rotate_z( rotation.z() );
+    _modelRotation.rotate_x( rotation.x( ));
+    _modelRotation.rotate_y( rotation.y( ));
+    _modelRotation.rotate_z( rotation.z( ));
     setDirty( DIRTY_CAMERA );
 }
 
@@ -248,9 +245,8 @@ void FrameData::reset()
     }
     else
     {
-        _position   = eq::Vector3f::ZERO;
-        _position.z() = -2.f;
-        _rotation      = eq::Matrix4f::IDENTITY;
+        _position = eq::Vector3f( 0.f, 0.f, -2.f );
+        _rotation = eq::Matrix4f::IDENTITY;
         _modelRotation = model;
     }
     setDirty( DIRTY_CAMERA );

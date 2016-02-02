@@ -96,7 +96,7 @@ void Frame::commitData()
         if( _frameData[i] )
         {
             if( _frameData[i] != _masterFrameData )
-                _frameData[i]->_data = _masterFrameData->_data;
+                _frameData[i]->fabric::FrameData::operator =(*_masterFrameData);
 
             _frameData[i]->commit();
         }

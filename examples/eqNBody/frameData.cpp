@@ -297,7 +297,7 @@ void FrameData::_randomizeData(NBodyConfig config)
               }
               //if (point.y < 0) axis = scalevec(axis, -1);
               eq::Vector3f vv( _hPos[4*i], _hPos[4*i+1], _hPos[4*i+2] );
-              vv = vv.cross( axis );
+              vv.cross( axis );
               _hVel[v++] = vv.x() * vscale;
               _hVel[v++] = vv.y() * vscale;
               _hVel[v++] = vv.z() * vscale;
@@ -354,4 +354,3 @@ void FrameData::_randomizeData(NBodyConfig config)
     }
 }
 }
-

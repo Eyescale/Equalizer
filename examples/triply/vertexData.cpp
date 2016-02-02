@@ -243,8 +243,8 @@ void VertexData::calculateNormals()
         const Index i0 = triangles[i][0];
         const Index i1 = triangles[i][1];
         const Index i2 = triangles[i][2];
-        const Normal normal = vertices[i0].compute_normal( vertices[i1],
-                                                           vertices[i2] );
+        const Normal normal = vmml::compute_normal( vertices[i0], vertices[i1],
+                                                    vertices[i2] );
 #ifndef NDEBUG
         // count emtpy normals in debug mode
         if( normal.length() == 0.0f )

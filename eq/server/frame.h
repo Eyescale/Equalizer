@@ -49,7 +49,7 @@ public:
 
     FrameData* getMasterData() const { return _masterFrameData; }
     bool hasData( const Eye eye ) const
-    { return ( _frameData[ lunchbox::getIndexOfLastBit(eye) ] != 0 ); }
+        { return ( _frameData[ lunchbox::getIndexOfLastBit(eye) ] != 0 ); }
 
     /**
      * Set the frame's viewport wrt the compound (output frames) or wrt the
