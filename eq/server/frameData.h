@@ -33,6 +33,7 @@ class FrameData : public fabric::FrameData, public co::Object
 public:
     /** Construct a new FrameData. */
     FrameData();
+    virtual ~FrameData(){}
 
     /** @name Data Access */
     //@{
@@ -51,14 +52,11 @@ public:
     //@}
 
 protected:
-    virtual ~FrameData(){}
     virtual ChangeType getChangeType() const { return INSTANCE; }
     virtual void getInstanceData( co::DataOStream& os );
     virtual void applyInstanceData( co::DataIStream& is );
 
 private:
-    friend class Frame;
-
     /** The zoom factor of the output frame after readback. */
     Zoom _zoom;
 
