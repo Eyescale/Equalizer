@@ -26,18 +26,18 @@ int main( int, char** )
     eq::Range range;
     TEST( range == eq::Range::ALL );
 
-    range.merge( eq::Range( .5, .6 ));
+    range.merge( eq::Range( .5f, .6f ));
     TEST( range == eq::Range::ALL );
 
-    range = eq::Range( .5, .6 );
+    range = eq::Range( .5f, .6f );
     TEST( range != eq::Range::ALL );
-    TEST( range == eq::Range( .5, .6 ));
+    TEST( range == eq::Range( .5f, .6f ));
 
-    range.merge( eq::Range( 0.1, 0.2 ));
-    TEST( range == eq::Range( .1, .6 ));
+    range.merge( eq::Range( 0.1f, 0.2f ));
+    TEST( range == eq::Range( .1f, .6f ));
 
-    range.merge( eq::Range( 0.3, 0.4 ));
-    TEST( range == eq::Range( .1, .6 ));
+    range.merge( eq::Range( 0.3f, 0.4f ));
+    TEST( range == eq::Range( .1f, .6f ));
 
     range.merge( eq::Range( ));
     TEST( range == eq::Range::ALL );
