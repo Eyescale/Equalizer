@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,6 +30,7 @@ namespace eq
 {
 namespace server
 {
+static const float MINSIZE = 128.f; // pixels
 
 DFREqualizer::DFREqualizer()
         : _current ( getFrameRate( ))
@@ -90,15 +91,15 @@ void DFREqualizer::notifyUpdatePre( Compound* compound, const uint32_t/*frame*/)
 
     //LBINFO << _current << ": " << factor << " = " << newZoom << std::endl;
 
-    // clip zoom factor to min( 128px ), max( channel pvp )
+    // clip zoom factor to min, max( channel pvp )
     const Compound*      parent = compound->getParent();
     const PixelViewport& pvp    = parent->getInheritPixelViewport();
 
     const Channel*       channel    = compound->getChannel();
     const PixelViewport& channelPVP = channel->getPixelViewport();
 
-    const float minZoom = 128.f / LB_MIN( static_cast< float >( pvp.h ),
-                                          static_cast< float >( pvp.w ));
+    const float minZoom = MINSIZE / LB_MIN( static_cast< float >( pvp.h ),
+                                            static_cast< float >( pvp.w ));
     const float maxZoom = LB_MIN( static_cast< float >( channelPVP.w ) /
                                   static_cast< float >( pvp.w ),
                                   static_cast< float >( channelPVP.h ) /
