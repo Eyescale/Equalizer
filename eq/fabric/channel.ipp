@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -376,15 +376,15 @@ std::ostream& operator << ( std::ostream& os,
 
     const Viewport& vp = channel.getViewport();
     const PixelViewport& pvp = channel.getPixelViewport();
-    if( vp.isValid( ) && channel.hasFixedViewport( ))
+    if( vp.hasArea() && channel.hasFixedViewport( ))
     {
         if( pvp.hasArea( ))
             os << "viewport " << pvp << std::endl;
         os << "viewport " << vp << std::endl;
     }
-    else if( pvp.hasArea( ))
+    else if( pvp.hasArea() && !channel.hasFixedViewport( ))
     {
-        if( vp != Viewport::FULL && vp.isValid( ))
+        if( vp.hasArea( ))
             os << "viewport " << vp << std::endl;
         os << "viewport " << pvp << std::endl;
     }

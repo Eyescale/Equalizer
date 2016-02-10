@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -425,7 +425,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
         os << "device   " << pipe.getDevice() << std::endl;
 
     const PixelViewport& pvp = pipe.getPixelViewport();
-    if( pvp.isValid( ))
+    if( pvp.hasArea( ))
         os << "viewport " << pvp << std::endl;
 
     pipe.output( os );

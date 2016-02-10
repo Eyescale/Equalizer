@@ -999,7 +999,8 @@ bool Window::_cmdBarrier( co::ICommand& cmd )
     co::ObjectICommand command( cmd );
     const co::ObjectVersion& barrier = command.read< co::ObjectVersion >();
 
-    LBVERB << "handle barrier " << command << " barrier " << barrier << std::endl;
+    LBVERB << "handle barrier " << command << " barrier " << barrier
+           << std::endl;
     LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
 
     _enterBarrier( barrier );
