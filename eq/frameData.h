@@ -125,7 +125,7 @@ public:
     EQ_API void clear();
 
     /** Flush the frame by deleting all images. @version 1.0 */
-    void flush();
+    EQ_API void flush();
 
     /** Delete data allocated by the given object manager on all images.*/
     void deleteGLObjects( util::ObjectManager& om );

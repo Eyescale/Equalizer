@@ -20,6 +20,7 @@
 
 #include <eq/fabric/api.h>
 #include <lunchbox/bitOperation.h>
+#include <algorithm> // min,max
 #include <iostream>
 
 namespace eq
