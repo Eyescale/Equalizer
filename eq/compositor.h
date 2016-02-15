@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -135,30 +135,6 @@ class EQ_API Compositor
      */
     static const Image* mergeFramesCPU( const Frames& frames,
                                         const bool blendAlpha = false,
-                               const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
-
-    /**
-     * Merge the provided frames into one main memory buffer.
-     *
-     * The callee has to allocate and clear (if needed) the output buffers to
-     * hold the necessary data. All input images have to use the same format and
-     * type, which will also be the output format. The depth buffer and depth
-     * buffer size may be 0, if the images contain no depth information.
-     *
-     * The output pixel viewport receives the image size and offset wrt the
-     * destination channel.
-     *
-     * @return true if the compositing was successful, false otherwise,
-     *         e.g., a buffer is too small.
-     * @version 1.0
-     */
-    static bool mergeFramesCPU( const Frames& frames,
-                                const bool blendAlpha,
-                                void* colorBuffer,
-                                const uint32_t colorBufferSize,
-                                void* depthBuffer,
-                                const uint32_t depthBufferSize,
-                                PixelViewport& outPVP,
                                const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
 
     /**

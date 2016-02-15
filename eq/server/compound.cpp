@@ -517,6 +517,26 @@ bool Compound::hasDestinationChannel() const
     return getChannel() && getChannel() == getInheritChannel();
 }
 
+RenderContext Compound::setupRenderContext( const Eye eye ) const
+{
+    RenderContext context;
+    context.pvp = _inherit.pvp;
+    context.overdraw = _inherit.overdraw;
+    context.vp = _inherit.vp;
+    context.range = _inherit.range;
+    context.pixel = _inherit.pixel;
+    context.subpixel = _inherit.subpixel;
+    context.zoom = _inherit.zoom;
+    context.period = _inherit.period;
+    context.phase = _inherit.phase;
+    context.offset.x() = context.pvp.x;
+    context.offset.y() = context.pvp.y;
+    context.eye = eye;
+    context.taskID = _taskID;
+    _computeFrustum( context );
+    return context;
+}
+
 //---------------------------------------------------------------------------
 // frustum operations
 //---------------------------------------------------------------------------
@@ -624,11 +644,11 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
     }
 }
 
-void Compound::computeFrustum( RenderContext& context, const Eye eye ) const
+void Compound::_computeFrustum( RenderContext& context ) const
 {
     // compute eye position in screen space
-    const Vector3f& eyeWorld = _getEyePosition( eye );
-    const FrustumData& frustumData = getInheritFrustumData();
+    const Vector3f& eyeWorld = _getEyePosition( context.eye );
+    const FrustumData& frustumData = _inherit.frustumData;
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
 
@@ -642,7 +662,7 @@ void Compound::computeTileFrustum( Frustumf& frustum, const Eye eye,
                                    Viewport vp, bool ortho ) const
 {
     const Vector3f& eyeWorld = _getEyePosition( eye );
-    const FrustumData& frustumData = getInheritFrustumData();
+    const FrustumData& frustumData = _inherit.frustumData;
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
 
@@ -668,7 +688,7 @@ static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
 void Compound::_computePerspective( RenderContext& context,
                                     const Vector3f& eye ) const
 {
-    const FrustumData& frustumData = getInheritFrustumData();
+    const FrustumData& frustumData = _inherit.frustumData;
 
     _computeFrustumCorners( context.frustum, frustumData, eye, false );
     _computeHeadTransform( context.headTransform, frustumData.getTransform(),
@@ -683,7 +703,7 @@ void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
 {
     // Compute corners for cyclop eye without perspective correction:
     const Vector3f& cyclopWorld = _getEyePosition( EYE_CYCLOP );
-    const FrustumData& frustumData = getInheritFrustumData();
+    const FrustumData& frustumData = _inherit.frustumData;
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f cyclopWall = xfm * cyclopWorld;
 
@@ -701,7 +721,7 @@ void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
 
 Vector3f Compound::_getEyePosition( const Eye eye ) const
 {
-    const FrustumData& frustumData = getInheritFrustumData();
+    const FrustumData& frustumData = _inherit.frustumData;
     const Channel* destChannel = getInheritChannel();
     const View* view = destChannel->getView();
     const Observer* observer = view ? view->getObserver() : 0;
@@ -800,7 +820,7 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
 
     // adjust to viewport (screen-space decomposition)
     // Note: vp is computed pixel-correct by Compound::updateInheritData()
-    const Viewport& vp = invp ? *invp : getInheritViewport();
+    const Viewport& vp = invp ? *invp : _inherit.vp;
     if( vp != Viewport::FULL && vp.isValid( ))
     {
         const float frustumWidth = frustum.right() - frustum.left();

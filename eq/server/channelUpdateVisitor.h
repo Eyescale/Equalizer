@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -25,70 +25,61 @@
 
 namespace eq
 {
-namespace fabric
-{
-    class ColorMask;
-    class RenderContext;
-}
-
 namespace server
 {
-    class Channel;
-    class FrustumData;
-    
-    /** The compound visitor generating the draw tasks for a channel. */
-    class ChannelUpdateVisitor : public CompoundVisitor
-    {
-    public:
-        ChannelUpdateVisitor( Channel* channel, const uint128_t frameID, 
-                              const uint32_t frameNumber );
-        virtual ~ChannelUpdateVisitor() {}
 
-        void setEye( const fabric::Eye eye ) { _eye = eye; }
+/** The compound visitor generating the draw tasks for a channel. */
+class ChannelUpdateVisitor : public CompoundVisitor
+{
+public:
+    ChannelUpdateVisitor( Channel* channel, const uint128_t frameID,
+                          const uint32_t frameNumber );
+    virtual ~ChannelUpdateVisitor() {}
 
-        /** Visit a non-leaf compound on the down traversal. */
-        virtual VisitorResult visitPre( const Compound* compound );
-        /** Visit a leaf compound. */
-        virtual VisitorResult visitLeaf( const Compound* compound );
-        /** Visit a non-leaf compound on the up traversal. */
-        virtual VisitorResult visitPost( const Compound* compound );
+    void setEye( const fabric::Eye eye ) { _eye = eye; }
 
-        bool isUpdated() const { return _updated; }
+    /** Visit a non-leaf compound on the down traversal. */
+    virtual VisitorResult visitPre( const Compound* compound );
+    /** Visit a leaf compound. */
+    virtual VisitorResult visitLeaf( const Compound* compound );
+    /** Visit a non-leaf compound on the up traversal. */
+    virtual VisitorResult visitPost( const Compound* compound );
 
-    private:
-        Channel*        _channel;
-        fabric::Eye     _eye;
-        const uint128_t _frameID;
-        const uint32_t  _frameNumber;
-        bool            _updated;
+    bool isUpdated() const { return _updated; }
 
-        bool _skipCompound( const Compound* compound );
-        void _sendClear( const RenderContext& context );
+private:
+    Channel*        _channel;
+    fabric::Eye     _eye;
+    const uint128_t _frameID;
+    const uint32_t  _frameNumber;
+    bool            _updated;
 
-        void _updateDraw( const Compound* compound,
-                          const RenderContext& context );
-        void _updateDrawTiles( const Compound* compound,
-                               const RenderContext& context );
-        void _updateDrawFinish( const Compound* compound ) const;
-        void _updateFrameRate( const Compound* compound ) const;
+    bool _skipCompound( const Compound* compound );
+    void _sendClear( const RenderContext& context );
 
-        uint32_t _getDrawBuffer( const Compound* compound ) const;
-        fabric::ColorMask _getDrawBufferMask( const Compound* compound ) const;
+    void _updateDraw( const Compound* compound,
+                      const RenderContext& context );
+    void _updateDrawTiles( const Compound* compound,
+                           const RenderContext& context );
+    void _updateDrawFinish( const Compound* compound ) const;
+    void _updateFrameRate( const Compound* compound ) const;
 
-        void _setupRenderContext( const Compound* compound,
-                                  RenderContext& context );
+    uint32_t _getDrawBuffer( const Compound* compound ) const;
+    fabric::ColorMask _getDrawBufferMask( const Compound* compound ) const;
 
-        void _updatePostDraw( const Compound* compound, 
-                              const fabric::RenderContext& context );
-        void _updateAssemble( const Compound* compound,
-                              const fabric::RenderContext& context );
-        void _updateReadback( const Compound* compound,
-                              const fabric::RenderContext& context );  
-        void _updateViewStart( const Compound* compound,
-                               const fabric::RenderContext& context );
-        void _updateViewFinish( const Compound* compound,
-                                const fabric::RenderContext& context );
-    };
+    RenderContext _setupRenderContext( const Compound* compound );
+
+    void _updatePostDraw( const Compound* compound,
+                          const fabric::RenderContext& context );
+    void _updateAssemble( const Compound* compound,
+                          const fabric::RenderContext& context );
+    void _updateReadback( const Compound* compound,
+                          const fabric::RenderContext& context );
+    void _updateViewStart( const Compound* compound,
+                           const fabric::RenderContext& context );
+    void _updateViewFinish( const Compound* compound,
+                            const fabric::RenderContext& context );
+};
 }
 }
 #endif // EQSERVER_CONSTCOMPOUNDVISITOR_H
