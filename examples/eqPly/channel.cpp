@@ -600,7 +600,7 @@ void Channel::_drawModel( const Model* scene )
     const eq::Matrix4f& rotation = frameData.getCameraRotation();
     const eq::Matrix4f& modelRotation = frameData.getModelRotation();
     eq::Matrix4f position = eq::Matrix4f::IDENTITY;
-    position.set_translation( frameData.getCameraPosition());
+    position.set_translation( frameData.getCameraPosition( ));
 
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():

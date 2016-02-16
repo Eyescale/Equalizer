@@ -368,10 +368,9 @@ void Channel::frameReadback( const uint128_t&, const Frames& frames )
 
     util::ObjectManager&  glObjects   = getObjectManager();
     const DrawableConfig& drawable    = getDrawableConfig();
-    const PixelViewports& regions     = getRegions();
 
     for( Frame* frame : frames )
-        frame->startReadback( glObjects, drawable, regions );
+        frame->startReadback( glObjects, drawable, PixelViewports( 1, region ));
 
     EQ_GL_CALL( resetAssemblyState( ));
 }

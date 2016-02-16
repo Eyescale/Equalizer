@@ -111,9 +111,7 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
     if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
-    RenderContext context;
-    _setupRenderContext( compound, context );
-
+    const RenderContext& context = _setupRenderContext( compound );
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
 
@@ -133,9 +131,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
         return TRAVERSE_CONTINUE;
     }
 
-    // OPT: Send render context once before task commands?
-    RenderContext context;
-    _setupRenderContext( compound, context );
+    const RenderContext& context = _setupRenderContext( compound );
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
     _updateDraw( compound, context );
@@ -149,36 +145,23 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
     if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
-    RenderContext context;
-    _setupRenderContext( compound, context );
+    const RenderContext& context = _setupRenderContext( compound );
     _updatePostDraw( compound, context );
 
     return TRAVERSE_CONTINUE;
 }
 
-void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
-                                                RenderContext& context )
+RenderContext ChannelUpdateVisitor::_setupRenderContext(
+    const Compound* compound )
 {
     const Channel* destChannel = compound->getInheritChannel();
     LBASSERT( destChannel );
 
+    RenderContext context = compound->setupRenderContext( _eye );
     context.frameID       = _frameID;
-    context.pvp           = compound->getInheritPixelViewport();
-    context.overdraw      = compound->getInheritOverdraw();
-    context.vp            = compound->getInheritViewport();
-    context.range         = compound->getInheritRange();
-    context.pixel         = compound->getInheritPixel();
-    context.subpixel      = compound->getInheritSubPixel();
-    context.zoom          = compound->getInheritZoom();
-    context.period        = compound->getInheritPeriod();
-    context.phase         = compound->getInheritPhase();
-    context.offset.x()    = context.pvp.x;
-    context.offset.y()    = context.pvp.y;
-    context.eye           = _eye;
     context.buffer        = _getDrawBuffer( compound );
     context.bufferMask    = _getDrawBufferMask( compound );
     context.view          = destChannel->getViewVersion();
-    context.taskID        = compound->getTaskID();
 
     const View* view = destChannel->getView();
     LBASSERT( context.view == co::ObjectVersion( view ));
@@ -203,7 +186,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     }
     // TODO: pvp size overcommit check?
 
-    compound->computeFrustum( context, _eye );
+    return context;
 }
 
 void ChannelUpdateVisitor::_updateDraw( const Compound* compound,

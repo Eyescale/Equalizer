@@ -1,6 +1,6 @@
 
 %{
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -181,9 +181,6 @@ GREEN                           { return EQTOKEN_GREEN; }
 BLUE                            { return EQTOKEN_BLUE; }
 HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
 VERTICAL                        { return EQTOKEN_VERTICAL; }
-DPLEX                           { return EQTOKEN_DPLEX; }
-DFR                             { return EQTOKEN_DFR; }
-DDS                             { return EQTOKEN_DDS; }
 framerate                       { return EQTOKEN_FRAMERATE; }
 channel                         { return EQTOKEN_CHANNEL; }
 observer                        { return EQTOKEN_OBSERVER; }
@@ -192,7 +189,6 @@ view                            { return EQTOKEN_VIEW; }
 canvas                          { return EQTOKEN_CANVAS; }
 segment                         { return EQTOKEN_SEGMENT; }
 compound                        { return EQTOKEN_COMPOUND; }
-loadBalancer                    { return EQTOKEN_LOADBALANCER; }
 DFR_equalizer                   { return EQTOKEN_DFREQUALIZER; }
 framerate_equalizer             { return EQTOKEN_FRAMERATEEQUALIZER; }
 load_equalizer                  { return EQTOKEN_LOADEQUALIZER; }

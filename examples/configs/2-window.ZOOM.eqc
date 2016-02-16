@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
 # 'Hello, World!' config: one window rendering from the application process.
 server
@@ -13,12 +13,12 @@ server
                 window
                 {
                     #attributes { hint_drawable pbuffer hint_doublebuffer 0 }
-                    #viewport [ 0 0 4096 4096 ] 
+                    #viewport [ 0 0 4096 4096 ]
                     channel
                     {
                         #drawable [ FBO_COLOR FBO_DEPTH ]
                         name "buffer"
-                    }                    
+                    }
                 }
                 window
                 {
@@ -32,14 +32,14 @@ server
         canvas
         {
             layout 0
-            wall{}
+            wall {}
             segment { channel "channel" }
         }
         compound
         {
             channel  ( segment 0 view 0 )
-            
-            compound 
+
+            compound
             {
                 channel "buffer"
                 zoom [ 2 2 ]
@@ -48,5 +48,5 @@ server
 
             inputframe{ name "frame.buffer" }
         }
-    }    
+    }
 }

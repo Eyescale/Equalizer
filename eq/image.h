@@ -136,8 +136,7 @@ public:
      * @param buffer the frame buffer attachment.
      * @param name the compressor name
      */
-    EQ_API void useCompressor( const Frame::Buffer buffer,
-                               const uint32_t name );
+    EQ_API void useCompressor( Frame::Buffer buffer, uint32_t name );
 
     /**
      * Reset the image to its default state.

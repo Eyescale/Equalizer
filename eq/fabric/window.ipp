@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -537,15 +537,15 @@ std::ostream& operator << ( std::ostream& os, const Window< P, W, C, Settings >&
 
     const Viewport& vp = window.getViewport();
     const PixelViewport& pvp = window.getPixelViewport();
-    if( vp.isValid( ) && window.hasFixedViewport( ))
+    if( vp.hasArea() && window.hasFixedViewport( ))
     {
         if( pvp.hasArea( ))
             os << "viewport " << pvp << std::endl;
         os << "viewport " << vp << std::endl;
     }
-    else if( pvp.hasArea( ))
+    else if( pvp.hasArea() && !window.hasFixedViewport( ))
     {
-        if( vp != Viewport::FULL && vp.isValid( ))
+        if( vp.hasArea( ))
             os << "viewport " << vp << std::endl;
         os << "viewport " << pvp << std::endl;
     }

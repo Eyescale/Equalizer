@@ -186,10 +186,7 @@
 %token EQTOKEN_BLUE
 %token EQTOKEN_HORIZONTAL
 %token EQTOKEN_VERTICAL
-%token EQTOKEN_DFR
-%token EQTOKEN_DDS
 %token EQTOKEN_FRAMERATE
-%token EQTOKEN_DPLEX
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_OBSERVER
 %token EQTOKEN_LAYOUT
@@ -197,7 +194,6 @@
 %token EQTOKEN_CANVAS
 %token EQTOKEN_SEGMENT
 %token EQTOKEN_COMPOUND
-%token EQTOKEN_LOADBALANCER
 %token EQTOKEN_DFREQUALIZER
 %token EQTOKEN_FRAMERATEEQUALIZER
 %token EQTOKEN_LOADEQUALIZER
@@ -1024,7 +1020,6 @@ compoundField:
         { eqCompound->setSubPixel( eq::fabric::SubPixel( $3, $4 )); }
     | wall { eqCompound->setWall( wall ); }
     | projection { eqCompound->setProjection( projection ); }
-    | loadBalancer
     | equalizer
     | swapBarrier { eqCompound->setSwapBarrier(swapBarrier); swapBarrier = 0; }
     | outputFrame
@@ -1160,74 +1155,6 @@ projectionField:
         { projection.fov = eq::fabric::Vector2f( $3, $4 ); }
     | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
         { projection.hpr = eq::fabric::Vector3f( $3, $4, $5 ); }
-
-loadBalancer:
-    EQTOKEN_LOADBALANCER '{' loadBalancerFields '}'
-    {
-        LBWARN << "Deprecated loadBalancer specification, "
-               << " use new ???_equalizer grammar" << std::endl;
-
-        dfrEqualizer = 0;
-        loadEqualizer = 0;
-    }
-
-loadBalancerFields: /*null*/ | loadBalancerFields loadBalancerField
-loadBalancerField:
-    EQTOKEN_MODE loadBalancerMode
-    | EQTOKEN_DAMPING FLOAT
-    {
-        if( loadEqualizer )
-            loadEqualizer->setDamping( $2 );
-        else if( dfrEqualizer )
-            dfrEqualizer->setDamping( $2 );
-    }
-    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ); }
-    | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ); }
-    | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']'
-        { loadEqualizer->setBoundary( eq::fabric::Vector2i( $3, $4 )); }
-    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ); }
-    | EQTOKEN_RESISTANCE '[' UNSIGNED UNSIGNED ']'
-        { loadEqualizer->setResistance( eq::fabric::Vector2i( $3, $4 )); }
-    | EQTOKEN_RESISTANCE FLOAT  { loadEqualizer->setResistance( $2 ); }
-
-loadBalancerMode:
-    EQTOKEN_2D
-    {
-        loadEqualizer = new eq::server::LoadEqualizer;
-        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_2D );
-        eqCompound->addEqualizer( loadEqualizer );
-    }
-    | EQTOKEN_DB
-    {
-        loadEqualizer = new eq::server::LoadEqualizer;
-        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_DB );
-        eqCompound->addEqualizer( loadEqualizer );
-    }
-    | EQTOKEN_HORIZONTAL
-    {
-        loadEqualizer = new eq::server::LoadEqualizer;
-        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_HORIZONTAL );
-        eqCompound->addEqualizer( loadEqualizer );
-    }
-    | EQTOKEN_VERTICAL
-    {
-        loadEqualizer = new eq::server::LoadEqualizer;
-        loadEqualizer->setMode( eq::server::LoadEqualizer::MODE_VERTICAL );
-        eqCompound->addEqualizer( loadEqualizer );
-    }
-    | EQTOKEN_DPLEX
-    {
-        eqCompound->addEqualizer( new eq::server::FramerateEqualizer );
-    }
-    | EQTOKEN_DFR
-    {
-        dfrEqualizer = new eq::server::DFREqualizer;
-        eqCompound->addEqualizer( dfrEqualizer );
-    }
-    | EQTOKEN_DDS
-    {
-        eqCompound->addEqualizer( new eq::server::MonitorEqualizer );
-    }
 
 equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | treeEqualizer |
            monitorEqualizer | viewEqualizer | tileEqualizer

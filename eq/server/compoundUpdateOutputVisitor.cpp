@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,9 +35,8 @@ namespace eq
 {
 namespace server
 {
-CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(
-    const uint32_t frameNumber )
-        : _frameNumber( frameNumber )
+CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor( const uint32_t frame )
+    : _frameNumber( frame )
 {}
 
 VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
@@ -318,4 +317,3 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 
 }
 }
-
