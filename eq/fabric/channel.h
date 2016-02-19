@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2013, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -142,8 +142,7 @@ public:
     uint32_t getReadBuffer() const { return _context->buffer; }
 
     /** @return the current color mask for glColorMask. @version 1.0 */
-    const ColorMask& getDrawBufferMask() const
-        { return _context->bufferMask; }
+    const ColorMask& getDrawBufferMask() const { return _context->bufferMask; }
 
     /**
      * @return the current pixel viewport for glViewport and glScissor.
@@ -238,7 +237,7 @@ public:
      * @return the subpixel decomposition for the current rendering task.
      * @version 1.0
      */
-    const SubPixel& getSubPixel() const { return _context->subpixel; }
+    const SubPixel& getSubPixel() const { return _context->subPixel; }
 
     /**
      * @return the up/downscale zoom factor for the current rendering task.
@@ -278,6 +277,9 @@ public:
 
     /** @warning Undocumented - may not be supported in the future */
     uint32_t getTaskID() const { return _context->taskID; }
+
+    /** @return the current render context. */
+    const RenderContext& getContext() const { return *_context; }
     //@}
 
     /** @name Attributes */
@@ -344,13 +346,11 @@ protected:
     /** @name Render context access */
     //@{
     /** @internal Override the channel's native render context. */
-    void overrideContext( RenderContext& context ) { _context = &context; }
+    void overrideContext( const RenderContext& context )
+        { _overrideContext = context; _context = &_overrideContext; }
 
     /** @internal Re-set the channel's native render context. */
     void resetContext() { _context = &_data.nativeContext; }
-
-    /** @internal @return the current render context. */
-    const RenderContext& getContext() const { return *_context; }
 
     /** @internal @return the native render context. */
     const RenderContext& getNativeContext() const
@@ -370,11 +370,11 @@ protected:
 
     enum DirtyBits
     {
-        DIRTY_ATTRIBUTES    = Object::DIRTY_CUSTOM << 0, //   64
-        DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 1, //  128
-        DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2, //  256
-        DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3, //  512
-        DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4, // 1024
+        DIRTY_ATTRIBUTES    = Object::DIRTY_CUSTOM << 0,
+        DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 1,
+        DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2,
+        DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
+        DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4,
         DIRTY_CHANNEL_BITS =
         DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER |
         DIRTY_FRUSTUM | DIRTY_OBJECT_BITS
@@ -405,7 +405,10 @@ private:
     }
         _data, _backup;
 
-    /** The current rendering context. */
+    /** Overridden context data. */
+    RenderContext _overrideContext;
+
+    /** The current rendering context, points to native or override context. */
     RenderContext* _context;
 
     /** Integer attributes. */

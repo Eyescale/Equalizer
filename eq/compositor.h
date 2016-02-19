@@ -41,22 +41,7 @@ namespace eq
  */
 class EQ_API Compositor
 {
-  public:
-    /** A structure describing an image assembly task. */
-    struct ImageOp
-    {
-        ImageOp() : channel( 0 ), buffers( 0 )
-                  , offset( Vector2i::ZERO )
-                  , zoomFilter( FILTER_LINEAR ) {}
-
-        Channel* channel;      //!< The destination channel
-        uint32_t buffers;      //!< The Frame buffer attachments to use
-        Vector2i offset;       //!< The offset wrt destination window
-        ZoomFilter zoomFilter; //!< The zoom Filter from Frame
-        Pixel pixel;           //!< The pixel decomposition parameters
-        Zoom zoom;             //!< The zoom factor
-    };
-
+public:
     /** @name Frame-based operations. */
     //@{
     /**
@@ -86,6 +71,8 @@ class EQ_API Compositor
      */
     static uint32_t blendFrames( const Frames& frames, Channel* channel,
                                  util::Accum* accum );
+    static uint32_t blendImages( const ImageOps& images, Channel* channel,
+                                 util::Accum* accum );
 
     /**
      * Assemble all frames in the order they become available directly on the
@@ -106,22 +93,22 @@ class EQ_API Compositor
      * before assembling the result on the given channel.
      *
      * If alpha-blending is enabled, the images are blended into the
-     * intermediate image in main memory as if using:
-     * glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA )
-     * The resulting image is composited using
-     * glBlendFunc( GL_ONE, GL_SRC_ALPHA )
-     * into the current framebuffer.
+     * intermediate image in main memory as if using: glBlendFuncSeparate(
+     * GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA ) The resulting image is
+     * composited using glBlendFunc( GL_ONE, GL_SRC_ALPHA ) into the current
+     * framebuffer.
      *
      * @param frames the frames to assemble.
      * @param channel the destination channel.
-     * @param blendAlpha blend color-only images if they have an alpha
+     * @param blend blend color-only images if they have an alpha
      *                   channel
      * @return the number of different subpixel steps assembled (0 or 1).
      * @version 1.0
      */
-    static uint32_t assembleFramesCPU( const Frames& frames,
-                                       Channel* channel,
-                                       const bool blendAlpha = false );
+    static uint32_t assembleFramesCPU( const Frames& frames, Channel* channel,
+                                       const bool blend = false );
+    static uint32_t assembleImagesCPU( const ImageOps& ops, Channel* channel,
+                                       const bool blend );
 
     /**
      * Merge the provided frames in the given order into one image in main
@@ -134,8 +121,9 @@ class EQ_API Compositor
      * @version 1.0
      */
     static const Image* mergeFramesCPU( const Frames& frames,
-                                        const bool blendAlpha = false,
+                                        const bool blend = false,
                                const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
+    static const Image* mergeImagesCPU( const ImageOps& ops, const bool blend );
 
     /**
      * Assemble a frame into the frame buffer using the default algorithm.
@@ -150,20 +138,19 @@ class EQ_API Compositor
     /**
      * Assemble an image into the frame buffer.
      *
-     * @param image the input image.
      * @param operation an ImageOp struct describing the operation.
+     * @param channel the destination channel
      */
-    static void assembleImage( const Image* image,
-                               const ImageOp& operation );
+    static void assembleImage( const ImageOp& operation, Channel* channel );
 
     /**
      * Setup the stencil buffer for a pixel compound recomposition.
      *
-     * @param image the image to be assembled.
      * @param operation the assembly parameters.
+     * @param channel the destination channel
      */
-    static void setupStencilBuffer( const Image* image,
-                                    const ImageOp& operation );
+    static void setupStencilBuffer( const ImageOp& operation,
+                                    const Channel* channel );
 
     /**
      * Clear the stencil buffer after a pixel compound recomposition.
@@ -186,22 +173,21 @@ class EQ_API Compositor
     static void resetAssemblyState();
 
     /** Start a tile-based assembly of the image color attachment. */
-    static void assembleImage2D( const Image* image, const ImageOp& op );
+    static void assembleImage2D( const ImageOp& op, Channel* channel );
     /** Start a Z-based assembly of the image color and depth attachment. */
-    static void assembleImageDB( const Image* image, const ImageOp& op );
+    static void assembleImageDB( const ImageOp& op, Channel* channel );
 
     /**
      * Start a Z-based assembly of the image color and depth attachment, based
      * on OpenGL 1.1 functionality.
      */
-    static void assembleImageDB_FF( const Image* image, const ImageOp& op );
+    static void assembleImageDB_FF( const ImageOp& op, Channel* channel );
 
     /**
      * Start a Z-based assembly of the image color and depth attachment,
      * using GLSL.
      */
-    static void assembleImageDB_GLSL( const Image* image,
-                                      const ImageOp& op );
+    static void assembleImageDB_GLSL( const ImageOp& op, Channel* channel );
     //@}
 
     /** @name Region of Interest. */
@@ -212,7 +198,7 @@ class EQ_API Compositor
      * Called from all assembleImage methods.
      * @version 1.3
      */
-    static void declareRegion( const Image* image, const ImageOp& op );
+    static void declareRegion( const ImageOp& op, Channel* channel );
     //@}
 
     /** @name Early assembly. */
@@ -239,64 +225,16 @@ class EQ_API Compositor
     static Frame* waitFrame( WaitHandle* handle );
     //@}
 
-  private:
+    /** @name Introspection and setup */
+    //@{
+    static bool isSubPixelDecomposition( const Frames& frames );
+    static bool isSubPixelDecomposition( const ImageOps& ops );
+    static Frames extractOneSubPixel( Frames& frames );
+    static ImageOps extractOneSubPixel( ImageOps& ops );
+    //@}
+
+private:
     typedef std::pair< const Frame*, const Image* > FrameImage;
-
-    static bool _isSubPixelDecomposition( const Frames& frames );
-    static const Frames _extractOneSubPixel( Frames& frames );
-
-    static bool _collectOutputData( const Frames& frames,
-                                    PixelViewport& destPVP,
-                                    uint32_t& colorInternalFormat,
-                                    uint32_t& colorPixelSize,
-                                    uint32_t& colorExternalFormat,
-                                    uint32_t& depthInternalFormat,
-                                    uint32_t& depthPixelSize,
-                                    uint32_t& depthExternalFormat,
-                                    const uint32_t timeout );
-
-    static void _collectOutputData( const PixelData& pixelData,
-                                    uint32_t& internalFormat,
-                                    uint32_t& pixelSize,
-                                    uint32_t& externalFormat );
-
-    static void _mergeFrames( const Frames& frames, const bool blendAlpha,
-                              void* colorBuffer, void* depthBuffer,
-                              const PixelViewport& destPVP );
-
-    static void _mergeDBImage( void* destColor, void* destDepth,
-                               const PixelViewport& destPVP,
-                               const Image* image, const Vector2i& offset );
-
-    static void _merge2DImage( void* destColor, void* destDepth,
-                               const PixelViewport& destPVP, const Image* input,
-                               const Vector2i& offset );
-
-    static void _mergeBlendImage( void* dest, const PixelViewport& destPVP,
-                                  const Image* input, const Vector2i& offset );
-    static bool _mergeImage_PC( int operation, void* destColor,
-                                void* destDepth, const Image* source );
-    /**
-     * draw an image to the frame buffer using a texture quad or drawPixels.
-     */
-    static void _drawPixelsFF( const Image* image, const ImageOp& op,
-                               const Frame::Buffer which );
-
-    static void _drawPixelsGLSL( const Image* image, const ImageOp& op,
-                                 const Frame::Buffer which );
-
-    static bool _setupDrawPixels( const Image* image, const ImageOp& op,
-                                  const Frame::Buffer which );
-
-    static Vector4f _getCoords( const ImageOp& op, const PixelViewport& pvp );
-
-    template< typename T >
-    static void _drawTexturedQuad( const T* key,const ImageOp& op,
-                                   const PixelViewport& pvp,
-                                   const bool withDepth );
-
-    /** @return the accumulation buffer used for subpixel compositing. */
-    static util::Accum* _obtainAccum( Channel* channel );
 };
 }
 

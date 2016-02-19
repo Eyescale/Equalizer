@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,6 +93,7 @@
 #include <eq/global.h>
 #include <eq/glException.h>
 #include <eq/image.h>
+#include <eq/imageOp.h>
 #include <eq/init.h>
 #include <eq/layout.h>
 #include <eq/log.h>

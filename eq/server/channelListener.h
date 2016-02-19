@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,25 +24,24 @@ namespace eq
 {
 namespace server
 {
-    /** A listener on various channel operations. */
-    class ChannelListener
-    {
-    public:
-        virtual ~ChannelListener(){}
+/** A listener on various channel operations. */
+class ChannelListener
+{
+public:
+    virtual ~ChannelListener(){}
 
-        /**
-         * Notify that the channel has received new load data.
-         *
-         * @param channel the channel
-         * @param frameNumber the frame number.
-         * @param statistics the frame's statistic.
-         * @param region the draw area wrt the channels viewport
-         */
-        virtual void notifyLoadData( Channel* channel,
-                                     const uint32_t frameNumber,
-                                     const Statistics& statistics,
-                                     const Viewport& region ) = 0;
-    };
+    /**
+     * Notify that the channel has received new load data.
+     *
+     * @param channel the channel
+     * @param frameNumber the frame number.
+     * @param statistics the frame's statistic.
+     * @param region the draw area wrt the channels viewport
+     */
+    virtual void notifyLoadData( Channel* channel, uint32_t frameNumber,
+                                 const Statistics& statistics,
+                                 const Viewport& region ) = 0;
+};
 }
 }
 #endif // EQS_CHANNEL_LISTENER_H

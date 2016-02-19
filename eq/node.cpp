@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder<cedric.stalder@gmail.com>
  *
@@ -715,6 +715,7 @@ bool Node::_cmdFrameDataTransmit( co::ICommand& cmd )
                                             command.read< co::ObjectVersion >();
     const PixelViewport& pvp = command.read< PixelViewport >();
     const Zoom& zoom = command.read< Zoom >();
+    const RenderContext& context = command.read< RenderContext >();
     const uint32_t buffers = command.read< uint32_t >();
     const uint32_t frameNumber = command.read< uint32_t >();
     const bool useAlpha = command.read< bool >();
@@ -736,7 +737,7 @@ bool Node::_cmdFrameDataTransmit( co::ICommand& cmd )
     // Note on the const_cast: since the PixelData structure stores non-const
     // pointers, we have to go non-const at some point, even though we do not
     // modify the data.
-    LBCHECK( frameData->addImage( frameDataVersion, pvp, zoom, buffers,
+    LBCHECK( frameData->addImage( frameDataVersion, pvp, zoom, context, buffers,
                                   useAlpha, const_cast< uint8_t* >( data )));
     return true;
 }

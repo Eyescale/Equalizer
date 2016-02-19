@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.h>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
@@ -715,14 +715,10 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         // leaf draw + tile readback compound
         Compound* drawChild = new Compound( child );
         if( i+1 == children.end( ) ) // last - correct rounding 'error'
-        {
-            drawChild->setRange(
-                Range( static_cast< float >( start )/100000.f, 1.f ));
-        }
+            drawChild->setRange( Range( float( start )/100000.f, 1.f ));
         else
-            drawChild->setRange(
-                Range( static_cast< float >( start )/100000.f,
-                       static_cast< float >( start + step )/100000.f ));
+            drawChild->setRange( Range( float( start )/100000.f,
+                                        float( start + step )/100000.f ));
 
         size_t y = 0;
         for( CompoundsCIter j = children.begin(); j != children.end(); ++j )

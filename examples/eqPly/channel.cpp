@@ -190,7 +190,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 }
 
 void Channel::frameAssemble( const eq::uint128_t& frameID,
-                             const eq::Frames& frames  )
+                             const eq::Frames& frames )
 {
     if( stopRendering( ))
         return;
@@ -217,16 +217,16 @@ void Channel::frameAssemble( const eq::uint128_t& frameID,
     // else
 
     accum.transfer = true;
-    for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    for( eq::Frame* frame : frames )
     {
-        eq::Frame* frame = *i;
-        const eq::SubPixel& curSubPixel = frame->getSubPixel();
+        const eq::SubPixel& subPixel =
+            frame->getFrameData()->getContext().subPixel;
 
-        if( curSubPixel != eq::SubPixel::ALL )
+        if( subPixel != eq::SubPixel::ALL )
             accum.transfer = false;
 
-        accum.stepsDone = LB_MAX( accum.stepsDone, frame->getSubPixel().size *
-                                                   frame->getPeriod( ));
+        accum.stepsDone = LB_MAX( accum.stepsDone, subPixel.size *
+                                  frame->getFrameData()->getContext().period );
     }
 
     applyBuffer();

@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2012-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under

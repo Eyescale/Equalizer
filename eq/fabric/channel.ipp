@@ -2,6 +2,7 @@
 /* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+ *                          Enrique <egparedes@ifi.uzh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,19 +44,17 @@ static std::string _sAttributeStrings[] = {
 };
 }
 
-template< class W, class C >
-Channel< W, C >::Channel( W* parent )
-        : _window( parent )
-        , _context( &_data.nativeContext )
-        , _maxSize( Vector2i::ZERO )
+template< class W, class C > Channel< W, C >::Channel( W* parent )
+    : _window( parent )
+    , _context( &_data.nativeContext )
+    , _maxSize( Vector2i::ZERO )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
-template< class W, class C >
-Channel< W, C >::Channel( const Channel& from )
+template< class W, class C > Channel< W, C >::Channel( const Channel& from )
         : Object( from )
         , _window( from._window )
         , _data( from._data )
@@ -71,15 +70,13 @@ Channel< W, C >::Channel( const Channel& from )
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
-template< class W, class C >
-void Channel< W, C >::init()
+template< class W, class C > void Channel< W, C >::init()
 {
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
 
-template< class W, class C >
-Channel< W, C >::~Channel()
+template< class W, class C > Channel< W, C >::~Channel()
 {
     _window->_removeChannel( static_cast< C* >( this ));
 }

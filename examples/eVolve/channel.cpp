@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,24 +30,23 @@
 #include "channel.h"
 
 #include "frameData.h"
+#include "hlp.h"
+#include "imageOrderer.h"
 #include "initData.h"
 #include "node.h"
 #include "pipe.h"
 #include "window.h"
-#include "hlp.h"
-#include "framesOrderer.h"
 
 namespace eVolve
 {
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _bgColor( eq::Vector3f::ZERO )
-        , _drawRange( eq::Range::ALL )
         , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
-    eq::FrameDataPtr frameData = new eq::FrameData;
-    frameData->setBuffers( eq::Frame::BUFFER_COLOR );
-    _frame.setFrameData( frameData );
+    _image.setAlphaUsage( true );
+    _image.setInternalFormat( eq::Frame::BUFFER_COLOR,
+                              EQ_COMPRESSOR_DATATYPE_RGBA );
 }
 
 static void checkError( const std::string& msg )
@@ -69,16 +68,14 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
 bool Channel::configExit()
 {
-    eq::FrameDataPtr frameData = _frame.getFrameData();
-    frameData->resetPlugins();
-
+    _image.resetPlugins();
     return eq::Channel::configExit();
 }
 
 void Channel::frameStart( const eq::uint128_t& frameID,
                           const uint32_t frameNumber )
 {
-    _drawRange = eq::Range::ALL;
+    _image.reset();
     _bgColor = eq::Vector3f( 0.f, 0.f, 0.f );
 
     const BackgroundMode bgMode = _getFrameData().getBackgroundMode();
@@ -97,8 +94,7 @@ void Channel::frameClear( const eq::uint128_t& )
     applyBuffer();
     applyViewport();
 
-    _drawRange = getRange();
-    if( _drawRange == eq::Range::ALL )
+    if( getRange() == eq::Range::ALL )
         glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -187,7 +183,7 @@ void Channel::frameDraw( const eq::uint128_t& )
                       normalsQuality );
     checkError( "error during rendering " );
 
-    _drawRange = range;
+    _image.setContext( getContext( ));
 
 #ifndef NDEBUG
     outlineViewport();
@@ -245,9 +241,9 @@ static void _expandPVP( eq::PixelViewport& pvp, const eq::Images& images,
 void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
     // clear given area
-    glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
+    glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
 
-    if( _drawRange == eq::Range::ALL )
+    if( _image.getContext().range == eq::Range::ALL )
         glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -259,11 +255,10 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
     glScissor( 0, 0, windowPVP.w, windowPVP.h );
 }
 
-void Channel::_orderFrames( eq::Frames& frames )
+void Channel::_orderImages( eq::ImageOps& images )
 {
     const FrameData&    frameData = _getFrameData();
     const eq::Matrix4f& rotation  = frameData.getRotation();
-
     const eq::Matrix4f& modelView = useOrtho() ? eq::Matrix4f::IDENTITY :
                                                  _computeModelView();
 
@@ -273,99 +268,92 @@ void Channel::_orderFrames( eq::Frames& frames )
     modelView.inverse( modelviewIM );
     eq::Matrix3f( modelviewIM ).transpose_to( modelviewITM );
 
-    orderFrames( frames, modelView, modelviewITM, rotation, useOrtho( ));
+    orderImages( images, modelView, modelviewITM, rotation, useOrtho( ));
 }
 
 
 void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
 {
-    const bool composeOnly = (_drawRange == eq::Range::ALL);
-
     _startAssemble();
 
     eq::PixelViewport  coveredPVP;
-    eq::Frames         dbFrames;
+    eq::ImageOps       dbImages;
     eq::Zoom           zoom( eq::Zoom::NONE );
 
     // Make sure all frames are ready and gather some information on them
-    for( eq::Frames::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( eq::Frame* frame : frames )
     {
-        eq::Frame* frame = *i;
         {
             eq::ChannelStatistics stat( eq::Statistic::CHANNEL_FRAME_WAIT_READY,
                                         this );
             frame->waitReady( );
         }
-        const eq::Range& range = frame->getRange();
-        if( range == eq::Range::ALL ) // 2D frame, assemble directly
-            eq::Compositor::assembleFrame( frame, this );
-        else
+        for( eq::Image* image : frame->getImages( ))
         {
-            dbFrames.push_back( frame );
-            zoom = frame->getZoom();
-            _expandPVP( coveredPVP, frame->getImages(), frame->getOffset() );
+            eq::ImageOp op( frame, image );
+            op.offset = frame->getOffset();
+            const eq::Range& range = image->getContext().range;
+            if( range == eq::Range::ALL ) // 2D frame, assemble directly
+                eq::Compositor::assembleImage( op, this );
+            else
+            {
+                dbImages.emplace_back( op );
+                zoom = frame->getZoom();
+                _expandPVP( coveredPVP, frame->getImages(), frame->getOffset());
+            }
         }
     }
-    coveredPVP.intersect( getPixelViewport( ));
-
-    if( dbFrames.empty( ))
+    if( dbImages.empty( ))
     {
         resetAssemblyState();
         return;
     }
 
-    // calculate correct frames sequence
-    eq::FrameDataPtr data = _frame.getFrameData();
-    if( !composeOnly && coveredPVP.hasArea( ))
+    // calculate correct image sequence
+    const bool dbCompose = _image.getContext().range != eq::Range::ALL;
+    coveredPVP.intersect( getPixelViewport( ));
+    if( dbCompose && coveredPVP.hasArea( ))
     {
-        _frame.clear();
-        data->setRange( _drawRange );
-        dbFrames.push_back( &_frame );
+        eq::ImageOp op;
+        op.image = &_image;
+        op.buffers = eq::Frame::BUFFER_COLOR;
+        op.zoom = zoom;
+        op.offset = eq::Vector2i( coveredPVP.x, coveredPVP.y );
+        dbImages.emplace_back( op );
     }
 
-    _orderFrames( dbFrames );
+    _orderImages( dbImages );
 
     // Update range
     eq::Range newRange( 1.f, 0.f );
-    for( size_t i = 0; i < dbFrames.size(); ++i )
+    for( const eq::ImageOp& op : dbImages )
     {
-        const eq::Range range = dbFrames[i]->getRange();
+        const eq::Range& range = op.image->getContext().range;
         if( newRange.start > range.start ) newRange.start = range.start;
         if( newRange.end   < range.end   ) newRange.end   = range.end;
     }
-    _drawRange = newRange;
 
-    // check if current frame is in proper position, read back if not
-    if( !composeOnly )
+    // check if current image is in proper position, read back if not
+    if( dbCompose )
     {
-        if( _bgColor == eq::Vector3f::ZERO && dbFrames.front() == &_frame )
-            dbFrames.erase( dbFrames.begin( ));
+        if( _bgColor == eq::Vector3f::ZERO && dbImages.front().image == &_image)
+            dbImages.erase( dbImages.begin( ));
         else if( coveredPVP.hasArea())
         {
             eq::util::ObjectManager& glObjects = getObjectManager();
+            eq::PixelViewport pvp = getRegion();
+            pvp.intersect( coveredPVP );
 
-            _frame.setOffset( eq::Vector2i( 0, 0 ));
-            _frame.setZoom( zoom );
-            data->setPixelViewport( coveredPVP );
-            _frame.readback( glObjects, getDrawableConfig(), getRegions( ));
+            if( _image.startReadback( eq::Frame::BUFFER_COLOR, pvp,
+                                      getContext(), zoom, glObjects ))
+            {
+                _image.finishReadback( glewGetContext( ));
+            }
             clearViewport( coveredPVP );
-
-            // offset for assembly
-            _frame.setOffset( eq::Vector2i( coveredPVP.x, coveredPVP.y ));
         }
     }
 
-    // blend DB frames in order
-    try
-    {
-        eq::Compositor::blendFrames( dbFrames, this, 0 );
-    }
-    catch( const co::Exception& e )
-    {
-        LBWARN << e.what() << std::endl;
-    }
-
+    eq::Compositor::blendImages( dbImages, this, 0 );
     resetAssemblyState();
 }
 
@@ -386,7 +374,6 @@ void Channel::frameReadback( const eq::uint128_t& frameID,
         eq::Frame* frame = *i;
         frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
         frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
-        frame->getFrameData()->setRange( _drawRange );
     }
 
     eq::Channel::frameReadback( frameID, frames );

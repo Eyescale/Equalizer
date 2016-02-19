@@ -2,6 +2,7 @@
 /* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Enrique <egparedes@ifi.uzh.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -263,23 +264,11 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     return image;
 }
 
-#ifndef EQ_2_0_API
-void FrameData::readback( const Frame& frame,
-                          util::ObjectManager& glObjects,
-                          const DrawableConfig& config )
-{
-    const Images& images = startReadback( frame, glObjects, config,
-                                       PixelViewports( 1, getPixelViewport( )));
-
-    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( frame.getZoom(), glObjects.glewGetContext( ));
-}
-#endif
-
 Images FrameData::startReadback( const Frame& frame,
                                  util::ObjectManager& glObjects,
                                  const DrawableConfig& config,
-                                 const PixelViewports& regions )
+                                 const PixelViewports& regions,
+                                 const RenderContext& context )
 {
     if( _buffers == Frame::BUFFER_NONE )
         return Images();
@@ -302,8 +291,11 @@ Images FrameData::startReadback( const Frame& frame,
     if( getType() == eq::Frame::TYPE_TEXTURE )
     {
         Image* image = newImage( getType(), config );
-        if( image->startReadback( getBuffers(), absPVP, frameZoom, glObjects ))
+        if( image->startReadback( getBuffers(), absPVP, context,
+            frameZoom, glObjects ))
+        {
             images.push_back( image );
+        }
         image->setOffset( 0, 0 );
         return images;
     }
@@ -330,13 +322,13 @@ Images FrameData::startReadback( const Frame& frame,
             continue;
 
         Image* image = newImage( getType(), config );
-        if( image->startReadback( getBuffers(), pvp, frameZoom, glObjects ))
+        if( image->startReadback( getBuffers(), pvp, context, frameZoom, glObjects ))
             images.push_back( image );
 
         pvp -= frame.getOffset();
         pvp.apply( frameZoom );
-        image->setOffset( (pvp.x - framePVP.x) * _pixel.w,
-                          (pvp.y - framePVP.y) * _pixel.h );
+        image->setOffset( (pvp.x - framePVP.x) * context.pixel.w,
+                          (pvp.y - framePVP.y) * context.pixel.h );
     }
     return images;
 }
@@ -417,8 +409,8 @@ void FrameData::removeListener( Listener& listener )
 
 bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
                           const PixelViewport& pvp, const Zoom& zoom,
-                          const uint32_t buffers_, const bool useAlpha,
-                          uint8_t* data )
+                          const RenderContext& context, const uint32_t buffers_,
+                          const bool useAlpha, uint8_t* data )
 {
     LBASSERT( _impl->readyVersion < frameDataVersion.version.low( ));
     if( _impl->readyVersion >= frameDataVersion.version.low( ))
@@ -476,6 +468,7 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
             }
 
             image->setZoom( zoom );
+            image->setContext( context );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }
