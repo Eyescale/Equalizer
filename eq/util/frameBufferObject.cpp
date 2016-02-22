@@ -45,11 +45,8 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
 FrameBufferObject::~FrameBufferObject()
 {
     this->exit();
-    for( size_t i = 0; i < _colors.size(); ++i )
-    {
-        delete _colors[i];
-        _colors[i] = 0;
-    }
+    for( Texture* color : _colors )
+        delete color;
 }
 
 bool FrameBufferObject::addColorTexture()
@@ -109,7 +106,8 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
         {
             LBDEBUG << "FrameBufferObject::init: " << error << " when binding "
                     << _colors.size() << " color texture(s) of format 0x"
-                    << std::hex << colorFormat << std::endl;
+                    << std::hex << colorFormat << std::dec << " size " << width
+                    << "x" << height << " FBO " << _fboID << std::endl;
             exit();
             return error;
         }

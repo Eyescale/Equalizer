@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Makhinya Maxim
  *
@@ -44,25 +44,18 @@ class GLWindow
 {
 public:
     GLWindow()
-        : glewInitialized( false )
-        , fbo( 0 )
-        , fboMultiSample( 0 )
-    {
-        lunchbox::setZero( &glewContext, sizeof( GLEWContext ));
-    }
+        : glewContext( nullptr )
+        , fbo( nullptr )
+        , fboMultiSample( nullptr )
+    {}
 
     ~GLWindow()
     {
-        glewInitialized = false;
-#ifndef NDEBUG
-        lunchbox::setZero( &glewContext, sizeof( GLEWContext ));
-#endif
+        delete glewContext;
     }
 
-    bool glewInitialized ;
-
     /** Extended OpenGL function entries when window has a context. */
-    GLEWContext glewContext;
+    GLEWContext* glewContext;
 
     /** Frame buffer object for FBO drawables. */
     util::FrameBufferObject* fbo;
@@ -110,8 +103,10 @@ bool GLWindow::isCurrent() const
 
 void GLWindow::initGLEW()
 {
-    if( _impl->glewInitialized )
+    if( _impl->glewContext )
         return;
+
+    _impl->glewContext = new GLEWContext;
 
 #ifdef __linux__
     // http://sourceforge.net/p/glew/patches/40/
@@ -120,15 +115,18 @@ void GLWindow::initGLEW()
 
     const GLenum result = glewInit();
     glGetError(); // eat GL errors from buggy glew implementation
-    if( result != GLEW_OK )
-        LBWARN << "GLEW initialization failed: " << std::endl;
-    else
-        _impl->glewInitialized = true;
+    if( result == GLEW_OK )
+        return;
+
+    LBWARN << "GLEW initialization failed: " << std::endl;
+    delete _impl->glewContext;
+    _impl->glewContext = nullptr;
 }
 
 void GLWindow::exitGLEW()
 {
-    _impl->glewInitialized = false;
+    delete _impl->glewContext;
+    _impl->glewContext = nullptr;
 }
 
 const util::FrameBufferObject* GLWindow::getFrameBufferObject() const
@@ -143,17 +141,17 @@ util::FrameBufferObject* GLWindow::getFrameBufferObject()
 
 const GLEWContext* GLWindow::glewGetContext() const
 {
-    return &_impl->glewContext;
+    return _impl->glewContext;
 }
 
 GLEWContext* GLWindow::glewGetContext()
 {
-    return &_impl->glewContext;
+    return _impl->glewContext;
 }
 
 bool GLWindow::configInitFBO()
 {
-    if( !_impl->glewInitialized || !GLEW_EXT_framebuffer_object )
+    if( !_impl->glewContext || !GLEW_EXT_framebuffer_object )
     {
         sendError( ERROR_FBO_UNSUPPORTED );
         return false;
@@ -188,7 +186,7 @@ bool GLWindow::_createFBO( util::FrameBufferObject*& fbo, const int samplesSize)
     if( stencilSize == AUTO )
         stencilSize = 1;
 
-    fbo = new util::FrameBufferObject( &_impl->glewContext,
+    fbo = new util::FrameBufferObject( _impl->glewContext,
                                        samplesSize ? GL_TEXTURE_2D_MULTISAMPLE
                                                   : GL_TEXTURE_RECTANGLE_ARB );
     Error error = fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
@@ -211,16 +209,17 @@ bool GLWindow::_createFBO( util::FrameBufferObject*& fbo, const int samplesSize)
 
 void GLWindow::_destroyFBO( util::FrameBufferObject*& fbo )
 {
-    if( fbo )
-        fbo->exit();
+    if( !fbo )
+        return;
 
+    fbo->exit();
     delete fbo;
     fbo = 0;
 }
 
 void GLWindow::bindFrameBuffer() const
 {
-   if( !_impl->glewInitialized )
+   if( !_impl->glewContext )
        return;
 
    if( _impl->fbo )
@@ -231,7 +230,7 @@ void GLWindow::bindFrameBuffer() const
 
 void GLWindow::bindDrawFrameBuffer() const
 {
-    if( !_impl->glewInitialized )
+    if( !_impl->glewContext )
         return;
 
     if( _impl->fboMultiSample )
@@ -242,7 +241,7 @@ void GLWindow::bindDrawFrameBuffer() const
 
 void GLWindow::updateFrameBuffer() const
 {
-    if( !_impl->glewInitialized || !_impl->fboMultiSample )
+    if( !_impl->glewContext || !_impl->fboMultiSample )
         return;
 
     _impl->fboMultiSample->bind( GL_READ_FRAMEBUFFER_EXT );
@@ -266,26 +265,28 @@ void GLWindow::finish()
 
 #define TEST_GLEW_VERSION( MAJOR, MINOR ) \
     if( GLEW_VERSION_ ## MAJOR ## _ ## MINOR )  \
-        drawableConfig.glewGLVersion = MAJOR ## . ## MINOR ## f;    \
+        dc.glewGLVersion = MAJOR ## . ## MINOR ## f;    \
 
-void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
+void GLWindow::queryDrawableConfig( DrawableConfig& dc )
 {
+    dc = DrawableConfig();
+
     // GL version
     const char* glVersion = (const char*)glGetString( GL_VERSION );
-    if( !glVersion ) // most likely no context - fail
+    if( !glVersion ) // most likely no context
     {
         LBWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1"
                << std::endl;
-        drawableConfig.glVersion = 1.1f;
+        dc.glVersion = 1.1f;
     }
     else
-        drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
+        dc.glVersion = static_cast<float>( std::atof( glVersion ));
 
-    if( drawableConfig.glVersion >= 3.2f )
+    if( dc.glVersion >= 3.2f )
     {
         GLint mask;
         EQ_GL_CALL( glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask ));
-        drawableConfig.coreProfile = mask & GL_CONTEXT_CORE_PROFILE_BIT;
+        dc.coreProfile = mask & GL_CONTEXT_CORE_PROFILE_BIT;
     }
 
     TEST_GLEW_VERSION( 1, 1 );
@@ -311,57 +312,51 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     // Framebuffer capabilities
     GLboolean result;
     EQ_GL_CALL( glGetBooleanv( GL_STEREO, &result ));
-    drawableConfig.stereo = result;
+    dc.stereo = result;
 
     EQ_GL_CALL( glGetBooleanv( GL_DOUBLEBUFFER, &result ));
-    drawableConfig.doublebuffered = result;
+    dc.doublebuffered = result;
 
-    GLint stencilBits, colorBits, alphaBits, accumBits;
-    stencilBits = colorBits = alphaBits = accumBits = 0;
-    if( drawableConfig.coreProfile )
+    if( dc.coreProfile )
     {
         if( getFrameBufferObject( ))
         {
             glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
                 GL_DEPTH_STENCIL_ATTACHMENT,
-                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits );
+                GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &dc.stencilBits );
             // eat GL error if no stencil attachment; should return '0' bits
             // according to spec, but gives GL_INVALID_OPERATION
             glGetError();
             EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
                 GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
-                                                               &colorBits ));
+                                                               &dc.colorBits ));
             EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
                 GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
-                                                               &alphaBits ));
+                                                               &dc.alphaBits ));
         }
         else
         {
             EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
                 GL_FRONT_LEFT, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
-                                                               &stencilBits ));
+                                                               &dc.stencilBits ));
             EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
                 GL_FRONT_LEFT, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
-                                                               &colorBits ));
+                                                               &dc.colorBits ));
             EQ_GL_CALL( glGetFramebufferAttachmentParameteriv( GL_FRAMEBUFFER,
                 GL_FRONT_LEFT, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
-                                                               &alphaBits ));
+                                                               &dc.alphaBits ));
         }
     }
     else
     {
-        EQ_GL_CALL( glGetIntegerv( GL_STENCIL_BITS, &stencilBits ));
-        EQ_GL_CALL( glGetIntegerv( GL_RED_BITS, &colorBits ));
-        EQ_GL_CALL( glGetIntegerv( GL_ALPHA_BITS, &alphaBits ));
-        EQ_GL_CALL( glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_STENCIL_BITS, &dc.stencilBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_RED_BITS, &dc.colorBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_ALPHA_BITS, &dc.alphaBits ));
+        EQ_GL_CALL( glGetIntegerv( GL_ACCUM_RED_BITS, &dc.accumBits ));
     }
 
-    drawableConfig.stencilBits = stencilBits;
-    drawableConfig.colorBits = colorBits;
-    drawableConfig.alphaBits = alphaBits;
-    drawableConfig.accumBits = accumBits * 4;
-
-    LBDEBUG << "Window drawable config: " << drawableConfig << std::endl;
+    dc.accumBits *= 4;
+    LBDEBUG << "Window drawable config: " << dc << std::endl;
 }
 
 }
