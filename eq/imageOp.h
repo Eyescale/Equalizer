@@ -18,6 +18,7 @@
 #ifndef EQ_IMAGEOP_H
 #define EQ_IMAGEOP_H
 
+#include <eq/api.h>
 #include <eq/types.h>
 #include <eq/zoomFilter.h> // member
 #include <eq/fabric/pixel.h> // member
@@ -31,7 +32,7 @@ struct ImageOp
 {
     ImageOp() : image( 0 ), buffers( 0 ), offset( Vector2i::ZERO )
               , zoomFilter( FILTER_LINEAR ) {}
-    ImageOp( const Frame* frame, const Image* image );
+    EQ_API ImageOp( const Frame* frame, const Image* image );
 
     const Image* image;    //!< The image to assemble
     uint32_t buffers;      //!< The Frame buffer attachments to use

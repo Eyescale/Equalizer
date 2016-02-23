@@ -48,7 +48,7 @@ namespace server
                               const uint32_t frameNumber ) final;
 
         /** @sa ChannelListener::notifyLoadData */
-        void notifyLoadData( Channel* channel, const uint32_t frameNumber,
+        void notifyLoadData( Channel* channel, uint32_t frameNumber,
                              const Statistics& statistics,
                              const Viewport& region ) final;
 
