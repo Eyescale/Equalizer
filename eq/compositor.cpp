@@ -346,9 +346,8 @@ void _merge2DImage( void* destColor, void* destDepth,
     }
 }
 
-
-void _mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
-                       const Image* image, const Vector2i& offset )
+void _blendImage( void* dest, const eq::PixelViewport& destPVP,
+                  const Image* image, const Vector2i& offset )
 {
     LBVERB << "CPU-Blend assembly" << std::endl;
 
@@ -410,7 +409,7 @@ void _mergeImages( const ImageOps& ops, const bool blend, void* colorBuffer,
             _mergeDBImage( colorBuffer, depthBuffer, destPVP, op.image,
                            op.offset );
         else if( blend && op.image->hasAlpha( ))
-            _mergeBlendImage( colorBuffer, destPVP, op.image, op.offset );
+            _blendImage( colorBuffer, destPVP, op.image, op.offset );
         else
             _merge2DImage( colorBuffer, depthBuffer, destPVP, op.image,
                            op.offset );

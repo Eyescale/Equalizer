@@ -20,7 +20,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-#include <lunchbox/bitoperation.h> // inline template specialization
+#include <lunchbox/bitOperation.h> // inline template specialization
 #include <iostream>
 
 namespace eq
