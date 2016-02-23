@@ -744,17 +744,11 @@ uint32_t Compositor::blendImages( const ImageOps& ops, Channel* channel,
         return count;
     }
 
-    glEnable( GL_BLEND );
-    LBASSERT( GLEW_EXT_blend_func_separate );
-    glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
-
     uint32_t count = 1;
     if( _useCPUAssembly( ops, true ))
         count = assembleImagesCPU( ops, channel, true );
     else for( const ImageOp& op : ops )
         assembleImage( op, channel );
-
-    glDisable( GL_BLEND );
     return count;
 }
 

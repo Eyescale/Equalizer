@@ -94,9 +94,9 @@ public:
      *
      * If alpha-blending is enabled, the images are blended into the
      * intermediate image in main memory as if using: glBlendFuncSeparate(
-     * GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA ) The resulting image is
-     * composited using glBlendFunc( GL_ONE, GL_SRC_ALPHA ) into the current
-     * framebuffer.
+     * GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA ). The resulting image is
+     * composited into the current framebuffer, using preset OpenGL blending
+     * state.
      *
      * @param frames the frames to assemble.
      * @param channel the destination channel.
