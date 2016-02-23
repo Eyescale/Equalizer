@@ -53,7 +53,7 @@ int main( const int argc, char** argv )
                 eq::fabric::ConfigParams configParams;
                 eq::Config* config = server->chooseConfig( configParams );
                 if( !config ) // Autoconfig failed, likely there are no GPUs
-                    return EXIT_SUCCESS;
+                    continue;
 
                 for( size_t l = 0; l < LOOPS; ++l )
                 {
@@ -62,7 +62,6 @@ int main( const int argc, char** argv )
                               " config " << k << " init " << l );
                     config->exit();
                 }
-
                 server->releaseConfig( config );
             }
             client->disconnectServer( server );
