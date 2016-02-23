@@ -99,7 +99,7 @@ void orderImages( eq::ImageOps& images, const eq::Matrix4f& modelviewM,
 
         // copy slices that should be rendered first
         memcpy( &images[ nImages-minPos-1 ], &imagesTmp[0],
-                (minPos+1)*sizeof( eq::ImageOp ));
+                (minPos+1) * sizeof( eq::ImageOp ));
 
          // copy slices that should be rendered last, in reverse order
         for( size_t i=0; i < nImages-minPos-1; ++i )

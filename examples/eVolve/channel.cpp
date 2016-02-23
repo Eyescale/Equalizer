@@ -225,19 +225,6 @@ eq::Matrix4f Channel::_computeModelView() const
     return getHeadTransform() * modelView;
 }
 
-
-static void _expandPVP( eq::PixelViewport& pvp, const eq::Images& images,
-                        const eq::Vector2i& offset )
-{
-    for( eq::Images::const_iterator i = images.begin();
-         i != images.end(); ++i )
-    {
-        const eq::PixelViewport imagePVP = (*i)->getPixelViewport() + offset;
-        pvp.merge( imagePVP );
-    }
-}
-
-
 void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
     // clear given area
@@ -299,7 +286,7 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
             {
                 dbImages.emplace_back( op );
                 zoom = frame->getZoom();
-                _expandPVP( coveredPVP, frame->getImages(), frame->getOffset());
+                coveredPVP.merge( image->getPixelViewport() + frame->getOffset());
             }
         }
     }
@@ -324,15 +311,6 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
 
     _orderImages( dbImages );
 
-    // Update range
-    eq::Range newRange( 1.f, 0.f );
-    for( const eq::ImageOp& op : dbImages )
-    {
-        const eq::Range& range = op.image->getContext().range;
-        if( newRange.start > range.start ) newRange.start = range.start;
-        if( newRange.end   < range.end   ) newRange.end   = range.end;
-    }
-
     // check if current image is in proper position, read back if not
     if( dbCompose )
     {
@@ -344,14 +322,29 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
             eq::PixelViewport pvp = getRegion();
             pvp.intersect( coveredPVP );
 
-            if( _image.startReadback( eq::Frame::BUFFER_COLOR, pvp,
-                                      getContext(), zoom, glObjects ))
+            // Update range
+            eq::Range range( 1.f, 0.f );
+            for( const eq::ImageOp& op : dbImages )
+            {
+                const eq::Range& r = op.image->getContext().range;
+                range.start = std::min( range.start, r.start );
+                range.end = std::max( range.end, r.end );
+            }
+            eq::RenderContext context = _image.getContext();
+            context.range = range;
+
+            if( _image.startReadback( eq::Frame::BUFFER_COLOR, pvp, context,
+                                      zoom, glObjects ))
             {
                 _image.finishReadback( glewGetContext( ));
             }
             clearViewport( coveredPVP );
         }
     }
+
+    glEnable( GL_BLEND );
+    LBASSERT( GLEW_EXT_blend_func_separate );
+    glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 
     eq::Compositor::blendImages( dbImages, this, 0 );
     resetAssemblyState();
