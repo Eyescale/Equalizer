@@ -36,6 +36,56 @@ namespace
 {
 typedef std::vector< EventHandler* > EventHandlers;
 static lunchbox::PerThread< EventHandlers > _eventHandlers;
+
+// Values come from QtCore/qnamespace.h, but don't want to depend on Qt just for that
+uint32_t _getKey( const int key )
+{
+    switch( key )
+    {
+    case 0x01000000: return KC_ESCAPE;
+    case 0x01000001: return KC_TAB;
+    case 0x01000003: return KC_BACKSPACE;
+    case 0x01000004: return KC_RETURN;
+    case 0x01000010: return KC_HOME;
+    case 0x01000011: return KC_END;
+    case 0x01000012: return KC_LEFT;
+    case 0x01000013: return KC_UP;
+    case 0x01000014: return KC_RIGHT;
+    case 0x01000015: return KC_DOWN;
+    case 0x01000016: return KC_PAGE_UP;
+    case 0x01000017: return KC_PAGE_DOWN;
+    case 0x01000020: return KC_SHIFT_L;
+    case 0x01000021: return KC_CONTROL_L;
+    case 0x01000023: return KC_ALT_L;
+    case 0x01000030: return KC_F1;
+    case 0x01000031: return KC_F2;
+    case 0x01000032: return KC_F3;
+    case 0x01000033: return KC_F4;
+    case 0x01000034: return KC_F5;
+    case 0x01000035: return KC_F6;
+    case 0x01000036: return KC_F7;
+    case 0x01000037: return KC_F8;
+    case 0x01000038: return KC_F9;
+    case 0x01000039: return KC_F10;
+    case 0x0100003a: return KC_F11;
+    case 0x0100003b: return KC_F12;
+    case 0x0100003c: return KC_F13;
+    case 0x0100003d: return KC_F14;
+    case 0x0100003e: return KC_F15;
+    case 0x0100003f: return KC_F16;
+    case 0x01000040: return KC_F17;
+    case 0x01000041: return KC_F18;
+    case 0x01000042: return KC_F19;
+    case 0x01000043: return KC_F20;
+    case 0x01000044: return KC_F21;
+    case 0x01000045: return KC_F22;
+    case 0x01000046: return KC_F23;
+    case 0x01000047: return KC_F24;
+    case 0x01001103: return KC_ALT_R;
+    case 0x01ffffff: return KC_VOID;
+    default:         return key;
+    }
+}
 }
 
 EventHandler::EventHandler( Proxy* proxy )
@@ -129,7 +179,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
         case ::deflect::Event::EVT_KEY_RELEASE:
             event.type = deflectEvent.type == ::deflect::Event::EVT_KEY_PRESS ?
                                           Event::KEY_PRESS : Event::KEY_RELEASE;
-            event.keyPress.key = deflectEvent.key;
+            event.keyPress.key = _getKey(  deflectEvent.key );
             break;
         case ::deflect::Event::EVT_PRESS:
         case ::deflect::Event::EVT_RELEASE:

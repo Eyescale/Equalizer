@@ -3,7 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
-
+* [542](https://github.com/Eyescale/Equalizer/pull/542):
+  Fix missing/wrong handling of key events from Deflect host
 * [538](https://github.com/Eyescale/Equalizer/pull/538):
   Support sorted image-based compositing. Minor API changes in the
   compositor, frame and image code
