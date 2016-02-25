@@ -21,6 +21,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
+#include <eq/fabric/vmmlib.h>
 
 #include <eq/fabric/frame.h>         // for Frame::Type
 #include <eq/fabric/renderContext.h> // member

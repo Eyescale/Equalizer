@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -244,7 +244,7 @@ using fabric::StringsCIter; //!< A const_iterator over a std::string vector
 using fabric::Viewports;    //!< A vector of eq::Viewport
 
 /** Frustum culling helper */
-typedef vmml::frustum_culler< float >  FrustumCullerf;
+using vmml::FrustumCullerf;
 
 /** A vector of bytes */
 typedef std::vector< uint8_t >    Vectorub;

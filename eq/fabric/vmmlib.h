@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,44 +18,16 @@
 #ifndef EQFABRIC_VMMLIB_H
 #define EQFABRIC_VMMLIB_H
 
-#define VMMLIB_CUSTOM_CONFIG
-#ifndef NDEBUG
-#  define VMMLIB_SAFE_ACCESSORS
-#endif
-#define VMMLIB_ALIGN( var ) var
+#include <eq/fabric/types.h>
+#include <lunchbox/bitOperation.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4996)
-#  include <vmmlib/vmmlib.hpp>
+#  include <vmmlib/aabb.hpp>
+#  include <vmmlib/frustum.hpp>
+#  include <vmmlib/matrix.hpp>
+#  include <vmmlib/vector.hpp>
 #pragma warning(pop)
-
-#include <lunchbox/bitOperation.h>
-
-namespace eq
-{
-namespace fabric
-{
-using vmml::Matrix3d; //!< A 3x3 double matrix
-using vmml::Matrix4d; //!< A 4x4 double matrix
-using vmml::Matrix3f; //!< A 3x3 float matrix
-using vmml::Matrix4f; //!< A 4x4 float matrix
-using vmml::Vector2ui; //!< A two-component unsigned integer vector
-using vmml::Vector2i; //!< A two-component integer vector
-using vmml::Vector3ui; //!< A three-component unsigned integer vector
-using vmml::Vector3i; //!< A three-component integer vector
-using vmml::Vector4ui; //!< A four-component unsigned integer vector
-using vmml::Vector4i; //!< A four-component integer vector
-using vmml::Vector3d; //!< A three-component double vector
-using vmml::Vector4d; //!< A four-component double vector
-using vmml::Vector2f; //!< A two-component float vector
-using vmml::Vector3f; //!< A three-component float vector
-using vmml::Vector4f; //!< A four-component float vector
-using vmml::Vector3ub; //!< A three-component byte vector
-using vmml::Vector4ub; //!< A four-component byte vector
-using vmml::Frustumf; //!< A frustum definition
-using vmml::AABBf; //!< axis-aligned bounding box
-}
-}
 
 namespace lunchbox
 {
@@ -123,14 +95,14 @@ template<> inline void byteswap( eq::fabric::Frustumf& value )
     byteswap( value.right( ));
     byteswap( value.bottom( ));
     byteswap( value.top( ));
-    byteswap( value.near_plane( ));
-    byteswap( value.far_plane( ));
+    byteswap( value.nearPlane( ));
+    byteswap( value.farPlane( ));
 }
 
 template<> inline void byteswap( eq::fabric::AABBf& value )
 {
-    byteswap( value.getMin( ));
-    byteswap( value.getMax( ));
+    byteswap( value._min );
+    byteswap( value._max );
 }
 }
 

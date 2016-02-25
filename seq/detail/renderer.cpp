@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -82,7 +82,8 @@ ObjectManager& Renderer::getObjectManager()
 const Frustumf& Renderer::getFrustum() const
 {
     LBASSERT( _channel );
-    return _channel ? _channel->getFrustum() : Frustumf::DEFAULT;
+    static Frustumf none;
+    return _channel ? _channel->getFrustum() : none;
 }
 
 const Matrix4f& Renderer::getViewMatrix() const

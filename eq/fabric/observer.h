@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +22,7 @@
 #include <eq/fabric/eye.h>           // enum
 #include <eq/fabric/focusMode.h>     // enum
 #include <eq/fabric/object.h>        // base class
-#include <eq/fabric/types.h>
+#include <eq/fabric/vmmlib.h>
 #include <string>
 #include <vector>
 

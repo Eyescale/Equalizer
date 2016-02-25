@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,8 +87,8 @@ void Renderer::draw( co::Object* frameDataObj )
     const eq::Matrix4f& modelM = getModelMatrix();
     const eq::Matrix4f& view = getViewMatrix();
     const eq::Frustumf& frustum = getFrustum();
-    const eq::Matrix4f projection = frustum.compute_matrix();
-    const eq::Matrix4f pmv = projection * view * modelM;
+    const eq::Matrix4f& projection = frustum.computePerspectiveMatrix();
+    const eq::Matrix4f& pmv = projection * view * modelM;
     const seq::RenderContext& context = getRenderContext();
 
     _state->setProjectionModelViewMatrix( pmv );

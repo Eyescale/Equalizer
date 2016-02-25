@@ -246,26 +246,26 @@ template< class W, class C >
 void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
 {
     LBASSERT( _context );
-    if( _data.nativeContext.frustum.near_plane() != nearPlane ||
-        _data.nativeContext.frustum.far_plane() != farPlane )
+    if( _data.nativeContext.frustum.nearPlane() != nearPlane ||
+        _data.nativeContext.frustum.farPlane() != farPlane )
     {
-        _data.nativeContext.frustum.adjust_near( nearPlane );
-        _data.nativeContext.frustum.far_plane() = farPlane;
-        _data.nativeContext.ortho.near_plane()  = nearPlane;
-        _data.nativeContext.ortho.far_plane()   = farPlane;
+        _data.nativeContext.frustum.adjustNearPlane( nearPlane );
+        _data.nativeContext.frustum.farPlane() = farPlane;
+        _data.nativeContext.ortho.nearPlane() = nearPlane;
+        _data.nativeContext.ortho.farPlane() = farPlane;
         setDirty( DIRTY_FRUSTUM );
     }
 
     if( _context == &_data.nativeContext )
         return;
 
-    if( _context->frustum.near_plane() != nearPlane ||
-        _context->frustum.far_plane() != farPlane )
+    if( _context->frustum.nearPlane() != nearPlane ||
+        _context->frustum.farPlane() != farPlane )
     {
-        _context->frustum.adjust_near( nearPlane );
-        _context->frustum.far_plane() = farPlane;
-        _context->ortho.near_plane() = nearPlane;
-        _context->ortho.far_plane()  = farPlane;
+        _context->frustum.adjustNearPlane( nearPlane );
+        _context->frustum.farPlane() = farPlane;
+        _context->ortho.nearPlane() = nearPlane;
+        _context->ortho.farPlane() = farPlane;
     }
 }
 

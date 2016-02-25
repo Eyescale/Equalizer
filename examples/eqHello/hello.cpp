@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -223,8 +223,8 @@ void eqHello::Renderer::draw( co::Object* /*frameData*/ )
 {
     applyRenderContext(); // set up OpenGL State
 
-    const seq::Matrix4f mvp = getFrustum().compute_matrix() * getViewMatrix() *
-                              getModelMatrix();
+    const seq::Matrix4f mvp = getFrustum().computePerspectiveMatrix() *
+                              getViewMatrix() * getModelMatrix();
 
     EQ_GL_CALL( glUseProgram( _program ));
     EQ_GL_CALL( glUniformMatrix4fv( _matrixUniform, 1, GL_FALSE, &mvp[0] ));

@@ -591,22 +591,16 @@ void _drawTexturedQuad( const T* key, const ImageOp& op,
         coords[1], coords[3], 0.0f
     };
 
-    const GLfloat uvs[] = {
-        0.0f, 0.0f,
-        float( pvp.w ), 0.0f,
-        0.0f, float( pvp.h ),
-        float( pvp.w ), float( pvp.h )
-    };
-
-    eq::Frustumf frustum;
-    frustum.left() = channel->getPixelViewport().x;
-    frustum.right() = channel->getPixelViewport().getXEnd();
-    frustum.bottom() = channel->getPixelViewport().y;
-    frustum.top() = channel->getPixelViewport().getYEnd();
-    frustum.far_plane() = 1.0f;
-    frustum.near_plane() = -1.0f;
-    const eq::Matrix4f& proj = frustum.compute_ortho_matrix();
-
+    const GLfloat uvs[] = { 0.0f, 0.0f,
+                            float( pvp.w ), 0.0f,
+                            0.0f, float( pvp.h ),
+                            float( pvp.w ), float( pvp.h ) };
+    const eq::Matrix4f& proj =
+        eq::Frustumf( channel->getPixelViewport().x,
+                      channel->getPixelViewport().getXEnd(),
+                      channel->getPixelViewport().y,
+                      channel->getPixelViewport().getYEnd(),
+                      -1.0f, 1.0f ).computeOrthoMatrix();
     if( withDepth )
         EQ_GL_CALL( glEnable( GL_DEPTH_TEST ));
 

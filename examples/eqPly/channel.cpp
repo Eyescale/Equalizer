@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Tobias Wolf <twolf@access.unizh.ch>
@@ -510,8 +510,8 @@ eq::Vector2f Channel::getJitter() const
     const eq::PixelViewport& pvp = getPixelViewport();
     const float pvp_w = float( pvp.w );
     const float pvp_h = float( pvp.h );
-    const float frustum_w = float(( getFrustum().get_width( )));
-    const float frustum_h = float(( getFrustum().get_height( )));
+    const float frustum_w = float(( getFrustum().getWidth( )));
+    const float frustum_h = float(( getFrustum().getHeight( )));
 
     const float pixel_w = frustum_w / pvp_w;
     const float pixel_h = frustum_h / pvp_h;
@@ -603,8 +603,8 @@ void Channel::_drawModel( const Model* scene )
     position.set_translation( frameData.getCameraPosition( ));
 
     const eq::Frustumf& frustum = getFrustum();
-    const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
-                                                 frustum.compute_matrix();
+    const eq::Matrix4f projection = useOrtho() ? frustum.computeOrthoMatrix() :
+                                           frustum.computePerspectiveMatrix();
     const eq::Matrix4f& view = getHeadTransform();
     const eq::Matrix4f model = rotation * position * modelRotation;
 
@@ -778,7 +778,7 @@ void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )
         const float width  = std::fabs( frustum.right() - frustum.left() );
         const float height = std::fabs( frustum.top() - frustum.bottom() );
         const float size   = std::min( width, height );
-        const float minNear = std::fabs( frustum.near_plane() / size * .001f );
+        const float minNear = std::fabs( frustum.nearPlane() / size * .001f );
 
         const float zNear = std::max( minNear, -nearPoint.z() );
         const float zFar  = std::max( zNear * 2.f, -farPoint.z() );

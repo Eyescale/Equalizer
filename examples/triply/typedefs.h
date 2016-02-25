@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 
 #ifdef EQUALIZER
 #  include <eq/eq.h>
+#  include <vmmlib/vmmlib.hpp>
 #  define PLYLIBASSERT  LBASSERT
 #  define PLYLIBERROR   LBERROR
 #  define PLYLIBWARN    LBWARN

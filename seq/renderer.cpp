@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -140,7 +140,7 @@ void Renderer::updateNearFar( const Vector4f& boundingSphere )
         const float width  = fabs( frustum.right() - frustum.left() );
         const float height = fabs( frustum.top() - frustum.bottom() );
         const float size   = LB_MIN( width, height );
-        const float minNear = frustum.near_plane() / size * .001f;
+        const float minNear = frustum.nearPlane() / size * .001f;
 
         const float zNear = LB_MAX( minNear, -nearPoint.z() );
         const float zFar  = LB_MAX( zNear * 2.f, -farPoint.z() );

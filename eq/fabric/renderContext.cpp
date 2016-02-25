@@ -25,9 +25,7 @@ namespace fabric
 
 // cppcheck-suppress uninitMemberVar
 RenderContext::RenderContext()
-        : frustum( Frustumf::DEFAULT )
-        , ortho( Frustumf::DEFAULT )
-        , headTransform( Matrix4f::IDENTITY )
+        : headTransform( Matrix4f::IDENTITY )
         , orthoTransform( Matrix4f::IDENTITY )
         , frameID( 0 )
         , overdraw( Vector4i::ZERO )
