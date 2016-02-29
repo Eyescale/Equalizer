@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 namespace triply
 {
 
-typedef vmml::frustum_culler< float >  FrustumCuller;
+using vmml::FrustumCullerf;
 
 /*  Determine number of bits used by the current architecture.  */
 size_t getArchitectureBits();
@@ -78,8 +78,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 #endif
 
     const Range& range = state.getRange();
-    FrustumCuller culler;
-    culler.setup( state.getProjectionModelViewMatrix( ));
+    const FrustumCullerf culler( state.getProjectionModelViewMatrix( ));
 
     // start with root node
     std::vector< const triply::VertexBufferBase* > candidates;
@@ -102,7 +101,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 
         // bounding sphere view frustum culling
         const vmml::Visibility visibility = state.useFrustumCulling() ?
-                            culler.test_sphere( treeNode->getBoundingSphere( )) :
+                            culler.test( treeNode->getBoundingSphere( )) :
                             vmml::VISIBILITY_FULL;
         switch( visibility )
         {

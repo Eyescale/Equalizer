@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-
+#include <lunchbox/bitOperation.h> // inline template specialization
 #include <iostream>
 
 namespace eq
@@ -104,7 +104,7 @@ EQFABRIC_API std::ostream& operator << ( std::ostream&, const Statistic& );
 namespace lunchbox
 {
 template<> inline void byteswap( eq::fabric::Statistic::Type& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+{ byteswap( reinterpret_cast< uint32_t& >( value )); }
 
 template<> inline void byteswap( eq::fabric::Statistic& value )
 {
@@ -126,4 +126,3 @@ template<> inline void byteswap( eq::fabric::Statistic& value )
 }
 
 #endif // EQ_FABRIC_STATISTIC_H
-

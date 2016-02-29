@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -59,7 +59,7 @@ int main( int, char** )
                       Vector3f( -.8f,  .5f, -1.f ));
     Matrix4f inv;
 
-    TEST( frustum.compute_matrix().inverse( inv ));
+    TEST( frustum.computePerspectiveMatrix().inverse( inv ));
     target = inv;
     TESTINFO( wall2 == target, wall2 << " != " << target );
 

@@ -37,6 +37,7 @@
 
 
 #include "jitter.h"
+#include <eq/fabric/vmmlib.h>
 
 namespace eq
 {

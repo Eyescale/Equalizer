@@ -26,6 +26,7 @@
 #include <eq/fabric/paths.h>
 #include <eq/fabric/commands.h>
 #include <co/bufferConnection.h>
+#include <vmmlib/quaternion.hpp>
 
 #ifdef EQUALIZER_USE_OPENCV
 #  include "detail/cvTracker.h"

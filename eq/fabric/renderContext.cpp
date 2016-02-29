@@ -25,18 +25,16 @@ namespace fabric
 
 // cppcheck-suppress uninitMemberVar
 RenderContext::RenderContext()
-        : frustum( Frustumf::DEFAULT )
-        , ortho( Frustumf::DEFAULT )
-        , headTransform( Matrix4f::IDENTITY )
-        , orthoTransform( Matrix4f::IDENTITY )
-        , frameID( 0 )
-        , overdraw( Vector4i::ZERO )
-        , offset( Vector2i::ZERO )
-        , buffer( 0x0405 ) // GL_BACK
-        , taskID( 0 )
-        , period( 1 )
-        , phase( 0 )
-        , eye( EYE_CYCLOP )
+    : headTransform( Matrix4f::IDENTITY )
+    , orthoTransform( Matrix4f::IDENTITY )
+    , frameID( 0 )
+    , overdraw( Vector4i::ZERO )
+    , offset( Vector2i::ZERO )
+    , buffer( 0x0405 ) // GL_BACK
+    , taskID( 0 )
+    , period( 1 )
+    , phase( 0 )
+    , eye( EYE_CYCLOP )
 {
 }
 

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010-2014, Stefan Eilemann <eile@eyescale.ch>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-#include <co/types.h>
+#include <lunchbox/bitOperation.h> // inline template specialization
 
 namespace eq
 {

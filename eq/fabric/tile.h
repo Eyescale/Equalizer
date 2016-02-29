@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2012-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,19 +25,19 @@ namespace eq
 {
 namespace fabric
 {
-    /** @internal */
-    class Tile
-    {
-    public:
-        Tile() {}
-        Tile( const PixelViewport& pvp_, const Viewport& vp_ )
-                : pvp( pvp_ ), vp( vp_ ) {}
+/** @internal */
+class Tile
+{
+public:
+    Tile() {}
+    Tile( const PixelViewport& pvp_, const Viewport& vp_ )
+        : pvp( pvp_ ), vp( vp_ ) {}
 
-        Frustumf frustum;
-        Frustumf ortho;
-        PixelViewport pvp;
-        Viewport vp;
-    };
+    Frustumf frustum;
+    Frustumf ortho;
+    PixelViewport pvp;
+    Viewport vp;
+};
 }
 }
 

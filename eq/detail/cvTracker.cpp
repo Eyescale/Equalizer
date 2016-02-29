@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2013-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,6 +21,7 @@
 #include "../observer.h"
 
 #include <eq/fabric/event.h>
+#include <vmmlib/lowpass_filter.hpp>
 
 #define FACE_CONFIG std::string( OPENCV_INSTALL_PATH ) +            \
     "/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml"

@@ -24,9 +24,8 @@
 #include <eq/fabric/pixelViewport.h>    // member
 #include <eq/fabric/range.h>            // member
 #include <eq/fabric/subPixel.h>         // member
-#include <eq/fabric/types.h>
+#include <eq/fabric/vmmlib.h>
 #include <eq/fabric/zoom.h>             // member
-
 #include <co/objectVersion.h>
 #include <eq/fabric/api.h>
 

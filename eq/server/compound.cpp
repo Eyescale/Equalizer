@@ -770,7 +770,7 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
     const Channel* destination = getInheritChannel();
     frustum = destination->getFrustum();
 
-    const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
+    const float ratio    = ortho ? 1.0f : frustum.nearPlane() / eye.z();
     const float width_2  = frustumData.getWidth()  * .5f;
     const float height_2 = frustumData.getHeight() * .5f;
 

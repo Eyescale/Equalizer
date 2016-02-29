@@ -613,10 +613,10 @@ void Channel::applyPerspective() const
     Frustumf frustum = getPerspective();
     const Vector2f jitter = getJitter();
 
-    frustum.apply_jitter( jitter );
+    frustum.jitter( jitter );
     EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),
                            frustum.bottom(), frustum.top(),
-                           frustum.near_plane(), frustum.far_plane() ));
+                           frustum.nearPlane(), frustum.farPlane( )));
 }
 
 void Channel::applyOrtho() const
@@ -625,10 +625,10 @@ void Channel::applyOrtho() const
     Frustumf ortho = getOrtho();
     const Vector2f jitter = getJitter();
 
-    ortho.apply_jitter( jitter );
+    ortho.jitter( jitter );
     EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),
                          ortho.bottom(), ortho.top(),
-                         ortho.near_plane(), ortho.far_plane() ));
+                         ortho.nearPlane(), ortho.farPlane( )));
 }
 
 void Channel::applyScreenFrustum() const
@@ -637,7 +637,7 @@ void Channel::applyScreenFrustum() const
     const Frustumf frustum = getScreenFrustum();
     EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),
                          frustum.bottom(), frustum.top(),
-                         frustum.near_plane(), frustum.far_plane() ));
+                         frustum.nearPlane(), frustum.farPlane( )));
 }
 
 void Channel::applyHeadTransform() const
@@ -729,8 +729,8 @@ Vector2f Channel::getJitter() const
     const float pvp_h = static_cast<float>( pvp.h );
 
     const Frustumf& frustum = getFrustum();
-    const float frustum_w = frustum.get_width();
-    const float frustum_h = frustum.get_height();
+    const float frustum_w = frustum.getWidth();
+    const float frustum_h = frustum.getHeight();
 
     const float pixel_w = frustum_w / pvp_w;
     const float pixel_h = frustum_h / pvp_h;

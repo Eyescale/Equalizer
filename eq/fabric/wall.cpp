@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,18 +33,18 @@ namespace fabric
 {
 
 Wall::Wall()
-        : bottomLeft( -.8f, -.5f, -1.f )
-        , bottomRight( .8f, -.5f, -1.f )
-        , topLeft(    -.8f,  .5f, -1.f )
-        , type( TYPE_FIXED )
+    : bottomLeft( -.8f, -.5f, -1.f )
+    , bottomRight( .8f, -.5f, -1.f )
+    , topLeft(    -.8f,  .5f, -1.f )
+    , type( TYPE_FIXED )
 {
 }
 
 Wall::Wall( const Vector3f& bl, const Vector3f& br, const Vector3f& tl )
-        : bottomLeft( bl )
-        , bottomRight( br )
-        , topLeft( tl )
-        , type( TYPE_FIXED )
+    : bottomLeft( bl )
+    , bottomRight( br )
+    , topLeft( tl )
+    , type( TYPE_FIXED )
 {
 }
 
@@ -152,7 +152,7 @@ void Wall::apply( const Viewport& viewport )
 void Wall::scale( const float ratio )
 {
     if( ratio == 1.0f )
-       return;
+        return;
 
     bottomLeft *= ratio;
     bottomRight *= ratio;
@@ -256,16 +256,16 @@ std::ostream& operator << ( std::ostream& os, const Wall::Type& type )
 {
     switch( type )
     {
-      case Wall::TYPE_HMD:
-          os << "HMD";
-          break;
+    case Wall::TYPE_HMD:
+        os << "HMD";
+        break;
 
-      default:
-          LBASSERT( false );
+    default:
+        LBASSERT( false );
 
-      case Wall::TYPE_FIXED:
-          os << "fixed";
-          break;
+    case Wall::TYPE_FIXED:
+        os << "fixed";
+        break;
     }
     return os;
 }

@@ -20,6 +20,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
+#include <eq/fabric/vmmlib.h>
 
 namespace eq
 {
