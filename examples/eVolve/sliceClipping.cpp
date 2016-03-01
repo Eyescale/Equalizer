@@ -77,7 +77,7 @@ SliceClipper::SliceClipper()
 {
 }
 
-void SliceClipper::updatePerFrameInfo( const eq::Matrix4d& modelviewM,
+void SliceClipper::updatePerFrameInfo( const eq::Matrix4f& modelviewM,
                                        const double newSliceDistance,
                                        const eq::Range& range
 )
@@ -86,26 +86,26 @@ void SliceClipper::updatePerFrameInfo( const eq::Matrix4d& modelviewM,
     double zRe = -1+2.*range.end;
 
     //rendering parallelepipid's verteces
-    eq::Vector4d vertices[8];
-    vertices[0] = eq::Vector4d(-1.0,-1.0,zRs, 1.0);
-    vertices[1] = eq::Vector4d( 1.0,-1.0,zRs, 1.0);
-    vertices[2] = eq::Vector4d(-1.0, 1.0,zRs, 1.0);
-    vertices[3] = eq::Vector4d( 1.0, 1.0,zRs, 1.0);
+    eq::Vector4f vertices[8];
+    vertices[0] = eq::Vector4f(-1.0,-1.0,zRs, 1.0);
+    vertices[1] = eq::Vector4f( 1.0,-1.0,zRs, 1.0);
+    vertices[2] = eq::Vector4f(-1.0, 1.0,zRs, 1.0);
+    vertices[3] = eq::Vector4f( 1.0, 1.0,zRs, 1.0);
 
-    vertices[4] = eq::Vector4d(-1.0,-1.0,zRe, 1.0);
-    vertices[5] = eq::Vector4d( 1.0,-1.0,zRe, 1.0);
-    vertices[6] = eq::Vector4d(-1.0, 1.0,zRe, 1.0);
-    vertices[7] = eq::Vector4d( 1.0, 1.0,zRe, 1.0);
+    vertices[4] = eq::Vector4f(-1.0,-1.0,zRe, 1.0);
+    vertices[5] = eq::Vector4f( 1.0,-1.0,zRe, 1.0);
+    vertices[6] = eq::Vector4f(-1.0, 1.0,zRe, 1.0);
+    vertices[7] = eq::Vector4f( 1.0, 1.0,zRe, 1.0);
 
     for( int i=0; i<8; i++ )
         for( int j=0; j<3; j++)
             shaderVertices[ i*3+j ] = float( vertices[i][j] );
 
 
-    this->viewVec = eq::Vector4d( -modelviewM.array[ 2],
-                                  -modelviewM.array[ 6],
-                                  -modelviewM.array[10],
-                                  0.0                 );
+    viewVec = eq::Vector4f( -modelviewM.array[ 2],
+                            -modelviewM.array[ 6],
+                            -modelviewM.array[10],
+                            0.0 );
 
     viewVecf = eq::Vector3f( float( viewVec.x( )), float( viewVec.y( )),
                              float( viewVec.z( )));
@@ -172,4 +172,3 @@ eq::Vector3f SliceClipper::getPosition
 
 
 }
-

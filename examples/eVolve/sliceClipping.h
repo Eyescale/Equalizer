@@ -33,8 +33,6 @@
 
 namespace eVolve
 {
-
-
 struct SliceClipper
 {
     SliceClipper();
@@ -46,7 +44,7 @@ struct SliceClipper
 
     typedef eq::Vector3f float3;
 
-    void updatePerFrameInfo( const eq::Matrix4d& modelviewM,
+    void updatePerFrameInfo( const eq::Matrix4f& modelviewM,
                              const double sliceDistance,
                              const eq::Range& range );
 
@@ -58,7 +56,7 @@ struct SliceClipper
 
     float           shaderVertices[24];
     eq::Vector3f    viewVecf;
-    eq::Vector4d    viewVec;
+    eq::Vector4f    viewVec;
     int             frontIndex;
     double          sliceDistance;
     double          planeStart;

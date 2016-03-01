@@ -38,10 +38,10 @@ namespace eVolve
 
 RawVolumeModelRenderer::RawVolumeModelRenderer( const std::string& filename,
                                                 const uint32_t     precision )
-        : _rawModel(  filename  )
-        , _precision( precision )
-        , _glewContext( 0 )
-        , _ortho( false )
+    : _rawModel(  filename  )
+    , _precision( precision )
+    , _glewContext( 0 )
+    , _ortho( false )
 {
 }
 
@@ -56,7 +56,7 @@ static void renderSlices( const SliceClipper& sliceClipper )
         for( int i = 0; i < 6; ++i )
         {
             eq::Vector3f pos =
-                    sliceClipper.getPosition( i, numberOfSlices-1-s );
+                sliceClipper.getPosition( i, numberOfSlices-1-s );
 
             glVertex4f( pos.x(), pos.y(), pos.z(), 1.0 );
         }
@@ -66,7 +66,7 @@ static void renderSlices( const SliceClipper& sliceClipper )
 
 
 void RawVolumeModelRenderer::_putVolumeDataToShader(
-        const VolumeInfo&   volumeInfo,
+    const VolumeInfo&   volumeInfo,
         const float         sliceDistance,
         const eq::Matrix4f& invRotationM,
         const eq::Vector4f& taintColor,
@@ -146,7 +146,7 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
 
 
 bool RawVolumeModelRenderer::render( const eq::Range& range,
-                                     const eq::Matrix4d& modelviewM,
+                                     const eq::Matrix4f& modelviewM,
                                      const eq::Matrix4f& invRotationM,
                                      const eq::Vector4f& taintColor,
                                      const int normalsQuality )
@@ -204,5 +204,3 @@ bool RawVolumeModelRenderer::loadShaders()
     return true;
 }
 }
-
-

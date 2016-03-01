@@ -31,6 +31,7 @@
 #include "vertexBufferRoot.h"
 #include "vertexBufferState.h"
 #include "vertexData.h"
+#include <vmmlib/frustumCuller.hpp>
 #include <string>
 #include <sstream>
 #include <fcntl.h>
