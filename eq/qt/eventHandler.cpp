@@ -220,6 +220,10 @@ WindowEvent* EventHandler::_translateEvent( QEvent* qevent )
         return _mousePressEvent( static_cast< QMouseEvent* >( qevent ));
     case QEvent::MouseButtonRelease:
         return _mouseReleaseEvent( static_cast< QMouseEvent* >( qevent ));
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+        return _wheelEvent( static_cast< QWheelEvent* >( qevent ));
+#endif
     case QEvent::KeyPress:
         return _keyEvent( static_cast< QKeyEvent* >( qevent ),
                           Event::KEY_PRESS);
