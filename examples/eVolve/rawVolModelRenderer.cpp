@@ -66,11 +66,9 @@ static void renderSlices( const SliceClipper& sliceClipper )
 
 
 void RawVolumeModelRenderer::_putVolumeDataToShader(
-    const VolumeInfo&   volumeInfo,
-        const float         sliceDistance,
-        const eq::Matrix4f& invRotationM,
-        const eq::Vector4f& taintColor,
-        const int           normalsQuality )
+    const VolumeInfo& volumeInfo, const float sliceDistance,
+    const eq::Matrix4f& invRotationM, const eq::Vector4f& taintColor,
+    const int normalsQuality )
 {
     LBASSERT( _glewContext );
 
