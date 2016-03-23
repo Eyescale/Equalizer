@@ -112,17 +112,16 @@ void Renderer::clear( co::Object* /*frameData*/ )
 void Renderer::updateNearFar( const Vector4f& boundingSphere )
 {
     const Matrix4f& view = getViewMatrix();
-    Matrix4f viewInv;
-    compute_inverse( view, viewInv );
-
+    const Matrix4f& viewInv = view.inverse();
     const Vector3f& zero  = viewInv * Vector3f::ZERO;
     Vector3f        front = viewInv * Vector3f( 0.0f, 0.0f, -1.0f );
     front -= zero;
     front.normalize();
     front *= boundingSphere.w();
 
-    const Vector3f& translation = getModelMatrix().get_translation();
-    const Vector3f& center = translation - boundingSphere.get_sub_vector<3, 0>();
+    const Vector3f& translation = getModelMatrix().getTranslation();
+    const Vector3f& center = translation -
+                             boundingSphere.get_sub_vector< 3, 0 >();
     const Vector3f& nearPoint  = view * ( center - front );
     const Vector3f& farPoint   = view * ( center + front );
 

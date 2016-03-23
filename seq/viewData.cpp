@@ -32,7 +32,6 @@ namespace seq
 {
 ViewData::ViewData( View& view )
     : _view( view )
-    , _modelMatrix( eq::Matrix4f::IDENTITY )
     , _spinX( 5 )
     , _spinY( 5 )
     , _advance( 0 )
@@ -166,13 +165,12 @@ void ViewData::spinModel( const float x, const float y, const float z )
     if( x == 0.f && y == 0.f && z == 0.f )
         return;
 
-    Vector3f translation;
-    _modelMatrix.get_translation( translation );
-    _modelMatrix.set_translation( Vector3f::ZERO );
+    const Vector3f translation = _modelMatrix.getTranslation();
+    _modelMatrix.setTranslation( Vector3f::ZERO );
     _modelMatrix.pre_rotate_x( x );
     _modelMatrix.pre_rotate_y( y );
     _modelMatrix.pre_rotate_z( z );
-    _modelMatrix.set_translation( translation);
+    _modelMatrix.setTranslation( translation);
     setDirty( DIRTY_MODELMATRIX );
 }
 
@@ -182,8 +180,8 @@ void ViewData::moveModel( const float x, const float y, const float z )
         return;
 
     const float unit = _view.getModelUnit();
-    _modelMatrix.set_translation( _modelMatrix.get_translation() +
-                                  Vector3f( x * unit, y * unit, z * unit ));
+    _modelMatrix.setTranslation( _modelMatrix.get_translation() +
+                                 Vector3f( x * unit, y * unit, z * unit ));
     setDirty( DIRTY_MODELMATRIX );
 }
 

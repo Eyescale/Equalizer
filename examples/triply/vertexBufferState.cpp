@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,11 +29,10 @@
 
 #include "vertexBufferState.h"
 
-namespace triply 
+namespace triply
 {
-VertexBufferState::VertexBufferState( const GLEWContext* glewContext ) 
-        : _pmvMatrix( Matrix4f::IDENTITY )
-        , _glewContext( glewContext )
+VertexBufferState::VertexBufferState( const GLEWContext* glewContext )
+        : _glewContext( glewContext )
         , _renderMode( RENDER_MODE_DISPLAY_LIST )
         , _useColors( false )
         , _useFrustumCulling( true )
@@ -42,10 +41,10 @@ VertexBufferState::VertexBufferState( const GLEWContext* glewContext )
     _range[1] = 1.f;
     resetRegion();
     PLYLIBASSERT( glewContext );
-} 
+}
 
-void VertexBufferState::setRenderMode( const RenderMode mode ) 
-{ 
+void VertexBufferState::setRenderMode( const RenderMode mode )
+{
     if( _renderMode == mode )
         return;
 
@@ -119,20 +118,20 @@ GLuint VertexBufferStateSimple::getDisplayList( const void* key )
         return INVALID;
     return _displayLists[key];
 }
-        
+
 GLuint VertexBufferStateSimple::newDisplayList( const void* key )
 {
     _displayLists[key] = glGenLists( 1 );
     return _displayLists[key];
 }
-        
+
 GLuint VertexBufferStateSimple::getBufferObject( const void* key )
 {
     if( _bufferObjects.find( key ) == _bufferObjects.end() )
         return INVALID;
     return _bufferObjects[key];
 }
-        
+
 GLuint VertexBufferStateSimple::newBufferObject( const void* key )
 {
     if( !GLEW_VERSION_1_5 )
@@ -140,7 +139,7 @@ GLuint VertexBufferStateSimple::newBufferObject( const void* key )
     glGenBuffers( 1, &_bufferObjects[key] );
     return _bufferObjects[key];
 }
-        
+
 void VertexBufferStateSimple::deleteAll()
 {
     for( GLMapCIter i = _displayLists.begin(); i != _displayLists.end(); ++i )

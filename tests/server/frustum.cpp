@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan Eilemann <eilemann@equalizergraphics.com>
+/* Copyright (c) 2013-2016, Stefan Eilemann <eilemann@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,8 +32,8 @@ int main( int, char** )
                      Vector3f( -.8f,  .5f, -1.f ));
     data.applyWall( wall );
 
-    Matrix4f xfm( Matrix4f::IDENTITY );
-    xfm.z() = 1.f;
+    Matrix4f xfm;
+    xfm.array[14] = 1.f;
     TESTINFO( data.getTransform() == xfm, data.getTransform( ));
     TESTINFO( data.getWidth() == 1.6f, data.getWidth( ));
     TESTINFO( data.getHeight() == 1.0f, data.getHeight( ));
@@ -44,9 +44,9 @@ int main( int, char** )
                      Vector3f( -1,  1,  1 ));
     data.applyWall( left );
 
-    xfm.z() = 0.f;
+    xfm.array[14] = 0.f;
     xfm.rotate_y( -M_PI_2 );
-    xfm.z() = 1.f;
+    xfm.array[14] = 1.f;
     TESTINFO( xfm.equals( data.getTransform(), 0.0001f ),
               std::endl << data.getTransform() << xfm );
     TESTINFO( data.getWidth() == 2.f, data.getWidth( ));
@@ -58,8 +58,8 @@ int main( int, char** )
                         Vector3f( -1,  1,  1 ));
     data.applyWall( offaxis );
 
-    xfm.x() =  .5f;
-    xfm.y() = -.5f;
+    xfm.array[12] =  .5f;
+    xfm.array[13] = -.5f;
     TESTINFO( xfm.equals( data.getTransform(), 0.0001f ),
               std::endl << data.getTransform() << xfm );
     TESTINFO( data.getWidth() == 1.f, data.getWidth( ));
