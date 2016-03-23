@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -30,8 +30,7 @@
 namespace seq
 {
 ViewData::ViewData()
-        : _modelMatrix( eq::Matrix4f::IDENTITY )
-        , _spinX( 5 )
+        : _spinX( 5 )
         , _spinY( 5 )
         , _advance( 0 )
         , _statistics( false )
@@ -164,13 +163,12 @@ void ViewData::spinModel( const float x, const float y, const float z )
     if( x == 0.f && y == 0.f && z == 0.f )
         return;
 
-    Vector3f translation;
-    _modelMatrix.get_translation( translation );
-    _modelMatrix.set_translation( Vector3f::ZERO );
+    const Vector3f translation = _modelMatrix.getTranslation();
+    _modelMatrix.setTranslation( Vector3f::ZERO );
     _modelMatrix.pre_rotate_x( x );
     _modelMatrix.pre_rotate_y( y );
     _modelMatrix.pre_rotate_z( z );
-    _modelMatrix.set_translation( translation);
+    _modelMatrix.setTranslation( translation);
     setDirty( DIRTY_MODELMATRIX );
 }
 
@@ -179,8 +177,8 @@ void ViewData::moveModel( const float x, const float y, const float z )
     if( x == 0.f && y == 0.f && z == 0.f )
         return;
 
-    _modelMatrix.set_translation( _modelMatrix.get_translation() +
-                                  Vector3f( x, y, z ));
+    _modelMatrix.setTranslation( _modelMatrix.getTranslation() +
+                                 Vector3f( x, y, z ));
     setDirty( DIRTY_MODELMATRIX );
 }
 

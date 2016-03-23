@@ -134,6 +134,7 @@ using vmml::Vector3ub; //!< A three-component byte vector
 using vmml::Vector4ub; //!< A four-component byte vector
 using vmml::Frustumf; //!< A frustum definition
 using vmml::AABBf; //!< axis-aligned bounding box
+using vmml::Quaternionf; // !< A float quaternion
 }
 }
 

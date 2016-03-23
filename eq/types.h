@@ -230,6 +230,7 @@ using fabric::Vector3f;   //!< A three-component float vector
 using fabric::Vector4f;   //!< A four-component float vector
 using fabric::Vector3ub;  //!< A three-component byte vector
 using fabric::Frustumf;   //!< A frustum definition
+using fabric::Quaternionf; // !< A float quaternion
 
 using fabric::EventOCommand;
 using fabric::FocusMode;

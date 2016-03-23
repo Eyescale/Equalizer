@@ -607,7 +607,7 @@ void _drawTexturedQuad( const T* key, const ImageOp& op,
     EQ_GL_CALL( glUseProgram( program ));
 
     const GLuint projection = glGetUniformLocation( program, "proj" );
-    EQ_GL_CALL( glUniformMatrix4fv( projection, 1, GL_FALSE, &proj[0] ));
+    EQ_GL_CALL( glUniformMatrix4fv( projection, 1, GL_FALSE, proj.data( )));
 
     EQ_GL_CALL( glBindBuffer( GL_ARRAY_BUFFER, vertexBuffer ));
     EQ_GL_CALL( glBufferData( GL_ARRAY_BUFFER, sizeof(vertices), vertices,

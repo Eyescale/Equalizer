@@ -192,10 +192,8 @@ void FrameData::moveCamera( const float x, const float y, const float z )
 {
     if( _pilotMode )
     {
-        eq::Matrix4f matInverse;
-        compute_inverse( _rotation, matInverse );
-        eq::Vector4f shift = matInverse * eq::Vector4f( x, y, z, 1 );
-
+        const eq::Matrix4f& matInverse = _rotation.inverse();
+        const eq::Vector4f shift = matInverse * eq::Vector4f( x, y, z, 1 );
         _position += shift;
     }
     else
@@ -216,7 +214,7 @@ void FrameData::setCameraPosition( const eq::Vector3f& position )
 
 void FrameData::setRotation( const eq::Vector3f& rotation )
 {
-    _rotation = eq::Matrix4f::IDENTITY;
+    _rotation = eq::Matrix4f();
     _rotation.rotate_x( rotation.x() );
     _rotation.rotate_y( rotation.y() );
     _rotation.rotate_z( rotation.z() );
@@ -225,7 +223,7 @@ void FrameData::setRotation( const eq::Vector3f& rotation )
 
 void FrameData::setModelRotation(  const eq::Vector3f& rotation )
 {
-    _modelRotation = eq::Matrix4f::IDENTITY;
+    _modelRotation = eq::Matrix4f();
     _modelRotation.rotate_x( rotation.x( ));
     _modelRotation.rotate_y( rotation.y( ));
     _modelRotation.rotate_z( rotation.z( ));
@@ -234,19 +232,19 @@ void FrameData::setModelRotation(  const eq::Vector3f& rotation )
 
 void FrameData::reset()
 {
-    eq::Matrix4f model = eq::Matrix4f::IDENTITY;
+    eq::Matrix4f model = eq::Matrix4f();
     model.rotate_x( static_cast<float>( -M_PI_2 ));
     model.rotate_y( static_cast<float>( -M_PI_2 ));
 
     if( _position == eq::Vector3f( 0.f, 0.f, -2.f ) &&
-        _rotation == eq::Matrix4f::IDENTITY && _modelRotation == model )
+        _rotation == eq::Matrix4f() && _modelRotation == model )
     {
         _position.z() = 0.f;
     }
     else
     {
         _position = eq::Vector3f( 0.f, 0.f, -2.f );
-        _rotation = eq::Matrix4f::IDENTITY;
+        _rotation = eq::Matrix4f();
         _modelRotation = model;
     }
     setDirty( DIRTY_CAMERA );

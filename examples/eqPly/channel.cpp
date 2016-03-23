@@ -599,8 +599,8 @@ void Channel::_drawModel( const Model* scene )
     // Compute cull matrix
     const eq::Matrix4f& rotation = frameData.getCameraRotation();
     const eq::Matrix4f& modelRotation = frameData.getModelRotation();
-    eq::Matrix4f position = eq::Matrix4f::IDENTITY;
-    position.set_translation( frameData.getCameraPosition( ));
+    eq::Matrix4f position;
+    position.setTranslation( frameData.getCameraPosition( ));
 
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = useOrtho() ? frustum.computeOrthoMatrix() :
@@ -748,9 +748,7 @@ void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )
     const FrameData& frameData = _getFrameData();
     const eq::Matrix4f& rotation = frameData.getCameraRotation();
     const eq::Matrix4f& view = getHeadTransform() * rotation;
-
-    eq::Matrix4f viewInv;
-    compute_inverse( view, viewInv );
+    const eq::Matrix4f& viewInv = view.inverse();
 
     const eq::Vector3f& zero  = viewInv * eq::Vector3f::ZERO;
     eq::Vector3f        front = viewInv * eq::Vector3f( 0.0f, 0.0f, -1.0f );
