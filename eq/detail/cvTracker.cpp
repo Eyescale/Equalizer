@@ -21,7 +21,7 @@
 #include "../observer.h"
 
 #include <eq/fabric/event.h>
-#include <vmmlib/lowpass_filter.hpp>
+#include <vmmlib/lowpassFilter.hpp>
 
 #define FACE_CONFIG std::string( OPENCV_INSTALL_PATH ) +            \
     "/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml"
@@ -95,10 +95,10 @@ void CVTracker::run()
     eq::Config* config = observer_->getConfig();
     const uint128_t originator = observer_->getID();
 
-    vmml::lowpass_filter< 5, Vector3f > position( .3f );
-    vmml::lowpass_filter< 5, float > roll( .3f );
-    vmml::lowpass_filter< 5, float > headEyeRatio( .3f );
-    Matrix4f head( Matrix4f::IDENTITY );
+    vmml::LowpassFilter< 5, Vector3f > position( .3f );
+    vmml::LowpassFilter< 5, float > roll( .3f );
+    vmml::LowpassFilter< 5, float > headEyeRatio( .3f );
+    Matrix4f head;
 
     headEyeRatio.add( .4f ); // initial guesses
     float width = 0.f;
@@ -133,7 +133,7 @@ void CVTracker::run()
         eyeDetector_.detectMultiScale( faceROI, eyes, 1.1f, 2,
                                        CV_HAAR_SCALE_IMAGE, cv::Size( 15, 15 ));
         Vector3f center( 0.f, 0.f, 0.f );
-        Matrix3f rotation( Matrix3f::IDENTITY );
+        Matrix3f rotation;
 
         if( eyes.size() == 2 )
         {
@@ -151,7 +151,7 @@ void CVTracker::run()
             rotation.array[ 1 ] = sinf( *roll );
             rotation.array[ 4 ] = -rotation.array[ 1 ];
             rotation.array[ 5 ] =  rotation.array[ 0 ];
-            head.set_sub_matrix( rotation );
+            head.setSubMatrix( rotation, 0, 0 );
 
             if( !isEyeWidth && width > 0.f )
             {
@@ -187,9 +187,7 @@ void CVTracker::run()
         position.add( center ); // low pass smooth filter
 
         // emit
-        head.x() = position->x();
-        head.y() = position->y();
-        head.z() = position->z();
+        head.setTranslation( position.get( ));
 
         LBVERB << "head " << *position << " roll " << *roll << " eyes "
                << (eyes.size() == 2) <<  " h->e " << *headEyeRatio << std::endl;
