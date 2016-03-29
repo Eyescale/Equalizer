@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+# Release 1.11 (21-Mar-2016)
+
 * [542](https://github.com/Eyescale/Equalizer/pull/542):
   Fix missing/wrong handling of key events from Deflect host
 * [538](https://github.com/Eyescale/Equalizer/pull/538):
