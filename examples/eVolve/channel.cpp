@@ -103,7 +103,7 @@ void Channel::frameClear( const eq::uint128_t& )
 }
 
 
-static void setLights( eq::Matrix4f& invRotationM )
+static void setLights( const eq::Matrix4f& invRotationM )
 {
     GLfloat lightAmbient[]  = {0.05f, 0.05f, 0.05f, 1.0f};
     GLfloat lightDiffuse[]  = {0.9f , 0.9f , 0.9f , 1.0f};
@@ -157,9 +157,7 @@ void Channel::frameDraw( const eq::uint128_t& )
     const FrameData&    frameData   = _getFrameData();
     const eq::Matrix4f& rotation    = frameData.getRotation();
     const eq::Vector3f& translation = frameData.getTranslation();
-
-    eq::Matrix4f     invRotationM;
-    rotation.inverse( invRotationM );
+    const eq::Matrix4f invRotationM = rotation.inverse();
     setLights( invRotationM );
 
     EQ_GL_CALL( applyHeadTransform( ));
@@ -207,21 +205,20 @@ eq::Matrix4f Channel::_computeModelView() const
     const FrameData& frameData = _getFrameData();
     const Pipe*      pipe      = static_cast< const Pipe* >( getPipe( ));
     const Renderer*  renderer  = pipe->getRenderer();
-    eq::Matrix4f modelView( eq::Matrix4f::IDENTITY );
+    eq::Matrix4f modelView;
 
     if( renderer )
     {
         const VolumeScaling& volScaling = renderer->getVolumeScaling();
 
-        eq::Matrix4f scale( eq::Matrix4f::ZERO );
-        scale.at(0,0) = volScaling.W;
-        scale.at(1,1) = volScaling.H;
-        scale.at(2,2) = volScaling.D;
-        scale.at(3,3) = 1.f;
+        eq::Matrix4f scale;
+        scale(0,0) = volScaling.W;
+        scale(1,1) = volScaling.H;
+        scale(2,2) = volScaling.D;
 
         modelView = scale * frameData.getRotation();
     }
-    modelView.set_translation( frameData.getTranslation( ));
+    modelView.setTranslation( frameData.getTranslation( ));
     return getHeadTransform() * modelView;
 }
 
@@ -246,15 +243,13 @@ void Channel::_orderImages( eq::ImageOps& images )
 {
     const FrameData&    frameData = _getFrameData();
     const eq::Matrix4f& rotation  = frameData.getRotation();
-    const eq::Matrix4f& modelView = useOrtho() ? eq::Matrix4f::IDENTITY :
+    const eq::Matrix4f& modelView = useOrtho() ? eq::Matrix4f() :
                                                  _computeModelView();
 
     // calculate modelview inversed+transposed matrix
-    eq::Matrix3f modelviewITM;
-    eq::Matrix4f modelviewIM;
-    modelView.inverse( modelviewIM );
-    eq::Matrix3f( modelviewIM ).transpose_to( modelviewITM );
-
+    const eq::Matrix4f& modelviewIM = modelView.inverse();
+    const eq::Matrix3f& modelviewITM =
+        vmml::transpose( eq::Matrix3f( modelviewIM ));
     orderImages( images, modelView, modelviewITM, rotation, useOrtho( ));
 }
 

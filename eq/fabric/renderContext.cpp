@@ -25,9 +25,7 @@ namespace fabric
 
 // cppcheck-suppress uninitMemberVar
 RenderContext::RenderContext()
-    : headTransform( Matrix4f::IDENTITY )
-    , orthoTransform( Matrix4f::IDENTITY )
-    , frameID( 0 )
+    : frameID( 0 )
     , overdraw( Vector4i::ZERO )
     , offset( Vector2i::ZERO )
     , buffer( 0x0405 ) // GL_BACK

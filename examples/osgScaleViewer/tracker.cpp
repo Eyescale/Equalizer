@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch>
- * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Dustin Wueest <wueest@dustin.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,10 +42,8 @@
 #define COMMAND_POINT "B"
 
 Tracker::Tracker()
-        : _running( false ),
-          _fd( 0 ),
-          _worldToEmitter( eq::Matrix4f::IDENTITY ),
-          _sensorToObject( eq::Matrix4f::IDENTITY )
+        : _running( false )
+        , _fd( 0 )
 {
 }
 
@@ -186,11 +184,11 @@ bool Tracker::_update()
 
    // position and rotation are stored in transformation matrix
    // and matrix is scaled to the application's units
-   _matrix = eq::Matrix4f::IDENTITY;
-   _matrix.rotate_x( hpr.x() );
-   _matrix.rotate_y( hpr.y() );
-   _matrix.rotate_z( hpr.z() );
-   _matrix.set_translation( pos );
+   _matrix = eq::Matrix4f();
+   _matrix.rotate_x( hpr.x( ));
+   _matrix.rotate_y( hpr.y( ));
+   _matrix.rotate_z( hpr.z( ));
+   _matrix.setTranslation( pos );
 
    LBINFO << "Tracker pos " << pos << " hpr " << hpr << " = " << _matrix;
 
