@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
- *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -63,15 +63,30 @@ const ViewData* View::getViewData() const
     return static_cast< const ViewData* >( eq::View::getUserData( ));
 }
 
+bool View::configInit()
+{
+    if( !eq::View::configInit( ))
+        return false;
+
+    if( !getPipe() ) // application view
+        setUserData( getConfig()->getApplication()->createViewData( *this ));
+    return true;
+}
+
+bool View::configExit()
+{
+    if( !getPipe() && getViewData( )) // application view
+        getConfig()->getApplication()->destroyViewData( getViewData( ));
+    return eq::View::configExit();
+}
+
 void View::notifyAttach()
 {
     eq::View::notifyAttach();
     Pipe* pipe = getPipe();
 
     if( pipe ) // render client view
-        setUserData( pipe->getRenderer()->createViewData( ));
-    else // application view
-        setUserData( getConfig()->getApplication()->createViewData( ));
+        setUserData( pipe->getRenderer()->createViewData( *this ));
 }
 
 void View::notifyDetached()
@@ -85,8 +100,6 @@ void View::notifyDetached()
 
         if( pipe ) // render client view
             pipe->getRenderer()->destroyViewData( data );
-        else // application view
-            getConfig()->getApplication()->destroyViewData( data );
     }
 
     eq::View::notifyDetached();

@@ -3,6 +3,15 @@ Changelog {#Changelog}
 
 # git master
 
+* [548](https://github.com/Eyescale/Equalizer/pull/548):
+  Sequel tweaks for seqSplotch
+
+  * configInit()/configExit() for eq::View
+  * seq::Application::createViewData receives eq::View as parameter
+  * seq::Renderer::createViewData receives eq::View as parameter
+  * seq::ViewData considers eq::View::getModelUnit for model matrix manipulation
+
+
 # Release 1.11 (21-Mar-2016)
 
 * [542](https://github.com/Eyescale/Equalizer/pull/542):

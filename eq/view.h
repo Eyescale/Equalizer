@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -89,6 +89,23 @@ public:
     //@}
 
 protected:
+    /**
+     * @name Callbacks
+     *
+     * Callbacks are called by Equalizer during rendering to execute various
+     * actions from the application main thread before sending the corresponding
+     * command to the server.
+     */
+    //@{
+    /** Initialize this view. @version 1.11 */
+    virtual bool configInit() { return true; }
+    friend class detail::InitVisitor;
+
+    /** Exit this view. @version 1.11 */
+    virtual bool configExit() { return true; }
+    friend class detail::ExitVisitor;
+    //@}
+
     /** @internal */
     EQ_API virtual void deserialize( co::DataIStream& is,
                                      const uint64_t dirtyBits );

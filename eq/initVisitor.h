@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2013-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,7 +38,10 @@ public:
     {
         if( view->setModelUnit( _modelUnit ))
             _update = true;
-        return TRAVERSE_CONTINUE;
+        if( view->configInit( ))
+            return TRAVERSE_CONTINUE;
+        LBWARN << *view << " initialization failed" << std::endl;
+        return TRAVERSE_TERMINATE;
     }
 
     virtual VisitorResult visitPre( eq::Canvas* canvas )

@@ -31,7 +31,7 @@ class ViewData : public co::Serializable
 {
 public:
     /** Construct a new view data. @version 1.0 */
-    SEQ_API ViewData();
+    SEQ_API explicit ViewData( View& view );
 
     /** Destruct this view data. @version 1.0 */
     SEQ_API virtual ~ViewData();
@@ -95,14 +95,18 @@ public:
      *
      * Called once at the end of each frame to trigger animations. The default
      * implementation updates the camera data.
+     *
      * @return true to request a redraw.
      * @version 1.0
      */
-    virtual SEQ_API bool update();
+    SEQ_API virtual bool update();
     //@}
 
     /** @name Data Access. */
     //@{
+    /** Set the current model matrix (global camera). @version 1.11 */
+    SEQ_API void setModelMatrix( const Matrix4f& matrix );
+
     /** @return the current model matrix (global camera). @version 1.0 */
     const Matrix4f& getModelMatrix() const { return _modelMatrix; }
 
@@ -115,10 +119,9 @@ public:
     //@}
 
 protected:
-    virtual SEQ_API void serialize( co::DataOStream& os,
-                                    const uint64_t dirtyBits );
-    virtual SEQ_API void deserialize( co::DataIStream& is,
-                                      const uint64_t dirtyBits );
+    SEQ_API void serialize( co::DataOStream& os, uint64_t dirtyBits ) override;
+    SEQ_API void deserialize( co::DataIStream& is,
+                              uint64_t dirtyBits ) override;
 
 private:
     /** The changed parts of the object since the last serialize(). */
@@ -131,6 +134,7 @@ private:
 
     bool _handleEvent( const eq::Event& event );
 
+    View& _view;
     Matrix4f _modelMatrix;
     int32_t _spinX, _spinY;
     int32_t _advance;

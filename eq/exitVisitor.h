@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2013-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,11 +24,19 @@ namespace detail
 class ExitVisitor : public ConfigVisitor
 {
 public:
-    virtual VisitorResult visit( eq::Observer* observer )
+    VisitorResult visit( eq::Observer* observer ) final
     {
         if( observer->configExit( ))
             return TRAVERSE_CONTINUE;
-        LBWARN << *observer << " exitialization failed" << std::endl;
+        LBWARN << *observer << " exit failed" << std::endl;
+        return TRAVERSE_TERMINATE;
+    }
+
+    VisitorResult visit( eq::View* view ) final
+    {
+        if( view->configExit( ))
+            return TRAVERSE_CONTINUE;
+        LBWARN << *view << " exit failed" << std::endl;
         return TRAVERSE_TERMINATE;
     }
 };

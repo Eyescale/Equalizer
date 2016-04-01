@@ -58,9 +58,9 @@ const GLEWContext* Renderer::glewGetContext() const
     return _impl->glewGetContext();
 }
 
-ViewData* Renderer::createViewData()
+ViewData* Renderer::createViewData( View& view )
 {
-    return new ViewData;
+    return new ViewData( view );
 }
 
 void Renderer::destroyViewData( ViewData* viewData )

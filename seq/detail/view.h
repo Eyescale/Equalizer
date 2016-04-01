@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -50,10 +50,10 @@ public:
 
 protected:
     virtual ~View();
-    virtual void notifyAttach();
-    virtual void notifyDetached();
-
-private:
+    bool configInit() final;
+    bool configExit() final;
+    void notifyAttach() final;
+    void notifyDetached() final;
 };
 }
 }
