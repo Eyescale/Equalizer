@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -205,10 +205,11 @@ public:
      * instance used by the renderer to retrieve parameters from the
      * application for rendering.
      *
+     * @param view the view requesting the view data
      * @return the new view data
-     * @version 1.0
+     * @version 1.11
      */
-    SEQ_API virtual ViewData* createViewData();
+    SEQ_API virtual ViewData* createViewData( View& view );
 
     /** Delete the given view data. @version 1.0 */
     SEQ_API virtual void destroyViewData( ViewData* viewData );

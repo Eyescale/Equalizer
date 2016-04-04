@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,6 +34,7 @@
 #include <seq/application.h>
 #include <seq/objectType.h>
 #include <seq/renderer.h>
+#include <seq/viewData.h>
 #include <eq/eq.h>
 
 #pragma warning(pop)

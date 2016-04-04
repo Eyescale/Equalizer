@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -85,9 +85,9 @@ void Application::destroyRenderer( Renderer* renderer )
     delete renderer;
 }
 
-ViewData* Application::createViewData()
+ViewData* Application::createViewData( View& view )
 {
-    return new ViewData;
+    return new ViewData( view );
 }
 
 void Application::destroyViewData( ViewData* viewData )

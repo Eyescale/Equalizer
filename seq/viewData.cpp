@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -24,18 +24,20 @@
 #endif
 #include <eq/fabric/event.h>
 #include <eq/eventICommand.h>
+#include <eq/view.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
 namespace seq
 {
-ViewData::ViewData()
-        : _modelMatrix( eq::Matrix4f::IDENTITY )
-        , _spinX( 5 )
-        , _spinY( 5 )
-        , _advance( 0 )
-        , _statistics( false )
-        , _ortho( false )
+ViewData::ViewData( View& view )
+    : _view( view )
+    , _modelMatrix( eq::Matrix4f::IDENTITY )
+    , _spinX( 5 )
+    , _spinY( 5 )
+    , _advance( 0 )
+    , _statistics( false )
+    , _ortho( false )
 {
     moveModel( 0.f, 0.f, -2.f );
 }
@@ -179,8 +181,9 @@ void ViewData::moveModel( const float x, const float y, const float z )
     if( x == 0.f && y == 0.f && z == 0.f )
         return;
 
+    const float unit = _view.getModelUnit();
     _modelMatrix.set_translation( _modelMatrix.get_translation() +
-                                  Vector3f( x, y, z ));
+                                  Vector3f( x * unit, y * unit, z * unit ));
     setDirty( DIRTY_MODELMATRIX );
 }
 
@@ -193,13 +196,22 @@ void ViewData::showStatistics( const bool on )
     setDirty( DIRTY_STATISTICS );
 }
 
-void  ViewData::setOrtho( const bool on )
+void ViewData::setOrtho( const bool on )
 {
     if( _ortho == on )
         return;
 
     _ortho = on;
     setDirty( DIRTY_ORTHO );
+}
+
+void ViewData::setModelMatrix( const Matrix4f& matrix )
+{
+    if( _modelMatrix == matrix )
+        return;
+
+    _modelMatrix = matrix;
+    setDirty( DIRTY_MODELMATRIX );
 }
 
 bool ViewData::update()

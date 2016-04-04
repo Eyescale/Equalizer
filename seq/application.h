@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -53,8 +53,7 @@ public:
      * @return true on success, false otherwise.
      * @version 1.0
      */
-    SEQ_API virtual bool init( const int argc, char** argv,
-                               co::Object* initData );
+    SEQ_API virtual bool init( int argc, char** argv, co::Object* initData );
 
     /**
      * Run the application main loop.
@@ -122,10 +121,11 @@ public:
      * Called once for each view in the current configuration. Creates the view
      * data objects used by the application to set parameters for the renderers.
      *
+     * @param view the view requesting the view data
      * @return the new view data
-     * @version 1.0
+     * @version 1.11
      */
-    SEQ_API virtual ViewData* createViewData();
+    SEQ_API virtual ViewData* createViewData( View& view );
 
     /** Delete the given view data. @version 1.0 */
     SEQ_API virtual void destroyViewData( ViewData* viewData );
