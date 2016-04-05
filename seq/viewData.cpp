@@ -180,7 +180,7 @@ void ViewData::moveModel( const float x, const float y, const float z )
         return;
 
     const float unit = _view.getModelUnit();
-    _modelMatrix.setTranslation( _modelMatrix.get_translation() +
+    _modelMatrix.setTranslation( _modelMatrix.getTranslation() +
                                  Vector3f( x * unit, y * unit, z * unit ));
     setDirty( DIRTY_MODELMATRIX );
 }

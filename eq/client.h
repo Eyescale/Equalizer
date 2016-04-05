@@ -68,9 +68,7 @@ public:
     /**
      * Initialize a local, listening node.
      *
-     * The <code>--eq-client</code>, <code>--eq-layout</code> and
-     * <code>--eq-modelunit</code> command line options are recognized by this
-     * method.
+     * The following command line options are recognized by this method:
      *
      * <code>--eq-client</code> is used for remote nodes which have been
      * auto-launched by another node, e.g., remote render clients. This method
