@@ -130,7 +130,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
                                   _globalData.indices[_indexStart + offset] ];
 
         const Vertex centerToPoint   = vertex - center;
-        const float  distanceSquared = centerToPoint.squared_length();
+        const float  distanceSquared = centerToPoint.lengthSquared();
         if( distanceSquared <= radiusSquared ) // point is inside existing BS
             continue;
 
@@ -159,7 +159,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
                                   _globalData.indices[_indexStart + offset] ];
 
         const Vertex centerToPoint   = vertex - center;
-        const float  distanceSquared = centerToPoint.squared_length();
+        const float  distanceSquared = centerToPoint.lengthSquared();
         LBASSERTINFO( distanceSquared <=
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " ("

@@ -80,7 +80,7 @@ class VertexData;
 
 // basic type definitions
 typedef vmml::Vector3f Vertex;
-typedef vmml::vector< 3, uint8_t > Color;
+typedef vmml::Vector< 3, uint8_t > Color;
 typedef vmml::Vector3f Normal;
 using vmml::Matrix4f;
 using vmml::Vector4f;
@@ -122,9 +122,9 @@ private:
 
 
 // compound type definitions
-typedef vmml::vector< 3, Index >    Triangle;
+typedef vmml::Vector< 3, Index >    Triangle;
 typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
-typedef vmml::vector< 4, float >    BoundingSphere;
+typedef vmml::Vector< 4, float >    BoundingSphere;
 typedef ArrayWrapper< float, 2 >    Range;
 
 // maximum triangle count per leaf node (keep in mind that the number of

@@ -43,7 +43,7 @@ public:
     co::ObjectVersion frameDataVersion[ NUM_EYES ];
     ToNodes toNodes[ NUM_EYES ];
 
-    Frame() : offset( Vector2i::ZERO ) {}
+    Frame() {}
 
     void serialize( co::DataOStream& os ) const
     {
