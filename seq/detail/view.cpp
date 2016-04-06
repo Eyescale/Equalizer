@@ -76,7 +76,10 @@ bool View::configInit()
 bool View::configExit()
 {
     if( !getPipe() && getViewData( )) // application view
+    {
+        setUserData( 0 );
         getConfig()->getApplication()->destroyViewData( getViewData( ));
+    }
     return eq::View::configExit();
 }
 
