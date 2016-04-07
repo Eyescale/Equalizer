@@ -760,7 +760,7 @@ void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )
     front *= boundingSphere.w();
 
     const eq::Vector3f& center = frameData.getCameraPosition() -
-                                 boundingSphere.get_sub_vector< 3 >();
+                                 boundingSphere.get_sub_vector< 3, 0 >();
     const eq::Vector3f nearPoint  = view * ( center - front );
     const eq::Vector3f farPoint   = view * ( center + front );
 
