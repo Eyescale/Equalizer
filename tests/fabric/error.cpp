@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <test.h>
+#include <lunchbox/test.h>
 #include <eq/fabric/error.h>
 
 int main( int, char** )

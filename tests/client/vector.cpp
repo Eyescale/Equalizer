@@ -17,7 +17,7 @@
 
 // https://github.com/Eyescale/Equalizer/issues/61
 
-#include <test.h>
+#include <lunchbox/test.h>
 #include <eq/eq.h>
 
 static const eq::Vector3f test1( eq::Vector3f::ZERO );

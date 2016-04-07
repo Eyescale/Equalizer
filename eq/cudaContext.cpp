@@ -20,7 +20,7 @@
 #include "pipe.h"
 #include "error.h"
 
-#ifdef WIN32_API
+#ifdef _WIN32
 # include "wgl/pipe.h"
 #endif
 
@@ -87,7 +87,7 @@ CUDAContext::~CUDAContext()
 }
 WGLEWContext* CUDAContext::wglewGetContext()
 {
-#ifdef WIN32_API
+#ifdef _WIN32
     return
         static_cast<wgl::Pipe*>(getPipe()->getSystemPipe())->wglewGetContext();
 #else

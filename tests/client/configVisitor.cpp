@@ -18,7 +18,7 @@
 // Tests the functionality of the config visitor
 
 #define EQ_IGNORE_GLEW // just to test that somewhere...
-#include <test.h>
+#include <lunchbox/test.h>
 
 #include <eq/channel.h>
 #include <eq/client.h>

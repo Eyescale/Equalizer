@@ -43,7 +43,7 @@
 #include <lunchbox/file.h>
 #include <boost/filesystem/path.hpp>
 
-#ifdef WIN32_API
+#ifdef _MSC_VER
 #  include <direct.h>  // for chdir
 #  define chdir _chdir
 #endif

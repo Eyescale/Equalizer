@@ -17,7 +17,7 @@
 
 // Tests the functionality of the image load/save
 
-#include <test.h>
+#include <lunchbox/test.h>
 
 #include <eq/nodeFactory.h>
 #include <eq/image.h>

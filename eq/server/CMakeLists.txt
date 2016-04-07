@@ -2,8 +2,8 @@
 #                         Stefan Eilemann <eile@eyescale.ch>
 #                         Daniel Nachbaur <danielnachbaur@gmail.com>
 
-common_package(BISON REQUIRED)
-common_package(FLEX  REQUIRED)
+common_find_package(BISON REQUIRED)
+common_find_package(FLEX  REQUIRED)
 
 bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   COMPILE_FLAGS "-l -p eqLoader_")
@@ -172,3 +172,6 @@ set(EQUALIZERSERVER_OMIT_LIBRARY_HEADER ON)
 
 common_library(EqualizerServer)
 target_compile_definitions(EqualizerServer PRIVATE EQUALIZERFABRIC_SHARED_INL)
+if(CMAKE_COMPILER_IS_CLANG)
+  target_compile_options(EqualizerServer PUBLIC -Wno-overloaded-virtual)
+endif()
