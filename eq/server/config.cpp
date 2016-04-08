@@ -886,7 +886,7 @@ void Config::_startFrame( const uint128_t& frameID )
             appNode = 0; // release sent (see below)
     }
 
-    if( appNode.isValid( )) // release appNode local sync
+    if( appNode ) // release appNode local sync
         send( appNode,
               fabric::CMD_CONFIG_RELEASE_FRAME_LOCAL ) << _currentFrame;
 

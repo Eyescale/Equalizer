@@ -295,6 +295,7 @@ endif()
 set(EQUALIZER_OMIT_LIBRARY_HEADER ON)
 common_library(Equalizer)
 target_compile_definitions(Equalizer PRIVATE EQUALIZERFABRIC_SHARED_INL)
+add_dependencies(Equalizer EqualizerServer) # dlopen'ed
 
 add_subdirectory(fabric)
 add_subdirectory(server)

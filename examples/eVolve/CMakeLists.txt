@@ -11,46 +11,44 @@ else()
     --suppress=invalidscanf_libc:${CMAKE_CURRENT_SOURCE_DIR}/rawVolModel.cpp)
 endif()
 
-eq_add_example(eVolve
-  HEADERS
-    channel.h
-    config.h
-    eVolve.h
-    error.h
-    frameData.h
-    glslShaders.h
-    hlp.h
-    imageOrderer.h
-    initData.h
-    localInitData.h
-    node.h
-    pipe.h
-    rawVolModel.h
-    rawVolModelRenderer.h
-    sliceClipping.h
-    window.h
-  SOURCES
-    channel.cpp
-    config.cpp
-    error.cpp
-    eVolve.cpp
-    frameData.cpp
-    glslShaders.cpp
-    initData.cpp
-    localInitData.cpp
-    main.cpp
-    node.cpp
-    pipe.cpp
-    rawVolModel.cpp
-    rawVolModelRenderer.cpp
-    sliceClipping.cpp
-    window.cpp
-  SHADERS
-    vertexShader.glsl
-    fragmentShader.glsl
-  )
+set(EVOLVE_HEADERS
+  channel.h
+  config.h
+  eVolve.h
+  error.h
+  frameData.h
+  glslShaders.h
+  hlp.h
+  imageOrderer.h
+  initData.h
+  localInitData.h
+  node.h
+  pipe.h
+  rawVolModel.h
+  rawVolModelRenderer.h
+  sliceClipping.h
+  window.h)
 
-file(COPY Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
-  DESTINATION ${CMAKE_BINARY_DIR}/share/Equalizer/data)
-install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
-  DESTINATION share/Equalizer/data COMPONENT apps)
+stringify_shaders( vertexShader.glsl fragmentShader.glsl)
+set(EVOLVE_SOURCES
+  channel.cpp
+  config.cpp
+  error.cpp
+  eVolve.cpp
+  frameData.cpp
+  glslShaders.cpp
+  initData.cpp
+  localInitData.cpp
+  main.cpp
+  node.cpp
+  pipe.cpp
+  rawVolModel.cpp
+  rawVolModelRenderer.cpp
+  sliceClipping.cpp
+  window.cpp
+  ${SHADER_SOURCES})
+
+set(EVOLVE_DATA Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf)
+set(EVOLVE_LINK_LIBRARIES Equalizer ${Boost_PROGRAM_OPTIONS_LIBRARY})
+
+common_application(eVolve GUI EXAMPLE)

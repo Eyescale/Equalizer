@@ -1,23 +1,18 @@
-# Copyright (c) 2011-2014 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2016 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/examples/eqPly)
+include_directories(${PROJECT_SOURCE_DIR}/examples/eqPly)
 
-eq_add_example(seqPly
-  HEADERS
-    application.h
-    renderer.h
-  SOURCES
-    application.cpp
-    main.cpp
-    renderer.cpp
-    ../eqPly/frameData.h
-    ../eqPly/frameData.cpp
-  LINK_LIBRARIES
-    Sequel triply
-  )
+set(SEQPLY_HEADERS application.h renderer.h)
+set(SEQPLY_SOURCES
+  application.cpp
+  main.cpp
+  renderer.cpp
+  ../eqPly/frameData.h
+  ../eqPly/frameData.cpp)
+
+set(SEQPLY_LINK_LIBRARIES Sequel triply ${Boost_PROGRAM_OPTIONS_LIBRARY})
+common_application(seqPly GUI EXAMPLE)

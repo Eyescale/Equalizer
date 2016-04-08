@@ -33,8 +33,8 @@
 #include <seq/sequel.h>
 #include <stdlib.h>
 
-#include <fragmentShader.glsl.h>
-#include <vertexShader.glsl.h>
+#include <eqHello/fragmentShader.glsl.h>
+#include <eqHello/vertexShader.glsl.h>
 
 namespace eqHello
 {

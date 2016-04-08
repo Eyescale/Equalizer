@@ -367,9 +367,11 @@ protected:
     /**
      * Initialize the OpenGL state for this window.
      *
+     * Called from configInit(), after the system window has been successfully
+     * initialized.
+     *
      * @param initID the init identifier.
-     * @return <code>true</code> if the initialization was successful,
-     *         <code>false</code> if not.
+     * @return true if the initialization was successful, false if not.
      * @version 1.0
      */
     EQ_API virtual bool configInitGL( const uint128_t& initID );

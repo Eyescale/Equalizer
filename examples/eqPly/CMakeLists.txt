@@ -1,58 +1,52 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2014 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010-2016 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#                         Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-set(EQPLY_LINK_LIBRARIES EqualizerAdmin triply)
+set(EQPLY_LINK_LIBRARIES Equalizer EqualizerAdmin triply
+  ${Boost_PROGRAM_OPTIONS_LIBRARY})
 if(EQ_QT_USED)
   list(APPEND EQPLY_LINK_LIBRARIES Qt5::Widgets ${X11_LIBRARIES})
 endif()
 
-eq_add_example(eqPly
-  HEADERS
-    cameraAnimation.h
-    channel.h
-    config.h
-    configEvent.h
-    eqPly.h
-    error.h
-    frameData.h
-    initData.h
-    localInitData.h
-    modelAssigner.h
-    node.h
-    node.h
-    pipe.h
-    vertexBufferState.h
-    view.h
-    window.h
-  SOURCES
-    cameraAnimation.cpp
-    channel.cpp
-    config.cpp
-    eqPly.cpp
-    error.cpp
-    frameData.cpp
-    initData.cpp
-    localInitData.cpp
-    main.cpp
-    node.cpp
-    pipe.cpp
-    view.cpp
-    window.cpp
-  SHADERS
-    vertexShader.glsl
-    fragmentShader.glsl
-  LINK_LIBRARIES
-    ${EQPLY_LINK_LIBRARIES}
-  )
+set(EQPLY_HEADERS
+  cameraAnimation.h
+  channel.h
+  config.h
+  configEvent.h
+  eqPly.h
+  error.h
+  frameData.h
+  initData.h
+  localInitData.h
+  modelAssigner.h
+  node.h
+  node.h
+  pipe.h
+  vertexBufferState.h
+  view.h
+  window.h)
 
-file(COPY logo.rgb DESTINATION ${CMAKE_BINARY_DIR}/share/Equalizer/data)
-install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT apps)
+set(EQPLY_SOURCES
+  cameraAnimation.cpp
+  channel.cpp
+  config.cpp
+  eqPly.cpp
+  error.cpp
+  frameData.cpp
+  initData.cpp
+  localInitData.cpp
+  main.cpp
+  node.cpp
+  pipe.cpp
+  view.cpp
+  window.cpp)
+
+set(EQPLY_SHADERS vertexShader.glsl fragmentShader.glsl)
+set(EQPLY_DATA logo.rgb)
+common_application(eqPly GUI EXAMPLE)
 
 # create and install .bin files
 function(INSTALL_PLY IN OUT) # + command
