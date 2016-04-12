@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2015 Daniel Pfeifer <daniel@pfeifer-mail.de>
+# Copyright (c) 2011-2016 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #                         Stefan Eilemann <eile@eyescale.ch>
 
 if(GLEW_MX_FOUND)
@@ -6,7 +6,6 @@ if(GLEW_MX_FOUND)
   set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
 else()
   set(GLEW_VERSION 1.9.0)
-  set(VERSION ${GLEW_VERSION})
   set(GLEW_DIR "${PROJECT_BINARY_DIR}/glew-${GLEW_VERSION}")
   set(GLEW_MX_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
   set(GLEW_LIBRARY GLEW_MX_Equalizer)

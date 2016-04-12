@@ -1,10 +1,9 @@
 
 /*
- * Copyright (c)
- *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
- *   2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ * Copyright (c) 2008-2016 Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
+ *                         Stefan Eilemann <eile@equalizergraphics.com>
+ *                         Sarah Amsellem <sarah.amsellem@gmail.com>
+ *                         Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,11 +73,11 @@ bool Config::init()
         {
             // Set up position of tracking system wrt world space
             // Note: this depends on the physical installation.
-            eq::Matrix4f matrix( eq::Matrix4f::IDENTITY );
-            matrix.scale( 1.f, 1.f, -1.f );
+            eq::Matrix4f matrix;
+            matrix.scale( eq::Vector3f( 1.f, 1.f, -1.f ));
             _tracker.setWorldToEmitter( matrix );
 
-            matrix = eq::Matrix4f::IDENTITY;
+            matrix = eq::Matrix4f();
             matrix.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( matrix );
             LBINFO << "Tracker initialized" << std::endl;
@@ -249,8 +248,9 @@ void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 const eq::Matrix4f& Config::_getHeadMatrix() const
 {
     const eq::Observers& observers = getObservers();
+    static const eq::Matrix4f identity;
     if( observers.empty( ))
-        return eq::Matrix4f::IDENTITY;
+        return identity;
 
     return observers[0]->getHeadMatrix();
 }

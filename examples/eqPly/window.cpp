@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2007, Tobias Wolf <twolf@access.unizh.ch>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Tobias Wolf <twolf@access.unizh.ch>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,8 +34,8 @@
 #include "pipe.h"
 #include "vertexBufferState.h"
 
-#include "fragmentShader.glsl.h"
-#include "vertexShader.glsl.h"
+#include <eqPly/fragmentShader.glsl.h>
+#include <eqPly/vertexShader.glsl.h>
 
 #include <fstream>
 #include <sstream>

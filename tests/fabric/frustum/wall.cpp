@@ -57,10 +57,8 @@ int main( int, char** )
     const Wall wall2( Vector3f( -.8f, -.5f, -1.f ),
                       Vector3f(  .8f, -.5f, -1.f ),
                       Vector3f( -.8f,  .5f, -1.f ));
-    Matrix4f inv;
 
-    TEST( frustum.computePerspectiveMatrix().inverse( inv ));
-    target = inv;
+    target = frustum.computePerspectiveMatrix().inverse();
     TESTINFO( wall2 == target, wall2 << " != " << target );
 
     return EXIT_SUCCESS;

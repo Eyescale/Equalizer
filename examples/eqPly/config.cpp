@@ -537,7 +537,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _spinY   = 0;
             _advance = 0;
             _frameData.reset();
-            _setHeadMatrix( eq::Matrix4f::IDENTITY );
+            _setHeadMatrix( eq::Matrix4f( ));
             return true;
 
         case 'i':
@@ -663,42 +663,42 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case eq::KC_UP:
         {
             eq::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.y() += 0.1f;
+            headMatrix.array[13] += 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_DOWN:
         {
             eq::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.y() -= 0.1f;
+            headMatrix.array[13] -= 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_RIGHT:
         {
             eq::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.x() += 0.1f;
+            headMatrix.array[12] += 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_LEFT:
         {
             eq::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.x() -= 0.1f;
+            headMatrix.array[12] -= 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_PAGE_DOWN:
         {
             eq::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.z() += 0.1f;
+            headMatrix.array[14] += 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
         case eq::KC_PAGE_UP:
         {
             eq::Matrix4f headMatrix = _getHeadMatrix();
-            headMatrix.z() -= 0.1f;
+            headMatrix.array[14] -= 0.1f;
             _setHeadMatrix( headMatrix );
             return true;
         }
@@ -1024,18 +1024,17 @@ void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
         (*i)->setHeadMatrix( matrix );
     }
 
-    eq::Vector3f trans;
-    matrix.get_translation( trans );
     std::ostringstream stream;
-    stream << "Observer at " << trans;
+    stream << "Observer at " << matrix.getTranslation();
     _setMessage( stream.str( ));
 }
 
 const eq::Matrix4f& Config::_getHeadMatrix() const
 {
     const eq::Observers& observers = getObservers();
+    static const eq::Matrix4f identity;
     if( observers.empty( ))
-        return eq::Matrix4f::IDENTITY;
+        return identity;
 
     return observers[0]->getHeadMatrix();
 }

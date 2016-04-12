@@ -33,8 +33,8 @@
 #include <seq/sequel.h>
 #include <stdlib.h>
 
-#include <fragmentShader.glsl.h>
-#include <vertexShader.glsl.h>
+#include <eqHello/fragmentShader.glsl.h>
+#include <eqHello/vertexShader.glsl.h>
 
 namespace eqHello
 {
@@ -227,7 +227,7 @@ void eqHello::Renderer::draw( co::Object* /*frameData*/ )
                               getViewMatrix() * getModelMatrix();
 
     EQ_GL_CALL( glUseProgram( _program ));
-    EQ_GL_CALL( glUniformMatrix4fv( _matrixUniform, 1, GL_FALSE, &mvp[0] ));
+    EQ_GL_CALL( glUniformMatrix4fv( _matrixUniform, 1, GL_FALSE, mvp.data( )));
     EQ_GL_CALL( glBindVertexArray( _vertexArray ));
     EQ_GL_CALL( glEnableVertexAttribArray( 0 ));
     EQ_GL_CALL( glEnableVertexAttribArray( 1 ));

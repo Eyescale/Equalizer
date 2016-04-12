@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +34,6 @@ typedef fabric::Observer< Config, Observer > Super;
 
 Observer::Observer( Config* parent )
         : Super( parent )
-        , _inverseHeadMatrix( Matrix4f::IDENTITY )
         , _state( STATE_ACTIVE )
 {
     _updateEyes();
@@ -63,7 +62,7 @@ void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         _updateViews();
     }
     if( dirtyBits & DIRTY_HEAD )
-        getHeadMatrix().inverse( _inverseHeadMatrix );
+        _inverseHeadMatrix = getHeadMatrix().inverse();
 }
 
 ServerPtr Observer::getServer()
@@ -91,7 +90,7 @@ void Observer::init()
 {
     _updateEyes();
     _updateViews();
-    getHeadMatrix().inverse( _inverseHeadMatrix );
+    _inverseHeadMatrix = getHeadMatrix().inverse();
 }
 
 void Observer::_updateEyes()

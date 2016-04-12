@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com> 
- *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ void FrameData::reset()
 {
     _translation     = eq::Vector3f::ZERO;
     _translation.z() = -2.f;
-    _rotation        = eq::Matrix4f::IDENTITY;
+    _rotation        = eq::Matrix4f();
     _rotation.rotate_x( static_cast<float>( -M_PI_2 ));
     _rotation.rotate_y( static_cast<float>( -M_PI_2 ));
 
@@ -68,7 +68,7 @@ void FrameData::toggleBackground()
 
 void FrameData::toggleNormalsQuality()
 {
-    _normalsQuality = 
+    _normalsQuality =
         static_cast< NormalsQuality >(( _normalsQuality + 1 ) % NQ_ALL );
     setDirty( DIRTY_FLAGS );
 }
@@ -129,7 +129,7 @@ void FrameData::setTranslation(   const eq::Vector3f& translation )
 
 void FrameData::setRotation(  const eq::Vector3f& rotation )
 {
-    _rotation = eq::Matrix4f::IDENTITY;
+    _rotation = eq::Matrix4f();
     _rotation.rotate_x( rotation.x() );
     _rotation.rotate_y( rotation.y() );
     _rotation.rotate_z( rotation.z() );

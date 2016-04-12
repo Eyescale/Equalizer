@@ -1,20 +1,12 @@
-# Copyright (c)      2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Maxim Makhinya <maxmah@gmail.com>
+# Copyright (c) 2010-2016 Maxim Makhinya <maxmah@gmail.com>
+#                         Daniel Pfeifer <daniel@pfeifer-mail.de>
+#                         Stefan.Eilemann@epfl.ch
 
 if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-eq_add_example(eqAsync
-  HEADERS
-    asyncFetcher.h
-    eqAsync.h
-  SOURCES
-    asyncFetcher.cpp
-    eqAsync.cpp
-    main.cpp
-  LINK_LIBRARIES
-    ${CARBON_LIBRARY}
-  )
+set(EQASYNC_HEADERS asyncFetcher.h eqAsync.h)
+set(EQASYNC_SOURCES asyncFetcher.cpp eqAsync.cpp main.cpp)
+set(EQASYNC_LINK_LIBRARIES ${CARBON_LIBRARY} Equalizer)
+common_application(eqAsync GUI EXAMPLE)

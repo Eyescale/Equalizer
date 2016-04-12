@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,8 +68,9 @@ const Matrix4f& Channel::getModelMatrix() const
 {
     const ViewData* data = getViewData();
     LBASSERT( data );
+    static const Matrix4f identity;
     if( !data )
-        return Matrix4f::IDENTITY;
+        return identity;
 
     return data->getModelMatrix();
 }

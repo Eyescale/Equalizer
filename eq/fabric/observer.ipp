@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -53,8 +53,7 @@ Observer< C, O >::~Observer()
 
 template< typename C, typename O >
 Observer< C, O >::BackupData::BackupData()
-    : headMatrix( Matrix4f::IDENTITY )
-    , focusDistance( 1.f )
+    : focusDistance( 1.f )
     , focusMode( FOCUSMODE_FIXED )
     , camera( OFF )
 {
