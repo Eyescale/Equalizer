@@ -119,9 +119,9 @@ public:
     //@}
 
 protected:
-    SEQ_API void serialize( co::DataOStream& os, uint64_t dirtyBits ) override;
+    SEQ_API void serialize( co::DataOStream& os, const uint64_t dirtyBits ) override;
     SEQ_API void deserialize( co::DataIStream& is,
-                              uint64_t dirtyBits ) override;
+                              const uint64_t dirtyBits ) override;
 
 private:
     /** The changed parts of the object since the last serialize(). */
