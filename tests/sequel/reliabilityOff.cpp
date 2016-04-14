@@ -16,7 +16,7 @@
  */
 
 #define EQ_SYSTEM_INCLUDES
-#include <test.h>
+#include <lunchbox/test.h>
 #include <seq/sequel.h>
 #include <stdlib.h>
 

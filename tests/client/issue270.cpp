@@ -17,7 +17,7 @@
 
 // https://github.com/Eyescale/Equalizer/issues/270
 
-#include <test.h>
+#include <lunchbox/test.h>
 #include <eq/eq.h>
 
 int main( const int argc, char** argv )

@@ -31,7 +31,7 @@
 #define yylineno eqLoader_lineno
 #define yylex eqLoader_lex
 
-#ifdef WIN32_API
+#ifdef _MSC_VER
 #  include <io.h>
 #  define isatty _isatty
 #endif

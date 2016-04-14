@@ -18,7 +18,7 @@
 // https://github.com/Eyescale/Equalizer/issues/130
 
 #define EQ_TEST_RUNTIME 300 // seconds
-#include <test.h>
+#include <lunchbox/test.h>
 #include <eq/eq.h>
 
 #ifdef _WIN32

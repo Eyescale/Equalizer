@@ -17,7 +17,7 @@
 
 // Tests the functionality of the pixel viewport
 
-#include <test.h>
+#include <lunchbox/test.h>
 #include <eq/fabric/types.h>
 #include <eq/fabric/pixelViewport.h>
 

@@ -111,3 +111,6 @@ set(EQUALIZERFABRIC_OMIT_LIBRARY_HEADER ON)
 
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQFABRIC_API=)
 common_library(EqualizerFabric)
+if(CMAKE_COMPILER_IS_CLANG)
+  target_compile_options(EqualizerFabric PUBLIC -Wno-overloaded-virtual)
+endif()

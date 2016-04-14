@@ -72,7 +72,7 @@ void swap2Bytes( void* ptr );
 void swap4Bytes( void* ptr );
 void swap8Bytes( void* ptr );
 
-#ifdef COMMON_LITTLEENDIAN
+#ifdef EQUALIZER_LITTLEENDIAN
 
 void swap2LE( void* );
 void swap2LE( short* );
@@ -98,7 +98,7 @@ void swap8BE( void* ptr );
 void swap8BE( unsigned long long* ptr );
 void swap8BE( double* ptr );
 
-#else // COMMON_LITTLEENDIAN
+#else // EQUALIZER_LITTLEENDIAN
 
 void swap2LE( void* ptr );
 void swap2LE( short* ptr );
@@ -124,7 +124,7 @@ void swap8BE( long long* );
 void swap8BE( unsigned long long* );
 void swap8BE( double* );
 
-#endif // COMMON_LITTLEENDIAN
+#endif // EQUALIZER_LITTLEENDIAN
 
 /* returns 1 if strings are equal, 0 if not */
 int equal_strings(const char *, const char *);
@@ -251,7 +251,7 @@ void swap8Bytes( void* ptr )
 
 }
 
-#ifdef COMMON_LITTLEENDIAN
+#ifdef EQUALIZER_LITTLEENDIAN
 
 void swap2LE( void* ) {}
 void swap2LE( short* ) {}
@@ -277,7 +277,7 @@ void swap8BE( void* ptr ) { swap8Bytes(ptr); }
 void swap8BE( unsigned long long* ptr ) { swap8Bytes(ptr); }
 void swap8BE( double* ptr ) { swap8Bytes(ptr); }
 
-#else // COMMON_LITTLEENDIAN
+#else // EQUALIZER_LITTLEENDIAN
 
 void swap2LE( void* ptr ) { swap2Bytes(ptr); }
 void swap2LE( short* ptr ) { swap2Bytes(ptr); }
@@ -303,7 +303,7 @@ void swap8BE( long long* ) {}
 void swap8BE( unsigned long long* ) {}
 void swap8BE( double* ) {}
 
-#endif // COMMON_LITTLEENDIAN
+#endif // EQUALIZER_LITTLEENDIAN
 
 
 /*************/

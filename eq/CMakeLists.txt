@@ -244,13 +244,12 @@ if(WIN32)
 endif()
 
 if(EQ_QT_USED)
-  qt5_wrap_cpp(QT_MOC_OUTFILES
+  list(APPEND EQUALIZER_HEADERS
     qt/window.h
     qt/windowFactory.h
     qt/windowSystem.h
     )
   list(APPEND EQUALIZER_SOURCES
-    ${QT_MOC_OUTFILES}
     qt/eventHandler.cpp
     qt/messagePump.cpp
     qt/pipe.cpp
@@ -295,6 +294,9 @@ endif()
 set(EQUALIZER_OMIT_LIBRARY_HEADER ON)
 common_library(Equalizer)
 target_compile_definitions(Equalizer PRIVATE EQUALIZERFABRIC_SHARED_INL)
+if(CMAKE_COMPILER_IS_CLANG)
+  target_compile_options(Equalizer PUBLIC -Wno-overloaded-virtual)
+endif()
 add_dependencies(Equalizer EqualizerServer) # dlopen'ed
 
 add_subdirectory(fabric)

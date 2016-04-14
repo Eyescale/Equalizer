@@ -16,7 +16,7 @@
  */
 
 #define TEST_RUNTIME 1200 // seconds
-#include <test.h>
+#include <lunchbox/test.h>
 
 #include <eq/frame.h>    // enum Eye
 #include <eq/image.h>

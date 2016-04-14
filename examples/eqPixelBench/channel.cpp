@@ -32,7 +32,7 @@
 #include "config.h"
 #include "configEvent.h"
 
-#ifdef WIN32_API
+#ifdef _MSC_VER
 #  define snprintf _snprintf
 #endif
 

@@ -14,7 +14,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include <test.h>
+#include <lunchbox/test.h>
 #include <eq/eq.h>
 #include <eq/fabric/channel.h>
 
