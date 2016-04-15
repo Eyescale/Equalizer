@@ -123,15 +123,16 @@ protected:
     SEQ_API void deserialize( co::DataIStream& is,
                               const uint64_t dirtyBits ) override;
 
-private:
     /** The changed parts of the object since the last serialize(). */
     enum DirtyBits
     {
         DIRTY_MODELMATRIX = co::Serializable::DIRTY_CUSTOM << 0, // 1
         DIRTY_STATISTICS = co::Serializable::DIRTY_CUSTOM << 1, // 2
-        DIRTY_ORTHO = co::Serializable::DIRTY_CUSTOM << 2 // 4
+        DIRTY_ORTHO = co::Serializable::DIRTY_CUSTOM << 2, // 4
+        DIRTY_CUSTOM = co::Serializable::DIRTY_CUSTOM << 3 // 8
     };
 
+private:
     bool _handleEvent( const eq::Event& event );
 
     View& _view;

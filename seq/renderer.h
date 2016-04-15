@@ -214,6 +214,9 @@ public:
     /** Delete the given view data. @version 1.0 */
     SEQ_API virtual void destroyViewData( ViewData* viewData );
 
+    /** @return the current view data. @version 1.12 */
+    SEQ_API const ViewData* getViewData() const;
+
     /**
      * Get the GLEW context for this renderer.
      *

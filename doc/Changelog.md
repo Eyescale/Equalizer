@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [554](https://github.com/Eyescale/Equalizer/pull/554):
+  Expose current view data in seq::Renderer  
 * [548](https://github.com/Eyescale/Equalizer/pull/548):
   Sequel tweaks for seqSplotch
 

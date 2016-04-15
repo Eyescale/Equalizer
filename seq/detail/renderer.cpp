@@ -79,6 +79,11 @@ ObjectManager& Renderer::getObjectManager()
     return _window->getObjectManager();
 }
 
+const ViewData* Renderer::getViewData() const
+{
+    return _channel->getViewData();
+}
+
 const Frustumf& Renderer::getFrustum() const
 {
     LBASSERT( _channel );
