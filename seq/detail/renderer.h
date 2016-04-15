@@ -41,6 +41,8 @@ public:
     const ObjectManager& getObjectManager() const;
     ObjectManager& getObjectManager();
 
+    const ViewData* getViewData() const;
+
     const RenderContext& getRenderContext() const;
     const Frustumf& getFrustum() const;
     const Matrix4f& getViewMatrix() const;
