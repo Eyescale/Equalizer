@@ -64,14 +64,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   os.h
   pipe.h
   pixelData.h
-  qt/eventHandler.h
-  qt/messagePump.h
-  qt/pipe.h
-  qt/shareContextWindow.h
-  qt/types.h
-  qt/window.h
-  qt/windowEvent.h
-  qt/windowSystem.h
   resultImageListener.h
   segment.h
   server.h
@@ -244,6 +236,15 @@ if(WIN32)
 endif()
 
 if(EQ_QT_USED)
+  list(APPEND EQUALIZER_PUBLIC_HEADERS
+    qt/eventHandler.h
+    qt/messagePump.h
+    qt/pipe.h
+    qt/shareContextWindow.h
+    qt/types.h
+    qt/window.h
+    qt/windowEvent.h
+    qt/windowSystem.h)
   list(APPEND EQUALIZER_HEADERS
     qt/window.h
     qt/windowFactory.h
@@ -258,8 +259,7 @@ if(EQ_QT_USED)
     qt/windowFactory.cpp
     qt/windowSystem.cpp
     )
-  list(APPEND EQUALIZER_LINK_LIBRARIES
-    Qt5::Core Qt5::Gui Qt5::Widgets)
+  list(APPEND EQUALIZER_LINK_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 endif()
 
 if(OpenCV_FOUND)
