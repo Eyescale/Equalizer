@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,6 +65,11 @@
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #  define GL_TEXTURE_RECTANGLE_ARB 0x84F5
 #endif
+#ifndef GLX_RGBA_FLOAT_BIT
+#  define GLX_RGBA_FLOAT_BIT GLX_RGBA_FLOAT_BIT_ARB
+#  define GLX_RGBA_FLOAT_TYPE GLX_RGBA_FLOAT_TYPE_ARB
+#endif
+
 # define EQ_UNKNOWN_GL_ERROR 0x1 // GL error codes seem to start at 0x500
 /** @endcond */
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Maxim Makhinya
  *
