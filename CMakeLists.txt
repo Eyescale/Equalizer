@@ -4,13 +4,13 @@
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(Equalizer VERSION 1.11.0)
+set(Equalizer_VERSION_ABI 193)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/CMake/common)
+                              ${CMAKE_SOURCE_DIR}/CMake/common)
 
 include(GitExternal)
 
-set(Equalizer_VERSION_ABI 193)
 set(EQUALIZER_INCLUDE_NAME eq)
 set(EQUALIZER_DEB_DEPENDS bison flex libboost-program-options-dev
   libboost-filesystem-dev libboost-system-dev libboost-thread-dev
