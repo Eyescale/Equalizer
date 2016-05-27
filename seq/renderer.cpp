@@ -163,6 +163,11 @@ void Renderer::applyRenderContext()
     _impl->applyRenderContext();
 }
 
+void Renderer::bindDrawFrameBuffer()
+{
+    _impl->bindDrawFrameBuffer();
+}
+
 const RenderContext& Renderer::getRenderContext() const
 {
     return _impl->getRenderContext();

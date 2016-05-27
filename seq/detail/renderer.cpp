@@ -175,6 +175,13 @@ void Renderer::applyRenderContext()
         _channel->applyRenderContext();
 }
 
+void Renderer::bindDrawFrameBuffer()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->bindDrawFrameBuffer();
+}
+
 const RenderContext& Renderer::getRenderContext() const
 {
     LBASSERT( _channel );
