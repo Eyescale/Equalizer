@@ -83,7 +83,8 @@ uint32_t _getKey( const int key )
     case 0x01000047: return KC_F24;
     case 0x01001103: return KC_ALT_R;
     case 0x01ffffff: return KC_VOID;
-    default:         return key;
+    case 0x20:       return key; // space
+    default:         return key+32;
     }
 }
 }
