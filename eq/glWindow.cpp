@@ -234,9 +234,11 @@ void GLWindow::bindDrawFrameBuffer() const
         return;
 
     if( _impl->fboMultiSample )
-        _impl->fboMultiSample->bind();
-    else
-        bindFrameBuffer();
+        _impl->fboMultiSample->bind( GL_DRAW_FRAMEBUFFER_EXT );
+    else if( _impl->fbo )
+        _impl->fbo->bind( GL_DRAW_FRAMEBUFFER_EXT );
+    else if( GLEW_EXT_framebuffer_object )
+        glBindFramebufferEXT( GL_DRAW_FRAMEBUFFER_EXT, 0 );
 }
 
 void GLWindow::updateFrameBuffer() const

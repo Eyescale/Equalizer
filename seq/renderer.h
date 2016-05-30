@@ -139,6 +139,13 @@ public:
      */
     SEQ_API virtual void applyRenderContext();
 
+    /**
+     * Bind the window draw buffer, which can be (multisampled) FBO or window
+     * buffer.
+     * @version 1.12
+     */
+    SEQ_API void bindDrawFrameBuffer();
+
     /** @return the current rendering parameters. @version 1.4 */
     SEQ_API const RenderContext& getRenderContext() const;
 
