@@ -201,7 +201,6 @@ connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
 TCPIP                           { return EQTOKEN_TCPIP; }
-SDP                             { return EQTOKEN_SDP; }
 PIPE                            { return EQTOKEN_PIPE; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }

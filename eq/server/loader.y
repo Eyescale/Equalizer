@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -206,7 +206,6 @@
 %token EQTOKEN_NAME
 %token EQTOKEN_TYPE
 %token EQTOKEN_TCPIP
-%token EQTOKEN_SDP
 %token EQTOKEN_RSP
 %token EQTOKEN_RDMA
 %token EQTOKEN_UDT
@@ -559,7 +558,6 @@ global:
 
 connectionType:
     EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
-    | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
     | EQTOKEN_PIPE { $$ = co::CONNECTIONTYPE_NAMEDPIPE; }
     | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
     | EQTOKEN_RDMA { $$ = co::CONNECTIONTYPE_RDMA; }
