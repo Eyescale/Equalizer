@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,74 +37,68 @@
 
 namespace eqPly
 {
-    class FrameData;
-    class InitData;
+/** The rendering entity, updating a part of a Window. */
+class Channel : public eq::Channel
+{
+public:
+    Channel( eq::Window* parent );
 
-    /**
-     * The rendering entity, updating a part of a Window.
-     */
-    class Channel : public eq::Channel
+    bool stopRendering() const;
+
+protected:
+    virtual ~Channel() {}
+
+    bool configInit( const eq::uint128_t& initID ) override;
+    void frameClear( const eq::uint128_t& frameID ) override;
+    void frameDraw( const eq::uint128_t& frameID ) override;
+    void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
+    void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
+    void frameStart( const eq::uint128_t&, const uint32_t ) override;
+    void frameFinish( const eq::uint128_t&, const uint32_t ) override;
+    void frameViewStart( const eq::uint128_t& frameID ) override;
+    void frameViewFinish( const eq::uint128_t& frameID ) override;
+
+    bool useOrtho() const override;
+    eq::Vector2f getJitter() const override;
+
+    void notifyStopFrame( const uint32_t lastFrameNumber ) override
+    { _frameRestart = lastFrameNumber + 1; }
+
+private:
+    void _drawModel( const Model* model );
+    void _drawOverlay();
+    void _drawHelp();
+    void _updateNearFar( const triply::BoundingSphere& boundingSphere );
+
+    bool _isDone() const;
+
+    void _initJitter();
+    bool _initAccum();
+
+    /** the subpixel for this step. */
+    eq::Vector2i _getJitterStep() const;
+
+    const FrameData& _getFrameData() const;
+    const Model*     _getModel();
+
+    const Model* _model;
+    eq::uint128_t _modelID;
+    uint32_t _frameRestart;
+
+    struct Accum
     {
-    public:
-        Channel( eq::Window* parent );
+        Accum() : step( 0 ), stepsDone( 0 ), transfer( false )
+        {}
 
-        bool stopRendering() const;
-
-    protected:
-        virtual ~Channel() {}
-
-        bool configInit( const eq::uint128_t& initID ) override;
-        bool configExit() override;
-        void frameClear( const eq::uint128_t& frameID ) override;
-        void frameDraw( const eq::uint128_t& frameID ) override;
-        void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
-        void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
-        void frameStart( const eq::uint128_t&, const uint32_t ) override;
-        void frameFinish( const eq::uint128_t&, const uint32_t ) override;
-        void frameViewStart( const eq::uint128_t& frameID ) override;
-        void frameViewFinish( const eq::uint128_t& frameID ) override;
-
-        bool useOrtho() const override;
-        eq::Vector2f getJitter() const override;
-
-        void notifyStopFrame( const uint32_t lastFrameNumber ) override
-            { _frameRestart = lastFrameNumber + 1; }
-
-    private:
-        void _drawModel( const Model* model );
-        void _drawOverlay();
-        void _drawHelp();
-        void _updateNearFar( const triply::BoundingSphere& boundingSphere );
-
-        bool _isDone() const;
-
-        void _initJitter();
-        bool _initAccum();
-
-        /** the subpixel for this step. */
-        eq::Vector2i _getJitterStep() const;
-
-        const FrameData& _getFrameData() const;
-        const Model*     _getModel();
-
-        const Model* _model;
-        eq::uint128_t _modelID;
-        uint32_t _frameRestart;
-
-        struct Accum
-        {
-            Accum() : buffer( 0 ), step( 0 ), stepsDone( 0 ), transfer( false )
-                {}
-
-            eq::util::Accum* buffer;
-            int32_t step;
-            uint32_t stepsDone;
-            bool transfer;
-        }
+        std::unique_ptr< eq::util::Accum > buffer;
+        int32_t step;
+        uint32_t stepsDone;
+        bool transfer;
+    }
         _accum[ eq::NUM_EYES ];
 
-        eq::PixelViewport _currentPVP;
-    };
+    eq::PixelViewport _currentPVP;
+};
 }
 
 #endif // EQ_PLY_CHANNEL_H

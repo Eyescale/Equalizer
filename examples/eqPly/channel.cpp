@@ -76,17 +76,6 @@ bool Channel::configInit( const eq::uint128_t& initID )
     return true;
 }
 
-bool Channel::configExit()
-{
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-    {
-        delete _accum[ i ].buffer;
-        _accum[ i ].buffer = 0;
-    }
-
-    return eq::Channel::configExit();
-}
-
 void Channel::frameClear( const eq::uint128_t& /*frameID*/ )
 {
     if( stopRendering( ))
@@ -235,7 +224,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID,
 
     try
     {
-        eq::Compositor::assembleFrames( frames, this, accum.buffer );
+        eq::Compositor::assembleFrames( frames, this, accum.buffer.get( ));
     }
     catch( const co::Exception& e )
     {
@@ -449,8 +438,7 @@ bool Channel::_initAccum()
                        << std::endl;
                 for( size_t j = 0; j < eq::NUM_EYES; ++j )
                 {
-                    delete _accum[ j ].buffer;
-                    _accum[ j ].buffer = 0;
+                    _accum[ j ].buffer.reset();
                     _accum[ j ].step = -1;
                 }
 
@@ -461,7 +449,7 @@ bool Channel::_initAccum()
     }
 
     // set up accumulation buffer
-    accum.buffer = new eq::util::Accum( glewGetContext( ));
+    accum.buffer.reset( new eq::util::Accum( glewGetContext( )));
     const eq::PixelViewport& pvp = getPixelViewport();
     LBASSERT( pvp.isValid( ));
 
@@ -470,8 +458,7 @@ bool Channel::_initAccum()
     {
         LBWARN <<"Accumulation buffer initialization failed, "
                << "idle AA not available." << std::endl;
-        delete accum.buffer;
-        accum.buffer = 0;
+        accum.buffer.reset();
         accum.step = -1;
         return false;
     }

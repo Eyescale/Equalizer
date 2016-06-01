@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -30,7 +30,7 @@ int main( const int argc, char** argv )
                 << std::endl;
         return EXIT_FAILURE;
     }
-    
+
     // 2. initialization of local client node
     eq::admin::ClientPtr client = new eq::admin::Client;
     if( !client->initLocal( argc, argv ))
@@ -57,7 +57,8 @@ int main( const int argc, char** argv )
 
     client->exitLocal();
 
-    // TODO LBASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    LBASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    LBASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
     client = 0;
     eq::admin::exit();
     return EXIT_SUCCESS;
