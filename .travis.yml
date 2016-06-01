@@ -17,13 +17,15 @@ env:
     - NINJA_STATUS="[%p %u/%t@%o %r]"
     - PROJECT_NAME=${PWD##*/}
     - TRAVIS=1
+    - CMAKE_PREFIX_PATH=/usr/local/opt/qt5:$CMAKE_PREFIX_PATH
+    - LIBJPEGTURBO_ROOT=/usr/local/opt/jpeg-turbo
   matrix:
   - BUILD_TYPE=Debug
   - BUILD_TYPE=Release
 before_install:
   - brew update
   - brew outdated cmake || brew upgrade cmake
-  - brew install cppcheck doxygen ninja
+  - brew install cppcheck doxygen ninja jpeg-turbo qt5
 script:
   - mkdir $BUILD_TYPE
   - cd $BUILD_TYPE
