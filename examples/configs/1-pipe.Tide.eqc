@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
 
-# one-pipe configuration that streams its output to DisplayCluster
+# one-pipe configuration that streams its output to a local Deflect host (Tide)
 
 server
 {
@@ -26,7 +26,7 @@ server
                 observer 0
                 attributes
                 {
-                    DisplayCluster "localhost"
+                    deflect_host "localhost"
                 }
             }
         }

@@ -31,6 +31,7 @@ using eq::Matrix4f;
 using eq::PixelViewport;
 using eq::uint128_t;
 using eq::util::ObjectManager;
+using eq::Vector2i;
 using eq::Vector2f;
 using eq::Vector3f;
 using eq::Vector4f;

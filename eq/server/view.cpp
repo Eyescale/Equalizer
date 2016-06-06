@@ -57,14 +57,6 @@ View::View( Layout* parent )
         const SAttribute attr = static_cast< SAttribute >( i );
         setSAttribute( attr, global->getViewSAttribute( attr ));
     }
-
-    // All processes must share a common, unique pixelstream name
-    if( getSAttribute( View::SATTR_PIXELSTREAM_NAME ).empty( ))
-    {
-        const std::string name = "Equalizer_" +
-                                 lunchbox::make_UUID().getShortString();
-        setSAttribute( View::SATTR_PIXELSTREAM_NAME, name);
-    }
 }
 
 View::~View()
@@ -312,6 +304,15 @@ ViewPath View::getPath() const
     LBASSERT( i != views.end( ));
     path.viewIndex = std::distance( views.begin(), i );
     return path;
+}
+
+void View::init()
+{
+    // All contributors to the same view must share the same Deflect ID for
+    // streaming to the same target.
+    if( getSAttribute( View::SATTR_DEFLECT_ID ).empty( ))
+        setSAttribute( View::SATTR_DEFLECT_ID, getName().empty()
+                       ? "View " + getID().getShortString() : getName( ));
 }
 
 void View::trigger( const Canvas* canvas, const bool active )

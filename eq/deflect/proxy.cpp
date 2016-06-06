@@ -49,15 +49,13 @@ namespace deflect
 class Proxy::Impl : public boost::noncopyable
 {
 public:
-    explicit Impl( Channel* channel )
-        : _stream( 0 )
-        , _eventHandler( 0 )
-        , _channel( channel )
+    explicit Impl( Channel& channel )
+        : _channel( channel )
         , _sendFuture( make_ready_future( false ))
         , _running( false )
         , _navigationMode( Proxy::MODE_ROTATE )
     {
-        const DrawableConfig& dc = _channel->getDrawableConfig();
+        const DrawableConfig& dc = _channel.getDrawableConfig();
         if( dc.colorBits != 8 )
         {
             LBWARN << "Can only stream 8-bit RGB(A) framebuffers to "
@@ -67,10 +65,10 @@ public:
         }
 
         const std::string& deflectHost =
-               _channel->getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER );
+               _channel.getView()->getSAttribute( View::SATTR_DEFLECT_HOST );
         const std::string& name =
-             _channel->getView()->getSAttribute( View::SATTR_PIXELSTREAM_NAME );
-        _stream = new ::deflect::Stream( name, deflectHost );
+             _channel.getView()->getSAttribute( View::SATTR_DEFLECT_ID );
+        _stream.reset( new ::deflect::Stream( name, deflectHost ));
         if( !_stream->isConnected( ))
         {
             LBWARN << "Could not connect to Deflect host: " << deflectHost
@@ -86,14 +84,11 @@ public:
     {
         // wait for completion of previous send
         _sendFuture.wait();
-
-        delete _eventHandler;
-        delete _stream;
     }
 
-    void notifyNewImage( Channel& channel LB_UNUSED, const Image& image )
+    void notifyNewImage( Channel& channel, const Image& image )
     {
-        LBASSERT( &channel == _channel );
+        LBASSERT( &channel == &_channel );
 
         // wait for completion of previous send
         _running = _sendFuture.get();
@@ -106,7 +101,7 @@ public:
                                      image.getPixelSize( Frame::BUFFER_COLOR ));
 
         // determine image offset wrt global view
-        const Viewport& vp = _channel->getViewport();
+        const Viewport& vp = channel.getViewport();
         const int32_t width = pvp.w / vp.w;
         const int32_t height = pvp.h / vp.h;
         const int32_t offsX = vp.x * width;
@@ -120,25 +115,25 @@ public:
         _sendFuture = _stream->asyncSend( imageWrapper );
     }
 
-    ::deflect::Stream* _stream;
-    EventHandler* _eventHandler;
-    Channel* _channel;
+    std::unique_ptr< ::deflect::Stream > _stream;
+    std::unique_ptr< EventHandler > _eventHandler;
+    Channel& _channel;
     lunchbox::Bufferb _buffer;
     ::deflect::Stream::Future _sendFuture;
     bool _running;
     Proxy::NavigationMode _navigationMode;
 };
 
-Proxy::Proxy( Channel* channel )
+Proxy::Proxy( Channel& channel )
     : ResultImageListener()
     , _impl( new Impl( channel ))
 {
-    channel->addResultImageListener( this );
+    channel.addResultImageListener( this );
 }
 
 Proxy::~Proxy()
 {
-    _impl->_channel->removeResultImageListener( this );
+    _impl->_channel.removeResultImageListener( this );
 }
 
 void Proxy::notifyNewImage( Channel& channel, const Image& image )
@@ -147,12 +142,12 @@ void Proxy::notifyNewImage( Channel& channel, const Image& image )
 
     if( !_impl->_eventHandler && _impl->_stream->registerForEvents( true ))
     {
-        _impl->_eventHandler = new EventHandler( this );
+        _impl->_eventHandler.reset( new EventHandler( this ));
         LBDEBUG << "Installed event handler for Deflect proxy" << std::endl;
     }
 }
 
-Channel* Proxy::getChannel()
+Channel& Proxy::getChannel()
 {
     return _impl->_channel;
 }
