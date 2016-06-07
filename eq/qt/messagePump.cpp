@@ -17,6 +17,11 @@
 
 #include "messagePump.h"
 
+#ifdef EQUALIZER_USE_DEFLECT
+#  include "../deflect/eventHandler.h"
+#  include "../deflect/proxy.h"
+#endif
+
 #include <lunchbox/clock.h>
 #include <lunchbox/sleep.h>
 #include <QEventLoop>
@@ -68,6 +73,25 @@ void MessagePump::dispatchAll()
 {
     QEventLoop eventLoop;
     eventLoop.processEvents();
+}
+
+void MessagePump::register_( deflect::Proxy* proxy LB_UNUSED )
+{
+#ifdef EQUALIZER_USE_DEFLECT
+    QSocketNotifier* notifier =
+            new QSocketNotifier( proxy->getSocketDescriptor(),
+                                 QSocketNotifier::Read );
+    _notifiers[proxy].reset( notifier );
+    notifier->connect( notifier, &QSocketNotifier::activated,
+                     [proxy]{ deflect::EventHandler::processEvents( proxy ); });
+#endif
+}
+
+void MessagePump::deregister( deflect::Proxy* proxy LB_UNUSED )
+{
+#ifdef EQUALIZER_USE_DEFLECT
+    _notifiers.erase( proxy );
+#endif
 }
 
 }

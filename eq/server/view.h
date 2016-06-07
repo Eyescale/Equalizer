@@ -72,6 +72,9 @@ public:
 
     /** @name Operations */
     //@{
+    /** Initialize the view parameters. */
+    void init();
+
     /**
      * Trigger a view (de)activation.
      *
@@ -86,9 +89,9 @@ public:
      *
      * @param mode the new rendering mode
      */
-    virtual void activateMode( const Mode mode );
+    void activateMode( const Mode mode ) override;
 
-    virtual void updateCapabilities();
+    void updateCapabilities() override;
 
     /** Update all segment frusta based on the current settings. */
     void updateFrusta();
@@ -96,13 +99,13 @@ public:
     void setSAttribute( const SAttribute attr, const std::string& value )
     { fabric::View< Layout, View, Observer >::setSAttribute( attr, value ); }
 
-    virtual void setDirty( const uint64_t bits ); //!< @internal
+    void setDirty( const uint64_t bits ) override; //!< @internal
     //@}
 
 protected:
     /** @internal */
-    virtual void deserialize( co::DataIStream&, const uint64_t );
-    virtual void notifyAttached() { _updateChannels(); }
+    void deserialize( co::DataIStream&, const uint64_t ) override;
+    void notifyAttached() override { _updateChannels(); }
 
 private:
     /** The list of channels. */

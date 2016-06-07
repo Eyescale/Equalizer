@@ -61,10 +61,10 @@ public:
     void deregister( Display* display );
 
     /** Register a new Deflect connection for event dispatch. @version 1.7.1 */
-    void register_( deflect::Proxy* dcProxy ) override;
+    void register_( deflect::Proxy* proxy ) override;
 
     /** Deregister a Deflect connection from event dispatch. @version 1.7.1 */
-    void deregister( deflect::Proxy* dcProxy ) override;
+    void deregister( deflect::Proxy* proxy ) override;
 
 private:
     co::ConnectionSet _connections; //!< Registered Display connections
