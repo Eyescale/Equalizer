@@ -22,7 +22,9 @@
 
 #include <memory>
 #include <unordered_map>
+
 #include <QSocketNotifier>
+#include <QTimer>
 
 namespace eq
 {
@@ -48,6 +50,9 @@ private:
     lunchbox::a_int32_t _wakeup;
     std::unordered_map< deflect::Proxy*,
                         std::unique_ptr< QSocketNotifier > > _notifiers;
+    std::unordered_map< deflect::Proxy*,
+                        QMetaObject::Connection > _connections;
+    std::unique_ptr< QTimer > _timer;
 };
 }
 }
