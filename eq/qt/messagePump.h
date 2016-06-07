@@ -20,6 +20,10 @@
 
 #include <eq/messagePump.h> // base class
 
+#include <memory>
+#include <unordered_map>
+#include <QSocketNotifier>
+
 namespace eq
 {
 namespace qt
@@ -37,9 +41,13 @@ public:
     void postWakeup() override;
     void dispatchAll() override;
     void dispatchOne( const uint32_t timeout = LB_TIMEOUT_INDEFINITE ) override;
+    void register_( deflect::Proxy* proxy ) override;
+    void deregister( deflect::Proxy* proxy ) override;
 
 private:
     lunchbox::a_int32_t _wakeup;
+    std::unordered_map< deflect::Proxy*,
+                        std::unique_ptr< QSocketNotifier > > _notifiers;
 };
 }
 }

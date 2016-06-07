@@ -43,7 +43,7 @@ public:
      * If no event handlers have been constructed by the calling thread, this
      * function does nothing. This function does not block on events.
      *
-     * @param proxy if not 0, limit processing to the given dcProxy instance
+     * @param proxy if not 0, limit processing to the given Proxy instance
      * @version 1.7.1
      */
     static void processEvents( const Proxy* proxy = 0 );
