@@ -84,6 +84,16 @@ void MessagePump::register_( deflect::Proxy* proxy LB_UNUSED )
     _notifiers[proxy].reset( notifier );
     notifier->connect( notifier, &QSocketNotifier::activated,
                      [proxy]{ deflect::EventHandler::processEvents( proxy ); });
+
+    // QSocketNotifier sometimes does not fire, help with a timer
+    if( !_timer )
+    {
+        _timer.reset( new QTimer( ));
+        _timer->start( 20 );
+    }
+
+    _connections[proxy] = _timer->connect( _timer.get(), &QTimer::timeout,
+                    [proxy] { deflect::EventHandler::processEvents( proxy ); });
 #endif
 }
 
@@ -91,6 +101,11 @@ void MessagePump::deregister( deflect::Proxy* proxy LB_UNUSED )
 {
 #ifdef EQUALIZER_USE_DEFLECT
     _notifiers.erase( proxy );
+
+    _timer->disconnect( _connections[proxy] );
+    _connections.erase( proxy );
+    if( _connections.empty( ))
+        _timer.reset();
 #endif
 }
 
