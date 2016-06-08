@@ -31,7 +31,7 @@ class Proxy : public ResultImageListener
 {
 public:
     /** Construct a Deflect proxy associated to a destination channel. */
-    explicit Proxy( Channel* channel );
+    explicit Proxy( Channel& channel );
 
     /** Destruct the Deflect proxy. */
     ~Proxy();
@@ -40,7 +40,7 @@ public:
     void notifyNewImage( Channel& channel, const Image& image ) final;
 
     /** @return the associated destination channel. */
-    Channel* getChannel();
+    Channel& getChannel();
 
     /** @return the underlying socket descriptor. */
     int getSocketDescriptor() const;

@@ -14,6 +14,19 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
 
+if($ENV{TRAVIS})
+  # Travis X server reports completely broken GLX extension, which
+  # causes glxinfo and the hwsd auto-configuration to fail. Remove
+  # GPU-based tests:
+  set(EXCLUDE_FROM_TESTS
+    admin/windowCreation.cpp
+    client/configUpdate.cpp
+    client/dumpImage.cpp
+    client/restart.cpp
+    sequel/reliabilityOff.cpp
+    server/reliability.cpp)
+endif()
+
 set(TEST_LIBRARIES Equalizer EqualizerAdmin EqualizerServer EqualizerFabric
   Sequel ${Boost_LIBRARIES})
 include(CommonCTest)

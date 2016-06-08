@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -123,7 +123,7 @@
 %token EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_PIPE_IATTR_HINT_AFFINITY
-%token EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER
+%token EQTOKEN_VIEW_SATTR_DEFLECT_HOST
 %token EQTOKEN_WINDOW_IATTR_HINT_CORE_PROFILE
 %token EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MAJOR
 %token EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MINOR
@@ -206,7 +206,6 @@
 %token EQTOKEN_NAME
 %token EQTOKEN_TYPE
 %token EQTOKEN_TCPIP
-%token EQTOKEN_SDP
 %token EQTOKEN_RSP
 %token EQTOKEN_RDMA
 %token EQTOKEN_UDT
@@ -299,7 +298,7 @@
 %token EQTOKEN_SIZE
 %token EQTOKEN_CORE
 %token EQTOKEN_SOCKET
-%token EQTOKEN_DISPLAYCLUSTER
+%token EQTOKEN_DEFLECT_HOST
 %token EQTOKEN_DUMP_IMAGE
 
 %union{
@@ -551,15 +550,14 @@ global:
         eq::server::Global::instance()->setChannelSAttribute(
             eq::server::Channel::SATTR_DUMP_IMAGE, $2 );
      }
-     | EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER STRING
+     | EQTOKEN_VIEW_SATTR_DEFLECT_HOST STRING
      {
         eq::server::Global::instance()->setViewSAttribute(
-            eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
+            eq::server::View::SATTR_DEFLECT_HOST, $2 );
      }
 
 connectionType:
     EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
-    | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
     | EQTOKEN_PIPE { $$ = co::CONNECTIONTYPE_NAMEDPIPE; }
     | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
     | EQTOKEN_RDMA { $$ = co::CONNECTIONTYPE_RDMA; }
@@ -836,10 +834,6 @@ viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_ATTRIBUTES '{' viewAttributes '}'
     | EQTOKEN_NAME STRING { view->setName( $2 ); }
-    | EQTOKEN_DISPLAYCLUSTER STRING /* backward compat */
-      {
-        view->setSAttribute( eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
-      }
     | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport
@@ -877,9 +871,9 @@ viewMode:
 
 viewAttributes: /*null*/ | viewAttributes viewAttribute
 viewAttribute:
-     EQTOKEN_DISPLAYCLUSTER STRING
+     EQTOKEN_DEFLECT_HOST STRING
      {
-        view->setSAttribute( eq::server::View::SATTR_DISPLAYCLUSTER, $2 );
+        view->setSAttribute( eq::server::View::SATTR_DEFLECT_HOST, $2 );
      }
 
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas( config ); }

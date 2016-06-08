@@ -83,7 +83,8 @@ uint32_t _getKey( const int key )
     case 0x01000047: return KC_F24;
     case 0x01001103: return KC_ALT_R;
     case 0x01ffffff: return KC_VOID;
-    default:         return key;
+    case 0x20:       return key; // space
+    default:         return key+32;
     }
 }
 }
@@ -97,7 +98,7 @@ EventHandler::EventHandler( Proxy* proxy )
         _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
-    Pipe* pipe = proxy->getChannel()->getPipe();
+    Pipe* pipe = proxy->getChannel().getPipe();
     MessagePump* messagePump = pipe->isThreaded() ? pipe->getMessagePump() :
                                             pipe->getConfig()->getMessagePump();
     if( messagePump )
@@ -109,7 +110,7 @@ EventHandler::EventHandler( Proxy* proxy )
 
 EventHandler::~EventHandler()
 {
-    Pipe* pipe = _proxy->getChannel()->getPipe();
+    Pipe* pipe = _proxy->getChannel().getPipe();
     MessagePump* messagePump =
         dynamic_cast<MessagePump*>( pipe->isThreaded() ?
                                     pipe->getMessagePump() :
@@ -145,9 +146,9 @@ void EventHandler::_processEvents( const Proxy* proxy )
     if( !_proxy || (proxy && _proxy != proxy ))
         return;
 
-    const PixelViewport& pvp = _proxy->getChannel()->getPixelViewport();
-    Channel* channel = _proxy->getChannel();
-    Window* window = channel->getWindow();
+    Channel& channel = _proxy->getChannel();
+    const PixelViewport& pvp = channel.getPixelViewport();
+    Window* window = channel.getWindow();
 
     while( _proxy->hasNewEvent( ))
     {
@@ -163,8 +164,8 @@ void EventHandler::_processEvents( const Proxy* proxy )
         }
 
         Event event;
-        event.originator = channel->getID();
-        event.serial = channel->getSerial();
+        event.originator = channel.getID();
+        event.serial = channel.getSerial();
         event.type = Event::UNKNOWN;
 
         const float x = deflectEvent.mouseX * pvp.w;
@@ -249,7 +250,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
             if( !window->getRenderContext( x, y, event.context ))
                 LBVERB << "No rendering context for pointer event at " << x
                        << ", " << y << std::endl;
-            channel->processEvent( event );
+            channel.processEvent( event );
         }
     }
 }

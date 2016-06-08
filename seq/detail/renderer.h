@@ -71,6 +71,7 @@ public:
 
     void applyRenderContext();
     void applyModelMatrix();
+    void bindDrawFrameBuffer();
 
     void applyScreenFrustum();
     void applyPerspectiveFrustum();

@@ -35,8 +35,8 @@ namespace
 {
 #define _MAKE_ATTR_STRING( attr ) ( std::string("EQ_VIEW_") + #attr )
 static std::string _sAttributeStrings[] = {
-    _MAKE_ATTR_STRING( SATTR_DISPLAYCLUSTER ),
-    _MAKE_ATTR_STRING( SATTR_PIXELSTREAM_NAME )
+    _MAKE_ATTR_STRING( SATTR_DEFLECT_HOST ),
+    _MAKE_ATTR_STRING( SATTR_DEFLECT_ID )
 };
 }
 

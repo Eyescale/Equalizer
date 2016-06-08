@@ -244,11 +244,16 @@ bool Channel::configExit()
 bool Channel::configInit( const uint128_t& )
 {
 #ifdef EQUALIZER_USE_DEFLECT
-    if( getView() &&
-        !getView()->getSAttribute( View::SATTR_DISPLAYCLUSTER ).empty( ))
+    if( getView( ))
     {
         LBASSERT( !_impl->_deflectProxy );
-        _impl->_deflectProxy = new deflect::Proxy( this );
+        try
+        {
+            // Try to create Deflect proxy from env vars or
+            // config values, silently ignore failure
+            _impl->_deflectProxy = new deflect::Proxy( *this );
+        }
+        catch( ... ) {}
     }
 #endif
     return true;

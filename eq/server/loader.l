@@ -108,7 +108,7 @@ EQ_NODE_IATTR_HINT_STATISTICS    { return EQTOKEN_NODE_IATTR_HINT_STATISTICS; }
 EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
 EQ_PIPE_IATTR_HINT_AFFINITY      { return EQTOKEN_PIPE_IATTR_HINT_AFFINITY; }
 EQ_PIPE_IATTR_HINT_CUDA_GL_INTEROP { return EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP; }
-EQ_VIEW_SATTR_DISPLAYCLUSTER      { return EQTOKEN_VIEW_SATTR_DISPLAYCLUSTER; }
+EQ_VIEW_SATTR_DEFLECT_HOST      { return EQTOKEN_VIEW_SATTR_DEFLECT_HOST; }
 EQ_WINDOW_IATTR_HINT_CORE_PROFILE { return EQTOKEN_WINDOW_IATTR_HINT_CORE_PROFILE; }
 EQ_WINDOW_IATTR_HINT_OPENGL_MAJOR { return EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MAJOR; }
 EQ_WINDOW_IATTR_HINT_OPENGL_MINOR { return EQTOKEN_WINDOW_IATTR_HINT_OPENGL_MINOR; }
@@ -201,7 +201,6 @@ connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
 TCPIP                           { return EQTOKEN_TCPIP; }
-SDP                             { return EQTOKEN_SDP; }
 PIPE                            { return EQTOKEN_PIPE; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }
@@ -295,7 +294,7 @@ zoom                            { return EQTOKEN_ZOOM; }
 MONO                            { return EQTOKEN_MONO; }
 STEREO                          { return EQTOKEN_STEREO; }
 size                            { return EQTOKEN_SIZE; }
-DisplayCluster                  { return EQTOKEN_DISPLAYCLUSTER; }
+deflect_host                    { return EQTOKEN_DEFLECT_HOST; }
 dump_image                      { return EQTOKEN_DUMP_IMAGE; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }

@@ -102,6 +102,8 @@ inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
     canvas->addLayout( layout );
 
     config->commit();
+    // valgrind-verified false positive for view and segment
+    // cppcheck-suppress memleak
     return true;
 }
 

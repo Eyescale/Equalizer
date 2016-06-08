@@ -3,6 +3,14 @@ Changelog {#Changelog}
 
 # git master
 
+* [561](https://github.com/Eyescale/Equalizer/pull/561):
+  Change Deflect streaming activation
+
+  * Use environment variable from
+    [Deflect#98](https://github.com/BlueBrain/Deflect/pull/98)
+  * Obsolete DisplayCluster view attributes, use deflect_host attribute now
+* [560](https://github.com/Eyescale/Equalizer/pull/560):
+  Add seq::Renderer::bindDrawFrameBuffer()
 * [554](https://github.com/Eyescale/Equalizer/pull/554):
   Expose current view data in seq::Renderer  
 * [548](https://github.com/Eyescale/Equalizer/pull/548):

@@ -177,7 +177,7 @@ set(EQUALIZER_LINK_LIBRARIES
           ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_FILESYSTEM_LIBRARY}
           ${Boost_SYSTEM_LIBRARY} ${Boost_THREAD_LIBRARY})
 
-if(DEFLECT_FOUND)
+if(TARGET Deflect)
   list(APPEND EQUALIZER_SOURCES
     deflect/connection.h
     deflect/eventHandler.cpp

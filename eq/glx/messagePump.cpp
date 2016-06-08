@@ -121,18 +121,18 @@ void MessagePump::deregister( Display* display )
     }
 }
 
-void MessagePump::register_( deflect::Proxy* dcProxy LB_UNUSED )
+void MessagePump::register_( deflect::Proxy* proxy LB_UNUSED )
 {
 #ifdef EQUALIZER_USE_DEFLECT
-    if( ++_referenced[ dcProxy ] == 1 )
-        _connections.addConnection( new deflect::Connection( dcProxy ));
+    if( ++_referenced[ proxy ] == 1 )
+        _connections.addConnection( new deflect::Connection( proxy ));
 #endif
 }
 
-void MessagePump::deregister( deflect::Proxy* dcProxy LB_UNUSED  )
+void MessagePump::deregister( deflect::Proxy* proxy LB_UNUSED  )
 {
 #ifdef EQUALIZER_USE_DEFLECT
-    if( --_referenced[ dcProxy ] == 0 )
+    if( --_referenced[ proxy ] == 0 )
     {
         const co::Connections& connections = _connections.getConnections();
         for( co::Connections::const_iterator i = connections.begin();
@@ -141,13 +141,13 @@ void MessagePump::deregister( deflect::Proxy* dcProxy LB_UNUSED  )
             co::ConnectionPtr connection = *i;
             const deflect::Connection* dcConnection =
                 dynamic_cast< const deflect::Connection* >( connection.get( ));
-            if( dcConnection && dcConnection->getProxy() == dcProxy )
+            if( dcConnection && dcConnection->getProxy() == proxy )
             {
                 _connections.removeConnection( connection );
                 break;
             }
         }
-        _referenced.erase( _referenced.find( dcProxy ));
+        _referenced.erase( _referenced.find( proxy ));
     }
 #endif
 }

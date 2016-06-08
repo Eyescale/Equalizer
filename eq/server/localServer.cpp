@@ -129,13 +129,16 @@ bool startLocalServer( const std::string& config )
 
 co::ConnectionPtr connectLocalServer()
 {
+    if( !_serverThread.getServer( ))
+        return nullptr;
+
     co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
     desc->type = co::CONNECTIONTYPE_PIPE;
     co::ConnectionPtr connection = co::Connection::create( desc );
     if( !connection->connect( ))
     {
         LBERROR << "Failed to set up server connection" << std::endl;
-        return 0;
+        return nullptr;
     }
 
     co::ConnectionPtr sibling = connection->acceptSync();

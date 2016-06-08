@@ -785,16 +785,22 @@ bool Config::_init( const uint128_t& initID )
     _finishedFrame = 0;
     _initID = initID;
 
-    for( CompoundsCIter i = _compounds.begin(); i != _compounds.end(); ++i )
-        (*i)->init();
+    for( auto compound : _compounds )
+        compound->init();
 
-    const Observers& observers = getObservers();
-    for( ObserversCIter i = observers.begin(); i != observers.end(); ++i )
-        (*i)->init();
+    for( auto observer : getObservers( ))
+        observer->init();
 
-    const Canvases& canvases = getCanvases();
-    for( CanvasesCIter i = canvases.begin(); i != canvases.end(); ++i )
-        (*i)->init();
+    for( auto canvas : getCanvases( ))
+        canvas->init();
+
+    const auto& layouts = getLayouts();
+    for( auto layout : layouts )
+        for( auto view : layout->getViews( ))
+            view->init();
+
+    // any of the above entities might have been updated
+    commit();
 
     if( !_updateRunning( false ))
         return false;

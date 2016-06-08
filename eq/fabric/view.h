@@ -238,8 +238,8 @@ public:
     /** String attributes. */
     enum SAttribute
     {
-        SATTR_DISPLAYCLUSTER,
-        SATTR_PIXELSTREAM_NAME,
+        SATTR_DEFLECT_HOST,
+        SATTR_DEFLECT_ID,
         SATTR_LAST,
         SATTR_ALL = SATTR_LAST + 5
     };
