@@ -25,6 +25,7 @@
 #include "objectMap.h"
 
 #include <seq/renderer.h>
+#include <eq/config.h>
 
 namespace seq
 {
@@ -166,6 +167,13 @@ void Renderer::clear()
     LBASSERT( _channel );
     if( _channel )
         _channel->clear();
+}
+
+void Renderer::requestRedraw()
+{
+    LBASSERT( _channel );
+    if( _channel )
+        _channel->getConfig()->sendEvent( EVENT_REDRAW );
 }
 
 void Renderer::applyRenderContext()

@@ -19,7 +19,9 @@
 #define EQSEQUEL_TYPES_H
 
 #include <seq/api.h>
+
 #include <eq/types.h>
+#include <eq/fabric/event.h>
 
 namespace seq
 {
@@ -43,6 +45,12 @@ class Renderer;
 class ViewData;
 
 typedef lunchbox::RefPtr< Application > ApplicationPtr;
+
+enum EventType
+{
+    EVENT_REDRAW = eq::Event::USER,
+    EVENT_USER
+};
 
 /** @cond IGNORE */
 namespace detail

@@ -68,6 +68,7 @@ public:
     bool exitContext();
 
     void clear();
+    void requestRedraw();
 
     void applyRenderContext();
     void applyModelMatrix();
