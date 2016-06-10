@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [563](https://github.com/Eyescale/Equalizer/pull/563):
+  Add seq::Renderer::requestRedraw()
 * [561](https://github.com/Eyescale/Equalizer/pull/561):
   Change Deflect streaming activation
 

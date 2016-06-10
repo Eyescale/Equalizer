@@ -108,6 +108,9 @@ public:
      */
     virtual void draw( co::Object* frameData ) = 0;
 
+    /** Request another call to draw(). @version 1.12 */
+    SEQ_API void requestRedraw();
+
     /**
      * Update the near and far planes to tightly enclose the given sphere.
      *
