@@ -423,7 +423,7 @@ std::string Node::_createRemoteCommand() const
     const char libPath[] = "LD_LIBRARY_PATH";
 #  endif
 
-    stringStream << "env "; // XXX
+    stringStream << "env ";
     _addEnv( stringStream, libPath );
     _addEnv( stringStream, "PATH" );
     _addEnv( stringStream, "PYTHONPATH" );
@@ -442,8 +442,8 @@ std::string Node::_createRemoteCommand() const
     stringStream << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
     if( lunchbox::Log::topics != 0 )
         stringStream << "LB_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
+#endif
 
-#endif // WIN32
     const boost::filesystem::path absolute =
         boost::filesystem::system_complete( boost::filesystem::path( program ));
     program = absolute.string();

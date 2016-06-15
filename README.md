@@ -1,6 +1,4 @@
-[TOC]
-
-# Introduction {#Introduction}
+# Introduction
 
 Welcome to Equalizer, the standard middleware to create and deploy parallel,
 scalable OpenGL applications. It enables applications to benefit from multiple
@@ -9,7 +7,7 @@ visual quality and display size. An Equalizer application runs unmodified on any
 visualization system, from a simple workstation to large scale graphics
 clusters, multi-GPU workstations and Virtual Reality installations.
 
-The Equalizer Programming and User Guide covers the basics of Equalizer
+The Equalizer [Programming and User Guide](https://github.com/Eyescale/EqDocs/raw/master/Developer/ProgrammingGuide/paper.pdf) covers the basics of Equalizer
 programming. The API documentation can be found on
 [github](http://eyescale.github.com/).
 
@@ -24,7 +22,7 @@ available from [Eyescale](http://www.eyescale.ch). Please contact
 [info@eyescale.ch](mailto:info@eyescale.ch?subject=Equalizer%20support)
 for further information.
 
-# Features {#Features}
+# Features
 
 Equalizer provides the following major features to facilitate the development
 and deployment of scalable OpenGL applications. A
@@ -50,13 +48,13 @@ fixes introduced in each version.
 * Detailed @ref Changelog
 
 
-# Known Bugs {#Bugs}
+# Known Bugs
 
 Please refer to the
 [github issue tracker](https://github.com/Eyescale/Equalizer/issues) for
 fixed and open bugs, and to report new bugs.
 
-# Building from source {#Building}
+# Building from source
 
 Equalizer is a cross-platform library, designed to run on any modern operating
 system, including all Unix variants and the Windows operating system. Equalizer
@@ -68,27 +66,13 @@ build environment. The following platforms and build environments are tested:
 * Windows: 7 (Visual Studio 2012)
 * Mac OS X: 10.8 (Makefile, Ninja)
 
-## Linux, Mac OS X {#Unix}
+## Linux, Mac OS X
 
     git clone https://github.com/Eyescale/Equalizer.git
     mkdir Equalizer/build
     cd Equalizer/build
-    cmake ..
+    cmake  -DINSTALL_PACKAGES=1 ..
     make
-
-In case of errors, remove all traces of previously installed
-dependencies, as cmake will not check if they are new enough and the
-build may fail:
-
-    rm -rf /usr/include/{eq,co,triply,seq,hwsd,pression,lunchbox}
-    rm -rf /usr/share/{Collage,hwsd,Pression,Lunchbox}
-    rm -rf /usr/lib/lib{triply*,Sequel*,Equalizer*,Collage*,hwsd*,Pression*,Lunchbox*}
-    rm -rf Equalizer
-
-Using "git pull" to update Equalizer later is not enough, as it does not update
-externals and subprojects. Use the 'make rebase' target to update these, or
-if your cmake run fails CMake/common use "git clean -ffdx" to remove
-them all and let cmake re-clone them.
 
 ## Windows {#Windows}
 
