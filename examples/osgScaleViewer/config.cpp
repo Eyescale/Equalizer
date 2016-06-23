@@ -160,7 +160,7 @@ const InitData& Config::getInitData() const
 bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
-    return getClient()->syncObject( &_initData, getApplicationNode(), id );
+    return getClient()->syncObject( &_initData, id, getApplicationNode() );
 }
 
 bool Config::handleEvent( const eq::ConfigEvent* event )

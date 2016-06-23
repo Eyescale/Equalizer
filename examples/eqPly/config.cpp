@@ -227,7 +227,7 @@ void Config::_deregisterData()
 bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
-    return getClient()->syncObject( &_initData, getApplicationNode(), id );
+    return getClient()->syncObject( &_initData, id, getApplicationNode() );
 }
 
 const Model* Config::getModel( const eq::uint128_t& modelID )
