@@ -23,6 +23,9 @@
 #    when only a specific branch of a repo is required and the full history
 #    is not required. Note that the SHALLOW option will only work for a branch
 #    or tag and cannot be used for an arbitrary SHA.
+#  OPTIONAL, when present, this option makes this operation optional.
+#    The function will output a warning and return if the repo could not be
+#    cloned.
 #
 # Targets:
 #  * <directory>-rebase: fetches latest updates and rebases the given external
@@ -30,7 +33,7 @@
 #  * rebase: Rebases all git externals, including sub projects
 #
 # Options (global) which control behaviour:
-#  GIT_EXTERNAL_VERBOSE
+#  COMMON_GIT_EXTERNAL_VERBOSE
 #    This is a global option which has the same effect as the VERBOSE option,
 #    with the difference that output information will be produced for all
 #    external repos when set.
@@ -53,7 +56,7 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 include(CMakeParseArguments)
-option(GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
+option(COMMON_GIT_EXTERNAL_VERBOSE "Print git commands as they are executed" OFF)
 
 if(NOT GITHUB_USER AND DEFINED ENV{GITHUB_USER})
   set(GITHUB_USER $ENV{GITHUB_USER} CACHE STRING
@@ -61,7 +64,7 @@ if(NOT GITHUB_USER AND DEFINED ENV{GITHUB_USER})
 endif()
 
 macro(GIT_EXTERNAL_MESSAGE msg)
-  if(GIT_EXTERNAL_VERBOSE OR GIT_EXTERNAL_LOCAL_VERBOSE)
+  if(COMMON_GIT_EXTERNAL_VERBOSE)
     message(STATUS "${NAME}: ${msg}")
   endif()
 endmacro()
@@ -74,7 +77,7 @@ function(JOIN VALUES GLUE OUTPUT)
 endfunction()
 
 function(GIT_EXTERNAL DIR REPO tag)
-  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW" "" "RESET" ${ARGN})
+  cmake_parse_arguments(GIT_EXTERNAL_LOCAL "VERBOSE;SHALLOW;OPTIONAL" "" "RESET" ${ARGN})
   set(TAG ${tag})
   if(GIT_EXTERNAL_TAG AND "${tag}" MATCHES "^[0-9a-f]+$")
     set(TAG ${GIT_EXTERNAL_TAG})
@@ -115,7 +118,12 @@ function(GIT_EXTERNAL DIR REPO tag)
       RESULT_VARIABLE nok ERROR_VARIABLE error
       WORKING_DIRECTORY "${GIT_EXTERNAL_DIR}")
     if(nok)
-      message(FATAL_ERROR "${DIR} clone failed: ${error}\n")
+      if(GIT_EXTERNAL_LOCAL_OPTIONAL)
+        message(STATUS "${DIR} clone failed: ${error}\n")
+        return()
+      else()
+        message(FATAL_ERROR "${DIR} clone failed: ${error}\n")
+      endif()
     endif()
 
     # checkout requested tag
