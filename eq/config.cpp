@@ -1109,10 +1109,10 @@ void Config::unmapObject( co::Object* object )
     getClient()->unmapObject( object );
 }
 
-f_bool_t Config::syncObject( co::Object* object, co::NodePtr master,
-                             const uint128_t& id, const uint32_t instanceID )
+f_bool_t Config::syncObject( co::Object* object, const uint128_t& id,
+                             co::NodePtr master, const uint32_t instanceID )
 {
-    return getClient()->syncObject( object, master, id, instanceID );
+    return getClient()->syncObject( object, id, master, instanceID );
 }
 
 void Config::_releaseObjects()

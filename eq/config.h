@@ -251,9 +251,10 @@ public:
      * Provided for symmetry. Forwards unmapping to local client node.
      * @version 1.7.4
      */
-    EQ_API f_bool_t syncObject( co::Object* object, co::NodePtr master,
-                                const uint128_t& id,
-                          const uint32_t instanceID = CO_INSTANCE_ALL) override;
+    EQ_API f_bool_t syncObject( co::Object* object, const uint128_t& id,
+                                co::NodePtr master,
+                                const uint32_t instanceID = CO_INSTANCE_ALL)
+        override;
     //@}
 
     /** @name Frame Control */
