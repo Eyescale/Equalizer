@@ -114,7 +114,7 @@ VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
 {
     LBASSERT( !_root && !_node );
 
-    if( !localNode->syncObject( this, master, modelID ))
+    if( !localNode->syncObject( this, modelID, master ))
     {
         LBWARN << "Mapping of model failed" << std::endl;
         return 0;
@@ -190,8 +190,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         _right = new VertexBufferDist( _root, 0 );
         co::NodePtr from = is.getRemoteNode();
         co::LocalNodePtr to = is.getLocalNode();
-        co::f_bool_t leftSync = to->syncObject( _left, from, leftID );
-        co::f_bool_t rightSync = to->syncObject( _right, from, rightID );
+        co::f_bool_t leftSync = to->syncObject( _left, leftID, from );
+        co::f_bool_t rightSync = to->syncObject( _right, rightID, from );
 
         LBCHECK( leftSync.wait() && rightSync.wait( ));
 

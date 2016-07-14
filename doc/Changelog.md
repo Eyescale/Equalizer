@@ -1,7 +1,7 @@
 Changelog {#Changelog}
 =========
 
-# git master
+# Release 1.12 (30-Jul-2016)
 
 * [563](https://github.com/Eyescale/Equalizer/pull/563):
   Add seq::Renderer::requestRedraw()

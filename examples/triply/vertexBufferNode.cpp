@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ VertexBufferNode::~VertexBufferNode()
 
 inline static bool _subdivide( const Index length, const size_t depth )
 {
-    return ( length / 2 > LEAF_SIZE ) || ( depth < 3 && length > 1 );
+    return ( length > LEAF_SIZE ) || ( depth < 3 && length > 1 );
 }
 
 /*  Continue kd-tree setup, create intermediary or leaf nodes as required.  */

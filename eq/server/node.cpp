@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,7 +38,6 @@
 #include <co/objectICommand.h>
 
 #include <lunchbox/clock.h>
-#include <lunchbox/launcher.h>
 #include <lunchbox/os.h>
 #include <lunchbox/sleep.h>
 
@@ -204,17 +203,43 @@ const std::string& Node::getCAttributeString( const CAttribute attr )
 
 namespace
 {
+class NetNode : public co::Node
+{
+public:
+    NetNode( server::Node& node ) : co::Node(), _node( node ) {}
+
+private:
+    server::Node& _node;
+
+    std::string getWorkDir() const override
+        { return _node.getConfig()->getWorkDir(); }
+
+    std::string getLaunchQuote() const override
+    {
+        return std::string( 1, _node.getCAttribute(
+                                    server::Node::CATTR_LAUNCH_COMMAND_QUOTE ));
+    }
+};
+
 static co::NodePtr _createNetNode( Node* node )
 {
-    co::NodePtr netNode = new co::Node;
+    co::NodePtr netNode = new NetNode( *node );
     const co::ConnectionDescriptions& descriptions =
         node->getConnectionDescriptions();
-    for( co::ConnectionDescriptionsCIter i = descriptions.begin();
-         i != descriptions.end(); ++i )
+    for( co::ConnectionDescriptionPtr desc : descriptions )
     {
-        netNode->addConnectionDescription( new co::ConnectionDescription( **i));
+        netNode->addConnectionDescription(
+            new co::ConnectionDescription( *desc ));
+
+        if( node->getHost().empty( ))
+        {
+            node->setHost( desc->getHostname( ));
+            LBWARN << "No host specified, guessing " << node->getHost()
+                   << " from " << desc << std::endl;
+        }
     }
 
+    netNode->setHostname( node->getHost( ));
     return netNode;
 }
 }
@@ -223,7 +248,7 @@ bool Node::connect()
 {
     LBASSERT( isActive( ));
 
-    if( _node.isValid( ))
+    if( _node )
         return _node->isConnected();
 
     if( !isStopped( ))
@@ -233,54 +258,20 @@ bool Node::connect()
     }
 
     co::LocalNodePtr localNode = getLocalNode();
-    LBASSERT( localNode.isValid( ));
+    LBASSERT( localNode );
 
-    if( !_node )
-    {
-        LBASSERT( !isApplicationNode( ));
-        _node = _createNetNode( this );
-    }
-    else
-    {
-        LBASSERT( isApplicationNode( ));
-    }
+    _node = _createNetNode( this );
 
     LBLOG( LOG_INIT ) << "Connecting node" << std::endl;
-    if( !localNode->connect( _node ) && !launch( ))
+    if( localNode->connect( _node ) ||
+        localNode->launch( _node, _createLaunchCommand( )))
     {
-        LBWARN << "Connection to " << _node->getNodeID() << " failed"
-               << std::endl;
-        _state = STATE_FAILED;
-        _node = 0;
-        return false;
-    }
-
-    return true;
-}
-
-bool Node::launch()
-{
-    for( co::ConnectionDescriptionsCIter i = _connectionDescriptions.begin();
-         _host.empty() && i != _connectionDescriptions.end(); ++i )
-    {
-        _host = (*i)->getHostname();
-        LBWARN << "No host specified, guessing " << _host << " from " << *i
-               << std::endl;
-    }
-
-    if( _launch( _host ))
         return true;
-
-    // Equalizer 1.0 style: try hostnames from connection descriptions
-    for( co::ConnectionDescriptionsCIter i = _connectionDescriptions.begin();
-         i != _connectionDescriptions.end(); ++i )
-    {
-        const std::string& hostname = (*i)->getHostname();
-        if( hostname != _host && _launch( hostname ))
-            return true;
     }
 
-    sendError( fabric::ERROR_NODE_LAUNCH ) << _host;
+    LBWARN << "Connection to " << _node->getNodeID() << " failed" << std::endl;
+    _state = STATE_FAILED;
+    _node = nullptr;
     return false;
 }
 
@@ -295,110 +286,29 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
         return true;
 
     LBASSERT( !isApplicationNode( ));
+
     co::LocalNodePtr localNode = getLocalNode();
-    LBASSERT( localNode.isValid( ));
-
-    const int32_t timeOut = getIAttribute( IATTR_LAUNCH_TIMEOUT );
-
-    while( true )
-    {
-        co::NodePtr node = localNode->getNode( _node->getNodeID( ));
-        if( node && node->isConnected( ))
-        {
-            LBASSERT( _node->getRefCount() == 1 );
-            _node = node; // Use co::Node already connected
-            return true;
-        }
-
-        lunchbox::sleep( 100 /*ms*/ );
-        if( timeOut != static_cast<int32_t>(LB_TIMEOUT_INDEFINITE) &&
-            clock.getTime64() > timeOut )
-        {
-            LBASSERT( _node->getRefCount() == 1 );
-            _node = 0;
-            std::ostringstream data;
-
-            for( co::ConnectionDescriptions::const_iterator i =
-                     _connectionDescriptions.begin();
-                 i != _connectionDescriptions.end(); ++i )
-            {
-                co::ConnectionDescriptionPtr desc = *i;
-                data << desc->getHostname() << ' ';
-            }
-
-            sendError( fabric::ERROR_NODE_CONNECT ) << _host;
-            _state = STATE_FAILED;
-            return false;
-        }
-    }
-}
-
-bool Node::_launch( const std::string& hostname ) const
-{
-    const std::string& command = getSAttribute( SATTR_LAUNCH_COMMAND );
-    const size_t commandLen = command.size();
-
-    bool commandFound = false;
-    size_t lastPos = 0;
-    std::string cmd;
-
-    for( size_t percentPos = command.find( '%' );
-         percentPos != std::string::npos;
-         percentPos = command.find( '%', percentPos+1 ))
-    {
-        std::ostringstream replacement;
-        switch( command[percentPos+1] )
-        {
-            case 'c':
-            {
-                replacement << _createRemoteCommand();
-                commandFound = true;
-                break;
-            }
-            case 'h':
-            {
-                if( hostname.empty( ))
-                    replacement << "127.0.0.1";
-                else
-                    replacement << hostname;
-                break;
-            }
-            case 'n':
-                replacement << _node->getNodeID();
-                break;
-
-            case 'd':
-                replacement << getConfig()->getWorkDir();
-                break;
-
-            case 'q':
-                replacement << getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
-                break;
-
-            default:
-                LBWARN << "Unknown token " << command[percentPos+1]
-                       << std::endl;
-                replacement << '%' << command[percentPos+1];
-        }
-
-        cmd += command.substr( lastPos, percentPos-lastPos );
-        if( !replacement.str().empty( ))
-            cmd += replacement.str();
-
-        lastPos  = percentPos+2;
-    }
-
-    cmd += command.substr( lastPos, commandLen-lastPos );
-
-    if( !commandFound )
-        cmd += " " + _createRemoteCommand();
-
-    LBVERB << "Launch command: " << cmd << std::endl;
-    if( lunchbox::Launcher::run( cmd ))
+    const int64_t timeOut = getIAttribute( IATTR_LAUNCH_TIMEOUT );
+    _node = localNode->syncLaunch( _node->getNodeID(),
+                                   std::max( int64_t( 0 ),
+                                             timeOut - clock.getTime64( )));
+    if( _node )
         return true;
 
-    LBWARN << "Could not launch node using '" << cmd << "'" << std::endl;
+    sendError( fabric::ERROR_NODE_CONNECT ) << _host;
+    _state = STATE_FAILED;
     return false;
+}
+
+std::string Node::_createLaunchCommand() const
+{
+    const std::string& command = getSAttribute( SATTR_LAUNCH_COMMAND );
+    const size_t commandPos = command.find( "%c" );
+    if( commandPos == std::string::npos )
+        return command + " " + _createRemoteCommand();
+
+    return command.substr( 0, commandPos ) + _createRemoteCommand() +
+           command.substr( commandPos + 1 );
 }
 
 std::string Node::_createRemoteCommand() const
@@ -412,8 +322,8 @@ std::string Node::_createRemoteCommand() const
     }
 
     //----- environment
-    std::ostringstream stringStream;
-    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
+    std::ostringstream os;
+    const std::string& quote = _node->getLaunchQuote();
 
     //----- program + args
 #ifndef WIN32
@@ -423,10 +333,10 @@ std::string Node::_createRemoteCommand() const
     const char libPath[] = "LD_LIBRARY_PATH";
 #  endif
 
-    stringStream << "env ";
-    _addEnv( stringStream, libPath );
-    _addEnv( stringStream, "PATH" );
-    _addEnv( stringStream, "PYTHONPATH" );
+    os << "env ";
+    _addEnv( os, libPath );
+    _addEnv( os, "PATH" );
+    _addEnv( os, "PYTHONPATH" );
 
     for( int i=0; environ[i] != 0; ++i )
     {
@@ -435,31 +345,20 @@ std::string Node::_createRemoteCommand() const
               strncmp( environ[i], "CO_", 3 ) == 0 ||
               strncmp( environ[i], "EQ_", 3 ) == 0 ))
         {
-            stringStream << quote << environ[i] << quote << " ";
+            os << quote << environ[i] << quote << " ";
         }
     }
 
-    stringStream << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
+    os << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
     if( lunchbox::Log::topics != 0 )
-        stringStream << "LB_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
+        os << "LB_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
 #endif
 
     const boost::filesystem::path absolute =
         boost::filesystem::system_complete( boost::filesystem::path( program ));
     program = absolute.string();
 
-    const std::string& ownData = getServer()->serialize();
-    const std::string& remoteData = _node->serialize();
-    const std::string& workDir = config->getWorkDir();
-    std::string collageGlobals;
-    co::Global::toString( collageGlobals );
-
-    stringStream
-        << quote << program << quote << " -- --eq-client " << quote
-        << remoteData << workDir << CO_SEPARATOR << ownData << quote
-        << " --co-globals " << quote << collageGlobals << quote;
-
-    return stringStream.str();
+    return os.str() + quote + program + quote + " -- --eq-client %o ";
 }
 
 //---------------------------------------------------------------------------

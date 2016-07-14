@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -43,10 +43,6 @@
 #include <lunchbox/file.h>
 #include <boost/filesystem/path.hpp>
 
-#ifdef _MSC_VER
-#  include <direct.h>  // for chdir
-#  define chdir _chdir
-#endif
 #ifdef EQ_QT_USED
 #  include <QApplication> // must be included before any header defining Bool
 
@@ -202,18 +198,7 @@ bool Client::initLocal( const int argc, char** argv )
     for( int i=1; i<argc; ++i )
     {
         if( std::string( "--eq-client" ) == argv[i] )
-        {
             isClient = true;
-            if( i < argc-1 && argv[i+1][0] != '-' ) // server-started client
-            {
-                clientOpts = argv[++i];
-
-                if( !deserialize( clientOpts ))
-                    LBWARN << "Failed to parse client listen port parameters"
-                           << std::endl;
-                LBASSERT( !clientOpts.empty( ));
-            }
-        }
         else if( _isParameterOption( "--eq-layout", argc, argv, i ))
             _impl->activeLayouts.push_back( argv[++i] );
         else if( _isParameterOption( "--eq-gpufilter" , argc, argv, i ))

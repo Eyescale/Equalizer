@@ -1,5 +1,5 @@
 Name:		Equalizer
-Version:	1.11.0
+Version:	1.12.0
 Release:	1%{?dist}
 Summary:	Middleware to create and deploy parallel OpenGL-based applications
 
@@ -7,7 +7,7 @@ Group:		Development/Libraries
 License:	LGPLv2, examples are BSD licensed
 URL:		http://www.equalizergraphics.com/
 Source0:	http://www.equalizergraphics.com/downloads/%{name}-%{version}.tar.gz
-Patch0:		Equalizer-1.11.0-build-fix.patch
+Patch0:		Equalizer-1.12.0-build-fix.patch
 BuildRequires:	cmake bison flex
 BuildRequires:	boost-devel glew-devel
 BuildRequires:	libX11-devel mesa-libGL-devel
