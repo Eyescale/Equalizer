@@ -310,9 +310,12 @@ void View::init()
 {
     // All contributors to the same view must share the same Deflect ID for
     // streaming to the same target.
-    if( getSAttribute( View::SATTR_DEFLECT_ID ).empty( ))
+    if( !getenv( "DEFLECT_ID" ) &&
+        getSAttribute( View::SATTR_DEFLECT_ID ).empty( ))
+    {
         setSAttribute( View::SATTR_DEFLECT_ID, getName().empty()
                        ? "View " + getID().getShortString() : getName( ));
+    }
 }
 
 void View::trigger( const Canvas* canvas, const bool active )
