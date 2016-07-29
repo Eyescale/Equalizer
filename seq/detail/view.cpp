@@ -75,10 +75,11 @@ bool View::configInit()
 
 bool View::configExit()
 {
-    if( !getPipe() && getViewData( )) // application view
+    ViewData* viewData = getViewData();
+    if( !getPipe() && viewData ) // application view
     {
         setUserData( 0 );
-        getConfig()->getApplication()->destroyViewData( getViewData( ));
+        getConfig()->getApplication()->destroyViewData( viewData );
     }
     return eq::View::configExit();
 }
