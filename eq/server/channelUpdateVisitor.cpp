@@ -56,7 +56,7 @@ namespace
 {
 static bool _setDrawBuffers();
 static uint32_t _drawBuffer[2][2][NUM_EYES];
-static bool _drawBufferInit = _setDrawBuffers();
+static bool LB_UNUSED _drawBufferInit = _setDrawBuffers();
 bool _setDrawBuffers()
 {
     const int32_t cyclop = lunchbox::getIndexOfLastBit( EYE_CYCLOP );
