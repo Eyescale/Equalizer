@@ -337,6 +337,10 @@ std::string Node::_createRemoteCommand() const
     _addEnv( os, libPath );
     _addEnv( os, "PATH" );
     _addEnv( os, "PYTHONPATH" );
+#ifdef EQUALIZER_USE_DEFLECT
+    _addEnv( os, "DEFLECT_HOST" );
+    _addEnv( os, "DEFLECT_ID" );
+#endif
 
     for( int i=0; environ[i] != 0; ++i )
     {

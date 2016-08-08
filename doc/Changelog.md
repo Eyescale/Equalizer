@@ -1,6 +1,15 @@
 Changelog {#Changelog}
 =========
 
+# Release 1.13 (git master)
+
+* [574](https://github.com/Eyescale/Equalizer/pull/574):
+  Deflect proxy: Consider DEFLECT_ID, use deflect env for render clients
+* [572](https://github.com/Eyescale/Equalizer/pull/572):
+  Sequel: Fix crash on exit
+* [570](https://github.com/Eyescale/Equalizer/pull/570):
+  Use new Collage launch code
+
 # Release 1.12 (30-Jul-2016)
 
 * [563](https://github.com/Eyescale/Equalizer/pull/563):
@@ -14,7 +23,7 @@ Changelog {#Changelog}
 * [560](https://github.com/Eyescale/Equalizer/pull/560):
   Add seq::Renderer::bindDrawFrameBuffer()
 * [554](https://github.com/Eyescale/Equalizer/pull/554):
-  Expose current view data in seq::Renderer  
+  Expose current view data in seq::Renderer
 * [548](https://github.com/Eyescale/Equalizer/pull/548):
   Sequel tweaks for seqSplotch
 
