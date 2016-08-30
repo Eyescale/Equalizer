@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,9 +32,9 @@ std::string _workDir;
 NodeFactory* Global::_nodeFactory = 0;
 
 #ifdef EQUALIZER_USE_HWSD
-std::string Global::_configFile = hwsd::NodeInfo::getLocalSession();
+std::string Global::_config = hwsd::NodeInfo::getLocalSession();
 #else
-std::string Global::_configFile = "configs/config.eqc";
+std::string Global::_config = "configs/config.eqc";
 #endif
 
 #ifdef AGL
@@ -61,14 +61,14 @@ const std::string& Global::getWorkDir()
     return _workDir;
 }
 
-void Global::setConfigFile( const std::string& configFile )
+void Global::setConfig( const std::string& config )
 {
-    _configFile = configFile;
+    _config = config;
 }
 
-const std::string& Global::getConfigFile()
+const std::string& Global::getConfig()
 {
-    return _configFile;
+    return _config;
 }
 
 void Global::enterCarbon()

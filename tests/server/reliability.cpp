@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -149,7 +149,7 @@ int main( const int argc, char** argv )
 
 bool _checkGPU( eq::ClientPtr client )
 {
-    eq::Global::setConfigFile( "configs/config.eqc" );
+    eq::Global::setConfig( "configs/config.eqc" );
     eq::server::Global::instance()->setConfigIAttribute(
         eq::server::Config::IATTR_ROBUSTNESS, eq::OFF );
 
@@ -179,7 +179,7 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     eq::server::Global::instance()->setConfigIAttribute(
         eq::server::Config::IATTR_ROBUSTNESS, eq::ON );
     eq::ServerPtr server = new eq::Server;
-    eq::Global::setConfigFile( filename );
+    eq::Global::setConfig( filename );
     TEST( client->connectServer( server ));
 
     eq::fabric::ConfigParams configParams;

@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -262,7 +262,7 @@ bool _parseArguments( const int argc, char** argv )
         Global::setServer( vm[EQ_SERVER].as< std::string >( ));
 
     if( vm.count( EQ_CONFIG ))
-        Global::setConfigFile( vm[EQ_CONFIG].as< std::string >( ));
+        Global::setConfig( vm[EQ_CONFIG].as< std::string >( ));
 
     if( vm.count( EQ_CONFIG_FLAGS ))
     {

@@ -226,8 +226,8 @@ bool Resources::discover( ServerPtr server, Config* config,
             return false;
         }
         LBINFO << "No resources found for session " << session
-               << ", using default config" << std::endl;
-        gpuInfos.push_back( hwsd::GPUInfo( ));
+               << ", aborting" << std::endl;
+        return false;
     }
 
     typedef stde::hash_map< uint128_t, Node* > NodeMap;

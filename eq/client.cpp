@@ -138,7 +138,7 @@ bool Client::connectServer( ServerPtr server )
     }
 
     // Use app-local server if no explicit server was set
-    if( !server::startLocalServer( Global::getConfigFile( )))
+    if( !server::startLocalServer( Global::getConfig( )))
         return false;
 
     co::ConnectionPtr connection = server::connectLocalServer();

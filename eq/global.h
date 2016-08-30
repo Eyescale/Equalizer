@@ -49,19 +49,21 @@ public:
     static NodeFactory* getNodeFactory() { return _nodeFactory; }
 
     /**
-     * Set the config file for the app-local server.
+     * Set the config file or hwsd session for the app-local server.
      *
      * When started without specifying an explicit server connection, Equalizer
-     * will create an server instance in an application thread using this config
-     * file.
+     * will create an server instance in an application thread using this
+     * configuration. Strings ending with '.eqc' are considered Equalizer
+     * configuration files, otherwise the given string is used as an HWSD
+     * session name for auto-configuration.
      *
-     * @param configFile the default configFile.
+     * @param config the default configuration.
      * @version 1.0
      */
-    EQ_API static void setConfigFile( const std::string& configFile );
+    EQ_API static void setConfig( const std::string& config );
 
-    /** @return the config file for the app-local server. @version 1.0 */
-    EQ_API static const std::string& getConfigFile();
+    /** @return the configuration for the app-local server. @version 1.0 */
+    EQ_API static const std::string& getConfig();
 
     /**
      * Global lock for all non-thread-safe Carbon API calls.
@@ -77,12 +79,11 @@ public:
     static void leaveCarbon();
 
 private:
-    EQ_API friend bool _init( const int argc, char** argv,
-                              NodeFactory* nodeFactory );
+    EQ_API friend bool _init( const int argc, char** argv, NodeFactory* );
     EQ_API friend bool exit();
 
     static NodeFactory* _nodeFactory;
-    static std::string  _configFile;
+    static std::string  _config;
 };
 }
 
