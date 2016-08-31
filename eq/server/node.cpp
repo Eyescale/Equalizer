@@ -66,6 +66,19 @@ void _addEnv( std::ostringstream& stream, const char* key )
     if( env )
         stream << key << "=" << env << " ";
 }
+
+bool _containsPrefix( const std::string& str, const Strings& prefixes )
+{
+    if( str.find( "LB_" ) == 0 || str.find( "CO_" ) == 0 ||
+        str.find( "EQ_" ) == 0)
+        return true;
+
+    for( const auto& prefix : prefixes )
+        if( str.find( prefix ) == 0 )
+            return true;
+
+    return false;
+}
 }
 
 Node::Node( Config* parent )
@@ -342,15 +355,12 @@ std::string Node::_createRemoteCommand() const
     _addEnv( os, "DEFLECT_ID" );
 #endif
 
+    const Strings& prefixes = config->getRenderClientEnvPrefixes();
     for( int i=0; environ[i] != 0; ++i )
     {
-        if( strlen( environ[i] ) > 2 &&
-            ( strncmp( environ[i], "LB_", 3 ) == 0 ||
-              strncmp( environ[i], "CO_", 3 ) == 0 ||
-              strncmp( environ[i], "EQ_", 3 ) == 0 ))
-        {
-            os << quote << environ[i] << quote << " ";
-        }
+        const std::string var = environ[i];
+        if( _containsPrefix( var, prefixes ))
+            os << quote << var << quote << " ";
     }
 
     os << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";

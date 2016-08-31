@@ -59,6 +59,7 @@ public:
     std::string name;
     std::string renderClient;
     Strings renderClientArgs;
+    Strings renderClientEnvPrefixes;
     std::string workDir;
     uint32_t flags;
     fabric::Equalizer equalizer;
@@ -125,6 +126,16 @@ const Strings& ConfigParams::getRenderClientArgs() const
     return _impl->renderClientArgs;
 }
 
+void ConfigParams::setRenderClientEnvPrefixes( const Strings& prefixes )
+{
+    _impl->renderClientEnvPrefixes = prefixes;
+}
+
+const Strings& ConfigParams::getRenderClientEnvPrefixes() const
+{
+    return _impl->renderClientEnvPrefixes;
+}
+
 void ConfigParams::setWorkDir( const std::string& workDir )
 {
     _impl->workDir = workDir;
@@ -181,15 +192,15 @@ const std::string& ConfigParams::getGPUFilter() const
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
     os << _impl->name << _impl->renderClient << _impl->renderClientArgs
-       << _impl->workDir << _impl->flags << _impl->equalizer << _impl->prefixes
-       << _impl->gpuFilter;
+       << _impl->renderClientEnvPrefixes << _impl->workDir << _impl->flags
+       << _impl->equalizer << _impl->prefixes << _impl->gpuFilter;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
     is >> _impl->name >> _impl->renderClient >> _impl->renderClientArgs
-       >> _impl->workDir >> _impl->flags >> _impl->equalizer >> _impl->prefixes
-       >> _impl->gpuFilter;
+       >> _impl->renderClientEnvPrefixes >> _impl->workDir >> _impl->flags
+       >> _impl->equalizer >> _impl->prefixes >> _impl->gpuFilter;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )

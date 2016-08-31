@@ -219,6 +219,7 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
     config->setWorkDir( params.getWorkDir( ));
     config->setRenderClient( params.getRenderClient( ));
     config->setRenderClientArgs( params.getRenderClientArgs( ));
+    config->setRenderClientEnvPrefixes( params.getRenderClientEnvPrefixes( ));
     config->commit();
 
     node->send( fabric::CMD_SERVER_CREATE_CONFIG )

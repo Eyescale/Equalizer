@@ -145,6 +145,14 @@ public:
     /** @return the render client command line options. */
     const Strings& getRenderClientArgs() const { return _renderClientArgs; }
 
+    /** Set the prefixes of the environmental variables to pass on clients. */
+    void setRenderClientEnvPrefixes( const Strings& prefixes )
+    { _renderClientEnvPrefixes = prefixes; }
+
+    /** @return prefixes of the environmental variables to pass on clients. */
+    const Strings& getRenderClientEnvPrefixes() const
+    { return _renderClientEnvPrefixes; }
+
     /**
      * Set the working directory for render client.
      *
@@ -222,6 +230,9 @@ private:
 
     /** The render client command line options. */
     Strings _renderClientArgs;
+
+    /** The prefixes of environmental variables to pass on to render clients. */
+    Strings _renderClientEnvPrefixes;
 
     /** The working directory of the render client. */
     std::string _workDir;

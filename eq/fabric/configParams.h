@@ -103,6 +103,12 @@ public:
     /** @return the render client command line arguments */
     EQFABRIC_API const Strings& getRenderClientArgs() const;
 
+    /** Set the prefixes of the environmental variables to pass on clients. */
+    EQFABRIC_API void setRenderClientEnvPrefixes( const Strings& prefixes );
+
+    /** @return prefixes of the environmental variables to pass on clients. */
+    EQFABRIC_API const Strings& getRenderClientEnvPrefixes() const;
+
     /**
      * Set the directory from which to launch the render client.
      *
