@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -58,6 +58,7 @@ public:
 
     std::string name;
     std::string renderClient;
+    Strings renderClientArgs;
     std::string workDir;
     uint32_t flags;
     fabric::Equalizer equalizer;
@@ -112,6 +113,16 @@ void ConfigParams::setRenderClient( const std::string& renderClient )
 const std::string& ConfigParams::getRenderClient() const
 {
     return _impl->renderClient;
+}
+
+void ConfigParams::setRenderClientArgs( const Strings& args )
+{
+    _impl->renderClientArgs = args;
+}
+
+const Strings& ConfigParams::getRenderClientArgs() const
+{
+    return _impl->renderClientArgs;
 }
 
 void ConfigParams::setWorkDir( const std::string& workDir )
@@ -169,14 +180,16 @@ const std::string& ConfigParams::getGPUFilter() const
 
 void ConfigParams::serialize( co::DataOStream& os ) const
 {
-    os << _impl->name << _impl->renderClient << _impl->workDir << _impl->flags
-       << _impl->equalizer << _impl->prefixes << _impl->gpuFilter;
+    os << _impl->name << _impl->renderClient << _impl->renderClientArgs
+       << _impl->workDir << _impl->flags << _impl->equalizer << _impl->prefixes
+       << _impl->gpuFilter;
 }
 
 void ConfigParams::deserialize( co::DataIStream& is )
 {
-    is >> _impl->name >> _impl->renderClient >> _impl->workDir >> _impl->flags
-       >> _impl->equalizer >> _impl->prefixes >> _impl->gpuFilter;
+    is >> _impl->name >> _impl->renderClient >> _impl->renderClientArgs
+       >> _impl->workDir >> _impl->flags >> _impl->equalizer >> _impl->prefixes
+       >> _impl->gpuFilter;
 }
 
 co::DataOStream& operator << ( co::DataOStream& os, const ConfigParams& params )

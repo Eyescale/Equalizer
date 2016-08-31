@@ -308,7 +308,7 @@ std::string Node::_createLaunchCommand() const
         return command + " " + _createRemoteCommand();
 
     return command.substr( 0, commandPos ) + _createRemoteCommand() +
-           command.substr( commandPos + 1 );
+           command.substr( commandPos + 2 );
 }
 
 std::string Node::_createRemoteCommand() const
@@ -362,7 +362,10 @@ std::string Node::_createRemoteCommand() const
         boost::filesystem::system_complete( boost::filesystem::path( program ));
     program = absolute.string();
 
-    return os.str() + quote + program + quote + " -- --eq-client %o ";
+    std::string options;
+    for( const std::string& arg : config->getRenderClientArgs( ))
+        options += std::string( " " ) + quote + arg + quote;
+    return os.str() + quote + program + quote + options + " -- --eq-client %o ";
 }
 
 //---------------------------------------------------------------------------

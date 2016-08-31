@@ -88,6 +88,8 @@ Config* Server::chooseConfig( const fabric::ConfigParams& p )
         params.setWorkDir( Global::getWorkDir( ));
     if( params.getRenderClient().empty( ))
         params.setRenderClient( Global::getProgramName( ));
+    if( params.getRenderClientArgs().empty( ))
+        params.setRenderClientArgs( client->getCommandLine( ));
     if( params.getGPUFilter().empty( ))
         params.setGPUFilter( client->getGPUFilter( ));
 

@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # Release 1.13 (git master)
 
+* [578](https://github.com/Eyescale/Equalizer/pull/578):
+  Application command line arguments are transmitted to render clients
 * [574](https://github.com/Eyescale/Equalizer/pull/574):
   Deflect proxy: Consider DEFLECT_ID, use deflect env for render clients
 * [572](https://github.com/Eyescale/Equalizer/pull/572):
