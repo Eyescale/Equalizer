@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,8 +37,8 @@ EQ_API bool _init( const int argc, char** argv, NodeFactory* nodeFactory );
  *         file.</li>
  *   <li>--eq-server &lt;hostname&gt; to specify an explicit server
  *         address (cf. Global::setServer())</li>
- *   <li>--eq-config &lt;filename&gt; to specify the configuration file if
- *         an application-specific server is used (cf.
+ *   <li>--eq-config &lt;filename&gt; to specify the configuration file or hwsd
+ *         session if an application-specific server is used (cf.
  *         Global::setConfigFile())</li>
  *   <li>--eq-render-client &lt;filename&gt; to specify an alternate name
  *         for the render client executable (default is argv[0]). Also sets

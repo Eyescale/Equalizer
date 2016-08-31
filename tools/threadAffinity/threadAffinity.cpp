@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2013-2016, Stefan.Eilemann@epfl.ch
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,7 +66,7 @@ int main( int argc, char **argv )
             if( client->connectServer( server ))
             {
                 eq::fabric::ConfigParams configParams;
-                eq::Global::setConfigFile( "local" );
+                eq::Global::setConfig( "local" );
                 eq::Config* config = server->chooseConfig( configParams );
                 if( config )
                 {

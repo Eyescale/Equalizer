@@ -87,8 +87,11 @@ bool startLocalServer( const std::string& config )
     eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    if( config.length() > 3 && config.find( ".eqc" ) == config.length() - 4 )
+    if( config.length() > 3 &&
+        config.compare( config.size() - 4, 4, ".eqc" ) == 0 )
+    {
         server = loader.loadFile( config );
+    }
     else
     {
 #ifdef EQUALIZER_USE_HWSD

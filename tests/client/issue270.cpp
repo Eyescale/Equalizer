@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2013-2016, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +22,7 @@
 
 int main( const int argc, char** argv )
 {
-    eq::Global::setConfigFile( "configs/config.eqc" );
+    eq::Global::setConfig( "configs/config.eqc" );
 
     eq::NodeFactory nodeFactory;
     TEST( eq::init( 0, 0, &nodeFactory ));
