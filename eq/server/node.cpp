@@ -70,7 +70,7 @@ void _addEnv( std::ostringstream& stream, const char* key )
 bool _containsPrefix( const std::string& str, const Strings& prefixes )
 {
     for( const auto& prefix : { "LB_", "CO_", "EQ_", "DEFLECT_" })
-        if( str.find( prefix ))
+        if( str.find( prefix ) == 0 )
             return true;
 
     for( const auto& prefix : prefixes )
