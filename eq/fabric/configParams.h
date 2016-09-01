@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -91,6 +91,23 @@ public:
 
     /** @return the name of the render client executable. @version 1.0 */
     EQFABRIC_API const std::string& getRenderClient() const;
+
+    /**
+     * Set the command line arguments for the render client executable.
+     *
+     * If no arguments are provided, eq::Server::chooseConfig() uses
+     * co::LocalNode::getCommandLine().
+     */
+    EQFABRIC_API void setRenderClientArgs( const Strings& args );
+
+    /** @return the render client command line arguments */
+    EQFABRIC_API const Strings& getRenderClientArgs() const;
+
+    /** Set the prefixes of the environmental variables to pass on clients. */
+    EQFABRIC_API void setRenderClientEnvPrefixes( const Strings& prefixes );
+
+    /** @return prefixes of the environmental variables to pass on clients. */
+    EQFABRIC_API const Strings& getRenderClientEnvPrefixes() const;
 
     /**
      * Set the directory from which to launch the render client.

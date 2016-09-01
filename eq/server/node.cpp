@@ -66,6 +66,19 @@ void _addEnv( std::ostringstream& stream, const char* key )
     if( env )
         stream << key << "=" << env << " ";
 }
+
+bool _containsPrefix( const std::string& str, const Strings& prefixes )
+{
+    for( const auto& prefix : { "LB_", "CO_", "EQ_", "DEFLECT_" })
+        if( str.find( prefix ))
+            return true;
+
+    for( const auto& prefix : prefixes )
+        if( str.find( prefix ) == 0 )
+            return true;
+
+    return false;
+}
 }
 
 Node::Node( Config* parent )
@@ -308,7 +321,7 @@ std::string Node::_createLaunchCommand() const
         return command + " " + _createRemoteCommand();
 
     return command.substr( 0, commandPos ) + _createRemoteCommand() +
-           command.substr( commandPos + 1 );
+           command.substr( commandPos + 2 );
 }
 
 std::string Node::_createRemoteCommand() const
@@ -342,15 +355,12 @@ std::string Node::_createRemoteCommand() const
     _addEnv( os, "DEFLECT_ID" );
 #endif
 
+    const Strings& prefixes = config->getRenderClientEnvPrefixes();
     for( int i=0; environ[i] != 0; ++i )
     {
-        if( strlen( environ[i] ) > 2 &&
-            ( strncmp( environ[i], "LB_", 3 ) == 0 ||
-              strncmp( environ[i], "CO_", 3 ) == 0 ||
-              strncmp( environ[i], "EQ_", 3 ) == 0 ))
-        {
-            os << quote << environ[i] << quote << " ";
-        }
+        const std::string var = environ[i];
+        if( _containsPrefix( var, prefixes ))
+            os << quote << var << quote << " ";
     }
 
     os << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
@@ -362,7 +372,10 @@ std::string Node::_createRemoteCommand() const
         boost::filesystem::system_complete( boost::filesystem::path( program ));
     program = absolute.string();
 
-    return os.str() + quote + program + quote + " -- --eq-client %o ";
+    std::string options;
+    for( const std::string& arg : config->getRenderClientArgs( ))
+        options += std::string( " " ) + quote + arg + quote;
+    return os.str() + quote + program + quote + options + " -- --eq-client %o ";
 }
 
 //---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -218,6 +218,8 @@ bool Server::_cmdChooseConfig( co::ICommand& command )
     config->setApplicationNetNode( node );
     config->setWorkDir( params.getWorkDir( ));
     config->setRenderClient( params.getRenderClient( ));
+    config->setRenderClientArgs( params.getRenderClientArgs( ));
+    config->setRenderClientEnvPrefixes( params.getRenderClientEnvPrefixes( ));
     config->commit();
 
     node->send( fabric::CMD_SERVER_CREATE_CONFIG )

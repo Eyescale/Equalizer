@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -139,6 +139,20 @@ public:
     /** @return the name of the render client executable. */
     const std::string& getRenderClient() const { return _renderClient; }
 
+    /** Set the render client command line options. */
+    void setRenderClientArgs( const Strings& args ){ _renderClientArgs = args; }
+
+    /** @return the render client command line options. */
+    const Strings& getRenderClientArgs() const { return _renderClientArgs; }
+
+    /** Set the prefixes of the environmental variables to pass on clients. */
+    void setRenderClientEnvPrefixes( const Strings& prefixes )
+    { _renderClientEnvPrefixes = prefixes; }
+
+    /** @return prefixes of the environmental variables to pass on clients. */
+    const Strings& getRenderClientEnvPrefixes() const
+    { return _renderClientEnvPrefixes; }
+
     /**
      * Set the working directory for render client.
      *
@@ -213,6 +227,12 @@ private:
 
     /** The name of the render client executable. */
     std::string _renderClient;
+
+    /** The render client command line options. */
+    Strings _renderClientArgs;
+
+    /** The prefixes of environmental variables to pass on to render clients. */
+    Strings _renderClientEnvPrefixes;
 
     /** The working directory of the render client. */
     std::string _workDir;
