@@ -68,7 +68,6 @@ namespace eq
 {
 namespace
 {
-static std::ofstream* _logFile = 0;
 static lunchbox::a_int32_t _initialized;
 static std::vector< WindowSystemIF* > _windowSystems;
 }
@@ -156,20 +155,7 @@ bool exit()
 
     Global::_nodeFactory = 0;
     _exitPlugins();
-    const bool ret = fabric::exit();
-
-    if( _logFile )
-    {
-#ifdef NDEBUG
-        lunchbox::Log::setOutput( std::cout );
-#else
-        lunchbox::Log::setOutput( std::cerr );
-#endif
-        _logFile->close();
-        delete _logFile;
-        _logFile = 0;
-    }
-    return ret;
+    return fabric::exit();
 }
 
 bool _parseArguments( const int argc, char** argv )
@@ -194,9 +180,9 @@ bool _parseArguments( const int argc, char** argv )
           "Redirect log output to given file" )
         ( EQ_SERVER, arg::value< std::string >(), "The server address" )
         ( EQ_CONFIG, arg::value< std::string >(),
-          "The config filename or autoconfig session name" )
+          "Configuration filename or autoconfig session name" )
         ( EQ_CONFIG_FLAGS, arg::value< Strings >()->multitoken(),
-          "The autoconfig flags" )
+          "Autoconfiguration flags" )
         ( EQ_CONFIG_PREFIXES, arg::value< Strings >()->multitoken(),
           "The network prefix filter(s) in CIDR notation for autoconfig "
           "(white-space separated)" )
@@ -227,35 +213,6 @@ bool _parseArguments( const int argc, char** argv )
     {
         std::cout << options << std::endl;
         return false;
-    }
-
-    if( vm.count( EQ_LOGFILE ))
-    {
-        const std::string& newFile = vm["eq-logfile"].as< std::string >();
-        std::ofstream* oldLog = _logFile;
-        std::ofstream* newLog = new std::ofstream( newFile.c_str( ));
-
-        if( newLog->is_open( ))
-        {
-            _logFile = newLog;
-            lunchbox::Log::setOutput( *newLog );
-
-            if( oldLog )
-            {
-                *oldLog << "Redirected log to " << newFile << std::endl;
-                oldLog->close();
-                delete oldLog;
-            }
-            else
-                std::cout << "Redirected log to " << newFile << std::endl;
-        }
-        else
-        {
-            LBWARN << "Can't open log file " << newFile << ": "
-                   << lunchbox::sysError << std::endl;
-            delete newLog;
-            newLog = 0;
-        }
     }
 
     if( vm.count( EQ_SERVER ))
@@ -293,6 +250,15 @@ bool _parseArguments( const int argc, char** argv )
 
         Global::setProgramName( renderClient );
         Global::setWorkDir( path.parent_path().string( ));
+    }
+
+    for( int i = 1; i < argc; ++i )
+    {
+        if( std::string( argv[i] ) == "--eq-logfile" )
+        {
+            argv[i][2] = 'l'; // rewrite to --lb-logfile
+            argv[i][3] = 'b';
+        }
     }
 
     return true;
