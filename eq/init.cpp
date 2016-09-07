@@ -54,8 +54,6 @@
 #include <fstream>
 
 #ifdef _MSC_VER
-#  include <direct.h>
-#  define getcwd _getcwd
 #  define atoll _atoi64
 #endif
 #ifndef MAXPATHLEN
@@ -130,10 +128,7 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 
     const std::string& workDir = Global::getWorkDir();
     if( workDir.empty( ))
-    {
-        char cwd[MAXPATHLEN];
-        Global::setWorkDir( getcwd( cwd, MAXPATHLEN ));
-    }
+        Global::setWorkDir( lunchbox::getWorkDir( ));
 
     _initPlugins();
     return fabric::init( argc, argv );
