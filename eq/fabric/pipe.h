@@ -114,7 +114,6 @@ public:
         // Note: also update string array initialization in pipe.cpp
         IATTR_HINT_THREAD,   //!< Execute tasks in separate thread (default)
         IATTR_HINT_AFFINITY, //!< Bind render thread to subset of cores
-        IATTR_HINT_CUDA_GL_INTEROP, //!< Configure CUDA context
         IATTR_LAST,
         IATTR_ALL = IATTR_LAST + 5
     };

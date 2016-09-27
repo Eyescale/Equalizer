@@ -37,7 +37,6 @@ class Canvas;
 class Channel;
 class Client;
 class CommandQueue;
-class ComputeContext;
 class Config;
 class EventICommand;
 class Frame;

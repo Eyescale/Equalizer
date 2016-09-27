@@ -43,11 +43,6 @@
 #include "messagePump.h"
 #include "systemPipe.h"
 
-#include "computeContext.h"
-#ifdef EQUALIZER_USE_CUDA
-#  include "cudaContext.h"
-#endif
-
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/leafVisitor.h>
@@ -181,7 +176,6 @@ public:
         , frameTime( 0 )
         , thread( 0 )
         , transferThread( index )
-        , computeContext( 0 )
     {}
 
     ~Pipe()
@@ -234,9 +228,6 @@ public:
     RenderThread* thread;
 
     detail::TransferThread transferThread;
-
-    /** GPU Computing context */
-    ComputeContext *computeContext;
 };
 
 void RenderThread::run()
@@ -919,34 +910,8 @@ bool Pipe::processEvent( const Event& event )
 bool Pipe::configInit( const uint128_t& initID )
 {
     LB_TS_THREAD( _pipeThread );
-
     LBASSERT( !_impl->systemPipe );
-
-    if ( !configInitSystemPipe( initID ))
-        return false;
-
-    // -------------------------------------------------------------------------
-    LBASSERT(!_impl->computeContext);
-
-    // for now we only support CUDA
-#ifdef EQUALIZER_USE_CUDA
-    if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
-    {
-        LBDEBUG << "Initializing CUDAContext" << std::endl;
-        ComputeContext* computeCtx = new CUDAContext( this );
-
-        if( !computeCtx->configInit() )
-        {
-            LBWARN << "GPU Computing context initialization failed "
-                   << std::endl;
-            delete computeCtx;
-            return false;
-        }
-        setComputeContext( computeCtx );
-    }
-#endif
-
-    return true;
+    return configInitSystemPipe( initID );
 }
 
 bool Pipe::configInitSystemPipe( const uint128_t& )
@@ -968,13 +933,6 @@ bool Pipe::configInitSystemPipe( const uint128_t& )
 bool Pipe::configExit()
 {
     LB_TS_THREAD( _pipeThread );
-
-    if( _impl->computeContext )
-    {
-        _impl->computeContext->configExit();
-        delete _impl->computeContext;
-        _impl->computeContext = 0;
-    }
 
     if( _impl->systemPipe )
     {
@@ -1117,21 +1075,6 @@ SystemPipe* Pipe::getSystemPipe()
 const SystemPipe* Pipe::getSystemPipe() const
 {
     return _impl->systemPipe;
-}
-
-void Pipe::setComputeContext( ComputeContext* ctx )
-{
-    _impl->computeContext = ctx;
-}
-
-const ComputeContext* Pipe::getComputeContext() const
-{
-    return _impl->computeContext;
-}
-
-ComputeContext* Pipe::getComputeContext()
-{
-    return _impl->computeContext;
 }
 
 //---------------------------------------------------------------------------
