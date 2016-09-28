@@ -34,7 +34,6 @@
 
 #include <lunchbox/buffer.h>
 #include <lunchbox/memoryMap.h>
-#include <lunchbox/omp.h>
 #include <pression/compressor.h>
 #include <pression/decompressor.h>
 #include <pression/downloader.h>

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -56,12 +56,6 @@ ErrorData _errors[] = {
     { ERROR_FRAMEBUFFER_INITIALIZED, "FBO already initialized" },
     { ERROR_FRAMEBUFFER_INVALID_SIZE, "FBO size not supported" },
     { ERROR_FRAMEBUFFER_INVALID_SAMPLES, "Multisampled FBO not supported" },
-    { ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
-      "Device not found, not enough CUDA devices" },
-    { ERROR_CUDACONTEXT_INIT_FAILED,
-      "CUDA initialization failed (see client log for more information)" },
-    { ERROR_CUDACONTEXT_MISSING_SUPPORT,
-      "Client library compiled without CUDA support" },
 
     { ERROR_WINDOWSYSTEM_UNKNOWN, "Unknown windowing system" },
 

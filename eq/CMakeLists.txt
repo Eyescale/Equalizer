@@ -1,9 +1,6 @@
 # Copyright (c) 2011-2016 Stefan Eilemann <eile@eyescale.ch>
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
-if(CUDA_FOUND)
-  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
-endif()
 
 install(FILES DESTINATION include/eq COMPONENT dev)
 
@@ -28,11 +25,9 @@ set(EQUALIZER_PUBLIC_HEADERS
   compressor/compressor.h
   compressor/compressorReadDrawPixels.h
   compressor/compressorYUV.h
-  computeContext.h
   config.h
   configEvent.h
   configStatistics.h
-  cudaContext.h
   eq.h
   error.h
   eventHandler.h
@@ -122,10 +117,8 @@ set(EQUALIZER_SOURCES
   client.cpp
   commandQueue.cpp
   compositor.cpp
-  computeContext.cpp
   config.cpp
   configStatistics.cpp
-  cudaContext.cpp
   detail/channel.ipp
   detail/fileFrameWriter.cpp
   eventHandler.cpp
@@ -285,10 +278,6 @@ endif()
 
 if(VRPN_FOUND)
   list(APPEND EQUALIZER_LINK_LIBRARIES ${VRPN_LIBRARIES})
-endif()
-
-if(CUDA_FOUND)
-  list(APPEND EQUALIZER_LINK_LIBRARIES ${CUDA_LIBRARIES})
 endif()
 
 set(EQUALIZER_OMIT_LIBRARY_HEADER ON)

@@ -217,21 +217,6 @@ public:
     EQ_API const SystemPipe* getSystemPipe() const;
     //@}
 
-    /**
-     * @name Interface to and from the ComputeContext
-     * @warning experimental - may not be supported in the future.
-     */
-    //@{
-    /** Set the compute-specific context. */
-    EQ_API void setComputeContext( ComputeContext* ctx );
-
-    /** @return the compute context. */
-    EQ_API const ComputeContext* getComputeContext() const;
-
-    /** @return the compute context. */
-    EQ_API ComputeContext* getComputeContext();
-    //@}
-
     /** @name Configuration. */
     //@{
     /**

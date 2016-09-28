@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # Release 1.13 (git master)
 
+* [584](https://github.com/Eyescale/Equalizer/pull/584):
+  Removed broken CUDA/ComputeContext support
 * [578](https://github.com/Eyescale/Equalizer/pull/578):
   Application command line arguments are transmitted to render clients.
   Subsets of environmental variables can also be transmitted based on their

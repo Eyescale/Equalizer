@@ -38,9 +38,6 @@ namespace eq
     using fabric::ERROR_FRAMEBUFFER_INITIALIZED;
     using fabric::ERROR_FRAMEBUFFER_INVALID_SIZE;
     using fabric::ERROR_FRAMEBUFFER_INVALID_SAMPLES;
-    using fabric::ERROR_CUDACONTEXT_DEVICE_NOTFOUND;
-    using fabric::ERROR_CUDACONTEXT_INIT_FAILED;
-    using fabric::ERROR_CUDACONTEXT_MISSING_SUPPORT;
     using fabric::ERROR_WINDOWSYSTEM_UNKNOWN;
     using fabric::ERROR_NODE_LAUNCH;
     using fabric::ERROR_NODE_CONNECT;
