@@ -409,27 +409,7 @@ void Channel::frameViewFinish( const uint128_t& frameID )
     _impl->frameViewFinish( *this );
 }
 
-void Channel::frameDrawOverlay( const uint128_t& )
-{
-    applyOverlayState();
-
-#ifdef EQUALIZER_USE_DEFLECT
-    if( _impl->_deflectProxy && _impl->_deflectProxy->isRunning( ))
-    {
-        const eq::PixelViewport& pvp = getPixelViewport();
-        const eq::Viewport& vp = getViewport();
-
-        const float width = pvp.w / vp.w;
-        const float height = pvp.h / vp.h;
-        const float xOffset = vp.x * width;
-
-        glRasterPos3f( 10.f - xOffset, height - 30.f, 0.99f );
-        getWindow()->getMediumFont()->draw( _impl->_deflectProxy->getHelp( ));
-    }
-#endif
-
-    resetOverlayState();
-}
+void Channel::frameDrawOverlay( const uint128_t& ) { /* nop */ }
 
 void Channel::setupAssemblyState()
 {

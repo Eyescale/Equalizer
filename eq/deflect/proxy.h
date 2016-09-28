@@ -61,21 +61,6 @@ public:
     /** @return the latest window Event. @sa hasNewEvent() */
     ::deflect::Event getEvent() const;
 
-    enum NavigationMode
-    {
-        MODE_PAN,
-        MODE_ROTATE
-    };
-
-    /** Set the navigation mode for received mouse events. */
-    void setNavigationMode( NavigationMode mode );
-
-    /** @return the current set navigation mode. */
-    NavigationMode getNavigationMode() const;
-
-    /** @return a help text which can be printed as an overlay. */
-    std::string getHelp() const;
-
 private:
     class Impl;
     std::unique_ptr< Impl > _impl;

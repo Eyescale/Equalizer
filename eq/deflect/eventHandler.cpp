@@ -37,6 +37,8 @@ namespace
 typedef std::vector< EventHandler* > EventHandlers;
 static lunchbox::PerThread< EventHandlers > _eventHandlers;
 
+const float wheelFactor = 1.f / 40.f;
+
 // Values come from QtCore/qnamespace.h, but don't want to depend on Qt just for that
 uint32_t _getKey( const int key )
 {
@@ -86,6 +88,18 @@ uint32_t _getKey( const int key )
     case 0x20:       return key; // space
     default:         return key+32;
     }
+}
+
+uint32_t _getButtons( const ::deflect::Event& deflectEvent )
+{
+    uint32_t buttons = 0;
+    if( deflectEvent.mouseLeft )
+        buttons |= PTR_BUTTON1;
+    if( deflectEvent.mouseMiddle )
+        buttons |= PTR_BUTTON2;
+    if( deflectEvent.mouseRight )
+        buttons |= PTR_BUTTON3;
+    return buttons;
 }
 }
 
@@ -171,9 +185,6 @@ void EventHandler::_processEvents( const Proxy* proxy )
         const float x = deflectEvent.mouseX * pvp.w;
         const float y = deflectEvent.mouseY * pvp.h;
 
-        if( _proxy-> getNavigationMode() == Proxy::MODE_PAN )
-            std::swap( deflectEvent.mouseLeft, deflectEvent.mouseRight );
-
         switch( deflectEvent.type )
         {
         case ::deflect::Event::EVT_KEY_PRESS:
@@ -189,31 +200,24 @@ void EventHandler::_processEvents( const Proxy* proxy )
                                           Event::CHANNEL_POINTER_BUTTON_RELEASE;
             event.pointerButtonPress.x = x;
             event.pointerButtonPress.y = y;
-
-            if( deflectEvent.mouseLeft )
-                event.pointerButtonPress.buttons |= PTR_BUTTON1;
-            if( deflectEvent.mouseMiddle )
-                event.pointerButtonPress.buttons |= PTR_BUTTON2;
-            if( deflectEvent.mouseRight )
-                event.pointerButtonPress.buttons |= PTR_BUTTON3;
+            event.pointerButtonPress.buttons = _getButtons( deflectEvent );
             event.pointerButtonPress.button = event.pointerButtonPress.buttons;
             _computePointerDelta( event );
             break;
         case ::deflect::Event::EVT_DOUBLECLICK:
             break;
         case ::deflect::Event::EVT_MOVE:
+        case ::deflect::Event::EVT_PAN:
             event.type = Event::CHANNEL_POINTER_MOTION;
             event.pointerMotion.x = x;
             event.pointerMotion.y = y;
 
-            if( deflectEvent.mouseLeft )
-                event.pointerButtonPress.buttons |= PTR_BUTTON1;
-            if( deflectEvent.mouseMiddle )
-                event.pointerButtonPress.buttons |= PTR_BUTTON2;
-            if( deflectEvent.mouseRight )
-                event.pointerButtonPress.buttons |= PTR_BUTTON3;
-
+            if( deflectEvent.type == ::deflect::Event::EVT_PAN )
+                event.pointerButtonPress.buttons = PTR_BUTTON3;
+            else
+                event.pointerButtonPress.buttons = _getButtons( deflectEvent );
             event.pointerMotion.button = event.pointerMotion.buttons;
+
             event.pointerMotion.dx = deflectEvent.dx * pvp.w;
             event.pointerMotion.dy = deflectEvent.dy * pvp.h;
             break;
@@ -222,23 +226,25 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.pointerWheel.x = x;
             event.pointerWheel.y = pvp.h - y;
             event.pointerWheel.buttons = PTR_BUTTON_NONE;
-            event.pointerWheel.xAxis = deflectEvent.dx / 40.f;
-            event.pointerWheel.yAxis = deflectEvent.dy / 40.f;
+            event.pointerWheel.xAxis = deflectEvent.dx * wheelFactor;
+            event.pointerWheel.yAxis = deflectEvent.dy * wheelFactor;
             event.pointerMotion.dx = -deflectEvent.dx;
             event.pointerMotion.dy = -deflectEvent.dy;
             break;
-        case ::deflect::Event::EVT_TAP_AND_HOLD:
+        case ::deflect::Event::EVT_PINCH:
         {
-            const Proxy::NavigationMode mode =
-                    _proxy->getNavigationMode() == Proxy::MODE_PAN
-                        ? Proxy::MODE_ROTATE : Proxy::MODE_PAN;
-            _proxy->setNavigationMode( mode );
-            Event windowEvent;
-            windowEvent.originator = window->getID();
-            windowEvent.serial = window->getSerial();
-            windowEvent.type = Event::WINDOW_EXPOSE;
-            window->processEvent( windowEvent );
-        } break;
+            event.type = Event::CHANNEL_POINTER_WHEEL;
+            event.pointerWheel.x = x;
+            event.pointerWheel.y = pvp.h - y;
+            event.pointerWheel.buttons = PTR_BUTTON_NONE;
+            const auto dx = deflectEvent.dx * pvp.w;
+            const auto dy = deflectEvent.dy * pvp.h;
+            const auto sign = dx + dy;
+            const auto zoom = std::copysign( std::sqrt( dx*dx + dy*dy ), sign );
+            event.pointerWheel.xAxis = 0.f;
+            event.pointerWheel.yAxis = zoom * wheelFactor;
+            break;
+        }
         case ::deflect::Event::EVT_NONE:
         default:
             break;

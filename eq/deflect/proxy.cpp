@@ -41,7 +41,7 @@ namespace deflect
 
 ::deflect::Stream::Future make_ready_future( const bool value )
 {
-    boost::promise< bool > promise;
+    std::promise< bool > promise;
     promise.set_value( value );
     return promise.get_future();
 }
@@ -53,7 +53,6 @@ public:
         : _channel( channel )
         , _sendFuture( make_ready_future( false ))
         , _running( false )
-        , _navigationMode( Proxy::MODE_ROTATE )
     {
         const DrawableConfig& dc = _channel.getDrawableConfig();
         if( dc.colorBits != 8 )
@@ -121,7 +120,6 @@ public:
     lunchbox::Bufferb _buffer;
     ::deflect::Stream::Future _sendFuture;
     bool _running;
-    Proxy::NavigationMode _navigationMode;
 };
 
 Proxy::Proxy( Channel& channel )
@@ -175,28 +173,6 @@ void Proxy::stopRunning()
 ::deflect::Event Proxy::getEvent() const
 {
     return _impl->_stream->getEvent();
-}
-
-void Proxy::setNavigationMode( Proxy::NavigationMode mode )
-{
-    _impl->_navigationMode = mode;
-}
-
-Proxy::NavigationMode Proxy::getNavigationMode() const
-{
-    return _impl->_navigationMode;
-}
-
-std::string Proxy::getHelp() const
-{
-    switch( _impl->_navigationMode )
-    {
-    case MODE_PAN:
-        return "Pan mode";
-    case MODE_ROTATE:
-    default:
-        return "Rotate mode";
-    }
 }
 
 }
