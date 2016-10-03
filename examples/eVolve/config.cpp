@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya  <maxmah@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,7 +76,7 @@ bool Config::init()
 bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
-    return getClient()->syncObject( &_initData, id, getApplicationNode() );
+    return getClient()->syncObject( &_initData, id, getApplicationNode( ));
 }
 
 bool Config::exit()
@@ -117,214 +117,207 @@ void Config::_resetMessage()
     }
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
 {
-    switch( event->data.type )
-    {
-        case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( event->data.keyPress ))
-                return true;
-            break;
+    if( type != eq::EVENT_KEY_PRESS )
+        return eq::Config::handleEvent( type, event );
 
-        case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
-        {
-            const eq::uint128_t& viewID = event->data.context.view.identifier;
-            _frameData.setCurrentViewID( viewID );
-            if( viewID == 0 )
-            {
-                _currentCanvas = 0;
-                return true;
-            }
-
-            const eq::View* view = find< eq::View >( viewID );
-            const eq::Layout* layout = view->getLayout();
-            const eq::Canvases& canvases = getCanvases();
-            for( eq::Canvases::const_iterator i = canvases.begin();
-                 i != canvases.end(); ++i )
-            {
-                eq::Canvas* canvas = *i;
-                const eq::Layout* canvasLayout = canvas->getActiveLayout();
-
-                if( canvasLayout == layout )
-                {
-                    _currentCanvas = canvas;
-                    return true;
-                }
-            }
-            return true;
-        }
-
-        case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-            if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
-                && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
-            {
-                _spinY = event->data.pointerButtonRelease.dx;
-                _spinX = event->data.pointerButtonRelease.dy;
-            }
-            return true;
-
-        case eq::Event::CHANNEL_POINTER_MOTION:
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
-            {
-                _spinX = 0;
-                _spinY = 0;
-
-                _frameData.spinCamera(  -0.005f * event->data.pointerMotion.dy,
-                                        -0.005f * event->data.pointerMotion.dx);
-                return true;
-            }
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
-                                                       eq::PTR_BUTTON3 ))
-            {
-                _frameData.moveCamera( .0, .0,
-                                        .005f*event->data.pointerMotion.dy );
-                return true;
-            }
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
-            {
-                _frameData.moveCamera( .0005f * event->data.pointerMotion.dx,
-                                      -.0005f * event->data.pointerMotion.dy,
-                                       .0f );
-                return true;
-            }
-            break;
-
-        default:
-            break;
-    }
-    return eq::Config::handleEvent( event );
-}
-
-bool Config::_handleKeyEvent( const eq::KeyEvent& event )
-{
     switch( event.key )
     {
-        case 'b':
-        case 'B':
-            _frameData.toggleBackground();
+    case 'b':
+    case 'B':
+        _frameData.toggleBackground();
+        return true;
+
+    case 'd':
+    case 'D':
+        _frameData.toggleColorMode();
+        return true;
+
+    case eq::KC_F1:
+    case 'h':
+    case 'H':
+        _frameData.toggleHelp();
+        return true;
+
+    case 'r':
+    case 'R':
+    case ' ':
+        _spinX = 0;
+        _spinY = 0;
+        _frameData.reset();
+        return true;
+
+    case 'n':
+    case 'N':
+        _frameData.toggleNormalsQuality();
+        return true;
+
+    case 'o':
+    case 'O':
+        _frameData.toggleOrtho();
+        return true;
+
+    case 's':
+    case 'S':
+        _frameData.toggleStatistics();
+        return true;
+
+    case 'l':
+        _switchLayout( 1 );
+        return true;
+    case 'L':
+        _switchLayout( -1 );
+        return true;
+
+    case 'q':
+        _frameData.adjustQuality( -.1f );
+        return true;
+
+    case 'Q':
+        _frameData.adjustQuality( .1f );
+        return true;
+
+    case 'c':
+    case 'C':
+    {
+        const eq::Canvases& canvases = getCanvases();
+        if( canvases.empty( ))
             return true;
 
-        case 'd':
-        case 'D':
-            _frameData.toggleColorMode();
+        _frameData.setCurrentViewID( co::uint128_t( ));
+
+        if( !_currentCanvas )
+        {
+            _currentCanvas = canvases.front();
+            return true;
+        }
+
+        eq::Canvases::const_iterator i = std::find( canvases.begin(),
+                                                    canvases.end(),
+                                                    _currentCanvas );
+        LBASSERT( i != canvases.end( ));
+
+        ++i;
+        if( i == canvases.end( ))
+            _currentCanvas = canvases.front();
+        else
+            _currentCanvas = *i;
+        return true;
+    }
+
+    case 'v':
+    case 'V':
+    {
+        const eq::Canvases& canvases = getCanvases();
+        if( !_currentCanvas && !canvases.empty( ))
+            _currentCanvas = canvases.front();
+
+        if( !_currentCanvas )
             return true;
 
-        case eq::KC_F1:
-        case 'h':
-        case 'H':
-            _frameData.toggleHelp();
+        const eq::Layout* layout = _currentCanvas->getActiveLayout();
+        if( !layout )
             return true;
 
-        case 'r':
-        case 'R':
-        case ' ':
+        const eq::View* current =
+            find< eq::View >( _frameData.getCurrentViewID( ));
+
+        const eq::Views& views = layout->getViews();
+        LBASSERT( !views.empty( ));
+
+        if( !current )
+        {
+            _frameData.setCurrentViewID( views.front()->getID( ));
+            return true;
+        }
+
+        eq::Views::const_iterator i = std::find( views.begin(), views.end(),
+                                                 current );
+        LBASSERT( i != views.end( ));
+
+        ++i;
+        if( i == views.end( ))
+            _frameData.setCurrentViewID( co::uint128_t( ));
+        else
+            _frameData.setCurrentViewID( (*i)->getID( ));
+        return true;
+    }
+
+    default:
+        break;
+    }
+    return eq::Config::handleEvent( type, event );
+}
+
+
+bool Config::handleEvent( const eq::EventType type,
+                          const eq::PointerEvent& event )
+{
+    switch( type )
+    {
+    case eq::EVENT_CHANNEL_POINTER_BUTTON_PRESS:
+    {
+        const eq::uint128_t& viewID = event.context.view.identifier;
+        _frameData.setCurrentViewID( viewID );
+        if( viewID == 0 )
+        {
+            _currentCanvas = 0;
+            return true;
+        }
+
+        const eq::View* view = find< eq::View >( viewID );
+        const eq::Layout* layout = view->getLayout();
+        const eq::Canvases& canvases = getCanvases();
+        for( eq::Canvas* canvas : canvases )
+        {
+            const eq::Layout* canvasLayout = canvas->getActiveLayout();
+
+            if( canvasLayout == layout )
+            {
+                _currentCanvas = canvas;
+                return true;
+            }
+        }
+        break;
+    }
+
+    case eq::EVENT_CHANNEL_POINTER_BUTTON_RELEASE:
+        if( event.buttons == eq::PTR_BUTTON_NONE &&
+            event.button  == eq::PTR_BUTTON1 )
+        {
+            _spinY = event.dx;
+            _spinX = event.dy;
+            return true;
+        }
+        break;
+
+    case eq::EVENT_CHANNEL_POINTER_MOTION:
+        if( event.buttons == eq::PTR_BUTTON1 )
+        {
             _spinX = 0;
             _spinY = 0;
-            _frameData.reset();
-            return true;
 
-        case 'n':
-        case 'N':
-            _frameData.toggleNormalsQuality();
-            return true;
-
-        case 'o':
-        case 'O':
-            _frameData.toggleOrtho();
-            return true;
-
-        case 's':
-        case 'S':
-        _frameData.toggleStatistics();
-            return true;
-
-        case 'l':
-            _switchLayout( 1 );
-            return true;
-        case 'L':
-            _switchLayout( -1 );
-            return true;
-
-        case 'q':
-            _frameData.adjustQuality( -.1f );
-            return true;
-
-        case 'Q':
-            _frameData.adjustQuality( .1f );
-            return true;
-
-        case 'c':
-        case 'C':
-        {
-            const eq::Canvases& canvases = getCanvases();
-            if( canvases.empty( ))
-                return true;
-
-            _frameData.setCurrentViewID( co::uint128_t( ));
-
-            if( !_currentCanvas )
-            {
-                _currentCanvas = canvases.front();
-                return true;
-            }
-
-            eq::Canvases::const_iterator i = std::find( canvases.begin(),
-                                                        canvases.end(),
-                                                        _currentCanvas );
-            LBASSERT( i != canvases.end( ));
-
-            ++i;
-            if( i == canvases.end( ))
-                _currentCanvas = canvases.front();
-            else
-                _currentCanvas = *i;
+            _frameData.spinCamera(  -0.005f * event.dy, -0.005f * event.dx);
             return true;
         }
-
-        case 'v':
-        case 'V':
+        if( event.buttons == eq::PTR_BUTTON2 ||
+            event.buttons == ( eq::PTR_BUTTON1 | eq::PTR_BUTTON3 ))
         {
-            const eq::Canvases& canvases = getCanvases();
-            if( !_currentCanvas && !canvases.empty( ))
-                _currentCanvas = canvases.front();
-
-            if( !_currentCanvas )
-                return true;
-
-            const eq::Layout* layout = _currentCanvas->getActiveLayout();
-            if( !layout )
-                return true;
-
-            const eq::View* current =
-                              find< eq::View >( _frameData.getCurrentViewID( ));
-
-            const eq::Views& views = layout->getViews();
-            LBASSERT( !views.empty( ))
-
-            if( !current )
-            {
-                _frameData.setCurrentViewID( views.front()->getID( ));
-                return true;
-            }
-
-            eq::Views::const_iterator i = std::find( views.begin(),
-                                                          views.end(),
-                                                          current );
-            LBASSERT( i != views.end( ));
-
-            ++i;
-            if( i == views.end( ))
-                _frameData.setCurrentViewID( co::uint128_t( ));
-            else
-                _frameData.setCurrentViewID( (*i)->getID( ));
+            _frameData.moveCamera( .0, .0, .005f * event.dy );
             return true;
         }
+        if( event.buttons == eq::PTR_BUTTON3 )
+        {
+            _frameData.moveCamera( .0005f * event.dx, -.0005f * event.dy, .0f );
+            return true;
+        }
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
-    return false;
+    return eq::Config::handleEvent( type, event );
 }
 
 void Config::_setMessage( const std::string& message )

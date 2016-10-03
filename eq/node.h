@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@
 #include <eq/types.h>
 #include <eq/visitorResult.h>  // enum
 #include <eq/fabric/node.h> // base class
+#include <eq/fabric/eventType.h> // EventType enum
 
 #include <co/types.h>
 
@@ -127,17 +128,18 @@ public:
     EQ_API EventOCommand sendError( const uint32_t error );
 
     /**
-     * Process a received event.
+     * Process a received spacemouse event.
      *
-     * The task of this method is to update the node as necessary, and transform
-     * the event into a config event to be send to the application using
-     * Config::sendEvent().
+     * The task of this method is to update the node as necessary, and send it
+     * to the application using Config::sendEvent().
      *
      * @param event the received event.
-     * @return true when the event was handled, false if not.
+     * @return true if the event was handled, false if not.
      * @version 1.5.2
      */
-    EQ_API virtual bool processEvent( const Event& event );
+    EQ_API virtual bool processEvent( EventType type, AxisEvent& event );
+    EQ_API virtual bool processEvent( EventType type, ButtonEvent& event );
+    EQ_API virtual bool processEvent( Statistic& event );
 
     /** @internal @sa Serializable::setDirty() */
     EQ_API virtual void setDirty( const uint64_t bits );
@@ -147,7 +149,7 @@ public:
 
 protected:
     /** @internal */
-    EQ_API virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    EQ_API virtual void attach( const uint128_t& id, uint32_t instanceID );
 
     /** @name Actions */
     //@{

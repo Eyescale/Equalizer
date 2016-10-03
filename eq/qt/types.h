@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +17,8 @@
 
 #ifndef EQ_QT_TYPES_H
 #define EQ_QT_TYPES_H
+
+#include <eq/types.h>
 
 class QEvent;
 class QExposeEvent;
@@ -37,14 +39,17 @@ namespace eq
  */
 namespace qt
 {
-
+class Event;
 class EventHandler;
 class Pipe;
 class Window;
-class WindowEvent;
 class WindowFactory;
 class WindowIF;
 
+namespace detail
+{
+class Window;
+}
 }
 }
 

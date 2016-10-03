@@ -230,7 +230,7 @@ void Channel< W, C >::notifyViewportChanged()
         if( oldPVP != _data.nativeContext.pvp )
             setDirty( DIRTY_VIEWPORT );
     }
-    else           // update viewport
+    else // update viewport
     {
         const Viewport oldVP = _data.nativeContext.vp;
         _data.nativeContext.vp = _data.nativeContext.pvp / windowPVP;

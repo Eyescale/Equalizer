@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,7 +42,6 @@ class MessagePump;
 class Pipe;
 class Window;
 class WindowIF;
-class WindowEvent;
 
 /**
  * Set the current X display connection.

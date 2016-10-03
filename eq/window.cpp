@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -35,10 +35,14 @@
 #include "windowStatistics.h"
 
 #include <eq/util/objectManager.h>
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/event.h>
+#include <eq/fabric/keyEvent.h>
 #include <eq/fabric/leafVisitor.h>
+#include <eq/fabric/pointerEvent.h>
+#include <eq/fabric/sizeEvent.h>
 #include <eq/fabric/task.h>
 
 #include <co/barrier.h>
@@ -166,8 +170,8 @@ void Window::_updateFPS()
     }
 
     WindowStatistics stat( Statistic::WINDOW_FPS, this );
-    stat.event.data.statistic.currentFPS = curFPS;
-    stat.event.data.statistic.averageFPS = _avgFPS;
+    stat.statistic.currentFPS = curFPS;
+    stat.statistic.averageFPS = _avgFPS;
 }
 
 
@@ -657,152 +661,159 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     LBCHECK( netBarrier->enter( timeout ));
 }
 
-void Window::_updateEvent( Event& event )
-{
-    // TODO 2.0 event interface will stream these and remove them from Event
-    event.time = getConfig()->getTime();
-    event.originator = getID();
-    event.serial = getSerial();
-
-    switch( event.type )
-    {
-        case Event::WINDOW_POINTER_MOTION:
-        case Event::WINDOW_POINTER_BUTTON_PRESS:
-        case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        case Event::WINDOW_POINTER_WHEEL:
-        {
-            const int32_t xPos = event.pointer.x;
-            const int32_t yPos = event.pointer.y;
-
-            if( !getRenderContext( xPos, yPos, event.context ))
-                LBVERB << "No rendering context for pointer event at "
-                       << xPos << ", " << yPos << std::endl;
-        }
-    }
-}
-
-
 //======================================================================
 // event methods
 //======================================================================
 
-EventOCommand Window::sendError( const uint32_t error )
+void Window::_updateEvent( Event& event )
 {
-    return getConfig()->sendError( Event::WINDOW_ERROR, Error( error, getID()));
+    event.serial = getSerial();
+    event.time = getConfig()->getTime();
+    event.originator = getID();
 }
 
-bool Window::processEvent( const Event& event )
+EventOCommand Window::sendError( const uint32_t error )
 {
-    // see comment in _updateEvent
-    _updateEvent( const_cast< Event& >( event ));
+    return getConfig()->sendError( EVENT_WINDOW_ERROR, Error( error, getID()));
+}
 
-    switch( event.type )
+bool Window::processEvent( const EventType type )
+{
+    Event event;
+    _updateEvent( event );
+
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Window::processEvent( const EventType type, SizeEvent& event )
+{
+    _updateEvent( event );
+
+    switch( type )
     {
-        case Event::WINDOW_HIDE:
-            setPixelViewport( PixelViewport( 0, 0, 0, 0 ));
-            break;
+    case EVENT_WINDOW_HIDE:
+        setPixelViewport( PixelViewport( 0, 0, 0, 0 ));
+        break;
 
-        case Event::WINDOW_SHOW:
-        case Event::WINDOW_RESIZE:
-            setPixelViewport( PixelViewport( event.resize.x, event.resize.y,
-                                             event.resize.w, event.resize.h ));
-            break;
+    case EVENT_WINDOW_SHOW:
+    case EVENT_WINDOW_RESIZE:
+        setPixelViewport( PixelViewport( event.x, event.y, event.w, event.h ));
+        break;
 
-        case Event::KEY_PRESS:
-        case Event::KEY_RELEASE:
-            if( event.key.key == KC_VOID )
-                return true; // ignore
-            // else fall through
-        case Event::WINDOW_EXPOSE:
-        case Event::WINDOW_CLOSE:
-        case Event::STATISTIC:
-        case Event::MAGELLAN_AXIS:
-        case Event::MAGELLAN_BUTTON:
-            break;
-
-        case Event::WINDOW_POINTER_GRAB:
-            _grabbedChannels = _getEventChannels( event.pointer );
-            break;
-        case Event::WINDOW_POINTER_UNGRAB:
-            _grabbedChannels.clear();
-            break;
-
-        case Event::WINDOW_POINTER_MOTION:
-        case Event::WINDOW_POINTER_BUTTON_PRESS:
-        case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        case Event::WINDOW_POINTER_WHEEL:
+    case EVENT_WINDOW_SCREENSAVER:
+        switch( getIAttribute( WindowSettings::IATTR_HINT_SCREENSAVER ))
         {
-            const Channels& channels = _getEventChannels( event.pointer );
-            for( Channels::const_iterator i = channels.begin();
-                 i != channels.end(); ++i )
+        case OFF: return true;  // screen saver stays inactive
+        case ON:  return false; // screen saver becomes active
+        default: // AUTO
+            if( getDrawableConfig().doublebuffered &&
+                getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW )
             {
-                Channel* channel = *i;
-                Event channelEvent = event;
-                switch( event.type )
-                {
-                  case Event::WINDOW_POINTER_MOTION:
-                    channelEvent.type = Event::CHANNEL_POINTER_MOTION;
-                    break;
-                  case Event::WINDOW_POINTER_BUTTON_PRESS:
-                    channelEvent.type = Event::CHANNEL_POINTER_BUTTON_PRESS;
-                    break;
-                  case Event::WINDOW_POINTER_BUTTON_RELEASE:
-                    channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
-                    break;
-                  case Event::WINDOW_POINTER_WHEEL:
-                    channelEvent.type = Event::CHANNEL_POINTER_WHEEL;
-                    break;
-                  default:
-                    LBWARN << "Unhandled window event of type " << event.type
-                           << std::endl;
-                    LBUNIMPLEMENTED;
-                }
-
-                // convert y to GL notation (Channel PVP uses GL coordinates)
-                const PixelViewport& pvp = getPixelViewport();
-                const int32_t y = pvp.h - event.pointer.y;
-                const PixelViewport& channelPVP =
-                    channel->getNativePixelViewport();
-
-                channelEvent.originator = channel->getID();
-                channelEvent.serial = channel->getSerial();
-                channelEvent.pointer.x -= channelPVP.x;
-                channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;
-                channel->processEvent( channelEvent );
+                return true; // screen saver stays inactive
             }
-            break;
+            return false;
         }
 
-        case Event::WINDOW_SCREENSAVER:
-            switch( getIAttribute( WindowSettings::IATTR_HINT_SCREENSAVER ))
-            {
-                case OFF:
-                    return true; // screen saver stays inactive
-                case ON:
-                    return false; // screen saver becomes active
-                default: // AUTO
-                    if( getDrawableConfig().doublebuffered &&
-                        getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == WINDOW )
-                    {
-                        return true; // screen saver stays inactive
-                    }
-                    return false;
-            }
-
-        case Event::UNKNOWN:
-            // unknown window-system native event, which was not handled
-            return false;
-
-        default:
-            LBWARN << "Unhandled window event of type " << event.type
-                   << std::endl;
-            LBUNIMPLEMENTED;
+    default:
+        LBWARN << "Unhandled window size event of type " << type << std::endl;
+        LBUNIMPLEMENTED;
     }
 
-    Config* config = getConfig();
-    ConfigEvent configEvent;
-    configEvent.data = event;
-    config->sendEvent( configEvent );
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Window::processEvent( const EventType type, PointerEvent& event )
+{
+    _updateEvent( event );
+    if( !getRenderContext( event.x, event.y, event.context ))
+        LBVERB << "No rendering context for pointer event at "
+               << event.x << ", " << event.y << std::endl;
+
+    const Channels& channels = _getEventChannels( event );
+    switch( type )
+    {
+    case EVENT_WINDOW_POINTER_GRAB:
+        _grabbedChannels = channels;
+        getConfig()->sendEvent( type ) << event;
+        return true;
+
+    case EVENT_WINDOW_POINTER_UNGRAB:
+        _grabbedChannels.clear();
+        getConfig()->sendEvent( type ) << event;
+        return true;
+
+    default: break;
+    }
+
+    for( Channel* channel : channels )
+    {
+        PointerEvent channelEvent = event;
+        EventType channelType = type;
+        switch( type )
+        {
+        case EVENT_WINDOW_POINTER_MOTION:
+            channelType = EVENT_CHANNEL_POINTER_MOTION;
+            break;
+        case EVENT_WINDOW_POINTER_BUTTON_PRESS:
+            channelType = EVENT_CHANNEL_POINTER_BUTTON_PRESS;
+            break;
+        case EVENT_WINDOW_POINTER_BUTTON_RELEASE:
+            channelType = EVENT_CHANNEL_POINTER_BUTTON_RELEASE;
+            break;
+        case EVENT_WINDOW_POINTER_WHEEL:
+            channelType = EVENT_CHANNEL_POINTER_WHEEL;
+            break;
+        default:
+            LBWARN << "Unhandled window pointer event of type " << type
+                   << std::endl;
+            LBUNIMPLEMENTED;
+            continue;
+        }
+
+        // convert y to GL notation (Channel PVP uses GL coordinates)
+        const PixelViewport& pvp = getPixelViewport();
+        const int32_t y = pvp.h - event.y;
+        const PixelViewport& channelPVP = channel->getNativePixelViewport();
+
+        channelEvent.originator = channel->getID();
+        channelEvent.serial = channel->getSerial();
+        channelEvent.x -= channelPVP.x;
+        channelEvent.y = channelPVP.h - y + channelPVP.y;
+        if( channel->processEvent( channelType, channelEvent ))
+            return true;
+    }
+
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Window::processEvent( const EventType type, KeyEvent& event )
+{
+    _updateEvent( event );
+
+    if( event.key != KC_VOID )
+        getConfig()->sendEvent( type ) << event;
+    // else ignore
+    return true;
+}
+
+bool Window::processEvent( const EventType type, AxisEvent& event )
+{
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Window::processEvent( const EventType type, ButtonEvent& event )
+{
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Window::processEvent( Statistic& event )
+{
+    getConfig()->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 

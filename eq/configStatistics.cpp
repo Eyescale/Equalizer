@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,20 +35,20 @@ ConfigStatistics::ConfigStatistics( const Statistic::Type type,
 {
     const std::string& name = config->getName();
     if( name.empty( ))
-        snprintf( event.data.statistic.resourceName, 32, "config" );
+        snprintf( statistic.resourceName, 32, "config" );
     else
-        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
-    event.data.statistic.resourceName[31] = 0;
-    event.data.statistic.startTime = config->getTime();
+        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
+    statistic.resourceName[31] = 0;
+    statistic.startTime = config->getTime();
 }
 
 
 ConfigStatistics::~ConfigStatistics()
 {
-    event.data.statistic.endTime = _owner->getTime();
-    if( event.data.statistic.endTime <= event.data.statistic.startTime )
-        event.data.statistic.endTime = event.data.statistic.startTime + 1;
-    _owner->sendEvent( event );
+    statistic.endTime = _owner->getTime();
+    if( statistic.endTime <= statistic.startTime )
+        statistic.endTime = statistic.startTime + 1;
+    _owner->sendEvent( EVENT_STATISTIC ) << statistic;
 }
 
 }

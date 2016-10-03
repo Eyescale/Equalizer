@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,60 +19,59 @@
 #ifndef EQ_STATISTICSAMPLER_H
 #define EQ_STATISTICSAMPLER_H
 
-#include <eq/configEvent.h> // member
+#include <eq/types.h>
+#include <eq/fabric/statistic.h> // member
 
 namespace eq
 {
+/**
+ * Utility to sample an statistics event.
+ *
+ * Holds a Statistic, which is initialized from the owner's data in the
+ * ctor. Subclasses implement the constructor and destructor to sample the times
+ * and process the gathered statistics.
+ */
+template< typename Owner > class StatisticSampler
+{
+public:
     /**
-     * Utility to sample an statistics event.
+     * Construct a new statistics sampler.
      *
-     * Holds a ConfigEvent, which is initialized from the owner's data during
-     * initialization. Subclasses implement the constructor and destructor to
-     * sample the times and process the gathered statistics.
+     * @param type The statistics type.
+     * @param owner The originator of the statistics event.
+     * @param frameNumber The current frame.
+     * @version 1.0
      */
-    template< typename Owner > class StatisticSampler
+    StatisticSampler( const Statistic::Type type, Owner* owner,
+                      const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
+        : _owner( owner )
     {
-    public:
-        /**
-         * Construct a new statistics sampler.
-         *
-         * @param type The statistics type.
-         * @param owner The originator of the statistics event.
-         * @param frameNumber The current frame.
-         * @version 1.0
-         */
-        StatisticSampler( const Statistic::Type type, Owner* owner,
-                          const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
-            : _owner( owner )
-        {
-            LBASSERT( owner );
-            LBASSERT( owner->getID() != 0 );
-            LBASSERT( owner->getSerial() != CO_INSTANCE_INVALID );
-            event.data.type                  = Event::STATISTIC;
-            event.data.serial                = owner->getSerial();
-            event.data.originator            = owner->getID();
-            event.data.statistic.type        = type;
-            event.data.statistic.frameNumber = frameNumber;
-            event.data.statistic.resourceName[0] = '\0';
-            event.data.statistic.startTime   = 0;
-            event.data.statistic.endTime     = 0;
+        LBASSERT( owner );
+        LBASSERT( owner->getID() != 0 );
+        LBASSERT( owner->getSerial() != CO_INSTANCE_INVALID );
+        statistic.serial = owner->getSerial();
+        statistic.originator = owner->getID();
+        statistic.type = type;
+        statistic.frameNumber = frameNumber;
+        statistic.resourceName[0] = '\0';
+        statistic.startTime = 0;
+        statistic.endTime = 0;
 
-            if( event.data.statistic.frameNumber == LB_UNDEFINED_UINT32 )
-                event.data.statistic.frameNumber = owner->getCurrentFrame();
-        }
+        if( statistic.frameNumber == LB_UNDEFINED_UINT32 )
+            statistic.frameNumber = owner->getCurrentFrame();
+    }
 
-        /** Destruct and finish statistics sampling. @version 1.0 */
-        virtual ~StatisticSampler()
-        {
-            LBASSERTINFO( event.data.statistic.startTime <=
-                          event.data.statistic.endTime, event.data.statistic );
-        }
+    /** Destruct and finish statistics sampling. @version 1.0 */
+    virtual ~StatisticSampler()
+    {
+        LBASSERTINFO( statistic.startTime <= statistic.endTime, statistic );
+    }
 
-        ConfigEvent event; //!< The statistics event.
+    Statistic statistic; //!< The statistics event.
 
-    protected:
-        Owner* const _owner;
-    };
+protected:
+    Owner* const _owner;
+};
 
 }
 

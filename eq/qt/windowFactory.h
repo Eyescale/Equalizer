@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2015-2016, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,22 +18,20 @@
 #ifndef EQ_QT_WINDOWSYSTEMFACTORY_H
 #define EQ_QT_WINDOWSYSTEMFACTORY_H
 
-#include <eq/types.h>
+#include <eq/qt/types.h>
 #include <QObject>
 
 namespace eq
 {
 namespace qt
 {
-namespace detail { class Window; }
-
 class WindowFactory : public QObject
 {
     Q_OBJECT
 
 public slots:
-    detail::Window* onCreateImpl( const eq::Pipe*, const WindowSettings&,
-                                  QThread* );
+    Window* onCreateImpl( eq::Window& window, const WindowSettings&,
+                          QThread* thread_ );
     void onDestroyImpl( detail::Window* window );
 };
 

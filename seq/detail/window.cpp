@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -106,12 +106,46 @@ bool Window::configExitGL()
     return ret;
 }
 
-bool Window::processEvent( const eq::Event& event )
+bool Window::processEvent( const eq::EventType type )
 {
     seq::Renderer* const renderer = getRenderer();
-    if( renderer->processEvent( event ))
+    if( renderer->processEvent( EventType( type )))
         return true;
-    return eq::Window::processEvent( event );
+    return eq::Window::processEvent( type );
+}
+
+template< class E >
+bool Window::_processEvent( const eq::EventType type, E& event )
+{
+    seq::Renderer* const renderer = getRenderer();
+    if( renderer->processEvent( EventType( type ), event ))
+        return true;
+    return eq::Window::processEvent( type, event );
+}
+
+bool Window::processEvent( const eq::EventType type, SizeEvent& event )
+{
+    return _processEvent( type, event );
+}
+
+bool Window::processEvent( const eq::EventType type, PointerEvent& event )
+{
+    return _processEvent( type, event );
+}
+
+bool Window::processEvent( const eq::EventType type, KeyEvent& event )
+{
+    return _processEvent( type, event );
+}
+
+bool Window::processEvent( const eq::EventType type, AxisEvent& event )
+{
+    return _processEvent( type, event );
+}
+
+bool Window::processEvent( const eq::EventType type, ButtonEvent& event )
+{
+    return _processEvent( type, event );
 }
 
 }

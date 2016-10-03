@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Juan Hernando <jhernando@fi.upm.es>
  *                          Stefan.Eilemann@epfl.ch
  *
@@ -27,7 +27,6 @@
 #include "pipe.h"
 #include "shareContextWindow.h"
 #include "window.h"
-#include "windowImpl.h"
 #include "windowFactory.h"
 
 #include <eq/client.h>
@@ -48,11 +47,11 @@ WindowSystem::WindowSystem()
         return;
 
     _factory->moveToThread( app->thread( ));
-    app->connect( this, SIGNAL( createImpl( const eq::Pipe*,
-                                            const WindowSettings&, QThread* )),
-                  _factory, SLOT( onCreateImpl( const eq::Pipe*,
-                                                const WindowSettings&,
-                                                QThread* )),
+    app->connect( this, SIGNAL( createImpl( eq::Window&, const WindowSettings&,
+                                            QThread* )),
+                  _factory,
+                  SLOT( onCreateImpl( eq::Window&, const WindowSettings&,
+                                      QThread* )),
                   Qt::BlockingQueuedConnection );
 }
 
@@ -74,9 +73,8 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
     // Note that even a QOffscreenSurface is backed by a QWindow on some
     // platforms.
     window->getClient()->interruptMainThread();
-    qt::detail::Window* impl = createImpl( window->getPipe(), settings,
-                                           QThread::currentThread( ));
-    Window* qtWindow = new Window( *window, settings, impl );
+    qt::Window* qtWindow = createImpl( *window, settings,
+                                       QThread::currentThread( ));
     qtWindow->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
                       _factory, SLOT( onDestroyImpl( detail::Window* )));
     return qtWindow;

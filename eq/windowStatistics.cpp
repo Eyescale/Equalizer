@@ -36,41 +36,43 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
                                     Window* window )
         : StatisticSampler< Window >( type, window )
 {
-    const int32_t hint = _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
+    const int32_t hint =
+        _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 
     const std::string& name = window->getName();
     if( name.empty( ))
-        snprintf( event.data.statistic.resourceName, 32, "Window %s",
+        snprintf( statistic.resourceName, 32, "Window %s",
                   window->getID().getShortString().c_str( ));
     else
-        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str());
-    event.data.statistic.resourceName[31] = 0;
+        snprintf( statistic.resourceName, 32, "%s", name.c_str());
+    statistic.resourceName[31] = 0;
 
     if( type != Statistic::WINDOW_FPS && hint == NICEST )
         window->finish();
 
-    event.data.statistic.startTime  = window->getConfig()->getTime();
+    statistic.startTime  = window->getConfig()->getTime();
 }
 
 
 WindowStatistics::~WindowStatistics()
 {
-    const int32_t hint = _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
+    const int32_t hint =
+        _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 
-    if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
+    if( statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    if( event.data.statistic.type != Statistic::WINDOW_FPS && hint == NICEST )
+    if( statistic.type != Statistic::WINDOW_FPS && hint == NICEST )
         _owner->finish();
 
-    event.data.statistic.endTime = _owner->getConfig()->getTime();
-    if( event.data.statistic.endTime <= event.data.statistic.startTime )
-        event.data.statistic.endTime = event.data.statistic.startTime + 1;
-    _owner->processEvent( event.data );
+    statistic.endTime = _owner->getConfig()->getTime();
+    if( statistic.endTime <= statistic.startTime )
+        statistic.endTime = statistic.startTime + 1;
+    _owner->processEvent( statistic );
 }
 
 }

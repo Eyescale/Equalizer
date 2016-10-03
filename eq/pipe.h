@@ -166,18 +166,7 @@ public:
      */
     EQ_API void waitFrameLocal( const uint32_t frameNumber ) const;
 
-    /**
-     * Process a received event.
-     *
-     * The task of this method is to update the node as necessary, and transform
-     * the event into a config event to be send to the application using
-     * Config::sendEvent().
-     *
-     * @param event the received event.
-     * @return true when the event was handled, false if not.
-     * @version 1.5.2
-     */
-    EQ_API virtual bool processEvent( const Event& event );
+    EQ_API bool processEvent( Statistic& event );
 
     /** @internal Start the pipe thread. */
     void startThread();

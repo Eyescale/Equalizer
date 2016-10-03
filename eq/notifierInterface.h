@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,15 +40,19 @@ public:
     /**
      * Process a received event.
      *
-     * The task of this method is to update this object as necessary, and
-     * transform the event into an config event to be send to the
-     * application using Config::sendEvent().
+     * The task of this method is to update this object as necessary, and send
+     * it to the application using Config::sendEvent() if needed.
      *
+     * @param type the event type.
      * @param event the received event.
      * @return true when the event was handled, false if not.
-     * @version 1.7.2
      */
-    virtual bool processEvent( const Event& event ) = 0;
+    virtual bool processEvent( EventType type, SizeEvent& event ) = 0;
+    virtual bool processEvent( EventType type, PointerEvent& event ) = 0;
+    virtual bool processEvent( EventType type, KeyEvent& event ) = 0;
+    virtual bool processEvent( EventType type, AxisEvent& event ) = 0;
+    virtual bool processEvent( EventType type, ButtonEvent& event ) = 0;
+    virtual bool processEvent( EventType type ) = 0; //!< stateless event
 };
 }
 

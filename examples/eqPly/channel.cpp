@@ -33,7 +33,6 @@
 
 #include "initData.h"
 #include "config.h"
-#include "configEvent.h"
 #include "pipe.h"
 #include "view.h"
 #include "window.h"

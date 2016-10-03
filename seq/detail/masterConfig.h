@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -31,23 +31,29 @@ class MasterConfig : public Config
 public:
     explicit MasterConfig( eq::ServerPtr parent );
 
-    virtual bool init();
-    virtual bool run( co::Object* frameData );
-    virtual bool exit();
+    bool init() final;
+    bool run( co::Object* frameData ) final;
+    bool exit() final;
 
-    virtual bool needRedraw() { return _redraw; }
-    virtual uint32_t startFrame();
+    bool needRedraw() final { return _redraw; }
+    uint32_t startFrame() final;
 
 protected:
     virtual ~MasterConfig();
-#ifndef EQ_2_0_API
-    virtual bool handleEvent( const eq::ConfigEvent* event );
-#endif
-    virtual bool handleEvent( eq::EventICommand command );
 
 private:
     uint128_t _currentViewID;
     bool _redraw;
+
+    bool handleEvent( EventICommand command ) final;
+    bool handleEvent( eq::EventType type, const SizeEvent& event ) final;
+    bool handleEvent( eq::EventType type, const PointerEvent& event ) final;
+    bool handleEvent( eq::EventType type, const KeyEvent& event ) final;
+    bool handleEvent( eq::EventType type, const AxisEvent& event ) final;
+    bool handleEvent( eq::EventType type, const ButtonEvent& event ) final;
+    bool handleEvent( eq::EventType type, const Event& event ) final;
+    void addStatistic( const Statistic& stat ) final;
+    template< class E > bool _handleEvent( eq::EventType type, E& event );
 };
 }
 }

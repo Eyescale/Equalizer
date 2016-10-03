@@ -18,6 +18,7 @@
 #ifndef EQ_CHANNELSTATISTICS_H
 #define EQ_CHANNELSTATISTICS_H
 
+#include <eq/api.h>
 #include <eq/statisticSampler.h> // base class
 #include <eq/types.h>
 #include <eq/fabric/iAttribute.h>

@@ -110,6 +110,8 @@ typedef Windows::iterator WindowsIter;
 typedef lunchbox::RefPtr< Server > ServerPtr;
 typedef lunchbox::RefPtr< const Server > ConstServerPtr;
 
+using namespace fabric::eventTypes;
+
 using fabric::ConfigParams;
 using fabric::DrawableConfig;
 using fabric::Error;

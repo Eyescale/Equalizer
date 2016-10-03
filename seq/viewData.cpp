@@ -19,10 +19,9 @@
 
 #include "viewData.h"
 
-#ifndef EQ_2_0_API
-#  include <eq/configEvent.h>
-#endif
-#include <eq/fabric/event.h>
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/pointerEvent.h>
 #include <eq/eventICommand.h>
 #include <eq/view.h>
 #include <co/dataIStream.h>
@@ -65,99 +64,100 @@ void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_ORTHO )
         is >> _ortho;
 }
-#ifndef EQ_2_0_API
-bool ViewData::handleEvent( const eq::ConfigEvent* event )
-{
-    return _handleEvent( event->data );
-}
-#endif
 
-bool ViewData::handleEvent( eq::EventICommand command )
+bool ViewData::handleEvent( const eq::EventType, const SizeEvent& )
 {
-    const eq::Event& event = command.read< eq::Event >();
-    return _handleEvent( event );
+    return true;
 }
 
-bool ViewData::_handleEvent( const eq::Event& event )
+bool ViewData::handleEvent( const eq::EventType type, const PointerEvent& event )
 {
-    switch( event.type )
+    switch( type )
     {
-      case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-      {
-          const eq::PointerEvent& releaseEvent =
-              event.pointerButtonRelease;
-          if( releaseEvent.buttons == eq::PTR_BUTTON_NONE )
-          {
-              if( releaseEvent.button == eq::PTR_BUTTON1 )
-              {
-                  _spinX = releaseEvent.dy;
-                  _spinY = releaseEvent.dx;
-                  return true;
-              }
-              if( releaseEvent.button == eq::PTR_BUTTON2 )
-              {
-                  _advance = -releaseEvent.dy;
-                  return true;
-              }
-          }
-          return false;
-      }
-      case eq::Event::CHANNEL_POINTER_MOTION:
-          switch( event.pointerMotion.buttons )
-          {
-            case eq::PTR_BUTTON1:
-                _spinX = 0;
-                _spinY = 0;
-                spinModel( -0.005f * event.pointerMotion.dy,
-                           -0.005f * event.pointerMotion.dx, 0.f );
+    case EVENT_CHANNEL_POINTER_BUTTON_RELEASE:
+        if( event.buttons == eq::PTR_BUTTON_NONE )
+        {
+            if( event.button == eq::PTR_BUTTON1 )
+            {
+                _spinX = event.dy;
+                _spinY = event.dx;
                 return true;
-
-            case eq::PTR_BUTTON2:
-                _advance = -event.pointerMotion.dy;
-                moveModel( 0.f, 0.f, .005f * _advance );
+            }
+            if( event.button == eq::PTR_BUTTON2 )
+            {
+                _advance = -event.dy;
                 return true;
+            }
+        }
+        return false;
 
-            case eq::PTR_BUTTON3:
-                moveModel(  .0005f * event.pointerMotion.dx,
-                           -.0005f * event.pointerMotion.dy, 0.f );
-                return true;
+    case EVENT_CHANNEL_POINTER_MOTION:
+        switch( event.buttons )
+        {
+        case eq::PTR_BUTTON1:
+            _spinX = 0;
+            _spinY = 0;
+            spinModel( -0.005f * event.dy, -0.005f * event.dx, 0.f );
+            return true;
 
-            default:
-                return false;
-          }
+        case eq::PTR_BUTTON2:
+            _advance = -event.dy;
+            moveModel( 0.f, 0.f, .005f * _advance );
+            return true;
 
-      case eq::Event::CHANNEL_POINTER_WHEEL:
-          moveModel( -0.05f * event.pointerWheel.xAxis, 0.f,
-                      0.05f * event.pointerWheel.yAxis );
-          return true;
+        case eq::PTR_BUTTON3:
+            moveModel( .0005f * event.dx, -.0005f * event.dy, 0.f );
+            return true;
 
-      case eq::Event::MAGELLAN_AXIS:
-          _spinX = 0;
-          _spinY = 0;
-          _advance = 0;
-          spinModel(  0.0001f * event.magellan.zRotation,
-                     -0.0001f * event.magellan.xRotation,
-                     -0.0001f * event.magellan.yRotation );
-          moveModel(  0.0001f * event.magellan.xAxis,
-                     -0.0001f * event.magellan.zAxis,
-                      0.0001f * event.magellan.yAxis );
-          return true;
+        default:
+            return false;
+        }
 
-      case eq::Event::KEY_PRESS:
-          switch( event.keyPress.key )
-          {
-            case 's':
-                showStatistics( !getStatistics( ));
-                return true;
-            case 'o':
-                setOrtho( !useOrtho( ));
-                return true;
-          }
-          return false;
+    case EVENT_CHANNEL_POINTER_WHEEL:
+        moveModel( -0.05f * event.xAxis, 0.f, 0.05f * event.yAxis );
+        return true;
 
-      default:
-          return false;
+    default:
+        return false;
     }
+}
+
+bool ViewData::handleEvent( const eq::EventType type, const KeyEvent& event )
+{
+    switch( type )
+    {
+    case EVENT_KEY_PRESS:
+        switch( event.key )
+        {
+        case 's':
+            showStatistics( !getStatistics( ));
+            return true;
+        case 'o':
+            setOrtho( !useOrtho( ));
+            return true;
+        }
+        return false;
+
+    default:
+        return false;
+    }
+}
+
+bool ViewData::handleEvent( const eq::EventType, const AxisEvent& event )
+{
+    _spinX = 0;
+    _spinY = 0;
+    _advance = 0;
+    spinModel( 0.0001f * event.zRotation, -0.0001f * event.xRotation,
+               -0.0001f * event.yRotation );
+    moveModel( 0.0001f * event.xAxis, -0.0001f * event.zAxis,
+               0.0001f * event.yAxis );
+    return true;
+}
+
+bool ViewData::handleEvent( const eq::EventType, const ButtonEvent& )
+{
+    return false;
 }
 
 void ViewData::spinModel( const float x, const float y, const float z )

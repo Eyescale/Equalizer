@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Juan Hernando <jhernando@fi.upm.es>
  *                          Stefan.Eilemann@epfl.ch
  *
@@ -18,10 +18,10 @@
  */
 
 #include "window.h"
-#include "windowImpl.h"
-#include "windowEvent.h"
+#include "detail/window.h"
 
 #include "shareContextWindow.h"
+#include <eq/fabric/sizeEvent.h>
 
 namespace eq
 {
@@ -41,31 +41,34 @@ QOpenGLContext* _getShareContext( const WindowSettings& settings )
         dynamic_cast< const ShareContextWindow* >( shareWindow );
     return dummyWindow ? dummyWindow->getContext() : 0;
 }
-}
 
-detail::Window* Window::createImpl( const WindowSettings& settings,
-                                    QScreen* screen, QThread* thread )
+detail::Window* _createImpl( WindowIF& windowIF, const WindowSettings& settings,
+                             QScreen* screen, QThread* thread )
 {
     QOpenGLContext* shareContext = _getShareContext( settings );
-
-    const int32_t drawable = getAttribute( IATTR_HINT_DRAWABLE );
-    detail::Window* window = 0;
+    const int32_t drawable =
+        windowIF.getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
+    detail::Window* window = nullptr;
     if( drawable == eq::WINDOW )
-        window = new detail::QWindowWrapper( settings, screen, shareContext );
+        window = new detail::QWindowWrapper( windowIF, thread, settings,
+                                             screen, shareContext );
     else
-        window = new detail::QOffscreenSurfaceWrapper( settings, screen,
-                                                       shareContext );
-
+        window =
+            new detail::QOffscreenSurfaceWrapper( windowIF, thread, settings,
+                                                  screen, shareContext );
+    LBASSERT( window );
     if( thread )
         window->getContext()->moveToThread( thread );
     return window;
 }
+}
 
 Window::Window( NotifierInterface& parent_, const WindowSettings& settings,
-                detail::Window* impl )
+                QScreen* screen, QThread* thr )
     : WindowIF( parent_, settings )
-    , _impl( impl )
+    , _impl( _createImpl( *this, settings, screen, thr ))
 {
+    LBASSERT( _impl );
 }
 
 Window::~Window()
@@ -75,7 +78,7 @@ Window::~Window()
 
 bool Window::configInit()
 {
-    if( !_impl->configInit( *this ))
+    if( !_impl->configInit( ))
         return false;
 
     makeCurrent();
@@ -95,7 +98,6 @@ void Window::configExit()
     makeCurrent();
     exitGLEW();
     _impl->doneCurrent();
-    _impl->configExit();
 }
 
 QOpenGLContext* Window::getContext() const
@@ -132,22 +134,19 @@ void Window::swapBuffers()
 
 void Window::joinNVSwapBarrier( const uint32_t /*group*/,
                                 const uint32_t /*barrier*/ )
-{
-}
+{}
 
 void Window::leaveNVSwapBarrier()
-{
-}
+{}
 
-bool Window::processEvent( const WindowEvent& event_ )
+bool Window::processEvent( const EventType type, QEvent* qEvent,
+                           SizeEvent& sizeEvent )
 {
-    // Resizing the FBO if needed
-    if( getFrameBufferObject() &&
-        event_.eq::Event::type == eq::Event::WINDOW_RESIZE )
-    {
-        getFrameBufferObject()->resize( event_.resize.w, event_.resize.h );
-    }
-    return SystemWindow::processEvent( event_ );
+    // Resize the FBO if needed
+    if( type == EVENT_WINDOW_RESIZE && getFrameBufferObject( ))
+        getFrameBufferObject()->resize( sizeEvent.w, sizeEvent.h );
+
+    return WindowIF::processEvent( type, qEvent, sizeEvent );
 }
 
 QObject* Window::getEventProcessor()

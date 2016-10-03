@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
- *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric Stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -846,12 +846,15 @@ bool Config::exit()
 
     const bool success = _updateRunning( true );
 
-    // TODO: is this needed? sender of CMD_CONFIG_EXIT is the appNode itself
-    // which sets the running state to false anyway. Besides, this event is
-    // not handled by the appNode because it is already in exiting procedure
-    // and does not call handleEvents anymore
-    // eile: May be needed for reliability?
-    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
+    // send exit event to app, needed if this is called from init()
+    EventOCommand cmd( send( findApplicationNetNode(),
+                             fabric::CMD_CONFIG_EVENT ));
+    Event event;
+    event.serial = getSerial();
+    event.time = getServer()->getTime();
+    event.originator = getID();
+
+    cmd << EVENT_EXIT << event;
 
     _needsFinish = false;
     _state = STATE_STOPPED;

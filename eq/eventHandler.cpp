@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,24 +22,26 @@
 namespace eq
 {
 
-void EventHandler::_computePointerDelta( Event& event )
+void EventHandler::_computePointerDelta( const EventType type,
+                                         PointerEvent& event )
 {
-    switch( event.type )
+    switch( type )
     {
-        case Event::WINDOW_POINTER_BUTTON_PRESS:
-        case Event::WINDOW_POINTER_BUTTON_RELEASE:
-            if( _lastPointerEvent.type == Event::WINDOW_POINTER_MOTION )
+        case EVENT_WINDOW_POINTER_BUTTON_PRESS:
+        case EVENT_WINDOW_POINTER_BUTTON_RELEASE:
+            if( _lastEventType == EVENT_WINDOW_POINTER_MOTION )
             {
-                event.pointer.dx = _lastPointerEvent.pointer.dx;
-                event.pointer.dy = _lastPointerEvent.pointer.dy;
+                event.dx = _lastPointerEvent.dx;
+                event.dy = _lastPointerEvent.dy;
                 break;
             }
             // fall through
 
         default:
-            event.pointer.dx = event.pointer.x - _lastPointerEvent.pointer.x;
-            event.pointer.dy = event.pointer.y - _lastPointerEvent.pointer.y;
+            event.dx = event.x - _lastPointerEvent.x;
+            event.dy = event.y - _lastPointerEvent.y;
     }
+    _lastEventType = type;
     _lastPointerEvent = event;
 }
 

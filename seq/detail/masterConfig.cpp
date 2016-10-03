@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.ch>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,12 +22,11 @@
 #include "view.h"
 
 #include <seq/application.h>
-#ifndef EQ_2_0_API
-#  include <eq/configEvent.h>
-#endif
-#include <eq/fabric/configVisitor.h>
-#include <eq/fabric/event.h>
 #include <eq/eventICommand.h>
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/pointerEvent.h>
+#include <eq/fabric/sizeEvent.h>
+#include <eq/fabric/statistic.h>
 
 namespace seq
 {
@@ -100,7 +99,7 @@ bool MasterConfig::run( co::Object* frameData )
             else  // no pending commands, block on user event
             {
                 const eq::EventICommand& event = getNextEvent();
-                if( !handleEvent( event ))
+                if( !Config::handleEvent( event ))
                     LBVERB << "Unhandled " << event << std::endl;
             }
         }
@@ -139,148 +138,105 @@ private:
     bool& _redraw;
 };
 }
-#ifndef EQ_2_0_API
-bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
+
+template< class E >
+bool MasterConfig::_handleEvent( eq::EventType type, E& event )
 {
-    switch( event->data.type )
-    {
-    case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
-        _currentViewID = event->data.context.view.identifier;
-        return true;
-
-    case eq::Event::KEY_PRESS:
-    case eq::Event::KEY_RELEASE:
-        if( Config::handleEvent( event ))
-        {
-            _redraw = true;
-            LBVERB << "Redraw: requested by eq::Config" << std::endl;
-        }
-        // no break;
-    case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-    case eq::Event::CHANNEL_POINTER_MOTION:
-    case eq::Event::CHANNEL_POINTER_WHEEL:
-    case eq::Event::MAGELLAN_AXIS:
-    {
-        if( _currentViewID == 0 )
-            return false;
-
-        View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
-        if( view->handleEvent( event ))
-        {
-            _redraw = true;
-            LBVERB << "Redraw: requested by view event handler" << std::endl;
-        }
-        return true;
-    }
-
-    case eq::Event::STATISTIC:
-    {
-        Config::handleEvent( event );
-        if( event->data.statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
-            return false;
-
-        ViewUpdateVisitor viewUpdate( _redraw );
-        accept( viewUpdate );
-        return _redraw;
-    }
-
-    case eq::Event::WINDOW_EXPOSE:
-    case eq::Event::WINDOW_RESIZE:
-    case eq::Event::WINDOW_CLOSE:
-    case eq::Event::VIEW_RESIZE:
+    if( Config::handleEvent( type, event ))
         _redraw = true;
-        LBVERB << "Redraw: window change" << std::endl;
-        break;
 
+    if( _currentViewID == 0 )
+        return _redraw;
+
+    View* view = static_cast< View* >( find< eq::View >( _currentViewID ));
+    if( view && view->handleEvent( type, event ))
+        _redraw = true;
+
+    return _redraw;
+}
+
+
+
+bool MasterConfig::handleEvent( EventICommand command )
+{
+    switch( command.getEventType( ))
+    {
     case EVENT_REDRAW:
         _redraw = true;
         LBVERB << "Redraw request" << std::endl;
+        return true;
+
+    default:
+        return Config::handleEvent( command );
+    }
+}
+
+bool MasterConfig::handleEvent( const eq::EventType type,
+                                const SizeEvent& event )
+{
+    _redraw = true;
+    return _handleEvent( type, event );
+}
+
+bool MasterConfig::handleEvent( const eq::EventType type,
+                                const PointerEvent& event )
+{
+    switch( type )
+    {
+    case EVENT_CHANNEL_POINTER_BUTTON_PRESS:
+        _currentViewID = event.context.view.identifier;
         break;
 
     default:
         break;
     }
 
-    if( eq::Config::handleEvent( event ))
-    {
-        _redraw = true;
-        LBVERB << "Redraw: requested by config event handler" << std::endl;
-    }
-    return _redraw;
+    return _handleEvent( type, event );
 }
-#endif
 
-bool MasterConfig::handleEvent( eq::EventICommand command )
+bool MasterConfig::handleEvent( const eq::EventType type,
+                                const KeyEvent& event )
 {
-    switch( command.getEventType( ))
+    return _handleEvent( type, event );
+}
+
+bool MasterConfig::handleEvent( const eq::EventType type,
+                                const AxisEvent& event )
+{
+    return _handleEvent( type, event );
+}
+
+bool MasterConfig::handleEvent( const eq::EventType type,
+                                const ButtonEvent& event )
+{
+    return _handleEvent( type, event );
+}
+
+bool MasterConfig::handleEvent( const eq::EventType type, const Event& event )
+{
+    if( Config::handleEvent( type, event ))
+        _redraw = true;
+
+    switch( type )
     {
-    case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
-    {
-        const eq::Event& event = command.read< eq::Event >();
-        _currentViewID = event.context.view.identifier;
+    case EVENT_WINDOW_EXPOSE:
+    case EVENT_WINDOW_CLOSE:
+        _redraw = true;
         return true;
-    }
 
-    case eq::Event::KEY_PRESS:
-    case eq::Event::KEY_RELEASE:
-        if( Config::handleEvent( command ))
-        {
-            _redraw = true;
-            LBVERB << "Redraw: requested by eq::Config" << std::endl;
-        }
-        // no break;
-    case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-    case eq::Event::CHANNEL_POINTER_MOTION:
-    case eq::Event::CHANNEL_POINTER_WHEEL:
-    case eq::Event::MAGELLAN_AXIS:
-    {
-        if( _currentViewID == 0 )
-            return false;
-
-        View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
-        if( view->handleEvent( command ))
-        {
-            _redraw = true;
-            LBVERB << "Redraw: requested by view event handler" << std::endl;
-        }
-        return true;
-    }
-
-    case eq::Event::STATISTIC:
-    {
-        Config::handleEvent( command );
-        const eq::Event& event = command.read< eq::Event >();
-        if( event.statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
-            return false;
-
-        ViewUpdateVisitor viewUpdate( _redraw );
-        accept( viewUpdate );
+    default:
         return _redraw;
     }
+}
 
-    case eq::Event::WINDOW_EXPOSE:
-    case eq::Event::WINDOW_RESIZE:
-    case eq::Event::WINDOW_CLOSE:
-    case eq::Event::VIEW_RESIZE:
-        _redraw = true;
-        LBVERB << "Redraw: window change" << std::endl;
-        break;
-
-    case EVENT_REDRAW:
-        _redraw = true;
-        LBVERB << "Redraw request" << std::endl;
-        break;
-
-      default:
-          break;
-    }
-
-    if( eq::Config::handleEvent( command ))
+void MasterConfig::addStatistic( const Statistic& stat )
+{
+    Config::addStatistic( stat );
+    if( stat.type == eq::Statistic::CONFIG_FINISH_FRAME )
     {
-        _redraw = true;
-        LBVERB << "Redraw: requested by config event handler" << std::endl;
+        ViewUpdateVisitor viewUpdate( _redraw );
+        accept( viewUpdate );
     }
-    return _redraw;
 }
 
 }

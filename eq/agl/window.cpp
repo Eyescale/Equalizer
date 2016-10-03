@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Maxim Makhinya
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,6 @@
 
 #include "eventHandler.h"
 #include "pipe.h"
-#include "windowEvent.h"
 #include "../global.h"
 #include "../os.h"
 #include "../pipe.h"
@@ -160,12 +159,13 @@ void Window::joinNVSwapBarrier( const uint32_t, const uint32_t )
     LBWARN << "NV_swap_group not supported on AGL" << std::endl;
 }
 
-bool Window::processEvent( const WindowEvent& event )
+bool Window::processEvent( const EventType type, const EventRef eventRef,
+                           SizeEvent& event )
 {
-    if( event.type == Event::WINDOW_RESIZE && _impl->aglContext )
+    if( type == EVENT_WINDOW_RESIZE && _impl->aglContext )
         aglUpdateContext( _impl->aglContext );
 
-    return SystemWindow::processEvent( event );
+    return WindowIF::processEvent( type, eventRef, event );
 }
 
 void Window::setAGLContext( AGLContext context )

@@ -39,11 +39,25 @@ public:
               const WindowSettings& settings ) : GLWindow( parent, settings ) {}
     virtual ~WindowIF() {}
 
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Woverloaded-virtual"
-    /** Process the given event. @version 1.7.3 */
-    virtual bool processEvent( const WindowEvent& event ) = 0;
-#  pragma clang diagnostic pop
+    /** Process a stateless event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, QEvent* )
+        { return GLWindow::processEvent( type ); }
+
+    /** Process a (re)size event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, QEvent*, SizeEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a mouse event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, QEvent*, PointerEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a keyboard event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, QEvent*, KeyEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a stateless event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type )
+        { return GLWindow::processEvent( type ); }
 };
 
 /** Equalizer default implementation of a Qt window */
@@ -53,22 +67,23 @@ class Window : public QObject, public WindowIF
 
 public:
     /**
-     * Create a new window using Qt
+     * Create a new window using Qt.
      *
-     * The actual window will be a QWindow or a QOffscreenSurface depending
-     * on the window settings.
-     * The window won't be realized until configInit is called.
+     * The actual window will be a QWindow or a QOffscreenSurface depending on
+     * the window settings. The window won't be realized until configInit is
+     * called.
      *
      * @param parent The eq::Window parent window interface that uses this
      *        system window.
      * @param settings The window settings. The GL context format will be
      *        derived from these.
-     * @param impl The Qt implementation (created in the app thread).
+     * @param screen the Qt screen to create the window on.
+     * @param thread the Qt thread running the window.
      *
      * @version 1.9
      */
     EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
-                   detail::Window* impl );
+                   QScreen* screen, QThread* thread );
 
     /** Destruct this Qt window. @version 1.7.3 */
     EQ_API ~Window() final;
@@ -118,7 +133,8 @@ public:
     EQ_API void leaveNVSwapBarrier();
 
     /** @version 1.7.3 */
-    EQ_API bool processEvent( const WindowEvent& event ) override;
+    EQ_API bool processEvent( EventType type, QEvent* qEvent, SizeEvent& event )
+        override;
     //@}
 
     /**
@@ -142,9 +158,6 @@ signals:
 
 private:
     detail::Window* const _impl;
-    static detail::Window* createImpl( const WindowSettings&,
-                                       QScreen*, QThread* );
-    friend class WindowFactory;
 };
 }
 }

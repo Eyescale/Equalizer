@@ -160,78 +160,81 @@ const InitData& Config::getInitData() const
 bool Config::loadInitData( const eq::uint128_t& id )
 {
     LBASSERT( !_initData.isAttached( ));
-    return getClient()->syncObject( &_initData, id, getApplicationNode() );
+    return getClient()->syncObject( &_initData, id, getApplicationNode( ));
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
 {
-    const float moveSpeed = .1f;
+    static const float moveSpeed = .1f;
 
-    switch( event->data.type )
+    switch( type )
     {
-        // set mMoveDirection to a null vector after a key is released
-        // so that the updating of the camera position stops
-        case eq::Event::KEY_RELEASE:
-            if ( event->data.keyPress.key >= 261 &&
-                 event->data.keyPress.key <= 266 )
-                _moveDirection = eq::Vector3f( 0, 0, 0 );
-        break;
+    case eq::EVENT_KEY_RELEASE:
+        // set mMoveDirection to a null vector after a key is released so that
+        // the updating of the camera position stops
+        if ( event.key >= 261 && event.key <= 266 )
+            _moveDirection = eq::Vector3f( 0, 0, 0 );
+        return eq::Config::handleEvent( type, event );
 
+    case eq::EVENT_KEY_PRESS:
         // change mMoveDirection when the appropriate key is pressed
-        case eq::Event::KEY_PRESS:
-            switch ( event->data.keyPress.key )
-            {
-                case eq::KC_LEFT:
-                    _moveDirection = vmml::normalize( orthographicVector(
-                                     _cameraWalkingVector )) * moveSpeed;
-                    return true;
+        switch ( event.key )
+        {
+        case eq::KC_LEFT:
+            _moveDirection = vmml::normalize(
+                orthographicVector( _cameraWalkingVector )) * moveSpeed;
+            return true;
 
-                case eq::KC_UP:
-                    _moveDirection.y() = moveSpeed;
-                    return true;
+        case eq::KC_UP:
+            _moveDirection.y() = moveSpeed;
+            return true;
 
-                case eq::KC_RIGHT:
-                    _moveDirection = -vmml::normalize( orthographicVector(
-                                     _cameraWalkingVector )) * moveSpeed;
-                    return true;
+        case eq::KC_RIGHT:
+            _moveDirection = -vmml::normalize(
+                orthographicVector( _cameraWalkingVector )) * moveSpeed;
+            return true;
 
-                case eq::KC_DOWN:
-                    _moveDirection.y() = -moveSpeed;
-                    return true;
+        case eq::KC_DOWN:
+            _moveDirection.y() = -moveSpeed;
+            return true;
 
-                case eq::KC_PAGE_UP:
-                    _moveDirection = vmml::normalize( _cameraWalkingVector )
-                                     * moveSpeed;
-                    return true;
+        case eq::KC_PAGE_UP:
+            _moveDirection = vmml::normalize( _cameraWalkingVector ) *
+                             moveSpeed;
+            return true;
 
-                case eq::KC_PAGE_DOWN:
-                    _moveDirection = -vmml::normalize( _cameraWalkingVector ) *
-                                      moveSpeed;
-                    return true;
+        case eq::KC_PAGE_DOWN:
+            _moveDirection = -vmml::normalize( _cameraWalkingVector ) *
+                             moveSpeed;
+            return true;
 
-                case 's':
-                    _frameData.toggleStatistics();
-            }
-            break;
+        case 's':
+            _frameData.toggleStatistics();
+            return true;
+        }
+        // no break;
 
-        // turn left and right, up and down with mouse pointer
-        case eq::Event::CHANNEL_POINTER_MOTION:
-            if ( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 &&
-                 event->data.pointerMotion.x <= event->data.context.pvp.w &&
-                 event->data.pointerMotion.x >= 0 &&
-                 event->data.pointerMotion.y <= event->data.context.pvp.h &&
-                 event->data.pointerMotion.y >= 0 )
-            {
-                _pointerXDiff += event->data.pointerMotion.dx;
-                _pointerYDiff += event->data.pointerMotion.dy;
-                return true;
-            }
-            break;
+    default:
+        // let Equalizer handle any events we don't handle ourselves here, like
+        // the escape key for closing the application.
+        return eq::Config::handleEvent( type, event );
+    }
+}
+
+bool Config::handleEvent( const eq::EventType type,
+                          const eq::PointerEvent& event )
+{
+    // turn left and right, up and down with mouse pointer
+    if( type == eq::EVENT_CHANNEL_POINTER_MOTION &&
+        event.buttons == eq::PTR_BUTTON1 && event.x <= event.context.pvp.w &&
+        event.x >= 0 && event.y <= event.context.pvp.h && event.y >= 0 )
+    {
+        _pointerXDiff += event.dx;
+        _pointerYDiff += event.dy;
+        return true;
     }
 
-    // let Equalizer handle any events we don't handle ourselves here, like the
-    // escape key for closing the application.
-    return eq::Config::handleEvent( event );
+    return eq::Config::handleEvent( type, event );
 }
 
 // Note: real applications would use one tracking device per observer

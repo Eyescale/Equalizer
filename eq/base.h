@@ -61,14 +61,10 @@
  *
  * The window events are dispatched to the corresponding SystemWindow, which can
  * execute window system specific tasks. The SystemWindow implementations
- * forward the generic Event to the window. The window will handle the necessary
- * events locally, and will transform the WindowEvent into a ConfigEvent, which
- * is sent to the application node using Config::sendEvent().
- *
- * The Event is a union of the possible concrete PointerEvent, KeyEvent,
- * ResizeEvent, MagellanEvent, Statistic or UserEvent and may contain a valid
- * RenderContext for a PointerEvent. The RenderContext describes the rendering
- * setup of the last Channel draw operation on the pointer position.
+ * forward a SizeEvent, PointerEvent or KeyEvent to the Window as well as a
+ * AxisEvent or ButtonEvent to the Node. The window or node will handle the
+ * necessary events locally, and will send them to the application node using
+ * Config::sendEvent() when desired.
  *
  * During scalable rendering, a Frame is used to represent an output frame
  * during Channel::frameReadback or an input frame during
@@ -111,10 +107,6 @@
 #include <eq/view.h>
 #include <eq/window.h>
 #include <eq/windowSystem.h>
-
-#ifndef EQ_2_0_API
-#  include <eq/configEvent.h>
-#endif
 
 #ifdef EQ_SYSTEM_INCLUDES
 #  include <eq/gl.h>

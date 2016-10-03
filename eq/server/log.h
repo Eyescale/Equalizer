@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,15 +24,15 @@ namespace eq
 {
 namespace server
 {
-    enum LogTopics
-    {
-        LOG_INIT     = fabric::LOG_INIT,        // 512
-        LOG_ASSEMBLY = fabric::LOG_ASSEMBLY,    // 1024
-        LOG_TASKS    = fabric::LOG_TASKS,       // 2048
-        LOG_LB1      = fabric::LOG_LB1,         // 4096
-        LOG_LB2      = fabric::LOG_LB2,         // 8192
-        LOG_VIEW     = fabric::LOG_VIEW         // 16384
-    };
+enum LogTopics
+{
+    LOG_INIT     = fabric::LOG_INIT,        // 512
+    LOG_ASSEMBLY = fabric::LOG_ASSEMBLY,    // 1024
+    LOG_TASKS    = fabric::LOG_TASKS,       // 2048
+    LOG_LB1      = fabric::LOG_LB1,         // 4096
+    LOG_LB2      = fabric::LOG_LB2,         // 8192
+    LOG_VIEW     = fabric::LOG_VIEW         // 16384
+};
 }
 }
 #endif // EQSERVER_LOG_H

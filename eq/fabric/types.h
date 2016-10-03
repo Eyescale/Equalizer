@@ -23,6 +23,7 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/errorCodes.h>
 #include <eq/fabric/eventEnums.h>
+#include <eq/fabric/eventType.h>
 #include <co/types.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/uint128_t.h>
@@ -41,6 +42,7 @@ namespace eq
 namespace fabric
 {
 using namespace eventEnums;
+using namespace eventTypes;
 class Client;
 class ColorMask;
 class ConfigParams;
@@ -61,6 +63,8 @@ class Viewport;
 class Wall;
 class WindowSettings;
 class Zoom;
+struct AxisEvent;
+struct ButtonEvent;
 struct CanvasPath;
 struct ChannelPath;
 struct DrawableConfig;
@@ -72,8 +76,8 @@ struct NodePath;
 struct ObserverPath;
 struct PipePath;
 struct PointerEvent;
-struct ResizeEvent;
 struct SegmentPath;
+struct SizeEvent;
 struct Statistic;
 struct ViewPath;
 struct WindowPath;

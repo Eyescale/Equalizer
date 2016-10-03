@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -292,27 +292,32 @@ public:
      */
     EQ_API EventOCommand sendError( const uint32_t error ) final;
 
-    /**
-     * Process a received event.
-     *
-     * The task of this method is to update the window as necessary, and
-     * transform the event into an config event to be send to the
-     * application using Config::sendEvent(). Events which can be related to a
-     * channel (eg pointer events) are transformed into their corresponding
-     * channel event and forwarded to Channel::processEvent().
-     *
-     * @param event the received window system event.
-     * @return true when the event was handled, false if not.
-     * @version 1.0
-     */
-    EQ_API virtual bool processEvent( const Event& event );
+    /** @sa NotifierInterface::processEvent(). */
+    EQ_API bool processEvent( EventType type ) override;
+
+    /** @sa NotifierInterface::processEvent(). */
+    EQ_API bool processEvent( EventType type, SizeEvent& event ) override;
+
+    /** @sa NotifierInterface::processEvent(). */
+    EQ_API bool processEvent( EventType type, PointerEvent& event ) override;
+
+    /** @sa NotifierInterface::processEvent(). */
+    EQ_API bool processEvent( EventType type, KeyEvent& event ) override;
+
+    /** @sa NotifierInterface::processEvent(). */
+    EQ_API bool processEvent( EventType type, AxisEvent& event ) override;
+
+    /** @sa NotifierInterface::processEvent(). */
+    EQ_API bool processEvent( EventType type, ButtonEvent& event ) override;
+
+    EQ_API bool processEvent( Statistic& event );
     //@}
 
 protected:
     friend class Pipe;
 
     /** @internal */
-    EQ_API virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    EQ_API virtual void attach( const uint128_t& id, uint32_t instanceID );
 
     /** @name Actions */
     //@{

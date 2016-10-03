@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2009, Maxim Makhinya
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -78,9 +78,34 @@ EventOCommand SystemWindow::sendError( const uint32_t error )
     return _parent.sendError( error );
 }
 
-bool SystemWindow::processEvent( const Event& event )
+bool SystemWindow::processEvent( const EventType type )
 {
-    return _parent.processEvent( event );
+    return _parent.processEvent( type );
+}
+
+bool SystemWindow::processEvent( const EventType type, SizeEvent& event )
+{
+    return _parent.processEvent( type, event );
+}
+
+bool SystemWindow::processEvent( const EventType type, PointerEvent& event )
+{
+    return _parent.processEvent( type, event );
+}
+
+bool SystemWindow::processEvent( const EventType type, KeyEvent& event )
+{
+    return _parent.processEvent( type, event );
+}
+
+bool SystemWindow::processEvent( EventType type, AxisEvent& event )
+{
+    return _parent.processEvent( type, event );
+}
+
+bool SystemWindow::processEvent( EventType type, ButtonEvent& event )
+{
+    return _parent.processEvent( type, event );
 }
 
 }

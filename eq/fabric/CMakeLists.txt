@@ -1,8 +1,10 @@
 
-# Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2016 Stefan Eilemann <eile@eyescale.ch>
 
 set(EQUALIZERFABRIC_PUBLIC_HEADERS
+  axisEvent.h
   base.h
+  buttonEvent.h
   canvas.h
   channel.h
   client.h
@@ -20,6 +22,7 @@ set(EQUALIZERFABRIC_PUBLIC_HEADERS
   errorRegistry.h
   event.h
   eventEnums.h
+  eventType.h
   eye.h
   focusMode.h
   frame.h
@@ -29,6 +32,7 @@ set(EQUALIZERFABRIC_PUBLIC_HEADERS
   gpuInfo.h
   iAttribute.h
   init.h
+  keyEvent.h
   layout.h
   leafVisitor.h
   log.h
@@ -40,11 +44,13 @@ set(EQUALIZERFABRIC_PUBLIC_HEADERS
   pipe.h
   pixel.h
   pixelViewport.h
+  pointerEvent.h
   projection.h
   range.h
   renderContext.h
   segment.h
   server.h
+  sizeEvent.h
   statistic.h
   subPixel.h
   swapBarrier.h
@@ -55,8 +61,8 @@ set(EQUALIZERFABRIC_PUBLIC_HEADERS
   viewport.h
   vmmlib.h
   wall.h
-  windowSettings.h
   window.h
+  windowSettings.h
   zoom.h
   )
 
@@ -82,7 +88,7 @@ set(EQUALIZERFABRIC_SOURCES
   equalizer.cpp
   error.cpp
   errorRegistry.cpp
-  event.cpp
+  eventType.cpp
   eye.cpp
   frame.cpp
   frameData.cpp

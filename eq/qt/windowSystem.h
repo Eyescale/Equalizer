@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,8 +37,7 @@ public:
     EQ_API ~WindowSystem();
 
 signals:
-    eq::qt::detail::Window* createImpl( const eq::Pipe*, const WindowSettings&,
-                                        QThread* );
+    eq::qt::Window* createImpl( eq::Window&, const WindowSettings&, QThread* );
 
 private:
     WindowFactory* _factory;

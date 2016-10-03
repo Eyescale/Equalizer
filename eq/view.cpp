@@ -25,7 +25,7 @@
 #include "server.h"
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/event.h>
+#include <eq/fabric/sizeEvent.h>
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -122,51 +122,43 @@ const Frustum& View::getBaseFrustum() const
     return _impl->baseFrustum;
 }
 
-bool View::handleEvent( const Event& event )
+bool View::handleEvent( const EventType type, const SizeEvent& event )
 {
-    switch( event.type )
+    if( type != EVENT_VIEW_RESIZE )
+        return false;
+
+    if( event.dw == 0.f || event.dh == 0.f )
+        return true;
+
+    switch( getCurrentType( ))
     {
-    case Event::VIEW_RESIZE:
+    case TYPE_WALL:
     {
-        const ResizeEvent& resize = event.resize;
-        if( resize.dw == 0.f || resize.dh == 0.f )
-            return true;
+        const float ratio( event.dw / event.dh );
+        Wall wall( _impl->baseFrustum.getWall( ));
+        wall.resizeHorizontal( ratio );
 
-        switch( getCurrentType( ))
-        {
-        case TYPE_WALL:
-        {
-            const float ratio( resize.dw / resize.dh );
-            Wall wall( _impl->baseFrustum.getWall( ));
-            wall.resizeHorizontal( ratio );
-
-            lunchbox::ScopedFastWrite mutex( _impl->eventLock );
-            setWall( wall );
-            break;
-        }
-
-        case View::TYPE_PROJECTION:
-        {
-            const float ratio( resize.dw / resize.dh );
-            eq::Projection projection( _impl->baseFrustum.getProjection( ));
-            projection.resizeHorizontal( ratio );
-
-            lunchbox::ScopedFastWrite mutex( _impl->eventLock );
-            setProjection( projection );
-            break;
-        }
-
-        case eq::View::TYPE_NONE:
-            break;
-        default:
-            LBUNIMPLEMENTED;
-            break;
-        }
+        lunchbox::ScopedFastWrite mutex( _impl->eventLock );
+        setWall( wall );
         return true;
     }
+
+    case View::TYPE_PROJECTION:
+    {
+        const float ratio( event.dw / event.dh );
+        eq::Projection projection( _impl->baseFrustum.getProjection( ));
+        projection.resizeHorizontal( ratio );
+
+        lunchbox::ScopedFastWrite mutex( _impl->eventLock );
+        setProjection( projection );
+        return true;
     }
 
-    return false;
+    default:
+        LBUNIMPLEMENTED;
+    case eq::View::TYPE_NONE:
+        return false;
+    }
 }
 
 }

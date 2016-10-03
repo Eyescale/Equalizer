@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
+/* Copyright (c) 2013-2016, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,8 +23,9 @@
 #include "../config.h"
 #include "../pipe.h"
 #include "../window.h"
-#include "../configEvent.h"
 
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/sizeEvent.h>
 #include <lunchbox/perThread.h>
 #include <deflect/Stream.h>
 
@@ -147,11 +148,8 @@ void EventHandler::processEvents( const Proxy* proxy )
     if( !_eventHandlers )
         return;
 
-    for( EventHandlers::const_iterator i = _eventHandlers->begin();
-         i != _eventHandlers->end(); ++i )
-    {
-        (*i)->_processEvents( proxy );
-    }
+    for( EventHandler* handler : *_eventHandlers )
+        handler->_processEvents( proxy );
 }
 
 void EventHandler::_processEvents( const Proxy* proxy )
@@ -171,16 +169,9 @@ void EventHandler::_processEvents( const Proxy* proxy )
         if( deflectEvent.type == ::deflect::Event::EVT_CLOSE )
         {
             _proxy->stopRunning();
-            ConfigEvent configEvent;
-            configEvent.data.type = Event::EXIT;
-            window->getConfig()->sendEvent( configEvent );
+            window->getConfig()->sendEvent( EVENT_EXIT );
             break;
         }
-
-        Event event;
-        event.originator = channel.getID();
-        event.serial = channel.getSerial();
-        event.type = Event::UNKNOWN;
 
         const float x = deflectEvent.mouseX * pvp.w;
         const float y = deflectEvent.mouseY * pvp.h;
@@ -189,74 +180,93 @@ void EventHandler::_processEvents( const Proxy* proxy )
         {
         case ::deflect::Event::EVT_KEY_PRESS:
         case ::deflect::Event::EVT_KEY_RELEASE:
-            event.type = deflectEvent.type == ::deflect::Event::EVT_KEY_PRESS ?
-                                          Event::KEY_PRESS : Event::KEY_RELEASE;
-            event.keyPress.key = _getKey(  deflectEvent.key );
-            break;
+        {
+            KeyEvent event;
+            event.originator = channel.getID();
+            event.serial = channel.getSerial();
+            const EventType type =
+                deflectEvent.type == ::deflect::Event::EVT_KEY_PRESS ?
+                                         EVENT_KEY_PRESS : EVENT_KEY_RELEASE;
+            event.key = _getKey(  deflectEvent.key );
+            channel.processEvent( type, event );
+            return;
+        }
         case ::deflect::Event::EVT_PRESS:
         case ::deflect::Event::EVT_RELEASE:
-            event.type = deflectEvent.type == ::deflect::Event::EVT_PRESS ?
-                                          Event::CHANNEL_POINTER_BUTTON_PRESS :
-                                          Event::CHANNEL_POINTER_BUTTON_RELEASE;
-            event.pointerButtonPress.x = x;
-            event.pointerButtonPress.y = y;
-            event.pointerButtonPress.buttons = _getButtons( deflectEvent );
-            event.pointerButtonPress.button = event.pointerButtonPress.buttons;
-            _computePointerDelta( event );
-            break;
-        case ::deflect::Event::EVT_DOUBLECLICK:
-            break;
+        {
+            PointerEvent event;
+            event.originator = channel.getID();
+            event.serial = channel.getSerial();
+            const EventType type =
+                deflectEvent.type == ::deflect::Event::EVT_PRESS ?
+                                         EVENT_CHANNEL_POINTER_BUTTON_PRESS :
+                                         EVENT_CHANNEL_POINTER_BUTTON_RELEASE;
+            event.x = x;
+            event.y = y;
+            event.buttons = _getButtons( deflectEvent );
+            event.button = event.buttons;
+            _computePointerDelta( type, event );
+
+            channel.processEvent( type, event );
+            return;
+        }
         case ::deflect::Event::EVT_MOVE:
         case ::deflect::Event::EVT_PAN:
-            event.type = Event::CHANNEL_POINTER_MOTION;
-            event.pointerMotion.x = x;
-            event.pointerMotion.y = y;
+        {
+            PointerEvent event;
+            event.originator = channel.getID();
+            event.serial = channel.getSerial();
+            event.x = x;
+            event.y = y;
+            event.dx = deflectEvent.dx * pvp.w;
+            event.dy = deflectEvent.dy * pvp.h;
 
             if( deflectEvent.type == ::deflect::Event::EVT_PAN )
-                event.pointerButtonPress.buttons = PTR_BUTTON3;
+                event.buttons = PTR_BUTTON3;
             else
-                event.pointerButtonPress.buttons = _getButtons( deflectEvent );
-            event.pointerMotion.button = event.pointerMotion.buttons;
+                event.buttons = _getButtons( deflectEvent );
+            event.button = event.buttons;
 
-            event.pointerMotion.dx = deflectEvent.dx * pvp.w;
-            event.pointerMotion.dy = deflectEvent.dy * pvp.h;
-            break;
+            channel.processEvent( EVENT_CHANNEL_POINTER_MOTION, event );
+            return;
+        }
         case ::deflect::Event::EVT_WHEEL:
-            event.type = Event::CHANNEL_POINTER_WHEEL;
-            event.pointerWheel.x = x;
-            event.pointerWheel.y = pvp.h - y;
-            event.pointerWheel.buttons = PTR_BUTTON_NONE;
-            event.pointerWheel.xAxis = deflectEvent.dx * wheelFactor;
-            event.pointerWheel.yAxis = deflectEvent.dy * wheelFactor;
-            event.pointerMotion.dx = -deflectEvent.dx;
-            event.pointerMotion.dy = -deflectEvent.dy;
-            break;
+        {
+            PointerEvent event;
+            event.originator = channel.getID();
+            event.serial = channel.getSerial();
+            event.x = x;
+            event.y = pvp.h - y;
+            event.xAxis = deflectEvent.dx * wheelFactor;
+            event.yAxis = deflectEvent.dy * wheelFactor;
+            event.dx = -deflectEvent.dx;
+            event.dy = -deflectEvent.dy;
+
+            channel.processEvent( EVENT_CHANNEL_POINTER_WHEEL, event );
+            return;
+        }
         case ::deflect::Event::EVT_PINCH:
         {
-            event.type = Event::CHANNEL_POINTER_WHEEL;
-            event.pointerWheel.x = x;
-            event.pointerWheel.y = pvp.h - y;
-            event.pointerWheel.buttons = PTR_BUTTON_NONE;
+            PointerEvent event;
+            event.originator = channel.getID();
+            event.serial = channel.getSerial();
+            event.x = x;
+            event.y = pvp.h - y;
             const auto dx = deflectEvent.dx * pvp.w;
             const auto dy = deflectEvent.dy * pvp.h;
             const auto sign = dx + dy;
             const auto zoom = std::copysign( std::sqrt( dx*dx + dy*dy ), sign );
-            event.pointerWheel.xAxis = 0.f;
-            event.pointerWheel.yAxis = zoom * wheelFactor;
-            break;
+            event.xAxis = 0.f;
+            event.yAxis = zoom * wheelFactor;
+
+            channel.processEvent( EVENT_CHANNEL_POINTER_WHEEL, event );
+            return;
         }
+
+        case ::deflect::Event::EVT_DOUBLECLICK:
         case ::deflect::Event::EVT_NONE:
         default:
             break;
-        }
-
-        if( event.type != Event::UNKNOWN )
-        {
-            // TODO: compute and use window x,y coordinates
-            if( !window->getRenderContext( x, y, event.context ))
-                LBVERB << "No rendering context for pointer event at " << x
-                       << ", " << y << std::endl;
-            channel.processEvent( event );
         }
     }
 }

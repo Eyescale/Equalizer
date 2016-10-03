@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ namespace eqPixelBench
 
 enum ConfigEventType
 {
-    READBACK = eq::Event::USER,
+    READBACK = eq::EVENT_USER,
     ASSEMBLE,
     START_LATENCY
 };
@@ -45,4 +45,3 @@ enum ConfigEventType
 }
 
 #endif // EQ_PIXELBENCH_CONFIGEVENT_H
-

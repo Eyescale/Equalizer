@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -71,8 +71,12 @@ public:
     const Model* getModel( const eq::uint128_t& id );
 
     /** @sa eq::Config::handleEvent */
-    virtual bool handleEvent( const eq::ConfigEvent* event );
-    virtual bool handleEvent( eq::EventICommand command );
+    bool handleEvent( eq::EventICommand command ) override;
+    bool handleEvent( eq::EventType type, const eq::Event& event ) override;
+    bool handleEvent( eq::EventType type, const eq::KeyEvent& event ) override;
+    bool handleEvent( eq::EventType type, const eq::PointerEvent& ) override;
+    bool handleEvent( eq::EventType type, const eq::AxisEvent& event ) override;
+    bool handleEvent( eq::EventType type, const eq::ButtonEvent& ) override;
 
     /** @return true if the application is idling. */
     bool isIdleAA();
@@ -119,7 +123,6 @@ private:
     void _deregisterData();
 
     bool _needNewFrame();
-    bool _handleKeyEvent( const eq::KeyEvent& event );
 
     void _switchCanvas();
     void _switchView();

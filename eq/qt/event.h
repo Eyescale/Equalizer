@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,16 +16,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "configEvent.h"
+#ifndef EQ_QT_EVENT_H
+#define EQ_QT_EVENT_H
 
-#ifndef EQ_2_0_API
+#include <eq/api.h>
+#include <eq/types.h>
+#include <QEvent> // base class
+
 namespace eq
 {
-
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
+namespace qt
 {
-    return os << "config event " << event->data;
-}
+/** A window-system event for a qt::WindowIF. */
+class EQ_API Event : public QEvent
+{
+public:
+    Event( const QEvent* from ) : QEvent( QEvent::User ), qtype( from->type( ))
+    {
+        static_cast< QEvent& >( *this ) = *from;
+    }
 
+    const int32_t qtype;
+};
+
+}
 }
 #endif

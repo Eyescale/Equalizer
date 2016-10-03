@@ -89,7 +89,7 @@ public:
                    co::COMMANDTYPE_OBJECT, object->getID(),
                    object->getInstanceID( ))
     {
-        command << Event::OBSERVER_MOTION;
+        command << EVENT_OBSERVER_MOTION;
     }
 
     co::BufferConnectionPtr buffer;
@@ -166,7 +166,7 @@ bool Observer::handleEvent( EventICommand& command )
 {
     switch( command.getEventType( ))
     {
-    case Event::OBSERVER_MOTION:
+    case EVENT_OBSERVER_MOTION:
         return setHeadMatrix( command.read< Matrix4f >( ));
     }
     return false;

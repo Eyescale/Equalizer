@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2015, Juan Hernando <jhernando@fi.upm.es>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Juan Hernando <jhernando@fi.upm.es>
+ *                          Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +19,14 @@
 
 #include "eventHandler.h"
 
+#include "event.h"
 #include "window.h"
-#include "windowEvent.h"
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/sizeEvent.h>
 
 #include <QApplication>
 #include <QKeyEvent>
+#include <QThread>
 
 namespace eq
 {
@@ -82,6 +86,7 @@ uint32_t _getKey( const QKeyEvent& keyEvent )
         return keyEvent.text().at( 0 ).unicode();
     }
 }
+
 // Qt buttons 2 & 3 are inversed with EQ (X11/AGL/WGL)
 uint32_t _getButtons( const Qt::MouseButtons& eventButtons )
 {
@@ -105,213 +110,166 @@ uint32_t _getButton( const Qt::MouseButton button )
         return PTR_BUTTON3;
     return button;
 }
+
+// Performs a (derived) copy of the incoming event. QApplication::postEvent()
+// takes ownership of the given event, and the incoming event is only valid
+// within the event function, it is destroyed afterwards by Qt.
+QEvent* _clone( const QEvent* event )
+{
+    switch( event->type( ))
+    {
+    case QEvent::Close:
+        return new QCloseEvent;
+    case QEvent::Expose:
+    {
+        const QExposeEvent* e = static_cast< const QExposeEvent* >( event );
+        return new QExposeEvent( e->region( ));
+    }
+    case QEvent::Hide:
+        return new QHideEvent;
+    case QEvent::Resize:
+    {
+        const QResizeEvent* e = static_cast< const QResizeEvent* >( event );
+        return new QResizeEvent( e->size(), e->oldSize( ));
+    }
+    case QEvent::MouseMove:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    {
+        const QMouseEvent* e = static_cast< const QMouseEvent* >( event );
+        return new QMouseEvent( e->type(), e->localPos(), e->windowPos(),
+                                e->screenPos(), e->button(), e->buttons(),
+                                e->modifiers( ));
+    }
+    case QEvent::Wheel:
+    {
+        const QWheelEvent* e = static_cast< const QWheelEvent* >( event );
+        return new QWheelEvent( e->pos(), e->globalPos(), e->pixelDelta(),
+                                e->angleDelta(), e->delta(), e->orientation(),
+                                e->buttons(), e->modifiers(), e->phase()
+#if QT_VERSION >= 0x050500
+                                , e->source()
+#endif
+                                );
+    }
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    {
+        const QKeyEvent* e = static_cast< const QKeyEvent* >( event );
+        return new QKeyEvent( e->type(), e->key(), e->modifiers(),
+                              e->nativeScanCode(), e->nativeVirtualKey(),
+                              e->nativeModifiers(), e->text(),
+                              e->isAutoRepeat(), ushort( e->count( )));
+    }
+    default:
+        return nullptr;
+    }
+}
 }
 
 EventHandler::EventHandler( WindowIF& window )
     : _window( window )
-{
-}
+{}
 
 EventHandler::~EventHandler()
-{
-}
-
-void EventHandler::exposeEvent()
-{
-    QApplication::postEvent( this, _simpleWindowEvent( Event::WINDOW_EXPOSE ));
-}
-
-void EventHandler::hideEvent()
-{
-    QApplication::postEvent( this, _simpleWindowEvent( Event::WINDOW_HIDE ));
-}
-
-void EventHandler::resizeEvent( QResizeEvent* qevent )
-{
-    QApplication::postEvent( this, _resizeEvent( qevent ));
-}
-
-void EventHandler::closeEvent()
-{
-    QApplication::postEvent( this, _simpleWindowEvent( Event::WINDOW_CLOSE ));
-}
-
-void EventHandler::mousePressEvent( QMouseEvent* qevent )
-{
-    QApplication::postEvent( this, _mousePressEvent( qevent ));
-}
-
-void EventHandler::mouseReleaseEvent( QMouseEvent* qevent )
-{
-    QApplication::postEvent( this, _mouseReleaseEvent( qevent ));
-}
-
-void EventHandler::mouseMoveEvent( QMouseEvent* qevent )
-{
-    QApplication::postEvent( this, _mouseMoveEvent( qevent ));
-}
-
-#ifndef QT_NO_WHEELEVENT
-void EventHandler::wheelEvent( QWheelEvent* qevent )
-{
-    QApplication::postEvent( this, _wheelEvent( qevent ));
-}
-#endif
-
-void EventHandler::keyPressEvent( QKeyEvent* qevent )
-{
-    QApplication::postEvent( this, _keyEvent( qevent, Event::KEY_PRESS ));
-}
-
-void EventHandler::keyReleaseEvent( QKeyEvent* qevent )
-{
-    QApplication::postEvent( this, _keyEvent( qevent, Event::KEY_RELEASE ));
-}
+{}
 
 bool EventHandler::event( QEvent* qevent )
 {
-    if( qevent->type() != QEvent::User )
+    if( thread() != QThread::currentThread( ))
     {
-        // This event is coming directly into this object from the GUI thread.
-        // Reposting with the supported type and to ensure that the correct
-        // thread processes it.
-        WindowEvent* windowEvent = _translateEvent( qevent );
-        if( windowEvent )
-        {
-            QApplication::postEvent( this, windowEvent );
-            return true;
-        }
-        return false;
+        // Event did not arrive in the current thread, repost to correct thread.
+        QEvent* clone = _clone( qevent );
+        if( clone )
+            QApplication::postEvent( this, clone );
+        // else not cloned because unknown/not handled by us later (see below)
+
+        return true;
     }
 
-    WindowEvent* windowEvent = dynamic_cast< WindowEvent* >( qevent );
-    if( !windowEvent )
-        return false;
-
-    switch( windowEvent->eq::Event::type )
-    {
-    case Event::WINDOW_POINTER_MOTION:
-    case Event::WINDOW_POINTER_BUTTON_PRESS:
-    case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        _computePointerDelta( *windowEvent );
-        break;
-    default:
-        break;
-    }
-
-    return _window.processEvent( *windowEvent );
+    return _processEvent( qevent );
 }
 
-WindowEvent* EventHandler::_translateEvent( QEvent* qevent )
+bool EventHandler::_processEvent( QEvent* qEvent )
 {
-    switch( qevent->type( ))
+    switch( qEvent->type( ))
     {
-    case QEvent::Expose:
-        return _simpleWindowEvent( Event::WINDOW_EXPOSE );
-    case QEvent::Hide:
-        return _simpleWindowEvent( Event::WINDOW_HIDE );
-    case QEvent::Resize:
-        return _resizeEvent( static_cast< QResizeEvent* >( qevent ));
     case QEvent::Close:
-        return _simpleWindowEvent( Event::WINDOW_CLOSE );
+        return _window.processEvent( EVENT_WINDOW_CLOSE, qEvent );
+    case QEvent::Expose:
+        return _window.processEvent( EVENT_WINDOW_EXPOSE, qEvent );
+    case QEvent::Hide:
+        return _window.processEvent( EVENT_WINDOW_HIDE, qEvent );
+    case QEvent::Resize:
+        return _processSizeEvent( EVENT_WINDOW_RESIZE, qEvent );
     case QEvent::MouseMove:
-        return _mouseMoveEvent( static_cast< QMouseEvent* >( qevent ));
+        return _processPointerEvent( EVENT_WINDOW_POINTER_MOTION, qEvent );
     case QEvent::MouseButtonPress:
-        return _mousePressEvent( static_cast< QMouseEvent* >( qevent ));
+        return _processPointerEvent( EVENT_WINDOW_POINTER_BUTTON_PRESS,
+                                     qEvent );
     case QEvent::MouseButtonRelease:
-        return _mouseReleaseEvent( static_cast< QMouseEvent* >( qevent ));
+        return _processPointerEvent( EVENT_WINDOW_POINTER_BUTTON_RELEASE,
+                                     qEvent );
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-        return _wheelEvent( static_cast< QWheelEvent* >( qevent ));
+        return _processWheelEvent( qEvent );
 #endif
     case QEvent::KeyPress:
-        return _keyEvent( static_cast< QKeyEvent* >( qevent ),
-                          Event::KEY_PRESS);
+        return _processKeyEvent( EVENT_KEY_PRESS, qEvent );
     case QEvent::KeyRelease:
-        return _keyEvent( static_cast< QKeyEvent* >( qevent ),
-                          Event::KEY_RELEASE );
+        return _processKeyEvent( EVENT_KEY_RELEASE, qEvent );
     default:
-        ;
+        return false;
     }
-    return 0;
 }
 
-WindowEvent* EventHandler::_simpleWindowEvent( const eq::Event::Type type )
+bool EventHandler::_processSizeEvent( const EventType type, QEvent* qev )
 {
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = type;
-    return windowEvent;
+    QResizeEvent* qevent = static_cast< QResizeEvent* >( qev );
+    SizeEvent sizeEvent;
+    sizeEvent.w = qevent->size().width();
+    sizeEvent.h = qevent->size().height();
+    return _window.processEvent( type, qev, sizeEvent );
 }
 
-WindowEvent* EventHandler::_resizeEvent( QResizeEvent* qevent )
+bool EventHandler::_processPointerEvent( const EventType type, QEvent* qev )
 {
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = Event::WINDOW_RESIZE;
-    windowEvent->resize.w = qevent->size().width();
-    windowEvent->resize.h = qevent->size().height();
-    return windowEvent;
-}
-
-WindowEvent* EventHandler::_mousePressEvent( QMouseEvent* qevent )
-{
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = Event::WINDOW_POINTER_BUTTON_PRESS;
-    windowEvent->pointerButtonPress.x = qevent->x();
-    windowEvent->pointerButtonPress.y = qevent->y();
-    windowEvent->pointerButtonPress.buttons = _getButtons( qevent->buttons( ));
-    windowEvent->pointerButtonPress.button  = _getButton( qevent->button( ));
-    return windowEvent;
-}
-
-WindowEvent* EventHandler::_mouseReleaseEvent( QMouseEvent* qevent )
-{
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-    windowEvent->pointerButtonRelease.x = qevent->x();
-    windowEvent->pointerButtonRelease.y = qevent->y();
-    windowEvent->pointerButtonRelease.buttons = _getButtons( qevent->buttons());
-    windowEvent->pointerButtonRelease.button  = _getButton( qevent->button( ));
-    return windowEvent;
-}
-
-WindowEvent* EventHandler::_mouseMoveEvent( QMouseEvent* qevent )
-{
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = Event::WINDOW_POINTER_MOTION;
-    windowEvent->pointerMotion.x = qevent->x();
-    windowEvent->pointerMotion.y = qevent->y();
-    windowEvent->pointerMotion.buttons = _getButtons( qevent->buttons( ));
-    windowEvent->pointerMotion.button  = _getButton( qevent->button( ));
-    return windowEvent;
+    QMouseEvent* qevent = static_cast< QMouseEvent* >( qev );
+    PointerEvent pointerEvent;
+    pointerEvent.x = qevent->x();
+    pointerEvent.y = qevent->y();
+    pointerEvent.buttons = _getButtons( qevent->buttons( ));
+    pointerEvent.button = _getButton( qevent->button( ));
+    _computePointerDelta( type, pointerEvent );
+    return _window.processEvent( type, qev, pointerEvent );
 }
 
 #ifndef QT_NO_WHEELEVENT
-WindowEvent* EventHandler::_wheelEvent( QWheelEvent* qevent )
+bool EventHandler::_processWheelEvent( QEvent* qev )
 {
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = Event::WINDOW_POINTER_WHEEL;
+    QWheelEvent* qevent = static_cast< QWheelEvent* >( qev );
+    PointerEvent pointerEvent;
     switch( qevent->orientation( ))
     {
     case Qt::Horizontal:
-        windowEvent->pointerWheel.xAxis = qevent->delta() > 0 ? 1 : -1;
+        pointerEvent.xAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     case Qt::Vertical:
-        windowEvent->pointerWheel.yAxis = qevent->delta() > 0 ? 1 : -1;
+        pointerEvent.yAxis = qevent->delta() > 0 ? 1 : -1;
         break;
     }
-    windowEvent->pointerWheel.buttons = _getButtons( qevent->buttons( ));
-    windowEvent->pointerWheel.button  = PTR_BUTTON_NONE;
-    return windowEvent;
+    pointerEvent.buttons = _getButtons( qevent->buttons( ));
+    pointerEvent.button  = PTR_BUTTON_NONE;
+    return _window.processEvent( EVENT_WINDOW_POINTER_WHEEL, qev, pointerEvent);
 }
 #endif
 
-WindowEvent* EventHandler::_keyEvent( QKeyEvent* qevent,
-                                      const eq::Event::Type type )
+bool EventHandler::_processKeyEvent( const EventType type, QEvent* qev )
 {
-    WindowEvent* windowEvent = new WindowEvent;
-    windowEvent->eq::Event::type = type;
-    windowEvent->keyPress.key = _getKey( *qevent );
-    return windowEvent;
+    QKeyEvent* qevent = static_cast< QKeyEvent* >( qev );
+    KeyEvent keyEvent;
+    keyEvent.key = _getKey( *qevent );
+    return _window.processEvent( type, qev, keyEvent );
 }
 
 }

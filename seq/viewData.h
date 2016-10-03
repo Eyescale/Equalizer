@@ -38,19 +38,6 @@ public:
 
     /** @name Operations */
     //@{
-#ifndef EQ_2_0_API
-    /**
-     * Handle the given event.
-     *
-     * The default implementation provides a pointer-based camera model and some
-     * key event handling, all of which can be modified by overwriting this
-     * method and handling the appropriate events.
-     * @version 1.0
-     * @deprecated
-     */
-    SEQ_API virtual bool handleEvent( const eq::ConfigEvent* event );
-#endif
-
     /**
      * Handle the given event command.
      *
@@ -59,7 +46,11 @@ public:
      * method and handling the appropriate events.
      * @version 1.5.1
      */
-    SEQ_API virtual bool handleEvent( eq::EventICommand command );
+    SEQ_API virtual bool handleEvent( eq::EventType type, const SizeEvent& );
+    SEQ_API virtual bool handleEvent( eq::EventType type, const PointerEvent& );
+    SEQ_API virtual bool handleEvent( eq::EventType type, const KeyEvent& );
+    SEQ_API virtual bool handleEvent( eq::EventType type, const AxisEvent& );
+    SEQ_API virtual bool handleEvent( eq::EventType type, const ButtonEvent& );
 
     /** Rotate the model matrix by the given increments. @version 1.0 */
     SEQ_API void spinModel( const float x, const float y, const float z );
@@ -133,7 +124,6 @@ protected:
     };
 
 private:
-    bool _handleEvent( const eq::Event& event );
 
     View& _view;
     Matrix4f _modelMatrix;

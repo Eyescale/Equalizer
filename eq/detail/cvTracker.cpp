@@ -191,7 +191,7 @@ void CVTracker::run()
 
         LBVERB << "head " << *position << " roll " << *roll << " eyes "
                << (eyes.size() == 2) <<  " h->e " << *headEyeRatio << std::endl;
-        config->sendEvent( Event::OBSERVER_MOTION ) << originator << head;
+        config->sendEvent( EVENT_OBSERVER_MOTION ) << originator << head;
     }
 
     running_ = false;

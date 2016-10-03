@@ -31,6 +31,8 @@
 #include "pipe.h"
 #include "server.h"
 
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/frameData.h>
@@ -467,13 +469,24 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
 
 EventOCommand Node::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::NODE_ERROR, Error( error, getID( )));
+    return getConfig()->sendError( EVENT_NODE_ERROR, Error( error, getID( )));
 }
 
-bool Node::processEvent( const Event& event )
+bool Node::processEvent( const EventType type, AxisEvent& event )
 {
-    ConfigEvent configEvent( event );
-    getConfig()->sendEvent( configEvent );
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Node::processEvent( const EventType type, ButtonEvent& event )
+{
+    getConfig()->sendEvent( type ) << event;
+    return true;
+}
+
+bool Node::processEvent( Statistic& event )
+{
+    getConfig()->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 

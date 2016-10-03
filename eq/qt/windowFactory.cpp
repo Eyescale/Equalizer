@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2015, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2015-2016, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,9 +18,10 @@
 #include "windowFactory.h"
 
 #include "window.h"
-#include "windowImpl.h"
+#include "detail/window.h"
 
-#include "eq/pipe.h"
+#include <eq/pipe.h>
+#include <eq/window.h>
 
 #include <QGuiApplication>
 
@@ -28,10 +29,9 @@ namespace eq
 {
 namespace qt
 {
-
-detail::Window* WindowFactory::onCreateImpl( const eq::Pipe* pipe,
-                                             const WindowSettings& settings,
-                                             QThread* thread_ )
+Window* WindowFactory::onCreateImpl( eq::Window& window,
+                                     const WindowSettings& settings,
+                                     QThread* thread_ )
 {
     // Trying to infer the screen to use from the pipe device number.
     // We will simply assume that each QScreen belongs to a display and that
@@ -44,8 +44,8 @@ detail::Window* WindowFactory::onCreateImpl( const eq::Pipe* pipe,
     LBASSERT(app);
 
     QList< QScreen* > screens = app->screens();
-    QScreen* screen;
-    const unsigned int device = pipe->getDevice();
+    QScreen* screen = nullptr;
+    const unsigned int device = window.getPipe()->getDevice();
     if( device == LB_UNDEFINED_UINT32 )
         screen = app->primaryScreen();
     else if( int(device) >= screens.size( ))
@@ -56,10 +56,9 @@ detail::Window* WindowFactory::onCreateImpl( const eq::Pipe* pipe,
         screen = app->primaryScreen();
     }
     else
-    {
         screen = screens[device];
-    }
-    return Window::createImpl( settings, screen, thread_ );
+
+    return new Window( window, settings, screen, thread_ );
 }
 
 void WindowFactory::onDestroyImpl( detail::Window* window )

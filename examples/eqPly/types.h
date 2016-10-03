@@ -66,6 +66,11 @@ enum LogTopics
     LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
     LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
 };
+
+enum EventType
+{
+    IDLE_AA_LEFT = eq::EVENT_USER
+};
 }
 
 namespace lunchbox
