@@ -321,12 +321,11 @@ bool Resources::discover( ServerPtr server, Config* config,
         else
         {
             name << "GPU" << ++gpuCounter;
-            if( // When running under VirtualGL, GPUs that are not VNC virtual
-                // devices mustn't be interposed.
-                ( info.flags & ( hwsd::GPUInfo::FLAG_VIRTUALGL |
-                                 hwsd::GPUInfo::FLAG_VNC )) ==
-                    hwsd::GPUInfo::FLAG_VIRTUALGL &&
-                info.device != LB_UNDEFINED_UINT32 )
+            if( // When running under VirtualGL, GPUs that are not the default
+                // display or VNC virtual devices mustn't be interposed.
+                info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL &&
+                !(info.flags & ( hwsd::GPUInfo::FLAG_VNC |
+                                 hwsd::GPUInfo::FLAG_DEFAULT )))
             {
                 std::ostringstream displayString;
                 displayString << ":" << info.port << "." << info.device;
