@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # Release 1.13 (git master)
 
+* [564](https://github.com/Eyescale/Equalizer/pull/564):
+  Implemented 2.0 event handling API
 * [585](https://github.com/Eyescale/Equalizer/pull/585):
   Deflect proxy: update to Deflect 0.12 v5 API, use new PAN event to move
   camera instead of switching between pan/rotate with TAP_AND_HOLD event,

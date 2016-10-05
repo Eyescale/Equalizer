@@ -28,16 +28,25 @@ namespace seq
 using namespace eq::util::shader;
 
 using eq::fabric::RenderContext;
+using eq::AxisEvent;
+using eq::ButtonEvent;
+using eq::Event;
+using eq::EventICommand;
 using eq::Frustumf;
+using eq::KeyEvent;
 using eq::Matrix4f;
 using eq::PixelViewport;
-using eq::uint128_t;
-using eq::util::ObjectManager;
-using eq::Vector2i;
+using eq::PointerEvent;
+using eq::SizeEvent;
+using eq::Statistic;
 using eq::Vector2f;
+using eq::Vector2i;
 using eq::Vector3f;
 using eq::Vector4f;
 using eq::View;
+using eq::uint128_t;
+using eq::util::ObjectManager;
+using namespace eq::fabric::eventTypes;
 
 class Application;
 class ObjectFactory;
@@ -48,7 +57,7 @@ typedef lunchbox::RefPtr< Application > ApplicationPtr;
 
 enum EventType
 {
-    EVENT_REDRAW = eq::Event::USER,
+    EVENT_REDRAW = eq::EVENT_USER,
     EVENT_USER
 };
 

@@ -14,7 +14,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   agl/pipe.h
   agl/types.h
   agl/window.h
-  agl/windowEvent.h
   base.h
   canvas.h
   channel.h
@@ -26,7 +25,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   compressor/compressorReadDrawPixels.h
   compressor/compressorYUV.h
   config.h
-  configEvent.h
   configStatistics.h
   eq.h
   error.h
@@ -45,7 +43,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   glx/pipe.h
   glx/types.h
   glx/window.h
-  glx/windowEvent.h
   image.h
   imageOp.h
   init.h
@@ -84,7 +81,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   wgl/pipe.h
   wgl/types.h
   wgl/window.h
-  wgl/windowEvent.h
   window.h
   windowSettings.h
   windowStatistics.h
@@ -160,10 +156,6 @@ set(EQUALIZER_SOURCES
   compressor/compressorYUV.cpp
   )
 
-if(NOT EQUALIZER_BUILD_2_0_API)
-  list(APPEND EQUALIZER_SOURCES configEvent.cpp)
-endif()
-
 set(EQUALIZER_LINK_LIBRARIES
   PUBLIC EqualizerFabric ${GLEW_LIBRARY} ${EQ_GL_LIBRARIES}
   PRIVATE EqualizerServer Pression ${PTHREAD_LIBRARIES}
@@ -201,7 +193,8 @@ if(EQ_AGL_USED)
   set_source_files_properties(${AGL_SOURCES}
     PROPERTIES COMPILE_FLAGS "-Wno-multichar")
   find_library(CARBON_LIBRARY Carbon)
-  list(APPEND EQUALIZER_LINK_LIBRARIES ${CARBON_LIBRARY})
+  find_library(AGL_LIBRARY AGL)
+  list(APPEND EQUALIZER_LINK_LIBRARIES ${CARBON_LIBRARY} ${AGL_LIBRARY})
 endif()
 
 if(EQ_GLX_USED)
@@ -229,26 +222,18 @@ if(WIN32)
 endif()
 
 if(EQ_QT_USED)
-  list(APPEND EQUALIZER_PUBLIC_HEADERS
-    qt/eventHandler.h
-    qt/messagePump.h
-    qt/pipe.h
-    qt/shareContextWindow.h
-    qt/types.h
-    qt/window.h
-    qt/windowEvent.h
-    qt/windowSystem.h)
   list(APPEND EQUALIZER_HEADERS
     qt/window.h
     qt/windowFactory.h
     qt/windowSystem.h
     )
   list(APPEND EQUALIZER_SOURCES
+    qt/detail/window.h
+    qt/event.h
     qt/eventHandler.cpp
     qt/messagePump.cpp
     qt/pipe.cpp
     qt/window.cpp
-    qt/windowImpl.h
     qt/windowFactory.cpp
     qt/windowSystem.cpp
     )

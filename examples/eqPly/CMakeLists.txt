@@ -15,7 +15,6 @@ set(EQPLY_HEADERS
   cameraAnimation.h
   channel.h
   config.h
-  configEvent.h
   eqPly.h
   error.h
   frameData.h

@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric Stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -333,59 +333,6 @@ public:
 
     /** @name Event handling */
     //@{
-#ifndef EQ_2_0_API
-    /**
-     * Get the next event.
-     *
-     * To be called only on the application node.
-     *
-     * The returned event is valid until the next call to this method. This
-     * method may block.
-     *
-     * @return the event.
-     * @deprecated
-     * @sa Client::processCommand()
-     */
-    EQ_API const ConfigEvent* nextEvent();
-
-    /**
-     * Try to get the next event.
-     *
-     * To be called only on the application node.
-     *
-     * The returned event is valid until the next call to this method. This
-     * method does not block.
-     *
-     * @return a config event, or 0 if no events are pending.
-     * @deprecated
-     */
-    EQ_API const ConfigEvent* tryNextEvent();
-#endif
-
-    /**
-     * Send an (old) event to the application node.
-     *
-     * Should not be used by applications, other then sending any event defined
-     * by Equalizer 1.5.0.
-     *
-     * @param event the event.
-     * @deprecated
-     */
-    EQ_API void sendEvent( ConfigEvent& event );
-
-    /**
-     * Handle one (old) config event. Thread safe.
-     *
-     * This function handles all events which did exist in Equalizer
-     * 1.5.0. Events introduced in 1.5.1 or later are handled by the other
-     * handleEvent. Equalizer 2.0 will drop this method and send all events
-     * using EventICommand instead of the ConfigEvent struct.
-     *
-     * @param event the event.
-     * @return true if the event requires a redraw, false if not.
-     */
-    EQ_API virtual bool handleEvent( const ConfigEvent* event );
-
     /**
      * Send an event to the application node.
      *
@@ -430,13 +377,19 @@ public:
                                        LB_TIMEOUT_INDEFINITE ) const;
 
     /**
-     * Handle one config event. Thread safe.
+     * Handle the given event. Thread safe.
      *
      * @param command the event command.
      * @return true if the event requires a redraw, false if not.
      * @version 1.5.1
      */
     EQ_API virtual bool handleEvent( EventICommand command );
+    EQ_API virtual bool handleEvent( EventType type, const Event& event );
+    EQ_API virtual bool handleEvent( EventType type, const SizeEvent& event );
+    EQ_API virtual bool handleEvent( EventType type, const PointerEvent& event);
+    EQ_API virtual bool handleEvent( EventType type, const KeyEvent& event );
+    EQ_API virtual bool handleEvent( EventType type, const AxisEvent& event );
+    EQ_API virtual bool handleEvent( EventType type, const ButtonEvent& event );
 
     /** @return true if events are pending. Thread safe. @version 1.0 */
     EQ_API bool checkEvent() const;
@@ -455,11 +408,10 @@ public:
     /**
      * Add an statistic event to the statistics overlay. Thread safe.
      *
-     * @param originator the originator serial id.
      * @param stat the statistic event.
      * @warning experimental, may not be supported in the future
      */
-    void addStatistic( const uint32_t originator, const Statistic& stat );
+    virtual void addStatistic( const Statistic& stat );
     //@}
 
     /**
@@ -490,10 +442,6 @@ private:
     friend class Node;
 
     bool _needsLocalSync() const;
-
-    bool _handleNewEvent( EventICommand& command );
-    bool _handleEvent( const Event& event );
-    const ConfigEvent* _convertEvent( co::ObjectICommand command );
 
     /** Update statistics for the last finished frame */
     void _updateStatistics();

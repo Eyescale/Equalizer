@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,15 +44,15 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     if( _hint == OFF )
         return;
 
-    event.data.statistic.task = channel->getTaskID();
+    statistic.task = channel->getTaskID();
 
     const std::string& name = channel->getName();
     if( name.empty( ))
-        snprintf( event.data.statistic.resourceName, 32, "Channel %s",
+        snprintf( statistic.resourceName, 32, "Channel %s",
                   channel->getID().getShortString().c_str( ));
     else
-        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
-    event.data.statistic.resourceName[31] = 0;
+        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
+    statistic.resourceName[31] = 0;
 
     if( _hint == NICEST &&
         type != Statistic::CHANNEL_ASYNC_READBACK &&
@@ -63,7 +63,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
         channel->getWindow()->finish();
     }
 
-    event.data.statistic.startTime  = channel->getConfig()->getTime();
+    statistic.startTime = channel->getConfig()->getTime();
 }
 
 
@@ -72,7 +72,7 @@ ChannelStatistics::~ChannelStatistics()
     if( _hint == OFF )
         return;
 
-    const Statistic::Type type = event.data.statistic.type;
+    const Statistic::Type type = statistic.type;
     if( _hint == NICEST &&
         type != Statistic::CHANNEL_ASYNC_READBACK &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
@@ -82,12 +82,12 @@ ChannelStatistics::~ChannelStatistics()
         _owner->getWindow()->finish();
     }
 
-    if( event.data.statistic.endTime == 0 )
-        event.data.statistic.endTime = _owner->getConfig()->getTime();
-    if( event.data.statistic.endTime <= event.data.statistic.startTime )
-        event.data.statistic.endTime = event.data.statistic.startTime + 1;
+    if( statistic.endTime == 0 )
+        statistic.endTime = _owner->getConfig()->getTime();
+    if( statistic.endTime <= statistic.startTime )
+        statistic.endTime = statistic.startTime + 1;
 
-    _owner->addStatistic( event.data );
+    _owner->addStatistic( statistic );
 }
 
 }

@@ -45,8 +45,8 @@ void MessagePump::postWakeup()
 
 void MessagePump::dispatchOne( const uint32_t timeout )
 {
-    // dispatchOne / wakeup semantics are not implementable. poll.
-    // * QEventLoop::wakeup does not wakup processEvents( WaitForMoreEvents )
+    // dispatchOne / wakeup semantics are not implementable: poll.
+    // * QEventLoop::wakeup does not wakeup processEvents( WaitForMoreEvents )
     // * processEvents( timeout ) returns as soon as there are no events
 
     QEventLoop eventLoop;

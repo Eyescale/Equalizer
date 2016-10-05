@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Maxim Makhinya
  *
@@ -152,8 +152,23 @@ public:
      */
     EQ_API EventOCommand sendError( const uint32_t error );
 
-    /** Process an event. @version 1.0 */
-    EQ_API virtual bool processEvent( const Event& event );
+    /** Process a stateless event. @return true if the event was handled. */
+    EQ_API bool processEvent( EventType type );
+
+    /** Process a (re)size event. @return true if the event was handled. */
+    EQ_API bool processEvent( EventType type, SizeEvent& event );
+
+    /** Process a mouse event. @return true if the event was handled. */
+    EQ_API bool processEvent( EventType type, PointerEvent& event );
+
+    /** Process a keyboard event. @return true if the event was handled. */
+    EQ_API bool processEvent( EventType type, KeyEvent& event );
+
+    /** Process an axis event. @return true if the event was handled. */
+    EQ_API bool processEvent( EventType type, AxisEvent& event );
+
+    /** Process a button event. @return true if the event was handled. */
+    EQ_API bool processEvent( EventType type, ButtonEvent& event );
 
     /**
      * Set the window's pixel viewport wrt its parent pipe.

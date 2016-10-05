@@ -81,11 +81,12 @@ public:
      * called by Config::handleEvent on the application main thread for all
      * view events. Thread safe.
      *
+     * @param type the event type.
      * @param event the received view event.
      * @return true when the event was handled, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool handleEvent( const Event& event );
+    EQ_API virtual bool handleEvent( EventType type, const SizeEvent& event );
     //@}
 
 protected:

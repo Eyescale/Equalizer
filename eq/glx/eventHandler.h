@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,38 +29,38 @@ namespace eq
 {
 namespace glx
 {
-    /** The event handler for glX/X11 windows. */
-    class EventHandler : public eq::EventHandler
-    {
-    public:
-        /** Construct a new glX event handler. @version 1.0 */
-        EventHandler( WindowIF* window );
+/** The event handler for glX/X11 windows. */
+class EventHandler : public eq::EventHandler
+{
+public:
+    /** Construct a new glX event handler. @version 1.0 */
+    EventHandler( WindowIF* window );
 
-        /** Destruct the glX event handler. @version 1.0 */
-        virtual ~EventHandler();
+    /** Destruct the glX event handler. @version 1.0 */
+    virtual ~EventHandler();
 
-        /**
-         * Dispatch all pending events on the current thread.
-         *
-         * If no event handlers have been constructed by the calling thread,
-         * this function does nothing. This function does not block on events.
-         * @version 1.0
-         */
-        static void dispatch();
+    /**
+     * Dispatch all pending events on the current thread.
+     *
+     * If no event handlers have been constructed by the calling thread, this
+     * function does nothing. This function does not block on events.
+     * @version 1.0
+     */
+    static void dispatch();
 
-    private:
-        WindowIF* const _window;
+private:
+    WindowIF* const _window;
 
-        bool _magellanUsed; //!< Window registered with spnav
+    bool _magellanUsed; //!< Window registered with spnav
 
-        void _dispatch();
-        void _processEvent( WindowEvent& event );
-        uint32_t _getButtonState( XEvent& event );
-        uint32_t _getButtonAction( XEvent& event );
-        uint32_t _getKey( XEvent& event );
+    void _dispatch();
+    bool _processEvent( const XEvent& event );
+    uint32_t _getButtonState( const XEvent& event );
+    uint32_t _getButtonAction( const XEvent& event );
+    uint32_t _getKey( const XEvent& event );
 
-        LB_TS_VAR( _thread );
-    };
+    LB_TS_VAR( _thread );
+};
 }
 }
 #endif // EQ_GLX_EVENTHANDLER_H

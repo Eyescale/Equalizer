@@ -23,6 +23,7 @@
 #include <eq/defines.h>
 #include <eq/util/types.h>
 #include <eq/fabric/commands.h>
+#include <eq/fabric/eventType.h>
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/atomic.h>
@@ -58,11 +59,11 @@ class View;
 class Window;
 class WindowSettings;
 class WindowSystem;
-struct ConfigEvent; //!< @deprecated
 struct ImageOp;
 struct PixelData;
 
 using namespace fabric::eventEnums;
+using namespace fabric::eventTypes;
 
 using fabric::ANAGLYPH;
 using fabric::ASYNC;
@@ -83,6 +84,8 @@ using fabric::UNDEFINED;
 using fabric::VERTICAL;
 using fabric::WINDOW;
 
+using fabric::AxisEvent;
+using fabric::ButtonEvent;
 using fabric::ColorMask;
 using fabric::DrawableConfig;
 using fabric::Errors;
@@ -94,11 +97,11 @@ using fabric::IAttribute;
 using fabric::KeyEvent;
 using fabric::Pixel;
 using fabric::PixelViewport;
-using fabric::Projection;
 using fabric::PointerEvent;
+using fabric::Projection;
 using fabric::Range;
 using fabric::RenderContext;
-using fabric::ResizeEvent;
+using fabric::SizeEvent;
 using fabric::Statistic;
 using fabric::SubPixel;
 using fabric::Tile;
@@ -232,6 +235,7 @@ using fabric::Frustumf;   //!< A frustum definition
 using fabric::Quaternionf; // !< A float quaternion
 
 using fabric::EventOCommand;
+using fabric::EventType;
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;
 using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;

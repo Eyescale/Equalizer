@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,14 +29,17 @@
  */
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/configParams.h>
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/drawableConfig.h>
-#include <eq/fabric/event.h>
-#include <eq/fabric/errorRegistry.h>
 #include <eq/fabric/equalizerTypes.h>
+#include <eq/fabric/errorRegistry.h>
 #include <eq/fabric/iAttribute.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/pointerEvent.h>
+#include <eq/fabric/sizeEvent.h>
 
 #endif // EQFABRIC_H
-

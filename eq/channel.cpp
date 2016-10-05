@@ -29,9 +29,6 @@
 #include "client.h"
 #include "compositor.h"
 #include "config.h"
-#ifndef EQ_2_0_API
-#  include "configEvent.h"
-#endif
 #include "detail/fileFrameWriter.h"
 #include "error.h"
 #include "frame.h"
@@ -54,6 +51,9 @@
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/frameData.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/pointerEvent.h>
+#include <eq/fabric/sizeEvent.h>
 #include <eq/fabric/task.h>
 #include <eq/fabric/tile.h>
 
@@ -268,33 +268,29 @@ void Channel::notifyViewportChanged()
     if( newPVP == oldPVP )
         return;
 
-    Event event;
-    event.type       = Event::CHANNEL_RESIZE;
-    event.originator = getID();
-    event.serial     = getSerial();
-    LBASSERT( event.originator != 0 );
-    event.resize.x   = newPVP.x;
-    event.resize.y   = newPVP.y;
-    event.resize.w   = newPVP.w;
-    event.resize.h   = newPVP.h;
+    SizeEvent event;
+    event.x = newPVP.x;
+    event.y = newPVP.y;
+    event.w = newPVP.w;
+    event.h = newPVP.h;
 
-    processEvent( event );
+    processEvent( EVENT_CHANNEL_RESIZE, event );
 }
 
 void Channel::notifyStopFrame( const uint32_t )
 {}
 
-void Channel::addStatistic( Event& event )
+void Channel::addStatistic( Statistic& event )
 {
     {
-        const uint32_t frameNumber = event.statistic.frameNumber;
+        const uint32_t frameNumber = event.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         LBASSERT( index < _impl->statistics->size( ));
         LBASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
 
         lunchbox::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
-        statistics.push_back( event.statistic );
+        statistics.push_back( event );
     }
     processEvent( event );
 }
@@ -854,50 +850,55 @@ const PixelViewports& Channel::getRegions() const
 
 EventOCommand Channel::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::CHANNEL_ERROR,
-                                   Error( error, getID( )));
+    return getConfig()->sendError( EVENT_CHANNEL_ERROR, Error( error,
+                                                               getID( )));
 }
 
-bool Channel::processEvent( const Event& event )
+bool Channel::processEvent( const EventType type, SizeEvent& event )
 {
-    ConfigEvent configEvent;
-    configEvent.data = event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
 
-    switch( event.type )
+    if( type == EVENT_CHANNEL_RESIZE )
     {
-        case Event::CHANNEL_POINTER_MOTION:
-        case Event::CHANNEL_POINTER_BUTTON_PRESS:
-        case Event::CHANNEL_POINTER_BUTTON_RELEASE:
-        case Event::CHANNEL_POINTER_WHEEL:
-        case Event::STATISTIC:
-        case Event::KEY_PRESS:
-        case Event::KEY_RELEASE:
-            break;
+        const uint128_t& viewID = getNativeContext().view.identifier;
+        if( viewID == 0 )
+            return true;
 
-        case Event::CHANNEL_RESIZE:
-        {
-            const uint128_t& viewID = getNativeContext().view.identifier;
-            if( viewID == 0 )
-                return true;
+        // transform to view event, which is meaningful for the config
+        event.originator = viewID;
 
-            // transform to view event, which is meaningful for the config
-            configEvent.data.type       = Event::VIEW_RESIZE;
-            configEvent.data.originator = viewID;
-
-            ResizeEvent& resize = configEvent.data.resize;
-            resize.dw = resize.w / float( _impl->initialSize.x( ));
-            resize.dh = resize.h / float( _impl->initialSize.y( ));
-            break;
-        }
-
-        default:
-            LBWARN << "Unhandled channel event of type " << event.type
-                   << std::endl;
-            LBUNIMPLEMENTED;
+        event.dw = event.w / float( _impl->initialSize.x( ));
+        event.dh = event.h / float( _impl->initialSize.y( ));
+        config->sendEvent( EVENT_VIEW_RESIZE) << event;
+        return true;
     }
 
+    config->sendEvent( type ) << event;
+    return true;
+}
+
+bool Channel::processEvent( const EventType type, PointerEvent& event )
+{
     Config* config = getConfig();
-    config->sendEvent( configEvent );
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
+    return true;
+}
+
+bool Channel::processEvent( const EventType type, KeyEvent& event )
+{
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
+    return true;
+}
+
+bool Channel::processEvent( Statistic& event )
+{
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 
@@ -978,9 +979,9 @@ struct RBStat
         , uncompressed( 0 )
         , compressed( 0 )
     {
-        event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-        event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-        LBASSERT( event.event.data.statistic.frameNumber > 0 );
+        event.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+        event.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+        LBASSERT( event.statistic.frameNumber > 0 );
     }
 
     lunchbox::SpinLock lock;
@@ -996,11 +997,11 @@ struct RBStat
 
         if( uncompressed > 0 && compressed > 0 )
         {
-            event.event.data.statistic.ratio = float( compressed ) /
+            event.statistic.ratio = float( compressed ) /
                                                float( uncompressed );
         }
         else
-            event.event.data.statistic.ratio = 1.0f;
+            event.statistic.ratio = 1.0f;
         delete this;
         return true;
     }
@@ -1102,24 +1103,24 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     if( tasks & fabric::TASK_CLEAR )
     {
         ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
-        event.event.data.statistic.startTime = startTime;
+        event.statistic.startTime = startTime;
         startTime += clearTime;
-        event.event.data.statistic.endTime = startTime;
+        event.statistic.endTime = startTime;
     }
 
     if( tasks & fabric::TASK_DRAW )
     {
         ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
-        event.event.data.statistic.startTime = startTime;
+        event.statistic.startTime = startTime;
         startTime += drawTime;
-        event.event.data.statistic.endTime = startTime;
+        event.statistic.endTime = startTime;
     }
 
     if( tasks & fabric::TASK_READBACK )
     {
-        stat->event.event.data.statistic.startTime = startTime;
+        stat->event.statistic.startTime = startTime;
         startTime += readbackTime;
-        stat->event.event.data.statistic.endTime = startTime;
+        stat->event.statistic.endTime = startTime;
 
         _setReady( hasAsyncReadback, stat.get(), frames );
     }
@@ -1186,7 +1187,7 @@ void Channel::_frameReadback( const uint128_t& frameID,
         nImages[i] = frames[i]->getImages().size();
 
     frameReadback( frameID, frames );
-    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.statistic.frameNumber > 0 );
     const bool async = _asyncFinishReadback( nImages, frames );
     _setReady( async, stat.get(), frames );
 }
@@ -1308,7 +1309,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
     ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
                                      frameNumber );
-    transmitEvent.event.data.statistic.task = taskID;
+    transmitEvent.statistic.task = taskID;
 
     const Images& images = frameData->getImages();
     Image* image = images[ imageIndex ];
@@ -1346,10 +1347,10 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS,
                                          this, frameNumber,
                                          useCompression ? AUTO : OFF );
-        compressEvent.event.data.statistic.task = taskID;
-        compressEvent.event.data.statistic.ratio = 1.0f;
-        compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-        compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+        compressEvent.statistic.task = taskID;
+        compressEvent.statistic.ratio = 1.0f;
+        compressEvent.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+        compressEvent.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
 
         // Prepare image pixel data
         Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
@@ -1373,7 +1374,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                 {
                     imageDataSize += data.compressedData.getSize() +
                         data.compressedData.chunks.size() * sizeof( uint64_t );
-                    compressEvent.event.data.statistic.plugins[j] =
+                    compressEvent.statistic.plugins[j] =
                         data.compressedData.compressor;
                 }
                 else
@@ -1386,7 +1387,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         }
 
         if( rawSize > 0 )
-            compressEvent.event.data.statistic.ratio =
+            compressEvent.statistic.ratio =
                 float( imageDataSize ) / float( rawSize );
     }
 
@@ -1399,7 +1400,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     {
         ChannelStatistics waitEvent( Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
                                      this, frameNumber );
-        waitEvent.event.data.statistic.task = taskID;
+        waitEvent.statistic.task = taskID;
         token = getLocalNode()->acquireSendToken( toNode );
     }
     LBASSERT( image->getPixelViewport().isValid( ));
@@ -1488,11 +1489,11 @@ void Channel::_asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const co::NodeIDs& netNodes )
 {
-    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.statistic.frameNumber > 0 );
 
-    stat->event.event.data.statistic.type = Statistic::CHANNEL_ASYNC_READBACK;
+    stat->event.statistic.type = Statistic::CHANNEL_ASYNC_READBACK;
 
-    _refFrame( stat->event.event.data.statistic.frameNumber );
+    _refFrame( stat->event.statistic.frameNumber );
     stat->ref( 0 );
 
     send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_SET_READY )
@@ -1507,7 +1508,7 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
                                     << std::endl;
     frame->setReady();
 
-    const uint32_t frameNumber = stat->event.event.data.statistic.frameNumber;
+    const uint32_t frameNumber = stat->event.statistic.frameNumber;
     _refFrame( frameNumber );
 
     send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_SET_READY_NODE )
@@ -1528,14 +1529,14 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
                     colorBytes * image->getPixelViewport().getArea();
                 stat->compressed +=
                     image->getPixelDataSize( Frame::BUFFER_COLOR );
-                stat->event.event.data.statistic.plugins[0] =
+                stat->event.statistic.plugins[0] =
                                 image->getDownloaderName( Frame::BUFFER_COLOR );
             }
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
                 stat->uncompressed += 4 * image->getPixelViewport().getArea();
                 stat->compressed +=image->getPixelDataSize(Frame::BUFFER_DEPTH);
-                stat->event.event.data.statistic.plugins[1] =
+                stat->event.statistic.plugins[1] =
                                 image->getDownloaderName( Frame::BUFFER_DEPTH );
             }
         }
@@ -1810,12 +1811,12 @@ bool Channel::_cmdFrameSetReady( co::ICommand& cmd )
             command.read< std::vector< uint128_t > >();
     const co::NodeIDs& netNodes = command.read< co::NodeIDs >();
 
-    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.statistic.frameNumber > 0 );
 
     FrameDataPtr frameData = getNode()->getFrameData( frameDataVersion );
     _setReady( frameData, stat, nodes, netNodes );
 
-    const uint32_t frame = stat->event.event.data.statistic.frameNumber;
+    const uint32_t frame = stat->event.statistic.frameNumber;
     stat->unref( 0 );
     _unrefFrame( frame );
     return true;

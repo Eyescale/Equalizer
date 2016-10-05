@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -198,6 +198,8 @@ protected:
 
     /** @internal sync master object to the given slave commit. */
     EQFABRIC_API bool _cmdSync( co::ICommand& command );
+
+    void updateEvent( Event& event, int64_t time ); //!< @internal
 
 private:
     detail::Object* const _impl;

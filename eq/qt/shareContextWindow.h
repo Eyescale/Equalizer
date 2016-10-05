@@ -64,7 +64,6 @@ public:
     void joinNVSwapBarrier( const uint32_t, const uint32_t ) final
         { LBUNIMPLEMENTED }
     void queryDrawableConfig( DrawableConfig& ) final { LBUNIMPLEMENTED }
-    bool processEvent( const Event& ) final { LBUNIMPLEMENTED; return false; }
 
 private:
     QOpenGLContext* _context;

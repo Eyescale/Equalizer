@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2012-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,8 +65,7 @@ uint32_t EventICommand::getEventType() const
 
 std::ostream& operator << ( std::ostream& os, const EventICommand& event )
 {
-    os << "Event command, event type " << Event::Type( event.getEventType( ));
-    return os;
+    return os << "Event command, type " << EventType( event.getEventType( ));
 }
 
 }

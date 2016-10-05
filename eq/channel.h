@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -22,8 +22,7 @@
 
 #include <eq/api.h>
 #include <eq/types.h>
-
-#include <eq/fabric/channel.h>        // base class
+#include <eq/fabric/channel.h> // base class
 
 namespace eq
 {
@@ -125,7 +124,7 @@ public:
     EQ_API const Vector3ub& getUniqueColor() const;
 
     /** @internal Add a new statistics event for the current frame. */
-    EQ_API void addStatistic( Event& event );
+    EQ_API void addStatistic( Statistic& event );
     //@}
 
     /**
@@ -346,15 +345,18 @@ public:
     /**
      * Process a received event.
      *
-     * The task of this method is to update the channel as necessary, and
-     * transform the event into a config event to be send to the application
-     * using Config::sendEvent().
+     * The task of this method is to update the channel and event as necessary,
+     * and send it to the application using Config::sendEvent().
      *
+     * @param type the pointer event type.
      * @param event the received event.
      * @return true when the event was handled, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool processEvent( const Event& event );
+    EQ_API virtual bool processEvent( EventType type, SizeEvent& event );
+    EQ_API virtual bool processEvent( EventType type, PointerEvent& event );
+    EQ_API virtual bool processEvent( EventType type, KeyEvent& event );
+    EQ_API virtual bool processEvent( Statistic& event );
     //@}
 
     /** Draw a statistics overlay. @version 1.0 */

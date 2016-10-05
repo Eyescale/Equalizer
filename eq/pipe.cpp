@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -894,13 +894,14 @@ WindowSystem Pipe::getWindowSystem() const
 
 EventOCommand Pipe::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::PIPE_ERROR, Error( error, getID( )));
+    return getConfig()->sendError( EVENT_PIPE_ERROR, Error( error, getID( )));
 }
 
-bool Pipe::processEvent( const Event& event )
+bool Pipe::processEvent( Statistic& event )
 {
-    ConfigEvent configEvent( event );
-    getConfig()->sendEvent( configEvent );
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 
@@ -1257,10 +1258,10 @@ bool Pipe::_cmdFrameStart( co::ICommand& cmd )
     if( lastFrameTime > 0 )
     {
         PipeStatistics waitEvent( Statistic::PIPE_IDLE, this );
-        waitEvent.event.data.statistic.idleTime =
+        waitEvent.statistic.idleTime =
             _impl->thread ? _impl->thread->getWorkerQueue()->resetWaitTime() :0;
-        waitEvent.event.data.statistic.totalTime =
-            LB_MAX( _impl->frameTime - lastFrameTime, 1 ); // avoid SIGFPE
+        waitEvent.statistic.totalTime =
+            std::max( _impl->frameTime - lastFrameTime, int64_t( 1 )); // avoid SIGFPE
     }
 
     LBASSERTINFO( _impl->currentFrame + 1 == frameNumber,

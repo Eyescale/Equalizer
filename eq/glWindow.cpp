@@ -118,7 +118,7 @@ void GLWindow::initGLEW()
     if( result == GLEW_OK )
         return;
 
-    LBWARN << "GLEW initialization failed: " << std::endl;
+    LBWARN << "GLEW initialization failed: " << result << std::endl;
     delete _impl->glewContext;
     _impl->glewContext = nullptr;
 }

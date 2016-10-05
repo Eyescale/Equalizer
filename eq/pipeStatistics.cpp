@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,34 +36,28 @@ PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
 {
     const std::string& name = pipe->getName();
     if( name.empty( ))
-        snprintf( event.data.statistic.resourceName, 32, "Pipe %s",
+        snprintf( statistic.resourceName, 32, "Pipe %s",
                   pipe->getID().getShortString().c_str( ));
     else
-        snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
 
-    event.data.statistic.resourceName[31] = 0;
-    event.data.statistic.startTime  = pipe->getConfig()->getTime();
+    statistic.resourceName[31] = 0;
+    statistic.startTime = pipe->getConfig()->getTime();
 }
 
 
 PipeStatistics::~PipeStatistics()
 {
-#if 0
-    const int32_t hint = _owner->getIAttribute( Pipe::IATTR_HINT_STATISTICS);
-    if( hint == OFF )
-        return;
-#endif
-
-    if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
+    if( statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
     Config* config = _owner->getConfig();
-    if( event.data.statistic.endTime == 0 )
-        event.data.statistic.endTime = config->getTime();
-    if( event.data.statistic.endTime <= event.data.statistic.startTime )
-        event.data.statistic.endTime = event.data.statistic.startTime + 1;
+    if( statistic.endTime == 0 )
+        statistic.endTime = config->getTime();
+    if( statistic.endTime <= statistic.startTime )
+        statistic.endTime = statistic.startTime + 1;
 
-    _owner->processEvent( event.data );
+    _owner->processEvent( statistic );
 }
 
 }

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,50 +37,50 @@
 
 namespace eVolve
 {
-    class Config : public eq::Config
-    {
-    public:
-        Config( eq::ServerPtr parent );
+class Config : public eq::Config
+{
+public:
+    Config( eq::ServerPtr parent );
 
-        /** @sa eq::Config::init. */
-        virtual bool init();
-        /** @sa eq::Config::exit. */
-        virtual bool exit();
+    /** @sa eq::Config::init. */
+    bool init();
+    /** @sa eq::Config::exit. */
+    bool exit();
 
-        /** @sa eq::Config::startFrame. */
-        virtual uint32_t startFrame();
+    /** @sa eq::Config::startFrame. */
+    virtual uint32_t startFrame();
 
-        void setInitData( const LocalInitData& data ) { _initData = data; }
-        const InitData& getInitData() const { return _initData; }
+    void setInitData( const LocalInitData& data ) { _initData = data; }
+    const InitData& getInitData() const { return _initData; }
 
-        /** Map per-config data to the local node process */
-        bool loadInitData( const eq::uint128_t& initDataID );
+    /** Map per-config data to the local node process */
+    bool loadInitData( const eq::uint128_t& initDataID );
 
-    protected:
-        virtual ~Config();
+protected:
+    virtual ~Config();
 
-        /** @sa eq::Config::handleEvent */
-        virtual bool handleEvent( const eq::ConfigEvent* event );
+    /** @sa eq::Config::handleEvent */
+    bool handleEvent( eq::EventType type, const eq::KeyEvent& event ) override;
+    bool handleEvent( eq::EventType type, const eq::PointerEvent& ) override;
 
-        int        _spinX, _spinY;
+    int        _spinX, _spinY;
 
-        eq::Canvas* _currentCanvas;
+    eq::Canvas* _currentCanvas;
 
-        LocalInitData _initData;
-        FrameData     _frameData;
+    LocalInitData _initData;
+    FrameData     _frameData;
 
-        uint64_t      _messageTime;
+    uint64_t      _messageTime;
 
-    private:
-        void _resetMessage();
-        void _setMessage( const std::string& message );
-        void _switchLayout( int32_t increment );
-        void _deregisterData();
-        bool _handleKeyEvent( const eq::KeyEvent& event );
+private:
+    void _resetMessage();
+    void _setMessage( const std::string& message );
+    void _switchLayout( int32_t increment );
+    void _deregisterData();
 
-        static void _applyRotation( float m[16], const float dx,
-                                                 const float dy );
-    };
+    static void _applyRotation( float m[16], const float dx,
+                                const float dy );
+};
 }
 
 #endif // EVOLVE_CONFIG_H

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric Stalder@gmail.com>
  *
@@ -22,7 +22,6 @@
 #include "canvas.h"
 #include "channel.h"
 #include "client.h"
-#include "configEvent.h"
 #include "configStatistics.h"
 #include "eventICommand.h"
 #include "global.h"
@@ -38,6 +37,11 @@
 #include "window.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/pointerEvent.h>
+#include <eq/fabric/sizeEvent.h>
 #include <eq/fabric/task.h>
 
 #include <co/object.h>
@@ -209,8 +213,6 @@ void Config::attach( const uint128_t& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH,
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
-    registerCommand( fabric::CMD_CONFIG_EVENT_OLD, ConfigFunc( 0, 0 ),
-                     &_impl->eventQueue );
     registerCommand( fabric::CMD_CONFIG_EVENT, ConfigFunc( 0, 0 ),
                      &_impl->eventQueue );
     registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK,
@@ -407,7 +409,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
 
     LBLOG( LOG_TASKS ) << "---- Started Frame ---- " << _impl->currentFrame
                        << std::endl;
-    stat.event.data.statistic.frameNumber = _impl->currentFrame;
+    stat.statistic.frameNumber = _impl->currentFrame;
     return _impl->currentFrame;
 }
 
@@ -430,10 +432,10 @@ uint32_t Config::finishFrame()
                                        _impl->currentFrame - latency : 0;
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
-    stat.event.data.statistic.frameNumber = frameToFinish;
+    stat.statistic.frameNumber = frameToFinish;
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
-        waitStat.event.data.statistic.frameNumber = frameToFinish;
+        waitStat.statistic.frameNumber = frameToFinish;
 
         // local draw sync
         if( _needsLocalSync( ))
@@ -560,56 +562,6 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
-void Config::sendEvent( ConfigEvent& event )
-{
-    LBASSERT( event.data.type != Event::STATISTIC ||
-              event.data.statistic.type != Statistic::NONE );
-    LBASSERT( getAppNodeID() != 0 );
-    LBASSERT( _impl->appNode );
-
-    send( _impl->appNode, fabric::CMD_CONFIG_EVENT_OLD )
-        << event.size << co::Array< void >( &event, event.size );
-}
-
-#ifndef EQ_2_0_API
-const ConfigEvent* Config::nextEvent()
-{
-    EventICommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
-    const ConfigEvent* newEvent = _convertEvent( command );
-    return newEvent ? newEvent : nextEvent();
-}
-
-const ConfigEvent* Config::tryNextEvent()
-{
-    EventICommand command = getNextEvent( 0 );
-    if( !command.isValid( ))
-        return 0;
-    const ConfigEvent* newEvent = _convertEvent( command );
-    return newEvent ? newEvent : tryNextEvent();
-}
-#endif
-
-const ConfigEvent* Config::_convertEvent( co::ObjectICommand command )
-{
-    LBASSERT( command.isValid( ));
-
-    if( command.getCommand() != fabric::CMD_CONFIG_EVENT_OLD )
-    {
-        _impl->lastEvent.clear();
-        return 0;
-    }
-
-    _impl->lastEvent = command;
-    const uint64_t size = command.read< uint64_t >();
-    return reinterpret_cast< const ConfigEvent* >
-                                          ( command.getRemainingBuffer( size ));
-}
-
-bool Config::handleEvent( const ConfigEvent* event )
-{
-    return _handleEvent( event->data );
-}
-
 EventOCommand Config::sendEvent( const uint32_t type )
 {
     LBASSERT( getAppNodeID() != 0 );
@@ -641,23 +593,164 @@ EventICommand Config::getNextEvent( const uint32_t timeout ) const
 
 bool Config::handleEvent( EventICommand command )
 {
-    switch( command.getCommand( ))
+    const EventType type = EventType( command.getEventType( ));
+
+    switch( type )
     {
-    case fabric::CMD_CONFIG_EVENT_OLD:
+    case EVENT_WINDOW_RESIZE:
+    case EVENT_WINDOW_SHOW:
+    case EVENT_CHANNEL_RESIZE:
+    case EVENT_VIEW_RESIZE:
+        return handleEvent( type, command.read< SizeEvent >( ));
+
+    case EVENT_CHANNEL_POINTER_MOTION:
+    case EVENT_CHANNEL_POINTER_BUTTON_PRESS:
+    case EVENT_CHANNEL_POINTER_BUTTON_RELEASE:
+    case EVENT_CHANNEL_POINTER_WHEEL:
+    case EVENT_WINDOW_POINTER_WHEEL:
+    case EVENT_WINDOW_POINTER_MOTION:
+    case EVENT_WINDOW_POINTER_BUTTON_PRESS:
+    case EVENT_WINDOW_POINTER_BUTTON_RELEASE:
+        return handleEvent( type, command.read< PointerEvent >( ));
+
+    case EVENT_KEY_PRESS:
+    case EVENT_KEY_RELEASE:
+        return handleEvent( type, command.read< KeyEvent >( ));
+
+    case EVENT_MAGELLAN_AXIS:
+        return handleEvent( type, command.read< AxisEvent >( ));
+
+    case EVENT_MAGELLAN_BUTTON:
+        return handleEvent( type, command.read< ButtonEvent >( ));
+
+    case EVENT_WINDOW_CLOSE:
+    case EVENT_WINDOW_HIDE:
+    case EVENT_WINDOW_EXPOSE:
+    case EVENT_EXIT:
+    case EVENT_WINDOW_POINTER_GRAB:
+    case EVENT_WINDOW_POINTER_UNGRAB:
+        return handleEvent( type, command.read< Event >( ));
+
+    case EVENT_STATISTIC:
+        addStatistic( command.read< Statistic >( ));
+        return false;
+
+    case EVENT_CONFIG_ERROR:
+    case EVENT_NODE_ERROR:
+    case EVENT_PIPE_ERROR:
+    case EVENT_WINDOW_ERROR:
+    case EVENT_CHANNEL_ERROR:
     {
-        const ConfigEvent* configEvent = _convertEvent( command );
-        LBASSERT( configEvent );
-        if( configEvent )
-            return handleEvent( configEvent );
+        const Error& error = command.read< Error >();
+        LBWARN << error;
+        if( error.getCode() < ERROR_CUSTOM )
+        {
+            while( command.hasData( ))
+            {
+                const std::string& text = command.read< std::string >();
+                LBWARN << ": " << text;
+            }
+        }
+        LBWARN << std::endl;
+        _impl->errors.push_back( error );
+        return false;
+    }
+
+    case EVENT_OBSERVER_MOTION:
+    {
+        const uint128_t& originator = command.read< uint128_t >();
+        LBASSERT( originator != 0 );
+        Observer* observer = find< Observer >( originator );
+        if( observer )
+            return observer->handleEvent( command );
+        return false;
+    }
+
+    case EVENT_NODE_TIMEOUT:
+    case EVENT_WINDOW_SCREENSAVER:
+
+    default:
+        if( type < EVENT_USER )
+            LBWARN << "Unhandled non-user event of type " << type << std::endl;
+        return false;
+    }
+}
+
+bool Config::handleEvent( const EventType type, const Event& )
+{
+    switch( type )
+    {
+    case EVENT_EXIT:
+    case EVENT_WINDOW_CLOSE:
+        _impl->running = false;
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+bool Config::handleEvent( const EventType type, const SizeEvent& event )
+{
+    switch( type )
+    {
+    case EVENT_VIEW_RESIZE:
+    {
+        LBASSERT( event.originator != 0 );
+        View* view = find< View >( event.originator );
+        if( view )
+            return view->handleEvent( EVENT_VIEW_RESIZE, event );
         return false;
     }
 
     default:
-        LBUNIMPLEMENTED;
-        // no break;
-    case fabric::CMD_CONFIG_EVENT:
-        return _handleNewEvent( command );
+        return false;
     }
+}
+
+bool Config::handleEvent( const EventType type, const PointerEvent& event )
+{
+    switch( type )
+    {
+    case EVENT_WINDOW_POINTER_BUTTON_PRESS:
+    case EVENT_CHANNEL_POINTER_BUTTON_PRESS:
+        if( event.buttons == ( PTR_BUTTON1 | PTR_BUTTON2 | PTR_BUTTON3 ))
+        {
+            _impl->running = false;
+            return true;
+        }
+        return false;
+
+    default:
+        return false;
+    }
+}
+
+bool Config::handleEvent( const EventType type, const KeyEvent& event )
+{
+    switch( type )
+    {
+    case EVENT_KEY_PRESS:
+        if( event.key == KC_ESCAPE )
+        {
+            _impl->running = false;
+            return true;
+        }
+        return false;
+
+    default:
+        return false;
+    }
+}
+
+bool Config::handleEvent( const EventType, const AxisEvent& )
+{
+    return false;
+}
+
+bool Config::handleEvent( const EventType, const ButtonEvent& )
+{
+    return false;
 }
 
 bool Config::checkEvent() const
@@ -681,90 +774,7 @@ void Config::handleEvents()
 #endif
 }
 
-bool Config::_handleNewEvent( EventICommand& command )
-{
-    switch( command.getEventType( ))
-    {
-    case Event::OBSERVER_MOTION:
-    {
-        const uint128_t& originator = command.read< uint128_t >();
-        LBASSERT( originator != 0 );
-        Observer* observer = find< Observer >( originator );
-        if( observer )
-            return observer->handleEvent( command );
-        break;
-    }
-
-    case Event::NODE_ERROR:
-    case Event::PIPE_ERROR:
-    case Event::WINDOW_ERROR:
-    case Event::CHANNEL_ERROR:
-    {
-        const Error& error = command.read< Error >();
-        LBWARN << error;
-        if( error.getCode() < ERROR_CUSTOM )
-        {
-            while( command.hasData( ))
-            {
-                const std::string& text = command.read< std::string >();
-                LBWARN << ": " << text;
-            }
-        }
-        LBWARN << std::endl;
-        _impl->errors.push_back( error );
-        return false;
-    }
-    }
-    return false;
-}
-
-bool Config::_handleEvent( const Event& event )
-{
-    switch( event.type )
-    {
-        case Event::EXIT:
-        case Event::WINDOW_CLOSE:
-            _impl->running = false;
-            return true;
-
-        case Event::KEY_PRESS:
-            if( event.keyPress.key == KC_ESCAPE )
-            {
-                _impl->running = false;
-                return true;
-            }
-            break;
-
-        case Event::WINDOW_POINTER_BUTTON_PRESS:
-        case Event::CHANNEL_POINTER_BUTTON_PRESS:
-            if( event.pointerButtonPress.buttons ==
-                ( PTR_BUTTON1 | PTR_BUTTON2 | PTR_BUTTON3 ))
-            {
-                _impl->running = false;
-                return true;
-            }
-            break;
-
-        case Event::STATISTIC:
-            LBLOG( LOG_STATS ) << event << std::endl;
-            addStatistic( event.serial, event.statistic );
-            break;
-
-        case Event::VIEW_RESIZE:
-        {
-            LBASSERT( event.originator != 0 );
-            View* view = find< View >( event.originator );
-            if( view )
-                return view->handleEvent( event );
-            break;
-        }
-    }
-
-    return false;
-}
-
-void Config::addStatistic( const uint32_t originator LB_UNUSED,
-                           const Statistic& stat LB_UNUSED )
+void Config::addStatistic( const Statistic& stat LB_UNUSED )
 {
 #ifdef EQUALIZER_USE_GLSTATS
     const uint32_t frame = stat.frameNumber;
@@ -776,7 +786,7 @@ void Config::addStatistic( const uint32_t originator LB_UNUSED,
 
     lunchbox::ScopedFastWrite mutex( _impl->statistics );
     GLStats::Item item;
-    item.entity = originator;
+    item.entity = stat.serial;
     item.type = stat.type;
     item.frame = stat.frameNumber;
     item.start = stat.startTime;
@@ -896,7 +906,7 @@ void Config::addStatistic( const uint32_t originator LB_UNUSED,
     }
 
     _impl->statistics->setType( stat.type, type );
-    _impl->statistics->setEntity( originator, entity );
+    _impl->statistics->setEntity( item.entity, entity );
     _impl->statistics->addItem( item );
 #endif
 }

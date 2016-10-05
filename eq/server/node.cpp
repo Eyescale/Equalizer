@@ -283,6 +283,7 @@ bool Node::connect()
     }
 
     LBWARN << "Connection to " << _node->getNodeID() << " failed" << std::endl;
+    sendError( fabric::ERROR_NODE_LAUNCH ) << _host;
     _state = STATE_FAILED;
     _node = nullptr;
     return false;
@@ -634,7 +635,7 @@ co::ObjectOCommand Node::send( const uint32_t cmd, const uint128_t& id )
 
 EventOCommand Node::sendError( const uint32_t error )
 {
-    return getConfig()->sendError( Event::NODE_ERROR, Error( error, getID( )));
+    return getConfig()->sendError( EVENT_NODE_ERROR, Error( error, getID( )));
 }
 
 void Node::flushSendBuffer()

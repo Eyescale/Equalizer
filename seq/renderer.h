@@ -182,7 +182,12 @@ public:
      * @warning experimental
      * @return true when the event was handled, false if not.
     */
-    SEQ_API virtual bool processEvent( const eq::Event& ) { return false; }
+    virtual bool processEvent( EventType ) { return false; }
+    virtual bool processEvent( EventType, const SizeEvent& ) { return false; }
+    virtual bool processEvent( EventType, const PointerEvent& ){ return false; }
+    virtual bool processEvent( EventType, const KeyEvent& ) { return false; }
+    virtual bool processEvent( EventType, const AxisEvent& ) { return false; }
+    virtual bool processEvent( EventType, const ButtonEvent& ) { return false; }
     //@}
 
     /** @name Data Access */

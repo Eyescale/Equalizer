@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,15 +20,17 @@
 #ifdef AGL
 
 #include "window.h"
-#include "windowEvent.h"
 
 #include <eq/config.h>
-#include <eq/configEvent.h>
 #include <eq/global.h>
 #include <eq/log.h>
 #include <eq/os.h>
 #include <eq/pipe.h>
 #include <eq/window.h>
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/sizeEvent.h>
 
 #include <co/global.h>
 #include <lunchbox/file.h>
@@ -171,263 +173,214 @@ OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
     return noErr;
 }
 
-bool EventHandler::handleEvent( EventRef eventRef )
+bool EventHandler::handleEvent( const EventRef eventRef )
 {
-    WindowEvent event;
-    event.carbonEventRef = eventRef;
-
     switch( GetEventClass( eventRef ))
     {
         case kEventClassWindow:
-            _processWindowEvent( event );
-            break;
+            return _processWindowEvent( eventRef );
 
         case kEventClassMouse:
-            if( !_processMouseEvent( event ))
-                return false;
-            break;
+            return _processMouseEvent( eventRef );
 
         case kEventClassKeyboard:
-             _processKeyEvent( event );
-             break;
+            return _processKeyEvent( eventRef );
 
         default:
             LBDEBUG << "Unknown event class " << GetEventClass( eventRef )
                    << std::endl;
-            return false;
+            return _window->processEvent( EVENT_UNKNOWN, eventRef );
     }
-
-    return _window->processEvent( event );
 }
 
-void EventHandler::_processWindowEvent( WindowEvent& event )
+bool EventHandler::_processWindowEvent( const EventRef eventRef )
 {
     WindowRef carbonWindow = _window->getCarbonWindow();
     Rect rect;
     GetWindowBounds( carbonWindow, kWindowContentRgn, &rect );
 
-    event.resize.x = rect.top;
-    event.resize.y = rect.left;
-    event.resize.h = rect.bottom - rect.top;
-    event.resize.w = rect.right  - rect.left;
+    SizeEvent event;
+    event.x = rect.top;
+    event.y = rect.left;
+    event.h = rect.bottom - rect.top;
+    event.w = rect.right  - rect.left;
 
     if( _window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF )
-        event.resize.y -= EQ_AGL_MENUBARHEIGHT;
+        event.y -= EQ_AGL_MENUBARHEIGHT;
 
-    EventRef eventRef = event.carbonEventRef;
     switch( GetEventKind( eventRef ))
     {
         case kEventWindowBoundsChanged:
         case kEventWindowZoomed:
-            event.type = Event::WINDOW_RESIZE;
-            break;
+            return _window->processEvent( EVENT_WINDOW_RESIZE, eventRef, event);
 
         case kEventWindowUpdate:
             BeginUpdate( carbonWindow );
             EndUpdate( carbonWindow );
             // no break;
         case kEventWindowDrawContent:
-            event.type = Event::WINDOW_EXPOSE;
-            break;
+            return _window->processEvent( EVENT_WINDOW_EXPOSE, eventRef, event);
 
         case kEventWindowClosed:
-            event.type = Event::WINDOW_CLOSE;
+            return _window->processEvent( EVENT_WINDOW_CLOSE, eventRef );
             break;
 
         case kEventWindowHidden:
         case kEventWindowCollapsed:
-            event.type = Event::WINDOW_HIDE;
-            break;
+            return _window->processEvent( EVENT_WINDOW_HIDE, eventRef, event );
 
         case kEventWindowShown:
         case kEventWindowExpanded:
-            event.type = Event::WINDOW_SHOW;
             if( carbonWindow == FrontNonFloatingWindow( ))
                 SetUserFocusWindow( carbonWindow );
-            break;
+            return _window->processEvent( EVENT_WINDOW_SHOW, eventRef, event );
 
         default:
             LBDEBUG << "Unhandled window event " << GetEventKind( eventRef )
                    << std::endl;
-            event.type = Event::UNKNOWN;
-            break;
+            return _window->processEvent( EVENT_UNKNOWN, eventRef );
     }
 }
 
-bool EventHandler::_processMouseEvent( WindowEvent& event )
+bool EventHandler::_processMouseEvent( const EventRef eventRef )
 {
     const bool decoration =
         _window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF;
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     HIPoint pos;
 
-    EventRef eventRef = event.carbonEventRef;
+    PointerEvent event;
+
     switch( GetEventKind( eventRef ))
     {
-        case kEventMouseMoved:
-        case kEventMouseDragged:
-            event.type                  = Event::WINDOW_POINTER_MOTION;
-            event.pointerMotion.button  = PTR_BUTTON_NONE;
-            // Note: Luckily GetCurrentEventButtonState returns the same bits as
-            // our button definitions.
-            event.pointerMotion.buttons = _getButtonState();
+    case kEventMouseMoved:
+    case kEventMouseDragged:
+        // GetCurrentEventButtonState returns the same bits as Eq buttons
+        event.buttons = _getButtonState( eventRef );
 
-            if( event.pointerMotion.buttons == PTR_BUTTON1 )
-            {   // Only left button pressed: implement apple-style middle/right
-                // button if modifier keys are used.
-                uint32_t keys = 0;
-                GetEventParameter( eventRef, kEventParamKeyModifiers,
-                                   typeUInt32, 0, sizeof( keys ), 0, &keys );
-                if( keys & controlKey )
-                    event.pointerMotion.buttons = PTR_BUTTON3;
-                else if( keys & optionKey )
-                    event.pointerMotion.buttons = PTR_BUTTON2;
-            }
+        GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                           typeHIPoint, 0, sizeof( pos ), 0, &pos );
+        if( pos.y < menuHeight )
+            return false; // ignore pointer events on the menu bar
 
-            GetEventParameter( eventRef, kEventParamWindowMouseLocation,
-                               typeHIPoint, 0, sizeof( pos ), 0,
-                               &pos );
-            if( pos.y < menuHeight )
-                return false; // ignore pointer events on the menu bar
+        event.x = static_cast< int32_t >( pos.x );
+        event.y = static_cast< int32_t >( pos.y ) - menuHeight;
 
-            event.pointerMotion.x = static_cast< int32_t >( pos.x );
-            event.pointerMotion.y = static_cast< int32_t >( pos.y ) -menuHeight;
+        GetEventParameter( eventRef, kEventParamMouseDelta, typeHIPoint, 0,
+                           sizeof( pos ), 0, &pos );
+        event.dx = static_cast< int32_t >( pos.x );
+        event.dy = static_cast< int32_t >( pos.y );
 
-            GetEventParameter( eventRef, kEventParamMouseDelta,
-                               typeHIPoint, 0, sizeof( pos ), 0,
-                               &pos );
-            event.pointerMotion.dx = static_cast< int32_t >( pos.x );
-            event.pointerMotion.dy = static_cast< int32_t >( pos.y );
+        _lastDX = event.dx;
+        _lastDY = event.dy;
+        return _window->processEvent( EVENT_WINDOW_POINTER_MOTION, eventRef,
+                                      event );
 
-            _lastDX = event.pointerMotion.dx;
-            _lastDY = event.pointerMotion.dy;
-            return true;
+    case kEventMouseDown:
+        event.button = _getButtonAction( eventRef );
+        event.buttons = _getButtonState( eventRef );
 
-        case kEventMouseDown:
-            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            event.pointerMotion.buttons = _getButtonState();
-            event.pointerButtonPress.button = _getButtonAction( eventRef );
+        GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                           typeHIPoint, 0, sizeof( pos ), 0, &pos );
+        if( pos.y < menuHeight )
+            return false; // ignore pointer events on the menu bar
 
-            if( event.pointerMotion.buttons == PTR_BUTTON1 )
-            {   // Only left button pressed: implement apple-style middle/right
-                // button if modifier keys are used.
-                uint32_t keys = 0;
-                GetEventParameter( eventRef, kEventParamKeyModifiers,
-                                   typeUInt32, 0, sizeof( keys ), 0, &keys );
-                if( keys & controlKey )
-                    event.pointerMotion.buttons = PTR_BUTTON3;
-                else if( keys & optionKey )
-                    event.pointerMotion.buttons = PTR_BUTTON2;
-            }
+        event.x = int32_t( pos.x );
+        event.y = int32_t( pos.y ) - menuHeight;
+        event.dx = _lastDX;
+        event.dy = _lastDY;
+        _lastDX = 0;
+        _lastDY = 0;
+        return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_PRESS,
+                                      eventRef, event );
 
-            GetEventParameter( eventRef, kEventParamWindowMouseLocation,
-                               typeHIPoint, 0, sizeof( pos ), 0,
-                               &pos );
-            if( pos.y < menuHeight )
-                return false; // ignore pointer events on the menu bar
+    case kEventMouseUp:
+        event.button = _getButtonAction( eventRef );
+        event.buttons = _getButtonState( eventRef );
 
-            event.pointerButtonPress.x = int32_t( pos.x );
-            event.pointerButtonPress.y = int32_t( pos.y ) - menuHeight;
-            event.pointerButtonPress.dx = _lastDX;
-            event.pointerButtonPress.dy = _lastDY;
-            _lastDX = 0;
-            _lastDY = 0;
-            return true;
+        GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                           typeHIPoint, 0, sizeof( pos ), 0, &pos );
+        if( pos.y < menuHeight )
+            return false; // ignore pointer events on the menu bar
 
-        case kEventMouseUp:
-            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            event.pointerMotion.buttons = _getButtonState();
-            event.pointerButtonRelease.button = _getButtonAction( eventRef );
+        event.x = int32_t( pos.x );
+        event.y = int32_t( pos.y ) - menuHeight;
+        event.dx = _lastDX;
+        event.dy = _lastDY;
+        _lastDX = 0;
+        _lastDY = 0;
+        return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_RELEASE,
+                                      eventRef, event );
 
-            if( event.pointerMotion.buttons == PTR_BUTTON1 )
-            {   // Only left button pressed: implement apple-style middle/right
-                // button if modifier keys are used.
-                uint32_t keys = 0;
-                GetEventParameter( eventRef, kEventParamKeyModifiers,
-                                   typeUInt32, 0, sizeof( keys ), 0, &keys );
-                if( keys & controlKey )
-                    event.pointerMotion.buttons = PTR_BUTTON3;
-                else if( keys & optionKey )
-                    event.pointerMotion.buttons = PTR_BUTTON2;
-            }
+    case kEventMouseWheelMoved:
+    {
+        event.buttons = _getButtonState( eventRef );
+        event.dx = _lastDX;
+        event.dy = _lastDY;
 
-            GetEventParameter( eventRef, kEventParamWindowMouseLocation,
-                               typeHIPoint, 0, sizeof( pos ), 0,
-                               &pos );
-            if( pos.y < menuHeight )
-                return false; // ignore pointer events on the menu bar
+        EventMouseWheelAxis axis;
+        SInt32 delta;
+        GetEventParameter( eventRef, kEventParamMouseWheelAxis,
+                           typeMouseWheelAxis, 0, sizeof( axis ), 0, &axis );
+        GetEventParameter( eventRef, kEventParamMouseWheelDelta,
+                           typeLongInteger, 0, sizeof( delta ), 0, &delta );
 
-            event.pointerButtonRelease.x = int32_t( pos.x );
-            event.pointerButtonRelease.y = int32_t( pos.y ) - menuHeight;
-            event.pointerButtonRelease.dx = _lastDX;
-            event.pointerButtonRelease.dy = _lastDY;
-            _lastDX = 0;
-            _lastDY = 0;
-            return true;
-
-        case kEventMouseWheelMoved:
+        switch( axis )
         {
-            event.type = Event::WINDOW_POINTER_WHEEL;
-            event.pointerWheel.button  = PTR_BUTTON_NONE;
-            event.pointerWheel.buttons = _getButtonState();
-            event.pointerWheel.dx = _lastDX;
-            event.pointerWheel.dy = _lastDY;
-
-            EventMouseWheelAxis axis;
-            SInt32 delta;
-            GetEventParameter( eventRef, kEventParamMouseWheelAxis,
-                               typeMouseWheelAxis, 0, sizeof( axis ), 0, &axis);
-            GetEventParameter( eventRef, kEventParamMouseWheelDelta,
-                               typeLongInteger, 0, sizeof( delta ), 0, &delta );
-
-            switch( axis )
-            {
-                case kEventMouseWheelAxisX:
-                    event.pointerWheel.xAxis = delta;
-                    return true;
-                case kEventMouseWheelAxisY:
-                    event.pointerWheel.yAxis = delta;
-                    return true;
-                default:
-                    LBUNIMPLEMENTED;
-            }
-            return true;
-        }
+        case kEventMouseWheelAxisX:
+            event.xAxis = delta;
+            break;
+        case kEventMouseWheelAxisY:
+            event.yAxis = delta;
+            break;
         default:
-            LBDEBUG << "Unhandled mouse event " << GetEventKind( eventRef )
-                   << std::endl;
-            event.type = Event::UNKNOWN;
-            return true;
+            return _window->processEvent( EVENT_UNKNOWN, eventRef );
+        }
+        return _window->processEvent( EVENT_WINDOW_POINTER_WHEEL, eventRef,
+                                      event );
+    }
+
+    default:
+        LBDEBUG << "Unhandled mouse event " << GetEventKind( eventRef )
+                << std::endl;
+        return _window->processEvent( EVENT_UNKNOWN, eventRef );
     }
 }
 
-void EventHandler::_processKeyEvent( WindowEvent& event )
+bool EventHandler::_processKeyEvent( const EventRef eventRef )
 {
-    EventRef eventRef = event.carbonEventRef;
+    KeyEvent event( _getKey( eventRef ));
     switch( GetEventKind( eventRef ))
     {
-        case kEventRawKeyDown:
-        case kEventRawKeyRepeat:
-            event.type         = Event::KEY_PRESS;
-            event.keyPress.key = _getKey( eventRef );
-            break;
+    case kEventRawKeyDown:
+    case kEventRawKeyRepeat:
+        return _window->processEvent( EVENT_KEY_PRESS, eventRef, event );
 
-        case kEventRawKeyUp:
-            event.type         = Event::KEY_RELEASE;
-            event.keyPress.key = _getKey( eventRef );
-            break;
+    case kEventRawKeyUp:
+        return _window->processEvent( EVENT_KEY_RELEASE, eventRef, event );
 
-        default:
-            LBDEBUG << "Unhandled keyboard event " << GetEventKind( eventRef )
-                   << std::endl;
-            event.type = Event::UNKNOWN;
-            break;
+    default:
+        LBDEBUG << "Unknown keyboard event " << GetEventKind( eventRef )
+                << std::endl;
+        return _window->processEvent( EVENT_UNKNOWN, eventRef );
     }
 }
 
-uint32_t EventHandler::_getButtonState()
+uint32_t EventHandler::_getButtonState( const EventRef eventRef )
 {
-    const uint32 buttons = GetCurrentEventButtonState();
+    uint32 buttons = GetCurrentEventButtonState();
+
+    if( buttons == PTR_BUTTON1 )
+    {   // Only left button pressed: implement apple-style middle/right button
+        // if modifier keys are used.
+        uint32_t keys = 0;
+        GetEventParameter( eventRef, kEventParamKeyModifiers,
+                           typeUInt32, 0, sizeof( keys ), 0, &keys );
+        if( keys & controlKey )
+            buttons = PTR_BUTTON2;
+        else if( keys & optionKey )
+            buttons = PTR_BUTTON3;
+    }
 
     // swap button 2&3
     return ( (buttons & 0xfffffff9u) +
@@ -436,7 +389,7 @@ uint32_t EventHandler::_getButtonState()
 }
 
 
-uint32_t EventHandler::_getButtonAction( EventRef event )
+uint32_t EventHandler::_getButtonAction( const EventRef event )
 {
     EventMouseButton button;
     GetEventParameter( event, kEventParamMouseButton, typeMouseButton, 0,
@@ -451,7 +404,7 @@ uint32_t EventHandler::_getButtonAction( EventRef event )
     }
 }
 
-uint32_t EventHandler::_getKey( EventRef eventRef )
+uint32_t EventHandler::_getKey( const EventRef eventRef )
 {
     unsigned char key;
     GetEventParameter( eventRef, kEventParamKeyMacCharCodes, typeChar, 0,
@@ -498,14 +451,6 @@ uint32_t EventHandler::_getKey( EventRef eventRef )
                 case kVK_F18:       return KC_F18;
                 case kVK_F19:       return KC_F19;
                 case kVK_F20:       return KC_F20;
-#if 0
-                case XK_Shift_L:   return KC_SHIFT_L;
-                case XK_Shift_R:   return KC_SHIFT_R;
-                case XK_Control_L: return KC_CONTROL_L;
-                case XK_Control_R: return KC_CONTROL_R;
-                case XK_Alt_L:     return KC_ALT_L;
-                case XK_Alt_R:     return KC_ALT_R;
-#endif
             }
         }
 
@@ -542,44 +487,42 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
         {
             ConnexionDeviceState *state = static_cast< ConnexionDeviceState* >(
                                                               messageArgument );
-            if( state->client == _magellanID )
+            if( state->client != _magellanID )
+                return;
+
+            // decipher what command/event is being reported by the driver
+            switch( state->command )
             {
-                Event event;
-                event.originator = _magellanNode->getID();
-                event.serial = _magellanNode->getSerial();
-                event.magellan.buttons = state->buttons;
-                event.magellan.xAxis =  state->axis[0];
-                event.magellan.yAxis = -state->axis[1];
-                event.magellan.zAxis = -state->axis[2];
-                event.magellan.xRotation = -state->axis[3];
-                event.magellan.yRotation =  state->axis[4];
-                event.magellan.zRotation =  state->axis[5];
+            case kConnexionCmdHandleAxis:
+            {
+                AxisEvent event;
+                event.xAxis =  state->axis[0];
+                event.yAxis = -state->axis[1];
+                event.zAxis = -state->axis[2];
+                event.xRotation = -state->axis[3];
+                event.yRotation =  state->axis[4];
+                event.zRotation =  state->axis[5];
+                _magellanNode->processEvent( EVENT_MAGELLAN_AXIS, event );
+                return;
+            }
 
-                // decipher what command/event is being reported by the driver
-                switch( state->command )
-                {
-                    case kConnexionCmdHandleAxis:
-                        event.type = Event::MAGELLAN_AXIS;
-                        event.magellan.button = 0;
-                        break;
+            case kConnexionCmdHandleButtons:
+            {
+                ButtonEvent event;
+                event.buttons = state->buttons;
+                _magellanNode->processEvent( EVENT_MAGELLAN_BUTTON, event );
+                return;
+            }
 
-                    case kConnexionCmdHandleButtons:
-                        event.type = Event::MAGELLAN_BUTTON;
-                        event.magellan.button = state->value;
-                        break;
-
-                    default:
-                        LBASSERTINFO( 0, "Unimplemented space mouse command " <<
-                                      state->command );
-                }
-
-                _magellanNode->processEvent( event );
+            default:
+                LBASSERTINFO( 0, "Unimplemented space mouse command " <<
+                              state->command );
             }
             break;
         }
         default:
             // other messageTypes can happen and should be ignored
-            break;
+            return;
     }
 }
 

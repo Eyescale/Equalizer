@@ -74,7 +74,7 @@ build environment. The following platforms and build environments are tested:
     cmake  -DINSTALL_PACKAGES=1 ..
     make
 
-## Windows {#Windows}
+## Windows
 
 If `CMake` and `git` are in PATH, run the following batch script to build using
 Visual Studio 2013:

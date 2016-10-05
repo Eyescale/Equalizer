@@ -25,9 +25,6 @@
 #include <seq/renderer.h>
 #include <seq/viewData.h>
 #include <eq/config.h>
-#ifndef EQ_2_0_API
-#  include <eq/configEvent.h>
-#endif
 #include <eq/eventICommand.h>
 
 namespace seq
@@ -121,30 +118,40 @@ bool View::updateData()
     return false;
 }
 
-#ifndef EQ_2_0_API
-bool View::handleEvent( const eq::ConfigEvent* event )
+template< class E > bool View::_handleEvent( eq::EventType type, E& event )
 {
     ViewData* data = getViewData();
     LBASSERT( data );
     if( !data )
         return false;
     if( isActive( ))
-        return data->handleEvent( event );
-    data->handleEvent( event );
+        return data->handleEvent( type, event );
     return false;
 }
-#endif
 
-bool View::handleEvent( const eq::EventICommand& command )
+bool View::handleEvent( eq::EventType type, const SizeEvent& event )
 {
-    ViewData* data = getViewData();
-    LBASSERT( data );
-    if( !data )
-        return false;
-    if( isActive( ))
-        return data->handleEvent( command );
-    data->handleEvent( command );
-    return false;
+    return _handleEvent( type, event );
+}
+
+bool View::handleEvent( eq::EventType type, const PointerEvent& event )
+{
+    return _handleEvent( type, event );
+}
+
+bool View::handleEvent( eq::EventType type, const KeyEvent& event )
+{
+    return _handleEvent( type, event );
+}
+
+bool View::handleEvent( eq::EventType type, const AxisEvent& event )
+{
+    return _handleEvent( type, event );
+}
+
+bool View::handleEvent( eq::EventType type, const ButtonEvent& event )
+{
+    return _handleEvent( type, event );
 }
 }
 }

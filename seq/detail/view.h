@@ -41,19 +41,23 @@ public:
 
     /** @name Operations. */
     //@{
-#ifndef EQ_2_0_API
-    bool handleEvent( const eq::ConfigEvent* event );
-#endif
-    bool handleEvent( const eq::EventICommand& command );
+    bool handleEvent( eq::EventType type, const SizeEvent& event ) final;
+    bool handleEvent( eq::EventType type, const PointerEvent& event );
+    bool handleEvent( eq::EventType type, const KeyEvent& event );
+    bool handleEvent( eq::EventType type, const AxisEvent& event );
+    bool handleEvent( eq::EventType type, const ButtonEvent& event );
     bool updateData();
     //@}
 
 protected:
     virtual ~View();
+
+private:
     bool configInit() final;
     bool configExit() final;
     void notifyAttach() final;
     void notifyDetached() final;
+    template< class E > bool _handleEvent( eq::EventType type, E& event );
 };
 }
 }

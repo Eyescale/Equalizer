@@ -1,14 +1,13 @@
 
-# Copyright (c) 2010-2015 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010-2016 Stefan Eilemann <eile@eyescale.ch>
 #                         Daniel Pfeifer <daniel@pfeifer-mail.de>
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project(Equalizer VERSION 1.13.0)
-set(Equalizer_VERSION_ABI 193)
+project(Equalizer VERSION 2.0.0)
+set(Equalizer_VERSION_ABI 200)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
                               ${CMAKE_SOURCE_DIR}/CMake/common)
-
 include(GitExternal)
 
 set(EQUALIZER_INCLUDE_NAME eq)
@@ -16,7 +15,7 @@ set(EQUALIZER_DEB_DEPENDS bison flex libboost-program-options-dev
   libboost-filesystem-dev libboost-system-dev libboost-thread-dev
   libx11-dev libgl1-mesa-dev libglewmx1.6-dev libspnav-dev
   libopenscenegraph-dev libopencv-dev qtbase5-dev)
-set(EQUALIZER_PORT_DEPENDS boost opencv)
+set(EQUALIZER_PORT_DEPENDS boost opencv qt5)
 
 include(Common)
 

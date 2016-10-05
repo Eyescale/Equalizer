@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Juan Hernando <jhernando@fi.upm.es>
  *                          Stefan.Eilemann@epfl.ch
  *
@@ -20,11 +20,12 @@
 #ifndef EQ_QT_WINDOWIMPL_H
 #define EQ_QT_WINDOWIMPL_H
 
-#include "eventHandler.h"
+#include "../eventHandler.h"
 
 #include <eq/util/frameBufferObject.h>
 #include <lunchbox/monitor.h>
 
+#include <QApplication>
 #include <QExposeEvent>
 #include <QOpenGLContext>
 #include <QOffscreenSurface>
@@ -109,43 +110,40 @@ QSurfaceFormat _createFormat( const WindowSettings& settings )
 
     return format;
 }
+#undef getAttribute
 }
 
 class Window
 {
 public:
-    Window() : _eventHandler( 0 ) {}
+    Window( WindowIF& window, QThread* qThread )
+        : _eventHandler( window )
+    {
+        if( qThread )
+            _eventHandler.moveToThread( qThread );
+    }
 
     virtual ~Window() {}
     virtual QOpenGLContext* getContext() const = 0;
+    virtual bool configInit() = 0;
     virtual void makeCurrent() = 0;
     virtual void doneCurrent() = 0;
     virtual void swapBuffers() = 0;
-    virtual bool configInit( eq::qt::Window& window )
-    {
-        _eventHandler = new EventHandler( window );
-        return true;
-    }
-    virtual bool configExit()
-    {
-        delete _eventHandler;
-        _eventHandler = 0;
-        return true;
-    }
-
-    virtual QObject *getEventProcessor() { return _eventHandler; }
+    virtual QObject *getEventProcessor() { return &_eventHandler; }
 
 protected:
-    EventHandler* _eventHandler;
+    EventHandler _eventHandler;
 };
 
 class QWindowWrapper : public Window, public QWindow
 {
 public:
-    QWindowWrapper( const WindowSettings& settings,
-                    QScreen* screen_, QOpenGLContext* shareContext )
-        : _context( new QOpenGLContext )
-        , _exposed( false )
+    QWindowWrapper( WindowIF& window, QThread* qThread,
+                    const WindowSettings& settings, QScreen* screen_,
+                    QOpenGLContext* shareContext )
+        : detail::Window( window, qThread )
+        , _context( new QOpenGLContext )
+        , _realized( false )
     {
         setScreen( screen_ );
         const QSurfaceFormat& format_ = _createFormat( settings );
@@ -189,105 +187,51 @@ public:
             _context->swapBuffers( this );
     }
 
-    bool configInit( eq::qt::Window& window ) final
+    bool configInit() final
     {
-        if( !Window::configInit( window ))
-            return false;
-
         // The application thread must be running the event loop somewhere
         // else. Otherwise this code will wait forever.
-        _exposed.waitEQ( true );
+        _realized.waitEQ( true );
 
         if( !_context->create( ))
             return false;
 
         // Adjusting the actual window viewport in case the window manager
         // disobeyed the requested geometry.
-        _adjustEqWindowSize( window );
+        WindowIF& window = _eventHandler.getWindow();
+        window.setPixelViewport( PixelViewport( x(), y(), width(), height( )));
         return true;
     }
 
     QObject *getEventProcessor() final { return this; }
 
 protected:
-    void exposeEvent( QExposeEvent* qevent ) final
-    {
-        _exposed = !qevent->region().isEmpty();
-        _eventHandler->exposeEvent();
-    }
-
-    void hideEvent( QHideEvent* ) final
-    {
-        _exposed = false;
-        _eventHandler->hideEvent();
-    }
-
     bool event( QEvent *qevent ) final
     {
-        if( qevent->type() == QEvent::Close )
-            _eventHandler->closeEvent();
+        if( qevent->type() == QEvent::Expose )
+        {
+            const QExposeEvent* expose = static_cast< QExposeEvent* >( qevent );
+            _realized = !expose->region().isEmpty();
+        }
 
-        return QWindow::event( qevent );
-    }
-
-    void resizeEvent( QResizeEvent* qevent ) final
-    {
-        _eventHandler->resizeEvent( qevent );
-    }
-
-    void mousePressEvent( QMouseEvent* qevent ) final
-    {
-        _eventHandler->mousePressEvent( qevent );
-    }
-
-    void mouseReleaseEvent( QMouseEvent* qevent ) final
-    {
-        _eventHandler->mouseReleaseEvent( qevent );
-    }
-
-    void mouseMoveEvent( QMouseEvent* qevent ) final
-    {
-        _eventHandler->mouseMoveEvent( qevent );
-    }
-
-#ifndef QT_NO_WHEELEVENT
-    void wheelEvent( QWheelEvent* qevent ) final
-    {
-        _eventHandler->wheelEvent( qevent );
-    }
-#endif
-    void keyPressEvent( QKeyEvent* qevent ) final
-    {
-        _eventHandler->keyPressEvent( qevent );
-    }
-
-    void keyReleaseEvent( QKeyEvent* qevent ) final
-    {
-        _eventHandler->keyReleaseEvent( qevent );
+        QApplication::sendEvent( &_eventHandler, qevent );
+        return true;
     }
 
 private:
     QScopedPointer< QOpenGLContext > _context;
 
-    lunchbox::Monitorb _exposed;
-
-    void _adjustEqWindowSize( eq::qt::Window& window )
-    {
-        PixelViewport pvp;
-        pvp.x = x();
-        pvp.y = y();
-        pvp.w = width();
-        pvp.h = height();
-        window.setPixelViewport( pvp );
-    }
+    lunchbox::Monitorb _realized;
 };
 
 class QOffscreenSurfaceWrapper : public Window, public QOffscreenSurface
 {
 public:
-    QOffscreenSurfaceWrapper( const WindowSettings& settings,
-                              QScreen* screen_, QOpenGLContext* shareContext )
-        : _context( new QOpenGLContext )
+    QOffscreenSurfaceWrapper( WindowIF& window, QThread* qThread,
+                              const WindowSettings& settings, QScreen* screen_,
+                              QOpenGLContext* shareContext )
+        : detail::Window( window, qThread )
+        , _context( new QOpenGLContext )
     {
         setScreen( screen_ );
         const QSurfaceFormat& format_ = _createFormat( settings );
@@ -318,9 +262,9 @@ public:
             _context->swapBuffers( this );
     }
 
-    bool configInit( eq::qt::Window& window ) final
+    bool configInit() final
     {
-        return Window::configInit( window ) && isValid() && _context->create();
+        return isValid() && _context->create();
     }
 
 private:

@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,6 @@
 #include "eventHandler.h"
 
 #include "window.h"
-#include "windowEvent.h"
 #include "../config.h"
 #include "../global.h"
 #include "../log.h"
@@ -28,7 +27,10 @@
 #include "../pipe.h"
 #include "../window.h"
 
-#include <eq/fabric/event.h>
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/sizeEvent.h>
 #include <lunchbox/lockable.h>
 #include <lunchbox/perThread.h>
 #include <lunchbox/scopedMutex.h>
@@ -136,11 +138,8 @@ void EventHandler::dispatch()
     if( !_eventHandlers )
         return;
 
-    for( EventHandlers::const_iterator i = _eventHandlers->begin();
-         i != _eventHandlers->end(); ++i )
-    {
-        (*i)->_dispatch();
-    }
+    for( EventHandler* handler : *_eventHandlers )
+        handler->_dispatch();
 }
 
 void EventHandler::_dispatch()
@@ -152,23 +151,17 @@ void EventHandler::_dispatch()
 
     while( XPending( display ))
     {
-        WindowEvent event;
-        XEvent& xEvent = event.xEvent;
+        XEvent event;
+        XNextEvent( display, &event );
 
-        XNextEvent( display, &xEvent );
-
-        for( EventHandlers::const_iterator i = _eventHandlers->begin();
-             i != _eventHandlers->end(); ++i )
-        {
-            EventHandler* handler = *i;
+        for( EventHandler* handler : *_eventHandlers )
             handler->_processEvent( event );
-        }
     }
 }
 
 namespace
 {
-void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
+void _getWindowSize( Display* display, XID drawable, SizeEvent& event )
 {
     // Get window coordinates from X11, the event data is relative to window
     // parent, but we report pvp relative to root window.
@@ -186,162 +179,180 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 }
 }
 
-void EventHandler::_processEvent( WindowEvent& event )
+bool EventHandler::_processEvent( const XEvent& event )
 {
     LB_TS_THREAD( _thread );
 
-    XEvent& xEvent = event.xEvent;
-    XID drawable = xEvent.xany.window;
-
+    XID drawable = event.xany.window;
     if( _window->getXDrawable() != drawable )
-        return;
+        return false;
 
-    switch( xEvent.type )
+    switch( event.type )
     {
-        case Expose:
-            if( xEvent.xexpose.count ) // Only report last expose event
-                return;
+    case Expose:
+        if( event.xexpose.count ) // Only report last expose event
+            return true;
 
-            event.type = Event::WINDOW_EXPOSE;
-            break;
+        return _window->processEvent( EVENT_WINDOW_EXPOSE, event );
 
-        case ConfigureNotify:
-            event.type = Event::WINDOW_RESIZE;
-            _getWindowSize( xEvent.xany.display, drawable, event.resize );
-            break;
-
-        case UnmapNotify:
-            event.type = Event::WINDOW_HIDE;
-            _getWindowSize( xEvent.xany.display, drawable, event.resize );
-            break;
-
-        case MapNotify:
-            event.type = Event::WINDOW_SHOW;
-            _getWindowSize( xEvent.xany.display, drawable, event.resize );
-            break;
-
-        case ClientMessage:
-        {
-#ifdef EQUALIZER_USE_MAGELLAN_GLX
-            spnav_event spev;
-
-            /* spacenav event */
-            if( spnav_x11_event( &xEvent, &spev ))
-            {
-                switch( spev.type )
-                {
-                  case SPNAV_EVENT_MOTION:
-                    event.type = Event::MAGELLAN_AXIS;
-                    event.magellan.xAxis =  spev.motion.x;
-                    event.magellan.yAxis =  spev.motion.y;
-                    event.magellan.zAxis = -spev.motion.z;
-                    event.magellan.xRotation = -spev.motion.rx;
-                    event.magellan.yRotation = -spev.motion.ry;
-                    event.magellan.zRotation =  spev.motion.rz;
-                    break;
-
-                  case SPNAV_EVENT_BUTTON:
-                    event.type = Event::MAGELLAN_BUTTON;
-                    event.magellan.buttons = spev.button.press;
-                    event.magellan.button = spev.button.bnum;
-                    break;
-
-                  default:
-                    LBUNIMPLEMENTED;
-                    return;
-                }
-
-                /* remove any other queued motion events */
-                //? spnav_remove_events( SPNAV_EVENT_MOTION );
-                break;
-            }
- #endif
-
-            Atom deleteAtom = XInternAtom( xEvent.xany.display,
-                                           "WM_DELETE_WINDOW", False );
-
-            if( static_cast<Atom>( xEvent.xclient.data.l[0] ) != deleteAtom )
-                return; // not a delete message, ignore.
-        }
-        // else: delete message, fall through
-        case DestroyNotify:
-            event.type = Event::WINDOW_CLOSE;
-            break;
-
-        case MotionNotify:
-            event.type = Event::WINDOW_POINTER_MOTION;
-            event.pointerMotion.x = xEvent.xmotion.x;
-            event.pointerMotion.y = xEvent.xmotion.y;
-            event.pointerMotion.buttons = _getButtonState( xEvent );
-            event.pointerMotion.button  = PTR_BUTTON_NONE;
-
-            _computePointerDelta( event );
-            break;
-
-        case ButtonPress:
-            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x = xEvent.xbutton.x;
-            event.pointerButtonPress.y = xEvent.xbutton.y;
-            event.pointerButtonPress.buttons = _getButtonState( xEvent );
-            event.pointerButtonPress.button  = _getButtonAction( xEvent );
-
-            // Translate wheel events
-            switch( event.pointerButtonPress.button )
-            {
-              case PTR_BUTTON4: event.pointerWheel.yAxis = 1; break;
-              case PTR_BUTTON5: event.pointerWheel.yAxis = -1; break;
-              case PTR_BUTTON6: event.pointerWheel.xAxis = 1; break;
-              case PTR_BUTTON7: event.pointerWheel.xAxis = -1; break;
-            }
-            switch( event.pointerButtonPress.button )
-            {
-              case PTR_BUTTON4:
-              case PTR_BUTTON5:
-              case PTR_BUTTON6:
-              case PTR_BUTTON7:
-                event.type = Event::WINDOW_POINTER_WHEEL;
-                event.pointerWheel.button = PTR_BUTTON_NONE;
-            }
-
-            _computePointerDelta( event );
-            break;
-
-        case ButtonRelease:
-            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x = xEvent.xbutton.x;
-            event.pointerButtonRelease.y = xEvent.xbutton.y;
-            event.pointerButtonRelease.buttons = _getButtonState( xEvent );
-            event.pointerButtonRelease.button  = _getButtonAction( xEvent);
-
-            _computePointerDelta( event );
-            break;
-
-        case KeyPress:
-            event.type = Event::KEY_PRESS;
-            event.keyPress.key = _getKey( xEvent );
-            break;
-
-        case KeyRelease:
-            event.type = Event::KEY_RELEASE;
-            event.keyPress.key = _getKey( xEvent );
-            break;
-
-        case ReparentNotify:
-        case VisibilityNotify:
-            event.type = Event::UNKNOWN;
-            LBVERB << "Ignored X event, type " << xEvent.type << std::endl;
-            break;
-
-        default:
-            event.type = Event::UNKNOWN;
-            LBWARN << "Unhandled X event, type " << xEvent.type << std::endl;
-            break;
+    case ConfigureNotify:
+    {
+        SizeEvent sizeEvent;
+        _getWindowSize( event.xany.display, drawable, sizeEvent );
+        return _window->processEvent( EVENT_WINDOW_RESIZE, event, sizeEvent );
     }
 
-    _window->processEvent( event );
+    case UnmapNotify:
+    {
+        SizeEvent sizeEvent;
+        _getWindowSize( event.xany.display, drawable, sizeEvent );
+        return _window->processEvent( EVENT_WINDOW_HIDE, event, sizeEvent );
+    }
+
+    case MapNotify:
+    {
+        SizeEvent sizeEvent;
+        _getWindowSize( event.xany.display, drawable, sizeEvent );
+        return _window->processEvent( EVENT_WINDOW_SHOW, event, sizeEvent );
+    }
+
+    case ClientMessage:
+    {
+#ifdef EQUALIZER_USE_MAGELLAN_GLX
+        spnav_event spev;
+
+        if( spnav_x11_event( &event, &spev )) // spacenav event
+        {
+            switch( spev.type )
+            {
+            case SPNAV_EVENT_MOTION:
+            {
+                AxisEvent axisEvent;
+                axisEvent.xAxis =  spev.motion.x;
+                axisEvent.yAxis =  spev.motion.y;
+                axisEvent.zAxis = -spev.motion.z;
+                axisEvent.xRotation = -spev.motion.rx;
+                axisEvent.yRotation = -spev.motion.ry;
+                axisEvent.zRotation =  spev.motion.rz;
+                return _window->processEvent( EVENT_MAGELLAN_AXIS, event,
+                                              axisEvent );
+            }
+
+            case SPNAV_EVENT_BUTTON:
+            {
+                ButtonEvent buttonEvent;
+                buttonEvent.buttons = spev.button.press;
+                buttonEvent.button = spev.button.bnum;
+                return _window->processEvent( EVENT_MAGELLAN_BUTTON, event,
+                                              buttonEvent );
+            }
+
+            default:
+                LBUNIMPLEMENTED;
+                return false;
+            }
+
+            break;
+        }
+ #endif
+
+        Atom deleteAtom = XInternAtom( event.xany.display, "WM_DELETE_WINDOW",
+                                       False );
+
+        if( static_cast<Atom>( event.xclient.data.l[0] ) != deleteAtom )
+            return false; // not a delete message, ignore.
+    }
+    // else: delete message, fall through
+
+    case DestroyNotify:
+        return _window->processEvent( EVENT_WINDOW_CLOSE, event );
+
+    case MotionNotify:
+    {
+        PointerEvent pointerEvent;
+        pointerEvent.x = event.xmotion.x;
+        pointerEvent.y = event.xmotion.y;
+        pointerEvent.buttons = _getButtonState( event );
+        pointerEvent.button  = PTR_BUTTON_NONE;
+        _computePointerDelta( EVENT_WINDOW_POINTER_MOTION, pointerEvent );
+
+
+        return _window->processEvent( EVENT_WINDOW_POINTER_MOTION, event,
+                                      pointerEvent );
+    }
+
+    case ButtonPress:
+    {
+        PointerEvent pointerEvent;
+        pointerEvent.x = event.xbutton.x;
+        pointerEvent.y = event.xbutton.y;
+        pointerEvent.buttons = _getButtonState( event );
+        pointerEvent.button  = _getButtonAction( event );
+
+        switch( pointerEvent.button ) // Translate wheel events
+        {
+        case PTR_BUTTON4: pointerEvent.yAxis = 1; break;
+        case PTR_BUTTON5: pointerEvent.yAxis = -1; break;
+        case PTR_BUTTON6: pointerEvent.xAxis = 1; break;
+        case PTR_BUTTON7: pointerEvent.xAxis = -1; break;
+        }
+
+        switch( pointerEvent.button )
+        {
+        case PTR_BUTTON4:
+        case PTR_BUTTON5:
+        case PTR_BUTTON6:
+        case PTR_BUTTON7:
+            pointerEvent.button = PTR_BUTTON_NONE;
+            _computePointerDelta( EVENT_WINDOW_POINTER_WHEEL, pointerEvent );
+            return _window->processEvent( EVENT_WINDOW_POINTER_WHEEL, event,
+                                          pointerEvent );
+        }
+
+        _computePointerDelta( EVENT_WINDOW_POINTER_BUTTON_PRESS, pointerEvent );
+        return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_PRESS, event,
+                                      pointerEvent );
+    }
+
+    case ButtonRelease:
+    {
+        PointerEvent pointerEvent;
+        pointerEvent.x = event.xbutton.x;
+        pointerEvent.y = event.xbutton.y;
+        pointerEvent.buttons = _getButtonState( event );
+        pointerEvent.button  = _getButtonAction( event);
+
+        _computePointerDelta( EVENT_WINDOW_POINTER_BUTTON_RELEASE,
+                              pointerEvent );
+        return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_RELEASE,
+                                      event, pointerEvent );
+    }
+
+    case KeyPress:
+    {
+        KeyEvent keyEvent;
+        keyEvent.key = _getKey( event );
+        return _window->processEvent( EVENT_KEY_PRESS, event, keyEvent );
+    }
+
+    case KeyRelease:
+    {
+        KeyEvent keyEvent;
+        keyEvent.key = _getKey( event );
+        return _window->processEvent( EVENT_KEY_RELEASE, event, keyEvent );
+    }
+
+    default:
+        LBWARN << "Unhandled X event, type " << event.type << std::endl;
+        // no break;
+    case ReparentNotify:
+    case VisibilityNotify:
+        return _window->processEvent( EVENT_UNKNOWN, event );
+
+    }
 }
 
-uint32_t EventHandler::_getButtonState( XEvent& event )
+uint32_t EventHandler::_getButtonState( const XEvent& event )
 {
     const int xState = event.xbutton.state;
     uint32_t   state  = 0;
@@ -368,7 +379,7 @@ uint32_t EventHandler::_getButtonState( XEvent& event )
     return state;
 }
 
-uint32_t EventHandler::_getButtonAction( XEvent& event )
+uint32_t EventHandler::_getButtonAction( const XEvent& event )
 {
     switch( event.xbutton.button )
     {
@@ -384,7 +395,7 @@ uint32_t EventHandler::_getButtonAction( XEvent& event )
 }
 
 
-uint32_t EventHandler::_getKey( XEvent& event )
+uint32_t EventHandler::_getKey( const XEvent& event )
 {
     int index = 0;
     if( event.xkey.state & ShiftMask )

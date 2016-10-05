@@ -46,11 +46,34 @@ public:
     /** @return X11 display connection. @version 1.0 */
     virtual Display* getXDisplay() = 0;
 
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Woverloaded-virtual"
-    /** Process the given event. @version 1.5.1 */
-    virtual bool processEvent( const WindowEvent& event ) = 0;
-#  pragma clang diagnostic pop
+    /** Process a (re)size event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, const XEvent&,
+                               SizeEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a mouse event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, const XEvent&,
+                               PointerEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a keyboard event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, const XEvent&, KeyEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process an axis event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, const XEvent&,
+                               AxisEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a button event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, const XEvent&,
+                               ButtonEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a stateless event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, const XEvent& )
+        { return GLWindow::processEvent( type ); }
+
 };
 
 /** Equalizer default implementation of a glX window */
@@ -209,8 +232,8 @@ public:
     /** Unbind a GLX_NV_swap_barrier. @version 1.0 */
     void leaveNVSwapBarrier();
 
-    /** @version 1.5.1 */
-    EQ_API bool processEvent( const WindowEvent& event ) override;
+    EQ_API bool processEvent( EventType type, const XEvent& xEvent,
+                              PointerEvent& event ) override;
     //@}
 
 private:

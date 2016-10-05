@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Maxim Makhinya
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,11 +60,21 @@ public:
      */
     virtual bool isThreaded() const { return false; }
 
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Woverloaded-virtual"
-    /** Process the given event. @version 1.0 */
-    EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
-#  pragma clang diagnostic pop
+    /** Process a simple event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, EventRef )
+        { return GLWindow::processEvent( type ); }
+
+    /** Process a (re)size event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, EventRef, SizeEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a mouse event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, EventRef, PointerEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a keyboard event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, EventRef, KeyEvent& event )
+        { return GLWindow::processEvent( type, event ); }
 };
 
 /** Equalizer default implementation of an AGL window interface. */
@@ -266,8 +276,8 @@ public:
     EQ_API void joinNVSwapBarrier( const uint32_t group,
                                    const uint32_t barrier ) override;
 
-    /** @version 1.0 */
-    EQ_API bool processEvent( const WindowEvent& event ) override;
+    EQ_API bool processEvent( EventType type, EventRef eventRef,
+                              SizeEvent& event ) override;
     //@}
 
 private:
