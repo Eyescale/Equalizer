@@ -182,21 +182,17 @@ void EventHandler::_processEvents( const Proxy* proxy )
         case ::deflect::Event::EVT_KEY_RELEASE:
         {
             KeyEvent event;
-            event.originator = channel.getID();
-            event.serial = channel.getSerial();
             const EventType type =
                 deflectEvent.type == ::deflect::Event::EVT_KEY_PRESS ?
                                          EVENT_KEY_PRESS : EVENT_KEY_RELEASE;
             event.key = _getKey(  deflectEvent.key );
             channel.processEvent( type, event );
-            return;
+            break;
         }
         case ::deflect::Event::EVT_PRESS:
         case ::deflect::Event::EVT_RELEASE:
         {
             PointerEvent event;
-            event.originator = channel.getID();
-            event.serial = channel.getSerial();
             const EventType type =
                 deflectEvent.type == ::deflect::Event::EVT_PRESS ?
                                          EVENT_CHANNEL_POINTER_BUTTON_PRESS :
@@ -208,14 +204,12 @@ void EventHandler::_processEvents( const Proxy* proxy )
             _computePointerDelta( type, event );
 
             channel.processEvent( type, event );
-            return;
+            break;
         }
         case ::deflect::Event::EVT_MOVE:
         case ::deflect::Event::EVT_PAN:
         {
             PointerEvent event;
-            event.originator = channel.getID();
-            event.serial = channel.getSerial();
             event.x = x;
             event.y = y;
             event.dx = deflectEvent.dx * pvp.w;
@@ -228,13 +222,11 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.button = event.buttons;
 
             channel.processEvent( EVENT_CHANNEL_POINTER_MOTION, event );
-            return;
+            break;
         }
         case ::deflect::Event::EVT_WHEEL:
         {
             PointerEvent event;
-            event.originator = channel.getID();
-            event.serial = channel.getSerial();
             event.x = x;
             event.y = pvp.h - y;
             event.xAxis = deflectEvent.dx * wheelFactor;
@@ -243,13 +235,11 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.dy = -deflectEvent.dy;
 
             channel.processEvent( EVENT_CHANNEL_POINTER_WHEEL, event );
-            return;
+            break;
         }
         case ::deflect::Event::EVT_PINCH:
         {
             PointerEvent event;
-            event.originator = channel.getID();
-            event.serial = channel.getSerial();
             event.x = x;
             event.y = pvp.h - y;
             const auto dx = deflectEvent.dx * pvp.w;
@@ -260,7 +250,7 @@ void EventHandler::_processEvents( const Proxy* proxy )
             event.yAxis = zoom * wheelFactor;
 
             channel.processEvent( EVENT_CHANNEL_POINTER_WHEEL, event );
-            return;
+            break;
         }
 
         case ::deflect::Event::EVT_DOUBLECLICK:

@@ -498,8 +498,6 @@ private:
     /** Enter the given barrier. */
     void _enterBarrier( co::ObjectVersion barrier );
 
-    void _updateEvent( Event& event );
-
     /* The command functions. */
     bool _cmdCreateChannel( co::ICommand& command );
     bool _cmdDestroyChannel(co::ICommand& command );

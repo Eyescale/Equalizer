@@ -474,19 +474,25 @@ EventOCommand Node::sendError( const uint32_t error )
 
 bool Node::processEvent( const EventType type, AxisEvent& event )
 {
-    getConfig()->sendEvent( type ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Node::processEvent( const EventType type, ButtonEvent& event )
 {
-    getConfig()->sendEvent( type ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Node::processEvent( Statistic& event )
 {
-    getConfig()->sendEvent( EVENT_STATISTIC ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 

@@ -269,8 +269,6 @@ void Channel::notifyViewportChanged()
         return;
 
     SizeEvent event;
-    event.originator = getID();
-    event.serial = getSerial();
     event.x = newPVP.x;
     event.y = newPVP.y;
     event.w = newPVP.w;
@@ -859,6 +857,7 @@ EventOCommand Channel::sendError( const uint32_t error )
 bool Channel::processEvent( const EventType type, SizeEvent& event )
 {
     Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
 
     if( type == EVENT_CHANNEL_RESIZE )
     {
@@ -875,25 +874,31 @@ bool Channel::processEvent( const EventType type, SizeEvent& event )
         return true;
     }
 
-    config->sendEvent( type) << event;
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Channel::processEvent( const EventType type, PointerEvent& event )
 {
-    getConfig()->sendEvent( type ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Channel::processEvent( const EventType type, KeyEvent& event )
 {
-    getConfig()->sendEvent( type ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Channel::processEvent( Statistic& event )
 {
-    getConfig()->sendEvent( EVENT_STATISTIC ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 

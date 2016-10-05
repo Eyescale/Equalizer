@@ -665,13 +665,6 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 // event methods
 //======================================================================
 
-void Window::_updateEvent( Event& event )
-{
-    event.serial = getSerial();
-    event.time = getConfig()->getTime();
-    event.originator = getID();
-}
-
 EventOCommand Window::sendError( const uint32_t error )
 {
     return getConfig()->sendError( EVENT_WINDOW_ERROR, Error( error, getID()));
@@ -679,16 +672,18 @@ EventOCommand Window::sendError( const uint32_t error )
 
 bool Window::processEvent( const EventType type )
 {
+    Config* config = getConfig();
     Event event;
-    _updateEvent( event );
+    updateEvent( event, config->getTime( ));
 
-    getConfig()->sendEvent( type ) << event;
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Window::processEvent( const EventType type, SizeEvent& event )
 {
-    _updateEvent( event );
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
 
     switch( type )
     {
@@ -720,13 +715,14 @@ bool Window::processEvent( const EventType type, SizeEvent& event )
         LBUNIMPLEMENTED;
     }
 
-    getConfig()->sendEvent( type ) << event;
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Window::processEvent( const EventType type, PointerEvent& event )
 {
-    _updateEvent( event );
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
     if( !getRenderContext( event.x, event.y, event.context ))
         LBVERB << "No rendering context for pointer event at "
                << event.x << ", " << event.y << std::endl;
@@ -736,12 +732,12 @@ bool Window::processEvent( const EventType type, PointerEvent& event )
     {
     case EVENT_WINDOW_POINTER_GRAB:
         _grabbedChannels = channels;
-        getConfig()->sendEvent( type ) << event;
+        config->sendEvent( type ) << event;
         return true;
 
     case EVENT_WINDOW_POINTER_UNGRAB:
         _grabbedChannels.clear();
-        getConfig()->sendEvent( type ) << event;
+        config->sendEvent( type ) << event;
         return true;
 
     default: break;
@@ -777,43 +773,48 @@ bool Window::processEvent( const EventType type, PointerEvent& event )
         const int32_t y = pvp.h - event.y;
         const PixelViewport& channelPVP = channel->getNativePixelViewport();
 
-        channelEvent.originator = channel->getID();
-        channelEvent.serial = channel->getSerial();
         channelEvent.x -= channelPVP.x;
         channelEvent.y = channelPVP.h - y + channelPVP.y;
         if( channel->processEvent( channelType, channelEvent ))
             return true;
     }
 
-    getConfig()->sendEvent( type ) << event;
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Window::processEvent( const EventType type, KeyEvent& event )
 {
-    _updateEvent( event );
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
 
     if( event.key != KC_VOID )
-        getConfig()->sendEvent( type ) << event;
+        config->sendEvent( type ) << event;
     // else ignore
     return true;
 }
 
 bool Window::processEvent( const EventType type, AxisEvent& event )
 {
-    getConfig()->sendEvent( type ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Window::processEvent( const EventType type, ButtonEvent& event )
 {
-    getConfig()->sendEvent( type ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( type ) << event;
     return true;
 }
 
 bool Window::processEvent( Statistic& event )
 {
-    getConfig()->sendEvent( EVENT_STATISTIC ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 

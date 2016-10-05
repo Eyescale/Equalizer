@@ -496,8 +496,6 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
             case kConnexionCmdHandleAxis:
             {
                 AxisEvent event;
-                event.originator = _magellanNode->getID();
-                event.serial = _magellanNode->getSerial();
                 event.xAxis =  state->axis[0];
                 event.yAxis = -state->axis[1];
                 event.zAxis = -state->axis[2];
@@ -511,8 +509,6 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
             case kConnexionCmdHandleButtons:
             {
                 ButtonEvent event;
-                event.originator = _magellanNode->getID();
-                event.serial = _magellanNode->getSerial();
                 event.buttons = state->buttons;
                 _magellanNode->processEvent( EVENT_MAGELLAN_BUTTON, event );
                 return;

@@ -899,7 +899,9 @@ EventOCommand Pipe::sendError( const uint32_t error )
 
 bool Pipe::processEvent( Statistic& event )
 {
-    getConfig()->sendEvent( EVENT_STATISTIC ) << event;
+    Config* config = getConfig();
+    updateEvent( event, config->getTime( ));
+    config->sendEvent( EVENT_STATISTIC ) << event;
     return true;
 }
 

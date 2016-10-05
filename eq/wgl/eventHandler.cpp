@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -578,8 +578,6 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         {
             Event event;
             LBASSERT( _magellanNode->getID() != 0 );
-            event.originator = _magellanNode->getID();
-            event.serial = _magellanNode->getSerial();
             event.type = Event::MAGELLAN_BUTTON;
             event.magellan.button = 0;
             event.magellan.buttons = 0;
@@ -603,8 +601,6 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         {
             Event event;
             LBASSERT( _magellanNode->getID() != 0 );
-            event.originator = _magellanNode->getID();
-            event.serial = _magellanNode->getSerial();
             event.type = Event::MAGELLAN_AXIS;
             event.magellan.xAxis =  _magellanDOFs[0];
             event.magellan.yAxis = -_magellanDOFs[1];

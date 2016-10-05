@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 
 #include "object.h"
 
+#include "event.h"
 #include "task.h"
 
 #include <co/iCommand.h>
@@ -376,6 +377,13 @@ bool Object::_cmdSync( co::ICommand& )
     LBASSERT( isMaster( ));
     sync( co::VERSION_HEAD );
     return true;
+}
+
+void Object::updateEvent( Event& event, const int64_t time )
+{
+    event.serial = getSerial();
+    event.time = time;
+    event.originator = getID();
 }
 
 }

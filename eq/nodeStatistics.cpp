@@ -56,8 +56,6 @@ NodeStatistics::NodeStatistics( const Statistic::Type type, Node* node,
     Config* config = _owner->getConfig();
     statistic.startTime = config->getTime();
     LBASSERT( _owner->getID() != 0 );
-    statistic.originator = _owner->getID();
-    statistic.serial = _owner->getSerial();
 }
 
 

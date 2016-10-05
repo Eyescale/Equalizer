@@ -49,8 +49,6 @@ public:
         LBASSERT( owner );
         LBASSERT( owner->getID() != 0 );
         LBASSERT( owner->getSerial() != CO_INSTANCE_INVALID );
-        statistic.serial = owner->getSerial();
-        statistic.originator = owner->getID();
         statistic.type = type;
         statistic.frameNumber = frameNumber;
         statistic.resourceName[0] = '\0';
