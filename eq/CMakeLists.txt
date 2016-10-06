@@ -56,6 +56,8 @@ set(EQUALIZER_PUBLIC_HEADERS
   os.h
   pipe.h
   pixelData.h
+  qt/types.h
+  qt/window.h
   resultImageListener.h
   segment.h
   server.h
@@ -223,7 +225,6 @@ endif()
 
 if(EQ_QT_USED)
   list(APPEND EQUALIZER_HEADERS
-    qt/window.h
     qt/windowFactory.h
     qt/windowSystem.h
     )
