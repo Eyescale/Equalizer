@@ -58,6 +58,7 @@ set(EQUALIZER_PUBLIC_HEADERS
   pixelData.h
   qt/types.h
   qt/window.h
+  qt/shareContextWindow.h
   resultImageListener.h
   segment.h
   server.h
