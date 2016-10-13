@@ -56,9 +56,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   os.h
   pipe.h
   pixelData.h
-  qt/types.h
-  qt/window.h
-  qt/shareContextWindow.h
   resultImageListener.h
   segment.h
   server.h
@@ -225,6 +222,11 @@ if(WIN32)
 endif()
 
 if(EQ_QT_USED)
+  list(APPEND EQUALIZER_PUBLIC_HEADERS
+    qt/types.h
+    qt/window.h
+    qt/shareContextWindow.h
+    )
   list(APPEND EQUALIZER_HEADERS
     qt/windowFactory.h
     qt/windowSystem.h
