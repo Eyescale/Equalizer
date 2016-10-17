@@ -37,7 +37,7 @@ enum EventType // Also update string table in event.cpp
     EVENT_VIEW_RESIZE,          //!< A view has been resized
 
     // PointerEvent
-    EVENT_CHANNEL_POINTER_MOTION, //!< A pointer is moved over a Channel
+    EVENT_CHANNEL_POINTER_MOTION = 10, //!< A pointer is moved over a Channel
     EVENT_CHANNEL_POINTER_BUTTON_PRESS, //!< Mouse button pressed in a Channel
     EVENT_CHANNEL_POINTER_BUTTON_RELEASE, //!< Mouse button release in a Channel
     EVENT_CHANNEL_POINTER_WHEEL, //!< Mouse wheel scroll over a Channel
@@ -47,14 +47,14 @@ enum EventType // Also update string table in event.cpp
     EVENT_WINDOW_POINTER_BUTTON_RELEASE, //!< Mouse button release in a Window
 
     // KeyEvent
-    EVENT_KEY_PRESS, //!< Key pressed
+    EVENT_KEY_PRESS = 20, //!< Key pressed
     EVENT_KEY_RELEASE, //!< Key released
 
-    EVENT_MAGELLAN_AXIS,        //!< AxisEvent: SpaceMouse touched
+    EVENT_MAGELLAN_AXIS = 30,        //!< AxisEvent: SpaceMouse touched
     EVENT_MAGELLAN_BUTTON,      //!< ButtonEvent: SpaceMouse button pressed
 
     // Stateless Events
-    EVENT_WINDOW_CLOSE,         //!< A window has been closed
+    EVENT_WINDOW_CLOSE = 40,         //!< A window has been closed
     EVENT_WINDOW_HIDE,          //!< A window is hidden
     EVENT_WINDOW_EXPOSE,    //!< A window is dirty
     EVENT_EXIT, //!< Exit request from application or due to runtime error
@@ -77,7 +77,7 @@ enum EventType // Also update string table in event.cpp
      * Config error event. Contains the originator id, the error code and
      * 0-n Strings with additional information.
      */
-    EVENT_CONFIG_ERROR,
+    EVENT_CONFIG_ERROR = 50,
     EVENT_NODE_ERROR, //!< Node error event. @sa CONFIG_ERROR
     EVENT_PIPE_ERROR, //!< Pipe error event. @sa CONFIG_ERROR
     EVENT_WINDOW_ERROR, //!< Window error event. @sa CONFIG_ERROR
