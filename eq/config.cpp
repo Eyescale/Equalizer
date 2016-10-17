@@ -566,6 +566,7 @@ EventOCommand Config::sendEvent( const uint32_t type )
 {
     LBASSERT( getAppNodeID() != 0 );
     LBASSERT( _impl->appNode );
+    LBASSERT( type != EVENT_UNKNOWN );
 
     EventOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
     cmd << type;
