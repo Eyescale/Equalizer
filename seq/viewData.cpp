@@ -45,7 +45,6 @@ ViewData::~ViewData()
 
 void ViewData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    co::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_MODELMATRIX )
         os << _modelMatrix;
     if( dirtyBits & DIRTY_STATISTICS )
@@ -56,7 +55,6 @@ void ViewData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 
 void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
-    co::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_MODELMATRIX )
         is >> _modelMatrix;
     if( dirtyBits & DIRTY_STATISTICS )

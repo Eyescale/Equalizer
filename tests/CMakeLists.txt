@@ -28,7 +28,7 @@ if($ENV{TRAVIS})
 endif()
 
 set(TEST_LIBRARIES Equalizer EqualizerAdmin EqualizerServer EqualizerFabric
-  Sequel ${Boost_LIBRARIES})
+  Sequel Pression ${Boost_LIBRARIES})
 include(CommonCTest)
 
 if(APPLE) # test that only one OpenGL (X11 lib or OpenGL framework) is linked

@@ -84,11 +84,11 @@ public:
     //@}
 
     /** @return true if the object has data to commit. @version 1.0 */
-    EQFABRIC_API virtual bool isDirty() const;
+    EQFABRIC_API bool isDirty() const override;
 
     /** @internal */
-    EQFABRIC_API virtual uint128_t commit( const uint32_t incarnation =
-                                           CO_COMMIT_NEXT );
+    EQFABRIC_API uint128_t commit( const uint32_t incarnation =
+                                   CO_COMMIT_NEXT ) override;
 
     /** @internal Back up app-specific data, excluding child data. */
     EQFABRIC_API virtual void backup();
@@ -138,12 +138,12 @@ protected:
     /** @internal Set the tasks this entity might potentially execute. */
     EQFABRIC_API void setTasks( const uint32_t tasks );
 
-    EQFABRIC_API virtual void notifyDetach();
+    EQFABRIC_API void notifyDetach() override;
 
-    EQFABRIC_API virtual void serialize( co::DataOStream& os,
-                                         const uint64_t dirtyBits );
-    EQFABRIC_API virtual void deserialize( co::DataIStream& is,
-                                           const uint64_t dirtyBits );
+    EQFABRIC_API void serialize( co::DataOStream& os,
+                                 uint64_t dirtyBits ) override;
+    EQFABRIC_API void deserialize( co::DataIStream& is,
+                                   uint64_t dirtyBits ) override;
 
     /** @internal @return the bits to be re-committed by the master. */
     virtual uint64_t getRedistributableBits() const
@@ -167,10 +167,10 @@ protected:
     /** @internal commit slave instance to the server. */
     template< class C > inline
     void commitChild( C* child, const uint32_t incarnation )
-        {
-            LBASSERT( child->isAttached( ));
-            child->commit( incarnation );
-        }
+    {
+        LBASSERT( child->isAttached( ));
+        child->commit( incarnation );
+    }
 
     /** @internal commit, register child slave instances with the server. */
     template< class C, class S >

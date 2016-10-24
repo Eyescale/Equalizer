@@ -52,6 +52,7 @@
 #include <lunchbox/monitor.h>
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/spinLock.h>
+#include <pression/data/CompressorInfo.h>
 #include <pression/plugins/compressor.h>
 
 #ifdef EQUALIZER_USE_GLSTATS
@@ -76,7 +77,7 @@ namespace
 class LatencyObject : public co::Object
 {
 public:
-    LatencyObject( const ChangeType type, const uint32_t compressor,
+    LatencyObject( const ChangeType type, const co::CompressorInfo& compressor,
                    const uint32_t frame )
             : frameNumber( frame ), _changeType( type )
             , _compressor( compressor ) {}
@@ -87,11 +88,11 @@ protected:
     virtual ChangeType getChangeType() const { return _changeType; }
     virtual void getInstanceData( co::DataOStream& ){ LBDONTCALL }
     virtual void applyInstanceData( co::DataIStream& ){ LBDONTCALL }
-    virtual uint32_t chooseCompressor() const { return _compressor; }
+    virtual co::CompressorInfo chooseCompressor() const { return _compressor; }
 
 private:
     const ChangeType _changeType;
-    const uint32_t _compressor;
+    const co::CompressorInfo _compressor;
 };
 #ifdef EQUALIZER_USE_GLSTATS
 namespace
@@ -581,7 +582,7 @@ EventOCommand Config::sendError( const uint32_t type, const Error& error )
 Errors Config::getErrors()
 {
     Errors errors;
-    errors.swap(_impl->errors );
+    errors.swap( _impl->errors );
     return errors;
 }
 
