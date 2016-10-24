@@ -37,6 +37,7 @@ struct PointerEvent : public Event
     int32_t dy;       //!< Y position change since last event
     uint32_t buttons; //!< current state of all buttons
     uint32_t button;  //!< fired button
+    uint32_t modifiers; //!< state of modifier keys
     float xAxis;      //!< x wheel rotation in clicks
     float yAxis;      //!< y wheel rotation in clicks
     RenderContext context; //!< The last rendering context at position
@@ -55,6 +56,12 @@ inline std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
     if( event.buttons & PTR_BUTTON3 ) os << "3";
     if( event.buttons & PTR_BUTTON4 ) os << "4";
     if( event.buttons & PTR_BUTTON5 ) os << "5";
+
+    os << " modifiers";
+    if( event.buttons == KM_NONE ) os << " none";
+    if( event.buttons & KM_ALT ) os << " alt";
+    if( event.buttons & KM_CONTROL ) os << " ctrl";
+    if( event.buttons & KM_SHIFT ) os << " shift";
 
     os << " fired ";
     if( event.button == PTR_BUTTON_NONE ) os << "none";
@@ -80,6 +87,7 @@ template<> inline void byteswap( eq::fabric::PointerEvent& value )
     byteswap( value.dy );
     byteswap( value.buttons );
     byteswap( value.button );
+    byteswap( value.modifiers );
     byteswap( value.xAxis );
     byteswap( value.yAxis );
     byteswap( value.context );

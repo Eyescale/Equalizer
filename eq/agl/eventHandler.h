@@ -78,10 +78,6 @@ private:
     bool _processMouseEvent( const EventRef eventRef );
     bool _processKeyEvent( const EventRef eventRef );
 
-    uint32_t _getButtonState( EventRef event );
-    uint32_t _getButtonAction( EventRef event );
-    uint32_t _getKey( EventRef event );
-
     uint32_t _lastDX;
     uint32_t _lastDY;
 };

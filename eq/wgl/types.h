@@ -33,7 +33,6 @@ class EventHandler;
 class Pipe;
 class Window;
 class WindowIF;
-class WindowEvent;
 }
 }
 

@@ -95,6 +95,18 @@ enum PointerButton
     PTR_BUTTON7     = LB_BIT7
 };
 
+/**
+ * Key modifiers
+ * @version 2.0
+ */
+enum KeyModifier
+{
+    KM_NONE    = LB_BIT_NONE,
+    KM_ALT     = LB_BIT1,
+    KM_CONTROL = LB_BIT2,
+    KM_SHIFT   = LB_BIT3,
+};
+
 }
 }
 }
