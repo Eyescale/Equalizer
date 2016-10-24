@@ -39,7 +39,7 @@
 
 namespace triply
 {
-static const co::CompressorInfo COMPRESSOR_AUTO( "triply::auto", 1.f, 1.f );
+static const co::CompressorInfo COMPRESSOR_AUTO( -1.f, -1.f );
 
 /** Uses co::Object to distribute a model, holds a VertexBufferBase node. */
 class VertexBufferDist : public co::Object

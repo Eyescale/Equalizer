@@ -77,7 +77,7 @@ VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
               new VertexBufferDist( root, *node.getRight(), localNode,
                                     type, compressor ) : nullptr )
     , _changeType( type )
-    , _compressor( _compressor == COMPRESSOR_AUTO ?
+    , _compressor( compressor == COMPRESSOR_AUTO ?
                    co::Object::chooseCompressor() : compressor )
 {
     if( !localNode->registerObject( this ))
