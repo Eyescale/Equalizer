@@ -55,9 +55,6 @@ private:
 
     void _dispatch();
     bool _processEvent( const XEvent& event );
-    uint32_t _getButtonState( const XEvent& event );
-    uint32_t _getButtonAction( const XEvent& event );
-    uint32_t _getKey( const XEvent& event );
 
     LB_TS_VAR( _thread );
 };

@@ -22,7 +22,6 @@
 #include "eventHandler.h"
 
 #include "window.h"
-#include "windowEvent.h"
 
 #include "../config.h"
 #include "../log.h"
@@ -67,9 +66,9 @@ namespace
     typedef stde::hash_map< void*, EventHandler* > HandlerMap;
 #endif
 
-static lunchbox::PerThread< HandlerMap > _handlers;
+lunchbox::PerThread< HandlerMap > _handlers;
 
-static void registerHandler( HWND hWnd, EventHandler* handler )
+void _registerHandler( HWND hWnd, EventHandler* handler )
 {
     if( _handlers == 0 )
         _handlers = new HandlerMap;
@@ -80,7 +79,7 @@ static void registerHandler( HWND hWnd, EventHandler* handler )
     (*map)[hWnd] = handler;
 }
 
-static void deregisterHandler( HWND hWnd )
+void _deregisterHandler( HWND hWnd )
 {
     HandlerMap* map = _handlers.get();
     LBASSERT( map )
@@ -89,7 +88,7 @@ static void deregisterHandler( HWND hWnd )
     map->erase( hWnd );
 }
 
-static EventHandler* getEventHandler( HWND hWnd )
+EventHandler* _getEventHandler( HWND hWnd )
 {
     HandlerMap* map = _handlers.get();
     if( !map || map->find( hWnd ) == map->end( ))
@@ -97,328 +96,8 @@ static EventHandler* getEventHandler( HWND hWnd )
 
     return (*map)[hWnd];
 }
-}
 
-EventHandler::EventHandler( WindowIF* window )
-        : _window( window ),
-          _buttonState( PTR_BUTTON_NONE )
-{
-    _hWnd = window->getWGLWindowHandle();
-
-    if( !_hWnd )
-    {
-        LBWARN << "Window has no window handle" << std::endl;
-        return;
-    }
-
-    registerHandler( _hWnd, this );
-
-#pragma warning(push)
-#pragma warning(disable: 4312)
-    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC,
-                                              (LONG_PTR)wndProc );
-#pragma warning(pop)
-
-    if( _prevWndProc == wndProc ) // avoid recursion
-        _prevWndProc = DefWindowProc;
-
-    UINT scrollLines;
-    SystemParametersInfo( SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0 );
-    _wheelDeltaPerLine = WHEEL_DELTA / scrollLines;
-}
-
-EventHandler::~EventHandler()
-{
-    SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)_prevWndProc );
-    deregisterHandler( _hWnd );
-}
-
-LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-                                        LPARAM lParam )
-{
-    EventHandler* handler = getEventHandler( hWnd );
-    if( !handler )
-    {
-        LBERROR << "Message arrived for unregistered window" << std::endl;
-        return DefWindowProc( hWnd, uMsg, wParam, lParam );
-    }
-
-    return handler->_wndProc( hWnd, uMsg, wParam, lParam );
-}
-
-void EventHandler::_syncButtonState( WPARAM wParam )
-{
-    uint32_t buttons = PTR_BUTTON_NONE;
-    if( wParam & MK_LBUTTON )  buttons |= PTR_BUTTON1;
-    if( wParam & MK_RBUTTON )  buttons |= PTR_BUTTON2;
-    if( wParam & MK_MBUTTON )  buttons |= PTR_BUTTON3;
-    if( wParam & MK_XBUTTON1 ) buttons |= PTR_BUTTON4;
-    if( wParam & MK_XBUTTON2 ) buttons |= PTR_BUTTON5;
-
-#ifndef NDEBUG
-    if( _buttonState != buttons )
-
-        LBWARN << "WM_MOUSEMOVE reports button state " << buttons
-               << ", but internal state is " << _buttonState << std::endl;
-#endif
-
-    _buttonState = buttons;
-}
-
-namespace
-{
-void _getWindowSize( HWND hWnd, ResizeEvent& event )
-{
-    RECT rect;
-    GetClientRect( hWnd, &rect );
-    event.w = rect.right - rect.left;
-    event.h = rect.bottom - rect.top;
-
-    // Get window coordinates, the rect data is relative
-    // to window parent, but we report pvp relative to screen.
-    POINT point;
-    point.x = rect.left;
-    point.y = rect.top;
-    ClientToScreen( hWnd, &point );
-    event.x = point.x;
-    event.y = point.y;
-}
-}
-LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-                                         LPARAM lParam )
-{
-    WindowEvent event;
-    event.uMsg   = uMsg;
-    event.wParam = wParam;
-    event.lParam = lParam;
-
-    LONG result = 0;
-    switch( uMsg )
-    {
-        case WM_SHOWWINDOW:
-            if( wParam == TRUE )
-                event.type = Event::WINDOW_SHOW;
-            else
-                event.type = Event::WINDOW_HIDE;
-
-            _getWindowSize( hWnd, event.resize );
-            break;
-
-        case WM_CREATE:
-        case WM_SIZE:
-        case WM_MOVE:
-        case WM_WINDOWPOSCHANGED:
-        {
-            _getWindowSize( hWnd, event.resize );
-            const bool hasArea = (event.resize.w >0 && event.resize.h > 0);
-            const PixelViewport& pvp = _window->getPixelViewport();
-
-            // No show/hide events on Win32?: Emulate.
-            if( !hasArea && pvp.hasArea( ))
-                event.type = Event::WINDOW_HIDE;
-            else if( hasArea && !pvp.hasArea( ))
-                event.type = Event::WINDOW_SHOW;
-            else
-                event.type = Event::WINDOW_RESIZE;
-            break;
-        }
-
-        case WM_CLOSE:
-        case WM_DESTROY:
-            event.type = Event::WINDOW_CLOSE;
-            break;
-
-        case WM_PAINT:
-        {
-            if( GetUpdateRect( hWnd, 0, false ) == 0 ) // No 'expose'
-                return DefWindowProc( hWnd, uMsg, wParam, lParam );
-
-            event.type = Event::WINDOW_EXPOSE;
-            break;
-        }
-
-        case WM_MOUSEMOVE:
-        {
-            _syncButtonState( wParam );
-
-            event.type = Event::WINDOW_POINTER_MOTION;
-            event.pointerMotion.x = GET_X_LPARAM( lParam );
-            event.pointerMotion.y = GET_Y_LPARAM( lParam );
-            event.pointerMotion.buttons = _buttonState;
-
-            _computePointerDelta( event );
-            break;
-        }
-
-        case WM_LBUTTONDOWN:
-            _buttonState |= PTR_BUTTON1;
-            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonState;
-            event.pointerButtonPress.button  = PTR_BUTTON1;
-
-            _computePointerDelta( event );
-            break;
-
-        case WM_RBUTTONDOWN:
-            _buttonState |= PTR_BUTTON2;
-            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonState;
-            event.pointerButtonPress.button  = PTR_BUTTON2;
-
-            _computePointerDelta( event );
-            break;
-
-        case WM_MBUTTONDOWN:
-            _buttonState |= PTR_BUTTON3;
-            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonState;
-            event.pointerButtonPress.button  = PTR_BUTTON3;
-
-            _computePointerDelta( event );
-            break;
-
-        case WM_XBUTTONDOWN:
-            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-
-            if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
-                event.pointerButtonRelease.button = PTR_BUTTON4;
-            else
-                event.pointerButtonRelease.button = PTR_BUTTON5;
-
-            _buttonState |= event.pointerButtonPress.button;
-            _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
-            event.pointerButtonPress.buttons = _buttonState;
-
-            _computePointerDelta( event );
-            result = TRUE;
-            break;
-
-        case WM_LBUTTONUP:
-            _buttonState &= ~PTR_BUTTON1;
-            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonState;
-            event.pointerButtonRelease.button  = PTR_BUTTON1;
-
-            _computePointerDelta( event );
-            break;
-
-        case WM_RBUTTONUP:
-            _buttonState &= ~PTR_BUTTON2;
-            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonState;
-            event.pointerButtonRelease.button  = PTR_BUTTON2;
-
-            _computePointerDelta( event );
-            break;
-
-        case WM_MBUTTONUP:
-            _buttonState &= ~PTR_BUTTON3;
-            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonState;
-            event.pointerButtonRelease.button  = PTR_BUTTON3;
-
-            _computePointerDelta( event );
-            break;
-
-        case WM_XBUTTONUP:
-            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-
-            if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
-                event.pointerButtonRelease.button = PTR_BUTTON4;
-            else
-                event.pointerButtonRelease.button = PTR_BUTTON5;
-
-            _buttonState &= ~event.pointerButtonRelease.button;
-            _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
-            event.pointerButtonRelease.buttons =_buttonState;
-
-            _computePointerDelta( event );
-            result = TRUE;
-            break;
-
-        case WM_MOUSEWHEEL:
-            event.type = Event::WINDOW_POINTER_WHEEL;
-            event.pointerWheel.x     = GET_X_LPARAM( lParam );
-            event.pointerWheel.y     = GET_Y_LPARAM( lParam );
-            event.pointerWheel.buttons = _buttonState;
-            event.pointerWheel.yAxis = _getWheelDelta( wParam );
-            break;
-
-#ifdef WM_MOUSEHWHEEL // only available on vista or later
-        case WM_MOUSEHWHEEL:
-            event.type = Event::WINDOW_POINTER_WHEEL;
-            event.pointerWheel.x     = GET_X_LPARAM( lParam );
-            event.pointerWheel.y     = GET_Y_LPARAM( lParam );
-            event.pointerWheel.buttons = _buttonState;
-            event.pointerWheel.xAxis = _getWheelDelta( wParam );
-            break;
-#endif
-
-        case WM_SYSKEYDOWN:
-        case WM_KEYDOWN:
-            event.type = Event::KEY_PRESS;
-            event.keyPress.key = _getKey( lParam, wParam );
-            break;
-
-        case WM_SYSKEYUP:
-        case WM_KEYUP:
-            event.type = Event::KEY_RELEASE;
-            event.keyRelease.key = _getKey( lParam, wParam );
-            break;
-
-        case WM_SYSCOMMAND:
-            switch( wParam )
-            {
-                case SC_MONITORPOWER:
-                case SC_SCREENSAVE:
-                    if( lParam >= 0 ) // request off
-                    {
-                        event.type = Event::WINDOW_SCREENSAVER;
-                        break;
-                    }
-                    // else no break; fall through
-                default:
-                    event.type = Event::UNKNOWN;
-                    LBVERB << "Unhandled system command 0x" << std::hex
-                           << wParam  << std::dec << std::endl;
-                    break;
-            }
-            break;
-#ifdef EQUALIZER_USE_MAGELLAN
-        case WM_INPUT:
-            _magellanEventHandler( lParam );
-            break;
-#endif
-        default:
-            event.type = Event::UNKNOWN;
-            LBVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
-                   << std::endl;
-            break;
-    }
-
-    if( _window->processEvent( event ))
-        return result;
-
-    return CallWindowProc( _prevWndProc, hWnd, uMsg, wParam, lParam );
-}
-
-uint32_t EventHandler::_getKey( LPARAM lParam, WPARAM wParam )
+uint32_t _getKey( LPARAM lParam, WPARAM wParam )
 {
     switch( wParam )
     {
@@ -489,6 +168,321 @@ uint32_t EventHandler::_getKey( LPARAM lParam, WPARAM wParam )
     }
     LBWARN << "Unrecognized virtual key code " << wParam << std::endl;
     return KC_VOID;
+}
+
+uint32_t _getKeyModifiers()
+{
+    uint32_t result = 0;
+    if( GetKeyState( VK_MENU ) & 0x8000 )
+        result |= KM_ALT;
+    if( GetKeyState( VK_CONTROL ) & 0x8000 )
+        result |= KM_CONTROL;
+    if( GetKeyState( VK_SHIFT ) & 0x8000 )
+        result |= KM_SHIFT;
+    return result;
+}
+
+}
+
+EventHandler::EventHandler( WindowIF* window )
+        : _window( window ),
+          _buttonState( PTR_BUTTON_NONE )
+{
+    _hWnd = window->getWGLWindowHandle();
+
+    if( !_hWnd )
+    {
+        LBWARN << "Window has no window handle" << std::endl;
+        return;
+    }
+
+    _registerHandler( _hWnd, this );
+
+#pragma warning(push)
+#pragma warning(disable: 4312)
+    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC,
+                                              (LONG_PTR)wndProc );
+#pragma warning(pop)
+
+    if( _prevWndProc == wndProc ) // avoid recursion
+        _prevWndProc = DefWindowProc;
+
+    UINT scrollLines;
+    SystemParametersInfo( SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0 );
+    _wheelDeltaPerLine = WHEEL_DELTA / scrollLines;
+}
+
+EventHandler::~EventHandler()
+{
+    SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)_prevWndProc );
+    _deregisterHandler( _hWnd );
+}
+
+LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
+                                        LPARAM lParam )
+{
+    EventHandler* handler = _getEventHandler( hWnd );
+    if( !handler )
+    {
+        LBERROR << "Message arrived for unregistered window" << std::endl;
+        return DefWindowProc( hWnd, uMsg, wParam, lParam );
+    }
+
+    return handler->_wndProc( hWnd, uMsg, wParam, lParam );
+}
+
+void EventHandler::_syncButtonState( WPARAM wParam )
+{
+    uint32_t buttons = PTR_BUTTON_NONE;
+    if( wParam & MK_LBUTTON )  buttons |= PTR_BUTTON1;
+    if( wParam & MK_RBUTTON )  buttons |= PTR_BUTTON2;
+    if( wParam & MK_MBUTTON )  buttons |= PTR_BUTTON3;
+    if( wParam & MK_XBUTTON1 ) buttons |= PTR_BUTTON4;
+    if( wParam & MK_XBUTTON2 ) buttons |= PTR_BUTTON5;
+
+#ifndef NDEBUG
+    if( _buttonState != buttons )
+
+        LBWARN << "WM_MOUSEMOVE reports button state " << buttons
+               << ", but internal state is " << _buttonState << std::endl;
+#endif
+
+    _buttonState = buttons;
+}
+
+bool EventHandler::_mouseButtonPress( const PointerButton button,
+                                      const LPARAM lParam )
+{
+    PointerEvent pointerEvent;
+    _buttonState |= button;
+    pointerEvent.x = GET_X_LPARAM( lParam );
+    pointerEvent.y = GET_Y_LPARAM( lParam );
+    pointerEvent.buttons = _buttonState;
+    pointerEvent.button = button;
+    pointerEvent.modifiers = _getKeyModifiers();
+    _computePointerDelta( EVENT_WINDOW_POINTER_BUTTON_PRESS, pointerEvent );
+    return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_PRESS,
+                                  pointerEvent);
+}
+
+bool EventHandler::_mouseButtonRelease( const PointerButton button,
+                                        const LPARAM lParam )
+{
+    PointerEvent pointerEvent;
+    _buttonState &= ~button;
+    pointerEvent.x = GET_X_LPARAM( lParam );
+    pointerEvent.y = GET_Y_LPARAM( lParam );
+    pointerEvent.buttons = _buttonState;
+    pointerEvent.button = button;
+    pointerEvent.modifiers = _getKeyModifiers();
+    _computePointerDelta( EVENT_WINDOW_POINTER_BUTTON_RELEASE, pointerEvent );
+    return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_RELEASE,
+                                  pointerEvent);
+}
+
+namespace
+{
+void _getWindowSize( HWND hWnd, SizeEvent& event )
+{
+    RECT rect;
+    GetClientRect( hWnd, &rect );
+    event.w = rect.right - rect.left;
+    event.h = rect.bottom - rect.top;
+
+    // Get window coordinates, the rect data is relative
+    // to window parent, but we report pvp relative to screen.
+    POINT point;
+    point.x = rect.left;
+    point.y = rect.top;
+    ClientToScreen( hWnd, &point );
+    event.x = point.x;
+    event.y = point.y;
+}
+}
+LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
+                                         LPARAM lParam )
+{
+    switch( uMsg )
+    {
+        case WM_SHOWWINDOW:
+        {
+            SizeEvent sizeEvent;
+            _getWindowSize( hWnd, sizeEvent );
+
+            EventType type =
+                wParam == TRUE ? EVENT_WINDOW_SHOW : EVENT_WINDOW_HIDE;
+
+            if( _window->processEvent( type, sizeEvent ))
+                return TRUE;
+            break;
+        }
+
+        case WM_CREATE:
+        case WM_SIZE:
+        case WM_MOVE:
+        case WM_WINDOWPOSCHANGED:
+        {
+            SizeEvent sizeEvent;
+            _getWindowSize( hWnd, event.resize );
+            const bool hasArea = (event.resize.w >0 && event.resize.h > 0);
+            const PixelViewport& pvp = _window->getPixelViewport();
+
+            // No show/hide events on Win32?: Emulate.
+            EventType type;
+            if( !hasArea && pvp.hasArea( ))
+                type = EVENT_WINDOW_HIDE;
+            else if( hasArea && !pvp.hasArea( ))
+                type = EVENT_WINDOW_SHOW;
+            else
+                type = EVENT_WINDOW_RESIZE;
+
+            if( _window->processEvent( type, sizeEvent ))
+                return TRUE;
+            break;
+        }
+
+        case WM_CLOSE:
+        case WM_DESTROY:
+        {
+            if( _window->processEvent( EVENT_WINDOW_CLOSE ))
+                return TRUE;
+            break;
+        }
+
+        case WM_PAINT:
+        {
+            if( GetUpdateRect( hWnd, 0, false ) == 0 ) // No 'expose'
+                return DefWindowProc( hWnd, uMsg, wParam, lParam );
+
+            if( _window->processEvent( EVENT_WINDOW_EXPOSE ))
+                return TRUE;
+            break;
+        }
+
+        case WM_MOUSEMOVE:
+        {
+            _syncButtonState( wParam );
+
+            PointerEvent pointerEvent;
+            pointerEvent.type = Event::WINDOW_POINTER_MOTION;
+            pointerEvent.x = GET_X_LPARAM( lParam );
+            pointerEvent.y = GET_Y_LPARAM( lParam );
+            pointerEvent.buttons = _buttonState;
+
+            _computePointerDelta( event );
+            break;
+        }
+
+        case WM_LBUTTONDOWN:
+            if( _mouseButtonPressEvent( PTR_BUTTON1, lParam ))
+                return TRUE;
+            break;
+
+        case WM_RBUTTONDOWN:
+            if( _mouseButtonPressEvent( PTR_BUTTON2, lParam ))
+                return TRUE;
+            break;
+
+        case WM_MBUTTONDOWN:
+            if( _mouseButtonPressEvent( PTR_BUTTON3, lParam ))
+                return TRUE;
+            break;
+
+        case WM_XBUTTONDOWN:
+        {
+            const uint32_t button = GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 ?
+                                    PTR_BUTTON4 | PTR_BUTTON5;
+            if( _mouseButtonPressEvent( button, lParam ))
+                return TRUE;
+            break;
+
+        case WM_LBUTTONUP:
+            if( _mouseButtonReleaseEvent( PTR_BUTTON1, lParam ))
+                return TRUE;
+            break;
+
+        case WM_RBUTTONUP:
+            if( _mouseButtonReleaseEvent( PTR_BUTTON2, lParam ))
+                return TRUE;
+            break;
+
+        case WM_MBUTTONUP:
+            if( _mouseButtonReleaseEvent( PTR_BUTTON3, lParam ))
+                return TRUE;
+            break;
+
+        case WM_XBUTTONUP:
+            const uint32_t button = GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 ?
+                                    PTR_BUTTON4 | PTR_BUTTON5;
+            if( _mouseButtonReleaseEvent( button, lParam ))
+                return TRUE;
+            break;
+
+#ifdef WM_MOUSEHWHEEL // only available on vista or later
+        case WM_MOUSEWHEEL:
+
+            pointerEvent.x     = GET_X_LPARAM( lParam );
+            pointerEvent.y     = GET_Y_LPARAM( lParam );
+            pointerEvent.buttons = _buttonState;
+            pointerEvent.modifiers = _getKeyModifiers();
+            pointerEvent.yAxis = _getWheelDelta( wParam );
+            pointerEvent.button = PTR_BUTTON_NONE;
+            _computePointerDelta( EVENT_WINDOW_POINTER_WHEEL, pointerEvent );
+            return _window->processEvent( EVENT_WINDOW_POINTER_WHEEL,
+                                          pointerEvent );
+#endif
+
+        case WM_SYSKEYDOWN:
+        case WM_KEYDOWN:
+        {
+            KeyEvent keyEvent;
+            keyEvent.key = _getKey( lParam, wParam );
+            keyEvent.modifiers = _getKeyModifiers();
+            if( _window->processEvent( EVENT_KEY_PRESS, keyEvent ))
+                return TRUE;
+            break;
+        }
+
+        case WM_SYSKEYUP:
+        case WM_KEYUP:
+            KeyEvent keyEvent;
+            keyEvent.key = _getKey( lParam, wParam );
+            keyEvent.modifiers = _getKeyModifiers();
+            if( _window->processEvent( EVENT_KEY_RELEASE, keyEvent ))
+                return TRUE;
+            break;
+
+        case WM_SYSCOMMAND:
+            switch( wParam )
+            {
+                case SC_MONITORPOWER:
+                case SC_SCREENSAVE:
+                    if( lParam >= 0 ) // request off
+                    {
+                        event.type = Event::WINDOW_SCREENSAVER;
+                        break;
+                    }
+                    // else no break; fall through
+                default:
+                    event.type = Event::UNKNOWN;
+                    LBVERB << "Unhandled system command 0x" << std::hex
+                           << wParam  << std::dec << std::endl;
+                    break;
+            }
+            break;
+#ifdef EQUALIZER_USE_MAGELLAN
+        case WM_INPUT:
+            _magellanEventHandler( lParam );
+            break;
+#endif
+        default:
+            event.type = Event::UNKNOWN;
+            LBVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
+                   << std::endl;
+            break;
+    }
+
+    return CallWindowProc( _prevWndProc, hWnd, uMsg, wParam, lParam );
 }
 
 int32_t EventHandler::_getWheelDelta( WPARAM wParam ) const
