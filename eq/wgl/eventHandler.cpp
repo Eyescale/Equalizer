@@ -170,15 +170,15 @@ uint32_t _getKey( LPARAM lParam, WPARAM wParam )
     return KC_VOID;
 }
 
-uint32_t _getKeyModifiers()
+KeyModifier _getKeyModifiers()
 {
-    uint32_t result = 0;
+    KeyModifier result = KeyModifier::none;
     if( GetKeyState( VK_MENU ) & 0x8000 )
-        result |= KM_ALT;
+        result |= KeyModifier::alt;
     if( GetKeyState( VK_CONTROL ) & 0x8000 )
-        result |= KM_CONTROL;
+        result |= KeyModifier::control;
     if( GetKeyState( VK_SHIFT ) & 0x8000 )
-        result |= KM_SHIFT;
+        result |= KeyModifier::shift;
     return result;
 }
 

@@ -49,6 +49,7 @@ namespace
 {
 uint32_t _getButtonState( const EventRef eventRef )
 {
+    // GetCurrentEventButtonState returns the same bits as Eq buttons
     uint32 buttons = GetCurrentEventButtonState();
 
     if( buttons == PTR_BUTTON1 )
@@ -85,18 +86,18 @@ uint32_t _getButtonAction( const EventRef event )
     }
 }
 
-uint32_t _getKeyModifiers( const EventRef event )
+KeyModifier _getKeyModifiers( const EventRef event )
 {
     uint32_t keys = 0;
-    uint32_t result = 0;
-    GetEventParameter( eventRef, kEventParamKeyModifiers,
-                       typeUInt32, 0, sizeof( keys ), 0, &keys );
+    KeyModifier result = KeyModifier::none;
+    GetEventParameter( event, kEventParamKeyModifiers, typeUInt32, 0,
+                       sizeof( keys ), 0, &keys );
     if( keys & optionKey )
-        result |= KM_ALT;
+        result |= KeyModifier::alt;
     if( keys & controlKey )
-        result |= KM_CONTROL;
+        result |= KeyModifier::control;
     if( keys & shiftKey )
-        result |= KM_SHIFT;
+        result |= KeyModifier::shift;
     return result;
 }
 
@@ -377,7 +378,6 @@ bool EventHandler::_processMouseEvent( const EventRef eventRef )
     event.x = static_cast< int32_t >( pos.x );
     event.y = static_cast< int32_t >( pos.y ) - menuHeight;
     event.modifiers = _getKeyModifiers( eventRef );
-    // GetCurrentEventButtonState returns the same bits as Eq buttons
     event.buttons = _getButtonState( eventRef );
 
     switch( GetEventKind( eventRef ))
@@ -449,6 +449,7 @@ bool EventHandler::_processKeyEvent( const EventRef eventRef )
 {
     KeyEvent event( _getKey( eventRef ));
     event.modifiers = _getKeyModifiers( eventRef );
+
     switch( GetEventKind( eventRef ))
     {
     case kEventRawKeyDown:

@@ -37,7 +37,7 @@ struct PointerEvent : public Event
     int32_t dy;       //!< Y position change since last event
     uint32_t buttons; //!< current state of all buttons
     uint32_t button;  //!< fired button
-    uint32_t modifiers; //!< state of modifier keys
+    KeyModifier modifiers; //!< state of modifier keys
     float xAxis;      //!< x wheel rotation in clicks
     float yAxis;      //!< y wheel rotation in clicks
     RenderContext context; //!< The last rendering context at position
@@ -57,13 +57,7 @@ inline std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
     if( event.buttons & PTR_BUTTON4 ) os << "4";
     if( event.buttons & PTR_BUTTON5 ) os << "5";
 
-    os << " modifiers";
-    if( event.buttons == KM_NONE ) os << " none";
-    if( event.buttons & KM_ALT ) os << " alt";
-    if( event.buttons & KM_CONTROL ) os << " ctrl";
-    if( event.buttons & KM_SHIFT ) os << " shift";
-
-    os << " fired ";
+    os << event.modifiers << " fired ";
     if( event.button == PTR_BUTTON_NONE ) os << "none";
     if( event.button & PTR_BUTTON1 ) os << "1";
     if( event.button & PTR_BUTTON2 ) os << "2";

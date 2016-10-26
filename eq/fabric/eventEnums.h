@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,9 @@
 #ifndef EQFABRIC_EVENTENUMS_H
 #define EQFABRIC_EVENTENUMS_H
 
+#include <lunchbox/bitOperation.h>
 #include <lunchbox/types.h>
+#include <iostream>
 
 namespace eq
 {
@@ -99,15 +101,52 @@ enum PointerButton
  * Key modifiers
  * @version 2.0
  */
-enum KeyModifier
+enum class KeyModifier : unsigned
 {
-    KM_NONE    = LB_BIT_NONE,
-    KM_ALT     = LB_BIT1,
-    KM_CONTROL = LB_BIT2,
-    KM_SHIFT   = LB_BIT3,
+    none    = LB_BIT_NONE,
+    alt     = LB_BIT1,
+    control = LB_BIT2,
+    shift   = LB_BIT3,
+    all = LB_BIT1 | LB_BIT2 | LB_BIT3,
 };
 
+inline KeyModifier operator & ( const KeyModifier l, const KeyModifier r )
+{
+    return static_cast< KeyModifier >( static_cast< unsigned >( l ) &
+                                       static_cast< unsigned >( r ));
 }
+
+inline KeyModifier operator | ( const KeyModifier l, const KeyModifier r )
+{
+    return static_cast< KeyModifier >( static_cast< unsigned >( l ) |
+                                       static_cast< unsigned >( r ));
+}
+
+inline KeyModifier& operator |= ( KeyModifier& l, const KeyModifier r )
+{
+    return l = l | r;
+}
+
+inline std::ostream& operator << ( std::ostream& os, const KeyModifier mod )
+{
+    if( (mod & KeyModifier::alt) == KeyModifier::alt )
+        os << " alt";
+    if( (mod & KeyModifier::control) == KeyModifier::control )
+        os << " ctrl";
+    if( (mod & KeyModifier::shift) == KeyModifier::shift )
+        os << " shift";
+    return os;
+}
+
+}
+}
+}
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::eventEnums::KeyModifier& value )
+{
+    byteswap( reinterpret_cast< unsigned& >( value ));
 }
 }
 

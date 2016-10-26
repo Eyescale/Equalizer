@@ -87,16 +87,16 @@ uint32_t _getKey( const QKeyEvent& keyEvent )
     }
 }
 
-uint32_t _getKeyModifiers( const QInputEvent& event )
+KeyModifier _getKeyModifiers( const QInputEvent& event )
 {
     Qt::KeyboardModifiers modifiers = event.modifiers();
-    uint32_t result = 0;
+    KeyModifier result = KeyModifier::none;
     if( modifiers & Qt::AltModifier )
-        result |= KM_ALT;
+        result |= KeyModifier::alt;
     if( modifiers & Qt::ControlModifier )
-        result |= KM_CONTROL;
+        result |= KeyModifier::control;
     if( modifiers & Qt::ShiftModifier )
-        result |= KM_SHIFT;
+        result |= KeyModifier::shift;
     return result;
 }
 

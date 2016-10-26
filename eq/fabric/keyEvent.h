@@ -30,20 +30,14 @@ struct KeyEvent : public Event
     KeyEvent( const uint32_t k = 0 ) : key( k ) {}
 
     uint32_t key; //!<  KeyCode for special keys, ascii code otherwise
-    uint32_t modifiers; ; //!< key modifier mask
+    KeyModifier modifiers; ; //!< key modifier mask
 };
 
 /** Print the key event to the given output stream. @version 1.0 */
 inline std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 {
-    os << static_cast< const Event& >( event ) << " key " << event.key;
-    if( event.modifiers & KM_ALT )
-        os << " alt";
-    if( event.modifiers & KM_CONTROL )
-        os << " ctrl";
-    if( event.modifiers & KM_SHIFT )
-        os << " shift";
-    return os;
+    return os << static_cast< const Event& >( event ) << " key " << event.key
+              << event.modifiers;
 }
 }
 }

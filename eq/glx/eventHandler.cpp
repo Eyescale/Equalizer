@@ -164,15 +164,15 @@ uint32_t _getKey( const XEvent& event )
     }
 }
 
-uint32_t _getKeyModifiers( const unsigned int state )
+KeyModifier _getKeyModifiers( const unsigned int state )
 {
-    uint32_t result = 0;
+    KeyModifier result = KeyModifier::none;
     if( state & Mod1Mask )
-        result |= KM_ALT;
+        result |= KeyModifier::alt;
     if( state & ControlMask )
-        result |= KM_CONTROL;
+        result |= KeyModifier::control;
     if( state & ShiftMask )
-        result |= KM_SHIFT;
+        result |= KeyModifier::shift;
     return result;
 }
 
