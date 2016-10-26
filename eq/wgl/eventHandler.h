@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,11 +68,14 @@ namespace wgl
                                          LPARAM lParam );
         LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                    LPARAM lParam );
-        void _magellanEventHandler(LPARAM lParam);
+        void _magellanEventHandler( LPARAM lParam );
 
         void      _syncButtonState( WPARAM wParam );
         uint32_t  _getKey( LPARAM lParam, WPARAM wParam );
         int32_t   _getWheelDelta( WPARAM wParam ) const;
+
+        bool _mouseButtonPress( PointerButton button, LPARAM lParam );
+        bool _mouseButtonRelease( PointerButton button, LPARAM lParam );
     };
 }
 }

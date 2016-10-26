@@ -87,6 +87,19 @@ uint32_t _getKey( const QKeyEvent& keyEvent )
     }
 }
 
+KeyModifier _getKeyModifiers( const QInputEvent& event )
+{
+    Qt::KeyboardModifiers modifiers = event.modifiers();
+    KeyModifier result = KeyModifier::none;
+    if( modifiers & Qt::AltModifier )
+        result |= KeyModifier::alt;
+    if( modifiers & Qt::ControlModifier )
+        result |= KeyModifier::control;
+    if( modifiers & Qt::ShiftModifier )
+        result |= KeyModifier::shift;
+    return result;
+}
+
 // Qt buttons 2 & 3 are inversed with EQ (X11/AGL/WGL)
 uint32_t _getButtons( const Qt::MouseButtons& eventButtons )
 {
@@ -240,6 +253,7 @@ bool EventHandler::_processPointerEvent( const EventType type, QEvent* qev )
     pointerEvent.y = qevent->y();
     pointerEvent.buttons = _getButtons( qevent->buttons( ));
     pointerEvent.button = _getButton( qevent->button( ));
+    pointerEvent.modifiers = _getKeyModifiers( *qevent );
     _computePointerDelta( type, pointerEvent );
     return _window.processEvent( type, qev, pointerEvent );
 }
@@ -260,6 +274,7 @@ bool EventHandler::_processWheelEvent( QEvent* qev )
     }
     pointerEvent.buttons = _getButtons( qevent->buttons( ));
     pointerEvent.button  = PTR_BUTTON_NONE;
+    pointerEvent.modifiers = _getKeyModifiers( *qevent );
     return _window.processEvent( EVENT_WINDOW_POINTER_WHEEL, qev, pointerEvent);
 }
 #endif
@@ -269,6 +284,7 @@ bool EventHandler::_processKeyEvent( const EventType type, QEvent* qev )
     QKeyEvent* qevent = static_cast< QKeyEvent* >( qev );
     KeyEvent keyEvent;
     keyEvent.key = _getKey( *qevent );
+    keyEvent.modifiers = _getKeyModifiers( *qevent );
     return _window.processEvent( type, qev, keyEvent );
 }
 

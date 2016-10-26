@@ -30,12 +30,14 @@ struct KeyEvent : public Event
     KeyEvent( const uint32_t k = 0 ) : key( k ) {}
 
     uint32_t key; //!<  KeyCode for special keys, ascii code otherwise
+    KeyModifier modifiers; ; //!< key modifier mask
 };
 
 /** Print the key event to the given output stream. @version 1.0 */
 inline std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 {
-    return os << static_cast< const Event& >( event ) << " key " << event.key;
+    return os << static_cast< const Event& >( event ) << " key " << event.key
+              << event.modifiers;
 }
 }
 }
@@ -46,6 +48,7 @@ template<> inline void byteswap( eq::fabric::KeyEvent& value )
 {
     byteswap( static_cast< eq::fabric::Event& >( value ));
     byteswap( value.key );
+    byteswap( value.modifiers );
 }
 }
 

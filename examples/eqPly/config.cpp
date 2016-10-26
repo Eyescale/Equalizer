@@ -36,6 +36,8 @@
 #include <admin/addWindow.h>
 #include <admin/removeWindow.h>
 
+using eq::KeyModifier;
+
 namespace eqPly
 {
 
@@ -674,7 +676,9 @@ bool Config::handleEvent( const eq::EventType type,
             _spinX = 0;
             _spinY = 0;
 
-            if( _frameData.usePilotMode())
+            if( (event.modifiers & KeyModifier::shift) == KeyModifier::shift )
+                _frameData.moveCamera( 0.f, 0.f, -.005f * event.dy );
+            else if( _frameData.usePilotMode())
                 _frameData.spinCamera( -0.005f * event.dy, -0.005f * event.dx );
             else
                 _frameData.spinModel( -0.005f * event.dy, -0.005f * event.dx,

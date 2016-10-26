@@ -44,6 +44,127 @@ namespace eq
 {
 namespace agl
 {
+
+namespace
+{
+uint32_t _getButtonState( const EventRef eventRef )
+{
+    // GetCurrentEventButtonState returns the same bits as Eq buttons
+    uint32 buttons = GetCurrentEventButtonState();
+
+    if( buttons == PTR_BUTTON1 )
+    {   // Only left button pressed: implement apple-style middle/right button
+        // if modifier keys are used.
+        uint32_t keys = 0;
+        GetEventParameter( eventRef, kEventParamKeyModifiers,
+                           typeUInt32, 0, sizeof( keys ), 0, &keys );
+        if( keys & controlKey )
+            buttons = PTR_BUTTON2;
+        else if( keys & optionKey )
+            buttons = PTR_BUTTON3;
+    }
+
+    // swap button 2&3
+    return ( (buttons & 0xfffffff9u) +
+             ((buttons & LB_BIT3) >> 1) +
+             ((buttons & LB_BIT2) << 1) );
+}
+
+
+uint32_t _getButtonAction( const EventRef event )
+{
+    EventMouseButton button;
+    GetEventParameter( event, kEventParamMouseButton, typeMouseButton, 0,
+                       sizeof( button ), 0, &button );
+
+    switch( button )
+    {
+        case kEventMouseButtonPrimary:   return PTR_BUTTON1;
+        case kEventMouseButtonSecondary: return PTR_BUTTON3;
+        case kEventMouseButtonTertiary:  return PTR_BUTTON2;
+        default: return PTR_BUTTON_NONE;
+    }
+}
+
+KeyModifier _getKeyModifiers( const EventRef event )
+{
+    uint32_t keys = 0;
+    KeyModifier result = KeyModifier::none;
+    GetEventParameter( event, kEventParamKeyModifiers, typeUInt32, 0,
+                       sizeof( keys ), 0, &keys );
+    if( keys & optionKey )
+        result |= KeyModifier::alt;
+    if( keys & controlKey )
+        result |= KeyModifier::control;
+    if( keys & shiftKey )
+        result |= KeyModifier::shift;
+    return result;
+}
+
+uint32_t _getKey( const EventRef eventRef )
+{
+    unsigned char key;
+    GetEventParameter( eventRef, kEventParamKeyMacCharCodes, typeChar, 0,
+                       sizeof( char ), 0, &key );
+    switch( key )
+    {
+        case kEscapeCharCode:     return KC_ESCAPE;
+        case kBackspaceCharCode:  return KC_BACKSPACE;
+        case kReturnCharCode:     return KC_RETURN;
+        case kTabCharCode:        return KC_TAB;
+        case kHomeCharCode:       return KC_HOME;
+        case kLeftArrowCharCode:  return KC_LEFT;
+        case kUpArrowCharCode:    return KC_UP;
+        case kRightArrowCharCode: return KC_RIGHT;
+        case kDownArrowCharCode:  return KC_DOWN;
+        case kPageUpCharCode:     return KC_PAGE_UP;
+        case kPageDownCharCode:   return KC_PAGE_DOWN;
+        case kEndCharCode:        return KC_END;
+        case kFunctionKeyCharCode:
+        {
+            uint32_t keyCode;
+            GetEventParameter( eventRef, kEventParamKeyCode, typeUInt32, 0,
+                       sizeof( keyCode ), 0, &keyCode );
+
+            switch( keyCode )
+            {
+                case kVK_F1:        return KC_F1;
+                case kVK_F2:        return KC_F2;
+                case kVK_F3:        return KC_F3;
+                case kVK_F4:        return KC_F4;
+                case kVK_F5:        return KC_F5;
+                case kVK_F6:        return KC_F6;
+                case kVK_F7:        return KC_F7;
+                case kVK_F8:        return KC_F8;
+                case kVK_F9:        return KC_F9;
+                case kVK_F10:       return KC_F10;
+                case kVK_F11:       return KC_F11;
+                case kVK_F12:       return KC_F12;
+                case kVK_F13:       return KC_F13;
+                case kVK_F14:       return KC_F14;
+                case kVK_F15:       return KC_F15;
+                case kVK_F16:       return KC_F16;
+                case kVK_F17:       return KC_F17;
+                case kVK_F18:       return KC_F18;
+                case kVK_F19:       return KC_F19;
+                case kVK_F20:       return KC_F20;
+            }
+        }
+
+        default:
+            // 'Useful' Latin1 characters
+            if(( key >= ' ' && key <= '~' ) ||
+               ( key >= 0xa0 /*XK_nobreakspace && key <= XK_ydiaeresis*/ ))
+
+                return key;
+
+            LBWARN << "Unrecognized key " << key << std::endl;
+            return KC_VOID;
+    }
+}
+
+}
+
 static OSStatus _dispatchEventUPP( EventHandlerCallRef nextHandler,
                                    EventRef event, void* userData );
 
@@ -248,29 +369,25 @@ bool EventHandler::_processMouseEvent( const EventRef eventRef )
         _window->getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF;
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     HIPoint pos;
+    GetEventParameter( eventRef, kEventParamWindowMouseLocation,
+                       typeHIPoint, 0, sizeof( pos ), 0, &pos );
+    if( pos.y < menuHeight )
+        return false; // ignore pointer events on the menu bar
 
     PointerEvent event;
+    event.x = static_cast< int32_t >( pos.x );
+    event.y = static_cast< int32_t >( pos.y ) - menuHeight;
+    event.modifiers = _getKeyModifiers( eventRef );
+    event.buttons = _getButtonState( eventRef );
 
     switch( GetEventKind( eventRef ))
     {
     case kEventMouseMoved:
     case kEventMouseDragged:
-        // GetCurrentEventButtonState returns the same bits as Eq buttons
-        event.buttons = _getButtonState( eventRef );
-
-        GetEventParameter( eventRef, kEventParamWindowMouseLocation,
-                           typeHIPoint, 0, sizeof( pos ), 0, &pos );
-        if( pos.y < menuHeight )
-            return false; // ignore pointer events on the menu bar
-
-        event.x = static_cast< int32_t >( pos.x );
-        event.y = static_cast< int32_t >( pos.y ) - menuHeight;
-
         GetEventParameter( eventRef, kEventParamMouseDelta, typeHIPoint, 0,
                            sizeof( pos ), 0, &pos );
         event.dx = static_cast< int32_t >( pos.x );
         event.dy = static_cast< int32_t >( pos.y );
-
         _lastDX = event.dx;
         _lastDY = event.dy;
         return _window->processEvent( EVENT_WINDOW_POINTER_MOTION, eventRef,
@@ -278,15 +395,6 @@ bool EventHandler::_processMouseEvent( const EventRef eventRef )
 
     case kEventMouseDown:
         event.button = _getButtonAction( eventRef );
-        event.buttons = _getButtonState( eventRef );
-
-        GetEventParameter( eventRef, kEventParamWindowMouseLocation,
-                           typeHIPoint, 0, sizeof( pos ), 0, &pos );
-        if( pos.y < menuHeight )
-            return false; // ignore pointer events on the menu bar
-
-        event.x = int32_t( pos.x );
-        event.y = int32_t( pos.y ) - menuHeight;
         event.dx = _lastDX;
         event.dy = _lastDY;
         _lastDX = 0;
@@ -296,15 +404,6 @@ bool EventHandler::_processMouseEvent( const EventRef eventRef )
 
     case kEventMouseUp:
         event.button = _getButtonAction( eventRef );
-        event.buttons = _getButtonState( eventRef );
-
-        GetEventParameter( eventRef, kEventParamWindowMouseLocation,
-                           typeHIPoint, 0, sizeof( pos ), 0, &pos );
-        if( pos.y < menuHeight )
-            return false; // ignore pointer events on the menu bar
-
-        event.x = int32_t( pos.x );
-        event.y = int32_t( pos.y ) - menuHeight;
         event.dx = _lastDX;
         event.dy = _lastDY;
         _lastDX = 0;
@@ -314,7 +413,6 @@ bool EventHandler::_processMouseEvent( const EventRef eventRef )
 
     case kEventMouseWheelMoved:
     {
-        event.buttons = _getButtonState( eventRef );
         event.dx = _lastDX;
         event.dy = _lastDY;
 
@@ -350,6 +448,8 @@ bool EventHandler::_processMouseEvent( const EventRef eventRef )
 bool EventHandler::_processKeyEvent( const EventRef eventRef )
 {
     KeyEvent event( _getKey( eventRef ));
+    event.modifiers = _getKeyModifiers( eventRef );
+
     switch( GetEventKind( eventRef ))
     {
     case kEventRawKeyDown:
@@ -365,107 +465,6 @@ bool EventHandler::_processKeyEvent( const EventRef eventRef )
         return _window->processEvent( EVENT_UNKNOWN, eventRef );
     }
 }
-
-uint32_t EventHandler::_getButtonState( const EventRef eventRef )
-{
-    uint32 buttons = GetCurrentEventButtonState();
-
-    if( buttons == PTR_BUTTON1 )
-    {   // Only left button pressed: implement apple-style middle/right button
-        // if modifier keys are used.
-        uint32_t keys = 0;
-        GetEventParameter( eventRef, kEventParamKeyModifiers,
-                           typeUInt32, 0, sizeof( keys ), 0, &keys );
-        if( keys & controlKey )
-            buttons = PTR_BUTTON2;
-        else if( keys & optionKey )
-            buttons = PTR_BUTTON3;
-    }
-
-    // swap button 2&3
-    return ( (buttons & 0xfffffff9u) +
-             ((buttons & LB_BIT3) >> 1) +
-             ((buttons & LB_BIT2) << 1) );
-}
-
-
-uint32_t EventHandler::_getButtonAction( const EventRef event )
-{
-    EventMouseButton button;
-    GetEventParameter( event, kEventParamMouseButton, typeMouseButton, 0,
-                       sizeof( button ), 0, &button );
-
-    switch( button )
-    {
-        case kEventMouseButtonPrimary:   return PTR_BUTTON1;
-        case kEventMouseButtonSecondary: return PTR_BUTTON3;
-        case kEventMouseButtonTertiary:  return PTR_BUTTON2;
-        default: return PTR_BUTTON_NONE;
-    }
-}
-
-uint32_t EventHandler::_getKey( const EventRef eventRef )
-{
-    unsigned char key;
-    GetEventParameter( eventRef, kEventParamKeyMacCharCodes, typeChar, 0,
-                       sizeof( char ), 0, &key );
-    switch( key )
-    {
-        case kEscapeCharCode:     return KC_ESCAPE;
-        case kBackspaceCharCode:  return KC_BACKSPACE;
-        case kReturnCharCode:     return KC_RETURN;
-        case kTabCharCode:        return KC_TAB;
-        case kHomeCharCode:       return KC_HOME;
-        case kLeftArrowCharCode:  return KC_LEFT;
-        case kUpArrowCharCode:    return KC_UP;
-        case kRightArrowCharCode: return KC_RIGHT;
-        case kDownArrowCharCode:  return KC_DOWN;
-        case kPageUpCharCode:     return KC_PAGE_UP;
-        case kPageDownCharCode:   return KC_PAGE_DOWN;
-        case kEndCharCode:        return KC_END;
-        case kFunctionKeyCharCode:
-        {
-            uint32_t keyCode;
-            GetEventParameter( eventRef, kEventParamKeyCode, typeUInt32, 0,
-                       sizeof( keyCode ), 0, &keyCode );
-
-            switch( keyCode )
-            {
-                case kVK_F1:        return KC_F1;
-                case kVK_F2:        return KC_F2;
-                case kVK_F3:        return KC_F3;
-                case kVK_F4:        return KC_F4;
-                case kVK_F5:        return KC_F5;
-                case kVK_F6:        return KC_F6;
-                case kVK_F7:        return KC_F7;
-                case kVK_F8:        return KC_F8;
-                case kVK_F9:        return KC_F9;
-                case kVK_F10:       return KC_F10;
-                case kVK_F11:       return KC_F11;
-                case kVK_F12:       return KC_F12;
-                case kVK_F13:       return KC_F13;
-                case kVK_F14:       return KC_F14;
-                case kVK_F15:       return KC_F15;
-                case kVK_F16:       return KC_F16;
-                case kVK_F17:       return KC_F17;
-                case kVK_F18:       return KC_F18;
-                case kVK_F19:       return KC_F19;
-                case kVK_F20:       return KC_F20;
-            }
-        }
-
-        default:
-            // 'Useful' Latin1 characters
-            if(( key >= ' ' && key <= '~' ) ||
-               ( key >= 0xa0 /*XK_nobreakspace && key <= XK_ydiaeresis*/ ))
-
-                return key;
-
-            LBWARN << "Unrecognized key " << key << std::endl;
-            return KC_VOID;
-    }
-}
-
 
 #ifdef EQUALIZER_USE_MAGELLAN
 extern "C" OSErr InstallConnexionHandlers( ConnexionMessageHandlerProc,
