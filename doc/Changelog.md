@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # Release 1.13 (git master)
 
+* [590](https://github.com/Eyescale/Equalizer/pull/590):
+  Added key modifiers to pointer and key events.
 * [564](https://github.com/Eyescale/Equalizer/pull/564):
   Implemented 2.0 event handling API
 * [585](https://github.com/Eyescale/Equalizer/pull/585):
