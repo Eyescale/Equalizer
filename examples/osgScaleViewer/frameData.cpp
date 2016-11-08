@@ -1,9 +1,8 @@
 
 /*
- * Copyright (c)
- *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010-2011, Stefan Eilemann <eile@eyescale.ch>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ * Copyright 2008-2016, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
+ *                      Stefan Eilemann <eile@eyescale.ch>
+ *                      Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
