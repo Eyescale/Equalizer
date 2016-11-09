@@ -199,7 +199,7 @@ protected:
     /** @internal sync master object to the given slave commit. */
     EQFABRIC_API bool _cmdSync( co::ICommand& command );
 
-    void updateEvent( Event& event, int64_t time ); //!< @internal
+    EQFABRIC_API void updateEvent( Event& event, int64_t time ); //!< @internal
 
 private:
     detail::Object* const _impl;

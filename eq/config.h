@@ -411,7 +411,7 @@ public:
      * @param stat the statistic event.
      * @warning experimental, may not be supported in the future
      */
-    virtual void addStatistic( const Statistic& stat );
+    EQ_API virtual void addStatistic( const Statistic& stat );
     //@}
 
     /**
