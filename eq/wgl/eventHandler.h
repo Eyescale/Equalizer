@@ -71,7 +71,6 @@ namespace wgl
         void _magellanEventHandler( LPARAM lParam );
 
         void      _syncButtonState( WPARAM wParam );
-        uint32_t  _getKey( LPARAM lParam, WPARAM wParam );
         int32_t   _getWheelDelta( WPARAM wParam ) const;
 
         bool _mouseButtonPress( PointerButton button, LPARAM lParam );

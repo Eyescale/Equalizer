@@ -58,8 +58,28 @@ public:
     /** @return the Win32 affinity device context, if used. @version 1.0 */
     virtual HDC getWGLAffinityDC() { return 0; }
 
-    /** Process the given event. @version 1.0 */
-    EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
+    /** Process a (re)size event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, SizeEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a mouse event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, PointerEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a keyboard event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, KeyEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process an axis event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, AxisEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a button event. @return true if the event was handled. */
+    virtual bool processEvent( EventType type, ButtonEvent& event )
+        { return GLWindow::processEvent( type, event ); }
+
+    /** Process a stateless event. @return true if the event was handled. */
+    virtual bool processEvent( EventType ) { return false; }
 };
 
 /** Equalizer default implementation of a WGL window */
@@ -264,8 +284,8 @@ public:
     /** Unbind a WGL_NV_swap_barrier. @version 1.0 */
     void leaveNVSwapBarrier();
 
-    /** @version 1.0 */
-    EQ_API virtual bool processEvent( const WindowEvent& event );
+    EQ_API bool processEvent( EventType type, PointerEvent& event ) override;
+    EQ_API bool processEvent( EventType type ) override;
     //@}
 
 protected:

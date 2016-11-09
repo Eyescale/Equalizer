@@ -149,7 +149,8 @@ public:
 
 protected:
     /** @internal */
-    EQ_API virtual void attach( const uint128_t& id, uint32_t instanceID );
+    EQ_API
+    void attach( const uint128_t& id, const uint32_t instanceID ) override;
 
     /** @name Actions */
     //@{

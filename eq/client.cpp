@@ -43,6 +43,11 @@
 #include <lunchbox/file.h>
 #include <boost/filesystem/path.hpp>
 
+#ifdef _MSC_VER
+#  include <direct.h>
+#  define chdir _chdir
+#endif
+
 #ifdef EQ_QT_USED
 #  include <QApplication> // must be included before any header defining Bool
 

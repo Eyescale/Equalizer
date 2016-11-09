@@ -21,9 +21,9 @@
 
 #include "eventHandler.h"
 #include "pipe.h"
-#include "windowEvent.h"
 #include "../window.h"
 
+#include <eq/fabric/pointerEvent.h>
 #include <eq/global.h>
 #include <eq/pipe.h>
 
@@ -967,11 +967,40 @@ void Window::exitEventHandler()
     _impl->_wglEventHandler = 0;
 }
 
-bool Window::processEvent( const WindowEvent& event )
+bool Window::processEvent( EventType type, PointerEvent& event )
 {
-    switch( event.type )
+    switch( type )
     {
-    case Event::WINDOW_EXPOSE:
+    case EVENT_WINDOW_POINTER_BUTTON_PRESS:
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
+            // If no other button was pressed already, capture the mouse
+            event.buttons == event.button )
+        {
+            SetCapture( getWGLWindowHandle( ));
+            processEvent( EVENT_WINDOW_POINTER_GRAB );
+        }
+        break;
+
+    case EVENT_WINDOW_POINTER_BUTTON_RELEASE:
+        if( getIAttribute( eq::WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
+            // If no button is pressed anymore, release the mouse
+            event.buttons == PTR_BUTTON_NONE )
+        {
+            // Call early for consistent ordering
+            const bool result = SystemWindow::processEvent( type, event );
+
+            processEvent( EVENT_WINDOW_POINTER_UNGRAB );
+            ReleaseCapture();
+            return result;
+        }
+        break;
+    }
+    return WindowIF::processEvent( type, event );
+}
+
+bool Window::processEvent( EventType type )
+{
+    if( type == EVENT_WINDOW_EXPOSE )
     {
         LBASSERT( _impl->_wglWindow ); // PBuffers should not generate paint events
 
@@ -979,38 +1008,8 @@ bool Window::processEvent( const WindowEvent& event )
         PAINTSTRUCT ps;
         BeginPaint( _impl->_wglWindow, &ps );
         EndPaint(   _impl->_wglWindow, &ps );
-        break;
     }
-
-    case Event::WINDOW_POINTER_BUTTON_PRESS:
-        if( getIAttribute( eq::WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
-            // If no other button was pressed already, capture the mouse
-            event.pointerButtonPress.buttons == event.pointerButtonPress.button )
-        {
-            SetCapture( getWGLWindowHandle( ));
-            WindowEvent grabEvent = event;
-            grabEvent.type = Event::WINDOW_POINTER_GRAB;
-            processEvent( grabEvent );
-        }
-        break;
-
-    case Event::WINDOW_POINTER_BUTTON_RELEASE:
-        if( getIAttribute( eq::WindowSettings::IATTR_HINT_GRAB_POINTER ) == ON &&
-            // If no button is pressed anymore, release the mouse
-            event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
-        {
-            // Call early for consistent ordering
-            const bool result = SystemWindow::processEvent( event );
-
-            WindowEvent ungrabEvent = event;
-            ungrabEvent.type = Event::WINDOW_POINTER_UNGRAB;
-            processEvent( ungrabEvent );
-            ReleaseCapture();
-            return result;
-        }
-        break;
-    }
-    return SystemWindow::processEvent( event );
+    return WindowIF::processEvent( type );
 }
 
 void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)

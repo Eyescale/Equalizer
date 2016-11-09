@@ -28,6 +28,11 @@
 #include "../node.h"
 #include "../window.h"
 
+#include <eq/fabric/axisEvent.h>
+#include <eq/fabric/buttonEvent.h>
+#include <eq/fabric/keyEvent.h>
+#include <eq/fabric/sizeEvent.h>
+
 #include <lunchbox/debug.h>
 
 #include <algorithm>
@@ -38,7 +43,7 @@ namespace eq
 namespace wgl
 {
 
-// Win32 defines to indentify special keys
+// Win32 defines to identify special keys
 #define SCANCODE_MASK     0xff0000
 #define SCANCODE_SHIFT_L  0x2a0000
 #define SCANCODE_SHIFT_R  0x360000
@@ -262,7 +267,7 @@ bool EventHandler::_mouseButtonPress( const PointerButton button,
     pointerEvent.modifiers = _getKeyModifiers();
     _computePointerDelta( EVENT_WINDOW_POINTER_BUTTON_PRESS, pointerEvent );
     return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_PRESS,
-                                  pointerEvent);
+                                  pointerEvent );
 }
 
 bool EventHandler::_mouseButtonRelease( const PointerButton button,
@@ -277,7 +282,7 @@ bool EventHandler::_mouseButtonRelease( const PointerButton button,
     pointerEvent.modifiers = _getKeyModifiers();
     _computePointerDelta( EVENT_WINDOW_POINTER_BUTTON_RELEASE, pointerEvent );
     return _window->processEvent( EVENT_WINDOW_POINTER_BUTTON_RELEASE,
-                                  pointerEvent);
+                                  pointerEvent );
 }
 
 namespace
@@ -323,8 +328,8 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         case WM_WINDOWPOSCHANGED:
         {
             SizeEvent sizeEvent;
-            _getWindowSize( hWnd, event.resize );
-            const bool hasArea = (event.resize.w >0 && event.resize.h > 0);
+            _getWindowSize( hWnd, sizeEvent );
+            const bool hasArea = (sizeEvent.w >0 && sizeEvent.h > 0);
             const PixelViewport& pvp = _window->getPixelViewport();
 
             // No show/hide events on Win32?: Emulate.
@@ -364,63 +369,71 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _syncButtonState( wParam );
 
             PointerEvent pointerEvent;
-            pointerEvent.type = Event::WINDOW_POINTER_MOTION;
             pointerEvent.x = GET_X_LPARAM( lParam );
             pointerEvent.y = GET_Y_LPARAM( lParam );
             pointerEvent.buttons = _buttonState;
 
-            _computePointerDelta( event );
+            _computePointerDelta( EVENT_WINDOW_POINTER_MOTION, pointerEvent );
+            if( _window->processEvent( EVENT_WINDOW_POINTER_MOTION, pointerEvent ))
+                return TRUE;
             break;
         }
 
         case WM_LBUTTONDOWN:
-            if( _mouseButtonPressEvent( PTR_BUTTON1, lParam ))
+            if( _mouseButtonPress( PTR_BUTTON1, lParam ))
                 return TRUE;
             break;
 
         case WM_RBUTTONDOWN:
-            if( _mouseButtonPressEvent( PTR_BUTTON2, lParam ))
+            if( _mouseButtonPress( PTR_BUTTON2, lParam ))
                 return TRUE;
             break;
 
         case WM_MBUTTONDOWN:
-            if( _mouseButtonPressEvent( PTR_BUTTON3, lParam ))
+            if( _mouseButtonPress( PTR_BUTTON3, lParam ))
                 return TRUE;
             break;
 
         case WM_XBUTTONDOWN:
         {
-            const uint32_t button = GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 ?
-                                    PTR_BUTTON4 | PTR_BUTTON5;
-            if( _mouseButtonPressEvent( button, lParam ))
+            const PointerButton button =
+                GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 ?
+                                    PTR_BUTTON4 : PTR_BUTTON5;
+            _syncButtonState( GET_XBUTTON_WPARAM( wParam ));
+            if( _mouseButtonPress( button, lParam ))
                 return TRUE;
             break;
+        }
 
         case WM_LBUTTONUP:
-            if( _mouseButtonReleaseEvent( PTR_BUTTON1, lParam ))
+            if( _mouseButtonRelease( PTR_BUTTON1, lParam ))
                 return TRUE;
             break;
 
         case WM_RBUTTONUP:
-            if( _mouseButtonReleaseEvent( PTR_BUTTON2, lParam ))
+            if( _mouseButtonRelease( PTR_BUTTON2, lParam ))
                 return TRUE;
             break;
 
         case WM_MBUTTONUP:
-            if( _mouseButtonReleaseEvent( PTR_BUTTON3, lParam ))
+            if( _mouseButtonRelease( PTR_BUTTON3, lParam ))
                 return TRUE;
             break;
 
         case WM_XBUTTONUP:
-            const uint32_t button = GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 ?
-                                    PTR_BUTTON4 | PTR_BUTTON5;
-            if( _mouseButtonReleaseEvent( button, lParam ))
+        {
+            const PointerButton button =
+                GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 ?
+                                    PTR_BUTTON4 : PTR_BUTTON5;
+            _syncButtonState( GET_XBUTTON_WPARAM( wParam ));
+            if( _mouseButtonRelease( button, lParam ))
                 return TRUE;
             break;
+        }
 
-#ifdef WM_MOUSEHWHEEL // only available on vista or later
         case WM_MOUSEWHEEL:
-
+        {
+            PointerEvent pointerEvent;
             pointerEvent.x     = GET_X_LPARAM( lParam );
             pointerEvent.y     = GET_Y_LPARAM( lParam );
             pointerEvent.buttons = _buttonState;
@@ -428,8 +441,26 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             pointerEvent.yAxis = _getWheelDelta( wParam );
             pointerEvent.button = PTR_BUTTON_NONE;
             _computePointerDelta( EVENT_WINDOW_POINTER_WHEEL, pointerEvent );
-            return _window->processEvent( EVENT_WINDOW_POINTER_WHEEL,
-                                          pointerEvent );
+            if( _window->processEvent( EVENT_WINDOW_POINTER_WHEEL, pointerEvent ))
+                return TRUE;
+            break;
+        }
+
+#ifdef WM_MOUSEHWHEEL // only available on vista or later
+        case WM_MOUSEHWHEEL:
+        {
+            PointerEvent pointerEvent;
+            pointerEvent.x     = GET_X_LPARAM( lParam );
+            pointerEvent.y     = GET_Y_LPARAM( lParam );
+            pointerEvent.buttons = _buttonState;
+            pointerEvent.modifiers = _getKeyModifiers();
+            pointerEvent.xAxis = _getWheelDelta( wParam );
+            pointerEvent.button = PTR_BUTTON_NONE;
+            _computePointerDelta( EVENT_WINDOW_POINTER_WHEEL, pointerEvent );
+            if( _window->processEvent( EVENT_WINDOW_POINTER_WHEEL, pointerEvent ))
+                return TRUE;
+            break;
+        }
 #endif
 
         case WM_SYSKEYDOWN:
@@ -445,12 +476,14 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_SYSKEYUP:
         case WM_KEYUP:
+        {
             KeyEvent keyEvent;
             keyEvent.key = _getKey( lParam, wParam );
             keyEvent.modifiers = _getKeyModifiers();
             if( _window->processEvent( EVENT_KEY_RELEASE, keyEvent ))
                 return TRUE;
             break;
+        }
 
         case WM_SYSCOMMAND:
             switch( wParam )
@@ -459,12 +492,13 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                 case SC_SCREENSAVE:
                     if( lParam >= 0 ) // request off
                     {
-                        event.type = Event::WINDOW_SCREENSAVER;
+                        if( _window->processEvent( EVENT_WINDOW_SCREENSAVER ))
+                            return TRUE;
                         break;
                     }
                     // else no break; fall through
                 default:
-                    event.type = Event::UNKNOWN;
+                    _window->processEvent( EVENT_UNKNOWN );
                     LBVERB << "Unhandled system command 0x" << std::hex
                            << wParam  << std::dec << std::endl;
                     break;
@@ -475,8 +509,9 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             _magellanEventHandler( lParam );
             break;
 #endif
+
         default:
-            event.type = Event::UNKNOWN;
+            _window->processEvent( EVENT_UNKNOWN );
             LBVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
                    << std::endl;
             break;
@@ -570,20 +605,19 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         }
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
-            Event event;
+            ButtonEvent event;
             LBASSERT( _magellanNode->getID() != 0 );
-            event.type = Event::MAGELLAN_BUTTON;
-            event.magellan.button = 0;
-            event.magellan.buttons = 0;
+            event.button = 0;
+            event.buttons = 0;
             // TODO: find fired button(s) since last buttons event
 
             if( pRawHid->bRawData[1] )
-                event.magellan.buttons = PTR_BUTTON1;
+                event.buttons = PTR_BUTTON1;
             if( pRawHid->bRawData[2] )
-                event.magellan.buttons |= PTR_BUTTON2;
+                event.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
-                event.magellan.buttons |= PTR_BUTTON3;
-            _magellanNode->processEvent( event );
+                event.buttons |= PTR_BUTTON3;
+            _magellanNode->processEvent( EVENT_MAGELLAN_BUTTON, event );
         }
         else
         {
@@ -593,19 +627,18 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
         if (_magellanGotTranslation && _magellanGotRotation)
         {
-            Event event;
+            AxisEvent event;
             LBASSERT( _magellanNode->getID() != 0 );
-            event.type = Event::MAGELLAN_AXIS;
-            event.magellan.xAxis =  _magellanDOFs[0];
-            event.magellan.yAxis = -_magellanDOFs[1];
-            event.magellan.zAxis = -_magellanDOFs[2];
-            event.magellan.xRotation = -_magellanDOFs[3];
-            event.magellan.yRotation =  _magellanDOFs[4];
-            event.magellan.zRotation =  _magellanDOFs[5];
+            event.xAxis =  _magellanDOFs[0];
+            event.yAxis = -_magellanDOFs[1];
+            event.zAxis = -_magellanDOFs[2];
+            event.xRotation = -_magellanDOFs[3];
+            event.yRotation =  _magellanDOFs[4];
+            event.zRotation =  _magellanDOFs[5];
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
-            _magellanNode->processEvent( event );
+            _magellanNode->processEvent( EVENT_MAGELLAN_AXIS, event );
         }
     }
 #endif
