@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,189 +35,148 @@
 namespace triply
 {
 
-VertexBufferDist::VertexBufferDist()
-    : _root( 0 )
-    , _node( 0 )
-    , _left( 0 )
-    , _right( 0 )
-    , _isRoot( false )
+VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
+                                    co::NodePtr master,
+                                    co::LocalNodePtr localNode,
+                                    const eq::uint128_t& modelID )
+    : VertexBufferDist( root, root, master, localNode, modelID )
 {}
 
-VertexBufferDist::VertexBufferDist( VertexBufferRoot* root )
+VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
+                                    VertexBufferBase& node,
+                                    co::NodePtr master,
+                                    co::LocalNodePtr localNode,
+                                    const eq::uint128_t& modelID )
     : _root( root )
-    , _node( root )
-    , _left( 0 )
-    , _right( 0 )
-    , _isRoot( true )
+    , _node( node )
 {
-    if( root->getLeft( ))
-        _left = new VertexBufferDist( root, root->getLeft( ));
-
-    if( root->getRight( ))
-        _right = new VertexBufferDist( root, root->getRight( ));
+    if( !localNode->mapObject( this, modelID, master, co::VERSION_FIRST ))
+        throw std::runtime_error( "Mapping of ply node failed" );
 }
 
-VertexBufferDist::VertexBufferDist( VertexBufferRoot* root,
-                                    VertexBufferBase* node )
-        : _root( root )
-        , _node( node )
-        , _left( 0 )
-        , _right( 0 )
-        , _isRoot( false )
+
+VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
+                                    co::LocalNodePtr localNode )
+    : VertexBufferDist( root, root, localNode )
+{}
+
+VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
+                                    VertexBufferBase& node,
+                                    co::LocalNodePtr localNode )
+    : _root( root )
+    , _node( node )
+    , _left( node.getLeft() ? new VertexBufferDist( root, *node.getLeft(),
+                                                    localNode ) : nullptr )
+    , _right( node.getRight() ? new VertexBufferDist( root, *node.getRight(),
+                                                      localNode ) : nullptr )
 {
-    if( !node )
-        return;
-
-    if( node->getLeft( ))
-        _left = new VertexBufferDist( root, node->getLeft( ));
-
-    if( node->getRight( ))
-        _right = new VertexBufferDist( root, node->getRight( ));
+    if( !localNode->registerObject( this ))
+        throw std::runtime_error( "Register of ply node failed" );
 }
 
 VertexBufferDist::~VertexBufferDist()
 {
-    delete _left;
-    _left = 0;
-    delete _right;
-    _right = 0;
-}
-
-void VertexBufferDist::registerTree( co::LocalNodePtr node )
-{
-    LBASSERT( !isAttached() );
-    LBCHECK( node->registerObject( this ));
-
-    if( _left )
-        _left->registerTree( node );
-
-    if( _right )
-        _right->registerTree( node );
-}
-
-void VertexBufferDist::deregisterTree()
-{
-    LBASSERT( isAttached() );
-    LBASSERT( isMaster( ));
-
-    getLocalNode()->deregisterObject( this );
-
-    if( _left )
-        _left->deregisterTree();
-    if( _right )
-        _right->deregisterTree();
-}
-
-VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
-                                                     co::LocalNodePtr localNode,
-                                                     const eq::uint128_t& modelID )
-{
-    LBASSERT( !_root && !_node );
-
-    if( !localNode->syncObject( this, modelID, master ))
-    {
-        LBWARN << "Mapping of model failed" << std::endl;
-        return 0;
-    }
-    return _root;
+    _left.reset();
+    _right.reset();
+    if( getLocalNode( ))
+        getLocalNode()->releaseObject( this );
 }
 
 void VertexBufferDist::getInstanceData( co::DataOStream& os )
 {
-    LBASSERT( _node );
-    os << _isRoot;
-
-    if( _left && _right )
-    {
-        os << _left->getID() << _right->getID();
-
-        if( _isRoot )
-        {
-            LBASSERT( _root );
-            const VertexBufferData& data = _root->_data;
-
-            os << data.vertices << data.colors << data.normals << data.indices
-               << _root->_name;
-        }
-    }
+    if( _left )
+        os << _left->getID() << _left->_node.getType();
     else
+        os << eq::uint128_t() << Type::none;
+
+    if( _right )
+        os << _right->getID() << _right->_node.getType();
+    else
+        os << eq::uint128_t() << Type::none;
+
+    os << _node._boundingSphere << _node._range;
+
+    if( _isRoot( ))
     {
-        os << eq::uint128_t() << eq::uint128_t();
-
-        LBASSERT( dynamic_cast< const VertexBufferLeaf* >( _node ));
-        const VertexBufferLeaf* leaf =
-            static_cast< const VertexBufferLeaf* >( _node );
-
-        os << leaf->_boundingBox[0] << leaf->_boundingBox[1]
-           << uint64_t( leaf->_vertexStart ) << uint64_t( leaf->_indexStart )
-           << uint64_t( leaf->_indexLength ) << leaf->_vertexLength;
+        const VertexBufferData& data = _root._data;
+        os << data.vertices << data.colors << data.normals << data.indices
+           << _root._name;
     }
+    if( _node.getType() == Type::leaf )
+    {
+        const VertexBufferLeaf& leaf =
+            dynamic_cast< const VertexBufferLeaf& >( _node );
 
-    os << _node->_boundingSphere << _node->_range;
+        os << leaf._boundingBox[0] << leaf._boundingBox[1]
+           << uint64_t( leaf._vertexStart ) << uint64_t( leaf._indexStart )
+           << uint64_t( leaf._indexLength ) << leaf._vertexLength;
+    }
 }
 
 void VertexBufferDist::applyInstanceData( co::DataIStream& is )
 {
-    LBASSERT( !_node );
+    const eq::uint128_t& leftID = is.read< eq::uint128_t >();
+    const Type leftType = is.read< Type >();
+    const eq::uint128_t& rightID = is.read< eq::uint128_t >();
+    const Type rightType = is.read< Type >();
 
-    VertexBufferNode* node = 0;
-    VertexBufferBase* base = 0;
+    is >> _node._boundingSphere >> _node._range;
 
-    eq::uint128_t leftID, rightID;
-    is >> _isRoot >> leftID >> rightID;
-
-    if( leftID != 0 && rightID != 0 )
+    if( _isRoot( ))
     {
-        if( _isRoot )
-        {
-            VertexBufferRoot* root = new VertexBufferRoot;
-            VertexBufferData& data = root->_data;
-
-            is >> data.vertices >> data.colors >> data.normals >> data.indices
-               >> root->_name;
-
-            node  = root;
-            _root = root;
-        }
-        else
-        {
-            LBASSERT( _root );
-            node = new VertexBufferNode;
-        }
-
-        base   = node;
-        _left  = new VertexBufferDist( _root, 0 );
-        _right = new VertexBufferDist( _root, 0 );
-        co::NodePtr from = is.getRemoteNode();
-        co::LocalNodePtr to = is.getLocalNode();
-        co::f_bool_t leftSync = to->syncObject( _left, leftID, from );
-        co::f_bool_t rightSync = to->syncObject( _right, rightID, from );
-
-        LBCHECK( leftSync.wait() && rightSync.wait( ));
-
-        node->_left  = _left->_node;
-        node->_right = _right->_node;
+        VertexBufferData& data = _root._data;
+        is >> data.vertices >> data.colors >> data.normals >> data.indices
+           >> _root._name;
     }
-    else
+    switch( _node.getType() )
     {
-        LBASSERT( !_isRoot );
-        VertexBufferData& data = _root->_data;
-        VertexBufferLeaf* leaf = new VertexBufferLeaf( data );
-
+    case Type::leaf:
+    {
+        VertexBufferLeaf& leaf = dynamic_cast< VertexBufferLeaf& >( _node );
         uint64_t i1, i2, i3;
-        is >> leaf->_boundingBox[0] >> leaf->_boundingBox[1]
-           >> i1 >> i2 >> i3 >> leaf->_vertexLength;
-        leaf->_vertexStart = size_t( i1 );
-        leaf->_indexStart = size_t( i2 );
-        leaf->_indexLength = size_t( i3 );
-
-        base = leaf;
+        is >> leaf._boundingBox[0] >> leaf._boundingBox[1]
+           >> i1 >> i2 >> i3 >> leaf._vertexLength;
+        leaf._vertexStart = size_t( i1 );
+        leaf._indexStart = size_t( i2 );
+        leaf._indexLength = size_t( i3 );
+        return;
+    }
+    case Type::node: break;
+    case Type::root: break;
+    default:
+        throw std::runtime_error( "Internal error: unexpected node type " +
+                                  std::to_string( unsigned( _node.getType( ))));
     }
 
-    LBASSERT( base );
-    is >> base->_boundingSphere >> base->_range;
+    VertexBufferNode& node = dynamic_cast< VertexBufferNode& >( _node );
+    node._left = _createNode( leftType );
+    if( node._left )
+        _left.reset(
+            new VertexBufferDist( _root, *node._left,
+                                  getMasterNode(), getLocalNode(), leftID ));
 
-    _node = base;
+    node._right = _createNode( rightType );
+    if( node._right )
+        _right.reset(
+            new VertexBufferDist( _root, *node._right,
+                                  getMasterNode(), getLocalNode(), rightID ));
+}
+
+std::unique_ptr< VertexBufferBase >
+VertexBufferDist::_createNode( const Type type ) const
+{
+    switch( type )
+    {
+    case Type::none: return nullptr;
+    case Type::node:
+        return std::unique_ptr< VertexBufferBase >( new VertexBufferNode );
+    case Type::leaf:
+        return std::unique_ptr< VertexBufferBase >( new VertexBufferLeaf(
+                                                                  _root._data ));
+    default:
+        throw std::runtime_error( "Internal error: unexpected node type "+
+                                  std::to_string( unsigned( type )));
+    }
 }
 
 }

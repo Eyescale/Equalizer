@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,7 @@ using eqPly::FrameData;
 class Application : public seq::Application
 {
 public:
-    Application() : _model( 0 ), _modelDist( 0 ) {}
+    Application() {}
 
     bool init( const int argc, char** argv );
     bool run();
@@ -64,8 +64,8 @@ public:
 
 private:
     FrameData _frameData;
-    Model* _model;
-    ModelDist* _modelDist;
+    std::unique_ptr< Model > _model;
+    std::unique_ptr< ModelDist > _modelDist;
     lunchbox::Lock _modelLock;
 
     virtual ~Application() {}

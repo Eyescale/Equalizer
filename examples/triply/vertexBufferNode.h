@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,22 +39,22 @@ namespace triply
 class VertexBufferNode : public VertexBufferBase
 {
 public:
-    VertexBufferNode() : _left( 0 ), _right( 0 ) {}
-    TRIPLY_API virtual ~VertexBufferNode();
+    VertexBufferNode() {}
+    virtual ~VertexBufferNode() {}
 
     TRIPLY_API void draw( VertexBufferState& state ) const override;
     Index getNumberOfVertices() const override
-        { return _left->getNumberOfVertices()+_right->getNumberOfVertices(); }
+        { return _left->getNumberOfVertices() + _right->getNumberOfVertices(); }
 
-    const VertexBufferBase* getLeft() const override { return _left; }
-    const VertexBufferBase* getRight() const override { return _right; }
-    VertexBufferBase* getLeft() override { return _left; }
-    VertexBufferBase* getRight() override { return _right; }
+    const VertexBufferBase* getLeft() const override { return _left.get(); }
+    const VertexBufferBase* getRight() const override { return _right.get(); }
+    VertexBufferBase* getLeft() override { return _left.get(); }
+    VertexBufferBase* getRight() override { return _right.get(); }
 
 protected:
     TRIPLY_API void toStream( std::ostream& os ) override;
     TRIPLY_API void fromMemory( char** addr, VertexBufferData& globalData )
-        override;
+        final;
 
     TRIPLY_API void setupTree( VertexData& data, const Index start,
                                const Index length, const Axis axis,
@@ -63,11 +63,12 @@ protected:
                                boost::progress_display& ) override;
     TRIPLY_API const BoundingSphere& updateBoundingSphere() override;
     TRIPLY_API void updateRange() override;
+    Type getType() const override { return Type::node; }
 
 private:
     friend class VertexBufferDist;
-    VertexBufferBase*   _left;
-    VertexBufferBase*   _right;
+    std::unique_ptr< VertexBufferBase > _left;
+    std::unique_ptr< VertexBufferBase > _right;
 };
 }
 #endif // PLYLIB_VERTEXBUFFERNODE_H

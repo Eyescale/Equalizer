@@ -157,16 +157,12 @@ void Application::_loadModel( const eq::Strings& models )
 
         if( _isPlyfile( filename ))
         {
-            _model = new Model;
-            if( _model->readFromFile( filename.c_str( )))
-            {
-                _modelDist = new ModelDist( _model );
-                _modelDist->registerTree( this );
-                _frameData.setModelID( _modelDist->getID( ));
-                return;
-            }
-            delete _model;
-            _model = 0;
+            _model.reset( new Model );
+            if( !_model->readFromFile( filename.c_str( )))
+                _model.reset();
+
+            _modelDist.reset( new ModelDist( *_model, this ));
+            _frameData.setModelID( _modelDist->getID( ));
         }
         else
         {
@@ -185,15 +181,8 @@ void Application::_loadModel( const eq::Strings& models )
 
 void Application::_unloadModel()
 {
-    if( !_modelDist )
-        return;
-
-    _modelDist->deregisterTree();
-    delete _modelDist;
-    _modelDist = 0;
-
-    delete _model;
-    _model = 0;
+    _modelDist.reset();
+    _model.reset();
 }
 
 const Model* Application::getModel( const eq::uint128_t& modelID )
@@ -201,21 +190,18 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
     if( modelID == 0 )
         return 0;
     if( _model )
-        return _model;
+        return _model.get();
     lunchbox::memoryBarrier();
 
     // Accessed concurrently from render threads
     lunchbox::ScopedMutex<> mutex( _modelLock );
     if( _model )
-        return _model;
+        return _model.get();
 
     LBASSERT( !_modelDist );
-    _modelDist = new ModelDist;
-    Model* model = _modelDist->loadModel( getMasterNode(), this, modelID );
-    LBASSERT( model );
-    _model = model;
-
-    return model;
+    _model.reset( new Model );
+    _modelDist.reset( new ModelDist( *_model, getMasterNode(), this, modelID ));
+    return _model.get();
 }
 
 }

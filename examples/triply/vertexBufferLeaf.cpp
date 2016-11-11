@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -333,9 +333,9 @@ void VertexBufferLeaf::renderImmediate( VertexBufferState& state ) const
 /*  Read leaf node from memory.  */
 void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
 {
-    size_t nodeType;
-    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    if( nodeType != LEAF_TYPE )
+    Type nodeType;
+    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( nodeType ) );
+    if( nodeType != Type::leaf )
         throw MeshException( "Error reading binary file. Expected a leaf "
                              "node, but found something else instead." );
     VertexBufferBase::fromMemory( addr, globalData );
@@ -355,8 +355,8 @@ void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
 /*  Write leaf node to output stream.  */
 void VertexBufferLeaf::toStream( std::ostream& os )
 {
-    size_t nodeType = LEAF_TYPE;
-    os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ));
+    Type nodeType = Type::leaf;
+    os.write( reinterpret_cast< char* >( &nodeType ), sizeof( nodeType ));
     VertexBufferBase::toStream( os );
     os.write( reinterpret_cast< char* >( &_boundingBox ), sizeof( BoundingBox));
     os.write( reinterpret_cast< char* >( &_vertexStart ), sizeof( Index ));

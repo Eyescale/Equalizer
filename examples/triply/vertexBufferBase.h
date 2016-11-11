@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -57,10 +57,10 @@ public:
 
     const float* getRange() const { return &_range[0]; }
 
-    virtual const VertexBufferBase* getLeft() const { return 0; }
-    virtual const VertexBufferBase* getRight() const { return 0; }
-    virtual VertexBufferBase* getLeft() { return 0; }
-    virtual VertexBufferBase* getRight() { return 0; }
+    virtual const VertexBufferBase* getLeft() const { return nullptr; }
+    virtual const VertexBufferBase* getRight() const { return nullptr; }
+    virtual VertexBufferBase* getLeft() { return nullptr; }
+    virtual VertexBufferBase* getRight() { return nullptr; }
 
     TRIPLY_API virtual const BoundingSphere& updateBoundingSphere() = 0;
 
@@ -86,6 +86,7 @@ protected:
                      sizeof( Range ) );
         }
 
+    friend class VertexBufferNode;
     virtual void setupTree( VertexData& data, const Index start,
                             const Index length, const Axis axis,
                             const size_t depth,
@@ -95,6 +96,8 @@ protected:
     virtual void updateRange() = 0;
 
     friend class VertexBufferDist;
+    virtual Type getType() const = 0;
+
     BoundingSphere  _boundingSphere;
     Range           _range;
 };
