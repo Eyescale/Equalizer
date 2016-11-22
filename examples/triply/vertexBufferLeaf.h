@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,16 +47,15 @@ public:
     virtual Index getNumberOfVertices() const { return _indexLength; }
 
 protected:
-    virtual void toStream( std::ostream& os );
-    virtual void fromMemory( char** addr, VertexBufferData& globalData );
+    void toStream( std::ostream& os ) final;
+    void fromMemory( char** addr, VertexBufferData& globalData ) final;
 
-    virtual void setupTree( VertexData& data, const Index start,
-                            const Index length, const Axis axis,
-                            const size_t depth,
-                            VertexBufferData& globalData,
-                            boost::progress_display& );
-    virtual const BoundingSphere& updateBoundingSphere();
-    virtual void updateRange();
+    void setupTree( VertexData& data, const Index start, Index length,
+                    Axis axis, size_t depth, VertexBufferData& globalData,
+                    boost::progress_display& ) final;
+    const BoundingSphere& updateBoundingSphere() final;
+    void updateRange() final;
+    Type getType() const final { return Type::leaf; }
 
 private:
     void setupRendering( VertexBufferState& state, GLuint* data ) const;

@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ public:
     TRIPLY_API virtual void cullDraw( VertexBufferState& state ) const;
     TRIPLY_API virtual void draw( VertexBufferState& state ) const;
 
-    TRIPLY_API void setupTree( VertexData& data, boost::progress_display&  );
+    TRIPLY_API void setupTree( VertexData& data, boost::progress_display& );
     TRIPLY_API bool writeToFile( const std::string& filename );
     TRIPLY_API bool readFromFile( const std::string& filename );
     bool hasColors() const { return !_data.colors.empty(); }
@@ -56,8 +56,9 @@ public:
     const std::string& getName() const { return _name; }
 
 protected:
-    TRIPLY_API virtual void toStream( std::ostream& os );
-    TRIPLY_API virtual void fromMemory( char* start );
+    TRIPLY_API void toStream( std::ostream& os ) final;
+    TRIPLY_API void fromMemory( char* start );
+    Type getType() const final { return Type::root; }
 
 private:
     bool _constructFromPly( const std::string& filename );

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,29 +42,37 @@ namespace triply
 class VertexBufferDist : public co::Object
 {
 public:
-    TRIPLY_API VertexBufferDist();
-    TRIPLY_API explicit VertexBufferDist( triply::VertexBufferRoot* root );
+    /** Register the master version of a ply tree. */
+    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
+                                 co::LocalNodePtr node );
+
+    /** Map a slave version of a ply tree. */
+    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
+                                 co::NodePtr master, co::LocalNodePtr localNode,
+                                 const co::uint128_t& modelID );
     TRIPLY_API virtual ~VertexBufferDist();
 
-    TRIPLY_API void registerTree( co::LocalNodePtr node );
-    TRIPLY_API void deregisterTree();
-
-    TRIPLY_API triply::VertexBufferRoot* loadModel( co::NodePtr master,
-                                                    co::LocalNodePtr localNode,
-                                                    const eq::uint128_t& modelID );
 protected:
-    TRIPLY_API VertexBufferDist( VertexBufferRoot* root,
-                                 VertexBufferBase* node );
+    TRIPLY_API VertexBufferDist( VertexBufferRoot& root,
+                                 VertexBufferBase& node,
+                                 co::LocalNodePtr localNode );
+
+    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
+                                 triply::VertexBufferBase& node,
+                                 co::NodePtr master, co::LocalNodePtr localNode,
+                                 const co::uint128_t& modelID );
 
     TRIPLY_API virtual void getInstanceData( co::DataOStream& os );
     TRIPLY_API virtual void applyInstanceData( co::DataIStream& is );
 
 private:
-    VertexBufferRoot* _root;
-    VertexBufferBase* _node;
-    VertexBufferDist* _left;
-    VertexBufferDist* _right;
-    bool _isRoot;
+    bool _isRoot() const { return (void*)(&_root) == (void*)(&_node); }
+    std::unique_ptr< VertexBufferBase > _createNode( Type ) const;
+
+    VertexBufferRoot& _root;
+    VertexBufferBase& _node;
+    std::unique_ptr< VertexBufferDist > _left;
+    std::unique_ptr< VertexBufferDist > _right;
 };
 }
 

@@ -130,10 +130,10 @@ typedef ArrayWrapper< float, 2 >    Range;
 // maximum triangle count per leaf node (keep in mind that the number of
 // different vertices per leaf must stay below ShortIndex range; usually
 // #vertices ~ #triangles/2, but max #vertices = #triangles * 3)
-const Index             LEAF_SIZE( 21845 );
+const Index LEAF_SIZE( 21845 );
 
 // binary mesh file version, increment if changing the file format
-const unsigned short    FILE_VERSION( 0x0118 );
+const unsigned short FILE_VERSION( 0x0119 );
 
 // enumeration for the sort axis
 enum Axis
@@ -175,11 +175,12 @@ inline std::ostream& operator << ( std::ostream& os, const RenderMode mode )
 }
 
 // enumeration for kd-tree node types
-enum NodeType
+enum class Type : unsigned
 {
-    ROOT_TYPE = 0x07,
-    NODE_TYPE = 0xde,
-    LEAF_TYPE = 0xef
+    none,
+    root,
+    node,
+    leaf
 };
 
 // helper function for MMF (memory mapped file) reading
@@ -194,7 +195,10 @@ inline void memRead( char* destination, char** source, size_t length )
 namespace lunchbox
 {
 template<> inline void byteswap( triply::RenderMode& value )
-{ byteswap( reinterpret_cast< uint32_t& >( value )); }
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+template<> inline void byteswap( triply::Type& value )
+    { byteswap( reinterpret_cast< unsigned& >( value )); }
+
 
 template<> inline void byteswap( triply::Range& value )
 {

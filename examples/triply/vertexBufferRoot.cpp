@@ -165,12 +165,11 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 #endif
 }
 
-
 /*  Set up the common OpenGL state for rendering of all nodes.  */
 void VertexBufferRoot::_beginRendering( VertexBufferState& state ) const
 {
     state.resetRegion();
-    switch( state.getRenderMode() )
+    switch( state.getRenderMode( ))
     {
 #ifdef GL_ARB_vertex_buffer_object
     case RENDER_MODE_BUFFER_OBJECT:
@@ -186,7 +185,6 @@ void VertexBufferRoot::_beginRendering( VertexBufferState& state ) const
         ;
     }
 }
-
 
 /*  Delegate rendering to node routine.  */
 void VertexBufferRoot::draw( VertexBufferState& state ) const
@@ -217,13 +215,11 @@ void VertexBufferRoot::_endRendering( VertexBufferState& state ) const
     }
 }
 
-
 /*  Determine number of bits used by the current architecture.  */
 size_t getArchitectureBits()
 {
     return ( sizeof( void* ) * 8 );
 }
-
 
 /*  Determine whether the current architecture is little endian or not.  */
 bool isArchitectureLittleEndian()
@@ -233,7 +229,6 @@ bool isArchitectureLittleEndian()
     return ( *x == 1 );
 }
 
-
 /*  Construct architecture dependent file name.  */
 std::string getArchitectureFilename( const std::string& filename )
 {
@@ -242,7 +237,6 @@ std::string getArchitectureFilename( const std::string& filename )
     oss << getArchitectureBits() << ".bin";
     return oss.str();
 }
-
 
 /*  Functions extracted out of readFromFile to enhance readability.  */
 bool VertexBufferRoot::_constructFromPly( const std::string& filename )
@@ -303,7 +297,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
 
     // get a view of the mapping
     char* addr   = static_cast< char* >( MapViewOfFile( map, FILE_MAP_READ, 0,
-                                                        0, 0 ) );
+                                                        0, 0 ));
     bool  result = false;
 
     if( addr )
@@ -342,7 +336,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
 
     // create memory mapped file
     char* addr   = static_cast< char* >( mmap( 0, status.st_size, PROT_READ,
-                                               MAP_SHARED, fd, 0 ) );
+                                               MAP_SHARED, fd, 0 ));
     bool  result = false;
     if( addr != MAP_FAILED )
     {
@@ -354,14 +348,14 @@ bool VertexBufferRoot::_readBinary( std::string filename )
         catch( const std::exception& e )
         {
             PLYLIBERROR << "Unable to read binary file, an exception occured:  "
-                      << e.what() << std::endl;
+                        << e.what() << std::endl;
         }
         munmap( addr, status.st_size );
     }
     else
     {
         PLYLIBERROR << "Unable to read binary file, memory mapping failed."
-                  << std::endl;
+                    << std::endl;
     }
 
     close( fd );
@@ -416,33 +410,31 @@ bool VertexBufferRoot::writeToFile( const std::string& filename )
     return result;
 }
 
-
 /*  Read root node from memory and continue with other nodes.  */
 void VertexBufferRoot::fromMemory( char* start )
 {
     char** addr = &start;
     size_t version;
-    memRead( reinterpret_cast< char* >( &version ), addr, sizeof( size_t ) );
+    memRead( reinterpret_cast< char* >( &version ), addr, sizeof( size_t ));
     if( version != FILE_VERSION )
         throw MeshException( "Error reading binary file. Version in file "
                              "does not match the expected version." );
-    size_t nodeType;
-    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    if( nodeType != ROOT_TYPE )
-        throw MeshException( "Error reading binary file. Expected the root "
-                             "node, but found something else instead." );
+    Type nodeType;
+    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( nodeType ));
+    if( nodeType != Type::root )
+        throw MeshException( "Error reading binary file. Expected root node, "
+                             "got " + std::to_string(unsigned( nodeType )));
     _data.fromMemory( addr );
     VertexBufferNode::fromMemory( addr, _data );
 }
-
 
 /*  Write root node to output stream and continue with other nodes.  */
 void VertexBufferRoot::toStream( std:: ostream& os )
 {
     size_t version = FILE_VERSION;
-    os.write( reinterpret_cast< char* >( &version ), sizeof( size_t ) );
-    size_t nodeType = ROOT_TYPE;
-    os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
+    os.write( reinterpret_cast< char* >( &version ), sizeof( size_t ));
+    const Type nodeType = Type::root;
+    os.write( reinterpret_cast< const char* >( &nodeType ), sizeof( nodeType ));
     _data.toStream( os );
     VertexBufferNode::toStream( os );
 }

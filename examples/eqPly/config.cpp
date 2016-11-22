@@ -61,10 +61,7 @@ Config::~Config()
     _models.clear();
 
     for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
-    {
-        LBASSERT( !(*i)->isAttached() );
         delete *i;
-    }
     _modelDist.clear();
 }
 
@@ -174,30 +171,12 @@ void Config::_loadModels()
 
 void Config::_registerModels()
 {
-    // Register distribution helpers on each config run
-    const bool createDist = _modelDist.empty(); //first run, create distributors
-    const size_t  nModels = _models.size();
-    LBASSERT( createDist || _modelDist.size() == nModels );
-
-    for( size_t i = 0; i < nModels; ++i )
+    for( Model* model : _models )
     {
-        Model* model = _models[i];
-        ModelDist* modelDist = 0;
-        if( createDist )
-        {
-            modelDist = new ModelDist( model );
-            _modelDist.push_back( modelDist );
-        }
-        else
-            modelDist = _modelDist[i];
-
-        modelDist->registerTree( getClient( ));
-        LBASSERT( modelDist->isAttached() );
-
+        ModelDist* modelDist = new ModelDist( *model, getClient( ));
+        _modelDist.push_back( modelDist );
         _frameData.setModelID( modelDist->getID( ));
     }
-
-    LBASSERT( _modelDist.size() == nModels );
 
     if( !_modelDist.empty( ))
     {
@@ -208,15 +187,9 @@ void Config::_registerModels()
 
 void Config::_deregisterData()
 {
-    for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
-    {
-        ModelDist* modelDist = *i;
-        if( !modelDist->isAttached() ) // already done
-            continue;
-
-        LBASSERT( modelDist->isMaster( ));
-        modelDist->deregisterTree();
-    }
+    for( auto modelDist : _modelDist )
+        delete modelDist;
+    _modelDist.clear();
 
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
@@ -236,10 +209,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     if( modelID == 0 )
         return 0;
 
-    // Protect if accessed concurrently from multiple pipe threads
-    const eq::Node* node = getNodes().front();
-    const bool needModelLock = (node->getPipes().size() > 1);
-    lunchbox::ScopedWrite _mutex( needModelLock ? &_modelLock : 0 );
+    lunchbox::ScopedWrite _mutex( _modelLock );
 
     const size_t nModels = _models.size();
     LBASSERT( _modelDist.size() == nModels );
@@ -251,13 +221,10 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
             return _models[ i ];
     }
 
-    _modelDist.push_back( new ModelDist );
-    Model* model = _modelDist.back()->loadModel( getApplicationNode(),
-                                                 getClient(), modelID );
-    LBASSERT( model );
-    _models.push_back( model );
-
-    return model;
+    _models.push_back( new Model );
+    _modelDist.push_back( new ModelDist( *_models.back(), getApplicationNode(),
+                                         getClient(), modelID ));
+    return _models.back();
 }
 
 uint32_t Config::startFrame()
