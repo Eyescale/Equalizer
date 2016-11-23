@@ -35,16 +35,21 @@
 #include "typedefs.h"
 
 #include <co/co.h>
+#include <pression/data/CompressorInfo.h>
 
 namespace triply
 {
+static const co::CompressorInfo COMPRESSOR_AUTO( "triply::auto", 1.f, 1.f );
+
 /** Uses co::Object to distribute a model, holds a VertexBufferBase node. */
 class VertexBufferDist : public co::Object
 {
 public:
     /** Register the master version of a ply tree. */
     TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
-                                 co::LocalNodePtr node );
+                                 co::LocalNodePtr node,
+                                 co::Object::ChangeType type = STATIC,
+                       const co::CompressorInfo& compressor = COMPRESSOR_AUTO );
 
     /** Map a slave version of a ply tree. */
     TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
@@ -55,7 +60,9 @@ public:
 protected:
     TRIPLY_API VertexBufferDist( VertexBufferRoot& root,
                                  VertexBufferBase& node,
-                                 co::LocalNodePtr localNode );
+                                 co::LocalNodePtr localNode,
+                                 co::Object::ChangeType type,
+                                 const co::CompressorInfo& compressor );
 
     TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
                                  triply::VertexBufferBase& node,
@@ -69,10 +76,15 @@ private:
     bool _isRoot() const { return (void*)(&_root) == (void*)(&_node); }
     std::unique_ptr< VertexBufferBase > _createNode( Type ) const;
 
+    ChangeType getChangeType() const final { return _changeType; }
+    co::CompressorInfo chooseCompressor() const final { return _compressor; }
+
     VertexBufferRoot& _root;
     VertexBufferBase& _node;
     std::unique_ptr< VertexBufferDist > _left;
     std::unique_ptr< VertexBufferDist > _right;
+    const co::Object::ChangeType _changeType;
+    const co::CompressorInfo _compressor;
 };
 }
 
