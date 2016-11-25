@@ -139,7 +139,7 @@ void Window::_loadLogo()
                                     GL_TEXTURE_RECTANGLE_ARB );
     LBASSERT( _logoTexture );
 
-    image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
+    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i(), om );
     image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;

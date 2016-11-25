@@ -47,7 +47,6 @@ static std::string _sAttributeStrings[] = {
 template< class W, class C > Channel< W, C >::Channel( W* parent )
     : _window( parent )
     , _context( &_data.nativeContext )
-    , _maxSize( Vector2i::ZERO )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));

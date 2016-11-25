@@ -107,7 +107,7 @@ void VertexBufferState::updateRegion( const BoundingBox& box )
 Vector4f VertexBufferState::getRegion() const
 {
     if( _region[0] > _region[2] || _region[1] > _region[3] )
-        return Vector4f::ZERO;
+        return Vector4f();
 
     return _region;
 }

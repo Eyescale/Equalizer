@@ -487,11 +487,11 @@ eq::Vector2f Channel::getJitter() const
 
     const View* view = static_cast< const View* >( getView( ));
     if( !view || view->getIdleSteps() != 256 )
-        return eq::Vector2f::ZERO;
+        return eq::Vector2f();
 
     const eq::Vector2i jitterStep = _getJitterStep();
-    if( jitterStep == eq::Vector2i::ZERO )
-        return eq::Vector2f::ZERO;
+    if( jitterStep == eq::Vector2i( ))
+        return eq::Vector2f();
 
     const eq::PixelViewport& pvp = getPixelViewport();
     const float pvp_w = float( pvp.w );
@@ -534,11 +534,11 @@ eq::Vector2i Channel::_getJitterStep() const
     const uint32_t channelID = subPixel.index;
     const View* view = static_cast< const View* >( getView( ));
     if( !view )
-        return eq::Vector2i::ZERO;
+        return eq::Vector2i();
 
     const uint32_t totalSteps = uint32_t( view->getIdleSteps( ));
     if( totalSteps != 256 )
-        return eq::Vector2i::ZERO;
+        return eq::Vector2i();
 
     const Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
@@ -736,7 +736,7 @@ void Channel::_updateNearFar( const triply::BoundingSphere& boundingSphere )
     const eq::Matrix4f& view = getHeadTransform() * rotation;
     const eq::Matrix4f& viewInv = view.inverse();
 
-    const eq::Vector3f& zero  = viewInv * eq::Vector3f::ZERO;
+    const eq::Vector3f& zero  = viewInv * eq::Vector3f();
     eq::Vector3f        front = viewInv * eq::Vector3f( 0.0f, 0.0f, -1.0f );
 
     front -= zero;

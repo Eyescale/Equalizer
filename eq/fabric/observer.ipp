@@ -32,14 +32,14 @@ namespace fabric
 
 template< typename C, typename O >
 Observer< C, O >::Observer( C* config )
-        : _config( config )
+    : _config( config )
 {
     LBASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
 
     const float eyeBase_2 = config->getFAttribute( C::FATTR_EYE_BASE ) * .5f;
     setEyePosition( EYE_LEFT, Vector3f( -eyeBase_2, 0.f, 0.f ));
-    setEyePosition( EYE_CYCLOP, Vector3f::ZERO );
+    setEyePosition( EYE_CYCLOP, Vector3f( ));
     setEyePosition( EYE_RIGHT, Vector3f( eyeBase_2, 0.f, 0.f ));
     LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
@@ -58,7 +58,7 @@ Observer< C, O >::BackupData::BackupData()
     , camera( OFF )
 {
     for( size_t i = 0; i < NUM_EYES; ++i )
-        eyePosition[ i ] = Vector3f::ZERO;
+        eyePosition[ i ] = Vector3f();
     eyePosition[ EYE_LEFT_BIT ].x() = -.05f;
     eyePosition[ EYE_RIGHT_BIT ].x() = .05f;
 }

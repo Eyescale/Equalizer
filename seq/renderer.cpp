@@ -123,7 +123,7 @@ void Renderer::updateNearFar( const Vector4f& boundingSphere )
 {
     const Matrix4f& view = getViewMatrix();
     const Matrix4f& viewInv = view.inverse();
-    const Vector3f& zero  = viewInv * Vector3f::ZERO;
+    const Vector3f& zero  = viewInv * Vector3f();
     Vector3f        front = viewInv * Vector3f( 0.0f, 0.0f, -1.0f );
     front -= zero;
     front.normalize();

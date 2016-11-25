@@ -37,8 +37,6 @@ namespace osgScaleViewer
 
 FrameData::FrameData()
         : _cameraPosition( eq::Vector3f( 0.f, 0.f, 10.f ))
-        , _cameraLookAtPoint( eq::Vector3f::ZERO )
-        , _cameraUpVector( eq::Vector3f::ZERO )
         , _statistics( false )
 {}
 

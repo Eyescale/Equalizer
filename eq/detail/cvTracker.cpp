@@ -141,7 +141,7 @@ void CVTracker::run()
                                  face.y + eyes[0].y + eyes[0].height * .5f );
             const Vector2f right( face.x + eyes[1].x + eyes[1].width * .5f,
                                   face.y + eyes[1].y + eyes[1].height * .5f );
-            center = (left + right) * .5f;
+            center = Vector3f(left + right) * .5f;
             center.z() = (right-left).length() / float(CAPTURE_WIDTH);
 
             // low pass smooth filter of roll angle

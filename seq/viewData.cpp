@@ -166,7 +166,7 @@ void ViewData::spinModel( const float x, const float y, const float z )
         return;
 
     const Vector3f translation = _modelMatrix.getTranslation();
-    _modelMatrix.setTranslation( Vector3f::ZERO );
+    _modelMatrix.setTranslation( Vector3f( ));
     _modelMatrix.pre_rotate_x( x );
     _modelMatrix.pre_rotate_y( y );
     _modelMatrix.pre_rotate_z( z );

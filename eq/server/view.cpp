@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,8 +48,8 @@ typedef fabric::View< Layout, View, Observer > Super;
 typedef co::CommandFunc<View> ViewFunc;
 
 View::View( Layout* parent )
-        : Super( parent )
-        , _private( 0 )
+    : Super( parent )
+    , _private( 0 )
 {
     const Global* global = Global::instance();
     for( unsigned i = 0; i < SATTR_ALL; ++i )
@@ -407,7 +407,7 @@ void View::updateFrusta()
 
 float View::_computeFocusRatio( Vector3f& eye )
 {
-    eye = Vector3f::ZERO;
+    eye = Vector3f();
     const Observer* observer = getObserver();
     const FocusMode mode = observer ? observer->getFocusMode() :FOCUSMODE_FIXED;
     if( mode == FOCUSMODE_FIXED )
@@ -417,7 +417,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( channels.empty( ))
         return 1.f;
 
-    Vector4f view4( Vector3f::FORWARD );
+    Vector4f view4( Vector3f::forward( ));
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
     {
         view4 = observer->getHeadMatrix() * view4;

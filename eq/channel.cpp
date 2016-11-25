@@ -702,7 +702,7 @@ Vector2f Channel::getJitter() const
 {
     const SubPixel& subpixel = getSubPixel();
     if( subpixel == SubPixel::ALL )
-        return Vector2f::ZERO;
+        return Vector2f();
 
     // Compute a pixel size
     const PixelViewport& pvp = getPixelViewport();

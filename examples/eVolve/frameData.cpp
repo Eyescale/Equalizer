@@ -51,9 +51,8 @@ FrameData::FrameData()
 
 void FrameData::reset()
 {
-    _translation     = eq::Vector3f::ZERO;
-    _translation.z() = -2.f;
-    _rotation        = eq::Matrix4f();
+    _translation = eq::Vector3f( 0, 0, -2.f );
+    _rotation = eq::Matrix4f();
     _rotation.rotate_x( static_cast<float>( -M_PI_2 ));
     _rotation.rotate_y( static_cast<float>( -M_PI_2 ));
 
