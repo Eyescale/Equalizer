@@ -3,13 +3,6 @@ notifications:
     on_success: never
 language: cpp
 sudo: false
-cache:
-  ccache: true
-  pip: true
-  directories:
-  - /usr/local
-before_cache:
-  - brew cleanup
 os:
   - osx
 env:

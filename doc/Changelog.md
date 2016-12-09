@@ -1,7 +1,9 @@
 Changelog {#Changelog}
 =========
 
-# Release 1.13 (git master)
+# git master
+
+# Release 2.0 (09-12-2016)
 
 * [590](https://github.com/Eyescale/Equalizer/pull/590):
   Added key modifiers to pointer and key events.
