@@ -50,8 +50,8 @@ protected:
     void toStream( std::ostream& os ) final;
     void fromMemory( char** addr, VertexBufferData& globalData ) final;
 
-    void setupTree( VertexData& data, const Index start, Index length,
-                    Axis axis, size_t depth, VertexBufferData& globalData,
+    void setupTree( VertexData& data, Index start, Index length, Axis axis,
+                    size_t depth, VertexBufferData& globalData,
                     boost::progress_display& ) final;
     const BoundingSphere& updateBoundingSphere() final;
     void updateRange() final;
