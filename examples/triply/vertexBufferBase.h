@@ -87,9 +87,8 @@ protected:
         }
 
     friend class VertexBufferNode;
-    virtual void setupTree( VertexData& data, const Index start,
-                            const Index length, const Axis axis,
-                            const size_t depth,
+    virtual void setupTree( VertexData& data, Index start, Index length,
+                            Axis axis, size_t depth,
                             VertexBufferData& globalData,
                             boost::progress_display& ) = 0;
 
