@@ -81,7 +81,6 @@ const char EQ_RENDER_CLIENT[] = "eq-render-client";
 
 static bool _parseArguments( const int argc, char** argv );
 static void _initPlugins();
-static void _exitPlugins();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
@@ -149,7 +148,6 @@ bool exit()
     _windowSystems.clear();
 
     Global::_nodeFactory = 0;
-    _exitPlugins();
     return fabric::exit();
 }
 
@@ -261,29 +259,25 @@ bool _parseArguments( const int argc, char** argv )
 
 void _initPlugins()
 {
-    pression::PluginRegistry& plugins = co::Global::getPluginRegistry();
+    pression::PluginRegistry& plugins = pression::PluginRegistry::getInstance();
 
-    plugins.addDirectory( lunchbox::getRootPath() +
-                          "/share/Equalizer/plugins" ); // install dir
-    plugins.addDirectory( "/usr/share/Equalizer/plugins" );
-    plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
-    plugins.addDirectory( ".eqPlugins" );
-    plugins.addDirectory( "/opt/local/lib" ); // MacPorts
-    plugins.addDirectory( "/usr/local/lib" ); // Homebrew
+    plugins.loadDirectory( lunchbox::getRootPath() +
+                           "/share/Equalizer/plugins" ); // install dir
+    plugins.loadDirectory( "/usr/share/Equalizer/plugins" );
+    plugins.loadDirectory( "/usr/local/share/Equalizer/plugins" );
+    plugins.loadDirectory( ".eqPlugins" );
+    plugins.loadDirectory( "/opt/local/lib" ); // MacPorts
+    plugins.loadDirectory( "/usr/local/lib" ); // Homebrew
 
     const char* home = getenv( "HOME" );
     if( home )
-        plugins.addDirectory( std::string( home ) + "/.eqPlugins" );
+        plugins.loadDirectory( std::string( home ) + "/.eqPlugins" );
 
 #ifdef EQUALIZER_DSO_NAME
-    if( plugins.addPlugin( EQUALIZER_DSO_NAME )) // Found by LDD
-        return;
-
-    // Hard-coded compile locations as backup:
+    plugins.loadFile( EQUALIZER_DSO_NAME );
     std::string absDSO = std::string( EQ_BUILD_DIR ) + "lib/" +
                          EQUALIZER_DSO_NAME;
-    if( plugins.addPlugin( absDSO ))
-        return;
+    plugins.loadFile( absDSO );
 
 #  ifdef NDEBUG
     absDSO = std::string( EQ_BUILD_DIR ) + "lib/Release/" + EQUALIZER_DSO_NAME;
@@ -291,36 +285,12 @@ void _initPlugins()
     absDSO = std::string( EQ_BUILD_DIR ) + "lib/Debug/" + EQUALIZER_DSO_NAME;
 #  endif
 
-    if( plugins.addPlugin( absDSO ))
-        return;
-
-    LBWARN << "Built-in Equalizer plugins not loaded: " << EQUALIZER_DSO_NAME
-           << " not in library search path and " << absDSO << " not found"
-           << std::endl;
+    plugins.loadFile( absDSO );
 #else
 #  ifndef NDEBUG
 #    error "EQUALIZER_DSO_NAME not defined"
 #  endif
-    LBWARN << "Built-in Equalizer plugins not loaded: EQUALIZER_DSO_NAME not "
-           << "defined" << std::endl;
 #endif
-}
-
-void _exitPlugins()
-{
-    pression::PluginRegistry& plugins = co::Global::getPluginRegistry();
-
-    plugins.removeDirectory( lunchbox::getRootPath() +
-                             "/share/Equalizer/plugins" );
-    plugins.removeDirectory( "/usr/share/Equalizer/plugins" );
-    plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
-    plugins.removeDirectory( ".eqPlugins" );
-    plugins.removeDirectory( "/opt/local/lib" ); // MacPorts
-    plugins.removeDirectory( "/usr/local/lib" ); // Homebrew
-
-    const char* home = getenv( "HOME" );
-    if( home )
-        plugins.removeDirectory( std::string( home ) + "/.eqPlugins" );
 }
 
 Config* getConfig( const int argc, char** argv )

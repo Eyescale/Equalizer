@@ -30,8 +30,6 @@
 #include <eq/util/objectManager.h>
 #include <eq/fabric/renderContext.h>
 
-#include <co/global.h>
-
 #include <lunchbox/buffer.h>
 #include <lunchbox/memoryMap.h>
 #include <pression/compressor.h>
@@ -235,7 +233,7 @@ public:
         const Memory& memory = attachment.memory;
         TransferFinder finder( memory.internalFormat, memory.externalFormat, 0,
                                attachment.quality, ignoreAlpha, gl );
-        co::Global::getPluginRegistry().accept( finder );
+        pression::PluginRegistry::getInstance().accept( finder );
         return finder.result;
     }
 };
@@ -387,9 +385,8 @@ private:
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const pression::PluginRegistry& registry = co::Global::getPluginRegistry();
     CompressorFinder finder( getExternalFormat( buffer ));
-    registry.accept( finder );
+    pression::PluginRegistry::getInstance().accept( finder );
 
     LBLOG( LOG_PLUGIN )
         << "Found " << finder.result.size() << " compressors for token type 0x"
@@ -489,8 +486,7 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     const GLEWContext* const gl = om.glewGetContext();
 
     if( !uploader->supports( externalFormat, internalFormat, flags, gl ))
-        uploader->setup( co::Global::getPluginRegistry(), externalFormat,
-                         internalFormat, flags, gl );
+        uploader->setup( externalFormat, internalFormat, flags, gl );
 
     if( !uploader->isGood( gl ))
     {
@@ -582,8 +578,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     const bool noAlpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
 
     if( !downloader.supports( inputToken, noAlpha, flags ))
-        downloader.setup( co::Global::getPluginRegistry(), inputToken,
-                          attachment.quality, noAlpha, flags, gl );
+        downloader.setup( inputToken, attachment.quality, noAlpha, flags, gl );
 
     if( !downloader.isGood( ))
     {
@@ -902,8 +897,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     LBASSERT( pixels.compressedData.compressor != EQ_COMPRESSOR_AUTO );
 
     Attachment& attachment = _impl->getAttachment( buffer );
-    if( !attachment.decompressor->setup( co::Global::getPluginRegistry(),
-                                         pixels.compressedData.compressor ))
+    if( !attachment.decompressor->setup( pixels.compressedData.compressor ))
     {
         LBASSERTINFO( false,
                       "Can't allocate decompressor " <<
@@ -946,7 +940,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
         return true;
 
     attachment.memory.compressedData = pression::CompressorResult();
-    compressor.setup( co::Global::getPluginRegistry(), name );
+    compressor.setup( name );
     LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
     return compressor.isGood();
@@ -973,7 +967,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer, const uint32_t name,
     if( downloader.uses( name ))
         return true;
 
-    if( !downloader.setup( co::Global::getPluginRegistry(), name, gl ))
+    if( !downloader.setup( name, gl ))
         return false;
 
     const EqCompressorInfo& info = downloader.getInfo();
@@ -1024,12 +1018,10 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
                 attachment.downloader[ attachment.active ].getInfo().quality;
             const float quality = attachment.quality / downloadQuality;
 
-            compressor.setup( co::Global::getPluginRegistry(), tokenType,
-                               quality, _impl->ignoreAlpha );
+            compressor.setup( tokenType, quality, _impl->ignoreAlpha );
         }
         else
-            compressor.setup( co::Global::getPluginRegistry(),
-                              memory.compressorName );
+            compressor.setup( memory.compressorName );
 
         if( !compressor.isGood( ))
         {

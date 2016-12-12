@@ -123,7 +123,7 @@ int main( int argc, char **argv )
     eq::Image destImage;
 
     // For each compressor...
-    const pression::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const auto& registry = pression::PluginRegistry::getInstance();
     Finder finder;
     registry.accept( finder );
     std::vector< uint32_t >& names = finder.names;

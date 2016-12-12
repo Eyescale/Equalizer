@@ -52,5 +52,5 @@ else()
   add_definitions(-DGLEW_MX=1 -DGLEW_NO_GLU -DGLEW_BUILD=1)
   common_library(${GLEW_LIBRARY})
 
-  message(STATUS "Configured ${GLEW_LIBRARY} [${GLEW_VERSION}]")
+  message(STATUS "${GLEW_LIBRARY} [${GLEW_VERSION}]")
 endif()

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@
 
 #include <eq/util/types.h>
 #include <eq/api.h>
+#include <pression/types.h>
 
 namespace eq
 {

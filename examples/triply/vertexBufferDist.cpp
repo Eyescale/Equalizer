@@ -49,6 +49,7 @@ VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
                                     const eq::uint128_t& modelID )
     : _root( root )
     , _node( node )
+    , _changeType( STATIC )
 {
     if( !localNode->mapObject( this, modelID, master, co::VERSION_FIRST ))
         throw std::runtime_error( "Mapping of ply node failed" );
@@ -56,19 +57,28 @@ VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
 
 
 VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
-                                    co::LocalNodePtr localNode )
-    : VertexBufferDist( root, root, localNode )
+                                    co::LocalNodePtr localNode,
+                                    const co::Object::ChangeType type,
+                                    const co::CompressorInfo& compressor )
+    : VertexBufferDist( root, root, localNode, type, compressor )
 {}
 
 VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
                                     VertexBufferBase& node,
-                                    co::LocalNodePtr localNode )
+                                    co::LocalNodePtr localNode,
+                                    const co::Object::ChangeType type,
+                                    const co::CompressorInfo& compressor )
     : _root( root )
     , _node( node )
-    , _left( node.getLeft() ? new VertexBufferDist( root, *node.getLeft(),
-                                                    localNode ) : nullptr )
-    , _right( node.getRight() ? new VertexBufferDist( root, *node.getRight(),
-                                                      localNode ) : nullptr )
+    , _left( node.getLeft() ?
+             new VertexBufferDist( root, *node.getLeft(), localNode,
+                                   type, compressor ) : nullptr )
+    , _right( node.getRight() ?
+              new VertexBufferDist( root, *node.getRight(), localNode,
+                                    type, compressor ) : nullptr )
+    , _changeType( type )
+    , _compressor( compressor == COMPRESSOR_AUTO ?
+                   co::Object::chooseCompressor() : compressor )
 {
     if( !localNode->registerObject( this ))
         throw std::runtime_error( "Register of ply node failed" );
