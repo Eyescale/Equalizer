@@ -41,7 +41,6 @@ namespace eVolve
 {
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
-        , _bgColor( eq::Vector3f::ZERO )
         , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
     _image.setAlphaUsage( true );
@@ -128,7 +127,7 @@ static eq::Vector4f _getTaintColor( const ColorMode colorMode,
                                     const eq::Vector3f& color )
 {
     if( colorMode == COLOR_MODEL )
-        return eq::Vector4f::ZERO;
+        return eq::Vector4f();
 
     eq::Vector4f taintColor( color.r(), color.g(), color.b(), 1.0 );
     const float alpha = ( colorMode == COLOR_HALF_DEMO ) ? 0.5 : 1.0;
@@ -309,7 +308,7 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
     // check if current image is in proper position, read back if not
     if( dbCompose )
     {
-        if( _bgColor == eq::Vector3f::ZERO && dbImages.front().image == &_image)
+        if( _bgColor == eq::Vector3f() && dbImages.front().image == &_image)
             dbImages.erase( dbImages.begin( ));
         else if( coveredPVP.hasArea())
         {

@@ -786,7 +786,7 @@ observerField:
         observer->setEyePosition( eq::fabric::EYE_LEFT,
                                   eq::fabric::Vector3f( -eyeBase_2, 0.f, 0.f ));
         observer->setEyePosition( eq::fabric::EYE_CYCLOP,
-                                  eq::fabric::Vector3f::ZERO );
+                                  eq::fabric::Vector3f( ));
         observer->setEyePosition( eq::fabric::EYE_RIGHT,
                                   eq::fabric::Vector3f( eyeBase_2, 0.f, 0.f ));
     }

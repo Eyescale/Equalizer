@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,7 +44,6 @@ template< class L, class V, class O >
 View< L, V, O >::View( L* layout )
     : _layout( layout )
     , _observer( 0 )
-    , _overdraw( Vector2i::ZERO )
     , _minimumCapabilities( LB_BIT_NONE )
     , _maximumCapabilities( LB_BIT_ALL_64 )
     , _capabilities( LB_BIT_ALL_64 )
@@ -237,7 +236,7 @@ template< class L, class V, class O > void View< L, V, O >::restore()
     Object::restore();
     Frustum::restore();
     _data = _backup;
-    _overdraw = Vector2i::ZERO;
+    _overdraw = Vector2i();
     _minimumCapabilities = LB_BIT_NONE;
     _maximumCapabilities = LB_BIT_ALL_64;
     _capabilities = LB_BIT_ALL_64;

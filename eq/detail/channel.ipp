@@ -46,7 +46,6 @@ class Channel
 public:
     Channel()
         : state( STATE_STOPPED )
-        , initialSize( Vector2i::ZERO )
 #ifdef EQUALIZER_USE_DEFLECT
         , _deflectProxy( 0 )
 #endif

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
+/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -162,7 +162,7 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     os << "name      \"" << name << "\"" << std::endl;
 
     const Vector2i& size = tileQueue->getTileSize();
-    if( size != Vector2i::ZERO )
+    if( size != Vector2i( ))
         os << "size      " << size << std::endl;
 
     os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;

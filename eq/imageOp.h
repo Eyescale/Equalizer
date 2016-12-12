@@ -30,8 +30,7 @@ namespace eq
 /** A structure describing an image assembly task, used by the Compositor. */
 struct ImageOp
 {
-    ImageOp() : image( 0 ), buffers( 0 ), offset( Vector2i::ZERO )
-              , zoomFilter( FILTER_LINEAR ) {}
+    ImageOp() : image( 0 ), buffers( 0 ), zoomFilter( FILTER_LINEAR ) {}
     EQ_API ImageOp( const Frame* frame, const Image* image );
 
     const Image* image;    //!< The image to assemble

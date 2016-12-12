@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +32,7 @@ namespace eq
 namespace server
 {
 CompoundInitVisitor::CompoundInitVisitor( )
-        : _taskID( 0 )
+    : _taskID( 0 )
 {}
 
 VisitorResult CompoundInitVisitor::visit( Compound* compound )
@@ -43,7 +43,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     if( channel && channel->getView( ))
         channel->getView()->updateFrusta();
     else
-        compound->updateFrustum( Vector3f::ZERO, 1.f );
+        compound->updateFrustum( Vector3f(), 1.f );
 
     compound->updateInheritData( 0 ); // Compound::activate needs _inherit.eyes
 

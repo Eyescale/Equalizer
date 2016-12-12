@@ -136,7 +136,6 @@ Compound::~Compound()
 
 Compound::Data::Data()
         : channel( 0 )
-        , overdraw( Vector4i::ZERO )
         , buffers( Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
@@ -744,7 +743,7 @@ Vector3f Compound::_getEyePosition( const Eye eye ) const
       default:
           LBUNIMPLEMENTED;
       case EYE_CYCLOP:
-          return Vector3f::ZERO;
+          return Vector3f();
     }
 }
 
@@ -850,7 +849,7 @@ void Compound::_updateOverdraw( Wall& wall )
     const Viewport& segmentVP = segment->getViewport();
     const Viewport& viewVP    = view->getViewport();
     const Vector2i& overdraw  = view->getOverdraw();
-    Vector4i channelOverdraw( Vector4i::ZERO );
+    Vector4i channelOverdraw;
 
     // compute overdraw
     if( overdraw.x() && viewVP.x < segmentVP.x )
@@ -867,7 +866,7 @@ void Compound::_updateOverdraw( Wall& wall )
 
     // clamp to max channel size
     const Vector2i& maxSize = channel->getMaxSize();
-    if( maxSize != Vector2i::ZERO )
+    if( maxSize != Vector2i( ))
     {
         const PixelViewport& channelPVP = channel->getPixelViewport();
 
@@ -1393,7 +1392,7 @@ void Compound::_updateInheritPVP()
     View* view = channel->getView();
     if( !view || !_inherit.pvp.isValid( ))
     {
-        LBASSERT( channel->getOverdraw() == Vector4i::ZERO );
+        LBASSERT( channel->getOverdraw() == Vector4i( ));
         return;
     }
     LBASSERT( channel == getChannel( ));
