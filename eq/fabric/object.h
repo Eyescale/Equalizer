@@ -141,9 +141,9 @@ protected:
     EQFABRIC_API void notifyDetach() override;
 
     EQFABRIC_API void serialize( co::DataOStream& os,
-                                 uint64_t dirtyBits ) override;
+                                 const uint64_t dirtyBits ) override;
     EQFABRIC_API void deserialize( co::DataIStream& is,
-                                   uint64_t dirtyBits ) override;
+                                   const uint64_t dirtyBits ) override;
 
     /** @internal @return the bits to be re-committed by the master. */
     virtual uint64_t getRedistributableBits() const
