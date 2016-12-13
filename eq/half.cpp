@@ -78,7 +78,7 @@ static inline uint32_t _uint32_neg(uint32_t a)
 // Extend sign
 static inline uint32_t _uint32_ext(uint32_t a)
 {
-    return (((int32_t)a) >> 31);
+    return (a >> 31);
 }
 
 // And

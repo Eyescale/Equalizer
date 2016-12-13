@@ -100,6 +100,13 @@ public:
             return false;
         return true;
     }
+
+    /**
+     * @return true if the given pixel viewport of a child entity is inside.
+     * @version 2.1
+     */
+    bool fitsChild( const PixelViewport& pvp ) const
+        { return pvp.getXEnd() <= w && pvp.getYEnd() <= h; }
     //@}
 
     /** @name Operations */
