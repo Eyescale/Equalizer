@@ -49,8 +49,10 @@ class WindowSystem : public WindowSystemIF
 {
 public:
     WindowSystem() {}
+
 private:
     std::string getName() const final { return "AGL"; }
+
     eq::SystemWindow* createWindow(eq::Window* window,
                                    const WindowSettings& settings) final
     {
@@ -77,8 +79,11 @@ private:
     }
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) final { return new Pipe(pipe); }
+
     eq::MessagePump* createMessagePump() final { return new MessagePump; }
+
     bool hasMainThreadEvents() const final { return true; }
+
     bool setupFont(util::ObjectManager& gl, const void* key,
                    const std::string& name, const uint32_t size) const final
     {
