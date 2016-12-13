@@ -15,9 +15,9 @@ server
         appNode
         {
             connection { hostname "node1" }
-            pipe 
+            pipe
             {
-                window 
+                window
                 {
                     viewport [ 640 400 1280 800 ]
                     attributes{ hint_fullscreen OFF }

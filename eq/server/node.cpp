@@ -219,7 +219,7 @@ namespace
 class NetNode : public co::Node
 {
 public:
-    NetNode( server::Node& node ) : co::Node(), _node( node ) {}
+    explicit NetNode( server::Node& node ) : co::Node(), _node( node ) {}
 
 private:
     server::Node& _node;
@@ -364,7 +364,7 @@ std::string Node::_createRemoteCommand() const
             os << quote << var << quote << " ";
     }
 
-    os << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
+    os << "LB_LOG_LEVEL=" << lunchbox::Log::getLogLevelString() << " ";
     if( lunchbox::Log::topics != 0 )
         os << "LB_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
 #endif

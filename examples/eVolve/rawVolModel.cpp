@@ -51,18 +51,18 @@ static bool readDimensionsAndScaling
 
 // Read volume dimensions, scaling and transfer function
 RawVolumeModel::RawVolumeModel( const std::string& filename  )
-        : _headerLoaded( false )
-        , _filename( filename )
-        , _preintName  ( 0 )
-        , _w( 0 )
-        , _h( 0 )
-        , _d( 0 )
-        , _tW( 0 )
-        , _tH( 0 )
-        , _tD( 0 )
-        , _resolution( 0 )
-        , _hasDerivatives( true )
-        , _glewContext( 0 )
+    : _headerLoaded( false )
+    , _filename( filename )
+    , _preintName  ( 0 )
+    , _w( 0 )
+    , _h( 0 )
+    , _d( 0 )
+    , _tW( 0 )
+    , _tH( 0 )
+    , _tD( 0 )
+    , _resolution( 0 )
+    , _hasDerivatives( true )
+    , _glewContext( 0 )
 {}
 
 bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
@@ -132,8 +132,8 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
         _preintName = createPreintegrationTable( &_TF[0] );
     }
 
-          VolumePart* volumePart = 0;
-    const int32_t     key        = calcHashKey( range );
+    VolumePart* volumePart = nullptr;
+    const int32_t key = calcHashKey( range );
 
     if( _volumeHash.find( key ) == _volumeHash.end( ) )
     {
@@ -176,8 +176,7 @@ void RawVolumeModel::releaseVolumeInfo( const eq::Range& range )
 }
 
 
-/** Calculates minimal power of 2 which is greater than given number
-*/
+/** Calculates minimal power of 2 which is greater than given number */
 static uint32_t calcMinPow2( uint32_t size )
 {
     if( size == 0 )
@@ -195,11 +194,9 @@ static uint32_t calcMinPow2( uint32_t size )
 }
 
 
-/** Reading requested part of volume and derivatives from data file
-*/
-bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
-                                                  DataInTextureDimensions& TD,
-                                            const eq::Range& range    )
+/** Reading requested part of volume and derivatives from data file */
+bool RawVolumeModel::_createVolumeTexture(
+    GLuint& volume, DataInTextureDimensions& TD, const eq::Range& range )
 {
     const uint32_t w = _w;
     const uint32_t h = _h;
@@ -210,16 +207,16 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     const int32_t bwEnd   = 2; //border width from right
 
     const int32_t s =
-            clip<int32_t>( static_cast< int32_t >( d*range.start ), 0, d-1 );
+        clip<int32_t>( static_cast< int32_t >( d*range.start ), 0, d-1 );
 
     const int32_t e =
-            clip<int32_t>( static_cast< int32_t >( d*range.end-1 ), 0, d-1 );
+        clip<int32_t>( static_cast< int32_t >( d*range.end-1 ), 0, d-1 );
 
     const uint32_t start =
-                static_cast<uint32_t>( clip<int32_t>( s-bwStart, 0, d-1 ) );
+        static_cast<uint32_t>( clip<int32_t>( s-bwStart, 0, d-1 ) );
 
     const uint32_t end   =
-                static_cast<uint32_t>( clip<int32_t>( e+bwEnd  , 0, d-1 ) );
+        static_cast<uint32_t>( clip<int32_t>( e+bwEnd  , 0, d-1 ) );
 
     const uint32_t depth = end-start+1;
 
@@ -238,14 +235,14 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(_tD) : 0;
 
     LBLOG( eq::LOG_CUSTOM )
-            << "==============================================="   << std::endl
-            << " w: "  << w << " " << _tW
-            << " h: "  << h << " " << _tH
-            << " d: "  << d << " " << depth << " " << _tD           << std::endl
-            << " r: "  << _resolution                              << std::endl
-            << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D
-            << " Do: " << TD.Do << " Db: " << TD.Db                << std::endl
-            << " s= "  << start << " e= "  << end                  << std::endl;
+        << "==============================================="   << std::endl
+        << " w: "  << w << " " << _tW
+        << " h: "  << h << " " << _tH
+        << " d: "  << d << " " << depth << " " << _tD           << std::endl
+        << " r: "  << _resolution                              << std::endl
+        << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D
+        << " Do: " << TD.Do << " Db: " << TD.Db                << std::endl
+        << " s= "  << start << " e= "  << end                  << std::endl;
 
     // Reading of requested part of a volume
     std::vector<uint8_t> data( _tW*_tH*_tD*bytes, 0 );

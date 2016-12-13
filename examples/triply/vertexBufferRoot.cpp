@@ -53,6 +53,14 @@ bool isArchitectureLittleEndian();
 /*  Construct architecture dependent file name.  */
 std::string getArchitectureFilename( const std::string& filename );
 
+VertexBufferRoot::VertexBufferRoot( const std::string& filename )
+    : VertexBufferNode()
+    , _invertFaces( false )
+{
+    if( !readFromFile( filename ))
+        throw std::runtime_error( "Can't read " + filename );
+}
+
 /*  Begin kd-tree setup, go through full range starting with x axis.  */
 void VertexBufferRoot::setupTree( VertexData& data,
                                   boost::progress_display& progress )

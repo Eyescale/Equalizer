@@ -35,11 +35,6 @@
 #include "typedefs.h"
 #include <fstream>
 
-namespace eqPly
-{
-class VertexBufferDist;
-}
-
 namespace triply
 {
 /*  The abstract base class for all kinds of kd-tree nodes.  */
@@ -66,25 +61,24 @@ public:
 
 protected:
     VertexBufferBase() : _boundingSphere( 0.0f )
-        {
-            _range[0] = 0.0f;
-            _range[1] = 1.0f;
-        }
+    {
+        _range[0] = 0.0f;
+        _range[1] = 1.0f;
+    }
 
     virtual void toStream( std::ostream& os )
-        {
-            os.write( reinterpret_cast< char* >( &_boundingSphere ),
-                      sizeof( BoundingSphere ) );
-            os.write( reinterpret_cast< char* >( &_range ), sizeof( Range ) );
-        }
+    {
+        os.write( reinterpret_cast< char* >( &_boundingSphere ),
+                  sizeof( BoundingSphere ));
+        os.write( reinterpret_cast< char* >( &_range ), sizeof( Range ));
+    }
 
     virtual void fromMemory( char** addr, VertexBufferData& /*globalData*/ )
-        {
-            memRead( reinterpret_cast< char* >( &_boundingSphere ), addr,
-                     sizeof( BoundingSphere ) );
-            memRead( reinterpret_cast< char* >( &_range ), addr,
-                     sizeof( Range ) );
-        }
+    {
+        memRead( reinterpret_cast< char* >( &_boundingSphere ), addr,
+                 sizeof( BoundingSphere ));
+        memRead( reinterpret_cast< char* >( &_range ), addr, sizeof( Range ));
+    }
 
     friend class VertexBufferNode;
     virtual void setupTree( VertexData& data, Index start, Index length,
