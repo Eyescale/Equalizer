@@ -110,7 +110,7 @@ void MessagePump::dispatchAll()
 
     while( true )
     {
-        EventRef       event;
+        EventRef event;
 
         if( _needGlobalLock )
             Global::enterCarbon();

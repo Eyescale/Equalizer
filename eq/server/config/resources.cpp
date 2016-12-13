@@ -150,7 +150,6 @@ hwsd::GPUInfos _discoverGPUs( const fabric::ConfigParams& params,
 hwsd::NetInfos _discoverNetworks( const fabric::ConfigParams& params,
                                   hwsd::FilterPtr filter )
 {
-
     hwsd::FilterPtr netFilter = filter |
                           new hwsd::NetFilter( params.getPrefixes(),
                                               _configureNetworkTypes( params ));

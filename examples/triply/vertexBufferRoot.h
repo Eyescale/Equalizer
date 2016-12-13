@@ -41,7 +41,8 @@ namespace triply
 class VertexBufferRoot : public VertexBufferNode
 {
 public:
-    TRIPLY_API VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
+    VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
+    TRIPLY_API VertexBufferRoot( const std::string& filename );
 
     TRIPLY_API virtual void cullDraw( VertexBufferState& state ) const;
     TRIPLY_API virtual void draw( VertexBufferState& state ) const;

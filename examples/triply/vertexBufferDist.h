@@ -69,8 +69,8 @@ protected:
                                  co::NodePtr master, co::LocalNodePtr localNode,
                                  const co::uint128_t& modelID );
 
-    TRIPLY_API virtual void getInstanceData( co::DataOStream& os );
-    TRIPLY_API virtual void applyInstanceData( co::DataIStream& is );
+    TRIPLY_API void getInstanceData( co::DataOStream& os ) override;
+    TRIPLY_API void applyInstanceData( co::DataIStream& is ) override;
 
 private:
     bool _isRoot() const { return (void*)(&_root) == (void*)(&_node); }
