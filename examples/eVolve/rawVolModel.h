@@ -96,6 +96,7 @@ public:
     const VolumeScaling& getVolumeScaling() const { return _volScaling; }
     void glewSetContext(const GLEWContext* context) { _glewContext = context; }
     const GLEWContext* glewGetContext() const { return _glewContext; }
+
 protected:
     bool _createVolumeTexture(GLuint& volume, DataInTextureDimensions& TD,
                               const eq::Range& range);

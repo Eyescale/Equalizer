@@ -40,8 +40,10 @@ class WindowSystem : public WindowSystemIF
 {
 public:
     WindowSystem() {}
+
 private:
     std::string getName() const final { return "WGL"; }
+
     eq::SystemWindow* createWindow(eq::Window* window,
                                    const WindowSettings& settings) final
     {
@@ -51,7 +53,9 @@ private:
     }
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) final { return new Pipe(pipe); }
+
     eq::MessagePump* createMessagePump() final { return new MessagePump; }
+
     bool setupFont(util::ObjectManager& gl, const void* key,
                    const std::string& name, const uint32_t size) const final
     {
