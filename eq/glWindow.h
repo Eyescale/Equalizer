@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Makhinya Maxim
  *
@@ -42,6 +42,8 @@ public:
 
     /** Destruct a new OpenGL window. @version 1.0 */
     EQ_API virtual ~GLWindow();
+
+    EQ_API void resize( const PixelViewport& pvp ) override;
 
     /** Bind the FBO and update the current cache. @version 1.0 */
     EQ_API void makeCurrent( const bool cache = true ) const override;
@@ -121,9 +123,16 @@ private:
     detail::GLWindow* const _impl;
 
     GLEWContext* glewGetContext();
+
+    /**
+     * Resize the underlying frame buffer to the given size
+     *
+     * @param pvp the viewport in pixels.
+     * @version 2.1
+     */
+    virtual void _resize( const PixelViewport& pvp ) = 0;
 };
 }
 
 
 #endif // EQ_GL_WINDOW_H
-

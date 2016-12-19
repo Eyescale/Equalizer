@@ -703,6 +703,13 @@ void Window::configExit()
     LBVERB << "Destroyed GLX context and X drawable " << std::endl;
 }
 
+void Window::_resize( const PixelViewport& pvp )
+{
+    if( _impl->xDisplay && _impl->xDrawable )
+        XMoveResizeWindow(  _impl->xDisplay, _impl->xDrawable,
+                            pvp.x, pvp.y, pvp.w, pvp.h );
+}
+
 void Window::makeCurrent( const bool cache ) const
 {
     LBASSERT( _impl->xDisplay );
@@ -836,7 +843,7 @@ bool Window::processEvent( const EventType type, const XEvent& xEvent,
             event.buttons == PTR_BUTTON_NONE )
         {
             // Call early for consistent ordering
-            const bool result = SystemWindow::processEvent( type, event );
+            const bool result = WindowIF::processEvent( type, xEvent, event );
             processEvent( EVENT_WINDOW_POINTER_UNGRAB, xEvent, event );
             XUngrabPointer( getXDisplay(), CurrentTime );
             return result;
@@ -846,7 +853,7 @@ bool Window::processEvent( const EventType type, const XEvent& xEvent,
     default:
         break;
     }
-    return SystemWindow::processEvent( type, event );
+    return WindowIF::processEvent( type, xEvent, event );
 }
 
 void Window::initEventHandler()

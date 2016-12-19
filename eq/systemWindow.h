@@ -185,6 +185,14 @@ public:
     EQ_API const PixelViewport& getPixelViewport() const;
 
     /**
+     * Resize the underlying frame buffer to the given size
+     *
+     * @param pvp the viewport in pixels.
+     * @version 2.1
+     */
+    EQ_API virtual void resize( const PixelViewport& pvp ) = 0;
+
+    /**
      * @internal
      * @return the OpenGL texture format corresponding to the window's color
      *         drawable configuration

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #define EQFABRIC_LAYOUT_H
 
 #include <eq/fabric/object.h>         // base class
+#include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/types.h>
 #include <string>
 
@@ -75,11 +76,13 @@ public:
     EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
     /** Const-version of accept(). @version 1.0 */
-    EQFABRIC_INL VisitorResult accept( Visitor& visitor )
-        const;
+    EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
     void create( V** view ); //!< @internal
     void release( V* view ); //!< @internal
+
+    EQFABRIC_INL const PixelViewport& getPixelViewport() const;
+    EQFABRIC_INL void setPixelViewport( const PixelViewport& pvp );
     //@}
 
 protected:
@@ -101,6 +104,7 @@ protected:
                                            const uint64_t dirtyBits );
 
     EQFABRIC_INL virtual void notifyDetach(); //!< @internal
+    virtual void notifyViewportChanged() {} //!< @internal
 
     /** @internal */
     EQFABRIC_INL virtual void setDirty( const uint64_t bits );
@@ -109,7 +113,8 @@ protected:
     enum DirtyBits
     {
         DIRTY_VIEWS      = Object::DIRTY_CUSTOM << 0,
-        DIRTY_LAYOUT_BITS = DIRTY_VIEWS | DIRTY_OBJECT_BITS
+        DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
+        DIRTY_LAYOUT_BITS = DIRTY_VIEWS | DIRTY_VIEWPORT | DIRTY_OBJECT_BITS
     };
 
     /** @internal @return the bits to be re-committed by the master. */
@@ -123,8 +128,7 @@ private:
     /** Child views on this layout. */
     Views _views;
 
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
+    PixelViewport _pvp; //!< application-provided pixel viewport
 
     template< class, class, class > friend class View;
     friend class Object;

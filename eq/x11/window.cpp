@@ -127,5 +127,12 @@ void Window::flush()
     XFlush( _xDisplay );
 }
 
+void Window::resize( const PixelViewport& pvp )
+{
+    if( _xDisplay && _xDrawable )
+        XMoveResizeWindow(  _xDisplay, _xDrawable,
+                            pvp.x, pvp.y, pvp.w, pvp.h );
+}
+
 }
 }

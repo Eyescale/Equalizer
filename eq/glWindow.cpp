@@ -77,6 +77,24 @@ GLWindow::~GLWindow()
     delete _impl;
 }
 
+void GLWindow::resize( const PixelViewport& pvp )
+{
+    if( _impl->fbo )
+    {
+        _impl->fbo->bind();
+        _impl->fbo->resize( pvp.w, pvp.h );
+        _impl->fbo->unbind();
+        if( _impl->fboMultiSample )
+        {
+            _impl->fboMultiSample->bind( GL_DRAW_FRAMEBUFFER_EXT );
+            _impl->fboMultiSample->resize( pvp.w, pvp.h );
+            _impl->fboMultiSample->unbind( GL_DRAW_FRAMEBUFFER_EXT );
+        }
+    }
+    else
+        _resize( pvp );
+}
+
 void GLWindow::makeCurrent( const bool useCache ) const
 {
     if( useCache && _current == this )
@@ -188,7 +206,7 @@ bool GLWindow::_createFBO( util::FrameBufferObject*& fbo, const int samplesSize)
 
     fbo = new util::FrameBufferObject( _impl->glewContext,
                                        samplesSize ? GL_TEXTURE_2D_MULTISAMPLE
-                                                  : GL_TEXTURE_RECTANGLE_ARB );
+                                                   : GL_TEXTURE_RECTANGLE_ARB );
     Error error = fbo->init( pvp.w, pvp.h, colorFormat, depthSize,
                              stencilSize, samplesSize );
     if( !error )

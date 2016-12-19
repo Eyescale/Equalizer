@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Stefan.Eilemann@epfl.ch
  *                          Juan Hernando <jhernando@fi.upm.es>
  *
@@ -158,6 +158,8 @@ signals:
 
 private:
     detail::Window* const _impl;
+
+    void _resize( const PixelViewport& pvp ) override;
 };
 }
 }

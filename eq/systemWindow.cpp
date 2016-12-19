@@ -20,7 +20,7 @@
 #include "systemWindow.h"
 
 #include "notifierInterface.h"
-
+#include <eq/fabric/sizeEvent.h>
 #include <co/objectOCommand.h>
 
 namespace eq
@@ -85,6 +85,22 @@ bool SystemWindow::processEvent( const EventType type )
 
 bool SystemWindow::processEvent( const EventType type, SizeEvent& event )
 {
+    switch( type )
+    {
+    case EVENT_WINDOW_HIDE:
+        setPixelViewport( PixelViewport( 0, 0, 0, 0 ));
+        break;
+
+    case EVENT_WINDOW_EXPOSE:
+    case EVENT_WINDOW_SHOW:
+    case EVENT_WINDOW_RESIZE:
+        setPixelViewport( PixelViewport( event.x, event.y, event.w, event.h ));
+        break;
+
+    default:
+        break;
+    }
+
     return _parent.processEvent( type, event );
 }
 

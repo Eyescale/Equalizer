@@ -159,6 +159,12 @@ void Window::doneCurrent() const
     WindowIF::doneCurrent();
 }
 
+void Window::_resize( const PixelViewport& pvp )
+{
+    if( _impl->_wglWindow )
+        ::MoveWindow( _impl->_wglWindow, pvp.x, pvp.y, pvp.w, pvp.h, TRUE );
+}
+
 void Window::swapBuffers()
 {
     ::SwapBuffers( _impl->_wglDC );
@@ -892,7 +898,7 @@ bool Window::processEvent( EventType type, PointerEvent& event )
             event.buttons == PTR_BUTTON_NONE )
         {
             // Call early for consistent ordering
-            const bool result = SystemWindow::processEvent( type, event );
+            const bool result = WindowIF::processEvent( type, event );
 
             processEvent( EVENT_WINDOW_POINTER_UNGRAB );
             ReleaseCapture();

@@ -121,6 +121,8 @@ void Window::attach( const uint128_t& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdSwap), queue );
     registerCommand( fabric::CMD_WINDOW_FRAME_DRAW_FINISH,
                      WindowFunc( this, &Window::_cmdFrameDrawFinish ), queue );
+    registerCommand( fabric::CMD_WINDOW_RESIZE,
+                     WindowFunc( this, &Window::_cmdResize ), queue );
 }
 
 void Window::notifyViewportChanged()
@@ -691,6 +693,7 @@ bool Window::processEvent( const EventType type, SizeEvent& event )
         setPixelViewport( PixelViewport( 0, 0, 0, 0 ));
         break;
 
+    case EVENT_WINDOW_EXPOSE:
     case EVENT_WINDOW_SHOW:
     case EVENT_WINDOW_RESIZE:
         setPixelViewport( PixelViewport( event.x, event.y, event.w, event.h ));
@@ -1067,6 +1070,15 @@ bool Window::_cmdFrameDrawFinish( co::ICommand& cmd )
     return true;
 }
 
+bool Window::_cmdResize( co::ICommand& cmd )
+{
+    co::ObjectICommand command( cmd );
+    SystemWindow* systemWindow = getSystemWindow();
+    if( systemWindow )
+        systemWindow->resize( command.read< PixelViewport >( ));
+    return true;
+}
+
 }
 
 #include <eq/fabric/window.ipp>
@@ -1075,5 +1087,5 @@ template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel,
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::Super& );
+                                                             const eq::Super& );
 /** @endcond */

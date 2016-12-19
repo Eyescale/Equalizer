@@ -88,22 +88,23 @@ public:
     virtual ~FrustumUpdater() {}
 
     virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* channel = compound->getChannel();
+        if( !channel )
+            return TRAVERSE_CONTINUE;
+
+        if( !compound->isDestination( ))
+            return TRAVERSE_PRUNE; // only change destination compounds
+
+        if( std::find( _channels.begin(), _channels.end(), channel ) !=
+            _channels.end( )) // our destination channel
         {
-            const Channel* channel = compound->getChannel();
-            if( !channel )
-                return TRAVERSE_CONTINUE;
-
-            if( !compound->isDestination( ))
-                return TRAVERSE_PRUNE; // only change destination compounds
-
-            if( std::find( _channels.begin(), _channels.end(), channel ) !=
-                _channels.end( )) // our destination channel
-            {
-                compound->updateFrustum( _eye, _ratio );
-            }
-
-            return TRAVERSE_PRUNE;
+            compound->updateFrustum( _eye, _ratio );
         }
+
+        return TRAVERSE_PRUNE;
+    }
+
 private:
     const Channels& _channels;
     const Vector3f& _eye;

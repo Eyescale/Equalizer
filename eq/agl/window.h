@@ -259,6 +259,7 @@ private:
     detail::Window* const _impl;
 
     void _initSwapSync( AGLContext context );
+    void _resize( const PixelViewport& pvp ) override;
 };
 }
 }

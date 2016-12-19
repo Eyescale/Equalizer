@@ -117,6 +117,23 @@ void Window::configExit()
     LBVERB << "Destroyed AGL window and context" << std::endl;
 }
 
+void Window::_resize( const PixelViewport& pvp )
+{
+    WindowRef window = getCarbonWindow();
+    LBASSERT( window );
+    if( !window )
+        return;
+
+    const bool decoration =
+        getIAttribute(WindowSettings::IATTR_HINT_DECORATION) != OFF;
+    const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0;
+
+    Global::enterCarbon();
+    MoveWindow( window, pvp.y + menuHeight, pvp.x, FALSE );
+    SizeWindow( window, pvp.w, pvp.h, TRUE );
+    Global::leaveCarbon();
+}
+
 void Window::makeCurrent( const bool cache ) const
 {
     if( cache && isCurrent( ))
@@ -476,7 +493,7 @@ bool Window::configInitAGLWindow()
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     Rect windowRect = { short( pvp.y + menuHeight ), short( pvp.x ),
                         short( pvp.getYEnd() + menuHeight ),
-                               short( pvp.getXEnd( )) };
+                        short( pvp.getXEnd( )) };
     WindowRef windowRef;
 
     Global::enterCarbon();

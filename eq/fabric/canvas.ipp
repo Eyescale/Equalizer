@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010-2013, Stefan Eilemann <eile@eyescale.ch>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -293,6 +293,14 @@ bool Canvas< CFG, C, S, L >::removeLayout( L* layout )
 
 template< class CFG, class C, class S, class L >
 const L* Canvas< CFG, C, S, L >::getActiveLayout() const
+{
+    LBASSERTINFO( _data.activeLayout < _layouts.size(),
+                  _data.activeLayout << " >= " << _layouts.size( ));
+    return _layouts[ _data.activeLayout ];
+}
+
+template< class CFG, class C, class S, class L >
+L* Canvas< CFG, C, S, L >::getActiveLayout()
 {
     LBASSERTINFO( _data.activeLayout < _layouts.size(),
                   _data.activeLayout << " >= " << _layouts.size( ));

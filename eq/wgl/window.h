@@ -275,6 +275,7 @@ private:
     int _chooseWGLPixelFormat( HDC pfDC );
 
     void _initSwapSync();
+    void _resize( const PixelViewport& pvp ) override;
 };
 }
 }
