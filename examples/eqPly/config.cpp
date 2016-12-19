@@ -397,6 +397,10 @@ bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
         _frameData.toggleHelp();
         return true;
 
+    case eq::KC_F10:
+        _switchLayoutSize();
+        return true;
+
     case 'd':
     case 'D':
         _frameData.toggleColorMode();
@@ -955,6 +959,25 @@ void Config::_switchLayout( int32_t increment )
     stream << " active";
     _setMessage( stream.str( ));
 }
+
+void Config::_switchLayoutSize()
+{
+    if( !_currentCanvas )
+        return;
+
+    eq::Layout* layout = _currentCanvas->getActiveLayout();
+    if( !layout )
+        return;
+
+    const eq::PixelViewport small( 0, 0, 800, 600 );
+    const eq::PixelViewport big( 0, 0, 1280, 1024 );
+
+    if( layout->getPixelViewport() != small )
+        layout->setPixelViewport( small );
+    else
+        layout->setPixelViewport( big );
+}
+
 
 void Config::_toggleEqualizer()
 {

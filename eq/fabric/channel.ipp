@@ -72,7 +72,7 @@ template< class W, class C > Channel< W, C >::Channel( const Channel& from )
 template< class W, class C > void Channel< W, C >::init()
 {
     notifyViewportChanged();
-    unsetDirty( DIRTY_VIEWPORT );
+    unsetDirty( DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT );
 }
 
 template< class W, class C > Channel< W, C >::~Channel()
@@ -105,7 +105,8 @@ void Channel< W, C >::restore()
     _data = _backup;
     Object::restore();
     notifyViewportChanged();
-    setDirty( DIRTY_VIEWPORT | DIRTY_MEMBER | DIRTY_FRUSTUM );
+    setDirty( DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT | DIRTY_MEMBER |
+              DIRTY_FRUSTUM );
 }
 
 template< class W, class C >
@@ -118,8 +119,9 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << co::Array< int32_t >( _iAttributes, IATTR_ALL )
            << co::Array< std::string >( _sAttributes, SATTR_ALL );
     if( dirtyBits & DIRTY_VIEWPORT )
-        os << _data.nativeContext.vp << _data.nativeContext.pvp
-           << _data.fixedVP << _maxSize;
+        os << _data.nativeContext.vp << _data.fixedVP;
+    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+        os << _data.nativeContext.pvp << _data.fixedVP << _maxSize;
     if( dirtyBits & DIRTY_MEMBER )
         os << _data.nativeContext.view << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
@@ -141,13 +143,23 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
         // Ignore data from master (server) if we have local changes
         if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
         {
-            is >> _data.nativeContext.vp >> _data.nativeContext.pvp
-               >> _data.fixedVP >> _maxSize;
+            is >> _data.nativeContext.vp >> _data.fixedVP;
             notifyViewportChanged();
         }
         else // consume unused data
             is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) +
-                                   sizeof( _data.nativeContext.pvp ) +
+                                   sizeof( _data.fixedVP ));
+    }
+    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+    {
+        // Ignore data from master (server) if we have local changes
+        if( !Serializable::isDirty( DIRTY_PIXELVIEWPORT ) || isMaster( ))
+        {
+            is >> _data.nativeContext.pvp >> _data.fixedVP >> _maxSize;
+            notifyViewportChanged();
+        }
+        else // consume unused data
+            is.getRemainingBuffer( sizeof( _data.nativeContext.pvp ) +
                                    sizeof( _data.fixedVP ) +sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
@@ -187,7 +199,7 @@ void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
     _data.nativeContext.vp.invalidate();
 
     notifyViewportChanged();
-    setDirty( DIRTY_VIEWPORT );
+    setDirty( DIRTY_PIXELVIEWPORT );
 }
 
 template< class W, class C >
@@ -227,7 +239,7 @@ void Channel< W, C >::notifyViewportChanged()
         _data.nativeContext.pvp = windowPVP;
         _data.nativeContext.pvp.apply( _data.nativeContext.vp );
         if( oldPVP != _data.nativeContext.pvp )
-            setDirty( DIRTY_VIEWPORT );
+            setDirty( DIRTY_PIXELVIEWPORT );
     }
     else // update viewport
     {
@@ -301,7 +313,7 @@ template< class W, class C >
 void Channel< W, C >::setMaxSize( const Vector2i& size )
 {
     _maxSize = size;
-    setDirty( DIRTY_VIEWPORT );
+    setDirty( DIRTY_PIXELVIEWPORT );
 }
 
 template< class W, class C >

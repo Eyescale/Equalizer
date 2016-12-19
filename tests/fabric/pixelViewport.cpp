@@ -51,5 +51,6 @@ int main( int, char** )
     merged.merge( empty );
     TEST( merged == empty );
 
+
     return EXIT_SUCCESS;
 }

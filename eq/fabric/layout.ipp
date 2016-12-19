@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -90,6 +90,8 @@ void Layout< C, L, V >::serialize( co::DataOStream& os,
 
     if( dirtyBits & DIRTY_VIEWS && isMaster( ))
         os.serializeChildren( _views );
+    if( dirtyBits & DIRTY_VIEWPORT )
+        os << _pvp;
 }
 
 template< class C, class L, class V >
@@ -108,6 +110,11 @@ void Layout< C, L, V >::deserialize( co::DataIStream& is,
             is.deserializeChildren( this, _views, result );
             _views.swap( result );
         }
+    }
+    if( dirtyBits & DIRTY_VIEWPORT )
+    {
+        is >> _pvp;
+        notifyViewportChanged();
     }
 }
 
@@ -136,6 +143,21 @@ template< class C, class L, class V >
 void Layout< C, L, V >::release( V* view )
 {
     getConfig()->getServer()->getNodeFactory()->releaseView( view );
+}
+
+template< class C, class L, class V >
+const PixelViewport& Layout< C, L, V >::getPixelViewport() const
+{
+    return _pvp;
+}
+
+template< class C, class L, class V >
+void Layout< C, L, V >::setPixelViewport( const PixelViewport& pvp )
+{
+    if( _pvp == pvp )
+        return;
+    _pvp = pvp;
+    setDirty( DIRTY_VIEWPORT );
 }
 
 namespace

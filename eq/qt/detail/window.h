@@ -129,6 +129,7 @@ public:
     virtual void makeCurrent() = 0;
     virtual void doneCurrent() = 0;
     virtual void swapBuffers() = 0;
+    virtual void resize( const PixelViewport& ) {};
     virtual QObject *getEventProcessor() { return &_eventHandler; }
 
 protected:
@@ -185,6 +186,12 @@ public:
     {
         if( isExposed( ))
             _context->swapBuffers( this );
+    }
+
+    void resize( const PixelViewport& pvp ) final
+    {
+        setPosition( pvp.x, pvp.y );
+        QWindow::resize( pvp.w, pvp.h );
     }
 
     bool configInit() final

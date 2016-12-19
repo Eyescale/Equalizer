@@ -512,6 +512,7 @@ private:
     bool _cmdNVBarrier( co::ICommand& command );
     bool _cmdSwap( co::ICommand& command );
     bool _cmdFrameDrawFinish( co::ICommand& command );
+    bool _cmdResize( co::ICommand& command );
 
     LB_TS_VAR( _pipeThread )
 };

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,6 +65,9 @@ public:
     /** Schedule deletion of this layout. */
     void postDelete();
     //@}
+
+    /** Client-provided pixel viewport change. */
+    void notifyViewportChanged() override;
 
 private:
     enum State

@@ -79,6 +79,8 @@ private:
     XID _createWindow();
     Display* _xDisplay; //!< The display connection (maintained by GLXPipe)
     XID _xDrawable;
+
+    void resize( const PixelViewport& pvp ) override;
 };
 
 }

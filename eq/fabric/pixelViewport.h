@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -86,16 +86,17 @@ public:
     /** @name Operations */
     //@{
     /** Apply a fractional viewport to this pixel viewport. @internal */
-    void apply( const Viewport& rhs )
+    PixelViewport& apply( const Viewport& vp )
     {
         // honor position over size to avoid rounding artifacts
-        const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
-        const int32_t yEnd = y + static_cast<int32_t>((rhs.y+rhs.h)*h);
+        const int32_t xEnd = x + int32_t((vp.x+vp.w)*w);
+        const int32_t yEnd = y + int32_t((vp.y+vp.h)*h);
 
-        x += static_cast<int32_t>( w * rhs.x );
-        y += static_cast<int32_t>( h * rhs.y );
+        x += int32_t( w * vp.x );
+        y += int32_t( h * vp.y );
         w = xEnd - x;
         h = yEnd - y;
+        return *this;
     }
 
     /** Apply a pixel decomposition to this pixel viewport. @internal */
@@ -247,18 +248,18 @@ public:
      * Create a pixel viewport that includes both viewports (union).
      * @version 1.0
      */
-    void merge( const PixelViewport& rhs )
+    PixelViewport& merge( const PixelViewport& rhs )
     {
         if( *this == rhs || !rhs.isValid( ))
-            return;
+            return *this;
 
         if( !hasArea( ))
         {
             *this = rhs;
-            return;
+            return *this;
         }
         if( !rhs.hasArea( ))
-            return;
+            return *this;
 
         const int32_t sEx =     x +     w;
         const int32_t sEy =     y +     h;
@@ -269,6 +270,7 @@ public:
         y = LB_MIN( y, rhs.y );
         w = LB_MAX( sEx, dEx ) - x;
         h = LB_MAX( sEy, dEy ) - y;
+        return *this;
     }
 
     /** Create the intersection of the two pixel viewports. @version 1.0 */

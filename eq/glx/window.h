@@ -71,8 +71,12 @@ public:
         { return GLWindow::processEvent( type, event ); }
 
     /** Process a stateless event. @return true if the event was handled. */
-    virtual bool processEvent( EventType, const XEvent& ) { return false; }
-
+    virtual bool processEvent( EventType type, const XEvent& )
+    {
+        if( type == EVENT_UNKNOWN )
+            return false;
+        return GLWindow::processEvent( type );
+    }
 };
 
 /** Equalizer default implementation of a glX window */
@@ -154,28 +158,28 @@ public:
      * Register with the pipe's GLXEventHandler, called by setXDrawable().
      * @version 1.0
      */
-    EQ_API virtual void initEventHandler();
+    virtual void initEventHandler();
 
     /**
      * Deregister with the GLXEventHandler, called by setXDrawable().
      * @version 1.0
      */
-    EQ_API virtual void exitEventHandler();
+    virtual void exitEventHandler();
     //@}
 
     /** @name Data Access. */
     //@{
     /** @return the glX rendering context. @version 1.0 */
-    EQ_API GLXContext getGLXContext() const override;
+    GLXContext getGLXContext() const override;
 
     /**  @return  the X11 drawable ID. @version 1.0 */
-    EQ_API XID getXDrawable() const override;
+    XID getXDrawable() const override;
 
     /** @return the X11 display. @version 1.0 */
-    EQ_API Display* getXDisplay() override;
+    Display* getXDisplay() override;
 
     /** @return the GLXEW context. @version 1.0*/
-    EQ_API const GLXEWContext* glxewGetContext() const;
+    const GLXEWContext* glxewGetContext() const;
 
     /**
      * Set the X11 drawable ID for this window.
@@ -219,8 +223,8 @@ public:
     /** Unbind a GLX_NV_swap_barrier. @version 1.0 */
     void leaveNVSwapBarrier();
 
-    EQ_API bool processEvent( EventType type, const XEvent& xEvent,
-                              PointerEvent& event ) override;
+    bool processEvent( EventType type, const XEvent& xEvent,
+                       PointerEvent& event ) override;
     //@}
 
 private:
@@ -231,6 +235,8 @@ private:
 
     /** Init sync-to-vertical-retrace setting. */
     void _initSwapSync();
+
+    void _resize( const PixelViewport& pvp ) override;
 };
 }
 }

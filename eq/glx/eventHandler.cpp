@@ -468,7 +468,6 @@ bool EventHandler::_processEvent( const XEvent& event )
     case ReparentNotify:
     case VisibilityNotify:
         return _window->processEvent( EVENT_UNKNOWN, event );
-
     }
 }
 

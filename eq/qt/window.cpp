@@ -126,6 +126,11 @@ void Window::doneCurrent() const
     WindowIF::doneCurrent();
 }
 
+void Window::_resize( const PixelViewport& pvp )
+{
+    _impl->resize( pvp );
+}
+
 void Window::swapBuffers()
 {
     _impl->swapBuffers();

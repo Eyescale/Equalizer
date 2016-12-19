@@ -134,6 +134,7 @@ private:
     void _adjustResistance( const int delta );
     void _adjustModelScale( const float factor );
     void _switchLayout( int32_t increment );
+    void _switchLayoutSize();
     void _toggleEqualizer();
 
     void _setHeadMatrix( const eq::Matrix4f& matrix );

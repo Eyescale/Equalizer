@@ -372,11 +372,12 @@ protected:
     {
         DIRTY_ATTRIBUTES    = Object::DIRTY_CUSTOM << 0,
         DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 1,
-        DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2,
-        DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
-        DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4,
+        DIRTY_PIXELVIEWPORT = Object::DIRTY_CUSTOM << 2,
+        DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 3,
+        DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 4,
+        DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 5,
         DIRTY_CHANNEL_BITS =
-        DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER |
+        DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT | DIRTY_MEMBER |
         DIRTY_FRUSTUM | DIRTY_OBJECT_BITS
     };
 
@@ -418,7 +419,7 @@ private:
     std::string _sAttributes[SATTR_ALL];
 
     /** Overdraw limiter */
-    Vector2i    _maxSize;
+    Vector2i _maxSize;
 };
 
 template< class W, class C > EQFABRIC_INL

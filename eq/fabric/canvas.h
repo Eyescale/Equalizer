@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -56,6 +56,9 @@ public:
 
     /** @return the active layout. @version 1.0 */
     EQFABRIC_INL const L* getActiveLayout() const;
+
+    /** @return the active layout. @version 2.1 */
+    EQFABRIC_INL L* getActiveLayout();
 
     /** @return the vector of child segments. @version 1.0 */
     const Segments& getSegments() const { return _segments; }
