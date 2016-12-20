@@ -24,7 +24,6 @@ global
     EQ_WINDOW_IATTR_HINT_FULLSCREEN          OFF
     EQ_WINDOW_IATTR_HINT_SWAPSYNC            OFF
     EQ_WINDOW_IATTR_HINT_DRAWABLE            window
-    EQ_WINDOW_IATTR_HINT_DRAWABLE            pbuffer
     EQ_WINDOW_IATTR_HINT_DRAWABLE            FBO
     EQ_WINDOW_IATTR_HINT_STATISTICS          OFF
     EQ_WINDOW_IATTR_HINT_GRAB_POINTER        OFF
@@ -69,7 +68,7 @@ server
                         hint_decoration     ON
                         hint_fullscreen     OFF
                         hint_swapsync       OFF
-                        hint_drawable       pbuffer
+                        hint_drawable       FBO
                         hint_statistics     NICEST
                         hint_grab_pointer   OFF
                         planes_color        4

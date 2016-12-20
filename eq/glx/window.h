@@ -129,8 +129,7 @@ public:
     virtual GLXContext createGLXContext( GLXFBConfig* fbConfig );
 
     /**
-     * Initialize the window's drawable (fullscreen, pbuffer or window) and
-     * bind the glX context.
+     * Initialize the window's drawable and bind the glX context.
      *
      * Sets the window's X11 drawable on success
      *
@@ -150,17 +149,6 @@ public:
      * @version 1.0
      */
     virtual bool configInitGLXWindow( GLXFBConfig* fbConfig );
-
-    /**
-     * Initialize the window with a PBuffer and bind the glX context.
-     *
-     * Sets the window's X11 drawable on success
-     *
-     * @param fbConfig the framebuffer config for the context.
-     * @return true if the PBuffer was created, false otherwise.
-     * @version 1.0
-     */
-    virtual bool configInitGLXPBuffer( GLXFBConfig* fbConfig );
 
     /**
      * Register with the pipe's GLXEventHandler, called by setXDrawable().

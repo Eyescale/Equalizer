@@ -17,7 +17,7 @@ server
     {
         appNode
         {
-            pipe 
+            pipe
             {
                 name "GPU 0"
                 device 0
@@ -30,7 +30,7 @@ server
                     channel { name "channel" }
                 }
             }
-            pipe 
+            pipe
             {
                 name "GPU 1"
                 device 1
@@ -42,7 +42,7 @@ server
                     channel { name "buffer" }
                 }
             }
-            pipe 
+            pipe
             {
                 name "GPU 0"
                 device 0
@@ -50,7 +50,7 @@ server
                 window
                 {
                     name "GPU 0 offscreen window"
-                    attributes { hint_drawable pbuffer }
+                    attributes { hint_drawable FBO }
                     channel { name "FBO0" }
                 }
             }
@@ -117,9 +117,9 @@ server
         layout { name "Wall Cross-Segment Load-Balancing" view {} }
         canvas
         {
-            layout "DPlex" 
+            layout "DPlex"
             layout "Stereo"
-            layout "2D" 
+            layout "2D"
             layout "Wall"
             layout "DB"
             layout "Wall Cross-Segment Load-Balancing"
@@ -139,27 +139,27 @@ server
         {
             compound
             {
-                channel ( layout "Wall" segment 0 view 0 ) 
+                channel ( layout "Wall" segment 0 view 0 )
                 swapbarrier {}
             }
             compound
             {
-                channel ( layout "Wall" segment 1 view 0 ) 
+                channel ( layout "Wall" segment 1 view 0 )
                 swapbarrier {}
             }
         }
 
         compound
         {
-            channel ( layout "2D" segment 0 view 0 ) 
+            channel ( layout "2D" segment 0 view 0 )
             compound
             {
                 load_equalizer { mode HORIZONTAL damping 1 }
-                
+
                 compound {}
                 compound
                 {
-                    channel ( layout "Wall" segment 1 view 0 ) 
+                    channel ( layout "Wall" segment 1 view 0 )
                     outputframe {}
                 }
                 inputframe { name "frame.buffer" }
@@ -175,7 +175,7 @@ server
 
         compound
         {
-            channel ( layout "DB" segment 0 view 0 ) 
+            channel ( layout "DB" segment 0 view 0 )
             compound
             {
                 load_equalizer { mode DB }
@@ -184,7 +184,7 @@ server
                 compound {}
                 compound
                 {
-                    channel ( layout "Wall" segment 1 view 0 ) 
+                    channel ( layout "Wall" segment 1 view 0 )
                     outputframe {}
                 }
                 inputframe { name "frame.buffer" }
@@ -202,7 +202,7 @@ server
             view_equalizer {}
             compound
             {
-                channel ( layout "Wall Cross-Segment Load-Balancing" segment 0 view 0 ) 
+                channel ( layout "Wall Cross-Segment Load-Balancing" segment 0 view 0 )
                 load_equalizer{ mode HORIZONTAL }
 
                 compound { }
@@ -212,7 +212,7 @@ server
             }
             compound
             {
-                channel ( layout "Wall Cross-Segment Load-Balancing" segment 1 view 0 ) 
+                channel ( layout "Wall Cross-Segment Load-Balancing" segment 1 view 0 )
                 load_equalizer{ mode HORIZONTAL }
 
                 compound { channel "channel" outputframe { }}
@@ -224,8 +224,8 @@ server
 
         compound
         {
-            channel ( layout "Stereo" segment 0 view 0 ) 
-            
+            channel ( layout "Stereo" segment 0 view 0 )
+
 
             compound { eye [ LEFT CYCLOP ] }
             compound
@@ -244,7 +244,7 @@ server
         }
         compound
         {
-            channel ( layout "DPlex" segment 0 view 0 ) 
+            channel ( layout "DPlex" segment 0 view 0 )
             framerate_equalizer {}
 
             compound

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2009, Maxim Makhinya
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,6 @@
 #define EQ_WGL_WINDOW_H
 
 #include <eq/glWindow.h>       // base class
-#include <eq/gl.h>             // for HPBUFFERARB from wglew.h
 #include <eq/wgl/types.h>
 
 namespace eq
@@ -45,9 +44,6 @@ public:
 
     /** @return the Win32 window handle. @version 1.0 */
     EQ_API virtual HWND getWGLWindowHandle() const = 0;
-
-    /** @return the Win32 off screen PBuffer handle. @version 1.0 */
-    EQ_API virtual HPBUFFERARB getWGLPBufferHandle() const = 0;
 
     /**
      * @return the Win32 device context used for the current drawable.
@@ -118,22 +114,8 @@ public:
      */
     EQ_API virtual void setWGLWindowHandle( HWND handle );
 
-    /**
-     * Set the Win32 off screen pbuffer handle for this window.
-     *
-     * This function should only be called from configInit() or
-     * configExit().
-     *
-     * @param handle the pbuffer handle.
-     * @version 1.0
-     */
-    EQ_API virtual void setWGLPBufferHandle( HPBUFFERARB handle );
-
     /** @return the Win32 window handle. @version 1.0 */
     EQ_API virtual HWND getWGLWindowHandle() const;
-
-    /** @return the Win32 off screen PBuffer handle. @version 1.0 */
-    EQ_API virtual HPBUFFERARB getWGLPBufferHandle() const;
 
     /**
      * @return the Win32 device context used for the current drawable.
@@ -203,8 +185,7 @@ public:
     EQ_API virtual int chooseWGLPixelFormat();
 
     /**
-     * Initialize the window's drawable (pbuffer or window) and
-     * bind the WGL context.
+     * Initialize the window's drawable and bind the WGL context.
      *
      * Sets the window handle on success.
      *
@@ -224,17 +205,6 @@ public:
      * @version 1.0
      */
     EQ_API virtual bool configInitWGLWindow( int pixelFormat );
-
-    /**
-     * Initialize the window with an off-screen WGL PBuffer.
-     *
-     * Sets the window handle on success.
-     *
-     * @param pixelFormat the window's target pixel format.
-     * @return true if the drawable was created, false otherwise.
-     * @version 1.0
-     */
-    EQ_API virtual bool configInitWGLPBuffer( int pixelFormat );
 
     /** Initialize the window for an off-screen FBO */
     EQ_API virtual bool configInitWGLFBO( int pixelFormat );
@@ -309,4 +279,3 @@ private:
 }
 }
 #endif // EQ_WGL_WINDOW_H
-

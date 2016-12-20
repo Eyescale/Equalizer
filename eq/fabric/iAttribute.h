@@ -42,7 +42,6 @@ enum IAttribute
     LOCAL_SYNC = -11, //!< Full local sync (Node::IATTR_THREAD_MODEL)
     DRAW_SYNC  = -10, //!< Local draw sync (Node::IATTR_THREAD_MODEL)
     ASYNC      = -9,  //!< No local sync (Node::IATTR_THREAD_MODEL)
-    PBUFFER    = -8,  //!< PBuffer drawable (WindowSettings::IATTR_HINT_DRAWABLE)
     WINDOW     = -7,  //!< Window drawable (WindowSettings::IATTR_HINT_DRAWABLE)
     VERTICAL   = -6,  //!< Vertical load-balancing
     QUAD       = -5,  //!< Quad-buffered stereo decomposition

@@ -3,7 +3,7 @@
 # two-to-one sort-last config
 global
 {
-    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
+    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
     EQ_WINDOW_IATTR_PLANES_STENCIL ON
 }
 
@@ -15,7 +15,7 @@ server
         appNode
         {
             connection { hostname "127.0.0.1" }
-            pipe 
+            pipe
             {
                 window
                 {
@@ -100,5 +100,5 @@ server
 
             inputframe { name "frame.channel2" }
         }
-    }    
+    }
 }

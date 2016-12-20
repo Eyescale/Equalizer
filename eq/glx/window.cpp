@@ -148,19 +148,14 @@ GLXFBConfig* Window::chooseGLXFBConfig()
     const int32_t drawableHint = getIAttribute( IATTR_HINT_DRAWABLE );
     switch( drawableHint )
     {
-      case PBUFFER:
-        attributes.push_back ( GLX_DRAWABLE_TYPE );
-        attributes.push_back ( GLX_PBUFFER_BIT );
-        break;
-
-      default:
+    default:
         LBWARN << "Unknown drawable type " << drawableHint << ", using window"
                << std::endl;
         // no break;
-      case UNDEFINED:
-      case OFF: // needs fbConfig with visual for dummy window
-      case FBO: // No typo - FBO needs fbConfig with visual for dummy window
-      case WINDOW:
+    case UNDEFINED:
+    case OFF: // needs fbConfig with visual for dummy window
+    case FBO: // No typo - FBO needs fbConfig with visual for dummy window
+    case WINDOW:
         attributes.push_back( GLX_X_RENDERABLE );
         attributes.push_back( True );
     }
@@ -358,13 +353,6 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     }
 
     int type = GLX_RGBA_TYPE;
-    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER &&
-        ( getIAttribute( IATTR_PLANES_COLOR ) == RGBA16F ||
-          getIAttribute( IATTR_PLANES_COLOR ) == RGBA32F ))
-    {
-        type = GLX_RGBA_FLOAT_TYPE;
-    }
-
     GLXContext context = 0;
     if( glXCreateContextAttribsARB &&
         getIAttribute( IATTR_HINT_CORE_PROFILE ) == ON )
@@ -439,9 +427,6 @@ bool Window::configInitGLXDrawable( GLXFBConfig* fbConfig )
 {
     switch( getIAttribute( IATTR_HINT_DRAWABLE ))
     {
-        case PBUFFER:
-            return configInitGLXPBuffer( fbConfig );
-
         case FBO:
         case OFF:
         {
@@ -509,8 +494,6 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
 
 XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 {
-    LBASSERT( getIAttribute( IATTR_HINT_DRAWABLE ) != PBUFFER );
-
     if( !_impl->xDisplay )
     {
         sendError( ERROR_GLXWINDOW_NO_DISPLAY );
@@ -595,49 +578,6 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
     return drawable;
 }
 
-bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
-{
-    if( !_impl->xDisplay )
-    {
-        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
-        return false;
-    }
-    if( !fbConfig )
-    {
-        sendError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
-        return false;
-    }
-    if( !GLXEW_VERSION_1_3 )
-    {
-        sendError( ERROR_GLXWINDOW_GLX_1_3_REQUIRED );
-        return false;
-    }
-
-    // Create PBuffer
-    const PixelViewport& pvp = getPixelViewport();
-    const int attributes[] = { GLX_PBUFFER_WIDTH, pvp.w,
-                               GLX_PBUFFER_HEIGHT, pvp.h,
-                               GLX_LARGEST_PBUFFER, True,
-                               GLX_PRESERVED_CONTENTS, True,
-                               0 };
-
-    // TODO: Could check for GLX_SGIX_pbuffer, but the only GLX 1.2 platform at
-    // hand is OS X, which does not support this extension.
-
-    XID pbuffer = glXCreatePbuffer( _impl->xDisplay, fbConfig[ 0 ], attributes );
-    if ( !pbuffer )
-    {
-        sendError( ERROR_GLXWINDOW_CREATEPBUFFER_FAILED );
-        return false;
-    }
-
-    XFlush( _impl->xDisplay );
-    setXDrawable( pbuffer );
-
-    LBVERB << "Created X11 PBuffer " << pbuffer << std::endl;
-    return true;
-}
-
 void Window::setXDrawable( XID drawable )
 {
     LBASSERT( _impl->xDisplay );
@@ -660,17 +600,6 @@ void Window::setXDrawable( XID drawable )
     // query pixel viewport of window
     switch( drawableType )
     {
-        case PBUFFER:
-        {
-            unsigned width = 0;
-            unsigned height = 0;
-            glXQueryDrawable( _impl->xDisplay, drawable, GLX_WIDTH,  &width );
-            glXQueryDrawable( _impl->xDisplay, drawable, GLX_HEIGHT, &height );
-
-            setPixelViewport(
-                PixelViewport( 0, 0, int32_t( width ), int32_t( height )));
-            break;
-        }
         case WINDOW:
         case AUTO:
         case UNDEFINED:
@@ -769,12 +698,7 @@ void Window::configExit()
         glXDestroyContext( _impl->xDisplay, context );
 
     if( drawable )
-    {
-        if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
-            glXDestroyPbuffer( _impl->xDisplay, drawable );
-        else
-            XDestroyWindow( _impl->xDisplay, drawable );
-    }
+        XDestroyWindow( _impl->xDisplay, drawable );
 
     LBVERB << "Destroyed GLX context and X drawable " << std::endl;
 }

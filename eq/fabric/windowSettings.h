@@ -64,7 +64,7 @@ public:
         IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
         IATTR_HINT_DECORATION,       //!< Window decorations
         IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
-        IATTR_HINT_DRAWABLE,         //!< Window, pbuffer, FBO or OFF
+        IATTR_HINT_DRAWABLE,         //!< Window, FBO or OFF
         IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
         IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
         IATTR_HINT_GRAB_POINTER,     //!< Capture mouse outside window

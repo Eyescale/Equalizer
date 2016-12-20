@@ -86,8 +86,7 @@ bool Window::configInit()
 
     const int32_t drawable =
             getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE );
-    // pbuffer is deprecated in Qt, use FBO instead
-    if( drawable == FBO || drawable == PBUFFER )
+    if( drawable == FBO )
         return configInitFBO();
     return true;
 }

@@ -76,7 +76,6 @@ using fabric::LOCAL_SYNC;
 using fabric::NICEST;
 using fabric::OFF;
 using fabric::ON;
-using fabric::PBUFFER;
 using fabric::QUAD;
 using fabric::RGBA16F;
 using fabric::RGBA32F;

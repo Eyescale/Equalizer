@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Maxim Makhinya
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -39,7 +39,6 @@ enum WGLDCType
 {
     WGL_DC_NONE,     //!< No device context is set
     WGL_DC_WINDOW,   //!< The WGL DC belongs to a window
-    WGL_DC_PBUFFER,  //!< The WGL DC belongs to a PBuffer
     WGL_DC_AFFINITY, //!< The WGL DC is an affinity DC
     WGL_DC_DISPLAY   //!< The WGL DC is a display DC
 };
@@ -51,7 +50,6 @@ class Window
 public:
     explicit Window( Pipe& pipe )
         : _wglWindow( 0 )
-        , _wglPBuffer( 0 )
         , _wglContext( 0 )
         , _wglDC( 0 )
         , _wglDCType( WGL_DC_NONE )
@@ -93,12 +91,6 @@ public:
                 ReleaseDC( _wglWindow, _wglDC );
                 break;
 
-            case WGL_DC_PBUFFER:
-                LBASSERT( _wglPBuffer );
-                LBASSERT( _wglDC );
-                wglReleasePbufferDCARB( _wglPBuffer, _wglDC );
-                break;
-
             case WGL_DC_AFFINITY:
                 LBASSERT( _wglDC );
                 wglDeleteDCNV( _wglDC );
@@ -118,7 +110,6 @@ public:
     }
 
     HWND          _wglWindow;
-    HPBUFFERARB   _wglPBuffer;
     HGLRC         _wglContext;
 
     HDC           _wglDC;
@@ -215,40 +206,9 @@ void Window::setWGLWindowHandle( HWND handle )
     setPixelViewport( pvp );
 }
 
-void Window::setWGLPBufferHandle( HPBUFFERARB handle )
-{
-    if( _impl->_wglPBuffer == handle )
-        return;
-
-    if( !handle )
-    {
-        _impl->setWGLDC( 0, WGL_DC_NONE );
-        _impl->_wglPBuffer = 0;
-        return;
-    }
-
-    _impl->_wglPBuffer = handle;
-    _impl->setWGLDC( wglGetPbufferDCARB( handle ), WGL_DC_PBUFFER );
-
-    // query pixel viewport of PBuffer
-    int w,h;
-    wglQueryPbufferARB( handle, WGL_PBUFFER_WIDTH_ARB, &w );
-    wglQueryPbufferARB( handle, WGL_PBUFFER_HEIGHT_ARB, &h );
-
-    PixelViewport pvp;
-    pvp.w = w;
-    pvp.h = h;
-    setPixelViewport( pvp );
-}
-
 HWND Window::getWGLWindowHandle() const
 {
     return _impl->_wglWindow;
-}
-
-HPBUFFERARB Window::getWGLPBufferHandle() const
-{
-    return _impl->_wglPBuffer;
 }
 
 HDC Window::getWGLDC() const
@@ -319,9 +279,6 @@ bool Window::configInitWGLDrawable( int pixelFormat )
 {
     switch( getIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE ))
     {
-        case PBUFFER:
-            return configInitWGLPBuffer( pixelFormat );
-
         case FBO:
         case OFF:
             return configInitWGLFBO( pixelFormat );
@@ -495,44 +452,6 @@ HWND Window::_createWGLWindow( const PixelViewport& pvp  )
     return hWnd;
 }
 
-bool Window::configInitWGLPBuffer( int pf )
-{
-    if( !WGLEW_ARB_pbuffer )
-    {
-        sendError( ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED );
-        return false;
-    }
-
-    const eq::PixelViewport& pvp = getPixelViewport();
-    LBASSERT( pvp.isValid( ));
-
-    HPBUFFERARB pBuffer = 0;
-    const int attr[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
-
-    if( _impl->_wglAffinityDC )
-        pBuffer = wglCreatePbufferARB( _impl->_wglAffinityDC, pf, pvp.w, pvp.h,
-                                       attr );
-    else
-    {
-        const HDC displayDC = createWGLDisplayDC();
-        if( !displayDC )
-            return false;
-
-        pBuffer = wglCreatePbufferARB( displayDC, pf, pvp.w, pvp.h, attr );
-        DeleteDC( displayDC );
-    }
-
-    if( !pBuffer )
-    {
-        sendError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED )
-            << lunchbox::sysError();
-        return false;
-    }
-
-    setWGLPBufferHandle( pBuffer );
-    return true;
-}
-
 void Window::exitWGLAffinityDC()
 {
     if( !_impl->_wglAffinityDC )
@@ -577,13 +496,11 @@ void Window::configExit( )
 
     HGLRC context        = getWGLContext();
     HWND  hWnd           = getWGLWindowHandle();
-    HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
     exitWGLAffinityDC();
     _impl->setWGLDC( 0, WGL_DC_NONE );
     setWGLContext( 0 );
     setWGLWindowHandle( 0 );
-    setWGLPBufferHandle( 0 );
 
     if( context )
         destroyWGLContext( context );
@@ -602,9 +519,6 @@ void Window::configExit( )
         if( strlen( className ) > 0 )
             UnregisterClass( className, GetModuleHandle( 0 ));
     }
-    if( hPBuffer )
-        wglDestroyPbufferARB( hPBuffer );
-
     if( getIAttribute( eq::WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
         ChangeDisplaySettings( 0, 0 );
 
@@ -841,17 +755,8 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
         attributes.push_back( 1 );
     }
 
-    if( drawableHint == PBUFFER && WGLEW_ARB_pbuffer )
-    {
-        attributes.push_back( WGL_DRAW_TO_PBUFFER_ARB );
-        attributes.push_back( 1 );
-    }
-    else
-    {
-        attributes.push_back( WGL_DRAW_TO_WINDOW_ARB );
-        attributes.push_back( 1 );
-    }
-
+    attributes.push_back( WGL_DRAW_TO_WINDOW_ARB );
+    attributes.push_back( 1 );
     attributes.push_back( 0 );
 
     // build back off list, least important attribute last
@@ -1002,7 +907,7 @@ bool Window::processEvent( EventType type )
 {
     if( type == EVENT_WINDOW_EXPOSE )
     {
-        LBASSERT( _impl->_wglWindow ); // PBuffers should not generate paint events
+        LBASSERT( _impl->_wglWindow ); // FBOs should not generate paint events
 
         // Invalidate update rectangle
         PAINTSTRUCT ps;

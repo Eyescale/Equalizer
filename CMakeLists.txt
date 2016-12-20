@@ -3,8 +3,8 @@
 #                         Daniel Pfeifer <daniel@pfeifer-mail.de>
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project(Equalizer VERSION 2.0.0)
-set(Equalizer_VERSION_ABI 200)
+project(Equalizer VERSION 2.1.0)
+set(Equalizer_VERSION_ABI 210)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
                               ${CMAKE_SOURCE_DIR}/CMake/common)

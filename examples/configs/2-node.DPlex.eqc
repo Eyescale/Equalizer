@@ -10,7 +10,7 @@ server
         appNode
         {
             connection { hostname "127.0.0.1" }
-            pipe 
+            pipe
             {
                 window
                 {
@@ -18,11 +18,11 @@ server
                     channel { name "destination" }
                 }
             }
-            pipe 
+            pipe
             {
                 window
                 {
-                    attributes { hint_drawable pbuffer }
+                    attributes { hint_drawable FBO }
                     channel { name "channel1" }
                 }
             }
@@ -34,7 +34,7 @@ server
             {
                 window
                 {
-                    attributes { hint_drawable pbuffer } 
+                    attributes { hint_drawable FBO }
                     channel { name "channel2" }
                 }
             }
@@ -55,13 +55,13 @@ server
             framerate_equalizer {}
 
             compound
-            { 
+            {
                 channel "channel1"
                 period 2 phase  0
                 outputframe { name "frame.DPlex" }
             }
             compound
-            { 
+            {
                 channel "channel2"
                 period 2 phase  1
                 outputframe { name "frame.DPlex" }
@@ -69,5 +69,5 @@ server
 
             inputframe { name "frame.DPlex" }
         }
-    }    
+    }
 }

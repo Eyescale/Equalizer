@@ -97,8 +97,6 @@ ErrorData _errors[] = {
 
     { ERROR_AGLWINDOW_NO_CONTEXT, "Missing AGL context" },
     { ERROR_AGLWINDOW_CREATECONTEXT_FAILED, "Can't create AGL context" },
-    { ERROR_AGLWINDOW_CREATEPBUFFER_FAILED, "Can't create AGL PBuffer" },
-    { ERROR_AGLWINDOW_SETPBUFFER_FAILED, "Can't set AGL PBuffer" },
     { ERROR_AGLWINDOW_CREATEWINDOW_FAILED, "Can't create Carbon window" },
     { ERROR_AGLWINDOW_SETWINDOW_FAILED, "Can't set Carbon window" },
 
@@ -110,7 +108,6 @@ ErrorData _errors[] = {
     { ERROR_GLXWINDOW_GLX_1_3_REQUIRED, "Need at least GLX 1.3" },
     { ERROR_GLXWINDOW_NO_FBCONFIG, "Can't find FBConfig for visual" },
     { ERROR_GLXWINDOW_NO_VISUAL, "FBConfig has no associated visual" },
-    { ERROR_GLXWINDOW_CREATEPBUFFER_FAILED, "Can't create glX PBuffer" },
     { ERROR_GLXWINDOW_FBCONFIG_REQUIRED,
       "Can't find FBConfig functions (GLX 1.3 or GLX_SGIX_fbconfig" },
 
@@ -119,8 +116,6 @@ ErrorData _errors[] = {
     { ERROR_WGLWINDOW_REGISTERCLASS_FAILED, "Can't register window class" },
     { ERROR_WGLWINDOW_FULLSCREEN_FAILED, "Can't switch to fullscreen mode" },
     { ERROR_WGLWINDOW_CREATEWINDOW_FAILED, "Can't create window" },
-    { ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED, "WGL_ARB_pbuffer not supported" },
-    { ERROR_WGLWINDOW_CREATEPBUFFER_FAILED, "Can't create PBuffer" },
     { ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED, "Can't set affinity pixel format"},
     { ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED,
       "Can't choose pixel format using ARB extension"},

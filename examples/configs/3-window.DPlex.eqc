@@ -13,7 +13,6 @@ server
             {
                 window
                 {
-#                    attributes { hint_doublebuffer 0 hint_drawable pbuffer }
                     viewport [ 100 100 480 300 ]
                     attributes { hint_swapsync 0 }
                     channel
@@ -26,7 +25,6 @@ server
             {
                 window
                 {
-#                    attributes { hint_doublebuffer 0 hint_drawable pbuffer }
                     viewport [ 580 100 480 300 ]
                     attributes { hint_swapsync 0 }
                     channel
@@ -56,20 +54,20 @@ server
             segment { channel "dest" }
         }
         compound
-        { 
+        {
             channel  ( segment 0 view 0 )
 
             framerate_equalizer {}
 
             compound
-            { 
+            {
                 channel "channel1"
                 phase  0
                 period 2
                 outputframe { name "frame.DPlex" }
             }
             compound
-            { 
+            {
                 channel "channel2"
                 phase  1
                 period 2
@@ -78,5 +76,5 @@ server
 
             inputframe { name "frame.DPlex" }
         }
-    }    
+    }
 }

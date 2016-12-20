@@ -12,7 +12,7 @@ server
             {
                 window
                 {
-                    attributes { hint_drawable pbuffer }
+                    attributes { hint_drawable FBO }
                     channel { name "source1" }
                     channel { name "source2" }
                 }
@@ -36,10 +36,10 @@ server
         }
 
         compound
-        { 
+        {
             channel ( segment 0 view 0 )
-            
-            compound 
+
+            compound
             {
                 channel "source2"
 
@@ -54,5 +54,5 @@ server
 
             inputframe{ name "frame.source2" }
         }
-    }    
+    }
 }

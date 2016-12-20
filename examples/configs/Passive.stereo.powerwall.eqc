@@ -18,9 +18,9 @@ server
                 {
                     viewport [ .25 .25 .5 .5 ]
                     attributes{ hint_drawable window }
-                    channel 
+                    channel
                     {
-                        name "channel-left" 
+                        name "channel-left"
                     }
                 }
             }
@@ -29,80 +29,80 @@ server
                 device 1
                 window
                 {
-                    attributes{ hint_drawable pbuffer }
-                    channel 
+                    attributes{ hint_drawable FBO }
+                    channel
                     {
-                        name "right-PBuffer" 
+                        name "right-FBO"
                     }
                 }
                 window
                 {
                     viewport [ 0.25 .25 .5 .5 ]
-                    channel 
+                    channel
                     {
-                        name "channel-right" 
+                        name "channel-right"
                     }
                 }
             }
         }
-        
+
         observer{}
-        layout 
-        { 
+        layout
+        {
             name "Simple"
             view { mode STEREO observer 0 }
-        }  
-        canvas 
-        { 
+        }
+        canvas
+        {
             layout "Simple"
             wall {}
 
             segment
             {
-                eye [ LEFT CYCLOP ] 
-                channel "channel-left" 
+                eye [ LEFT CYCLOP ]
+                channel "channel-left"
             }
-            segment 
+            segment
             {
-                eye [ RIGHT ] 
-                channel "channel-right" 
+                eye [ RIGHT ]
+                channel "channel-right"
             }
         }
 
-        compound 
-        { 
-           name "2D" 
-           channel ( view 0 segment 0 ) 
-           eye [ CYCLOP ] 
-           load_equalizer{} 
+        compound
+        {
+           name "2D"
+           channel ( view 0 segment 0 )
+           eye [ CYCLOP ]
+           load_equalizer{}
 
-           compound {} 
-           compound 
+           compound {}
+           compound
            {
-               channel "right-PBuffer" 
-               outputframe{} 
-           } 
-           inputframe{ name "frame.right-PBuffer" } 
-        } 
+               channel "right-FBO"
+               outputframe{}
+           }
+           inputframe{ name "frame.right-FBO" }
+        }
 
-        compound 
+        compound
         {
             name "Stereo"
 
             compound
             {
-                name "Stereo-Left" 
-                channel ( view 0 segment 0 ) 
+                name "Stereo-Left"
+                channel ( view 0 segment 0 )
                 eye [ LEFT ]
                 swapbarrier{}
             }
             compound
             {
-                name "Stereo-Right" 
-                channel ( view 0 segment 1 ) 
+                name "Stereo-Right"
+                channel ( view 0 segment 1 )
                 eye [ RIGHT ]
                 swapbarrier{}
             }
         }
-    }    
+    }
 }

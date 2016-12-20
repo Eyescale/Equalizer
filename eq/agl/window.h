@@ -51,9 +51,6 @@ public:
     /** @return the carbon window reference. @version 1.0 */
     virtual WindowRef getCarbonWindow() const = 0;
 
-    /** @return the AGL PBuffer object. @version 1.0 */
-    virtual AGLPbuffer getAGLPBuffer() const = 0;
-
     /**
      * @return true if the window does not run in the main thread.
      * @version 1.7.2
@@ -116,22 +113,11 @@ public:
      */
     EQ_API virtual void setCarbonWindow( WindowRef window );
 
-    /**
-     * Set the AGL PBuffer object to be used with the current AGL context.
-     *
-     * @param pbuffer the PBuffer.
-     * @version 1.0
-     */
-    EQ_API virtual void setAGLPBuffer( AGLPbuffer pbuffer );
-
     /** @return the AGL rendering context. @version 1.0 */
     EQ_API AGLContext getAGLContext() const override;
 
     /** @return the carbon window reference. @version 1.0 */
     EQ_API WindowRef getCarbonWindow() const override;
-
-    /** @return the AGL PBuffer object. @version 1.0 */
-    EQ_API AGLPbuffer getAGLPBuffer() const override;
 
     /**
      * @return true if the window does not run in the main thread.
@@ -201,8 +187,7 @@ public:
     EQ_API virtual AGLContext createAGLContext( AGLPixelFormat format );
 
     /**
-     * Initialize the window's drawable (fullscreen, pbuffer or window) and
-     * bind the AGL context.
+     * Initialize the window's drawable and bind the AGL context.
      *
      * Sets the window's carbon window on success. Calls
      * configInitAGLFullscreen() or configInitAGLWindow().
@@ -237,16 +222,6 @@ public:
      * @version 1.0
      */
     EQ_API virtual bool configInitAGLWindow();
-
-    /**
-     * Initialize the window with an offscreen AGL PBuffer.
-     *
-     * Sets the window's AGL PBuffer on success.
-     *
-     * @return true if the PBuffer was created, false otherwise.
-     * @version 1.0
-     */
-    EQ_API virtual bool configInitAGLPBuffer();
 
     /**
      * Set up an AGLEventHandler, called by setCarbonWindow().

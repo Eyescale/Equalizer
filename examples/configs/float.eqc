@@ -7,9 +7,9 @@ server
     config
     {
         appNode
-        {   
-            pipe 
-            { 
+        {
+            pipe
+            {
                 window
                 {
                     attributes
@@ -17,8 +17,8 @@ server
                         hint_drawable FBO
                         planes_color  RGBA32F
                     }
-                    channel 
-                    { 
+                    channel
+                    {
                         name "channel3"
                     }
                 }
@@ -26,11 +26,11 @@ server
                 {
                     attributes
                     {
-                        hint_drawable pbuffer
+                        hint_drawable FBO
                         planes_color  RGBA16F
                     }
-                    channel 
-                    { 
+                    channel
+                    {
                         name "channel2"
                     }
                 }
@@ -71,5 +71,5 @@ server
             inputframe { name "frame.channel3" }
             inputframe { name "frame.channel2" }
         }
-    }    
+    }
 }
