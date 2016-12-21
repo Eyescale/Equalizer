@@ -61,6 +61,9 @@
     _putenv_s( name, value )
 #endif
 
+#include <cstdio>
+#include <cmath>
+
 #define USE_IPv4
 
 namespace eq
@@ -243,6 +246,12 @@ bool Resources::discover( ServerPtr server, Config* config,
 
     std::string excludedDisplays; // for VGL_EXCLUDE
 
+    size_t nodeCounter = 0;
+    char nameFormatStr[128];
+    std::sprintf( nameFormatStr, "node_%%0%dd",
+                  int( std::floor( std::log( gpuInfos.size( )) /
+                                   std::log( 10 ))) + 1 );
+
     for( const hwsd::GPUInfo& info : gpuInfos )
     {
         if( info.flags & hwsd::GPUInfo::FLAG_VIRTUALGL_DISPLAY )
@@ -256,7 +265,9 @@ bool Resources::discover( ServerPtr server, Config* config,
             if( isApplicationNode )
                 appNodeID = info.id;
             mtNode = new Node( config );
-            mtNode->setName( info.nodeName );
+            char name[128];
+            std::sprintf( name, nameFormatStr, ++nodeCounter );
+            mtNode->setName( name );
             mtNode->setHost( info.nodeName );
             mtNode->setApplicationNode( isApplicationNode );
 
@@ -287,7 +298,9 @@ bool Resources::discover( ServerPtr server, Config* config,
         else if( multiProcess )
         {
             mpNode = new Node( config );
-            mpNode->setName( info.nodeName );
+            char name[128];
+            std::sprintf( name, nameFormatStr, ++nodeCounter );
+            mpNode->setName( name );
             mpNode->setHost( info.nodeName );
 
             LBASSERT( multiNode );
@@ -355,6 +368,9 @@ bool Resources::discover( ServerPtr server, Config* config,
     if( !node )
     {
         node = new Node( config );
+        char name[128];
+        std::sprintf( name, nameFormatStr, 0 );
+        node->setName( name );
         node->setApplicationNode( true );
         node->addConnectionDescription( new ConnectionDescription );
     }
