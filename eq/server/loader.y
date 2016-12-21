@@ -1335,7 +1335,7 @@ IATTR:
     | EQTOKEN_PBUFFER
     {
         $$ = eq::fabric::FBO;
-        LBERROR << "Using FBO for obsolete pbuffer token" << std::endl;
+        LBERROR << "Using FBO in place of removed PBuffer support" << std::endl;
     }
     | EQTOKEN_ASYNC      { $$ = eq::fabric::ASYNC; }
     | EQTOKEN_DRAW_SYNC  { $$ = eq::fabric::DRAW_SYNC; }
