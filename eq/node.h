@@ -142,7 +142,7 @@ public:
     EQ_API virtual bool processEvent( Statistic& event );
 
     /** @internal @sa Serializable::setDirty() */
-    EQ_API virtual void setDirty( const uint64_t bits );
+    EQ_API void setDirty( const uint64_t bits ) override;
 
     /** @internal */
     EQ_API void dirtyClientExit();

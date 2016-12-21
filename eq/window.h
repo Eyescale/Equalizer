@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
@@ -243,7 +242,7 @@ public:
     EQ_API virtual void updateFrameBuffer() const;
 
     /** @internal Notify this window that the viewport has changed. */
-    EQ_API virtual void notifyViewportChanged();
+    EQ_API void notifyViewportChanged() override;
     //@}
 
     /**  @name SystemWindow interface */

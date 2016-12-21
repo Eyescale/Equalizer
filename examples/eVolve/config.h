@@ -45,7 +45,7 @@ public:
     /** @sa eq::Config::init. */
     bool init();
     /** @sa eq::Config::exit. */
-    bool exit();
+    bool exit() final;
 
     /** @sa eq::Config::startFrame. */
     virtual uint32_t startFrame();
