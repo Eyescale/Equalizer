@@ -56,7 +56,7 @@ public:
     /** @sa eq::Config::init. */
     virtual bool init();
     /** @sa eq::Config::exit. */
-    virtual bool exit();
+    bool exit() final;
 
     /** @sa eq::Config::startFrame. */
     virtual uint32_t startFrame();
@@ -91,8 +91,8 @@ protected:
     virtual ~Config();
 
     /** Synchronize config and admin copy. */
-    virtual co::uint128_t sync(
-        const co::uint128_t& version = co::VERSION_HEAD );
+    co::uint128_t sync( const co::uint128_t& version = co::VERSION_HEAD )
+        final;
 
 private:
     int         _spinX, _spinY;
