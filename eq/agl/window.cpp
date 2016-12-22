@@ -49,7 +49,6 @@ public:
     Window( const CGDirectDisplayID displayID, const bool threaded_ )
         : aglContext( 0 )
         , carbonWindow( 0 )
-        , aglPBuffer( 0 )
         , eventHandler( 0 )
         , cgDisplayID( displayID )
         , threaded( threaded_ )
@@ -60,9 +59,6 @@ public:
 
     /** The carbon window reference. */
     WindowRef carbonWindow;
-
-    /** The AGL PBuffer object. */
-    AGLPbuffer aglPBuffer;
 
     /** The AGL event handler. */
     EventHandler* eventHandler;
@@ -91,9 +87,6 @@ void Window::configExit()
     WindowRef window = getCarbonWindow();
     setCarbonWindow( 0 );
 
-    AGLPbuffer pbuffer = getAGLPBuffer();
-    setAGLPBuffer( 0 );
-
     AGLContext context = getAGLContext();
 
     if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
@@ -108,8 +101,6 @@ void Window::configExit()
         DisposeWindow( window );
         Global::leaveCarbon();
     }
-    if( pbuffer )
-        aglDestroyPBuffer( pbuffer );
 
     configExitFBO();
     exitGLEW();
@@ -181,11 +172,6 @@ AGLContext Window::getAGLContext() const
 WindowRef Window::getCarbonWindow() const
 {
     return _impl->carbonWindow;
-}
-
-AGLPbuffer Window::getAGLPBuffer() const
-{
-    return _impl->aglPBuffer;
 }
 
 CGDirectDisplayID Window::getCGDisplayID() const
@@ -417,9 +403,6 @@ bool Window::configInitAGLDrawable()
 {
     switch( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ))
     {
-        case PBUFFER:
-            return configInitAGLPBuffer();
-
         case FBO:
             return configInitFBO();
 
@@ -437,36 +420,6 @@ bool Window::configInitAGLDrawable()
         case OFF:
             return true;
     }
-}
-
-bool Window::configInitAGLPBuffer()
-{
-    AGLContext context = getAGLContext();
-    if( !context )
-    {
-        sendError( ERROR_AGLWINDOW_NO_CONTEXT );
-        return false;
-    }
-
-    // PBuffer
-    const PixelViewport& pvp = getPixelViewport();
-    AGLPbuffer pbuffer;
-    if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
-                           0, &pbuffer ))
-    {
-        sendError( ERROR_AGLWINDOW_CREATEPBUFFER_FAILED ) << aglError();
-        return false;
-    }
-
-    // attach to context
-    if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
-    {
-        sendError( ERROR_AGLWINDOW_SETPBUFFER_FAILED ) << aglError();
-        return false;
-    }
-
-    setAGLPBuffer( pbuffer );
-    return true;
 }
 
 bool Window::configInitAGLFullscreen()
@@ -625,33 +578,6 @@ void Window::setCarbonWindow( WindowRef window )
         setPixelViewport( pvp );
     }
     Global::leaveCarbon();
-}
-
-void Window::setAGLPBuffer( AGLPbuffer pbuffer )
-{
-    LBVERB << "set AGL PBuffer " << pbuffer << std::endl;
-
-    if( _impl->aglPBuffer == pbuffer )
-        return;
-
-    _impl->aglPBuffer = pbuffer;
-
-    if( !pbuffer )
-        return;
-
-    GLint         w;
-    GLint         h;
-    GLenum        target;
-    GLenum        format;
-    GLint         maxLevel;
-
-    if( aglDescribePBuffer( pbuffer, &w, &h, &target, &format, &maxLevel ))
-    {
-        LBASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
-
-        const PixelViewport pvp( 0, 0, w, h );
-        setPixelViewport( pvp );
-    }
 }
 
 void Window::initEventHandler()

@@ -12,8 +12,6 @@ server
             {
                 window
                 {
-                    #attributes { hint_drawable pbuffer hint_doublebuffer 0 }
-                    #viewport [ 0 0 4096 4096 ]
                     channel
                     {
                         #drawable [ FBO_COLOR FBO_DEPTH ]

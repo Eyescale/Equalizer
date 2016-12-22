@@ -3,7 +3,7 @@
 global
 {
     EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER  OFF
-    EQ_WINDOW_IATTR_HINT_DRAWABLE      pbuffer
+    EQ_WINDOW_IATTR_HINT_DRAWABLE      FBO
     EQ_WINDOW_IATTR_PLANES_STENCIL     ON
 }
 server
@@ -146,7 +146,7 @@ server
             }
         }
         observer{}
-        layout{ view { observer 0 }}        
+        layout{ view { observer 0 }}
         canvas
         {
             layout 0
@@ -154,7 +154,7 @@ server
             segment { channel "channel0" }
         }
         compound
-        { 
+        {
             channel  ( segment 0 view 0 )
             buffer    [ COLOR DEPTH ]
 

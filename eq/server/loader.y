@@ -1332,7 +1332,11 @@ IATTR:
     | EQTOKEN_VERTICAL   { $$ = eq::fabric::VERTICAL; }
     | EQTOKEN_WINDOW     { $$ = eq::fabric::WINDOW; }
     | EQTOKEN_FBO        { $$ = eq::fabric::FBO; }
-    | EQTOKEN_PBUFFER    { $$ = eq::fabric::PBUFFER; }
+    | EQTOKEN_PBUFFER
+    {
+        $$ = eq::fabric::FBO;
+        LBERROR << "Using FBO in place of removed PBuffer support" << std::endl;
+    }
     | EQTOKEN_ASYNC      { $$ = eq::fabric::ASYNC; }
     | EQTOKEN_DRAW_SYNC  { $$ = eq::fabric::DRAW_SYNC; }
     | EQTOKEN_LOCAL_SYNC { $$ = eq::fabric::LOCAL_SYNC; }

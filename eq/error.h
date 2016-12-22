@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -64,8 +64,6 @@ namespace eq
     using fabric::ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED;
     using fabric::ERROR_AGLWINDOW_NO_CONTEXT;
     using fabric::ERROR_AGLWINDOW_CREATECONTEXT_FAILED;
-    using fabric::ERROR_AGLWINDOW_CREATEPBUFFER_FAILED;
-    using fabric::ERROR_AGLWINDOW_SETPBUFFER_FAILED;
     using fabric::ERROR_AGLWINDOW_CREATEWINDOW_FAILED;
     using fabric::ERROR_AGLWINDOW_SETWINDOW_FAILED;
     using fabric::ERROR_GLXWINDOW_NO_DRAWABLE;
@@ -76,15 +74,12 @@ namespace eq
     using fabric::ERROR_GLXWINDOW_GLX_1_3_REQUIRED;
     using fabric::ERROR_GLXWINDOW_NO_FBCONFIG;
     using fabric::ERROR_GLXWINDOW_NO_VISUAL;
-    using fabric::ERROR_GLXWINDOW_CREATEPBUFFER_FAILED;
     using fabric::ERROR_GLXWINDOW_FBCONFIG_REQUIRED;
     using fabric::ERROR_WGLWINDOW_NO_DRAWABLE;
     using fabric::ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED;
     using fabric::ERROR_WGLWINDOW_REGISTERCLASS_FAILED;
     using fabric::ERROR_WGLWINDOW_FULLSCREEN_FAILED;
     using fabric::ERROR_WGLWINDOW_CREATEWINDOW_FAILED;
-    using fabric::ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED;
-    using fabric::ERROR_WGLWINDOW_CREATEPBUFFER_FAILED;
     using fabric::ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED;
     using fabric::ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED;
     using fabric::ERROR_WGLWINDOW_CREATECONTEXT_FAILED;

@@ -3,6 +3,9 @@ Changelog {#Changelog}
 
 # git master
 
+* [602](https://github.com/Eyescale/Equalizer/pull/602):
+  Remove PBuffer support
+
 # Release 2.0 (09-12-2016)
 
 * [590](https://github.com/Eyescale/Equalizer/pull/590):
