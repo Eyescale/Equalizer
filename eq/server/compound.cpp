@@ -864,37 +864,6 @@ void Compound::_updateOverdraw( Wall& wall )
     if( overdraw.y() && viewVP.getYEnd() > segmentVP.getYEnd( ))
         channelOverdraw.w() = overdraw.y();
 
-    // clamp to max channel size
-    const Vector2i& maxSize = channel->getMaxSize();
-    if( maxSize != Vector2i( ))
-    {
-        const PixelViewport& channelPVP = channel->getPixelViewport();
-
-        const int32_t xOverdraw = channelOverdraw.x() + channelOverdraw.z();
-        const int32_t xSize = xOverdraw + channelPVP.w;
-        if( xSize > maxSize.x( ))
-        {
-            const uint32_t maxOverdraw = maxSize.x() - channelPVP.w;
-            const float ratio = static_cast< float >( maxOverdraw ) /
-                                static_cast< float >( xOverdraw );
-            channelOverdraw.x() = static_cast< int >(
-                channelOverdraw.x() * ratio + .5f );
-            channelOverdraw.z() = maxOverdraw - channelOverdraw.x();
-        }
-
-        const int32_t yOverdraw = channelOverdraw.y() + channelOverdraw.w();
-        const int32_t ySize = yOverdraw + channelPVP.h;
-        if( ySize > maxSize.y( ))
-        {
-            const uint32_t maxOverdraw = maxSize.y() - channelPVP.h;
-            const float ratio = static_cast< float >( maxOverdraw ) /
-                                static_cast< float >( yOverdraw );
-            channelOverdraw.y() = static_cast< int >(
-                channelOverdraw.y() * ratio +.5f );
-            channelOverdraw.w() = maxOverdraw - channelOverdraw.y();
-        }
-    }
-
     // apply to frustum
     if( channelOverdraw.x() > 0 )
     {

@@ -17,7 +17,7 @@ server
             {
                 window
                 {
-                    attributes{ hint_drawable FBO }
+                    attributes{ hint_drawable FBO planes_samples 16 }
                     viewport [ 100 450 960 300 ]
                     channel { name "buffer" }
                 }

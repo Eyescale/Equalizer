@@ -185,7 +185,7 @@ public:
     EQ_API const PixelViewport& getPixelViewport() const;
 
     /**
-     * Resize the underlying frame buffer to the given size
+     * Resize the underlying frame buffer to the given size.
      *
      * @param pvp the viewport in pixels.
      * @version 2.1

@@ -58,7 +58,6 @@ template< class W, class C > Channel< W, C >::Channel( const Channel& from )
         , _window( from._window )
         , _data( from._data )
         , _context( &_data.nativeContext )
-        , _maxSize( from._maxSize )
 {
     _window->_addChannel( static_cast< C* >( this ));
 
@@ -121,7 +120,7 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.nativeContext.vp << _data.fixedVP;
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
-        os << _data.nativeContext.pvp << _data.fixedVP << _maxSize;
+        os << _data.nativeContext.pvp << _data.fixedVP;
     if( dirtyBits & DIRTY_MEMBER )
         os << _data.nativeContext.view << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
@@ -155,12 +154,12 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
         // Ignore data from master (server) if we have local changes
         if( !Serializable::isDirty( DIRTY_PIXELVIEWPORT ) || isMaster( ))
         {
-            is >> _data.nativeContext.pvp >> _data.fixedVP >> _maxSize;
+            is >> _data.nativeContext.pvp >> _data.fixedVP;
             notifyViewportChanged();
         }
         else // consume unused data
             is.getRemainingBuffer( sizeof( _data.nativeContext.pvp ) +
-                                   sizeof( _data.fixedVP ) +sizeof( _maxSize ));
+                                   sizeof( _data.fixedVP ));
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _data.nativeContext.view  >> _data.nativeContext.overdraw;
@@ -307,13 +306,6 @@ void Channel< W, C >::setCapabilities( const uint64_t bitmask )
 
     _data.capabilities = bitmask;
     setDirty( DIRTY_CAPABILITIES );
-}
-
-template< class W, class C >
-void Channel< W, C >::setMaxSize( const Vector2i& size )
-{
-    _maxSize = size;
-    setDirty( DIRTY_PIXELVIEWPORT );
 }
 
 template< class W, class C >
