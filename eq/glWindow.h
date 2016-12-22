@@ -43,6 +43,7 @@ public:
     /** Destruct a new OpenGL window. @version 1.0 */
     EQ_API virtual ~GLWindow();
 
+    /** Resize the underlying FBO(s) */
     EQ_API void resize( const PixelViewport& pvp ) override;
 
     /** Bind the FBO and update the current cache. @version 1.0 */

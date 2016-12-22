@@ -112,11 +112,7 @@ public:
     /** @return the supported capabilities. @version 1.0 */
     EQFABRIC_INL uint64_t getCapabilities() const;
 
-    /** @warning Undocumented - may not be supported in the future */
-    EQFABRIC_INL void setMaxSize( const Vector2i& size );
-
     void setOverdraw( const Vector4i& overdraw ); //!< @internal
-    const Vector2i& getMaxSize()  const { return _maxSize; } //!< @internal
 
     /** @internal @return the index path to this channel. */
     EQFABRIC_INL ChannelPath getPath() const;
@@ -417,9 +413,6 @@ private:
 
     /** String attributes. */
     std::string _sAttributes[SATTR_ALL];
-
-    /** Overdraw limiter */
-    Vector2i _maxSize;
 };
 
 template< class W, class C > EQFABRIC_INL

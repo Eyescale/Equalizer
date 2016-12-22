@@ -78,11 +78,26 @@ public:
     /** Const-version of accept(). @version 1.0 */
     EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
+    /**
+     * Resize the underlying channels to form a layout of the given size.
+     *
+     * Resizes the virtual canvas so that the union of output channels covers
+     * the given pixel viewport. Relative or absolute addressing of the
+     * channel's viewport or pixel viewport is retained. Windows are resized as
+     * necessary, so that the channel has the correct size (for channels with
+     * relative viewports) or the channel fits into the window (for channels
+     * with absolute pixel viewports).
+     *
+     * @param pvp the full layout size in pixels.
+     * @version 2.1
+     */
+    EQFABRIC_INL void setPixelViewport( const PixelViewport& pvp );
+
+    /** @return the last set pixel viewport. @version 2.1 */
+    EQFABRIC_INL const PixelViewport& getPixelViewport() const;
+
     void create( V** view ); //!< @internal
     void release( V* view ); //!< @internal
-
-    EQFABRIC_INL const PixelViewport& getPixelViewport() const;
-    EQFABRIC_INL void setPixelViewport( const PixelViewport& pvp );
     //@}
 
 protected:
