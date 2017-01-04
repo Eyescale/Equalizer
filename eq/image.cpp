@@ -20,11 +20,10 @@
 
 #include "image.h"
 
-#include "gl.h"
 #include "half.h"
 #include "log.h"
 #include "pixelData.h"
-#include "windowSystem.h"
+#include "transferFinder.h"
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
@@ -47,11 +46,12 @@
 #  include <alloca.h>
 #endif
 
-#include "transferFinder.h"
-
 #ifdef EQUALIZER_USE_OPENSCENEGRAPH
 #  include <osgDB/WriteFile>
 #endif
+
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {
@@ -65,6 +65,21 @@ public:
         : state( INVALID )
         , hasAlpha( true )
     {}
+
+    Memory( const Memory& rhs )
+        : PixelData( rhs )
+        , state( rhs.state )
+        , localBuffer( rhs.localBuffer )
+        , hasAlpha( rhs.hasAlpha )
+    {
+        if( rhs.localBuffer.isEmpty( ))
+        {
+            const size_t size = rhs.pvp.w * rhs.pvp.h * rhs.pixelSize;
+            localBuffer.resize( size );
+            memcpy( localBuffer.getData(), rhs.pixels, size );
+        }
+        pixels = localBuffer.getData();
+    }
 
     void flush()
     {
@@ -102,6 +117,33 @@ public:
     bool hasAlpha; //!< The uncompressed pixels contain alpha
 };
 
+co::DataOStream& operator << ( co::DataOStream& os, const Memory& mem )
+{
+    if( !mem.pixels )
+        return os << false;
+    const size_t size = mem.pvp.w * mem.pvp.h * mem.pixelSize;
+    return os << true << mem.hasAlpha << mem.state << mem.externalFormat
+              << mem.internalFormat << mem.pixelSize
+              << size << co::Array< void >( mem.pixels, size ) << mem.pvp;
+}
+
+co::DataIStream& operator >> ( co::DataIStream& is, Memory& mem )
+{
+    size_t size = 0;
+    bool haveData = false;
+    is >> haveData;
+    if( !haveData )
+        return is;
+
+    is >> mem.hasAlpha >> mem.state >> mem.externalFormat >> mem.internalFormat
+       >> mem.pixelSize >> size;
+
+    mem.localBuffer.resize( size );
+    is >> co::Array< void >( mem.localBuffer.getData(), size ) >> mem.pvp;
+    mem.pixels = mem.localBuffer.getData();
+    return is;
+}
+
 enum ActivePlugin
 {
     PLUGIN_FULL,
@@ -131,7 +173,15 @@ struct Attachment
         : active( PLUGIN_FULL )
         , quality( 1.f )
         , texture( GL_TEXTURE_RECTANGLE_ARB )
-        {}
+    {}
+
+    Attachment( const Attachment& rhs )
+        : active( rhs.active )
+        , quality( rhs.quality )
+        , texture( GL_TEXTURE_RECTANGLE_ARB )
+        , memory( rhs.memory )
+        , zoom( rhs.zoom )
+    {}
 
     ~Attachment()
     {
@@ -160,6 +210,16 @@ struct Attachment
         downloader[ PLUGIN_LOSSY ].clear();
     }
 };
+
+co::DataOStream& operator << ( co::DataOStream& os, const Attachment& at )
+{
+    return os << at.active << at.memory << at.quality << at.zoom;
+}
+
+co::DataIStream& operator >> ( co::DataIStream& is, Attachment& at )
+{
+    return is >> at.active >> at.memory >> at.quality >> at.zoom;
+}
 }
 
 namespace detail
@@ -171,6 +231,17 @@ public:
         : type( eq::Frame::TYPE_MEMORY )
         , ignoreAlpha( false )
         , hasPremultipliedAlpha( false )
+    {}
+
+    Image( const Image& rhs )
+        : pvp( rhs.pvp )
+        , context( rhs.context )
+        , zoom( rhs.zoom )
+        , type( rhs.type )
+        , color( rhs.color )
+        , depth( rhs.depth )
+        , ignoreAlpha( rhs.ignoreAlpha )
+        , hasPremultipliedAlpha( rhs.hasPremultipliedAlpha )
     {}
 
     /** The rectangle of the current pixel data. */
@@ -243,6 +314,19 @@ Image::Image()
     : _impl( new detail::Image )
 {
     reset();
+}
+
+Image::Image( const Image& rhs )
+    : _impl( new detail::Image( *rhs._impl ))
+{
+}
+
+Image& Image::operator=( Image&& rhs )
+{
+    _impl = std::move( rhs._impl );
+    rhs._impl = new detail::Image;
+    rhs.reset();
+    return *this;
 }
 
 Image::~Image()
@@ -1700,4 +1784,21 @@ void Image::setOffset( int32_t x, int32_t y )
     _impl->pvp.y = y;
 }
 
+co::DataOStream& operator << ( co::DataOStream& os, const Image& image )
+{
+    os << image._impl->color << image._impl->context << image._impl->depth
+       << image._impl->hasPremultipliedAlpha << image._impl->ignoreAlpha
+       << image._impl->pvp << image._impl->type << image._impl->zoom;
+    return os;
 }
+
+co::DataIStream& operator >> ( co::DataIStream& is, Image& image )
+{
+    is >> image._impl->color >> image._impl->context >> image._impl->depth
+       >> image._impl->hasPremultipliedAlpha >> image._impl->ignoreAlpha
+       >> image._impl->pvp >> image._impl->type >> image._impl->zoom;
+    return is;
+}
+
+}
+

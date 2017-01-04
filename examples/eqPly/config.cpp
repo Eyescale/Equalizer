@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -233,7 +233,13 @@ uint32_t Config::startFrame()
     const eq::uint128_t& version = _frameData.commit();
 
     _redraw = false;
-    return eq::Config::startFrame( version );
+    const auto frameNumber = eq::Config::startFrame( version );
+
+    View* view = _getCurrentView();
+    if( view )
+        view->disableScreenshot();
+
+    return frameNumber;
 }
 
 void Config::_updateData()
@@ -399,6 +405,10 @@ bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
 
     case eq::KC_F10:
         _switchLayoutSize();
+        return true;
+
+    case eq::KC_F11:
+        _screenshot();
         return true;
 
     case 'd':
@@ -926,6 +936,24 @@ void Config::_adjustModelScale( const float factor )
     std::ostringstream stream;
     stream << "Set model unit to " << view->getModelUnit();
     _setMessage( stream.str( ));
+}
+
+void Config::_screenshot()
+{
+    View* view = _getCurrentView();
+    if( !view )
+        return;
+
+    view->enableScreenshot( eq::Frame::Buffer::color,
+                       [&]( const uint32_t frameNumber, const eq::Image& image )
+    {
+        const std::string screenshotPath = "./eqPly_" +
+                                         std::to_string( frameNumber ) + ".png";
+        image.writeImage( screenshotPath, eq::Frame::Buffer::color );
+        std::ostringstream os;
+        os << "Screenshot written to " <<  screenshotPath;
+        _setMessage( os.str( ));
+    });
 }
 
 void Config::_switchLayout( int32_t increment )

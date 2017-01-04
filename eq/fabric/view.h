@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -21,11 +21,12 @@
 #define EQFABRIC_VIEW_H
 
 #include <eq/fabric/api.h>
-#include <eq/fabric/equalizer.h>      // member
-#include <eq/fabric/frustum.h>        // base class
-#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/equalizer.h> // member
+#include <eq/fabric/frame.h>     // enum Frame::Buffer
+#include <eq/fabric/frustum.h>   // base class
+#include <eq/fabric/object.h>    // base class
 #include <eq/fabric/types.h>
-#include <eq/fabric/viewport.h>       // member
+#include <eq/fabric/viewport.h>  // member
 
 #define EQ_MM 1000.f
 #define EQ_CM 100.f
@@ -208,6 +209,12 @@ public:
      * @version 1.0
      */
     EQFABRIC_INL uint64_t getCapabilities() const;
+
+    /**
+     * @return the currently set buffers for screenshot feature
+     * @version 2.1
+     */
+    EQFABRIC_INL Frame::Buffer getScreenshotBuffers() const;
     //@}
 
     void setCapabilities( const uint64_t bitmask ); //!< @internal
@@ -228,11 +235,12 @@ public:
         DIRTY_EQUALIZERS     = Object::DIRTY_CUSTOM << 9,
         DIRTY_MODELUNIT      = Object::DIRTY_CUSTOM << 10,
         DIRTY_ATTRIBUTES     = Object::DIRTY_CUSTOM << 11,
+        DIRTY_SCREENSHOT     = Object::DIRTY_CUSTOM << 12,
         DIRTY_VIEW_BITS =
         DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
         DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
         DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_EQUALIZER |
-        DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_ATTRIBUTES
+        DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_ATTRIBUTES | DIRTY_SCREENSHOT
     };
 
     /** String attributes. */
@@ -295,6 +303,9 @@ protected:
     /** @internal */
     virtual void notifyFrustumChanged() { setDirty( DIRTY_FRUSTUM ); }
 
+    /** @internal */
+    void _setScreenshotBuffers( Frame::Buffer buffers );
+
 private:
     /** Parent layout (application-side). */
     L* const _layout;
@@ -311,6 +322,7 @@ private:
     uint64_t _capabilities; //!< intersection of all active channel caps
     uint32_t _equalizers; //!< Active Equalizers
     float _modelUnit; //!< Scaling of scene in this view
+    Frame::Buffer _screenshotBuffers;
 
     struct BackupData
     {
@@ -325,9 +337,6 @@ private:
 
     /** String attributes. */
     std::string _sAttributes[SATTR_ALL];
-
-    struct Private;
-    Private* _private; // placeholder for binary-compatible changes
 };
 
 template< class L, class V, class O >

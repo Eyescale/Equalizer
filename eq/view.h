@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@
 
 #include <eq/api.h>
 #include <eq/types.h>          // member
+#include <eq/frame.h>          // enum
 #include <eq/visitorResult.h>  // enum
 
 #include <eq/fabric/view.h>           // base class
@@ -87,6 +88,34 @@ public:
      * @version 1.0
      */
     EQ_API virtual bool handleEvent( EventType type, const SizeEvent& event );
+
+    /**
+     * Callback function called during eq::Config::handleEvents() after
+     * capturing a complete screenshot.
+     *
+     * @version 2.1
+     */
+    using ScreenshotFunc = std::function< void( uint32_t, const Image& ) >;
+
+    /**
+     * Enable recording of given buffers for screenshot feature.
+     *
+     * @param buffers bitmask of buffers to capture in screenshot image
+     * @param func callback function with frame number and screenshot image
+     * @version 2.1
+     */
+    EQ_API void enableScreenshot( Frame::Buffer buffers,
+                                  const ScreenshotFunc& func );
+
+    /** Stop recording of screenshots. @version 2.1 */
+    EQ_API void disableScreenshot();
+
+    /** @internal */
+    bool handleEvent( EventICommand& command );
+
+    /** @internal */
+    void sendScreenshotEvent( const Viewport& viewport,
+                              const uint32_t frameNumber, const Image& image );
     //@}
 
 protected:
@@ -119,6 +148,8 @@ protected:
 
 private:
     detail::View* const _impl;
+
+    bool _handleScreenshot( EventICommand& command );
 
     Pipe* _pipe; // for render-client views
     friend class Pipe;

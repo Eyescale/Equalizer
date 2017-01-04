@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -68,7 +68,8 @@ static const std::string _help(
     std::string( "\t\tp:                         Add passive stereo window\n" ) +
     std::string( "\t\tx:                         Remove window\n" ) +
     std::string( "\t\ty, Y:                      Adjust model unit\n" ) +
-    std::string( "\t\tz, Z:                      Adjust eye base\n" ));
+    std::string( "\t\tz, Z:                      Adjust eye base\n" ) +
+    std::string( "\t\tF11:                       Screenshot to $PWD/eqPly_NUM.png\n" ));
 }
 
 const std::string& EqPly::getHelp()

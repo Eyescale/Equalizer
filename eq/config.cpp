@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric Stalder@gmail.com>
  *
@@ -36,9 +36,9 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/fabric/commands.h>
 #include <eq/fabric/axisEvent.h>
 #include <eq/fabric/buttonEvent.h>
+#include <eq/fabric/commands.h>
 #include <eq/fabric/keyEvent.h>
 #include <eq/fabric/pointerEvent.h>
 #include <eq/fabric/sizeEvent.h>
@@ -665,6 +665,16 @@ bool Config::handleEvent( EventICommand command )
         Observer* observer = find< Observer >( originator );
         if( observer )
             return observer->handleEvent( command );
+        return false;
+    }
+
+    case EVENT_VIEW_SCREENSHOT:
+    {
+        const uint128_t& originator = command.read< uint128_t >();
+        LBASSERT( originator != 0 );
+        View* view = find< View >( originator );
+        if( view )
+            return view->handleEvent( command );
         return false;
     }
 

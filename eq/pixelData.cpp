@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,17 @@ namespace eq
 PixelData::PixelData()
 {
     reset();
+}
+
+PixelData::PixelData( const PixelData& rhs )
+    : internalFormat( rhs.internalFormat )
+    , externalFormat( rhs.externalFormat )
+    , pixelSize( rhs.pixelSize )
+    , pvp( rhs.pvp )
+    , compressedData( rhs.compressedData )
+    , compressorName( rhs.compressorName )
+    , compressorFlags( rhs.compressorFlags )
+{
 }
 
 PixelData::~PixelData()

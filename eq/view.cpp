@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -18,10 +18,14 @@
 
 #include "view.h"
 
+#include "compositor.h"
 #include "config.h"
-#include "pipe.h"
+#include "eventICommand.h"
+#include "image.h"
+#include "imageOp.h"
 #include "layout.h"
 #include "observer.h"
+#include "pipe.h"
 #include "server.h"
 
 #include <eq/fabric/commands.h>
@@ -43,6 +47,42 @@ public:
 
     /** Unmodified, baseline view frustum data, used for resizing. */
     Frustum baseFrustum;
+
+    struct Screenshot
+    {
+        std::unique_ptr< eq::Image > _image;
+        Viewport _viewport;
+
+        bool isComplete() const
+        {
+            return _viewport == Viewport::FULL;
+        }
+
+        void composite( const Viewport& viewport, const eq::Image& image )
+        {
+            if( !_image )
+            {
+                _viewport = viewport;
+                _image.reset( new eq::Image( image ));
+                return;
+            }
+
+            ImageOps ops;
+            ImageOp current;
+            current.image = _image.get();
+            ImageOp newImage;
+            newImage.image = &image;
+
+            ops.push_back( current );
+            ops.push_back( newImage );
+            _image.reset(
+                     new eq::Image( *Compositor::mergeImagesCPU( ops, false )));
+            _viewport.unite( viewport );
+        }
+    };
+
+    std::map< uint32_t, Screenshot > screenshot;
+    eq::View::ScreenshotFunc screenshotFunc;
 };
 }
 
@@ -159,6 +199,52 @@ bool View::handleEvent( const EventType type, const SizeEvent& event )
     case eq::View::TYPE_NONE:
         return false;
     }
+}
+
+void View::enableScreenshot( Frame::Buffer buffers, const ScreenshotFunc& func )
+{
+    Super::_setScreenshotBuffers( buffers );
+    _impl->screenshotFunc = func;
+}
+
+void View::disableScreenshot()
+{
+    Super::_setScreenshotBuffers( Frame::Buffer::none );
+}
+
+void View::sendScreenshotEvent( const Viewport& viewport,
+                                const uint32_t frameNumber, const Image& image )
+{
+    getConfig()->sendEvent( EVENT_VIEW_SCREENSHOT ) << getID() << viewport
+                                                    << frameNumber << image;
+}
+
+bool View::handleEvent( EventICommand& command )
+{
+    switch( command.getEventType( ))
+    {
+    case EVENT_VIEW_SCREENSHOT:
+        return _handleScreenshot( command );
+    }
+    return false;
+}
+
+bool View::_handleScreenshot( EventICommand& command )
+{
+    const auto& vp = command.read< Viewport >();
+    const auto frameNumber = command.read< uint32_t >();
+    const auto& newImage = command.read< Image >();
+
+    auto& screenshot = _impl->screenshot[ frameNumber ];
+    screenshot.composite( vp, newImage );
+
+    if( screenshot.isComplete( ))
+    {
+        _impl->screenshotFunc( frameNumber, *screenshot._image );
+        _impl->screenshot.erase( frameNumber );
+    }
+
+    return true;
 }
 
 }

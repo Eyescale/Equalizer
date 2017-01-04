@@ -6,6 +6,8 @@ Changelog {#Changelog}
 * [608](https://github.com/Eyescale/Equalizer/pull/608):
   Make Frame::Buffer enum an enum class to ease bitmask handling;
   enum values are now Frame::Buffer::value instead of Frame::BUFFER_VALUE
+* [607](https://github.com/Eyescale/Equalizer/pull/607):
+  Implement view screenshot feature with eq::View::enableScreenshot()
 * [606](https://github.com/Eyescale/Equalizer/pull/606):
   Remove unused big-endian/byteswap support
 * [601](https://github.com/Eyescale/Equalizer/pull/601):

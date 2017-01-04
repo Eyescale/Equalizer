@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -133,6 +133,7 @@ private:
     void _adjustTileSize( const int delta );
     void _adjustResistance( const int delta );
     void _adjustModelScale( const float factor );
+    void _screenshot();
     void _switchLayout( int32_t increment );
     void _switchLayoutSize();
     void _toggleEqualizer();
