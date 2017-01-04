@@ -39,6 +39,12 @@ public:
     /** Construct a new Image. @version 1.0 */
     EQ_API Image();
 
+    /** Copy-construct a new Image. @version 2.1 */
+    EQ_API Image( const Image& );
+
+    /** Move-assign a new Image. @version 2.1 */
+    EQ_API Image& operator=( Image&& rhs );
+
     /** Destruct the Image. @version 1.0 */
     EQ_API virtual ~Image();
 
@@ -384,9 +390,11 @@ public:
     //@}
 
 private:
-    Image( const Image& ) = delete;
-    Image& operator=( const Image& )  = delete;
-    detail::Image* const _impl;
+    Image& operator=( const Image& ) = delete;
+    detail::Image* _impl;
+
+    friend co::DataOStream& operator << ( co::DataOStream& os, const Image& );
+    friend co::DataIStream& operator >> ( co::DataIStream& is, Image& );
 
     /** @return a unique key for the frame buffer attachment. */
     const void* _getBufferKey( const Frame::Buffer buffer ) const;
@@ -420,5 +428,14 @@ private:
     bool _writeImage( const std::string& filename, const Frame::Buffer buffer,
                       const unsigned char* data ) const;
 };
-};
+
+/** eq::Image serializer. @version 2.1 */
+EQ_API co::DataOStream& operator << ( co::DataOStream& os, const Image& );
+
+/** eq::Image deserializer. @version 2.1 */
+EQ_API co::DataIStream& operator >> ( co::DataIStream& is, Image& );
+
+}
+
+
 #endif // EQ_IMAGE_H

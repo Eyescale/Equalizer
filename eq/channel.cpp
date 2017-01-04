@@ -1439,8 +1439,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
 
         if( isCompressed )
         {
-            BOOST_FOREACH( const pression::CompressorChunk& chunk,
-                           data->compressedData.chunks )
+            for( const auto& chunk :  data->compressedData.chunks )
             {
                 const uint64_t dataSize = chunk.getNumBytes();
 

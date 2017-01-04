@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2013-2017, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,8 +42,8 @@ public:
 
     virtual ~TransferFinder() {}
 
-    virtual fabric::VisitorResult visit( const pression::Plugin& plugin,
-                                         const EqCompressorInfo& info )
+    fabric::VisitorResult visit( const pression::Plugin& plugin,
+                                 const EqCompressorInfo& info ) final
     {
         if(( (info.capabilities & caps_) == caps_ )                &&
            ( internal_ == EQ_COMPRESSOR_DATATYPE_NONE ||

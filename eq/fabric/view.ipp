@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -49,6 +49,7 @@ View< L, V, O >::View( L* layout )
     , _capabilities( LB_BIT_ALL_64 )
     , _equalizers( EQUALIZER_ALL )
     , _modelUnit( EQ_M )
+    , _screenshotBuffers( Frame::Buffer::none )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
@@ -98,6 +99,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _modelUnit;
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os << co::Array< std::string >( _sAttributes, SATTR_ALL );
+    if( dirtyBits & DIRTY_SCREENSHOT )
+        os << _screenshotBuffers;
 }
 
 template< class L, class V, class O >
@@ -168,6 +171,8 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _modelUnit;
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is >> co::Array< std::string >( _sAttributes, SATTR_ALL );
+    if( dirtyBits & DIRTY_SCREENSHOT )
+        is >> _screenshotBuffers;
 }
 
 template< class L, class V, class O >
@@ -362,6 +367,22 @@ template< class L, class V, class O >
 uint64_t View< L, V, O >::getCapabilities() const
 {
     return _capabilities;
+}
+
+template< class L, class V, class O >
+void View< L, V, O >::_setScreenshotBuffers( const Frame::Buffer buffers )
+{
+    if( _screenshotBuffers == buffers )
+        return;
+
+    _screenshotBuffers = buffers;
+    setDirty( DIRTY_SCREENSHOT );
+}
+
+template< class L, class V, class O >
+Frame::Buffer View< L, V, O >::getScreenshotBuffers() const
+{
+    return _screenshotBuffers;
 }
 
 template< class L, class V, class O >

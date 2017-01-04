@@ -22,8 +22,6 @@
 #include "../resultImageListener.h"
 #include "fileFrameWriter.h"
 
-#include <boost/foreach.hpp>
-
 #ifdef EQUALIZER_USE_DEFLECT
 #  include "../deflect/proxy.h"
 #endif
@@ -101,29 +99,49 @@ public:
         }
 #endif
 
-        if( resultImageListeners.empty( ))
+        eq::View* view = channel.getView();
+        eq::Frame::Buffer buffers = view->getScreenshotBuffers();
+        if( !resultImageListeners.empty( ))
+            buffers |= eq::Frame::Buffer::color;
+
+        if( buffers == eq::Frame::Buffer::none )
             return;
 
-        downloadFramebuffer( channel );
-        BOOST_FOREACH( ResultImageListener* listener, resultImageListeners )
+        downloadFramebuffer( channel, buffers );
+        for( ResultImageListener* listener : resultImageListeners )
             listener->notifyNewImage( channel, framebufferImage );
+
+        if( view->getScreenshotBuffers() != eq::Frame::Buffer::none )
+        {
+            view->sendScreenshotEvent( channel.getViewport(),
+                                       channel.getPipe()->getCurrentFrame(),
+                                       framebufferImage );
+        }
     }
 
-    void downloadFramebuffer( eq::Channel& channel )
+    void downloadFramebuffer( eq::Channel& channel,
+                              const eq::Frame::Buffer buffers )
     {
         framebufferImage.setAlphaUsage( true );
         framebufferImage.setQuality( eq::Frame::Buffer::color, 1.0f );
         framebufferImage.setStorageType( eq::Frame::TYPE_MEMORY );
         framebufferImage.setInternalFormat( eq::Frame::Buffer::color, GL_RGBA );
 
-        if( framebufferImage.startReadback( eq::Frame::Buffer::color,
+        if( buffers & eq::Frame::Buffer::color )
+            framebufferImage.startReadback( eq::Frame::Buffer::color,
                                             channel.getPixelViewport(),
                                             channel.getContext(),
                                             channel.getZoom(),
-                                            channel.getObjectManager( )))
-        {
-            framebufferImage.finishReadback( channel.glewGetContext( ));
-        }
+                                            channel.getObjectManager( ));
+
+        if( buffers & eq::Frame::Buffer::depth )
+            framebufferImage.startReadback( eq::Frame::Buffer::depth,
+                                            channel.getPixelViewport(),
+                                            channel.getContext(),
+                                            channel.getZoom(),
+                                            channel.getObjectManager( ));
+
+        framebufferImage.finishReadback( channel.glewGetContext( ));
     }
 
     /** The configInit/configExit state. */

@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,6 +34,9 @@ struct PixelData
 {
     /** Construct new pixel data. @version 1.0 */
     EQ_API PixelData();
+
+    /** Copy-construct new pixel data. @version 2.1 */
+    EQ_API PixelData( const PixelData& rhs );
 
     /** Destruct the pixel data. @version 1.0 */
     EQ_API ~PixelData();
@@ -93,8 +96,9 @@ struct PixelData
     uint32_t compressorFlags; //!< Flags used for compression. @version 1.0
 
 private:
-    PixelData( const PixelData& ) = delete;
     PixelData& operator=( const PixelData& ) = delete;
 };
-};
+
+}
+
 #endif // EQ_PIXELDATA_H

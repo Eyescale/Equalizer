@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2016, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2016-2017, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -82,6 +82,8 @@ enum EventType // Also update string table in event.cpp
     EVENT_PIPE_ERROR, //!< Pipe error event. @sa CONFIG_ERROR
     EVENT_WINDOW_ERROR, //!< Window error event. @sa CONFIG_ERROR
     EVENT_CHANNEL_ERROR, //!< Channel error event. @sa CONFIG_ERROR
+
+    EVENT_VIEW_SCREENSHOT, //!< Viewport, frameNumber, Image with requested buffers
 
     // todo
     EVENT_NODE_TIMEOUT,         //!< Node has timed out
