@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2015, Juan Hernando <jhernando@fi.upm.es>
+/* Copyright (c) 2015-2017, Juan Hernando <jhernando@fi.upm.es>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -64,6 +64,7 @@ public:
     void joinNVSwapBarrier( const uint32_t, const uint32_t ) final
         { LBUNIMPLEMENTED }
     void queryDrawableConfig( DrawableConfig& ) final { LBUNIMPLEMENTED }
+    void resize( const PixelViewport& ) final { LBUNIMPLEMENTED }
 
 private:
     QOpenGLContext* _context;
