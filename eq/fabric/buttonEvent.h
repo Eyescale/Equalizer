@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2016, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2016-2017, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,16 +40,6 @@ inline std::ostream& operator << ( std::ostream& os, const ButtonEvent& event )
               << " buttons " << event.buttons;
 }
 
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::ButtonEvent& value )
-{
-    byteswap( static_cast< eq::fabric::Event& >( value ));
-    byteswap( value.button );
-    byteswap( value.buttons );
 }
 }
 

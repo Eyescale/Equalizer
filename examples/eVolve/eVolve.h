@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -90,15 +90,4 @@ enum LogTopics
 };
 }
 
-namespace lunchbox
-{
-template<> inline void byteswap( eVolve::ColorMode& value )
-{ byteswap( reinterpret_cast< uint32_t& >( value )); }
-
-template<> inline void byteswap( eVolve::BackgroundMode& value )
-{ byteswap( reinterpret_cast< uint32_t& >( value )); }
-
-template<> inline void byteswap( eVolve::NormalsQuality& value )
-{ byteswap( reinterpret_cast< uint32_t& >( value )); }
-}
 #endif // EVOLVE_H

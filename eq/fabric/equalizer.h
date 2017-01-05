@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2012-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -141,12 +141,6 @@ EQFABRIC_API co::DataIStream& operator >> ( co::DataIStream& is,
 EQFABRIC_API std::ostream& operator << ( std::ostream& os,
                                          const Equalizer::Mode );
 }
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Equalizer::Mode& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
 }
 
 #endif // EQFABRIC_EQUALIZER_H

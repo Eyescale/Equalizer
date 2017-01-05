@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -64,11 +64,6 @@ namespace fabric
         return os;
     }
 }
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::ColorMask& /*value*/ ) { /* NOP */ }
 }
 
 #endif // EQFABRIC_COLORMASK_H

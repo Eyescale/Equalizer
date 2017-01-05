@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [606](https://github.com/Eyescale/Equalizer/pull/606):
+  Remove unused big-endian/byteswap support
 * [601](https://github.com/Eyescale/Equalizer/pull/601):
   Add layout resize
 * [604](https://github.com/Eyescale/Equalizer/pull/604):

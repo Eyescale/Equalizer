@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -71,8 +71,6 @@ public:
     EQFABRIC_API void deserialize( co::DataIStream& is ); //!< @internal
 
 private:
-    friend void lunchbox::byteswap< Error >( Error& value );
-
     uint32_t _code;
     uint128_t _originator;
 };
@@ -80,15 +78,6 @@ private:
 /** Print the error in a human-readable format. @version 1.0 */
 EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Error& );
 
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Error& value )
-{
-    byteswap( value._code );
-    byteswap( value._originator );
 }
 }
 

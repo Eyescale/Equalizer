@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -83,14 +83,5 @@ public:
 EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Projection& );
 }
 }
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Projection& value )
-{
-    byteswap( value.origin );
-    byteswap( value.distance );
-    byteswap( value.fov );
-    byteswap( value.hpr );
-}
-}
+
 #endif // EQFABRIC_PROJECTION_H

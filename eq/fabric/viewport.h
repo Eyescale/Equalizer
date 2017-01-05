@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -192,14 +192,4 @@ inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )
 }
 }
 
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Viewport& value )
-{
-    byteswap( value.x );
-    byteswap( value.y );
-    byteswap( value.w );
-    byteswap( value.h );
-}
-}
 #endif // EQFABRIC_VIEWPORT_H

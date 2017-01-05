@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -118,7 +118,7 @@ void VRPN_CALLBACK trackerCB( void* userdata, const vrpn_TRACKERCB data )
     co::Buffer buffer;
     buffer.swap( oEvent.buffer->getBuffer( ));
 
-    co::ICommand iCommand( client, client, &buffer, false );
+    co::ICommand iCommand( client, client, &buffer );
     EventICommand iEvent( iCommand );
     config->handleEvent( iEvent ); // config dispatch so app can update state
 }

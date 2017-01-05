@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,38 +70,6 @@ public:
 };
 
 EQFABRIC_API std::ostream& operator << ( std::ostream&, const RenderContext& );
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::RenderContext& value )
-{
-    byteswap( value.frustum );
-    byteswap( value.ortho );
-
-    byteswap( value.headTransform );
-    byteswap( value.orthoTransform );
-
-    byteswap( value.view );
-    byteswap( value.frameID );
-    byteswap( value.pvp );
-    byteswap( value.pixel );
-    byteswap( value.overdraw );
-    byteswap( value.vp );
-
-    byteswap( value.offset );
-    byteswap( value.range );
-    byteswap( value.subPixel );
-    byteswap( value.zoom );
-
-    byteswap( value.buffer );
-    byteswap( value.taskID );
-    byteswap( value.period );
-    byteswap( value.phase );
-    byteswap( value.eye );
-
-    byteswap( value.bufferMask );
 }
 }
 

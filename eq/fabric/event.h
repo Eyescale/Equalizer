@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -45,16 +45,6 @@ struct Event
 /** Print the event to the given output stream. @version 1.0 */
 inline std::ostream& operator << ( std::ostream& os, const Event& event )
     { return os << event.originator; }
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Event& value )
-{
-    byteswap( value.serial );
-    byteswap( value.time );
-    byteswap( value.originator );
 }
 }
 

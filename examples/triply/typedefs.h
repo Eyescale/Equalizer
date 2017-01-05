@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Stefan Eilemann <eile@eyescale.ch>
  *
@@ -191,20 +191,4 @@ inline void memRead( char* destination, char** source, size_t length )
 }
 }
 
-#ifdef EQUALIZER
-namespace lunchbox
-{
-template<> inline void byteswap( triply::RenderMode& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
-template<> inline void byteswap( triply::Type& value )
-    { byteswap( reinterpret_cast< unsigned& >( value )); }
-
-
-template<> inline void byteswap( triply::Range& value )
-{
-    byteswap( value[ 0 ]);
-    byteswap( value[ 1 ]);
-}
-}
-#endif
 #endif // PLYLIB_TYPEDEFS_H

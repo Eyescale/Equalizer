@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -175,19 +175,4 @@ EQFABRIC_API std::ostream& operator << ( std::ostream&, const Wall::Type& );
 }
 }
 
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Wall::Type& value )
-{
-    byteswap( reinterpret_cast< uint32_t& >( value ));
-}
-
-template<> inline void byteswap( eq::fabric::Wall& value )
-{
-    byteswap( value.bottomLeft );
-    byteswap( value.bottomRight );
-    byteswap( value.topLeft );
-    byteswap( value.type );
-}
-}
 #endif // EQFABRIC_WALL_H

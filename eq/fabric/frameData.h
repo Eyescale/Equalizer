@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -88,21 +88,8 @@ protected:
     Zoom          _zoom;
     Frame::Type   _frameType;
     uint32_t      _buffers;
-    template< class T > friend void lunchbox::byteswap( T& );
 };
 
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::FrameData& value )
-{
-    byteswap( value._pvp );
-    byteswap( value._context );
-    byteswap( value._zoom );
-    byteswap( value._frameType );
-    byteswap( value._buffers );
 }
 }
 
