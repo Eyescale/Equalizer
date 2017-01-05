@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -139,14 +139,6 @@ inline std::ostream& operator << ( std::ostream& os, const KeyModifier mod )
 }
 
 }
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::eventEnums::KeyModifier& value )
-{
-    byteswap( reinterpret_cast< unsigned& >( value ));
 }
 }
 

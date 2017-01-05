@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2012-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,17 +38,6 @@ public:
     PixelViewport pvp;
     Viewport vp;
 };
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Tile& tile )
-{
-    byteswap( tile.frustum );
-    byteswap( tile.ortho );
-    byteswap( tile.pvp );
-    byteswap( tile.vp );
 }
 }
 

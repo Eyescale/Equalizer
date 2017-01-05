@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2016, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2016-2017, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,20 +43,6 @@ inline std::ostream& operator << ( std::ostream& os, const SizeEvent& event )
     return os << static_cast< const Event& >( event ) << ' ' << event.x << 'x'
               << event.y << '+' << event.w << '+' << event.h;
 }
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::SizeEvent& value )
-{
-    byteswap( static_cast< eq::fabric::Event& >( value ));
-    byteswap( value.x );
-    byteswap( value.y );
-    byteswap( value.w );
-    byteswap( value.h );
-    byteswap( value.dw );
-    byteswap( value.dh );
 }
 }
 

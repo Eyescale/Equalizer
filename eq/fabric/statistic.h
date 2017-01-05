@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -100,30 +100,6 @@ EQFABRIC_API std::ostream& operator << ( std::ostream&, const Statistic::Type&);
 /** Output the statistic to an std::ostream. @version 1.0 */
 EQFABRIC_API std::ostream& operator << ( std::ostream&, const Statistic& );
 
-}
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Statistic::Type& value )
-{ byteswap( reinterpret_cast< uint32_t& >( value )); }
-
-template<> inline void byteswap( eq::fabric::Statistic& value )
-{
-    byteswap( value.type );
-    byteswap( value.frameNumber );
-    byteswap( value.task );
-    byteswap( value.plugins[0] );
-    byteswap( value.plugins[1] );
-
-    byteswap( value.startTime );
-    byteswap( value.endTime );
-    byteswap( value.idleTime );
-    byteswap( value.totalTime );
-
-    byteswap( value.ratio );
-    byteswap( value.currentFPS );
-    byteswap( value.averageFPS );
 }
 }
 

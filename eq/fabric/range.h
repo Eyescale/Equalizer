@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,12 +93,4 @@ inline std::ostream& operator << ( std::ostream& os, const Range& range )
 }
 }
 
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Range& value )
-{
-    byteswap( value.start );
-    byteswap( value.end );
-}
-}
 #endif // EQFABRIC_RANGE_H

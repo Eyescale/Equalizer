@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -74,9 +74,5 @@ inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )
 }
 }
 }
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Zoom& value )
-{ byteswap< eq::fabric::Vector2f >( value ); }
-}
+
 #endif // EQFABRIC_ZOOM_H

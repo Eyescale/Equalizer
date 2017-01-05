@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
@@ -1948,11 +1948,6 @@ bool Channel::_cmdDeleteTransferWindow( co::ICommand& cmd )
     return true;
 }
 
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::detail::RBStat*& ) { /*NOP*/ }
 }
 
 #include <eq/fabric/channel.ipp>

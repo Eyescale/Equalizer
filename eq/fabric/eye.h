@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -47,12 +47,6 @@ namespace fabric
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Eye& eye );
 }
-}
-
-namespace lunchbox
-{
-template<> inline void byteswap( eq::fabric::Eye& value )
-    { byteswap( reinterpret_cast< uint32_t& >( value )); }
 }
 
 #endif // EQFABRIC_EYE_H
