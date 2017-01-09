@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Tobias Wolf <twolf@access.unizh.ch>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -129,7 +129,7 @@ void Window::_loadLogo()
         return;
 
     eq::Image image;
-    if( !image.readImage( _logoTextureName, eq::Frame::BUFFER_COLOR ))
+    if( !image.readImage( _logoTextureName, eq::Frame::Buffer::color ))
     {
         LBWARN << "Can't load overlay logo " << _logoTextureName << std::endl;
         return;
@@ -139,7 +139,7 @@ void Window::_loadLogo()
                                     GL_TEXTURE_RECTANGLE_ARB );
     LBASSERT( _logoTexture );
 
-    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i(), om );
+    image.upload( eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(), om );
     image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;

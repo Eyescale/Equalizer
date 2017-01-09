@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013-2015, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
+/* Copyright (c) 2013-2017, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,11 +93,11 @@ public:
         _running = _sendFuture.get();
 
         // copy pixels to perform swapYAxis()
-        const size_t dataSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
-        _buffer.replace( image.getPixelPointer( Frame::BUFFER_COLOR ), dataSize);
+        const size_t dataSize = image.getPixelDataSize( Frame::Buffer::color );
+        _buffer.replace( image.getPixelPointer( Frame::Buffer::color ), dataSize);
         const PixelViewport& pvp = image.getPixelViewport();
         ::deflect::ImageWrapper::swapYAxis( _buffer.getData(), pvp.w, pvp.h,
-                                     image.getPixelSize( Frame::BUFFER_COLOR ));
+                                     image.getPixelSize( Frame::Buffer::color ));
 
         // determine image offset wrt global view
         const Viewport& vp = channel.getViewport();

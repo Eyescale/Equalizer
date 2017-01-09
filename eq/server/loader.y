@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -80,7 +80,7 @@
         static co::ConnectionDescriptionPtr connectionDescription;
         static eq::fabric::Wall         wall;
         static eq::fabric::Projection   projection;
-        static uint32_t                 flags = 0;
+        static fabric::Frame::Buffer buffers = fabric::Frame::Buffer::none;
     }
     }
 
@@ -999,8 +999,9 @@ compoundField:
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::fabric::EYE_UNDEFINED );}
         compoundEyes  ']'
-    | EQTOKEN_BUFFER '[' { flags = eq::fabric::Frame::BUFFER_NONE; }
-        buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
+    | EQTOKEN_BUFFER '[' { buffers = eq::fabric::Frame::Buffer::none; }
+        buffers ']' { eqCompound->setBuffers( buffers );
+                      buffers = eq::fabric::Frame::Buffer::none; }
     | EQTOKEN_VIEWPORT viewport
         { eqCompound->setViewport( eq::fabric::Viewport( $2[0], $2[1],
                                                          $2[2], $2[3] ));}
@@ -1119,8 +1120,8 @@ compoundEye:
 
 buffers: /*null*/ | buffers buffer
 buffer:
-    EQTOKEN_COLOR    { flags |= eq::fabric::Frame::BUFFER_COLOR; }
-    | EQTOKEN_DEPTH  { flags |= eq::fabric::Frame::BUFFER_DEPTH; }
+    EQTOKEN_COLOR    { buffers |= eq::fabric::Frame::Buffer::color; }
+    | EQTOKEN_DEPTH  { buffers |= eq::fabric::Frame::Buffer::depth; }
 
 wall: EQTOKEN_WALL '{' { wall = eq::fabric::Wall(); } wallFields '}'
 
@@ -1273,8 +1274,9 @@ frameField:
     | EQTOKEN_VIEWPORT viewport
         { frame->setViewport(eq::fabric::Viewport( $2[0], $2[1],
                                                    $2[2], $2[3])); }
-    | EQTOKEN_BUFFER '[' { flags = eq::fabric::Frame::BUFFER_NONE; }
-        buffers ']' { frame->setBuffers( flags ); flags = 0; }
+    | EQTOKEN_BUFFER '[' { buffers = eq::fabric::Frame::Buffer::none; }
+        buffers ']' { frame->setBuffers( buffers );
+                      buffers = eq::fabric::Frame::Buffer::none; }
     | EQTOKEN_ZOOM '[' FLOAT FLOAT ']'
         { frame->setNativeZoom( eq::fabric::Zoom( $3, $4 )); }
 

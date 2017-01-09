@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Tobias Wolf <twolf@access.unizh.ch>
@@ -247,14 +247,14 @@ void Channel::frameReadback( const eq::uint128_t& frameID,
         frame->setAlphaUsage( false );
 
         if( frameData.isIdle( ))
-            frame->setQuality( eq::Frame::BUFFER_COLOR, 1.f );
+            frame->setQuality( eq::Frame::Buffer::color, 1.f );
         else
-            frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
+            frame->setQuality( eq::Frame::Buffer::color, frameData.getQuality());
 
         if( frameData.useCompression( ))
-            frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_AUTO );
+            frame->useCompressor( eq::Frame::Buffer::color, EQ_COMPRESSOR_AUTO );
         else
-            frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_NONE );
+            frame->useCompressor( eq::Frame::Buffer::color, EQ_COMPRESSOR_NONE );
     }
 
     eq::Channel::frameReadback( frameID, frames );

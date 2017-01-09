@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder<cedric.stalder@gmail.com>
  *
@@ -735,7 +735,7 @@ bool Node::_cmdFrameDataTransmit( co::ICommand& cmd )
     const PixelViewport& pvp = command.read< PixelViewport >();
     const Zoom& zoom = command.read< Zoom >();
     const RenderContext& context = command.read< RenderContext >();
-    const uint32_t buffers = command.read< uint32_t >();
+    const Frame::Buffer buffers = command.read< Frame::Buffer >();
     const uint32_t frameNumber = command.read< uint32_t >();
     const bool useAlpha = command.read< bool >();
     const uint8_t* data = reinterpret_cast< const uint8_t* >(

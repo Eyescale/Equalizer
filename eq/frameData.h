@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Enrique <egparedes@ifi.uzh.ch>
  *
@@ -198,7 +198,7 @@ public:
     /** @internal */
     bool addImage( const co::ObjectVersion& frameDataVersion,
                    const PixelViewport& pvp, const Zoom& zoom,
-                   const RenderContext& context, const uint32_t buffers,
+                   const RenderContext& context, const Frame::Buffer buffers,
                    const bool useAlpha, uint8_t* data );
     void setReady( const co::ObjectVersion& frameData,
                    const fabric::FrameData& data ); //!< @internal

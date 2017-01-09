@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2016, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2016-2017, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 
 #include <eq/api.h>
 #include <eq/types.h>
+#include <eq/frame.h> // member
 #include <eq/zoomFilter.h> // member
 #include <eq/fabric/pixel.h> // member
 #include <eq/fabric/subPixel.h> // member
@@ -30,11 +31,12 @@ namespace eq
 /** A structure describing an image assembly task, used by the Compositor. */
 struct ImageOp
 {
-    ImageOp() : image( 0 ), buffers( 0 ), zoomFilter( FILTER_LINEAR ) {}
+    ImageOp() : image( 0 ), buffers( Frame::Buffer::none ),
+                zoomFilter( FILTER_LINEAR ) {}
     EQ_API ImageOp( const Frame* frame, const Image* image );
 
     const Image* image;    //!< The image to assemble
-    uint32_t buffers;      //!< The Frame buffer attachments to use
+    Frame::Buffer buffers; //!< The Frame buffer attachments to use
     Vector2i offset;       //!< The offset wrt destination window
     ZoomFilter zoomFilter; //!< The zoom Filter from Frame
     Zoom zoom;             //!< The zoom factor

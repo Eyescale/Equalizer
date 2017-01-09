@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Enrique <egparedes@ifi.uzh.ch>
@@ -76,7 +76,7 @@ public:
     EQ_API ConstFrameDataPtr getFrameData() const;
 
     /** @return the enabled frame buffer attachments. @version 1.0 */
-    EQ_API uint32_t getBuffers() const;
+    EQ_API Buffer getBuffers() const;
 
     /**
      * Disable the usage of a frame buffer attachment for all images.

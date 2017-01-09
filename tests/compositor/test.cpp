@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,25 +36,25 @@ int main( int, char **argv )
     eq::Frame frame;
     eq::FrameDataPtr frameData = new eq::FrameData;
 
-    frameData->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+    frameData->setBuffers( eq::Frame::Buffer::color | eq::Frame::Buffer::depth );
     frame.setFrameData( frameData );
 
     // 1) 2D assembly test
     eq::Image* image = frameData->newImage( eq::Frame::TYPE_MEMORY,
                                             eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_1_color.rgb", eq::Frame::BUFFER_COLOR ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_1_color.rgb", eq::Frame::Buffer::color ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
     image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_2_color.rgb", eq::Frame::BUFFER_COLOR ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_2_color.rgb", eq::Frame::Buffer::color ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
     image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_3_color.rgb", eq::Frame::BUFFER_COLOR ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_3_color.rgb", eq::Frame::Buffer::color ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
 
     eq::Frames frames;
     lunchbox::Clock clock;
     float time;
-    const size_t size = image->getPixelDataSize( eq::Frame::BUFFER_COLOR ) * 3;
+    const size_t size = image->getPixelDataSize( eq::Frame::Buffer::color ) * 3;
     frames.push_back( &frame );
 
     clock.reset();
@@ -92,19 +92,19 @@ int main( int, char **argv )
     const eq::Images& images = frameData->getImages();
 
     image = images[0];
-    TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
-    TEST( image->readImage( "Image_1_depth.rgb", eq::Frame::BUFFER_DEPTH ));
-    TESTINFO( image->hasPixelData( eq::Frame::BUFFER_COLOR ),
+    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
+    TEST( image->readImage( "Image_1_depth.rgb", eq::Frame::Buffer::depth ));
+    TESTINFO( image->hasPixelData( eq::Frame::Buffer::color ),
               "Color buffer removed - probably different image dimensions?" );
-    TEST( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::depth ));
     image = images[1];
-    TEST( image->readImage( "Image_2_depth.rgb", eq::Frame::BUFFER_DEPTH ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
+    TEST( image->readImage( "Image_2_depth.rgb", eq::Frame::Buffer::depth ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::depth ));
     image = images[2];
-    TEST( image->readImage( "Image_3_depth.rgb", eq::Frame::BUFFER_DEPTH ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
-    TEST( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
+    TEST( image->readImage( "Image_3_depth.rgb", eq::Frame::Buffer::depth ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
+    TEST( image->hasPixelData( eq::Frame::Buffer::depth ));
 
     frames.clear();
     frames.push_back( &frame );
@@ -145,14 +145,14 @@ int main( int, char **argv )
 
     // 3) alpha-blend assembly test
     frameData->clear();
-    frameData->setBuffers( eq::Frame::BUFFER_COLOR );
+    frameData->setBuffers( eq::Frame::Buffer::color );
 
     image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_15_color.rgb", eq::Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_15_color.rgb", eq::Frame::Buffer::color ));
     image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_14_color.rgb", eq::Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_14_color.rgb", eq::Frame::Buffer::color ));
     image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_13_color.rgb", eq::Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_13_color.rgb", eq::Frame::Buffer::color ));
     frames.clear();
     frames.push_back( &frame );
 

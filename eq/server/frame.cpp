@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,11 +31,11 @@ namespace server
 {
 
 Frame::Frame()
-        : _compound( 0 )
-        , _buffers( BUFFER_UNDEFINED )
-        , _type( TYPE_MEMORY )
-        , _native()
-        , _masterFrameData( 0 )
+    : _compound( 0 )
+    , _buffers( Buffer::undefined )
+    , _type( TYPE_MEMORY )
+    , _native()
+    , _masterFrameData( 0 )
 {
     setNativeZoom( Zoom( 0.f, 0.f )); //set invalid zoom to detect 'set' state
     for( unsigned i = 0; i < NUM_EYES; ++i )
@@ -43,13 +43,13 @@ Frame::Frame()
 }
 
 Frame::Frame( const Frame& from )
-        : fabric::Frame( from )
-        , _compound( 0 )
-        , _vp( from._vp )
-        , _buffers( from._buffers )
-        , _type( from._type )
-        , _native( from._native )
-        , _masterFrameData( 0 )
+    : fabric::Frame( from )
+    , _compound( 0 )
+    , _vp( from._vp )
+    , _buffers( from._buffers )
+    , _type( from._type )
+    , _native( from._native )
+    , _masterFrameData( 0 )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _frameData[i] = 0;
@@ -183,12 +183,12 @@ std::ostream& operator << ( std::ostream& os, const Frame& frame )
        << "{" << std::endl << lunchbox::indent
        << "name     \"" << frame.getName() << "\"" << std::endl;
 
-    const uint32_t buffers = frame.getBuffers();
-    if( buffers != Frame::BUFFER_UNDEFINED )
+    const Frame::Buffer buffers = frame.getBuffers();
+    if( buffers != Frame::Buffer::undefined )
     {
         os << "buffers  [";
-        if( buffers & Frame::BUFFER_COLOR )  os << " COLOR";
-        if( buffers & Frame::BUFFER_DEPTH )  os << " DEPTH";
+        if( buffers & Frame::Buffer::color )  os << " COLOR";
+        if( buffers & Frame::Buffer::depth )  os << " DEPTH";
         os << " ]" << std::endl;
     }
 

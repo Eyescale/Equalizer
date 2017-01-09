@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,7 +29,7 @@ namespace server
 FrameData::FrameData()
     : _frameNumber( 0 )
 {
-    setBuffers( fabric::Frame::BUFFER_UNDEFINED );
+    setBuffers( fabric::Frame::Buffer::undefined );
 }
 
 void FrameData::getInstanceData( co::DataOStream& os )

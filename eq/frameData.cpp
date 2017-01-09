@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Enrique <egparedes@ifi.uzh.ch>
@@ -125,9 +125,9 @@ bool FrameData::isReady() const
 
 void FrameData::setQuality( Frame::Buffer buffer, float quality )
 {
-    if( buffer != Frame::BUFFER_COLOR )
+    if( buffer != Frame::Buffer::color )
     {
-        LBASSERT( buffer == Frame::BUFFER_DEPTH );
+        LBASSERT( buffer == Frame::Buffer::depth );
         _impl->depthQuality = quality;
         return;
     }
@@ -137,9 +137,9 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
 
 void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
-    if( buffer != Frame::BUFFER_COLOR )
+    if( buffer != Frame::Buffer::color )
     {
-        LBASSERT( buffer == Frame::BUFFER_DEPTH );
+        LBASSERT( buffer == Frame::Buffer::depth );
         _impl->depthCompressor = name;
         return;
     }
@@ -233,31 +233,31 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     image->setStorageType( type );
     if( setQuality_ )
     {
-        image->setQuality( Frame::BUFFER_COLOR, _impl->colorQuality );
-        image->setQuality( Frame::BUFFER_DEPTH, _impl->depthQuality );
+        image->setQuality( Frame::Buffer::color, _impl->colorQuality );
+        image->setQuality( Frame::Buffer::depth, _impl->depthQuality );
     }
 
-    image->useCompressor( Frame::BUFFER_COLOR, _impl->colorCompressor );
-    image->useCompressor( Frame::BUFFER_DEPTH, _impl->depthCompressor );
+    image->useCompressor( Frame::Buffer::color, _impl->colorCompressor );
+    image->useCompressor( Frame::Buffer::depth, _impl->depthCompressor );
 
-    image->setInternalFormat( Frame::BUFFER_DEPTH,
+    image->setInternalFormat( Frame::Buffer::depth,
                               EQ_COMPRESSOR_DATATYPE_DEPTH );
     switch( config.colorBits )
     {
         case 16:
-            image->setInternalFormat( Frame::BUFFER_COLOR,
+            image->setInternalFormat( Frame::Buffer::color,
                                       EQ_COMPRESSOR_DATATYPE_RGBA16F );
             break;
         case 32:
-            image->setInternalFormat( Frame::BUFFER_COLOR,
+            image->setInternalFormat( Frame::Buffer::color,
                                       EQ_COMPRESSOR_DATATYPE_RGBA32F );
             break;
         case 10:
-            image->setInternalFormat( Frame::BUFFER_COLOR,
+            image->setInternalFormat( Frame::Buffer::color,
                                       EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
             break;
         default:
-            image->setInternalFormat( Frame::BUFFER_COLOR,
+            image->setInternalFormat( Frame::Buffer::color,
                                       EQ_COMPRESSOR_DATATYPE_RGBA );
     }
 
@@ -270,7 +270,7 @@ Images FrameData::startReadback( const Frame& frame,
                                  const PixelViewports& regions,
                                  const RenderContext& context )
 {
-    if( _buffers == Frame::BUFFER_NONE )
+    if( _buffers == Frame::Buffer::none )
         return Images();
 
     const Zoom& frameZoom = frame.getZoom();
@@ -304,7 +304,7 @@ Images FrameData::startReadback( const Frame& frame,
 #if 0
     // TODO: issue #85: move automatic ROI detection to eq::Channel
     PixelViewports regions;
-    if( buffers & Frame::BUFFER_DEPTH && frameZoom == Zoom::NONE )
+    if( buffers & Frame::Buffer::DEPTH && frameZoom == Zoom::NONE )
         regions = _impl->roiFinder->findRegions( buffers, absPVP, frameZoom,
                                                  frame.getAssemblyStage(),
                                                  frame.getFrameID(), glObjects);
@@ -409,8 +409,9 @@ void FrameData::removeListener( Listener& listener )
 
 bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
                           const PixelViewport& pvp, const Zoom& zoom,
-                          const RenderContext& context, const uint32_t buffers_,
-                          const bool useAlpha, uint8_t* data )
+                          const RenderContext& context,
+                          const Frame::Buffer buffers_, const bool useAlpha,
+                          uint8_t* data )
 {
     LBASSERT( _impl->readyVersion < frameDataVersion.version.low( ));
     if( _impl->readyVersion >= frameDataVersion.version.low( ))
@@ -422,7 +423,7 @@ bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
     image->setPixelViewport( pvp );
     image->setAlphaUsage( useAlpha );
 
-    Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
+    Frame::Buffer buffers[] = { Frame::Buffer::color, Frame::Buffer::depth };
     for( unsigned i = 0; i < 2; ++i )
     {
         const Frame::Buffer buffer = buffers[i];

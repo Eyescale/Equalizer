@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -26,15 +26,15 @@
 #include "visitorResult.h"         // enum
 #include "types.h"
 
-#include <eq/fabric/frame.h>      // enum Frame::Buffer
-#include <eq/fabric/projection.h> // used in inline method
-#include <eq/fabric/range.h>      // member
-#include <eq/fabric/subPixel.h>   // member
+#include <eq/fabric/frame.h>       // enum Frame::Buffer
+#include <eq/fabric/projection.h>  // used in inline method
+#include <eq/fabric/range.h>       // member
+#include <eq/fabric/subPixel.h>    // member
 #include <eq/fabric/swapBarrier.h> // RefPtr member
-#include <eq/fabric/task.h>       // enum
-#include <eq/fabric/viewport.h>   // member
-#include <eq/fabric/wall.h>       // used in inline method
-#include <eq/fabric/zoom.h>       // member
+#include <eq/fabric/task.h>        // enum
+#include <eq/fabric/viewport.h>    // member
+#include <eq/fabric/wall.h>        // used in inline method
+#include <eq/fabric/zoom.h>        // member
 #include <co/barrier.h>
 #include <lunchbox/thread.h>
 #include <iostream>
@@ -188,7 +188,8 @@ public:
      *
      * @param buffers the compound image buffers.
      */
-    void setBuffers( const uint32_t buffers ) { _data.buffers = buffers; }
+    void setBuffers( const fabric::Frame::Buffer buffers )
+        { _data.buffers = buffers; }
 
     /**
      * Add a image buffer to be used by the compound, preserving previous
@@ -196,11 +197,11 @@ public:
      *
      * @param buffer the compound image buffer to add.
      */
-    void enableBuffer( const eq::fabric::Frame::Buffer buffer )
+    void enableBuffer( const fabric::Frame::Buffer buffer )
         { _data.buffers |= buffer; }
 
     /** @return the image buffers used by this compound. */
-    uint32_t getBuffers() const { return _data.buffers; }
+    fabric::Frame::Buffer getBuffers() const { return _data.buffers; }
 
     void setViewport( const Viewport& vp ) { _data.vp = vp; }
     const Viewport& getViewport() const    { return _data.vp; }
@@ -319,7 +320,7 @@ public:
      */
     //@{
     RenderContext setupRenderContext( Eye eye ) const;
-    uint32_t getInheritBuffers() const { return _inherit.buffers; }
+    fabric::Frame::Buffer getInheritBuffers() const { return _inherit.buffers; }
     const PixelViewport& getInheritPixelViewport() const { return _inherit.pvp;}
     const Range& getInheritRange()   const { return _inherit.range; }
     const Pixel& getInheritPixel()   const { return _inherit.pixel; }
@@ -529,22 +530,22 @@ private:
     {
         Data();
 
-        Channel*          channel;
-        Viewport          vp;
-        PixelViewport     pvp;
-        Vector4i          overdraw;
-        Range             range;
-        Pixel             pixel;
-        SubPixel          subPixel;
-        FrustumData       frustumData;
-        Zoom              zoom;
-        uint32_t          buffers;
-        uint32_t          eyes;
-        uint32_t          tasks;
-        uint32_t          period;
-        uint32_t          phase;
-        int32_t           iAttributes[IATTR_ALL];
-        float             maxFPS;
+        Channel*              channel;
+        Viewport              vp;
+        PixelViewport         pvp;
+        Vector4i              overdraw;
+        Range                 range;
+        Pixel                 pixel;
+        SubPixel              subPixel;
+        FrustumData           frustumData;
+        Zoom                  zoom;
+        fabric::Frame::Buffer buffers;
+        uint32_t              eyes;
+        uint32_t              tasks;
+        uint32_t              period;
+        uint32_t              phase;
+        int32_t               iAttributes[IATTR_ALL];
+        float                 maxFPS;
 
         // compound activation per eye
         uint32_t active[ fabric::NUM_EYES ];
