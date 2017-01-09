@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -77,8 +77,8 @@ struct CPUAssemblyFormat
 
 bool _useCPUAssembly( const Image* image, CPUAssemblyFormat& format )
 {
-    const bool hasColor = image->hasPixelData( Frame::BUFFER_COLOR );
-    const bool hasDepth = image->hasPixelData( Frame::BUFFER_DEPTH );
+    const bool hasColor = image->hasPixelData( Frame::Buffer::color );
+    const bool hasDepth = image->hasPixelData( Frame::Buffer::depth );
 
     if( // Not an alpha-blending compositing
         ( !format.blend || !hasColor || !image->hasAlpha( )) &&
@@ -89,12 +89,12 @@ bool _useCPUAssembly( const Image* image, CPUAssemblyFormat& format )
     }
 
     if( format.colorInt == 0 )
-        format.colorInt = image->getInternalFormat( Frame::BUFFER_COLOR );
+        format.colorInt = image->getInternalFormat( Frame::Buffer::color );
     if( format.colorExt == 0 )
-        format.colorExt = image->getExternalFormat( Frame::BUFFER_COLOR );
+        format.colorExt = image->getExternalFormat( Frame::Buffer::color );
 
-    if( format.colorInt != image->getInternalFormat( Frame::BUFFER_COLOR ) ||
-        format.colorExt != image->getExternalFormat( Frame::BUFFER_COLOR ))
+    if( format.colorInt != image->getInternalFormat( Frame::Buffer::color ) ||
+        format.colorExt != image->getExternalFormat( Frame::Buffer::color ))
     {
         return false;
     }
@@ -120,12 +120,12 @@ bool _useCPUAssembly( const Image* image, CPUAssemblyFormat& format )
         return true;
 
     if( format.depthInt == 0 )
-        format.depthInt = image->getInternalFormat( Frame::BUFFER_DEPTH );
+        format.depthInt = image->getInternalFormat( Frame::Buffer::depth );
     if( format.depthExt == 0 )
-        format.depthExt = image->getExternalFormat( Frame::BUFFER_DEPTH );
+        format.depthExt = image->getExternalFormat( Frame::Buffer::depth );
 
-    if( format.depthInt != image->getInternalFormat( Frame::BUFFER_DEPTH ) ||
-        format.depthExt != image->getExternalFormat( Frame::BUFFER_DEPTH ))
+    if( format.depthInt != image->getInternalFormat( Frame::Buffer::depth ) ||
+        format.depthExt != image->getExternalFormat( Frame::Buffer::depth ))
     {
         return false;
     }
@@ -145,8 +145,8 @@ bool _useCPUAssembly( const Frames& frames, Channel* channel,
     // that we will have at least one image per frame so most likely it's worth
     // to wait for the images and to do a CPU-based assembly. Also test early
     // for unsupported decomposition modes
-    const uint32_t desiredBuffers = blend ? Frame::BUFFER_COLOR :
-                                    Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
+    const Frame::Buffer desiredBuffers = blend ? Frame::Buffer::color :
+                                    Frame::Buffer::color | Frame::Buffer::depth;
     for( const Frame* frame : frames )
     {
         const RenderContext& context = frame->getFrameData()->getContext();
@@ -208,7 +208,7 @@ uint32_t _assembleCPUImage( const Image* image, Channel* channel )
     // assemble result on dest channel
     ImageOp operation;
     operation.image = image;
-    operation.buffers = Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
+    operation.buffers = Frame::Buffer::color | Frame::Buffer::depth;
     Compositor::assembleImage( operation, channel );
 
 #if 0
@@ -249,17 +249,17 @@ bool _collectOutputData( const ImageOps& ops, PixelViewport& destPVP,
             return false;
         }
 
-        if( !op.image->hasPixelData( Frame::BUFFER_COLOR ))
+        if( !op.image->hasPixelData( Frame::Buffer::color ))
             continue;
 
         destPVP.merge( op.image->getPixelViewport() + op.offset );
 
-        _collectOutputData( op.image->getPixelData( Frame::BUFFER_COLOR ),
+        _collectOutputData( op.image->getPixelData( Frame::Buffer::color ),
                             colorInt, colorPixelSize, colorExt );
 
-        if( op.image->hasPixelData( Frame::BUFFER_DEPTH ))
+        if( op.image->hasPixelData( Frame::Buffer::depth ))
         {
-            _collectOutputData( op.image->getPixelData( Frame::BUFFER_DEPTH ),
+            _collectOutputData( op.image->getPixelData( Frame::Buffer::depth ),
                                 depthInt, depthPixelSize, depthExt );
         }
     }
@@ -286,9 +286,9 @@ void _mergeDBImage( void* destColor, void* destDepth,
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
     const uint32_t* color = reinterpret_cast< const uint32_t* >
-        ( image->getPixelPointer( Frame::BUFFER_COLOR ));
+        ( image->getPixelPointer( Frame::Buffer::color ));
     const uint32_t* depth = reinterpret_cast< const uint32_t* >
-        ( image->getPixelPointer( Frame::BUFFER_DEPTH ));
+        ( image->getPixelPointer( Frame::Buffer::depth ));
 
 #pragma omp parallel for
     for( int32_t y = 0; y < pvp.h; ++y )
@@ -329,10 +329,10 @@ void _merge2DImage( void* destColor, void* destDepth,
     const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
-    LBASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    LBASSERT( image->hasPixelData( Frame::Buffer::color ));
 
-    const uint8_t*   color = image->getPixelPointer( Frame::BUFFER_COLOR );
-    const size_t pixelSize = image->getPixelSize( Frame::BUFFER_COLOR );
+    const uint8_t*   color = image->getPixelPointer( Frame::Buffer::color );
+    const size_t pixelSize = image->getPixelSize( Frame::Buffer::color );
     const size_t rowLength = pvp.w * pixelSize;
 
 #pragma omp parallel for
@@ -357,12 +357,12 @@ void _blendImage( void* dest, const eq::PixelViewport& destPVP,
     const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
-    LBASSERT( image->getPixelSize( Frame::BUFFER_COLOR ) == 4 );
-    LBASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    LBASSERT( image->getPixelSize( Frame::Buffer::color ) == 4 );
+    LBASSERT( image->hasPixelData( Frame::Buffer::color ));
     LBASSERT( image->hasAlpha( ));
 
     const int32_t* color = reinterpret_cast< const int32_t* >
-                               ( image->getPixelPointer( Frame::BUFFER_COLOR ));
+                               ( image->getPixelPointer( Frame::Buffer::color ));
 
     // Blending of two slices, none of which is on final image (i.e. result
     // could be blended on to something else) should be performed with:
@@ -402,10 +402,10 @@ void _mergeImages( const ImageOps& ops, const bool blend, void* colorBuffer,
 {
     for( const ImageOp& op : ops )
     {
-        if( !op.image->hasPixelData( Frame::BUFFER_COLOR ))
+        if( !op.image->hasPixelData( Frame::Buffer::color ))
             continue;
 
-        if( op.image->hasPixelData( Frame::BUFFER_DEPTH ))
+        if( op.image->hasPixelData( Frame::Buffer::depth ))
             _mergeDBImage( colorBuffer, depthBuffer, destPVP, op.image,
                            op.offset );
         else if( blend && op.image->hasAlpha( ))
@@ -444,7 +444,7 @@ bool _setupDrawPixels( const ImageOp& op, const Frame::Buffer which,
             return false;
         }
         util::Texture* ncTexture = objects.obtainEqTexture(
-            which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey,
+            which == Frame::Buffer::color ? colorDBKey : depthDBKey,
             GL_TEXTURE_RECTANGLE_ARB );
         texture = ncTexture;
 
@@ -462,11 +462,11 @@ bool _setupDrawPixels( const ImageOp& op, const Frame::Buffer which,
     texture->applyZoomFilter( op.zoomFilter );
     texture->applyWrap();
 
-    if ( which == Frame::BUFFER_COLOR )
+    if ( which == Frame::Buffer::color )
         EQ_GL_CALL( glDepthMask( false ))
     else
     {
-        LBASSERT( which == Frame::BUFFER_DEPTH )
+        LBASSERT( which == Frame::Buffer::depth )
         EQ_GL_CALL( glColorMask( false, false, false, false ));
     }
     return true;
@@ -506,7 +506,7 @@ void _drawPixelsFF( const ImageOp& op, const Frame::Buffer which,
     // restore state
     EQ_GL_CALL( glDisable( GL_TEXTURE_RECTANGLE_ARB ));
 
-    if ( which == Frame::BUFFER_COLOR )
+    if ( which == Frame::Buffer::color )
         EQ_GL_CALL( glDepthMask( true ))
     else
     {
@@ -646,7 +646,7 @@ void _drawPixelsGLSL( const ImageOp& op, const Frame::Buffer which,
     _drawTexturedQuad( channel, op, pvp, false, channel );
 
     // restore state
-    if ( which == Frame::BUFFER_COLOR )
+    if ( which == Frame::Buffer::color )
         EQ_GL_CALL( glDepthMask( true ))
     else
     {
@@ -1072,7 +1072,7 @@ const Image* Compositor::mergeImagesCPU( const ImageOps& ops, const bool blend )
     colorPixels.externalFormat = colorExt;
     colorPixels.pixelSize      = colorPixelSize;
     colorPixels.pvp            = destPVP;
-    result->setPixelData( Frame::BUFFER_COLOR, colorPixels );
+    result->setPixelData( Frame::Buffer::color, colorPixels );
 
     void* destDepth = 0;
     if( depthInt != 0 ) // at least one depth assembly
@@ -1084,12 +1084,12 @@ const Image* Compositor::mergeImagesCPU( const ImageOps& ops, const bool blend )
         depthPixels.externalFormat = depthExt;
         depthPixels.pixelSize      = depthPixelSize;
         depthPixels.pvp            = destPVP;
-        result->setPixelData( Frame::BUFFER_DEPTH, depthPixels );
-        destDepth = result->getPixelPointer( Frame::BUFFER_DEPTH );
+        result->setPixelData( Frame::Buffer::depth, depthPixels );
+        destDepth = result->getPixelPointer( Frame::Buffer::depth );
     }
 
     // assembly
-    _mergeImages( ops, blend, result->getPixelPointer( Frame::BUFFER_COLOR ),
+    _mergeImages( ops, blend, result->getPixelPointer( Frame::Buffer::color ),
                   destDepth, destPVP );
     return result;
 }
@@ -1120,9 +1120,10 @@ void Compositor::assembleImage( const ImageOp& op, Channel* channel )
     }
 
     ImageOp operation = op;
-    operation.buffers = Frame::BUFFER_NONE;
+    operation.buffers = Frame::Buffer::none;
 
-    const Frame::Buffer buffer[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
+    const Frame::Buffer buffer[] = { Frame::Buffer::color,
+                                     Frame::Buffer::depth };
     for( unsigned i = 0; i<2; ++i )
     {
         if( (op.buffers & buffer[i]) &&
@@ -1133,7 +1134,7 @@ void Compositor::assembleImage( const ImageOp& op, Channel* channel )
         }
     }
 
-    if( operation.buffers == Frame::BUFFER_NONE )
+    if( operation.buffers == Frame::Buffer::none )
     {
         LBWARN << "No image attachment buffers to assemble" << std::endl;
         return;
@@ -1141,9 +1142,9 @@ void Compositor::assembleImage( const ImageOp& op, Channel* channel )
 
     setupStencilBuffer( operation, channel );
 
-    if( operation.buffers == Frame::BUFFER_COLOR )
+    if( operation.buffers == Frame::Buffer::color )
         assembleImage2D( operation, channel );
-    else if( operation.buffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
+    else if( operation.buffers == ( Frame::Buffer::color | Frame::Buffer::depth ))
         assembleImageDB( operation, channel );
     else
         LBWARN << "Don't know how to assemble using buffers "
@@ -1239,9 +1240,9 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
 void Compositor::assembleImage2D( const ImageOp& op, Channel* channel )
 {
     if( GLEW_VERSION_3_3 )
-        _drawPixelsGLSL( op, Frame::BUFFER_COLOR, channel );
+        _drawPixelsGLSL( op, Frame::Buffer::color, channel );
     else
-        _drawPixelsFF( op, Frame::BUFFER_COLOR, channel );
+        _drawPixelsFF( op, Frame::Buffer::color, channel );
     declareRegion( op, channel );
 #if 0
     static lunchbox::a_int32_t counter;
@@ -1283,7 +1284,7 @@ void Compositor::assembleImageDB_FF( const ImageOp& op, Channel* channel )
         EQ_GL_CALL( glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE ));
     }
 
-    _drawPixelsFF( op, Frame::BUFFER_DEPTH, channel );
+    _drawPixelsFF( op, Frame::Buffer::depth, channel );
 
     EQ_GL_CALL( glDisable( GL_DEPTH_TEST ));
 
@@ -1291,7 +1292,7 @@ void Compositor::assembleImageDB_FF( const ImageOp& op, Channel* channel )
     EQ_GL_CALL( glStencilFunc( GL_EQUAL, 1, 1 ));
     EQ_GL_CALL( glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO ));
 
-    _drawPixelsFF( op, Frame::BUFFER_COLOR, channel );
+    _drawPixelsFF( op, Frame::Buffer::color, channel );
 
     EQ_GL_CALL( glDisable( GL_STENCIL_TEST ));
     declareRegion( op, channel );
@@ -1310,8 +1311,8 @@ void Compositor::assembleImageDB_GLSL( const ImageOp& op, Channel* channel )
     const util::Texture* textureDepth = 0;
     if ( useImageTexture )
     {
-        textureColor = &op.image->getTexture( Frame::BUFFER_COLOR );
-        textureDepth = &op.image->getTexture( Frame::BUFFER_DEPTH );
+        textureColor = &op.image->getTexture( Frame::Buffer::color );
+        textureDepth = &op.image->getTexture( Frame::Buffer::depth );
     }
     else
     {
@@ -1321,8 +1322,8 @@ void Compositor::assembleImageDB_GLSL( const ImageOp& op, Channel* channel )
                                                      GL_TEXTURE_RECTANGLE_ARB );
         const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
 
-        op.image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, om );
-        op.image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, om );
+        op.image->upload( Frame::Buffer::color, ncTextureColor, offset, om );
+        op.image->upload( Frame::Buffer::depth, ncTextureDepth, offset, om );
 
         textureColor = ncTextureColor;
         textureDepth = ncTextureDepth;

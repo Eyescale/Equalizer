@@ -1206,7 +1206,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos,
         FrameDataPtr frameData = frame->getFrameData();
         const uint32_t frameNumber = getCurrentFrame();
 
-        if( frameData->getBuffers() == 0 )
+        if( frameData->getBuffers() == Frame::Buffer::none )
             continue;
 
         const Images& images = frameData->getImages();
@@ -1301,7 +1301,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     FrameDataPtr frameData = getNode()->getFrameData( frameDataVersion );
     LBASSERT( frameData );
 
-    if( frameData->getBuffers() == 0 )
+    if( frameData->getBuffers() == Frame::Buffer::none )
     {
         LBWARN << "No buffers for frame data" << std::endl;
         return;
@@ -1340,7 +1340,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     std::vector< const PixelData* > pixelDatas;
     std::vector< float > qualities;
 
-    uint32_t commandBuffers = Frame::BUFFER_NONE;
+    Frame::Buffer commandBuffers = Frame::Buffer::none;
     uint64_t imageDataSize = 0;
     {
         uint64_t rawSize( 0 );
@@ -1353,7 +1353,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         compressEvent.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
 
         // Prepare image pixel data
-        Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
+        Frame::Buffer buffers[] = {Frame::Buffer::color,Frame::Buffer::depth};
 
         // for each image attachment
         for( unsigned j = 0; j < 2; ++j )
@@ -1523,21 +1523,22 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
         for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         {
             const Image* image = *i;
-            if( image->hasPixelData( Frame::BUFFER_COLOR ))
+            if( image->hasPixelData( Frame::Buffer::color ))
             {
                 stat->uncompressed +=
                     colorBytes * image->getPixelViewport().getArea();
                 stat->compressed +=
-                    image->getPixelDataSize( Frame::BUFFER_COLOR );
+                    image->getPixelDataSize( Frame::Buffer::color );
                 stat->event.statistic.plugins[0] =
-                                image->getDownloaderName( Frame::BUFFER_COLOR );
+                                image->getDownloaderName( Frame::Buffer::color );
             }
-            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+            if( image->hasPixelData( Frame::Buffer::depth ))
             {
                 stat->uncompressed += 4 * image->getPixelViewport().getArea();
-                stat->compressed +=image->getPixelDataSize(Frame::BUFFER_DEPTH);
+                stat->compressed +=
+                        image->getPixelDataSize( Frame::Buffer::depth );
                 stat->event.statistic.plugins[1] =
-                                image->getDownloaderName( Frame::BUFFER_DEPTH );
+                               image->getDownloaderName( Frame::Buffer::depth );
             }
         }
     }

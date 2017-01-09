@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -141,10 +141,10 @@ void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
         frameData->setPixelViewport( framePVP );
 
         // 3) image buffers and storage type
-        uint32_t buffers = frame->getBuffers();
+        const Frame::Buffer buffers = frame->getBuffers();
 
         frameData->setType( frame->getType() );
-        frameData->setBuffers( buffers == Frame::BUFFER_UNDEFINED ?
+        frameData->setBuffers( buffers == Frame::Buffer::undefined ?
                                    compound->getInheritBuffers() : buffers );
 
         // 4) (source) render context

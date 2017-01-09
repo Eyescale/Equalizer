@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -112,11 +112,11 @@ public:
     void downloadFramebuffer( eq::Channel& channel )
     {
         framebufferImage.setAlphaUsage( true );
-        framebufferImage.setQuality( eq::Frame::BUFFER_COLOR, 1.0f );
+        framebufferImage.setQuality( eq::Frame::Buffer::color, 1.0f );
         framebufferImage.setStorageType( eq::Frame::TYPE_MEMORY );
-        framebufferImage.setInternalFormat( eq::Frame::BUFFER_COLOR, GL_RGBA );
+        framebufferImage.setInternalFormat( eq::Frame::Buffer::color, GL_RGBA );
 
-        if( framebufferImage.startReadback( eq::Frame::BUFFER_COLOR,
+        if( framebufferImage.startReadback( eq::Frame::Buffer::color,
                                             channel.getPixelViewport(),
                                             channel.getContext(),
                                             channel.getZoom(),

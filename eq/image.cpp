@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Enrique G. Paredes <egparedes@ifi.uzh.ch>
@@ -197,9 +197,9 @@ public:
     {
         switch( buffer )
         {
-          case eq::Frame::BUFFER_COLOR:
+          case eq::Frame::Buffer::color:
               return color;
-          case eq::Frame::BUFFER_DEPTH:
+          case eq::Frame::Buffer::depth:
               return depth;
           default:
               LBUNIMPLEMENTED;
@@ -211,9 +211,9 @@ public:
     {
         switch( buffer )
         {
-          case eq::Frame::BUFFER_COLOR:
+          case eq::Frame::Buffer::color:
               return color;
-          case eq::Frame::BUFFER_DEPTH:
+          case eq::Frame::Buffer::depth:
               return depth;
           default:
               LBUNIMPLEMENTED;
@@ -285,9 +285,9 @@ const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
     switch( buffer )
     {
         // Check also deleteGLObjects!
-        case Frame::BUFFER_COLOR:
+        case Frame::Buffer::color:
             return ( reinterpret_cast< const char* >( this ) + 0 );
-        case Frame::BUFFER_DEPTH:
+        case Frame::Buffer::depth:
             return ( reinterpret_cast< const char* >( this ) + 1 );
         default:
             LBUNIMPLEMENTED;
@@ -302,11 +302,11 @@ const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
     switch( buffer )
     {
         // Check also deleteGLObjects!
-        case Frame::BUFFER_COLOR:
+        case Frame::Buffer::color:
             if( attachment.quality == 1.0f )
                 return ( reinterpret_cast< const char* >( this ) + 0 );
             return ( reinterpret_cast< const char* >( this ) + 1 );
-        case Frame::BUFFER_DEPTH:
+        case Frame::Buffer::depth:
             if( attachment.quality == 1.0f )
                 return ( reinterpret_cast< const char* >( this ) + 2 );
             return ( reinterpret_cast< const char* >( this ) + 3 );
@@ -333,7 +333,7 @@ void Image::_setExternalFormat( const Frame::Buffer buffer,
 
     memory.externalFormat = externalFormat;
     memory.pixelSize = pixelSize;
-    memory.hasAlpha = buffer == Frame::BUFFER_DEPTH ? false : hasAlpha_;
+    memory.hasAlpha = buffer == Frame::Buffer::depth ? false : hasAlpha_;
     memory.state = Memory::INVALID;
 }
 
@@ -406,8 +406,8 @@ std::vector< uint32_t > Image::findTransferers( const Frame::Buffer buffer,
 
 bool Image::hasAlpha() const
 {
-    return hasPixelData( Frame::BUFFER_COLOR ) &&
-           _impl->getMemory( Frame::BUFFER_COLOR ).hasAlpha;
+    return hasPixelData( Frame::Buffer::color ) &&
+           _impl->getMemory( Frame::Buffer::color ).hasAlpha;
 }
 
 void Image::setAlphaUsage( const bool enabled )
@@ -513,7 +513,7 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 // asynchronous readback
 //---------------------------------------------------------------------------
 // TODO: 2.0 API: rename to readback and return Future
-bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
+bool Image::startReadback( const Frame::Buffer buffers, const PixelViewport& pvp,
                            const RenderContext& context, const Zoom& zoom,
                            util::ObjectManager& glObjects )
 {
@@ -525,11 +525,11 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _impl->color.memory.state = Memory::INVALID;
     _impl->depth.memory.state = Memory::INVALID;
 
-    bool needFinish = (buffers & Frame::BUFFER_COLOR) &&
-                         _startReadback( Frame::BUFFER_COLOR, zoom, glObjects );
+    bool needFinish = (buffers & Frame::Buffer::color) &&
+                         _startReadback( Frame::Buffer::color, zoom, glObjects );
 
-    if( (buffers & Frame::BUFFER_DEPTH) &&
-        _startReadback( Frame::BUFFER_DEPTH, zoom, glObjects ))
+    if( (buffers & Frame::Buffer::depth) &&
+        _startReadback( Frame::Buffer::depth, zoom, glObjects ))
     {
         needFinish = true;
     }
@@ -575,7 +575,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
                      ( texture ? texture->getCompressorTarget() :
                                  EQ_COMPRESSOR_USE_FRAMEBUFFER );
-    const bool noAlpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
+    const bool noAlpha = _impl->ignoreAlpha && buffer == Frame::Buffer::color;
 
     if( !downloader.supports( inputToken, noAlpha, flags ))
         downloader.setup( inputToken, attachment.quality, noAlpha, flags, gl );
@@ -627,8 +627,8 @@ void Image::finishReadback( const GLEWContext* context )
     LBASSERT( context );
     LBLOG( LOG_ASSEMBLY ) << "finishReadback" << std::endl;
 
-    _finishReadback( Frame::BUFFER_COLOR, context );
-    _finishReadback( Frame::BUFFER_DEPTH, context );
+    _finishReadback( Frame::Buffer::color, context );
+    _finishReadback( Frame::Buffer::depth, context );
 
 #ifndef NDEBUG
     if( getenv( "EQ_DUMP_IMAGES" ))
@@ -656,7 +656,7 @@ void Image::_finishReadback( const Frame::Buffer buffer,
 
     pression::Downloader& downloader = attachment.downloader[attachment.active];
     const uint32_t inputToken = memory.internalFormat;
-    const bool alpha = _impl->ignoreAlpha && buffer == Frame::BUFFER_COLOR;
+    const bool alpha = _impl->ignoreAlpha && buffer == Frame::Buffer::color;
     uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
         ( attachment.zoom == Zoom::NONE ? EQ_COMPRESSOR_USE_FRAMEBUFFER :
                                           EQ_COMPRESSOR_USE_TEXTURE_RECT );
@@ -668,7 +668,7 @@ void Image::_finishReadback( const Frame::Buffer buffer,
         return;
     }
 
-    if( memory.hasAlpha && buffer == Frame::BUFFER_COLOR )
+    if( memory.hasAlpha && buffer == Frame::Buffer::color )
         _impl->hasPremultipliedAlpha = true;
 
     flags |= ( memory.hasAlpha ? 0 : EQ_COMPRESSOR_IGNORE_ALPHA );
@@ -709,7 +709,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om )
 
     // draw zoomed quad into FBO
     //  uses the same FBO for color and depth, with masking.
-    const void* fboKey = _getBufferKey( Frame::BUFFER_COLOR );
+    const void* fboKey = _getBufferKey( Frame::Buffer::color );
     util::FrameBufferObject* fbo = om.getEqFrameBufferObject( fboKey );
 
     if( fbo )
@@ -724,11 +724,11 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om )
     fbo->bind();
     texture->bind();
 
-    if( buffer == Frame::BUFFER_COLOR )
+    if( buffer == Frame::Buffer::color )
         glDepthMask( false );
     else
     {
-        LBASSERT( buffer == Frame::BUFFER_DEPTH )
+        LBASSERT( buffer == Frame::Buffer::depth )
         glColorMask( false, false, false, false );
     }
 
@@ -760,7 +760,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om )
     fbo->unbind();
 
     const util::Texture* zoomedTexture = 0;
-    if( buffer == Frame::BUFFER_COLOR )
+    if( buffer == Frame::Buffer::color )
     {
         glDepthMask( true );
         zoomedTexture = fbo->getColorTextures().front();
@@ -1040,7 +1040,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     memory.compressorFlags = EQ_COMPRESSOR_DATA_2D;
     if( _impl->ignoreAlpha && memory.hasAlpha )
     {
-        LBASSERT( buffer == Frame::BUFFER_COLOR );
+        LBASSERT( buffer == Frame::Buffer::color );
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
@@ -1057,8 +1057,8 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 //---------------------------------------------------------------------------
 bool Image::writeImages( const std::string& filenameTemplate ) const
 {
-    return( writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR) &&
-            writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH ));
+    return( writeImage( filenameTemplate + "_color.rgb", Frame::Buffer::color) &&
+            writeImage( filenameTemplate + "_depth.rgb", Frame::Buffer::depth ));
 }
 
 namespace
@@ -1447,8 +1447,8 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         header.minValue != 0 ||
         ( header.maxValue != 255 && header.maxValue != 1023 ) ||
         header.colorMode != 0 ||
-        ( buffer == Frame::BUFFER_COLOR && nChannels != 3 && nChannels != 4 ) ||
-        ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
+        ( buffer == Frame::Buffer::color && nChannels != 3 && nChannels != 4 ) ||
+        ( buffer == Frame::Buffer::depth && nChannels != 4 ))
     {
         LBERROR << "Unsupported image type " << filename << std::endl;
         return false;
@@ -1477,7 +1477,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     switch( buffer )
     {
-        case Frame::BUFFER_DEPTH:
+        case Frame::Buffer::depth:
             if( header.bytesPerChannel != 1 )
             {
                 LBERROR << "Unsupported channel depth "
@@ -1485,74 +1485,74 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                         << std::endl;
                 return false;
             }
-            _setExternalFormat( Frame::BUFFER_DEPTH,
+            _setExternalFormat( Frame::Buffer::depth,
                                 EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT, 4,
                                 false );
-            setInternalFormat( Frame::BUFFER_DEPTH,
+            setInternalFormat( Frame::Buffer::depth,
                                EQ_COMPRESSOR_DATATYPE_DEPTH );
             break;
 
-        case Frame::BUFFER_COLOR:
+        case Frame::Buffer::color:
             switch( header.bytesPerChannel )
             {
                 case 1:
                     if( header.maxValue == 1023 )
                     {
                         LBASSERT( nChannels==4 );
-                        _setExternalFormat( Frame::BUFFER_COLOR,
+                        _setExternalFormat( Frame::Buffer::color,
                                             EQ_COMPRESSOR_DATATYPE_RGB10_A2, 4,
                                             true );
-                        setInternalFormat( Frame::BUFFER_COLOR,
+                        setInternalFormat( Frame::Buffer::color,
                                            EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
                     }
                     else
                     {
                         if( nChannels == 4 )
-                            _setExternalFormat( Frame::BUFFER_COLOR,
+                            _setExternalFormat( Frame::Buffer::color,
                                                 EQ_COMPRESSOR_DATATYPE_RGBA,
                                                 4, true );
                         else
                         {
                             LBASSERT( nChannels == 3 );
-                            _setExternalFormat( Frame::BUFFER_COLOR,
+                            _setExternalFormat( Frame::Buffer::color,
                                                 EQ_COMPRESSOR_DATATYPE_RGB,
                                                 nChannels, false );
                         }
-                        setInternalFormat( Frame::BUFFER_COLOR,
+                        setInternalFormat( Frame::Buffer::color,
                                            EQ_COMPRESSOR_DATATYPE_RGBA );
                     }
                     break;
 
                 case 2:
                     if( nChannels == 4 )
-                        _setExternalFormat( Frame::BUFFER_COLOR,
+                        _setExternalFormat( Frame::Buffer::color,
                                             EQ_COMPRESSOR_DATATYPE_RGBA16F,
                                             8, true );
                     else
                     {
                         LBASSERT( nChannels == 3 );
-                        _setExternalFormat( Frame::BUFFER_COLOR,
+                        _setExternalFormat( Frame::Buffer::color,
                                             EQ_COMPRESSOR_DATATYPE_RGB16F,
                                             nChannels * 2, false );
                     }
 
-                    setInternalFormat( Frame::BUFFER_COLOR,
+                    setInternalFormat( Frame::Buffer::color,
                                        EQ_COMPRESSOR_DATATYPE_RGBA16F );
                     break;
 
                 case 4:
                     if( nChannels == 4 )
-                        _setExternalFormat( Frame::BUFFER_COLOR,
+                        _setExternalFormat( Frame::Buffer::color,
                                             EQ_COMPRESSOR_DATATYPE_RGBA32F,
                                             16, true );
                     else
                     {
                         LBASSERT( nChannels == 3 );
-                        _setExternalFormat( Frame::BUFFER_COLOR,
+                        _setExternalFormat( Frame::Buffer::color,
                                             EQ_COMPRESSOR_DATATYPE_RGBA32F,
                                             nChannels *4, false );
                     }
-                    setInternalFormat( Frame::BUFFER_COLOR,
+                    setInternalFormat( Frame::Buffer::color,
                                        EQ_COMPRESSOR_DATATYPE_RGBA32F );
                     break;
 
@@ -1685,8 +1685,8 @@ bool Image::hasAsyncReadback( const Frame::Buffer buffer ) const
 
 bool Image::hasAsyncReadback() const
 {
-    return hasAsyncReadback( Frame::BUFFER_COLOR ) ||
-           hasAsyncReadback( Frame::BUFFER_DEPTH );
+    return hasAsyncReadback( Frame::Buffer::color ) ||
+           hasAsyncReadback( Frame::Buffer::depth );
 }
 
 bool Image::getAlphaUsage() const

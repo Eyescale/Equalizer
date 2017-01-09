@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -77,7 +77,7 @@ ConstFrameDataPtr Frame::getFrameData() const
     return _impl->frameData;
 }
 
-uint32_t Frame::getBuffers() const
+Frame::Buffer Frame::getBuffers() const
 {
     return _impl->frameData->getBuffers();
 }

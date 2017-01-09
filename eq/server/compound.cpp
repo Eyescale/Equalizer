@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -136,7 +136,7 @@ Compound::~Compound()
 
 Compound::Data::Data()
         : channel( 0 )
-        , buffers( Frame::BUFFER_UNDEFINED )
+        , buffers( Frame::Buffer::undefined )
         , eyes( EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
         , period( LB_UNDEFINED_UINT32 )
@@ -1265,8 +1265,8 @@ void Compound::_updateInheritRoot()
     if( _inherit.phase == LB_UNDEFINED_UINT32 )
         _inherit.phase = 0;
 
-    if( _inherit.buffers == Frame::BUFFER_UNDEFINED )
-        _inherit.buffers = Frame::BUFFER_COLOR;
+    if( _inherit.buffers == Frame::Buffer::undefined )
+        _inherit.buffers = Frame::Buffer::color;
 
     if( _inherit.iAttributes[IATTR_STEREO_MODE] == UNDEFINED )
         _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::AUTO;
@@ -1332,7 +1332,7 @@ void Compound::_updateInheritNode()
 
     _inherit.maxFPS = _data.maxFPS;
 
-    if( _data.buffers != Frame::BUFFER_UNDEFINED )
+    if( _data.buffers != Frame::Buffer::undefined )
         _inherit.buffers = _data.buffers;
 
     if( _data.iAttributes[IATTR_STEREO_MODE] != UNDEFINED )
@@ -1575,12 +1575,12 @@ std::ostream& operator << ( std::ostream& os, const Compound& compound )
         os << " ]" << std::endl;
     }
 
-    const uint32_t buffers = compound.getBuffers();
-    if( buffers != Frame::BUFFER_UNDEFINED )
+    const fabric::Frame::Buffer buffers = compound.getBuffers();
+    if( buffers != Frame::Buffer::undefined )
     {
         os << "buffers  [";
-        if( buffers & Frame::BUFFER_COLOR )  os << " COLOR";
-        if( buffers & Frame::BUFFER_DEPTH )  os << " DEPTH";
+        if( buffers & Frame::Buffer::color )  os << " COLOR";
+        if( buffers & Frame::Buffer::depth )  os << " DEPTH";
         os << " ]" << std::endl;
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2015, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
+/* Copyright (c) 2013-2017, Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -38,7 +38,7 @@ void FileFrameWriter::notifyNewImage( eq::Channel& channel,
             channel.getSAttribute( eq::Channel::SATTR_DUMP_IMAGE );
     LBASSERT( !prefix.empty( ));
     const std::string fileName = prefix + channel.getDumpImageFileName();
-    if( !image.writeImage( fileName, eq::Frame::BUFFER_COLOR ))
+    if( !image.writeImage( fileName, eq::Frame::Buffer::color ))
         LBWARN << "Could not write file " << fileName << std::endl;
 }
 

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -143,24 +143,24 @@ void Channel::_testFormats( float applyZoom )
     {
         const uint32_t internalFormat = _enums[i].internalFormat;
         image->flush();
-        image->setInternalFormat( eq::Frame::BUFFER_COLOR, internalFormat );
-        image->setQuality( eq::Frame::BUFFER_COLOR, 0.f );
+        image->setInternalFormat( eq::Frame::Buffer::color, internalFormat );
+        image->setQuality( eq::Frame::Buffer::color, 0.f );
         image->setAlphaUsage( false );
 
         const GLEWContext* glewContext = glewGetContext();
         const std::vector< uint32_t >& names =
-            image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext );
+            image->findTransferers( eq::Frame::Buffer::color, glewContext );
 
         for( std::vector< uint32_t >::const_iterator j = names.begin();
              j != names.end(); ++j )
         {
             _draw( co::uint128_t( ));
 
-            image->allocDownloader( eq::Frame::BUFFER_COLOR, *j, glewContext );
+            image->allocDownloader( eq::Frame::Buffer::color, *j, glewContext );
             image->setPixelViewport( pvp );
 
             const uint32_t outputToken =
-                image->getExternalFormat( eq::Frame::BUFFER_COLOR );
+                image->getExternalFormat( eq::Frame::Buffer::color );
             std::stringstream formatType;
             formatType << std::hex << *j << ':'
                        << _enums[i].internalFormatString << '/' << outputToken
@@ -173,7 +173,7 @@ void Channel::_testFormats( float applyZoom )
                 clock.reset();
                 while( clock.getTime64() < 100 /*ms*/ )
                 {
-                    image->startReadback( eq::Frame::BUFFER_COLOR, pvp,
+                    image->startReadback( eq::Frame::Buffer::color, pvp,
                                           getContext(), zoom, glObjects );
                     image->finishReadback( glObjects.glewGetContext( ));
                     ++nLoops;
@@ -185,12 +185,12 @@ void Channel::_testFormats( float applyZoom )
                     throw eq::GLException( error );
 
                 const eq::PixelData& pixels =
-                    image->getPixelData( eq::Frame::BUFFER_COLOR );
+                    image->getPixelData( eq::Frame::Buffer::color );
                 const eq::Vector2i area( pixels.pvp.w, pixels.pvp.h );
                 const uint64_t dataSizeGPU = area.x() * area.y() *
                                              _enums[i].pixelSize;
                 const uint64_t dataSizeCPU =
-                    image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+                    image->getPixelDataSize( eq::Frame::Buffer::color );
 
                 _sendEvent( READBACK, msec, area, formatType.str(), dataSizeGPU,
                             dataSizeCPU );
@@ -205,12 +205,12 @@ void Channel::_testFormats( float applyZoom )
             // write
             eq::ImageOp op;
             op.image = image;
-            op.buffers = eq::Frame::BUFFER_COLOR;
+            op.buffers = eq::Frame::Buffer::color;
             op.offset = offset;
             op.zoom = zoom;
 
             const uint64_t dataSizeCPU =
-                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+                image->getPixelDataSize( eq::Frame::Buffer::color );
             try
             {
                 clock.reset();
@@ -222,10 +222,10 @@ void Channel::_testFormats( float applyZoom )
                     throw eq::Exception( error );
 
                 const eq::PixelData& pixels =
-                    image->getPixelData( eq::Frame::BUFFER_COLOR );
+                    image->getPixelData( eq::Frame::Buffer::color );
                 const eq::Vector2i area( pixels.pvp.w, pixels.pvp.h );
                 const uint64_t dataSizeGPU =
-                    image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+                    image->getPixelDataSize( eq::Frame::Buffer::color );
                 _sendEvent( ASSEMBLE, msec, area, formatType.str(), dataSizeGPU,
                             dataSizeCPU );
             }
@@ -280,13 +280,13 @@ void Channel::_testTiledOperations()
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH,
+            LBCHECK( image->allocDownloader( eq::Frame::Buffer::depth,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                              glewContext ));
-            image->clearPixelData( eq::Frame::BUFFER_DEPTH );
+            image->clearPixelData( eq::Frame::Buffer::depth );
 
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP, getContext(),
+            image->startReadback( eq::Frame::Buffer::depth, subPVP, getContext(),
                                   eq::Zoom::NONE, glObjects );
             image->finishReadback( glObjects.glewGetContext( ));
             msec += clock.getTimef();
@@ -310,13 +310,13 @@ void Channel::_testTiledOperations()
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
 
-            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR,
+            LBCHECK( image->allocDownloader( eq::Frame::Buffer::color,
                                             EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
                                               glewContext ));
-            image->clearPixelData( eq::Frame::BUFFER_COLOR );
+            image->clearPixelData( eq::Frame::Buffer::color );
 
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, getContext(),
+            image->startReadback( eq::Frame::Buffer::color, subPVP, getContext(),
                                   eq::Zoom::NONE, glObjects );
             image->finishReadback( glObjects.glewGetContext( ));
             msec += clock.getTimef();
@@ -331,7 +331,7 @@ void Channel::_testTiledOperations()
         subPVP.y = pvp.y + tiles * subPVP.h;
 
         eq::ImageOp op;
-        op.buffers = eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH;
+        op.buffers = eq::Frame::Buffer::color | eq::Frame::Buffer::depth;
         op.offset  = offset;
 
         // fixed-function
@@ -397,22 +397,22 @@ void Channel::_testDepthAssemble()
         // fill depth & color image
         image = images[ i ];
 
-        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR,
+        LBCHECK( image->allocDownloader( eq::Frame::Buffer::color,
                                          EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
                                          glewContext ));
 
-        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH,
+        LBCHECK( image->allocDownloader( eq::Frame::Buffer::depth,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                          glewContext ));
 
-        image->clearPixelData( eq::Frame::BUFFER_COLOR );
-        image->clearPixelData( eq::Frame::BUFFER_DEPTH );
+        image->clearPixelData( eq::Frame::Buffer::color );
+        image->clearPixelData( eq::Frame::Buffer::depth );
 
-        image->startReadback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
+        image->startReadback( eq::Frame::Buffer::color | eq::Frame::Buffer::depth,
                               pvp, getContext(), eq::Zoom::NONE, glObjects );
         image->finishReadback( glObjects.glewGetContext( ));
-        LBASSERT( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
-        LBASSERT( image->hasPixelData( eq::Frame::BUFFER_DEPTH ));
+        LBASSERT( image->hasPixelData( eq::Frame::Buffer::color ));
+        LBASSERT( image->hasPixelData( eq::Frame::Buffer::depth ));
 
         if( i == NUM_IMAGES-1 )
             _saveImage( image,"EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT",
@@ -420,7 +420,7 @@ void Channel::_testDepthAssemble()
 
         // benchmark
         eq::ImageOp op;
-        op.buffers = eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH;
+        op.buffers = eq::Frame::Buffer::color | eq::Frame::Buffer::depth;
         op.offset  = offset;
 
         // fixed-function

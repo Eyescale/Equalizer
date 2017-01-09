@@ -34,15 +34,15 @@ class Frame : public co::Object
 public:
     /**
      * Components of the frame are to be used during readback and assembly.
-     * @version 1.0
+     * @version 2.1
      */
-    enum Buffer
+    enum class Buffer : uint32_t
     {
-        BUFFER_NONE      = LB_BIT_NONE,
-        BUFFER_UNDEFINED = LB_BIT1,  //!< Inherit, only if no others are set
-        BUFFER_COLOR     = LB_BIT5,  //!< Use color images
-        BUFFER_DEPTH     = LB_BIT9,  //!< Use depth images
-        BUFFER_ALL       = LB_BIT_ALL_32
+        none      = LB_BIT_NONE,
+        undefined = LB_BIT1,  //!< Inherit, only if no others are set
+        color     = LB_BIT5,  //!< Use color images
+        depth     = LB_BIT9,  //!< Use depth images
+        all       = LB_BIT_ALL_32
     };
 
     /** The storage type for pixel data. @version 1.0 */
@@ -121,6 +121,36 @@ protected:
 private:
     detail::Frame* const _impl;
 };
+
+inline bool operator& ( const Frame::Buffer l, const Frame::Buffer r )
+{
+    return ( static_cast< uint32_t >( l ) & static_cast< uint32_t >( r ));
+}
+
+inline Frame::Buffer operator| ( const Frame::Buffer l, const Frame::Buffer r )
+{
+    return static_cast< Frame::Buffer >( static_cast< uint32_t >( l ) |
+                                         static_cast< uint32_t >( r ));
+}
+
+inline Frame::Buffer& operator&= ( Frame::Buffer& l, const Frame::Buffer r )
+{
+    l = static_cast< Frame::Buffer >( static_cast< uint32_t >( l ) &
+                                      static_cast< uint32_t >( r ));
+    return l;
+}
+
+inline Frame::Buffer& operator|= ( Frame::Buffer& l, const Frame::Buffer r )
+{
+    l = static_cast< Frame::Buffer >( static_cast< uint32_t >( l ) |
+                                      static_cast< uint32_t >( r ));
+    return l;
+}
+
+inline Frame::Buffer operator~ ( const Frame::Buffer l )
+{
+    return static_cast< Frame::Buffer >( ~static_cast< uint32_t >( l ));
+}
 
 /** Print the frame to the given output stream. @version 1.4 */
 EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame& );

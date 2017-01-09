@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -57,8 +57,8 @@ int main( int argc, char **argv )
                                         path.filename();
 #endif
 
-        TEST( image.readImage( inFilename, eq::Frame::BUFFER_COLOR ));
-        TEST( image.writeImage( outFilename, eq::Frame::BUFFER_COLOR ));
+        TEST( image.readImage( inFilename, eq::Frame::Buffer::color ));
+        TEST( image.writeImage( outFilename, eq::Frame::Buffer::color ));
 
         lunchbox::MemoryMap orig;
         lunchbox::MemoryMap copy;
@@ -70,9 +70,9 @@ int main( int argc, char **argv )
         TESTINFO( origPtr, inFilename );
         TESTINFO( copyPtr, inFilename );
         TESTINFO( orig.getSize() - 512 ==
-                  image.getPixelDataSize( eq::Frame::BUFFER_COLOR ),
+                  image.getPixelDataSize( eq::Frame::Buffer::color ),
                   inFilename << " " << orig.getSize() - 512 << " != " <<
-                  image.getPixelDataSize( eq::Frame::BUFFER_COLOR ));
+                  image.getPixelDataSize( eq::Frame::Buffer::color ));
         TESTINFO( orig.getSize() == copy.getSize(), inFilename);
         TESTINFO( orig.getSize() > 512, inFilename );
         TESTINFO( memcmp( origPtr+512, copyPtr+512, orig.getSize() - 512 ) == 0,

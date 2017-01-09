@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -357,49 +357,49 @@ void Texture::writeRGB( const std::string& filename ) const
     switch( _impl->internalFormat )
     {
         case GL_DEPTH_COMPONENT:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                    _impl->glewContext );
             break;
         case GL_RGB10_A2:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2,
                                    _impl->glewContext );
             break;
         case GL_RGBA:
         case GL_RGBA8:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
                                    _impl->glewContext );
             break;
         case GL_RGBA16F:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F,
                                    _impl->glewContext );
             break;
         case GL_RGBA32F:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F,
                                    _impl->glewContext );
             break;
         case GL_RGB:
         case GL_RGB8:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR,
                                    _impl->glewContext );
             break;
         case GL_RGB16F:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F,
                                    _impl->glewContext );
             break;
         case GL_RGB32F:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                                    EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F,
                                    _impl->glewContext );
             break;
         case GL_DEPTH24_STENCIL8:
-            image.allocDownloader( Frame::BUFFER_COLOR,
+            image.allocDownloader( Frame::Buffer::color,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                    _impl->glewContext );
             break;
@@ -411,9 +411,9 @@ void Texture::writeRGB( const std::string& filename ) const
 
     image.setPixelViewport( eq::PixelViewport( 0, 0,
                                                _impl->width, _impl->height ));
-    if( image.startReadback( Frame::BUFFER_COLOR, this, _impl->glewContext ))
+    if( image.startReadback( Frame::Buffer::color, this, _impl->glewContext ))
         image.finishReadback( _impl->glewContext );
-    image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
+    image.writeImage( filename + ".rgb", Frame::Buffer::color );
     image.resetPlugins();
 }
 

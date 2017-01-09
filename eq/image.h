@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Enrique <egparedes@ifi.uzh.ch>
@@ -295,7 +295,8 @@ public:
      * @return true when the operation requires a finishReadback().
      * @version 1.3.2
      */
-    EQ_API bool startReadback( const uint32_t buffers, const PixelViewport& pvp,
+    EQ_API bool startReadback( const Frame::Buffer buffers,
+                               const PixelViewport& pvp,
                                const RenderContext& context, const Zoom& zoom,
                                util::ObjectManager& glObjects );
 

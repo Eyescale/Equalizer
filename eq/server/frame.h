@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -67,7 +67,8 @@ public:
      *
      * @param buffers a bitwise combination of the buffers.
      */
-    void setBuffers( const uint32_t buffers ) { _buffers = buffers; }
+    void setBuffers( const fabric::Frame::Buffer buffers )
+        { _buffers = buffers; }
 
     /** return the frame storage type. */
     Type getType() const { return _type; }
@@ -80,7 +81,7 @@ public:
     void setType( const Type type ) { _type = type; }
 
     /** @return the frame buffers used by this frame. */
-    uint32_t getBuffers() const { return _buffers; }
+    fabric::Frame::Buffer getBuffers() const { return _buffers; }
     //@}
 
     /** @name Operations */
@@ -154,7 +155,7 @@ private:
 
     /** Frame-specific data. */
     Viewport _vp;
-    uint32_t _buffers;
+    fabric::Frame::Buffer _buffers;
     Type _type;
 
     /** The configured frame data (base class contains inherit values). */

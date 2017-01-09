@@ -33,7 +33,8 @@ namespace fabric
 class FrameData
 {
 public:
-    FrameData() : _frameType( Frame::TYPE_MEMORY ), _buffers( 0 ) {}
+    FrameData() : _frameType( Frame::TYPE_MEMORY ),
+                  _buffers( Frame::Buffer::none ) {}
 
     /**
      * Set the covered area for readbacks.
@@ -48,13 +49,13 @@ public:
     const PixelViewport& getPixelViewport() const { return _pvp; }
 
     /** Set the (color, depth) buffers of the source frame. */
-    void setBuffers( const uint32_t buffers ) { _buffers = buffers; }
+    void setBuffers( const Frame::Buffer buffers ) { _buffers = buffers; }
 
     /** Disable the usage of a frame buffer attachment for all images. */
     void disableBuffer( const Frame::Buffer buffer ) { _buffers &= ~buffer; }
 
     /** @return the (color, depth) buffers of the source frame. */
-    uint32_t getBuffers() const { return _buffers; }
+    Frame::Buffer getBuffers() const { return _buffers; }
 
     /** Set the source context decomposition wrt dest channel. */
     void setContext( const RenderContext& context ) { _context = context; }
@@ -87,7 +88,7 @@ protected:
     RenderContext _context; //<! source channel render context
     Zoom          _zoom;
     Frame::Type   _frameType;
-    uint32_t      _buffers;
+    Frame::Buffer _buffers;
 };
 
 }

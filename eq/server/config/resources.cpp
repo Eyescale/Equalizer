@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.h>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
@@ -683,7 +683,7 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels,
 
     Compound* compound = new Compound( root );
     compound->setName( name );
-    compound->setBuffers( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH );
+    compound->setBuffers( Frame::Buffer::color | Frame::Buffer::depth );
     if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
     {
         if( params.getEqualizer().getMode() != LoadEqualizer::MODE_DB )
@@ -754,8 +754,8 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 eq::server::Frame* outputFrame = new eq::server::Frame;
                 outputFrame->setName( frameName.str( ));
                 outputFrame->setViewport( vp );
-                outputFrame->setBuffers( Frame::BUFFER_COLOR |
-                                         Frame::BUFFER_DEPTH );
+                outputFrame->setBuffers( Frame::Buffer::color |
+                                         Frame::Buffer::depth );
                 drawChild->addOutputFrame( outputFrame );
 
                 // input tiles from other channels
@@ -814,7 +814,7 @@ Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels,
                                        fabric::ConfigParams params )
 {
     // TODO: Optimized compositing?
-    root->setBuffers( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH );
+    root->setBuffers( Frame::Buffer::color | Frame::Buffer::depth );
     const Channels& dbChannels = _filter( channels, " mt mp " );
     Compound* compound = _addDSCompound( root, dbChannels );
 

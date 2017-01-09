@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -72,7 +72,7 @@ static void _compare( const void* data, const void* destData,
 #pragma omp parallel for reduction(+ : error)
     for( int64_t k = 0; k < nElem; ++k )
     {
-        if( !useAlpha && buffer == eq::Frame::BUFFER_COLOR )
+        if( !useAlpha && buffer == eq::Frame::Buffer::color )
         {
             // Don't test alpha if alpha is ignored
             if( k % 4 == 3 )
@@ -157,12 +157,12 @@ int main( int argc, char **argv )
                 const std::string& filename = *j;
                 const size_t depthPos = filename.find( "depth" );
                 const eq::Frame::Buffer buffer = (depthPos==std::string::npos) ?
-                    eq::Frame::BUFFER_COLOR : eq::Frame::BUFFER_DEPTH;
+                    eq::Frame::Buffer::color : eq::Frame::Buffer::depth;
 
                 TEST( image.readImage( filename, buffer ));
 
                 if( !image.getAlphaUsage() &&
-                    ( buffer != eq::Frame::BUFFER_COLOR || !image.hasAlpha( )))
+                    ( buffer != eq::Frame::Buffer::color || !image.hasAlpha( )))
                 {
                     continue; // Ignoring alpha doesn't make sense
                 }

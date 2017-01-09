@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ Channel::Channel( eq::Window* parent )
         , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
     _image.setAlphaUsage( true );
-    _image.setInternalFormat( eq::Frame::BUFFER_COLOR,
+    _image.setInternalFormat( eq::Frame::Buffer::color,
                               EQ_COMPRESSOR_DATATYPE_RGBA );
 }
 
@@ -297,7 +297,7 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
     {
         eq::ImageOp op;
         op.image = &_image;
-        op.buffers = eq::Frame::BUFFER_COLOR;
+        op.buffers = eq::Frame::Buffer::color;
         op.zoom = zoom;
         op.offset = eq::Vector2i( coveredPVP.x, coveredPVP.y );
         dbImages.emplace_back( op );
@@ -327,7 +327,7 @@ void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& frames )
             eq::RenderContext context = _image.getContext();
             context.range = range;
 
-            if( _image.startReadback( eq::Frame::BUFFER_COLOR, pvp, context,
+            if( _image.startReadback( eq::Frame::Buffer::color, pvp, context,
                                       zoom, glObjects ))
             {
                 _image.finishReadback( glewGetContext( ));
@@ -359,8 +359,8 @@ void Channel::frameReadback( const eq::uint128_t& frameID,
     for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
-        frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
-        frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
+        frame->setQuality( eq::Frame::Buffer::color, frameData.getQuality());
+        frame->disableBuffer( eq::Frame::Buffer::depth );
     }
 
     eq::Channel::frameReadback( frameID, frames );

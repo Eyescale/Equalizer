@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -167,15 +167,15 @@ std::ostream& operator << ( std::ostream& os, const Frame::Type type )
 
 std::ostream& operator << ( std::ostream& os, const Frame::Buffer buffer )
 {
-    if( buffer == Frame::BUFFER_NONE )
+    if( buffer == Frame::Buffer::none )
         os << "none ";
-    else if( buffer & Frame::BUFFER_UNDEFINED )
+    else if( buffer & Frame::Buffer::undefined )
         os << "undefined ";
     else
     {
-        if( buffer & Frame::BUFFER_COLOR )
+        if( buffer & Frame::Buffer::color )
             os << "color ";
-        if( buffer & Frame::BUFFER_DEPTH )
+        if( buffer & Frame::Buffer::depth )
             os << "depth ";
     }
 
