@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric Stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -388,8 +388,8 @@ public:
     EQ_API virtual bool handleEvent( EventType type, const SizeEvent& event );
     EQ_API virtual bool handleEvent( EventType type, const PointerEvent& event);
     EQ_API virtual bool handleEvent( EventType type, const KeyEvent& event );
-    EQ_API virtual bool handleEvent( EventType type, const AxisEvent& event );
-    EQ_API virtual bool handleEvent( EventType type, const ButtonEvent& event );
+    EQ_API virtual bool handleEvent( const AxisEvent& event );
+    EQ_API virtual bool handleEvent( const ButtonEvent& event );
 
     /** @return true if events are pending. Thread safe. @version 1.0 */
     EQ_API bool checkEvent() const;

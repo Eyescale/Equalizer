@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@
 #include <seq/application.h>
 #include <seq/renderer.h>
 #include <seq/viewData.h>
+
 #include <eq/config.h>
 #include <eq/eventICommand.h>
 
@@ -129,6 +130,17 @@ template< class E > bool View::_handleEvent( eq::EventType type, E& event )
     return false;
 }
 
+template< class E > bool View::_handleEvent( E& event )
+{
+    ViewData* data = getViewData();
+    LBASSERT( data );
+    if( !data )
+        return false;
+    if( isActive() )
+        return data->handleEvent( event );
+    return false;
+}
+
 bool View::handleEvent( eq::EventType type, const SizeEvent& event )
 {
     return _handleEvent( type, event );
@@ -144,14 +156,14 @@ bool View::handleEvent( eq::EventType type, const KeyEvent& event )
     return _handleEvent( type, event );
 }
 
-bool View::handleEvent( eq::EventType type, const AxisEvent& event )
+bool View::handleEvent( const AxisEvent& event )
 {
-    return _handleEvent( type, event );
+    return _handleEvent( event );
 }
 
-bool View::handleEvent( eq::EventType type, const ButtonEvent& event )
+bool View::handleEvent( const ButtonEvent& event )
 {
-    return _handleEvent( type, event );
+    return _handleEvent( event );
 }
 }
 }

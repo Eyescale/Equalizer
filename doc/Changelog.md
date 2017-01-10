@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [609](https://github.com/Eyescale/Equalizer/pull/609):
+  Clean up magellan event API
 * [608](https://github.com/Eyescale/Equalizer/pull/608):
   Make Frame::Buffer enum an enum class to ease bitmask handling;
   enum values are now Frame::Buffer::value instead of Frame::BUFFER_VALUE

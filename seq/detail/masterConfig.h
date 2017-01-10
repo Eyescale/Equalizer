@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -15,7 +15,6 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 
 #ifndef EQSEQUEL_DETAIL_MASTERCONFIG_H
 #define EQSEQUEL_DETAIL_MASTERCONFIG_H
@@ -49,11 +48,12 @@ private:
     bool handleEvent( eq::EventType type, const SizeEvent& event ) final;
     bool handleEvent( eq::EventType type, const PointerEvent& event ) final;
     bool handleEvent( eq::EventType type, const KeyEvent& event ) final;
-    bool handleEvent( eq::EventType type, const AxisEvent& event ) final;
-    bool handleEvent( eq::EventType type, const ButtonEvent& event ) final;
+    bool handleEvent( const AxisEvent& event ) final;
+    bool handleEvent( const ButtonEvent& event ) final;
     bool handleEvent( eq::EventType type, const Event& event ) final;
     void addStatistic( const Statistic& stat ) final;
     template< class E > bool _handleEvent( eq::EventType type, E& event );
+    template< class E > bool _handleEvent( E& event );
 };
 }
 }

@@ -472,19 +472,19 @@ EventOCommand Node::sendError( const uint32_t error )
     return getConfig()->sendError( EVENT_NODE_ERROR, Error( error, getID( )));
 }
 
-bool Node::processEvent( const EventType type, AxisEvent& event )
+bool Node::processEvent( AxisEvent& event )
 {
     Config* config = getConfig();
     updateEvent( event, config->getTime( ));
-    config->sendEvent( type ) << event;
+    config->sendEvent( EVENT_MAGELLAN_AXIS ) << event;
     return true;
 }
 
-bool Node::processEvent( const EventType type, ButtonEvent& event )
+bool Node::processEvent( ButtonEvent& event )
 {
     Config* config = getConfig();
     updateEvent( event, config->getTime( ));
-    config->sendEvent( type ) << event;
+    config->sendEvent( EVENT_MAGELLAN_BUTTON ) << event;
     return true;
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,8 +50,8 @@ public:
     virtual bool processEvent( EventType type, SizeEvent& event ) = 0;
     virtual bool processEvent( EventType type, PointerEvent& event ) = 0;
     virtual bool processEvent( EventType type, KeyEvent& event ) = 0;
-    virtual bool processEvent( EventType type, AxisEvent& event ) = 0;
-    virtual bool processEvent( EventType type, ButtonEvent& event ) = 0;
+    virtual bool processEvent( AxisEvent& event ) = 0;
+    virtual bool processEvent( ButtonEvent& event ) = 0;
     virtual bool processEvent( EventType type ) = 0; //!< stateless event
 };
 }

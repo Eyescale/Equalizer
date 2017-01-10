@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -49,8 +49,8 @@ public:
     SEQ_API virtual bool handleEvent( eq::EventType type, const SizeEvent& );
     SEQ_API virtual bool handleEvent( eq::EventType type, const PointerEvent& );
     SEQ_API virtual bool handleEvent( eq::EventType type, const KeyEvent& );
-    SEQ_API virtual bool handleEvent( eq::EventType type, const AxisEvent& );
-    SEQ_API virtual bool handleEvent( eq::EventType type, const ButtonEvent& );
+    SEQ_API virtual bool handleEvent( const AxisEvent& );
+    SEQ_API virtual bool handleEvent( const ButtonEvent& );
 
     /** Rotate the model matrix by the given increments. @version 1.0 */
     SEQ_API void spinModel( const float x, const float y, const float z );

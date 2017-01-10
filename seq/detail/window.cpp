@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -123,6 +123,14 @@ bool Window::_processEvent( const eq::EventType type, E& event )
     return eq::Window::processEvent( type, event );
 }
 
+template< class E > bool Window::_processEvent( E& event )
+{
+    seq::Renderer* const renderer = getRenderer();
+    if( renderer->processEvent( event ))
+        return true;
+    return eq::Window::processEvent( event );
+}
+
 bool Window::processEvent( const eq::EventType type, SizeEvent& event )
 {
     return _processEvent( type, event );
@@ -138,14 +146,14 @@ bool Window::processEvent( const eq::EventType type, KeyEvent& event )
     return _processEvent( type, event );
 }
 
-bool Window::processEvent( const eq::EventType type, AxisEvent& event )
+bool Window::processEvent( AxisEvent& event )
 {
-    return _processEvent( type, event );
+    return _processEvent( event );
 }
 
-bool Window::processEvent( const eq::EventType type, ButtonEvent& event )
+bool Window::processEvent( ButtonEvent& event )
 {
-    return _processEvent( type, event );
+    return _processEvent( event );
 }
 
 }

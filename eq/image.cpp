@@ -20,6 +20,7 @@
 
 #include "image.h"
 
+#include "gl.h"
 #include "half.h"
 #include "log.h"
 #include "pixelData.h"
@@ -1802,4 +1803,3 @@ co::DataIStream& operator >> ( co::DataIStream& is, Image& image )
 }
 
 }
-

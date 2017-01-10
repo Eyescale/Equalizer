@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -501,7 +501,7 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
                 event.xRotation = -state->axis[3];
                 event.yRotation =  state->axis[4];
                 event.zRotation =  state->axis[5];
-                _magellanNode->processEvent( EVENT_MAGELLAN_AXIS, event );
+                _magellanNode->processEvent( event );
                 return;
             }
 
@@ -509,7 +509,7 @@ void _magellanEventHandler( io_connect_t, natural_t messageType,
             {
                 ButtonEvent event;
                 event.buttons = state->buttons;
-                _magellanNode->processEvent( EVENT_MAGELLAN_BUTTON, event );
+                _magellanNode->processEvent( event );
                 return;
             }
 

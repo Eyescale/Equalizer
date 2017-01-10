@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -186,8 +186,8 @@ public:
     virtual bool processEvent( EventType, const SizeEvent& ) { return false; }
     virtual bool processEvent( EventType, const PointerEvent& ){ return false; }
     virtual bool processEvent( EventType, const KeyEvent& ) { return false; }
-    virtual bool processEvent( EventType, const AxisEvent& ) { return false; }
-    virtual bool processEvent( EventType, const ButtonEvent& ) { return false; }
+    virtual bool processEvent( const AxisEvent& ) { return false; }
+    virtual bool processEvent( const ButtonEvent& ) { return false; }
     //@}
 
     /** @name Data Access */

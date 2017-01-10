@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Maxim Makhinya
  *
@@ -165,10 +165,10 @@ public:
     EQ_API bool processEvent( EventType type, KeyEvent& event );
 
     /** Process an axis event. @return true if the event was handled. */
-    EQ_API bool processEvent( EventType type, AxisEvent& event );
+    EQ_API bool processEvent( AxisEvent& event );
 
     /** Process a button event. @return true if the event was handled. */
-    EQ_API bool processEvent( EventType type, ButtonEvent& event );
+    EQ_API bool processEvent( ButtonEvent& event );
 
     /**
      * Set the window's pixel viewport wrt its parent pipe.

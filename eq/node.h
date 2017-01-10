@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -133,13 +133,12 @@ public:
      * The task of this method is to update the node as necessary, and send it
      * to the application using Config::sendEvent().
      *
-     * @param type unused
      * @param event the received event.
      * @return true if the event was handled, false if not.
      * @version 1.5.2
      */
-    EQ_API virtual bool processEvent( EventType type, AxisEvent& event );
-    EQ_API virtual bool processEvent( EventType type, ButtonEvent& event );
+    EQ_API virtual bool processEvent( AxisEvent& event );
+    EQ_API virtual bool processEvent( ButtonEvent& event );
     EQ_API virtual bool processEvent( Statistic& event );
 
     /** @internal @sa Serializable::setDirty() */

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -349,8 +349,7 @@ bool EventHandler::_processEvent( const XEvent& event )
                 axisEvent.xRotation = -spev.motion.rx;
                 axisEvent.yRotation = -spev.motion.ry;
                 axisEvent.zRotation =  spev.motion.rz;
-                return _window->processEvent( EVENT_MAGELLAN_AXIS, event,
-                                              axisEvent );
+                return _window->processEvent( event, axisEvent );
             }
 
             case SPNAV_EVENT_BUTTON:
@@ -358,8 +357,7 @@ bool EventHandler::_processEvent( const XEvent& event )
                 ButtonEvent buttonEvent;
                 buttonEvent.buttons = spev.button.press;
                 buttonEvent.button = spev.button.bnum;
-                return _window->processEvent( EVENT_MAGELLAN_BUTTON, event,
-                                              buttonEvent );
+                return _window->processEvent( event, buttonEvent );
             }
 
             default:

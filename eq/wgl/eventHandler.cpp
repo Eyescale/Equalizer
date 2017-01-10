@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -617,7 +617,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
                 event.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
                 event.buttons |= PTR_BUTTON3;
-            _magellanNode->processEvent( EVENT_MAGELLAN_BUTTON, event );
+            _magellanNode->processEvent( event );
         }
         else
         {
@@ -638,7 +638,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
-            _magellanNode->processEvent( EVENT_MAGELLAN_AXIS, event );
+            _magellanNode->processEvent( event );
         }
     }
 #endif
