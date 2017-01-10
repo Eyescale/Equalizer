@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -67,12 +67,12 @@ public:
         { return GLWindow::processEvent( type, event ); }
 
     /** Process an axis event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, AxisEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent( AxisEvent& event )
+        { return GLWindow::processEvent( event ); }
 
     /** Process a button event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, ButtonEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent( ButtonEvent& event )
+        { return GLWindow::processEvent( event ); }
 
     /** Process a stateless event. @return true if the event was handled. */
     virtual bool processEvent( EventType ) { return false; }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -141,7 +141,7 @@ bool ViewData::handleEvent( const eq::EventType type, const KeyEvent& event )
     }
 }
 
-bool ViewData::handleEvent( const eq::EventType, const AxisEvent& event )
+bool ViewData::handleEvent( const AxisEvent& event )
 {
     _spinX = 0;
     _spinY = 0;
@@ -153,7 +153,7 @@ bool ViewData::handleEvent( const eq::EventType, const AxisEvent& event )
     return true;
 }
 
-bool ViewData::handleEvent( const eq::EventType, const ButtonEvent& )
+bool ViewData::handleEvent( const ButtonEvent& )
 {
     return false;
 }

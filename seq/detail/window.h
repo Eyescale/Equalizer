@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -49,8 +49,8 @@ public:
     bool processEvent( eq::EventType type, SizeEvent& event ) final;
     bool processEvent( eq::EventType type, PointerEvent& event ) final;
     bool processEvent( eq::EventType type, KeyEvent& event ) final;
-    bool processEvent( eq::EventType type, AxisEvent& event ) final;
-    bool processEvent( eq::EventType type, ButtonEvent& event ) final;
+    bool processEvent( AxisEvent& event ) final;
+    bool processEvent( ButtonEvent& event ) final;
 
     bool initContext() { return eq::Window::configInitGL( uint128_t( )); }
     bool exitContext() { return eq::Window::configExitGL(); }
@@ -60,6 +60,7 @@ private:
     virtual ~Window();
 
     template< class E > bool _processEvent( eq::EventType type, E& event );
+    template< class E > bool _processEvent( E& event );
 };
 }
 }

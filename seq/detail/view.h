@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@
 #define EQSEQUEL_DETAIL_VIEW_H
 
 #include <seq/types.h>
+
 #include <eq/view.h> // base class
 
 namespace seq
@@ -44,8 +45,8 @@ public:
     bool handleEvent( eq::EventType type, const SizeEvent& event ) final;
     bool handleEvent( eq::EventType type, const PointerEvent& event );
     bool handleEvent( eq::EventType type, const KeyEvent& event );
-    bool handleEvent( eq::EventType type, const AxisEvent& event );
-    bool handleEvent( eq::EventType type, const ButtonEvent& event );
+    bool handleEvent( const AxisEvent& event );
+    bool handleEvent( const ButtonEvent& event );
     bool updateData();
     //@}
 
@@ -58,6 +59,7 @@ private:
     void notifyAttach() final;
     void notifyDetached() final;
     template< class E > bool _handleEvent( eq::EventType type, E& event );
+    template< class E > bool _handleEvent( E& event );
 };
 }
 }

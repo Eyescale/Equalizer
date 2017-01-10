@@ -688,7 +688,7 @@ bool Config::handleEvent( const eq::EventType type,
     return eq::Config::handleEvent( type, event );
 }
 
-bool Config::handleEvent( const eq::EventType, const eq::AxisEvent& event )
+bool Config::handleEvent( const eq::AxisEvent& event )
 {
     _spinX = 0;
     _spinY = 0;
@@ -700,15 +700,14 @@ bool Config::handleEvent( const eq::EventType, const eq::AxisEvent& event )
     return true;
 }
 
-bool Config::handleEvent( const eq::EventType type,
-                          const eq::ButtonEvent& event )
+bool Config::handleEvent( const eq::ButtonEvent& event )
 {
     if( event.button == eq::PTR_BUTTON1 )
     {
         _frameData.toggleColorMode();
         return true;
     }
-    return eq::Config::handleEvent( type, event );
+    return eq::Config::handleEvent( event );
 }
 
 bool Config::handleEvent( const eq::EventType type, const eq::Event& event )

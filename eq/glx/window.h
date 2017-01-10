@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Maxim Makhinya
  *
@@ -61,14 +61,12 @@ public:
         { return GLWindow::processEvent( type, event ); }
 
     /** Process an axis event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, const XEvent&,
-                               AxisEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent( const XEvent&, AxisEvent& event )
+        { return GLWindow::processEvent( event ); }
 
     /** Process a button event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, const XEvent&,
-                               ButtonEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent( const XEvent&, ButtonEvent& event )
+        { return GLWindow::processEvent( event ); }
 
     /** Process a stateless event. @return true if the event was handled. */
     virtual bool processEvent( EventType type, const XEvent& )

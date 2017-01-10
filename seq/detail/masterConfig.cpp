@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -155,7 +155,20 @@ bool MasterConfig::_handleEvent( eq::EventType type, E& event )
     return _redraw;
 }
 
+template< class E > bool MasterConfig::_handleEvent( E& event )
+{
+    if( Config::handleEvent( event ))
+        _redraw = true;
 
+    if( _currentViewID == 0 )
+        return _redraw;
+
+    View* view = static_cast< View* >( find< eq::View >( _currentViewID ));
+    if( view && view->handleEvent( event ))
+        _redraw = true;
+
+    return _redraw;
+}
 
 bool MasterConfig::handleEvent( EventICommand command )
 {
@@ -200,16 +213,14 @@ bool MasterConfig::handleEvent( const eq::EventType type,
     return _handleEvent( type, event );
 }
 
-bool MasterConfig::handleEvent( const eq::EventType type,
-                                const AxisEvent& event )
+bool MasterConfig::handleEvent( const AxisEvent& event )
 {
-    return _handleEvent( type, event );
+    return _handleEvent( event );
 }
 
-bool MasterConfig::handleEvent( const eq::EventType type,
-                                const ButtonEvent& event )
+bool MasterConfig::handleEvent( const ButtonEvent& event )
 {
-    return _handleEvent( type, event );
+    return _handleEvent( event );
 }
 
 bool MasterConfig::handleEvent( const eq::EventType type, const Event& event )

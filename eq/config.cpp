@@ -620,10 +620,10 @@ bool Config::handleEvent( EventICommand command )
         return handleEvent( type, command.read< KeyEvent >( ));
 
     case EVENT_MAGELLAN_AXIS:
-        return handleEvent( type, command.read< AxisEvent >( ));
+        return handleEvent( command.read< AxisEvent >( ));
 
     case EVENT_MAGELLAN_BUTTON:
-        return handleEvent( type, command.read< ButtonEvent >( ));
+        return handleEvent( command.read< ButtonEvent >( ));
 
     case EVENT_WINDOW_CLOSE:
     case EVENT_WINDOW_HIDE:
@@ -755,12 +755,12 @@ bool Config::handleEvent( const EventType type, const KeyEvent& event )
     }
 }
 
-bool Config::handleEvent( const EventType, const AxisEvent& )
+bool Config::handleEvent( const AxisEvent& )
 {
     return false;
 }
 
-bool Config::handleEvent( const EventType, const ButtonEvent& )
+bool Config::handleEvent( const ButtonEvent& )
 {
     return false;
 }

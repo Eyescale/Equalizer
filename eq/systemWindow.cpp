@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Maxim Makhinya
  *
@@ -114,14 +114,14 @@ bool SystemWindow::processEvent( const EventType type, KeyEvent& event )
     return _parent.processEvent( type, event );
 }
 
-bool SystemWindow::processEvent( EventType type, AxisEvent& event )
+bool SystemWindow::processEvent( AxisEvent& event )
 {
-    return _parent.processEvent( type, event );
+    return _parent.processEvent( event );
 }
 
-bool SystemWindow::processEvent( EventType type, ButtonEvent& event )
+bool SystemWindow::processEvent( ButtonEvent& event )
 {
-    return _parent.processEvent( type, event );
+    return _parent.processEvent( event );
 }
 
 }

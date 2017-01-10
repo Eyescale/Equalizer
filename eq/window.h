@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -304,10 +304,10 @@ public:
     EQ_API bool processEvent( EventType type, KeyEvent& event ) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( EventType type, AxisEvent& event ) override;
+    EQ_API bool processEvent( AxisEvent& event ) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( EventType type, ButtonEvent& event ) override;
+    EQ_API bool processEvent( ButtonEvent& event ) override;
 
     EQ_API bool processEvent( Statistic& event );
     //@}

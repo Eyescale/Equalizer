@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -797,19 +797,19 @@ bool Window::processEvent( const EventType type, KeyEvent& event )
     return true;
 }
 
-bool Window::processEvent( const EventType type, AxisEvent& event )
+bool Window::processEvent( AxisEvent& event )
 {
     Config* config = getConfig();
     updateEvent( event, config->getTime( ));
-    config->sendEvent( type ) << event;
+    config->sendEvent( EVENT_MAGELLAN_AXIS ) << event;
     return true;
 }
 
-bool Window::processEvent( const EventType type, ButtonEvent& event )
+bool Window::processEvent( ButtonEvent& event )
 {
     Config* config = getConfig();
     updateEvent( event, config->getTime( ));
-    config->sendEvent( type ) << event;
+    config->sendEvent( EVENT_MAGELLAN_BUTTON ) << event;
     return true;
 }
 

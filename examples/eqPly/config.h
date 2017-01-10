@@ -75,8 +75,8 @@ public:
     bool handleEvent( eq::EventType type, const eq::Event& event ) override;
     bool handleEvent( eq::EventType type, const eq::KeyEvent& event ) override;
     bool handleEvent( eq::EventType type, const eq::PointerEvent& ) override;
-    bool handleEvent( eq::EventType type, const eq::AxisEvent& event ) override;
-    bool handleEvent( eq::EventType type, const eq::ButtonEvent& ) override;
+    bool handleEvent( const eq::AxisEvent& event ) override;
+    bool handleEvent( const eq::ButtonEvent& ) override;
 
     /** @return true if the application is idling. */
     bool isIdleAA();
