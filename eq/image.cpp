@@ -25,6 +25,7 @@
 #include "pixelData.h"
 #include "transferFinder.h"
 
+#include <eq/gl.h>
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <eq/fabric/renderContext.h>
