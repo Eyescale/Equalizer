@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -36,6 +36,9 @@ public:
     //@{
     /** @return the node running the main instance. @version 1.3.1 */
     SEQ_API co::NodePtr getMasterNode();
+
+    /** @return help on all parsed command line arguments. @version 2.1 */
+    SEQ_API static std::string getHelp();
     //@}
 
     /** @name Operations */

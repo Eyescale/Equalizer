@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,23 +65,13 @@ public:
      */
     EQ_API bool disconnectServer( ServerPtr server );
 
+    /** @return help on all parsed command line arguments. @version 2.1 */
+    EQ_API static std::string getHelp();
+
     /**
      * Initialize a local, listening node.
      *
-     * The following command line options are recognized by this method:
-     *
-     * <code>--eq-client</code> is used for remote nodes which have been
-     * auto-launched by another node, e.g., remote render clients. This method
-     * does not return when this command line option is present.
-     *
-     * <code>--eq-layout</code> can apply multiple times. Each instance has to
-     * be followed by the name of a layout. The given layouts will be activated
-     * on all canvases using them during Config::init().
-     *
-     * <code>--eq-modelunit</code> is used for scaling the rendered models in
-     * all views. The model unit defines the size of the model wrt the virtual
-     * room unit which is always in meter. The default unit is 1 (1 meter or
-     * EQ_M).
+     * The command line options recognized can be retrieved using getHelp().
      *
      * @param argc the command line argument count.
      * @param argv the command line argument values.

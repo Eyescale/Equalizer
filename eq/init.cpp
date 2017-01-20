@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -36,6 +36,7 @@
 #include <eq/fabric/init.h>
 #include <co/global.h>
 #include <lunchbox/file.h>
+#include <lunchbox/term.h>
 #include <pression/pluginRegistry.h>
 
 #ifdef _WIN32
@@ -151,9 +152,12 @@ bool exit()
     return fabric::exit();
 }
 
-bool _parseArguments( const int argc, char** argv )
+namespace
 {
-    typedef stde::hash_map< std::string, uint32_t > Flags;
+using Flags = stde::hash_map< std::string, uint32_t >;
+
+Flags _getConfigFlags()
+{
     Flags configFlags;
     configFlags["multiprocess"] = fabric::ConfigParams::FLAG_MULTIPROCESS;
     configFlags["multiprocess_db"] = fabric::ConfigParams::FLAG_MULTIPROCESS_DB;
@@ -165,8 +169,14 @@ bool _parseArguments( const int argc, char** argv )
         fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL;
     configFlags["2D_tiles"] =
         fabric::ConfigParams::FLAG_LOAD_EQ_2D;
+    return configFlags;
+}
 
-    arg::options_description options( "Equalizer library options" );
+arg::options_description _getProgramOptions()
+{
+    const Flags configFlags = _getConfigFlags();
+    arg::options_description options( "Equalizer library options",
+                                      lunchbox::term::getSize().first );
     options.add_options()
         ( EQ_HELP, "Display usage information and exit" )
         ( EQ_LOGFILE, arg::value< std::string >(),
@@ -182,7 +192,20 @@ bool _parseArguments( const int argc, char** argv )
         ( EQ_RENDER_CLIENT, arg::value< std::string >(),
           "The render client executable filename" )
     ;
+    return options;
+}
+}
 
+std::string getHelp()
+{
+    std::ostringstream os;
+    os << _getProgramOptions();
+    return os.str();
+}
+
+bool _parseArguments( const int argc, char** argv )
+{
+    const auto options = _getProgramOptions();
     arg::variables_map vm;
     try
     {
@@ -216,7 +239,8 @@ bool _parseArguments( const int argc, char** argv )
 
     if( vm.count( EQ_CONFIG_FLAGS ))
     {
-        const Strings& flagStrings = vm[EQ_CONFIG_FLAGS].as< Strings >( );
+        const Strings& flagStrings = vm[EQ_CONFIG_FLAGS].as< Strings >();
+        const auto configFlags = _getConfigFlags();
         uint32_t flags = Global::getFlags();
         for( StringsCIter i = flagStrings.begin(); i != flagStrings.end(); ++i )
         {

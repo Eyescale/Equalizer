@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -41,7 +41,12 @@
 #include <co/global.h>
 #include <lunchbox/dso.h>
 #include <lunchbox/file.h>
+#include <lunchbox/term.h>
+
 #include <boost/filesystem/path.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
 
 #ifdef _MSC_VER
 #  include <direct.h>
@@ -180,42 +185,74 @@ bool Client::disconnectServer( ServerPtr server )
 
 namespace
 {
-bool _isParameterOption( const std::string& name, const int argc, char** argv,
-                         const int index )
+namespace arg = boost::program_options;
+
+arg::options_description _getProgramOptions()
 {
-    return ( index < argc-1 &&          // has enough total arguments
-             name == argv[index] &&     // name matches
-             argv[index+1][0] != '-' ); // next arg not an option
+    arg::options_description options( "eq::Client options",
+                                      lunchbox::term::getSize().first );
+    options.add_options()
+        ( "eq-client", "Internal, used for render clients" )
+        ( "eq-layout", arg::value< std::string >(), "Name of the layout to "
+          "activate on all canvases during Config::init(). The option can be "
+          "used multiple times." )
+        ( "eq-gpufilter", arg::value< std::string >(), "regex selecting the "
+          "hwsd GPUs by name" )
+        ( "eq-modelunit", arg::value< float >(), "Scale the rendered models "
+          "in all views. The model unit defines the size of the model wrt the "
+          "virtual room unit which is always in meter. The default unit is 1 "
+          "(1 meter or EQ_M)." );
+
+    return options;
 }
+
+}
+
+std::string Client::getHelp()
+{
+    std::ostringstream os;
+    os << _getProgramOptions();
+    return os.str();
 }
 
 bool Client::initLocal( const int argc, char** argv )
 {
-    bool isClient = false;
-    std::string clientOpts;
-
     if( _impl->name.empty() && argc > 0 && argv )
     {
         const boost::filesystem::path prog = argv[0];
         setName( prog.stem().string( ));
     }
 
-    for( int i=1; i<argc; ++i )
+    const auto options = _getProgramOptions();
+    arg::variables_map vm;
+    try
     {
-        if( std::string( "--eq-client" ) == argv[i] )
-            isClient = true;
-        else if( _isParameterOption( "--eq-layout", argc, argv, i ))
-            _impl->activeLayouts.push_back( argv[++i] );
-        else if( _isParameterOption( "--eq-gpufilter" , argc, argv, i ))
-            _impl->gpuFilter = argv[ ++i ];
-        else if( _isParameterOption( "--eq-modelunit", argc, argv, i ))
-        {
-            std::istringstream unitString( argv[++i] );
-            unitString >> _impl->modelUnit;
-        }
-    }
-    LBVERB << "Launching " << getNodeID() << std::endl;
+        Strings args;
+        for( int i = 0; i < argc; ++i )
+            if( strcmp( argv[i], "--" ) != 0 )
+                args.push_back( argv[i] );
 
+        arg::store( arg::command_line_parser( args )
+                        .options( options ).allow_unregistered().run(), vm );
+        arg::notify( vm );
+    }
+    catch( const std::exception& e )
+    {
+        LBERROR << "Error in argument parsing: " << e.what() << std::endl;
+        return false;
+    }
+
+    const bool isClient = vm.count( "eq-client" );
+    std::string clientOpts;
+
+    if( vm.count( "eq-layout" ))
+        _impl->activeLayouts.push_back( vm["eq-layout"].as< std::string >( ));
+    if( vm.count( "eq-gpufilter" ))
+        _impl->gpuFilter = vm["eq-gpufilter"].as< std::string >();
+    if( vm.count( "eq-modelunit" ))
+        _impl->modelUnit = vm["eq-modelunit"].as< float >();
+
+    LBVERB << "Launching " << getNodeID() << std::endl;
     if( !Super::initLocal( argc, argv ))
         return false;
 
