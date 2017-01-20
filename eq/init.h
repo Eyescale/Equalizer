@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -90,6 +90,10 @@ EQ_API Config* getConfig( const int argc, char** argv );
  * and stops the local client node.
  */
 EQ_API void releaseConfig( Config* config );
+
+/** @return a help string for all parsed command line arguments. @version 2.1 */
+EQ_API std::string getHelp();
+
 }
 
 #endif // EQ_INIT_H

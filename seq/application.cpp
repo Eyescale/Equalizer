@@ -128,6 +128,11 @@ bool Application::init( const int argc, char** argv, co::Object* initData )
     return true;
 }
 
+std::string Application::getHelp()
+{
+    return eq::getHelp() + eq::Client::getHelp();
+}
+
 bool Application::run( co::Object* frameData )
 {
     return _impl->run( frameData );
