@@ -1,11 +1,10 @@
-# Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2017 Stefan Eilemann <eile@eyescale.ch>
 
 set(SEQUEL_PUBLIC_HEADERS
     application.h
     error.h
     objectType.h
     renderer.h
-    sequel.h
     types.h
     viewData.h
   )

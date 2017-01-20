@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,8 +21,21 @@
 #include <seq/api.h>
 
 #include <eq/types.h>
+
+#include <eq/util/shader.h>
+
 #include <eq/fabric/event.h>
 
+/**
+ * @namespace seq
+ * @brief Sequel - A simple interface to the Equalizer parallel rendering
+ *        framework.
+ *
+ * This namespace provides a simple programming interface to the Equalizer
+ * parallel rendering framework. Sequel allows rapid development of clustered
+ * multi-GPU applications while not sacrificing the flexibility and power of the
+ * underlying Equalizer framework.
+ */
 namespace seq
 {
 using namespace eq::util::shader;

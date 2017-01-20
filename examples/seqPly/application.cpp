@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -106,11 +106,9 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
         po::options_description options(
             std::string("seqPly - Sequel polygonal rendering example ")
             + eq::Version::getString( ));
-        bool showHelp(false);
 
         options.add_options()
-            ( "help,h", po::bool_switch(&showHelp)->default_value(false),
-              "produce help message" )
+            ( "help,h", "produce help message" )
             ( "model,m", po::value<std::string>(&userDefinedModelPath),
               "ply model file name" );
 
@@ -122,9 +120,9 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
         po::notify( variableMap );
 
         // Evaluate parsed command line options
-        if( showHelp )
+        if( variableMap.count( "help" ))
         {
-            LBWARN << options << std::endl;
+            std::cout << options << getHelp() << std::endl;
             ::exit( EXIT_SUCCESS );
         }
     }

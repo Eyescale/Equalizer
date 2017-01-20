@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
     const std::string& desc = EVolve::getHelp();
     po::options_description options( desc + " Version " +
-                                     eq::Version::getString( ));
+                                     eq::Version::getString(),
+                                     lunchbox::term::getSize().first );
     options.add_options()
         ( "help,h",       po::bool_switch(&showHelp)->default_value(false),
           "produce help message" )
@@ -133,7 +134,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     // Evaluate parsed command line options
     if( showHelp )
     {
-        std::cout << options << std::endl;
+        std::cout << options << std::endl
+                  << eq::getHelp() << eq::Client::getHelp() << std::endl;
         eq::exit(); // cppcheck-suppress unreachableCode
         ::exit( EXIT_SUCCESS );
     }

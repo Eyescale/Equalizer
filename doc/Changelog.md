@@ -3,6 +3,9 @@ Changelog {#Changelog}
 
 # git master
 
+* [611](https://github.com/Eyescale/Equalizer/pull/611)
+  Add eq::getHelp(), eq::Client::getHelp() and seq::Application::getHelp(),
+  improve help for all applications
 * [609](https://github.com/Eyescale/Equalizer/pull/609):
   Clean up magellan event API
 * [608](https://github.com/Eyescale/Equalizer/pull/608):

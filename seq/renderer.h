@@ -21,6 +21,8 @@
 #define EQSEQUEL_RENDERER_H
 
 #include <co/objectFactory.h> // interface
+
+#include <eq/util/objectManager.h> // imported type
 #include <seq/types.h>
 
 namespace seq
