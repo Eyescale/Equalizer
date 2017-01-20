@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2007, Maxim Makhinya
+ * Copyright (c) 2007-2017, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,9 +35,6 @@
 
 namespace po = boost::program_options;
 
-#define QUOTE( string ) STRINGIFY( string )
-#define STRINGIFY( foo ) #foo
-
 int main( int argc, char** argv )
 {
     eVolve::RawConverter::parseArguments( argc, argv );
@@ -61,8 +58,7 @@ int RawConverter::parseArguments( int argc, char** argv )
     try // command line parsing
     {
         po::options_description options(
-            std::string( "eVolveConverter - eVolve file converter " ) +
-            QUOTE( EQUALIZER_VERSION ) );
+            std::string( "eVolveConverter - eVolve file converter" ));
 
         bool showHelp(false);
         double scaleX = 1.0;

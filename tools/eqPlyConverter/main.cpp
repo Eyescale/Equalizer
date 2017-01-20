@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,7 +50,18 @@ int main( const int argc, char** argv )
 {
     eq::Strings filenames;
     for( int i=1; i < argc; ++i )
+    {
+        if( std::string( argv[ i ]) == "--help" )
+        {
+            std::cout << lunchbox::getFilename( argv[0] ) << " .ply files"
+                      << std::endl
+                      << "  Convert polygonal meshes to eqPly binary kd-Tree"
+                      << std::endl;
+            return EXIT_SUCCESS;
+        }
+
         filenames.push_back( argv[i] );
+    }
 
     while( !filenames.empty( ))
     {

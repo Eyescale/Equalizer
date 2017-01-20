@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,7 @@
 
 #include <co/global.h>
 #include <co/init.h>
+#include <lunchbox/file.h>
 
 #include <iostream>
 
@@ -36,6 +37,18 @@
 
 int main( const int argc, char** argv )
 {
+    for( int i=1; i < argc; ++i )
+    {
+        if( std::string( argv[ i ]) == "--help" )
+        {
+            std::cout << lunchbox::getFilename( argv[0] ) << " [config.eqc] "
+                      << std::endl
+                      << "  Standalone Equalizer server using the given "
+                      <<"configuration file or autoconfig" << std::endl;
+            return EXIT_SUCCESS;
+        }
+    }
+
     if( !eq::server::init( argc, argv ))
         return EXIT_FAILURE;
 
@@ -76,7 +89,7 @@ int main( const int argc, char** argv )
 
     if( !server->initLocal( argc, argv ))
     {
-        LBERROR << "Can't create listener for server, please consult log" 
+        LBERROR << "Can't create listener for server, please consult log"
                 << std::endl;
         return EXIT_FAILURE;
     }
@@ -89,4 +102,3 @@ int main( const int argc, char** argv )
 
     return eq::server::exit() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-

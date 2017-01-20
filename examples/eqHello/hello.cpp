@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,11 @@
  * rendering spinning quads around the origin.
  */
 
-#include <seq/sequel.h>
+#include <seq/seq.h>
+
+#include <eq/gl.h>
+#include <lunchbox/file.h>
+
 #include <stdlib.h>
 
 #include <eqHello/fragmentShader.glsl.h>
@@ -80,6 +84,21 @@ class Application : public seq::Application
     virtual ~Application() {}
 public:
     virtual seq::Renderer* createRenderer() { return new Renderer( *this ); }
+
+    bool init( int argc, char** argv, co::Object* initData ) final
+    {
+        for( int i=1; i < argc; ++i )
+        {
+            if( std::string( argv[ i ]) == "--help" )
+            {
+                std::cout << lunchbox::getFilename( argv[0] )
+                          << ": Equalizer Hello, world!" << std::endl
+                          << getHelp() << std::endl;
+                ::exit( EXIT_SUCCESS );
+            }
+        }
+        return seq::Application::init( argc, argv, initData );
+    }
 };
 typedef lunchbox::RefPtr< Application > ApplicationPtr;
 }

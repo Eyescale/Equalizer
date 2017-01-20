@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,7 +17,11 @@
 
 #define EQ_SYSTEM_INCLUDES
 #include <lunchbox/test.h>
-#include <seq/sequel.h>
+
+#include <seq/seq.h>
+
+#include <lunchbox/clock.h>
+
 #include <stdlib.h>
 
 #ifdef _WIN32

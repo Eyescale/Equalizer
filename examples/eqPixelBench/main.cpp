@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2014, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,17 @@ public:
 
 int main( int argc, char** argv )
 {
+    for( int i=1; i < argc; ++i )
+    {
+        if( std::string( argv[ i ]) == "--help" )
+        {
+            std::cout << lunchbox::getFilename( argv[0] )
+                      << ": benchmark CPU-GPU transfers" << std::endl
+                      << eq::getHelp() << eq::Client::getHelp() << std::endl;
+            return EXIT_SUCCESS;
+        }
+    }
+
     // 1. initialization of local node
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))

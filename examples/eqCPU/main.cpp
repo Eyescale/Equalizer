@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2015, Stefan.Eilemann@epfl.ch
+/* Copyright (c) 2009-2017, Stefan.Eilemann@epfl.ch
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,12 +29,14 @@
 #include "channel.h"
 #include "pipe.h"
 #include "window.h"
+
 #include <eq/client.h>
 #include <eq/config.h>
 #include <eq/init.h>
 #include <eq/nodeFactory.h>
 #include <eq/server.h>
 #include <eq/fabric/configParams.h>
+#include <lunchbox/file.h>
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -49,6 +51,17 @@ public:
 
 int main( int argc, char** argv )
 {
+    for( int i=1; i < argc; ++i )
+    {
+        if( std::string( argv[ i ]) == "--help" )
+        {
+            std::cout << lunchbox::getFilename( argv[0] )
+                      << ": minimal OpenGL-free Equalizer example " << std::endl
+                      << eq::getHelp() << eq::Client::getHelp() << std::endl;
+            return EXIT_SUCCESS;
+        }
+    }
+
     // 1. initialization of local node
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
