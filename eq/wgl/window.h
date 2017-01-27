@@ -20,6 +20,7 @@
 #define EQ_WGL_WINDOW_H
 
 #include <eq/glWindow.h>       // base class
+#include <eq/os.h>
 #include <eq/wgl/types.h>
 
 namespace eq
