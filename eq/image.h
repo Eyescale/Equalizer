@@ -393,7 +393,9 @@ private:
     Image& operator=( const Image& ) = delete;
     detail::Image* _impl;
 
+    EQ_API
     friend co::DataOStream& operator << ( co::DataOStream& os, const Image& );
+    EQ_API
     friend co::DataIStream& operator >> ( co::DataIStream& is, Image& );
 
     /** @return a unique key for the frame buffer attachment. */
