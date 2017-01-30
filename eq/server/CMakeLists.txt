@@ -2,9 +2,6 @@
 #                         Stefan Eilemann <eile@eyescale.ch>
 #                         Daniel Nachbaur <danielnachbaur@gmail.com>
 
-common_find_package(BISON REQUIRED)
-common_find_package(FLEX  REQUIRED)
-
 bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   COMPILE_FLAGS "-l -p eqLoader_")
 

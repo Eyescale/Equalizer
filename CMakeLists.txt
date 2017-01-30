@@ -54,8 +54,10 @@ endif()
 
 common_find_package(Boost REQUIRED COMPONENTS
   program_options filesystem system thread)
+common_find_package(BISON REQUIRED)
 common_find_package(Collage REQUIRED)
 common_find_package(Deflect)
+common_find_package(FLEX REQUIRED)
 common_find_package(GLStats)
 common_find_package(hwloc)
 common_find_package(hwsd)
