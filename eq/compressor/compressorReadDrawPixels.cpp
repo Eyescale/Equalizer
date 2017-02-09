@@ -1,7 +1,7 @@
 
-/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@eyescale.ch>
- *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
- *               2010-2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2010-2017, Cedric Stalder <cedric.stalder@eyescale.ch>
+ *                          Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,6 +23,7 @@
 #include <eq/util/texture.h>
 #include <eq/util/pixelBufferObject.h>
 #include <lunchbox/buffer.h>
+#include <unordered_map>
 
 #define glewGetContext() glewContext
 
@@ -34,7 +35,7 @@ namespace plugin
 namespace
 {
 int _warned = 0;
-static stde::hash_map< unsigned, unsigned > _depths;
+static std::unordered_map< unsigned, unsigned > _depths;
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \

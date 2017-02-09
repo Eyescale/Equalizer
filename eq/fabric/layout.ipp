@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,8 +29,6 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/objectICommand.h>
-
-#include <lunchbox/stdExt.h>
 
 namespace eq
 {

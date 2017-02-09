@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 
 #include "error.h"
 
-#include <lunchbox/stdExt.h>
+#include <unordered_map>
 
 namespace eq
 {
@@ -28,7 +28,7 @@ namespace fabric
 namespace
 {
 static std::string _empty;
-typedef stde::hash_map< uint32_t, std::string > ErrorHash;
+typedef std::unordered_map< uint32_t, std::string > ErrorHash;
 }
 
 namespace detail

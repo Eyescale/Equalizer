@@ -107,7 +107,7 @@ private:
         DataInTextureDimensions TD;     //!< Data dimensions within volume
     };
 
-    stde::hash_map< int32_t, VolumePart > _volumeHash; //!< 3D textures info
+    std::unordered_map< int32_t, VolumePart > _volumeHash; //!< 3D textures info
 
     bool         _headerLoaded;     //!< header is loaded successfully
     std::string  _filename;         //!< name of volume data file

@@ -26,6 +26,7 @@
 
 #include <co/global.h>
 
+#include <lunchbox/algorithm.h>
 #include <lunchbox/clock.h>
 #include <lunchbox/file.h>
 #include <pression/plugin.h>
@@ -97,7 +98,7 @@ int main( int argc, char **argv )
 
     eq::Strings images;
     eq::Strings candidates = lunchbox::searchDirectory( "images", ".*\\.rgb");
-    stde::usort( candidates ); // have a predictable order
+    lunchbox::usort( candidates ); // have a predictable order
     for( eq::StringsCIter i = candidates.begin(); i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
@@ -107,7 +108,7 @@ int main( int argc, char **argv )
     }
 
     candidates = lunchbox::searchDirectory( ".", "Result.*\\.rgb" );
-    stde::usort( candidates ); // have a predictable order
+    lunchbox::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {

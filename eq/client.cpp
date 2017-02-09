@@ -65,7 +65,7 @@ namespace eq
 {
 namespace
 {
-typedef stde::hash_set< Server* > ServerSet;
+typedef std::unordered_set< Server* > ServerSet;
 }
 
 /** @cond IGNORE */

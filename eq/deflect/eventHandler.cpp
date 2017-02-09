@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013-2016, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
+/* Copyright (c) 2013-2017, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,7 @@
 
 #include <eq/fabric/keyEvent.h>
 #include <eq/fabric/sizeEvent.h>
+#include <lunchbox/algorithm.h>
 #include <lunchbox/perThread.h>
 #include <deflect/Stream.h>
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -46,15 +46,15 @@ struct Object
     unsigned num;
 };
 
-typedef stde::hash_map< const void*, Object >     ObjectHash;
-typedef stde::hash_map< const void*, Texture* >   TextureHash;
-typedef stde::hash_map< const void*, FrameBufferObject* > FBOHash;
-typedef stde::hash_map< const void*, PixelBufferObject* > PBOHash;
-typedef stde::hash_map< const void*, util::BitmapFont* > FontHash;
-typedef stde::hash_map< const void*, Accum* > AccumHash;
-typedef stde::hash_map< const void*, pression::Uploader* > UploaderHash;
+typedef std::unordered_map< const void*, Object >     ObjectHash;
+typedef std::unordered_map< const void*, Texture* >   TextureHash;
+typedef std::unordered_map< const void*, FrameBufferObject* > FBOHash;
+typedef std::unordered_map< const void*, PixelBufferObject* > PBOHash;
+typedef std::unordered_map< const void*, util::BitmapFont* > FontHash;
+typedef std::unordered_map< const void*, Accum* > AccumHash;
+typedef std::unordered_map< const void*, pression::Uploader* > UploaderHash;
 #ifdef EQ_OM_TRACE_ALLOCATIONS
-typedef stde::hash_map< const void*, std::string > UploaderAllocs;
+typedef std::unordered_map< const void*, std::string > UploaderAllocs;
 #endif
 }
 

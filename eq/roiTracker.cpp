@@ -3,12 +3,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -34,8 +34,8 @@ ROITracker::ROITracker()
     , _lastStage( 0 )
 {
     _ticket   = reinterpret_cast< uint8_t* >( this );
-    _prvFrame = new stde::hash_map< uint32_t, Stage >;
-    _curFrame = new stde::hash_map< uint32_t, Stage >;
+    _prvFrame = new std::unordered_map< uint32_t, Stage >;
+    _curFrame = new std::unordered_map< uint32_t, Stage >;
 }
 
 
@@ -69,7 +69,7 @@ bool ROITracker::useROIFinder( const PixelViewport& pvp,
 
     if( _lastFrameID != frameID ) // new frame
     {
-        stde::hash_map< uint32_t, Stage >* tmp = _prvFrame;
+        std::unordered_map< uint32_t, Stage >* tmp = _prvFrame;
         _prvFrame = _curFrame;
         _curFrame = tmp;
         _curFrame->clear();
@@ -147,7 +147,7 @@ void ROITracker::updateDelay( const PixelViewports& pvps,
         area.lastSkip = 0;
     }else
     {
-        // disable ROI for next frames, if it was failing before, 
+        // disable ROI for next frames, if it was failing before,
         // increase number of frames to skip
         area.lastSkip = LB_MIN( area.lastSkip*2 + 1, 64 );
         area.skip     = area.lastSkip;
@@ -156,5 +156,3 @@ void ROITracker::updateDelay( const PixelViewports& pvps,
 }
 
 }
-
-

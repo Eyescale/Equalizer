@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric Stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -256,7 +256,7 @@ private:
     /** The list of descriptions on how this node is reachable. */
     co::ConnectionDescriptions _connectionDescriptions;
 
-    typedef stde::hash_map< uint32_t, co::uint128_t > FrameIDHash;
+    typedef std::unordered_map< uint32_t, co::uint128_t > FrameIDHash;
     /** The frame identifiers non-finished frames. */
     FrameIDHash _frameIDs;
 

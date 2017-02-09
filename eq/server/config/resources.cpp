@@ -232,7 +232,7 @@ bool Resources::discover( ServerPtr server, Config* config,
         return false;
     }
 
-    typedef stde::hash_map< uint128_t, Node* > NodeMap;
+    typedef std::unordered_map< uint128_t, Node* > NodeMap;
     NodeMap nodes;
 
     const uint32_t flags = params.getFlags();

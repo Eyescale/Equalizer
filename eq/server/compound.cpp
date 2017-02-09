@@ -40,8 +40,8 @@
 #include "observer.h"
 
 #include <eq/fabric/paths.h>
+#include <lunchbox/algorithm.h>
 #include <lunchbox/os.h>
-#include <lunchbox/stdExt.h>
 #include <boost/foreach.hpp>
 
 #include <algorithm>

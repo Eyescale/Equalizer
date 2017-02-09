@@ -48,8 +48,8 @@ namespace eq
 {
 namespace
 {
-typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
-typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
+typedef std::unordered_map< uint128_t, co::Barrier* > BarrierHash;
+typedef std::unordered_map< uint128_t, FrameDataPtr > FrameDataHash;
 typedef FrameDataHash::const_iterator FrameDataHashCIter;
 typedef FrameDataHash::iterator FrameDataHashIter;
 

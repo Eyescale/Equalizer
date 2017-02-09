@@ -84,10 +84,10 @@ enum State
     STATE_FAILED
 };
 
-typedef stde::hash_map< uint128_t, Frame* > FrameHash;
-typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
-typedef stde::hash_map< uint128_t, View* > ViewHash;
-typedef stde::hash_map< uint128_t, co::QueueSlave* > QueueHash;
+typedef std::unordered_map< uint128_t, Frame* > FrameHash;
+typedef std::unordered_map< uint128_t, FrameDataPtr > FrameDataHash;
+typedef std::unordered_map< uint128_t, View* > ViewHash;
+typedef std::unordered_map< uint128_t, co::QueueSlave* > QueueHash;
 typedef FrameHash::const_iterator FrameHashCIter;
 typedef FrameDataHash::const_iterator FrameDataHashCIter;
 typedef ViewHash::const_iterator ViewHashCIter;

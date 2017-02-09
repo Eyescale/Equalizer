@@ -66,9 +66,9 @@ namespace wgl
 namespace
 {
 #ifdef _MSC_VER
-    typedef stde::hash_map< HWND, EventHandler* > HandlerMap;
+    typedef std::unordered_map< HWND, EventHandler* > HandlerMap;
 #else // Cygwin does not want to instantiate a hash with key=HWND
-    typedef stde::hash_map< void*, EventHandler* > HandlerMap;
+    typedef std::unordered_map< void*, EventHandler* > HandlerMap;
 #endif
 
 lunchbox::PerThread< HandlerMap > _handlers;

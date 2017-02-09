@@ -31,6 +31,7 @@
 #include <eq/fabric/buttonEvent.h>
 #include <eq/fabric/keyEvent.h>
 #include <eq/fabric/sizeEvent.h>
+#include <lunchbox/algorithm.h>
 #include <lunchbox/lockable.h>
 #include <lunchbox/perThread.h>
 #include <lunchbox/scopedMutex.h>

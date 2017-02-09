@@ -498,13 +498,13 @@ public:
     static const std::string&  getIAttributeString( const IAttribute attr );
     //@}
 
-    typedef stde::hash_map<std::string, co::Barrier*> BarrierMap;
+    typedef std::unordered_map<std::string, co::Barrier*> BarrierMap;
     typedef BarrierMap::const_iterator BarrierMapCIter;
 
-    typedef stde::hash_map<std::string, Frame*> FrameMap;
+    typedef std::unordered_map<std::string, Frame*> FrameMap;
     typedef FrameMap::const_iterator FrameMapCIter;
 
-    typedef stde::hash_map<std::string, TileQueue*>   TileQueueMap;
+    typedef std::unordered_map<std::string, TileQueue*> TileQueueMap;
 
 private:
     //-------------------- Members --------------------
