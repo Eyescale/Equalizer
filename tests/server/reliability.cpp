@@ -122,7 +122,7 @@ int main( const int argc, char** argv )
     {
         lunchbox::Strings configs = lunchbox::searchDirectory( "reliability",
                                                                ".*\\.eqc" );
-        stde::usort( configs ); // have a predictable order
+        lunchbox::usort( configs ); // have a predictable order
 
         if( argc == 2 )
         {

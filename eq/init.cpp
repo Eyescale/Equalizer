@@ -154,7 +154,7 @@ bool exit()
 
 namespace
 {
-using Flags = stde::hash_map< std::string, uint32_t >;
+using Flags = std::unordered_map< std::string, uint32_t >;
 
 Flags _getConfigFlags()
 {

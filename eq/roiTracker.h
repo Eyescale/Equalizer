@@ -1,5 +1,5 @@
-/* Copyright (c)      2009, Maxim Makhinya
- *               2010-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2009-2017, Maxim Makhinya
+ *                          Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,10 +22,10 @@
 #include <eq/fabric/pixelViewport.h> // member
 
 #include <co/types.h>
-#include <lunchbox/stdExt.h>          // member
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 namespace eq
 {
@@ -97,10 +97,10 @@ private:
     /** Areas for different compositiong stages for current frame.
         This data if filled during useROIFinder calls, it uses
         useROIFinder parameters and _prvFrame data as refference */
-    stde::hash_map< uint32_t, Stage >* _curFrame;
+    std::unordered_map< uint32_t, Stage >* _curFrame;
 
     /** Areas for different compositiong stages for previous frame. */
-    stde::hash_map< uint32_t, Stage >* _prvFrame;
+    std::unordered_map< uint32_t, Stage >* _prvFrame;
 
     uint8_t* _ticket;//!< returned on getDelay, should match on updateDelay
     bool     _needsUpdate;//!< true after getDelay, false after updateDelay
@@ -112,4 +112,3 @@ private:
 }
 
 #endif //EQ_ROI_TRACKER_H
-

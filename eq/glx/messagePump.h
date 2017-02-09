@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +23,7 @@
 #include <eq/types.h>
 
 #include <co/connectionSet.h>  // member
-#include <lunchbox/stdExt.h>    // member
+#include <unordered_map>
 
 namespace eq
 {
@@ -68,7 +68,7 @@ public:
 
 private:
     co::ConnectionSet _connections; //!< Registered Display connections
-    stde::hash_map< void*, size_t > _referenced; //!< # of registrations
+    std::unordered_map< void*, size_t > _referenced; //!< # of registrations
 };
 
 }

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +34,6 @@
 #include <eq/fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <lunchbox/stdExt.h>
 
 namespace eq
 {
