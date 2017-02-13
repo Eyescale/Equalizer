@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
         // The code below is not thread-safe, since various STL containers are
         // used within the OSG classes. Since this is init-only, a simple global
         // lock is acceptable.
-        static lunchbox::Lock lock;
+        static std::mutex lock;
         lunchbox::ScopedMutex<> mutex( lock );
 
         _sceneView = new SceneView;

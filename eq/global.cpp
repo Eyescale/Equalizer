@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -23,7 +23,6 @@
 #ifdef EQUALIZER_USE_HWSD
 #  include <hwsd/nodeInfo.h>
 #endif
-#include <lunchbox/lock.h>
 
 namespace eq
 {
@@ -38,7 +37,7 @@ std::string Global::_config = "configs/config.eqc";
 #endif
 
 #ifdef AGL
-static lunchbox::Lock _carbonLock;
+static std::mutex _carbonLock;
 #endif
 
 void Global::setProgramName( const std::string& programName )
@@ -74,14 +73,14 @@ const std::string& Global::getConfig()
 void Global::enterCarbon()
 {
 #ifdef AGL
-    _carbonLock.set();
+    _carbonLock.lock();
 #endif
 }
 
 void Global::leaveCarbon()
 {
 #ifdef AGL
-    _carbonLock.unset();
+    _carbonLock.unlock();
 #endif
 }
 

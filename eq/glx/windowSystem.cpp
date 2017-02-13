@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2011 Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011-2014, Stefan Eilemann <eile@eyescale.ch>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2017 Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                         Stefan Eilemann <eile@eyescale.ch>
+ *                         Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -101,7 +101,7 @@ static class : WindowSystemIF
 
         // X11 font initialization is not thread safe. Using a mutex here is not
         // performance-critical
-        static lunchbox::Lock lock;
+        static std::mutex lock;
         lunchbox::ScopedMutex<> mutex( lock );
 
         XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( ));
