@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -204,7 +204,7 @@ public:
 
     /** The running per-frame statistic clocks. */
     std::deque< int64_t > frameTimes;
-    lunchbox::Lock frameTimeMutex;
+    std::mutex frameTimeMutex;
 
     /** The base time for the currently active frame. */
     int64_t frameTime;
@@ -1225,9 +1225,9 @@ bool Pipe::_cmdExitTransferThread( co::ICommand& )
 bool Pipe::_cmdFrameStartClock( co::ICommand& )
 {
     LBVERB << "start frame clock" << std::endl;
-    _impl->frameTimeMutex.set();
+    _impl->frameTimeMutex.lock();
     _impl->frameTimes.push_back( getConfig()->getTime( ));
-    _impl->frameTimeMutex.unset();
+    _impl->frameTimeMutex.unlock();
     return true;
 }
 
@@ -1248,12 +1248,12 @@ bool Pipe::_cmdFrameStart( co::ICommand& cmd )
     sync( version );
     const int64_t lastFrameTime = _impl->frameTime;
 
-    _impl->frameTimeMutex.set();
+    _impl->frameTimeMutex.lock();
     LBASSERT( !_impl->frameTimes.empty( ));
 
     _impl->frameTime = _impl->frameTimes.front();
     _impl->frameTimes.pop_front();
-    _impl->frameTimeMutex.unset();
+    _impl->frameTimeMutex.unlock();
 
     if( lastFrameTime > 0 )
     {

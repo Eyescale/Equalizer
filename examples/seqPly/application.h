@@ -66,7 +66,7 @@ private:
     FrameData _frameData;
     std::unique_ptr< Model > _model;
     std::unique_ptr< ModelDist > _modelDist;
-    lunchbox::Lock _modelLock;
+    std::mutex _modelLock;
 
     virtual ~Application() {}
     eq::Strings _parseArguments( const int argc, char** argv );

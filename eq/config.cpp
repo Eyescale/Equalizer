@@ -1012,7 +1012,7 @@ void Config::setupMessagePump( Pipe* pipe )
         return;
 
     // called from pipe threads - but only during init
-    static lunchbox::Lock _lock;
+    static std::mutex _lock;
     lunchbox::ScopedWrite mutex( _lock );
 
     if( _impl->eventQueue.getMessagePump( )) // Already done

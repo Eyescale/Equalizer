@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2012, Maxim Makhinya <maxmah@gmail.com>
- *               2012-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2017, Maxim Makhinya <maxmah@gmail.com>
+ *                          Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,6 @@
 
 #ifndef EQUTIL_PIXELBUFFEROBJECT_H
 #define EQUTIL_PIXELBUFFEROBJECT_H
-
-#include <lunchbox/lock.h>
 
 #include <eq/api.h>
 #include <eq/error.h> // enum

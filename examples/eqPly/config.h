@@ -104,7 +104,7 @@ private:
 
     Models     _models;
     ModelDists _modelDist;
-    lunchbox::Lock  _modelLock;
+    std::mutex  _modelLock;
 
     CameraAnimation _animation;
 

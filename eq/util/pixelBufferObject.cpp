@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2012, Maxim Makhinya <maxmah@gmail.com>
- *               2012-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012-2017, Maxim Makhinya <maxmah@gmail.com>
+ *                          Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,7 +33,7 @@ class PixelBufferObject
 public:
     PixelBufferObject( const GLEWContext* glewContext,
                        const bool threadSafe )
-        : lock_( threadSafe ? new lunchbox::Lock : 0 )
+        : lock_( threadSafe ? new std::mutex : 0 )
         , pboID( 0 )
         , size( 0 )
         , _glewContext( glewContext )
@@ -159,10 +159,10 @@ public:
         EQ_GL_CALL( glBindBufferARB( _getName(), 0 ));
     }
 
-    void lock()   const { if( lock_ ) lock_->set();   }
-    void unlock() const { if( lock_ ) lock_->unset(); }
+    void lock()   const { if( lock_ ) lock_->lock();   }
+    void unlock() const { if( lock_ ) lock_->unlock(); }
 
-    mutable lunchbox::Lock* lock_;
+    mutable std::mutex* lock_;
     GLuint  pboID; //!< the PBO GL name
     size_t size;  //!< size of the allocated PBO buffer
 

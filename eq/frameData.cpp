@@ -64,7 +64,7 @@ public:
 
     Images images;
     Images imageCache;
-    lunchbox::Lock imageCacheLock;
+    std::mutex imageCacheLock;
 
     ROIFinder roiFinder;
 
@@ -162,10 +162,10 @@ void FrameData::applyInstanceData( co::DataIStream& is )
 
 void FrameData::clear()
 {
-    _impl->imageCacheLock.set();
+    _impl->imageCacheLock.lock();
     _impl->imageCache.insert( _impl->imageCache.end(), _impl->images.begin(),
                               _impl->images.end( ));
-    _impl->imageCacheLock.unset();
+    _impl->imageCacheLock.unlock();
     _impl->images.clear();
 }
 
@@ -213,18 +213,18 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
                                const bool setQuality_ )
 {
     Image* image;
-    _impl->imageCacheLock.set();
+    _impl->imageCacheLock.lock();
 
     if( _impl->imageCache.empty( ))
     {
-        _impl->imageCacheLock.unset();
+        _impl->imageCacheLock.unlock();
         image = new Image;
     }
     else
     {
         image = _impl->imageCache.back();
         _impl->imageCache.pop_back();
-        _impl->imageCacheLock.unset();
+        _impl->imageCacheLock.unlock();
 
         image->reset();
     }
