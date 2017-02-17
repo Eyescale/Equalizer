@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Pfeifer <daniel@pfeifer-mail.de>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -28,12 +28,18 @@
 
 namespace eq
 {
-static WindowSystemIF* _stack = 0;
+namespace
+{
+    std::vector< WindowSystemIF* >& _getRegistry()
+    {
+        static std::vector< WindowSystemIF* > registry;
+        return registry;
+    }
+}
 
 WindowSystemIF::WindowSystemIF()
-        : _next( _stack )
 {
-    _stack = this;
+    _getRegistry().push_back( this );
 }
 
 uint32_t WindowSystemIF::_setupLists( util::ObjectManager& gl, const void* key,
@@ -60,9 +66,9 @@ WindowSystem::WindowSystem( const std::string& type )
 
 void WindowSystem::_chooseImpl( const std::string& name )
 {
-    LBASSERTINFO( _stack, "no window system available" );
+    LBASSERTINFO( !_getRegistry().empty(), "no window system available" );
 
-    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    for( auto ws : _getRegistry() )
     {
         if( ws->getName() == name )
         {
@@ -71,11 +77,10 @@ void WindowSystem::_chooseImpl( const std::string& name )
         }
     }
 
-    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    for( auto ws : _getRegistry() )
         if( !ws->getName().empty( ))
             _impl = ws;
-    if( !_impl )
-        _impl = _stack;
+    _impl = _getRegistry().back();
 
     LBWARN << "Window system '" << name << "' not supported, " << "using "
            << _impl->getName() << " instead." << std::endl;
@@ -83,7 +88,7 @@ void WindowSystem::_chooseImpl( const std::string& name )
 
 bool WindowSystem::supports( std::string const& type )
 {
-    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    for( auto ws : _getRegistry() )
     {
         if( ws->getName() == type )
             return true;
@@ -94,13 +99,13 @@ bool WindowSystem::supports( std::string const& type )
 
 void WindowSystem::configInit( Node* node )
 {
-    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    for( auto ws : _getRegistry() )
         ws->configInit( node );
 }
 
 void WindowSystem::configExit( Node* node )
 {
-    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    for( auto ws : _getRegistry() )
         ws->configExit(node );
 }
 
