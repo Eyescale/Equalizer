@@ -95,7 +95,6 @@ protected:
     virtual bool hasMainThreadEvents() const { return false; }
 
 private:
-    WindowSystemIF* _next;
     friend class WindowSystem;
 };
 

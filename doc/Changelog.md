@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [619](https://github.com/Eyescale/Equalizer/pull/619)
+  Fix running from an installed version
 * [611](https://github.com/Eyescale/Equalizer/pull/611)
   Add eq::getHelp(), eq::Client::getHelp() and seq::Application::getHelp(),
   improve help for all applications
