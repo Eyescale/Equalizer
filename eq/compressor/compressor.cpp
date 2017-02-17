@@ -80,6 +80,8 @@ void Compressor::registerEngine( const Compressor::Functions& functions )
 
 size_t EqCompressorGetNumCompressors()
 {
+    if( !eq::plugin::_functions )
+        return 0;
     return eq::plugin::_functions->size();
 }
 
