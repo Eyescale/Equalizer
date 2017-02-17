@@ -81,6 +81,7 @@ const char EQ_CONFIG_PREFIXES[] = "eq-config-prefixes";
 const char EQ_RENDER_CLIENT[] = "eq-render-client";
 
 static bool _parseArguments( const int argc, char** argv );
+static void _initPlugins();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
@@ -129,6 +130,7 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
     if( workDir.empty( ))
         Global::setWorkDir( lunchbox::getWorkDir( ));
 
+    _initPlugins();
     return fabric::init( argc, argv );
 }
 
@@ -277,6 +279,23 @@ bool _parseArguments( const int argc, char** argv )
     }
 
     return true;
+}
+
+void _initPlugins()
+{
+    pression::PluginRegistry& plugins = pression::PluginRegistry::getInstance();
+
+    plugins.loadDirectory( lunchbox::getRootPath() +
+                           "/share/Equalizer/plugins" ); // install dir
+    plugins.loadDirectory( "/usr/share/Equalizer/plugins" );
+    plugins.loadDirectory( "/usr/local/share/Equalizer/plugins" );
+    plugins.loadDirectory( ".eqPlugins" );
+    plugins.loadDirectory( "/opt/local/lib" ); // MacPorts
+    plugins.loadDirectory( "/usr/local/lib" ); // Homebrew
+
+    const char* home = getenv( "HOME" );
+    if( home )
+        plugins.loadDirectory( std::string( home ) + "/.eqPlugins" );
 }
 
 Config* getConfig( const int argc, char** argv )

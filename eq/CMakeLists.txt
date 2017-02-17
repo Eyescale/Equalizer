@@ -2,11 +2,9 @@
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
 
-install(FILES DESTINATION include/eq COMPONENT dev)
+list(APPEND CPPCHECK_EXTRA_ARGS -DEQ_API=)
 
-list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZER_DSO_NAME=foo -DEQ_API=)
-
-add_definitions(-DEQ_PLUGIN_BUILD -DBOOST_PROGRAM_OPTIONS_DYN_LINK)
+add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
 set(EQUALIZER_PUBLIC_HEADERS
   agl/eventHandler.h
@@ -21,9 +19,6 @@ set(EQUALIZER_PUBLIC_HEADERS
   client.h
   commandQueue.h
   compositor.h
-  compressor/compressor.h
-  compressor/compressorReadDrawPixels.h
-  compressor/compressorYUV.h
   config.h
   configStatistics.h
   eq.h
@@ -151,9 +146,6 @@ set(EQUALIZER_SOURCES
   windowStatistics.cpp
   windowSystem.cpp
   worker.cpp
-  compressor/compressor.cpp
-  compressor/compressorReadDrawPixels.cpp
-  compressor/compressorYUV.cpp
   )
 
 set(EQUALIZER_LINK_LIBRARIES
@@ -275,8 +267,8 @@ target_compile_definitions(Equalizer PRIVATE EQUALIZERFABRIC_SHARED_INL)
 if(CMAKE_COMPILER_IS_CLANG)
   target_compile_options(Equalizer PUBLIC -Wno-overloaded-virtual)
 endif()
-add_dependencies(Equalizer EqualizerServer) # dlopen'ed
 
+add_subdirectory(compressor)
 add_subdirectory(fabric)
 add_subdirectory(server)
 add_subdirectory(admin)
