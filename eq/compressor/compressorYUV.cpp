@@ -138,13 +138,23 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 
     if ( _fbo )
     {
-        LBCHECK( _fbo->resize( outDims[1], outDims[3] ));
+        const auto error = _fbo->resize( outDims[1], outDims[3] );
+        if( error != ERROR_NONE )
+        {
+            LBERROR << "FBO resize failed: " << error << std::endl;
+            return;
+        }
         _fbo->bind();
     }
     else
     {
         _fbo = new util::FrameBufferObject( glewContext );
-        LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
+        const auto error = _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 );
+        if( error != ERROR_NONE )
+        {
+            LBERROR << "FBO init failed: " << error << std::endl;
+            return;
+        }
     }
 
     _texture->bind();
