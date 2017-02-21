@@ -48,7 +48,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
         // used within the OSG classes. Since this is init-only, a simple global
         // lock is acceptable.
         static std::mutex lock;
-        lunchbox::ScopedMutex<> mutex( lock );
+        lunchbox::ScopedWrite mutex( lock );
 
         _sceneView = new SceneView;
         _sceneView->setDefaults( SceneView::STANDARD_SETTINGS );

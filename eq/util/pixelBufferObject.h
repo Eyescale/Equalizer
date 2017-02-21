@@ -34,8 +34,8 @@ namespace detail { class PixelBufferObject; }
  * If multiple PBOs of the same read/write type are used in the same glContext
  * they should be bound/mapped and unbound/unmapped sequentially.
  *
- * If thread-safe mode is used, buffer binding and mapping is locked until the
- * corresponding unbind/unmap happened.
+ * Buffer binding and mapping is locked until the corresponding unbind/unmap
+ * happened, making this class thread-safe to use.
  *
  * On correct PBO usage see: http://www.songho.ca/opengl/gl_pbo.html
  */
@@ -49,8 +49,7 @@ public:
      * @param threadSafe true if PBO shall use locks to synchronize access.
      * @version 1.3
      */
-    EQ_API PixelBufferObject( const GLEWContext* glewContext,
-                              const bool threadSafe );
+    EQ_API PixelBufferObject( const GLEWContext* glewContext );
 
     /** Destruct the pixel buffer object */
     EQ_API virtual ~PixelBufferObject();
@@ -105,9 +104,6 @@ public:
 
     /** @return true if the pbo is intialized. @version 1.3 */
     EQ_API bool isInitialized() const;
-
-    /** @return true if the access to pbo is blocking. @version 1.3 */
-    EQ_API bool isThreadSafe() const;
 
     /** @return OpenGL ID @version 1.3.2 */
     unsigned getID() const;

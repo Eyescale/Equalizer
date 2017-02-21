@@ -102,7 +102,7 @@ static class : WindowSystemIF
         // X11 font initialization is not thread safe. Using a mutex here is not
         // performance-critical
         static std::mutex lock;
-        lunchbox::ScopedMutex<> mutex( lock );
+        lunchbox::ScopedWrite mutex( lock );
 
         XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( ));
         if( !fontStruct )

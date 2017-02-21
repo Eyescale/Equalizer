@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -142,10 +142,8 @@ public:
 
     EQ_API bool               supportsEqPixelBufferObject() const;
     EQ_API PixelBufferObject* getEqPixelBufferObject(const void* key) const;
-    EQ_API PixelBufferObject* newEqPixelBufferObject( const void* key,
-                                                      const bool threadSafe );
-    EQ_API PixelBufferObject* obtainEqPixelBufferObject( const void* key,
-                                                         const bool threadSafe );
+    EQ_API PixelBufferObject* newEqPixelBufferObject( const void* key );
+    EQ_API PixelBufferObject* obtainEqPixelBufferObject( const void* key );
     EQ_API void               deleteEqPixelBufferObject( const void* key );
 
     EQ_API util::BitmapFont* getEqBitmapFont( const void* key ) const;

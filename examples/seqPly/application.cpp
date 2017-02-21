@@ -192,7 +192,7 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
     lunchbox::memoryBarrier();
 
     // Accessed concurrently from render threads
-    lunchbox::ScopedMutex<> mutex( _modelLock );
+    lunchbox::ScopedWrite mutex( _modelLock );
     if( _model )
         return _model.get();
 

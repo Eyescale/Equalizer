@@ -447,9 +447,8 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
 bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
                                          const eq_uint64_t size )
 {
-    // create thread-safe PBO
     if( !_pbo )
-        _pbo = new util::PixelBufferObject( glewContext, true );
+        _pbo = new util::PixelBufferObject( glewContext );
 
     const Error error = _pbo->setup( size, GL_READ_ONLY_ARB );
     if( !error )
