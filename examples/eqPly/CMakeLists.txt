@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2016 Daniel Pfeifer <daniel@pfeifer-mail.de>
+# Copyright (c) 2010-2017 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #                         Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
@@ -46,6 +46,7 @@ set(EQPLY_SOURCES
 set(EQPLY_SHADERS vertexShader.glsl fragmentShader.glsl)
 set(EQPLY_DATA logo.rgb)
 common_application(eqPly GUI EXAMPLE)
+common_smoke_test(eqPly -n 1)
 
 # create and install .bin files
 function(INSTALL_PLY IN OUT) # + command

@@ -897,8 +897,7 @@ PixelBufferObject* ObjectManager::getEqPixelBufferObject( const void* key )
     return i->second;
 }
 
-PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key,
-                                                         const bool threadSafe )
+PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key )
 {
     if( _impl->eqPixelBufferObjects.find( key ) !=
         _impl->eqPixelBufferObjects.end( ))
@@ -909,25 +908,17 @@ PixelBufferObject* ObjectManager::newEqPixelBufferObject( const void* key,
     }
 
     PixelBufferObject* pixelBufferObject =
-        new PixelBufferObject( &_impl->glewContext, threadSafe );
+        new PixelBufferObject( &_impl->glewContext );
     _impl->eqPixelBufferObjects[ key ] = pixelBufferObject;
     return pixelBufferObject;
 }
 
-PixelBufferObject* ObjectManager::obtainEqPixelBufferObject( const void* key,
-                                                         const bool threadSafe )
+PixelBufferObject* ObjectManager::obtainEqPixelBufferObject( const void* key )
 {
     PixelBufferObject* pixelBufferObject = getEqPixelBufferObject( key );
     if( pixelBufferObject )
-    {
-        if( pixelBufferObject->isThreadSafe() != threadSafe )
-        {
-            LBERROR << "Wrong sharing option requested!" << std::endl;
-            return 0;
-        }
         return pixelBufferObject;
-    }
-    return newEqPixelBufferObject( key, threadSafe );
+    return newEqPixelBufferObject( key );
 }
 
 void ObjectManager::deleteEqPixelBufferObject( const void* key )

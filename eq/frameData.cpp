@@ -376,7 +376,7 @@ void FrameData::_setReady( const uint64_t version )
                   "v" << _impl->version << " ready " << _impl->readyVersion
                       << " new " << version );
 
-    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _impl->listeners );
+    lunchbox::ScopedFastWrite mutex( _impl->listeners );
     if( _impl->readyVersion >= version )
         return;
 

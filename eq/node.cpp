@@ -212,7 +212,7 @@ uint32_t Node::getFinishedFrame() const
 
 co::Barrier* Node::getBarrier( const co::ObjectVersion& barrier )
 {
-    lunchbox::ScopedMutex<> mutex( _impl->barriers );
+    lunchbox::ScopedWrite mutex( _impl->barriers );
     co::Barrier* netBarrier = _impl->barriers.data[ barrier.identifier ];
 
     if( netBarrier )
@@ -500,7 +500,7 @@ void Node::_flushObjects()
 {
     ClientPtr client = getClient();
     {
-        lunchbox::ScopedMutex<> mutex( _impl->barriers );
+        lunchbox::ScopedWrite mutex( _impl->barriers );
         for( BarrierHash::const_iterator i = _impl->barriers->begin();
              i != _impl->barriers->end(); ++i )
         {
@@ -509,7 +509,7 @@ void Node::_flushObjects()
         _impl->barriers->clear();
     }
 
-    lunchbox::ScopedMutex<> mutex( _impl->frameDatas );
+    lunchbox::ScopedWrite mutex( _impl->frameDatas );
     for( FrameDataHashCIter i = _impl->frameDatas->begin();
          i != _impl->frameDatas->end(); ++i )
     {

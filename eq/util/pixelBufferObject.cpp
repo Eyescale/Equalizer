@@ -31,10 +31,8 @@ namespace detail
 class PixelBufferObject
 {
 public:
-    PixelBufferObject( const GLEWContext* glewContext,
-                       const bool threadSafe )
-        : lock_( threadSafe ? new std::mutex : 0 )
-        , pboID( 0 )
+    PixelBufferObject( const GLEWContext* glewContext )
+        : pboID( 0 )
         , size( 0 )
         , _glewContext( glewContext )
         , _type( 0 )
@@ -47,8 +45,6 @@ public:
         LBASSERTINFO( !isInitialized(), (void*)this << backtrace );
         if( isInitialized( ))
             LBWARN << "PBO was not freed" << std::endl;
-
-        delete lock_;
     }
 
     const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -159,12 +155,9 @@ public:
         EQ_GL_CALL( glBindBufferARB( _getName(), 0 ));
     }
 
-    void lock()   const { if( lock_ ) lock_->lock();   }
-    void unlock() const { if( lock_ ) lock_->unlock(); }
-
-    mutable std::mutex* lock_;
     GLuint  pboID; //!< the PBO GL name
     size_t size;  //!< size of the allocated PBO buffer
+    mutable std::mutex lock;
 
 private:
     const GLEWContext* const _glewContext;
@@ -178,9 +171,8 @@ private:
 };
 }
 
-PixelBufferObject::PixelBufferObject( const GLEWContext* glewContext,
-                                      const bool threadSafe )
-    : _impl( new detail::PixelBufferObject( glewContext, threadSafe ))
+PixelBufferObject::PixelBufferObject( const GLEWContext* glewContext )
+    : _impl( new detail::PixelBufferObject( glewContext ))
 {
 }
 
@@ -191,44 +183,44 @@ PixelBufferObject::~PixelBufferObject()
 
 Error PixelBufferObject::setup( const size_t size, const unsigned type )
 {
-    lunchbox::ScopedWrite mutex( _impl->lock_ );
+    lunchbox::ScopedWrite mutex( _impl->lock );
     return _impl->setup( size, type );
 }
 
 void PixelBufferObject::destroy()
 {
-    lunchbox::ScopedWrite mutex( _impl->lock_ );
+    lunchbox::ScopedWrite mutex( _impl->lock );
     _impl->destroy();
 }
 
 const void* PixelBufferObject::mapRead() const
 {
-    _impl->lock();
+    _impl->lock.lock();
     return _impl->mapRead();
 }
 
 void* PixelBufferObject::mapWrite()
 {
-    _impl->lock();
+    _impl->lock.lock();
     return _impl->mapWrite();
 }
 
 void PixelBufferObject::unmap() const
 {
     _impl->unmap();
-    _impl->unlock();
+    _impl->lock.unlock();
 }
 
 bool PixelBufferObject::bind() const
 {
-    _impl->lock();
+    _impl->lock.lock();
     return _impl->bind();
 }
 
 void PixelBufferObject::unbind() const
 {
     _impl->unbind();
-    _impl->unlock();
+    _impl->lock.unlock();
 }
 
 size_t PixelBufferObject::getSize() const
@@ -239,11 +231,6 @@ size_t PixelBufferObject::getSize() const
 bool PixelBufferObject::isInitialized() const
 {
     return _impl->isInitialized();
-}
-
-bool PixelBufferObject::isThreadSafe() const
-{
-    return _impl->lock_ != 0;
 }
 
 GLuint PixelBufferObject::getID() const
