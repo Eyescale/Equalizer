@@ -46,7 +46,11 @@ set(EQPLY_SOURCES
 set(EQPLY_SHADERS vertexShader.glsl fragmentShader.glsl)
 set(EQPLY_DATA logo.rgb)
 common_application(eqPly GUI EXAMPLE)
-common_smoke_test(eqPly -n 1)
+if(EQUALIZER_USE_QT5WIDGETS)
+  common_smoke_test(eqPly -n 1 -w Qt)
+else()
+  common_smoke_test(eqPly -n 1)
+endif()
 
 # create and install .bin files
 function(INSTALL_PLY IN OUT) # + command
@@ -60,6 +64,7 @@ function(INSTALL_PLY IN OUT) # + command
     )
   add_custom_target(${OUT} ALL DEPENDS ${BIN_FILE})
   install(FILES ${OUT} DESTINATION share/Equalizer/data COMPONENT apps)
+  add_dependencies(${PROJECT_NAME}-install ${OUT})
 endfunction()
 
 set(PLY_FILES rockerArm.ply screwdriver.ply)
