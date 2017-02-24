@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011-2014, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                          Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#pragma once
+
 #include <eq/defines.h>
 #include <eq/os.h>
 
-#ifdef AGL
 // HACK: Get rid of deprecated warning for aglUseFont
 #include <AvailabilityMacros.h>
 #undef DEPRECATED_ATTRIBUTE
@@ -44,15 +45,17 @@ namespace eq
 {
 namespace agl
 {
-static class : WindowSystemIF
+class WindowSystem : public WindowSystemIF
 {
+public:
+    WindowSystem() {}
+
+private:
     std::string getName() const final { return "AGL"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
     {
-        LBDEBUG << "Using agl::Window" << std::endl;
-
         const eq::Pipe* pipe = window->getPipe();
         const Pipe* aglPipe = dynamic_cast<const Pipe*>( pipe->getSystemPipe());
         LBASSERT( pipe->getSystemPipe( ));
@@ -77,7 +80,6 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
     {
-        LBDEBUG << "Using agl::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
@@ -144,8 +146,7 @@ static class : WindowSystemIF
         EventHandler::exitMagellan( node );
 #endif
     }
-} _aglFactory;
+};
 
 }
 }
-#endif // AGL

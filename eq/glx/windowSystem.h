@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#pragma once
+
 #include "../windowSystem.h"
 
 #include "window.h"
@@ -36,14 +38,17 @@ namespace eq
 namespace glx
 {
 
-static class : WindowSystemIF
+class WindowSystem : public WindowSystemIF
 {
+public:
+    WindowSystem() {}
+
+private:
     std::string getName() const final { return "GLX"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
     {
-        LBDEBUG << "Using glx::Window" << std::endl;
         Display* xDisplay = 0;
         GLXEWContext* glxewContext = 0;
         eq::Pipe* pipe = window->getPipe();
@@ -67,7 +72,6 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
     {
-        LBDEBUG << "Using glx::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
@@ -120,8 +124,7 @@ static class : WindowSystemIF
         XFreeFont( display, fontStruct );
         return true;
     }
-
-} _glXFactory;
+};
 
 }
 }

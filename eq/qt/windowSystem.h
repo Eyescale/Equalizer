@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,8 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_QT_WINDOWSYSTEM_H
-#define EQ_QT_WINDOWSYSTEM_H
+#pragma once
 
 #include "types.h"
 #include <eq/windowSystem.h> // base class
@@ -54,5 +53,3 @@ private:
 
 }
 }
-
-#endif

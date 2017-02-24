@@ -1,5 +1,5 @@
-/* Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011-2013, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                          Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -14,6 +14,8 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+#pragma once
 
 #include "../windowSystem.h"
 
@@ -35,15 +37,17 @@ namespace eq
 namespace wgl
 {
 
-static class : WindowSystemIF
+class WindowSystem : public WindowSystemIF
 {
+public:
+    WindowSystem() {}
+
+private:
     std::string getName() const final { return "WGL"; }
 
     eq::SystemWindow* createWindow( eq::Window* window,
                                     const WindowSettings& settings ) final
     {
-        LBDEBUG << "Using wgl::Window" << std::endl;
-
         eq::Pipe* pipe = window->getPipe();
         Pipe* wglPipe = dynamic_cast< Pipe* >( pipe->getSystemPipe( ));
         return new Window( *window, settings, *wglPipe );
@@ -51,7 +55,6 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) final
     {
-        LBDEBUG << "Using wgl::Pipe" << std::endl;
         return new Pipe( pipe );
     }
 
@@ -125,7 +128,7 @@ static class : WindowSystemIF
         EventHandler::exitMagellan( node );
 #endif
     }
-} _wglFactory;
+};
 
 }
 }
