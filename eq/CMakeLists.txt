@@ -85,12 +85,16 @@ set(EQUALIZER_PUBLIC_HEADERS
   )
 
 set(EQUALIZER_HEADERS
+  agl/windowSystem.h
   detail/fileFrameWriter.h
   detail/statsRenderer.h
   exitVisitor.h
+  glx/windowSystem.h
   half.h
   initVisitor.h
+  qt/windowSystem.h
   transferFinder.h
+  wgl/windowSystem.h
   )
 
 set(EQUALIZER_SOURCES
@@ -179,7 +183,6 @@ if(EQ_AGL_USED)
     agl/messagePump.cpp
     agl/window.cpp
     agl/pipe.cpp
-    agl/windowSystem.cpp
     )
   list(APPEND EQUALIZER_SOURCES ${AGL_SOURCES})
   set_source_files_properties(${AGL_SOURCES}
@@ -195,7 +198,6 @@ if(EQ_GLX_USED)
     glx/messagePump.cpp
     glx/pipe.cpp
     glx/window.cpp
-    glx/windowSystem.cpp
     glx/X11Connection.h
     glx/types.cpp
     x11/window.cpp
@@ -209,7 +211,6 @@ if(WIN32)
     wgl/messagePump.cpp
     wgl/window.cpp
     wgl/pipe.cpp
-    wgl/windowSystem.cpp
     )
 endif()
 

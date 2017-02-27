@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2014-2016, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2014-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Juan Hernando <jhernando@fi.upm.es>
  *                          Stefan.Eilemann@epfl.ch
  *
@@ -66,8 +66,6 @@ std::string WindowSystem::getName() const
 eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
                                               const WindowSettings& settings )
 {
-    LBDEBUG << "Using qt::Window" << std::endl;
-
     // QWindow creation/destruction must happen in the app thread; unblock main
     // thread to give QApplication the chance to process the createImpl signal.
     // Note that even a QOffscreenSurface is backed by a QWindow on some
@@ -75,6 +73,7 @@ eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
     window->getClient()->interruptMainThread();
     qt::Window* qtWindow = createImpl( *window, settings,
                                        QThread::currentThread( ));
+    LBASSERT( qtWindow );
     qtWindow->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
                       _factory, SLOT( onDestroyImpl( detail::Window* )));
     return qtWindow;
@@ -97,8 +96,6 @@ bool WindowSystem::setupFont( util::ObjectManager& gl LB_UNUSED,
 {
     return false;
 }
-
-static WindowSystem _instance;
 
 }
 }

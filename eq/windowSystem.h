@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *                    2014, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -45,7 +45,7 @@ public:
 
 protected:
     /** Create a new window system instance. @version 1.6 */
-    EQ_API WindowSystemIF();
+    WindowSystemIF() {}
 
     /** @internal */
     static uint32_t _setupLists( util::ObjectManager& gl, const void* key,
@@ -98,6 +98,8 @@ private:
     friend class WindowSystem;
 };
 
+using WindowSystemImpl = std::shared_ptr< WindowSystemIF >;
+
 /** @internal
  * Access to the instantiated window systems.
  * @sa Pipe::getWindowSystem()
@@ -125,10 +127,16 @@ public:
     EQ_API bool operator == ( const WindowSystem& other ) const;
     EQ_API bool operator != ( const WindowSystem& other ) const;
 
+    /** Register a new supported window system */
+    static void add( WindowSystemImpl impl );
+
+    /** Clear all window system registrations */
+    static void clear();
+
 private:
     WindowSystem();
-    WindowSystemIF* _impl;
-    void _chooseImpl( const std::string& name );
+    WindowSystemImpl _impl;
+    WindowSystemImpl _chooseImpl( const std::string& name );
 };
 
 /** Print the window system name to the given output stream. @version 1.0 */

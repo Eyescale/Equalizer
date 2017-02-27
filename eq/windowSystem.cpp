@@ -30,16 +30,11 @@ namespace eq
 {
 namespace
 {
-    std::vector< WindowSystemIF* >& _getRegistry()
-    {
-        static std::vector< WindowSystemIF* > registry;
-        return registry;
-    }
-}
-
-WindowSystemIF::WindowSystemIF()
+std::vector< WindowSystemImpl >& _getRegistry()
 {
-    _getRegistry().push_back( this );
+    static std::vector< WindowSystemImpl > registry;
+    return registry;
+}
 }
 
 uint32_t WindowSystemIF::_setupLists( util::ObjectManager& gl, const void* key,
@@ -60,39 +55,41 @@ uint32_t WindowSystemIF::_setupLists( util::ObjectManager& gl, const void* key,
 }
 
 WindowSystem::WindowSystem( const std::string& type )
+    : _impl( _chooseImpl( type ))
 {
-    _chooseImpl( type );
+    LBINFO << "Using " << _impl->getName() << " window system" << std::endl;
 }
 
-void WindowSystem::_chooseImpl( const std::string& name )
+void WindowSystem::add( WindowSystemImpl impl )
+{
+    _getRegistry().push_back( impl );
+}
+
+void WindowSystem::clear()
+{
+    _getRegistry().clear();
+}
+
+WindowSystemImpl WindowSystem::_chooseImpl( const std::string& name )
 {
     LBASSERTINFO( !_getRegistry().empty(), "no window system available" );
 
-    for( auto ws : _getRegistry() )
-    {
+    for( auto ws : _getRegistry( ))
         if( ws->getName() == name )
-        {
-            _impl = ws;
-            return;
-        }
-    }
+            return ws;
 
-    for( auto ws : _getRegistry() )
+    for( auto ws : _getRegistry( ))
         if( !ws->getName().empty( ))
-            _impl = ws;
-    _impl = _getRegistry().back();
+            return ws;
 
-    LBWARN << "Window system '" << name << "' not supported, " << "using "
-           << _impl->getName() << " instead." << std::endl;
+    return _getRegistry().back();
 }
 
 bool WindowSystem::supports( std::string const& type )
 {
     for( auto ws : _getRegistry() )
-    {
         if( ws->getName() == type )
             return true;
-    }
 
     return false;
 }

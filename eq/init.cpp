@@ -30,6 +30,15 @@
 #include "nodeFactory.h"
 #include "os.h"
 #include "server.h"
+#ifdef AGL
+#  include "agl/windowSystem.h"
+#endif
+#ifdef GLX
+#  include "glx/windowSystem.h"
+#endif
+#ifdef WGL
+#  include "wgl/windowSystem.h"
+#endif
 
 #include <eq/version.h>
 #include <eq/fabric/configParams.h>
@@ -68,7 +77,6 @@ namespace eq
 namespace
 {
 static lunchbox::a_int32_t _initialized;
-static std::vector< WindowSystemIF* > _windowSystems;
 }
 
 const char EQ_HELP[] = "eq-help";
@@ -109,14 +117,18 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 
 #ifdef AGL
     GetCurrentEventQueue();
+    WindowSystem::add( WindowSystemImpl( new agl::WindowSystem ));
 #endif
 #ifdef GLX
     ::XInitThreads();
+    WindowSystem::add( WindowSystemImpl( new glx::WindowSystem ));
 #endif
-
+#ifdef WGL
+    WindowSystem::add( WindowSystemImpl( new wgl::WindowSystem ));
+#endif
 #ifdef EQUALIZER_USE_QT5WIDGETS
     if( QApplication::instance( ))
-        _windowSystems.push_back( new qt::WindowSystem );
+        WindowSystem::add( WindowSystemImpl( new qt::WindowSystem ));
 #endif
 
     LBASSERT( nodeFactory );
@@ -144,10 +156,7 @@ bool exit()
     if( --_initialized > 0 ) // not last
         return true;
 
-    for( WindowSystemIF* windowSystem : _windowSystems )
-        delete windowSystem;
-    _windowSystems.clear();
-
+    WindowSystem::clear();
     Global::_nodeFactory = 0;
     return fabric::exit();
 }
