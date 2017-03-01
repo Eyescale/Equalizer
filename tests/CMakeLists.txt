@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2015, Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010-2017, Stefan Eilemann <eile@eyescale.ch>
 #
 # Change this number when adding tests to force a CMake run: 7
 
@@ -14,7 +14,7 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
 
-if($ENV{TRAVIS})
+if(TRAVIS)
   # Travis X server reports completely broken GLX extension, which
   # causes glxinfo and the hwsd auto-configuration to fail. Remove
   # GPU-based tests:
