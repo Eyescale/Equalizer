@@ -16,6 +16,7 @@ set(EQUALIZERCOMPRESSOR_SOURCES
   compressorYUV.cpp
   )
 
+set(EQUALIZERCOMPRESSOR_OMIT_LIBRARY_HEADER ON)
 set(EQUALIZERCOMPRESSOR_LINK_LIBRARIES PRIVATE Equalizer Pression)
 
 common_library(EqualizerCompressor)
