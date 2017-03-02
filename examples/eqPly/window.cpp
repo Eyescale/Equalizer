@@ -139,7 +139,15 @@ void Window::_loadLogo()
                                     GL_TEXTURE_RECTANGLE_ARB );
     LBASSERT( _logoTexture );
 
-    image.upload( eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(), om );
+    if( !image.upload( eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(),
+        om ))
+    {
+        LBWARN << "Can't load overlay logo " << _logoTextureName << std::endl;
+        om.deleteEqTexture( _logoTextureName.c_str( ));
+        _logoTexture = nullptr;
+        return;
+    }
+
     image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;

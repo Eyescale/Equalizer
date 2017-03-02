@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2013-2015, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
+/* Copyright (c) 2013-2017, Daniel Nachbaur <daniel.nachbaur@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,6 +38,9 @@ public:
 
     /** Stream the given image to the Deflect host. */
     void notifyNewImage( Channel& channel, const Image& image ) final;
+
+    /** Complete stream operations and show image on server. */
+    void notifyFinishFrame() final;
 
     /** @return the associated destination channel. */
     Channel& getChannel();

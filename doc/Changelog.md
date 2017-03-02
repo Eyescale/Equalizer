@@ -3,6 +3,8 @@ Changelog {#Changelog}
 
 # git master
 
+* [629](https://github.com/Eyescale/Equalizer/pull/629)
+  Support deflect stereo streaming
 * [619](https://github.com/Eyescale/Equalizer/pull/619)
   Fix running from an installed version
 * [611](https://github.com/Eyescale/Equalizer/pull/611)

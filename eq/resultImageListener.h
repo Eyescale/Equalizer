@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2015, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2015-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,6 +48,9 @@ public:
      * @version 1.9
      */
     virtual void notifyNewImage( Channel& channel, const Image& image ) = 0;
+
+    /** Notify on completion of a frame. */
+    virtual void notifyFinishFrame() { /*nop*/ }
 
 private:
     ResultImageListener( const ResultImageListener& ) = delete;

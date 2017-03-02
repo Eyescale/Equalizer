@@ -53,19 +53,17 @@ enum EventType // Also update string table in event.cpp
     EVENT_MAGELLAN_AXIS = 30,        //!< AxisEvent: SpaceMouse touched
     EVENT_MAGELLAN_BUTTON,      //!< ButtonEvent: SpaceMouse button pressed
 
-    // Stateless Events
+    // Event
     EVENT_WINDOW_CLOSE = 40,         //!< A window has been closed
     EVENT_WINDOW_HIDE,          //!< A window is hidden
     EVENT_WINDOW_EXPOSE,    //!< A window is dirty
     EVENT_EXIT, //!< Exit request from application or due to runtime error
-
-    EVENT_STATISTIC, //!< Statistic event
-
     /** Window pointer grabbed by system window */
     EVENT_WINDOW_POINTER_GRAB,
     /** Window pointer to be released by system window */
     EVENT_WINDOW_POINTER_UNGRAB,
 
+    EVENT_STATISTIC, //!< Statistic event
 
     /**
      * Observer moved (head tracking update). Contains observer originator
