@@ -92,7 +92,6 @@ set(EQUALIZER_HEADERS
   glx/windowSystem.h
   half.h
   initVisitor.h
-  qt/windowSystem.h
   transferFinder.h
   wgl/windowSystem.h
   )
