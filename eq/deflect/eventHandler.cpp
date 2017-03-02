@@ -165,20 +165,17 @@ void EventHandler::_processEvents( const Proxy* proxy )
 
     while( _proxy->hasNewEvent( ))
     {
-        ::deflect::Event deflectEvent = _proxy->getEvent();
-
-        if( deflectEvent.type == ::deflect::Event::EVT_CLOSE )
-        {
-            _proxy->stopRunning();
-            window->getConfig()->sendEvent( EVENT_EXIT );
-            break;
-        }
-
+        const ::deflect::Event deflectEvent = _proxy->getEvent();
         const float x = deflectEvent.mouseX * pvp.w;
         const float y = deflectEvent.mouseY * pvp.h;
 
         switch( deflectEvent.type )
         {
+        case ::deflect::Event::EVT_CLOSE:
+            _proxy->stopRunning();
+            window->processEvent( EVENT_EXIT );
+            return;
+
         case ::deflect::Event::EVT_KEY_PRESS:
         case ::deflect::Event::EVT_KEY_RELEASE:
         {

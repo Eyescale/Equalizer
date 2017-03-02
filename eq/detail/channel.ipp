@@ -110,6 +110,7 @@ public:
         downloadFramebuffer( channel, buffers );
         for( ResultImageListener* listener : resultImageListeners )
             listener->notifyNewImage( channel, framebufferImage );
+        _finishImageListeners = true;
 
         if( view->getScreenshotBuffers() != eq::Frame::Buffer::none )
         {
@@ -117,6 +118,14 @@ public:
                                        channel.getPipe()->getCurrentFrame(),
                                        framebufferImage );
         }
+    }
+
+    void frameFinish()
+    {
+        if( _finishImageListeners )
+            for( ResultImageListener* listener : resultImageListeners )
+                listener->notifyFinishFrame();
+        _finishImageListeners = false;
     }
 
     void downloadFramebuffer( eq::Channel& channel,
@@ -190,6 +199,7 @@ public:
     FileFrameWriter frameWriter;
 
     bool _updateFrameBuffer;
+    bool _finishImageListeners = false;
 };
 
 }

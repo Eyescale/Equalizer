@@ -853,7 +853,6 @@ bool Config::exit()
     event.serial = getSerial();
     event.time = getServer()->getTime();
     event.originator = getID();
-
     cmd << EVENT_EXIT << event;
 
     _needsFinish = false;

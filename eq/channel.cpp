@@ -389,6 +389,7 @@ void Channel::frameStart( const uint128_t&, const uint32_t frameNumber )
 
 void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber )
 {
+    _impl->frameFinish();
     releaseFrame( frameNumber );
 }
 
