@@ -46,7 +46,6 @@ public:
      * Construct a new pixel buffer object.
      *
      * @param glewContext the OpenGL function table.
-     * @param threadSafe true if PBO shall use locks to synchronize access.
      * @version 1.3
      */
     EQ_API PixelBufferObject( const GLEWContext* glewContext );

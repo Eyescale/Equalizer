@@ -1,9 +1,9 @@
 
 /*
  * Copyright (c)
- *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010-2014, Stefan Eilemann <eile@equalizergraphics.com>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *   2008-2017, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
+ *              Stefan Eilemann <eile@equalizergraphics.com>
+ *              Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,10 @@ int main( const int argc, char** argv )
     // 2. parse arguments
     osgScaleViewer::InitData initData;
     if( !initData.parseCommandLine( argv, argc ))
-        return -1;
+    {
+        eq::exit();
+        return EXIT_FAILURE;
+    }
 
     // 3. initialization of local client node
     lunchbox::RefPtr< osgScaleViewer::OSGScaleViewer > client =
