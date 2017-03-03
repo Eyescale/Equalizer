@@ -1,8 +1,8 @@
 
 /* Copyright (c)
- *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010-2013, Stefan Eilemann <eile@eyescale.ch>
- *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *   2008-2017, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
+ *              Stefan Eilemann <eile@eyescale.ch>
+ *              Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,6 +81,17 @@ const std::string InitData::getTrackerPort() const
 
 bool InitData::parseCommandLine( char **argv, int argc )
 {
+    for ( int i = 1; i < argc; i++ )
+    {
+        if( strcmp( argv[i], "--help" ) == 0 )
+        {
+            std::cout << argv[0] << " [--model file][--image file]: "
+                      << "OpenSceneGraph/Equalizer example" << std::endl
+                      << eq::getHelp() << eq::Client::getHelp() << std::endl;
+            ::exit( EXIT_SUCCESS );
+        }
+    }
+
     std::string model = _parseCommandLineParam( argc, argv, "--model" );
     if( model.size() > 0 )
     {
