@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Maxim Makhinya
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -307,6 +307,11 @@ int XErrorHandler( Display* display, XErrorEvent* event )
             LBWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
+
+    if( event->request_code == 154 && event->minor_code == 3 )
+        LBWARN << "Likely glxCreateContext failed because it is run on a remote"
+               << "X Server (which has indirect GLX disabled)" << std::endl;
+
     LBWARN << lunchbox::enableFlush << lunchbox::exdent
            << lunchbox::enableHeader;
 
