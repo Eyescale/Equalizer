@@ -57,7 +57,7 @@ uint32_t WindowSystemIF::_setupLists( util::ObjectManager& gl, const void* key,
 WindowSystem::WindowSystem( const std::string& type )
     : _impl( _chooseImpl( type ))
 {
-    LBINFO << "Using " << _impl->getName() << " window system" << std::endl;
+    LBDEBUG << "Using " << _impl->getName() << " window system" << std::endl;
 }
 
 void WindowSystem::add( WindowSystemImpl impl )

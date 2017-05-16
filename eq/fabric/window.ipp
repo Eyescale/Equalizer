@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -162,7 +162,7 @@ void Window< P, W, C, Settings >::serialize( co::DataOStream& os,
 
 template< class P, class W, class C, class Settings >
 void Window< P, W, C, Settings >::deserialize( co::DataIStream& is,
-                                     const uint64_t dirtyBits )
+                                               const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_SETTINGS )
@@ -473,11 +473,9 @@ void Window< P, W, C, Settings >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    for( typename Channels::const_iterator i = _channels.begin();
-         i != _channels.end(); ++i )
-    {
-        (*i)->notifyViewportChanged();
-    }
+    for( C* channel : _channels )
+        channel->notifyViewportChanged();
+
     LBVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
            << std::endl;
 }
