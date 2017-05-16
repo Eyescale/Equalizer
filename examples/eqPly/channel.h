@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,10 @@
 
 #include <eq/eq.h>
 
+#ifdef UXMAL
+#include <zeroeq/publisher.h>
+#endif
+
 namespace eqPly
 {
 /** The rendering entity, updating a part of a Window. */
@@ -43,6 +47,7 @@ public:
     Channel(eq::Window* parent);
 
     bool stopRendering() const;
+    void publishAABB(const triply::BoundingBox& box);
 
 protected:
     virtual ~Channel() {}
@@ -101,6 +106,9 @@ private:
     } _accum[eq::NUM_EYES];
 
     eq::PixelViewport _currentPVP;
+#ifdef UXMAL
+    zeroeq::Publisher _publisher;
+#endif
 };
 }
 

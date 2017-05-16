@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ void VertexBufferLeaf::setupTree(VertexData& data, const Index start,
 }
 
 /*  Compute the bounding sphere of the leaf's indexed vertices.  */
-const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
+void VertexBufferLeaf::updateBounds()
 {
     // We determine a bounding sphere by:
     // 1) Using the inner sphere of the dominant axis of the bounding box as an
@@ -96,10 +96,10 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         const Vertex& vertex =
             _globalData.vertices[_vertexStart + _globalData.indices[i]];
         _boundingBox[0][0] = std::min(_boundingBox[0][0], vertex[0]);
-        _boundingBox[1][0] = std::max(_boundingBox[1][0], vertex[0]);
         _boundingBox[0][1] = std::min(_boundingBox[0][1], vertex[1]);
-        _boundingBox[1][1] = std::max(_boundingBox[1][1], vertex[1]);
         _boundingBox[0][2] = std::min(_boundingBox[0][2], vertex[2]);
+        _boundingBox[1][0] = std::max(_boundingBox[1][0], vertex[0]);
+        _boundingBox[1][1] = std::max(_boundingBox[1][1], vertex[1]);
         _boundingBox[1][2] = std::max(_boundingBox[1][2], vertex[2]);
     }
 
@@ -118,7 +118,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     float radiusSquared = radius * radius;
     Vertex center(_boundingSphere.array);
 
-    // 2) test all points to be in the estimated bounding sphere
+    // 2) Extent bounding sphere to contain all all points
     for (Index offset = 0; offset < _indexLength; ++offset)
     {
         const Vertex& vertex =
@@ -170,7 +170,6 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.y() = center.y();
     _boundingSphere.z() = center.z();
     _boundingSphere.w() = radius;
-    return _boundingSphere;
 }
 
 /*  Compute the range of this child.  */
@@ -332,7 +331,6 @@ void VertexBufferLeaf::fromMemory(char** addr, VertexBufferData& globalData)
             "Error reading binary file. Expected a leaf "
             "node, but found something else instead.");
     VertexBufferBase::fromMemory(addr, globalData);
-    memRead(reinterpret_cast<char*>(&_boundingBox), addr, sizeof(BoundingBox));
     memRead(reinterpret_cast<char*>(&_vertexStart), addr, sizeof(Index));
     memRead(reinterpret_cast<char*>(&_vertexLength), addr, sizeof(ShortIndex));
     memRead(reinterpret_cast<char*>(&_indexStart), addr, sizeof(Index));
@@ -345,7 +343,6 @@ void VertexBufferLeaf::toStream(std::ostream& os)
     Type nodeType = Type::leaf;
     os.write(reinterpret_cast<char*>(&nodeType), sizeof(nodeType));
     VertexBufferBase::toStream(os);
-    os.write(reinterpret_cast<char*>(&_boundingBox), sizeof(BoundingBox));
     os.write(reinterpret_cast<char*>(&_vertexStart), sizeof(Index));
     os.write(reinterpret_cast<char*>(&_vertexLength), sizeof(ShortIndex));
     os.write(reinterpret_cast<char*>(&_indexStart), sizeof(Index));

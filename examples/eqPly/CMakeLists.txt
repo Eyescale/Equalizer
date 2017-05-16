@@ -10,6 +10,9 @@ set(EQPLY_LINK_LIBRARIES Equalizer EqualizerAdmin triply
 if(EQ_QT_USED)
   list(APPEND EQPLY_LINK_LIBRARIES Qt5::Widgets ${X11_LIBRARIES})
 endif()
+if(TARGET uxmal)
+  list(APPEND EQPLY_LINK_LIBRARIES ZeroEQ uxmal)
+endif()
 
 set(EQPLY_HEADERS
   cameraAnimation.h

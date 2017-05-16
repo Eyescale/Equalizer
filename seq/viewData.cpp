@@ -134,6 +134,13 @@ bool ViewData::handleEvent(const eq::EventType type, const KeyEvent& event)
         case 'o':
             setOrtho(!useOrtho());
             return true;
+        case ' ':
+            _spinX = 0;
+            _spinY = 0;
+            _advance = 0;
+            _modelMatrix = eq::Matrix4f();
+            moveModel(0.f, 0.f, -2.f);
+            return true;
         }
         return false;
 

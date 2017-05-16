@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #ifndef PLYLIB_VERTEXBUFFERLEAF_H
 #define PLYLIB_VERTEXBUFFERLEAF_H
@@ -56,7 +56,7 @@ protected:
     void setupTree(VertexData& data, Index start, Index length, Axis axis,
                    size_t depth, VertexBufferData& globalData,
                    boost::progress_display&) final;
-    const BoundingSphere& updateBoundingSphere() final;
+    void updateBounds() final;
     void updateRange() final;
     Type getType() const final { return Type::leaf; }
 private:
@@ -67,7 +67,6 @@ private:
 
     friend class VertexBufferDist;
     VertexBufferData& _globalData;
-    BoundingBox _boundingBox;
     Index _vertexStart;
     Index _indexStart;
     Index _indexLength;

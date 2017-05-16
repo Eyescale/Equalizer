@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,14 +82,24 @@ void VertexBufferNode::setupTree(VertexData& data, const Index start,
         ++progress;
 }
 
-/*  Compute the bounding sphere from the children's bounding spheres.  */
-const BoundingSphere& VertexBufferNode::updateBoundingSphere()
+void VertexBufferNode::updateBounds()
 {
-    // take the bounding spheres returned by the children
-    const BoundingSphere& sphere1 = _left->updateBoundingSphere();
-    const BoundingSphere& sphere2 = _right->updateBoundingSphere();
+    _left->updateBounds();
+    _right->updateBounds();
+
+    // compute enclosing box
+    const auto& box1 = _left->getBoundingBox();
+    const auto& box2 = _right->getBoundingBox();
+    _boundingBox[0][0] = std::min(box1[0][0], box2[0][0]);
+    _boundingBox[0][1] = std::min(box1[0][1], box2[0][1]);
+    _boundingBox[0][2] = std::min(box1[0][2], box2[0][2]);
+    _boundingBox[1][0] = std::max(box1[1][0], box2[1][0]);
+    _boundingBox[1][1] = std::max(box1[1][1], box2[1][1]);
+    _boundingBox[1][2] = std::max(box1[1][2], box2[1][2]);
 
     // compute enclosing sphere
+    const auto sphere1 = _left->getBoundingSphere();
+    const auto sphere2 = _right->getBoundingSphere();
     const Vertex center1(sphere1.array);
     const Vertex center2(sphere2.array);
     Vertex c1ToC2 = center2 - center1;
@@ -103,7 +113,6 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     _boundingSphere.y() = vertexBoundingSphere.y();
     _boundingSphere.z() = vertexBoundingSphere.z();
     _boundingSphere.w() = Vertex(outer1 - outer2).length() * 0.5f;
-    return _boundingSphere;
 }
 
 /*  Compute the range from the children's ranges.  */
