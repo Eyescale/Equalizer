@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "vertexBufferRoot.h"
 #include "vertexBufferState.h"
@@ -70,7 +70,7 @@ void VertexBufferRoot::setupTree(VertexData& data,
 
     VertexBufferNode::setupTree(data, 0, data.triangles.size(), axis, 0, _data,
                                 progress);
-    VertexBufferNode::updateBoundingSphere();
+    VertexBufferNode::updateBounds();
     VertexBufferNode::updateRange();
 }
 
@@ -119,7 +119,7 @@ void VertexBufferRoot::cullDraw(VertexBufferState& state) const
                 treeNode->getRange()[1] < range[1])
             {
                 treeNode->draw(state);
-// treeNode->drawBoundingSphere( state );
+                state.notifyVisible(treeNode->getBoundingBox());
 #ifdef LOGCULL
                 verticesRendered += treeNode->getNumberOfVertices();
 #endif
@@ -137,7 +137,7 @@ void VertexBufferRoot::cullDraw(VertexBufferState& state) const
                 if (treeNode->getRange()[0] >= range[0])
                 {
                     treeNode->draw(state);
-// treeNode->drawBoundingSphere( state );
+                    state.notifyVisible(treeNode->getBoundingBox());
 #ifdef LOGCULL
                     verticesRendered += treeNode->getNumberOfVertices();
                     if (visibility == vmml::VISIBILITY_PARTIAL)

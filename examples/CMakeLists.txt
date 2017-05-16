@@ -3,9 +3,11 @@
 #                         Maxim Makhinya <maxmah@gmail.com>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+common_find_package(ZeroEQ)
+common_find_package(ZeroBuf)
 
 include_directories(BEFORE
- include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+  include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK) # Fix for windows and shared boost.
@@ -26,6 +28,10 @@ if(APPLE)
         "${CMAKE_EXE_LINKER_FLAGS}")
     endif()
   endforeach()
+endif()
+
+if(TARGET ZeroEQ AND TARGET ZeroBuf)
+  add_subdirectory(uxmal)
 endif()
 
 add_subdirectory(eVolve)

@@ -134,7 +134,7 @@ typedef ArrayWrapper<float, 2> Range;
 const Index LEAF_SIZE(21845);
 
 // binary mesh file version, increment if changing the file format
-const unsigned short FILE_VERSION(0x0119);
+const unsigned short FILE_VERSION(0x011a);
 
 // enumeration for the sort axis
 enum Axis
@@ -145,10 +145,10 @@ enum Axis
 };
 inline std::ostream& operator<<(std::ostream& os, const Axis axis)
 {
-    os << (axis == AXIS_X ? "x axis" : axis == AXIS_Y
-                                           ? "y axis"
-                                           : axis == AXIS_Z ? "z axis"
-                                                            : "ERROR");
+    os << (axis == AXIS_X
+               ? "x axis"
+               : axis == AXIS_Y ? "y axis"
+                                : axis == AXIS_Z ? "z axis" : "ERROR");
     return os;
 }
 

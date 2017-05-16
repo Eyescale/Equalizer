@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #ifndef PLYLIB_VERTEXBUFFERBASE_H
 #define PLYLIB_VERTEXBUFFERBASE_H
@@ -46,13 +46,14 @@ public:
     TRIPLY_API void drawBoundingSphere(VertexBufferState& state) const;
     TRIPLY_API virtual Index getNumberOfVertices() const = 0;
 
+    const BoundingBox& getBoundingBox() const { return _boundingBox; }
     const BoundingSphere& getBoundingSphere() const { return _boundingSphere; }
     const float* getRange() const { return &_range[0]; }
     virtual const VertexBufferBase* getLeft() const { return nullptr; }
     virtual const VertexBufferBase* getRight() const { return nullptr; }
     virtual VertexBufferBase* getLeft() { return nullptr; }
     virtual VertexBufferBase* getRight() { return nullptr; }
-    TRIPLY_API virtual const BoundingSphere& updateBoundingSphere() = 0;
+    TRIPLY_API virtual void updateBounds() = 0;
 
 protected:
     VertexBufferBase()
@@ -64,6 +65,7 @@ protected:
 
     virtual void toStream(std::ostream& os)
     {
+        os.write(reinterpret_cast<char*>(&_boundingBox), sizeof(BoundingBox));
         os.write(reinterpret_cast<char*>(&_boundingSphere),
                  sizeof(BoundingSphere));
         os.write(reinterpret_cast<char*>(&_range), sizeof(Range));
@@ -71,8 +73,10 @@ protected:
 
     virtual void fromMemory(char** addr, VertexBufferData& /*globalData*/)
     {
+        memRead(reinterpret_cast<char*>(&_boundingBox), addr,
+                sizeof(_boundingBox));
         memRead(reinterpret_cast<char*>(&_boundingSphere), addr,
-                sizeof(BoundingSphere));
+                sizeof(_boundingSphere));
         memRead(reinterpret_cast<char*>(&_range), addr, sizeof(Range));
     }
 
@@ -87,6 +91,7 @@ protected:
     friend class VertexBufferDist;
     virtual Type getType() const = 0;
 
+    BoundingBox _boundingBox;
     BoundingSphere _boundingSphere;
     Range _range;
 };

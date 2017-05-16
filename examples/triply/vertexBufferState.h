@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2007, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,8 +74,9 @@ public:
     TRIPLY_API void setRange(const Range& range) { _range = range; }
     TRIPLY_API const Range& getRange() const { return _range; }
     TRIPLY_API void resetRegion();
-    TRIPLY_API void updateRegion(const BoundingBox& box);
-    TRIPLY_API virtual void declareRegion(const Vector4f&) {}
+    TRIPLY_API virtual void updateRegion(const BoundingBox& box);
+    virtual void declareRegion(const Vector4f&) {}
+    virtual void notifyVisible(const BoundingBox&) {}
     TRIPLY_API Vector4f getRegion() const;
 
     TRIPLY_API virtual GLuint getDisplayList(const void* key) = 0;

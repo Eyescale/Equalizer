@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
  *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ protected:
                               Axis axis, size_t depth,
                               VertexBufferData& globalData,
                               boost::progress_display&) override;
-    TRIPLY_API const BoundingSphere& updateBoundingSphere() override;
+    TRIPLY_API void updateBounds() override;
     TRIPLY_API void updateRange() override;
     Type getType() const override { return Type::node; }
 private:

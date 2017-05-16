@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2007, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -93,6 +93,17 @@ public:
     bool stopRendering() const override
     {
         return _channel ? _channel->stopRendering() : false;
+    }
+
+    void updateRegion(const triply::BoundingBox& box) override
+    {
+        triply::VertexBufferState::updateRegion(box);
+    }
+
+    void notifyVisible(const triply::BoundingBox& box) override
+    {
+        if (_channel)
+            _channel->publishAABB(box);
     }
 
     void declareRegion(const triply::Vector4f& region) override

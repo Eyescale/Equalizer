@@ -1,0 +1,16 @@
+// Copyright (c) 2017, Blue Brain Project / EPFL
+//                     Stefan.Eilemann@epfl.ch
+
+namespace uxmal;
+
+table Frustum
+{
+    frame:uint32_t;
+    left:float;
+    right:float;
+    bottom:float;
+    top:float;
+    near:float;
+    far:float;
+    view:[float:16];
+}

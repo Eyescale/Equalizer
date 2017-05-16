@@ -38,6 +38,11 @@
 #include "view.h"
 #include "window.h"
 
+#ifdef UXMAL
+#include <uxmal/aabb.h>
+#include <uxmal/frustum.h>
+#endif
+
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
 static GLfloat lightAmbient[] = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -771,5 +776,28 @@ void Channel::_updateNearFar(const triply::BoundingSphere& boundingSphere)
 
         setNearFar(zNear, zFar);
     }
+
+#ifdef UXMAL
+    const auto& frustum = getFrustum();
+    const auto& modelRotation = frameData.getModelRotation();
+    eq::Matrix4f position;
+    position.setTranslation(frameData.getCameraPosition());
+    const auto model = rotation * position * modelRotation;
+    const auto xfm = (getHeadTransform() * model).inverse();
+
+    _publisher.publish(
+        uxmal::Frustum(getCurrentFrame(), frustum.left(), frustum.right(),
+                       frustum.bottom(), frustum.top(), frustum.nearPlane(),
+                       frustum.farPlane(), {xfm.data(), xfm.data() + 16}));
+#endif
+}
+
+void Channel::publishAABB(const triply::BoundingBox& box)
+{
+#ifdef UXMAL
+    _publisher.publish(uxmal::AABB(getCurrentFrame(),
+                                   {box[0][0], box[0][1], box[0][2]},
+                                   {box[1][0], box[1][1], box[1][2]}));
+#endif
 }
 }
