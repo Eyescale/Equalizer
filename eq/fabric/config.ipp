@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2005-2013, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2005-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric Stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -561,8 +561,12 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 EventOCommand Config< S, C, O, L, CV, N, V >::sendError( co::NodePtr node,
     const uint32_t event, const Error& error )
 {
+#ifdef NDEBUG
+    LBWARN << error << std::endl;
+#else
     LBWARN << "Emit " << error << " at "
            << lunchbox::backtrace( 2 /*cut boring stack frames*/ ) << std::endl;
+#endif
     EventOCommand cmd( send( node, CMD_CONFIG_EVENT ));
     cmd << event << error;
     return cmd;

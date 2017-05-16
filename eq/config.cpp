@@ -316,10 +316,15 @@ bool Config::init( const uint128_t& initID )
     localNode->enableSendOnRegister();
 
     handleEvents();
-    if( !_impl->running )
-        LBWARN << "Config initialization failed" << std::endl
-               << "    Consult client log for further information" << std::endl;
-    return _impl->running;
+    if( _impl->running )
+        return true;
+
+    LBWARN << "Config initialization failed:" << lunchbox::indent << std::endl;
+    for( const auto& error : _impl->errors )
+        LBWARN << error << std::endl;
+    LBWARN << "Consult client log for further information" << lunchbox::exdent
+           << std::endl;
+    return false;
 }
 
 bool Config::exit()
