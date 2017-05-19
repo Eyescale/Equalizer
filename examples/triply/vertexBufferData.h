@@ -26,15 +26,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef PLYLIB_VERTEXBUFFERDATA_H
 #define PLYLIB_VERTEXBUFFERDATA_H
 
-
 #include "typedefs.h"
-#include <vector>
 #include <fstream>
-
+#include <vector>
 
 namespace triply
 {
@@ -51,60 +48,53 @@ public:
     }
 
     /*  Write the vectors' sizes and contents to the given stream.  */
-    void toStream( std::ostream& os )
+    void toStream(std::ostream& os)
     {
-        writeVector( os, vertices );
-        writeVector( os, colors );
-        writeVector( os, normals );
-        writeVector( os, indices );
+        writeVector(os, vertices);
+        writeVector(os, colors);
+        writeVector(os, normals);
+        writeVector(os, indices);
     }
 
     /*  Read the vectors' sizes and contents from the given MMF address.  */
-    void fromMemory( char** addr )
+    void fromMemory(char** addr)
     {
         clear();
-        readVector( addr, vertices );
-        readVector( addr, colors );
-        readVector( addr, normals );
-        readVector( addr, indices );
+        readVector(addr, vertices);
+        readVector(addr, colors);
+        readVector(addr, normals);
+        readVector(addr, indices);
     }
 
-    std::vector< Vertex >       vertices;
-    std::vector< Color >        colors;
-    std::vector< Normal >       normals;
-    std::vector< ShortIndex >   indices;
+    std::vector<Vertex> vertices;
+    std::vector<Color> colors;
+    std::vector<Normal> normals;
+    std::vector<ShortIndex> indices;
 
 private:
     /*  Helper function to write a vector to output stream.  */
-    template< class T >
-    void writeVector( std::ostream& os, std::vector< T >& v )
+    template <class T>
+    void writeVector(std::ostream& os, std::vector<T>& v)
     {
         size_t length = v.size();
-        os.write( reinterpret_cast< char* >( &length ),
-                  sizeof( size_t ) );
-        if( length > 0 )
-            os.write( reinterpret_cast< char* >( &v[0] ),
-                      length * sizeof( T ) );
+        os.write(reinterpret_cast<char*>(&length), sizeof(size_t));
+        if (length > 0)
+            os.write(reinterpret_cast<char*>(&v[0]), length * sizeof(T));
     }
 
     /*  Helper function to read a vector from the MMF address.  */
-    template< class T >
-    void readVector( char** addr, std::vector< T >& v )
+    template <class T>
+    void readVector(char** addr, std::vector<T>& v)
     {
         size_t length;
-        memRead( reinterpret_cast< char* >( &length ), addr,
-                 sizeof( size_t ) );
-        if( length > 0 )
+        memRead(reinterpret_cast<char*>(&length), addr, sizeof(size_t));
+        if (length > 0)
         {
-            v.resize( length );
-            memRead( reinterpret_cast< char* >( &v[0] ), addr,
-                     length * sizeof( T ) );
+            v.resize(length);
+            memRead(reinterpret_cast<char*>(&v[0]), addr, length * sizeof(T));
         }
     }
 };
-
-
 }
-
 
 #endif // PLYLIB_VERTEXBUFFERDATA_H

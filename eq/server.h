@@ -19,14 +19,17 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
+#include <co/node.h> // base class
 #include <eq/api.h>
-#include <eq/types.h>     // basic typedefs
-#include <eq/fabric/server.h>    // base class
-#include <co/node.h>             // base class
+#include <eq/fabric/server.h> // base class
+#include <eq/types.h>         // basic typedefs
 
 namespace eq
 {
-namespace detail { class Server; }
+namespace detail
+{
+class Server;
+}
 
 /**
  * Proxy object for the connection to an Equalizer server.
@@ -37,8 +40,8 @@ namespace detail { class Server; }
  *
  * @sa fabric::Server, Client::connectServer()
  */
-class Server : public fabric::Server< Client, Server, Config, NodeFactory,
-                                      co::Node, ServerVisitor >
+class Server : public fabric::Server<Client, Server, Config, NodeFactory,
+                                     co::Node, ServerVisitor>
 {
 public:
     /** Construct a new server. @version 1.0 */
@@ -46,10 +49,10 @@ public:
 
     /** @name Internal */
     //@{
-    virtual void setClient( ClientPtr client ); //!< @internal
-    EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+    virtual void setClient(ClientPtr client);         //!< @internal
+    EQ_API co::CommandQueue* getMainThreadQueue();    //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
-    //@}
+                                                      //@}
 
     /**
      * Choose a configuration on the server.
@@ -59,7 +62,7 @@ public:
      * @sa ConfigParams
      * @version 1.0
      */
-    EQ_API Config* chooseConfig( const fabric::ConfigParams& parameters );
+    EQ_API Config* chooseConfig(const fabric::ConfigParams& parameters);
 
     /**
      * Release a configuration.
@@ -70,7 +73,7 @@ public:
      * @param config the configuration.
      * @version 1.0
      */
-    EQ_API void releaseConfig( Config* config );
+    EQ_API void releaseConfig(Config* config);
 
     /** @warning Experimental - may not be supported in the future */
     EQ_API bool shutdown();
@@ -83,9 +86,9 @@ private:
     detail::Server* const _impl;
 
     /* The command handler functions. */
-    bool _cmdChooseConfigReply( co::ICommand& command );
-    bool _cmdReleaseConfigReply( co::ICommand& command );
-    bool _cmdShutdownReply( co::ICommand& command );
+    bool _cmdChooseConfigReply(co::ICommand& command);
+    bool _cmdReleaseConfigReply(co::ICommand& command);
+    bool _cmdShutdownReply(co::ICommand& command);
 };
 }
 

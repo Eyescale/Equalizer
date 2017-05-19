@@ -18,10 +18,10 @@
 #ifndef EQADMIN_SERVER_H
 #define EQADMIN_SERVER_H
 
+#include <co/node.h> // base class
 #include <eq/admin/api.h>
 #include <eq/admin/types.h>
-#include <eq/fabric/server.h>       // base class
-#include <co/node.h>         // base class
+#include <eq/fabric/server.h> // base class
 
 namespace eq
 {
@@ -32,8 +32,8 @@ namespace admin
  *
  * @sa Client::connectServer
  */
-class Server : public fabric::Server< Client, Server, Config, NodeFactory,
-                                      co::Node, ServerVisitor >
+class Server : public fabric::Server<Client, Server, Config, NodeFactory,
+                                     co::Node, ServerVisitor>
 {
 public:
     /** Construct a new server. @version 1.0 */
@@ -41,7 +41,6 @@ public:
 
     /** Destruct the server. @version 1.0 */
     EQADMIN_API virtual ~Server() {}
-
     /** Map all server data. @internal */
     void map();
 
@@ -49,15 +48,15 @@ public:
     void unmap();
 
     /** Synchronize all sever data. @version 1.0  **/
-    EQADMIN_API void syncConfig( const co::uint128_t& configID,
-                                 const co::uint128_t& version );
+    EQADMIN_API void syncConfig(const co::uint128_t& configID,
+                                const co::uint128_t& version);
 
-    virtual void setClient( ClientPtr client ); //!< @internal
-    co::CommandQueue* getMainThreadQueue(); //!< @internal
+    virtual void setClient(ClientPtr client); //!< @internal
+    co::CommandQueue* getMainThreadQueue();   //!< @internal
 
 private:
-    bool _cmdMapReply( co::ICommand& command );
-    bool _cmdUnmapReply( co::ICommand& command );
+    bool _cmdMapReply(co::ICommand& command);
+    bool _cmdUnmapReply(co::ICommand& command);
 };
 }
 }

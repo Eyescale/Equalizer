@@ -33,21 +33,21 @@
 
 namespace eVolve
 {
-    /** Defines errors produced by eVolve. */
-    enum Error
-    {
-        ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING = eq::ERROR_CUSTOM,
-        ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
-        ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
-        ERROR_EVOLVE_LOADSHADERS_FAILED,
-        ERROR_EVOLVE_LOADMODEL_FAILED,
-        ERROR_EVOLVE_MAPOBJECT_FAILED
-    };
+/** Defines errors produced by eVolve. */
+enum Error
+{
+    ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING = eq::ERROR_CUSTOM,
+    ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
+    ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
+    ERROR_EVOLVE_LOADSHADERS_FAILED,
+    ERROR_EVOLVE_LOADMODEL_FAILED,
+    ERROR_EVOLVE_MAPOBJECT_FAILED
+};
 
-    /** Set up eVolve-specific error codes. */
-    void initErrors();
+/** Set up eVolve-specific error codes. */
+void initErrors();
 
-    /** Clear eVolve-specific error codes. */
-    void exitErrors();
+/** Clear eVolve-specific error codes. */
+void exitErrors();
 }
 #endif // EVOLVE_ERROR_H

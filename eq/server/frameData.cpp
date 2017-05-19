@@ -25,23 +25,21 @@ namespace eq
 {
 namespace server
 {
-
 FrameData::FrameData()
-    : _frameNumber( 0 )
+    : _frameNumber(0)
 {
-    setBuffers( fabric::Frame::Buffer::undefined );
+    setBuffers(fabric::Frame::Buffer::undefined);
 }
 
-void FrameData::getInstanceData( co::DataOStream& os )
+void FrameData::getInstanceData(co::DataOStream& os)
 {
-    serialize( os );
+    serialize(os);
 }
 
-void FrameData::applyInstanceData( co::DataIStream& is )
+void FrameData::applyInstanceData(co::DataIStream& is)
 {
     LBUNREACHABLE;
-    deserialize( is );
+    deserialize(is);
 }
-
 }
 }

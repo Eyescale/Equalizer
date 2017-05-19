@@ -26,12 +26,12 @@
 #include <eq/fabric/frustum.h>   // base class
 #include <eq/fabric/object.h>    // base class
 #include <eq/fabric/types.h>
-#include <eq/fabric/viewport.h>  // member
+#include <eq/fabric/viewport.h> // member
 
 #define EQ_MM 1000.f
 #define EQ_CM 100.f
 #define EQ_DM 10.f
-#define EQ_M  1.f
+#define EQ_M 1.f
 #define EQ_KM 0.001f
 #define EQ_UNDEFINED_UNIT -1.f
 
@@ -40,7 +40,7 @@ namespace eq
 namespace fabric
 {
 /** Base data transport class for views. @sa eq::View */
-template< class L, class V, class O >
+template <class L, class V, class O>
 // cppcheck-suppress noConstructor
 class View : public Object, public Frustum
 {
@@ -48,8 +48,8 @@ public:
     /** The current rendering mode. */
     enum Mode
     {
-        MODE_MONO = 1,   //!< Render in mono (cyclop eye)
-        MODE_STEREO      //!< Render in stereo (left & right eye)
+        MODE_MONO = 1, //!< Render in mono (cyclop eye)
+        MODE_STEREO    //!< Render in stereo (left & right eye)
     };
 
     /** @name Data Access. */
@@ -62,37 +62,31 @@ public:
      * @version 1.0
      */
     L* getLayout() { return _layout; }
-
     /**
      * @return the parent layout of this view, 0 for render client views.
      * @version 1.0
      */
     const L* getLayout() const { return _layout; }
-
     /** Set the entity tracking this view. @version 1.0 */
-    EQFABRIC_INL void setObserver( O* observer );
+    EQFABRIC_INL void setObserver(O* observer);
 
     /**
      * @return the observer tracking this view, or 0 for untracked views.
      * @version 1.0
      */
     O* getObserver() { return _observer; }
-
     /** const version of getObserver(). @version 1.0 */
     const O* getObserver() const { return _observer; }
-
     /** @warning  Undocumented - may not be supported in the future */
-    EQFABRIC_INL void setOverdraw( const Vector2i& pixels );
+    EQFABRIC_INL void setOverdraw(const Vector2i& pixels);
 
     /** @warning  Undocumented - may not be supported in the future */
     const Vector2i& getOverdraw() const { return _overdraw; }
-
     /** @warning  Undocumented - may not be supported in the future */
-    EQFABRIC_INL void useEqualizer( uint32_t equalizerMask );
+    EQFABRIC_INL void useEqualizer(uint32_t equalizerMask);
 
     /** @warning  Undocumented - may not be supported in the future */
     uint32_t getEqualizers() const { return _equalizers; }
-
     /** @return read-access to Equalizer properties. @version 1.5.1 */
     EQFABRIC_INL const Equalizer& getEqualizer() const;
 
@@ -100,18 +94,17 @@ public:
     EQFABRIC_INL Equalizer& getEqualizer();
 
     /** @internal Set the 2D viewport wrt Layout and Canvas. */
-    EQFABRIC_INL void setViewport( const Viewport& viewport );
+    EQFABRIC_INL void setViewport(const Viewport& viewport);
 
     /** @return the stereo mode of this view. @version 1.0 */
     Mode getMode() const { return _data.mode; }
-
     /**
      * Set the mode of this view.
      *
      * @param mode the new rendering mode
      * @version 1.0
      */
-    EQFABRIC_INL virtual void changeMode( const Mode mode );
+    EQFABRIC_INL virtual void changeMode(const Mode mode);
 
     /**
      * @internal
@@ -119,8 +112,7 @@ public:
      *
      * @param mode the new rendering mode
      */
-    virtual void activateMode( const Mode mode ){ _data.mode = mode; }
-
+    virtual void activateMode(const Mode mode) { _data.mode = mode; }
     /** @return true if the view's layout is active. @version 1.1.5 */
     EQFABRIC_INL bool isActive() const;
 
@@ -134,7 +126,7 @@ public:
      * @return true if the model unit has changed.
      * @version 1.3.1
      */
-    EQFABRIC_INL bool setModelUnit( const float modelUnit );
+    EQFABRIC_INL bool setModelUnit(const float modelUnit);
 
     /**
      * Get the model unit of this view.
@@ -156,12 +148,12 @@ public:
      * @return the result of the visitor traversal.
      * @version 1.0
      */
-    EQFABRIC_INL VisitorResult accept( LeafVisitor< V >& visitor );
+    EQFABRIC_INL VisitorResult accept(LeafVisitor<V>& visitor);
 
     /** Const-version of accept(). @version 1.0 */
-    EQFABRIC_INL VisitorResult accept( LeafVisitor< V >& visitor ) const;
+    EQFABRIC_INL VisitorResult accept(LeafVisitor<V>& visitor) const;
 
-    virtual EQFABRIC_INL void backup(); //!< @internal
+    virtual EQFABRIC_INL void backup();  //!< @internal
     virtual EQFABRIC_INL void restore(); //!< @internal
 
     /**
@@ -173,7 +165,7 @@ public:
      * @param bitmask the capabilities as bitmask
      * @version 1.0
      */
-    EQFABRIC_INL void setMinimumCapabilities( const uint64_t bitmask );
+    EQFABRIC_INL void setMinimumCapabilities(const uint64_t bitmask);
 
     /** @return the bitmask of the minimum capabilities. @version 1.0 */
     EQFABRIC_INL uint64_t getMinimumCapabilities() const;
@@ -217,30 +209,29 @@ public:
     EQFABRIC_INL Frame::Buffer getScreenshotBuffers() const;
     //@}
 
-    void setCapabilities( const uint64_t bitmask ); //!< @internal
-    virtual void updateCapabilities() {} //!< @internal
-
+    void setCapabilities(const uint64_t bitmask); //!< @internal
+    virtual void updateCapabilities() {}          //!< @internal
     /** @internal */
     enum DirtyBits
     {
-        DIRTY_VIEWPORT       = Object::DIRTY_CUSTOM << 0,
-        DIRTY_OBSERVER       = Object::DIRTY_CUSTOM << 1,
-        DIRTY_OVERDRAW       = Object::DIRTY_CUSTOM << 2,
-        DIRTY_FRUSTUM        = Object::DIRTY_CUSTOM << 3,
-        DIRTY_MODE           = Object::DIRTY_CUSTOM << 4,
-        DIRTY_MINCAPS        = Object::DIRTY_CUSTOM << 5,
-        DIRTY_MAXCAPS        = Object::DIRTY_CUSTOM << 6,
-        DIRTY_CAPABILITIES   = Object::DIRTY_CUSTOM << 7,
-        DIRTY_EQUALIZER      = Object::DIRTY_CUSTOM << 8,
-        DIRTY_EQUALIZERS     = Object::DIRTY_CUSTOM << 9,
-        DIRTY_MODELUNIT      = Object::DIRTY_CUSTOM << 10,
-        DIRTY_ATTRIBUTES     = Object::DIRTY_CUSTOM << 11,
-        DIRTY_SCREENSHOT     = Object::DIRTY_CUSTOM << 12,
+        DIRTY_VIEWPORT = Object::DIRTY_CUSTOM << 0,
+        DIRTY_OBSERVER = Object::DIRTY_CUSTOM << 1,
+        DIRTY_OVERDRAW = Object::DIRTY_CUSTOM << 2,
+        DIRTY_FRUSTUM = Object::DIRTY_CUSTOM << 3,
+        DIRTY_MODE = Object::DIRTY_CUSTOM << 4,
+        DIRTY_MINCAPS = Object::DIRTY_CUSTOM << 5,
+        DIRTY_MAXCAPS = Object::DIRTY_CUSTOM << 6,
+        DIRTY_CAPABILITIES = Object::DIRTY_CUSTOM << 7,
+        DIRTY_EQUALIZER = Object::DIRTY_CUSTOM << 8,
+        DIRTY_EQUALIZERS = Object::DIRTY_CUSTOM << 9,
+        DIRTY_MODELUNIT = Object::DIRTY_CUSTOM << 10,
+        DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 11,
+        DIRTY_SCREENSHOT = Object::DIRTY_CUSTOM << 12,
         DIRTY_VIEW_BITS =
-        DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
-        DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
-        DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_EQUALIZER |
-        DIRTY_EQUALIZERS | DIRTY_MODELUNIT | DIRTY_ATTRIBUTES | DIRTY_SCREENSHOT
+            DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW | DIRTY_FRUSTUM |
+            DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS | DIRTY_CAPABILITIES |
+            DIRTY_OBJECT_BITS | DIRTY_EQUALIZER | DIRTY_EQUALIZERS |
+            DIRTY_MODELUNIT | DIRTY_ATTRIBUTES | DIRTY_SCREENSHOT
     };
 
     /** String attributes. */
@@ -254,15 +245,15 @@ public:
 
     /** @return the value of a string attribute. @version 1.9 */
     EQFABRIC_INL
-    const std::string& getSAttribute( const SAttribute attr ) const;
+    const std::string& getSAttribute(const SAttribute attr) const;
 
     /** @return the name of a string attribute. @version 1.9 */
     EQFABRIC_INL
-    static const std::string& getSAttributeString( const SAttribute attr );
+    static const std::string& getSAttributeString(const SAttribute attr);
 
 protected:
     /** @internal Construct a new view. */
-    EQFABRIC_INL explicit View( L* layout );
+    EQFABRIC_INL explicit View(L* layout);
 
     /** @internal Destruct this view. */
     EQFABRIC_INL virtual ~View();
@@ -273,7 +264,6 @@ protected:
      * @version 1.0
      */
     virtual bool hasMasterUserData() { return getLayout() != 0; }
-
     /**
      * The view user data instance uses the config latency by default.
      * @sa Object::getUserDataLatency().
@@ -282,29 +272,29 @@ protected:
     EQFABRIC_INL virtual uint32_t getUserDataLatency() const;
 
     /** @internal */
-    EQFABRIC_INL virtual void serialize( co::DataOStream& os,
-                                         const uint64_t dirtyBits );
+    EQFABRIC_INL virtual void serialize(co::DataOStream& os,
+                                        const uint64_t dirtyBits);
 
     /** @internal */
-    EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
-                                           const uint64_t dirtyBits );
+    EQFABRIC_INL virtual void deserialize(co::DataIStream& is,
+                                          const uint64_t dirtyBits);
 
     /** @internal */
-    EQFABRIC_INL virtual void setDirty( const uint64_t bits );
+    EQFABRIC_INL virtual void setDirty(const uint64_t bits);
 
     /** @internal */
-    void setSAttribute( const SAttribute attr, const std::string& value )
-    { _sAttributes[attr] = value; setDirty( DIRTY_ATTRIBUTES ); }
+    void setSAttribute(const SAttribute attr, const std::string& value)
+    {
+        _sAttributes[attr] = value;
+        setDirty(DIRTY_ATTRIBUTES);
+    }
 
     /** @internal @return the bits to be re-committed by the master. */
-    virtual uint64_t getRedistributableBits() const
-    { return DIRTY_VIEW_BITS; }
-
+    virtual uint64_t getRedistributableBits() const { return DIRTY_VIEW_BITS; }
     /** @internal */
-    virtual void notifyFrustumChanged() { setDirty( DIRTY_FRUSTUM ); }
-
+    virtual void notifyFrustumChanged() { setDirty(DIRTY_FRUSTUM); }
     /** @internal */
-    void _setScreenshotBuffers( Frame::Buffer buffers );
+    void _setScreenshotBuffers(Frame::Buffer buffers);
 
 private:
     /** Parent layout (application-side). */
@@ -319,9 +309,9 @@ private:
 
     uint64_t _minimumCapabilities; //!< caps required from channels
     uint64_t _maximumCapabilities; //!< caps used from channels
-    uint64_t _capabilities; //!< intersection of all active channel caps
-    uint32_t _equalizers; //!< Active Equalizers
-    float _modelUnit; //!< Scaling of scene in this view
+    uint64_t _capabilities;        //!< intersection of all active channel caps
+    uint32_t _equalizers;          //!< Active Equalizers
+    float _modelUnit;              //!< Scaling of scene in this view
     Frame::Buffer _screenshotBuffers;
 
     struct BackupData
@@ -332,16 +322,15 @@ private:
         Viewport viewport;
 
         Mode mode; //!< Stereo mode
-    }
-        _data, _backup;
+    } _data, _backup;
 
     /** String attributes. */
     std::string _sAttributes[SATTR_ALL];
 };
 
-template< class L, class V, class O >
-EQFABRIC_INL std::ostream& operator << ( std::ostream& os,
-                                         const View< L, V, O >& view );
+template <class L, class V, class O>
+EQFABRIC_INL std::ostream& operator<<(std::ostream& os,
+                                      const View<L, V, O>& view);
 }
 }
 #endif // EQFABRIC_VIEW_H

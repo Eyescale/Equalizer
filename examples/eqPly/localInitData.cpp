@@ -29,14 +29,14 @@
 #include "localInitData.h"
 #include "frameData.h"
 
-#pragma warning( disable: 4275 )
+#pragma warning(disable : 4275)
 #include <boost/program_options.hpp>
-#pragma warning( default: 4275 )
+#pragma warning(default : 4275)
 
 #include <cctype>
 
 #ifndef MIN
-#  define MIN LB_MIN
+#define MIN LB_MIN
 #endif
 
 namespace po = boost::program_options;
@@ -45,39 +45,38 @@ namespace eqPly
 {
 LocalInitData::LocalInitData()
     : _pathFilename("")
-    , _maxFrames( 0xffffffffu )
-    , _color( true )
-    , _isResident( false )
-    , _ignoreNoConfig( false )
+    , _maxFrames(0xffffffffu)
+    , _color(true)
+    , _isResident(false)
+    , _ignoreNoConfig(false)
 {
-    _filenames.push_back( lunchbox::getRootPath() +
-                          "/share/Equalizer/data" );
+    _filenames.push_back(lunchbox::getRootPath() + "/share/Equalizer/data");
 }
 
-LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
+LocalInitData& LocalInitData::operator=(const LocalInitData& from)
 {
-    _maxFrames   = from._maxFrames;
-    _color       = from._color;
-    _isResident  = from._isResident;
-    _filenames    = from._filenames;
+    _maxFrames = from._maxFrames;
+    _color = from._color;
+    _isResident = from._isResident;
+    _filenames = from._filenames;
     _pathFilename = from._pathFilename;
     _ignoreNoConfig = from._ignoreNoConfig;
 
-    setWindowSystem( from.getWindowSystem( ));
-    setRenderMode( from.getRenderMode( ));
-    if( from.useGLSL( ))
+    setWindowSystem(from.getWindowSystem());
+    setRenderMode(from.getRenderMode());
+    if (from.useGLSL())
         enableGLSL();
-    if( from.useInvertedFaces( ))
+    if (from.useInvertedFaces())
         enableInvertedFaces();
-    if( !from.showLogo( ))
+    if (!from.showLogo())
         disableLogo();
-    if( !from.useROI( ))
+    if (!from.useROI())
         disableROI();
 
     return *this;
 }
 
-void LocalInitData::parseArguments( const int argc, char** argv )
+void LocalInitData::parseArguments(const int argc, char** argv)
 {
     std::string wsHelp = "Window System API ( one of: ";
 #ifdef AGL
@@ -94,86 +93,85 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #endif
     wsHelp += ")";
 
-    bool showHelp( false );
+    bool showHelp(false);
     std::vector<std::string> userDefinedModelPath;
-    bool userDefinedBlackWhiteMode( false );
+    bool userDefinedBlackWhiteMode(false);
     std::string userDefinedWindowSystem("");
     std::string userDefinedRenderMode("");
-    bool userDefinedUseGLSL( false );
-    bool userDefinedInvertFaces( false );
-    bool userDefinedDisableLogo( false );
-    bool userDefinedDisableROI( false );
+    bool userDefinedUseGLSL(false);
+    bool userDefinedInvertFaces(false);
+    bool userDefinedDisableLogo(false);
+    bool userDefinedDisableROI(false);
 
     const std::string& desc = EqPly::getHelp();
-    po::options_description options( desc + " Version " +
-                                     eq::Version::getString(),
-                                     lunchbox::term::getSize().first );
-    options.add_options()
-        ( "help,h", po::bool_switch(&showHelp)->default_value( false ),
-          "produce help message" )
-        ( "model,m",
-          po::value<std::vector<std::string> >( &userDefinedModelPath ),
-          "ply model file names or directories" )
-        ( "blackAndWhite,b",
-          po::bool_switch(&userDefinedBlackWhiteMode)->default_value( false ),
-          "Don't use colors from ply file" )
-        ( "resident,r", po::bool_switch(&_isResident)->default_value( false ),
-          "Keep client resident (see resident mode documentation on website)" )
-        ( "numFrames,n",
-          po::value<uint32_t>(&_maxFrames)->default_value(0xffffffffu),
-          "Maximum number of rendered frames")
-        ( "windowSystem,w", po::value<std::string>( &userDefinedWindowSystem ),
-          wsHelp.c_str() )
-        ( "renderMode,c", po::value<std::string>( &userDefinedRenderMode ),
-          "Rendering Mode (immediate|displayList|VBO)" )
-        ( "glsl,g",
-          po::bool_switch(&userDefinedUseGLSL)->default_value( false ),
-          "Enable GLSL shaders" )
-        ( "invertFaces,i"
-          , po::bool_switch(&userDefinedInvertFaces)->default_value( false ),
-          "Invert faces (valid during binary file creation)" )
-        ( "cameraPath,a", po::value<std::string>(&_pathFilename),
-          "File containing camera path animation" )
-        ( "noOverlay,o",
-          po::bool_switch(&userDefinedDisableLogo)->default_value( false ),
-          "Disable overlay logo" )
-        ( "disableROI,d",
-          po::bool_switch(&userDefinedDisableROI)->default_value( false ),
-          "Disable region of interest (ROI)" );
+    po::options_description options(desc + " Version " +
+                                        eq::Version::getString(),
+                                    lunchbox::term::getSize().first);
+    options.add_options()("help,h",
+                          po::bool_switch(&showHelp)->default_value(false),
+                          "produce help message")(
+        "model,m", po::value<std::vector<std::string>>(&userDefinedModelPath),
+        "ply model file names or directories")(
+        "blackAndWhite,b",
+        po::bool_switch(&userDefinedBlackWhiteMode)->default_value(false),
+        "Don't use colors from ply file")(
+        "resident,r", po::bool_switch(&_isResident)->default_value(false),
+        "Keep client resident (see resident mode documentation on website)")(
+        "numFrames,n",
+        po::value<uint32_t>(&_maxFrames)->default_value(0xffffffffu),
+        "Maximum number of rendered frames")(
+        "windowSystem,w", po::value<std::string>(&userDefinedWindowSystem),
+        wsHelp.c_str())("renderMode,c",
+                        po::value<std::string>(&userDefinedRenderMode),
+                        "Rendering Mode (immediate|displayList|VBO)")(
+        "glsl,g", po::bool_switch(&userDefinedUseGLSL)->default_value(false),
+        "Enable GLSL shaders")(
+        "invertFaces,i",
+        po::bool_switch(&userDefinedInvertFaces)->default_value(false),
+        "Invert faces (valid during binary file creation)")(
+        "cameraPath,a", po::value<std::string>(&_pathFilename),
+        "File containing camera path animation")(
+        "noOverlay,o",
+        po::bool_switch(&userDefinedDisableLogo)->default_value(false),
+        "Disable overlay logo")(
+        "disableROI,d",
+        po::bool_switch(&userDefinedDisableROI)->default_value(false),
+        "Disable region of interest (ROI)");
     po::options_description all;
     all.add(options);
-    all.add_options()
-        ( "ignoreNoConfig",
-          po::bool_switch(&_ignoreNoConfig)->default_value( false ));
+    all.add_options()("ignoreNoConfig",
+                      po::bool_switch(&_ignoreNoConfig)->default_value(false));
 
     po::variables_map variableMap;
 
     try
     {
         // parse program options, ignore all non related options
-        po::store( po::command_line_parser( argc, argv ).options(
-                       all ).allow_unregistered().run(), variableMap );
-        po::notify( variableMap );
+        po::store(po::command_line_parser(argc, argv)
+                      .options(all)
+                      .allow_unregistered()
+                      .run(),
+                  variableMap);
+        po::notify(variableMap);
     }
-    catch( std::exception& exception )
+    catch (std::exception& exception)
     {
         LBERROR << "Error parsing command line: " << exception.what()
                 << std::endl;
         eq::exit(); // cppcheck-suppress unreachableCode
-        ::exit( EXIT_FAILURE );
+        ::exit(EXIT_FAILURE);
     }
 
-
     // Evaluate parsed command line options
-    if( showHelp )
+    if (showHelp)
     {
         std::cout << options << std::endl
                   << eq::getHelp() << eq::Client::getHelp() << std::endl;
         eq::exit(); // cppcheck-suppress unreachableCode
-        ::exit( EXIT_SUCCESS );
+        ::exit(EXIT_SUCCESS);
     }
 
-    if( variableMap.count("model") > 0 )
+    if (variableMap.count("model") > 0)
     {
         _filenames.clear();
         _filenames = userDefinedModelPath;
@@ -181,35 +179,34 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
     _color = !userDefinedBlackWhiteMode;
 
-    if( variableMap.count("windowSystem") > 0 )
-        setWindowSystem( userDefinedWindowSystem );
+    if (variableMap.count("windowSystem") > 0)
+        setWindowSystem(userDefinedWindowSystem);
 
-    if( variableMap.count("renderMode") > 0 )
+    if (variableMap.count("renderMode") > 0)
     {
-        std::transform( userDefinedRenderMode.begin(),
-                        userDefinedRenderMode.end(),
-                        userDefinedRenderMode.begin(),
-                        (int(*)(int))std::tolower );
+        std::transform(userDefinedRenderMode.begin(),
+                       userDefinedRenderMode.end(),
+                       userDefinedRenderMode.begin(),
+                       (int (*)(int))std::tolower);
 
-        if( userDefinedRenderMode == "immediate" )
-            setRenderMode( triply::RENDER_MODE_IMMEDIATE );
-        else if( userDefinedRenderMode == "displaylist" )
-            setRenderMode( triply::RENDER_MODE_DISPLAY_LIST );
-        else if( userDefinedRenderMode == "vbo" )
-            setRenderMode( triply::RENDER_MODE_BUFFER_OBJECT );
+        if (userDefinedRenderMode == "immediate")
+            setRenderMode(triply::RENDER_MODE_IMMEDIATE);
+        else if (userDefinedRenderMode == "displaylist")
+            setRenderMode(triply::RENDER_MODE_DISPLAY_LIST);
+        else if (userDefinedRenderMode == "vbo")
+            setRenderMode(triply::RENDER_MODE_BUFFER_OBJECT);
     }
 
-    if( userDefinedUseGLSL )
+    if (userDefinedUseGLSL)
         enableGLSL();
 
-    if( userDefinedInvertFaces)
+    if (userDefinedInvertFaces)
         enableInvertedFaces();
 
-    if( userDefinedDisableLogo )
+    if (userDefinedDisableLogo)
         disableLogo();
 
-    if( userDefinedDisableROI )
+    if (userDefinedDisableROI)
         disableROI();
 }
-
 }

@@ -26,12 +26,12 @@ namespace server
 {
 enum LogTopics
 {
-    LOG_INIT     = fabric::LOG_INIT,        // 512
-    LOG_ASSEMBLY = fabric::LOG_ASSEMBLY,    // 1024
-    LOG_TASKS    = fabric::LOG_TASKS,       // 2048
-    LOG_LB1      = fabric::LOG_LB1,         // 4096
-    LOG_LB2      = fabric::LOG_LB2,         // 8192
-    LOG_VIEW     = fabric::LOG_VIEW         // 16384
+    LOG_INIT = fabric::LOG_INIT,         // 512
+    LOG_ASSEMBLY = fabric::LOG_ASSEMBLY, // 1024
+    LOG_TASKS = fabric::LOG_TASKS,       // 2048
+    LOG_LB1 = fabric::LOG_LB1,           // 4096
+    LOG_LB2 = fabric::LOG_LB2,           // 8192
+    LOG_VIEW = fabric::LOG_VIEW          // 16384
 };
 }
 }

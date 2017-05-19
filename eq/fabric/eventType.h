@@ -31,32 +31,32 @@ namespace eventTypes
 enum EventType // Also update string table in event.cpp
 {
     // SizeEvent
-    EVENT_WINDOW_RESIZE,        //!< A window has been resized
-    EVENT_WINDOW_SHOW,          //!< A window is shown
-    EVENT_CHANNEL_RESIZE,       //!< A channel has been resized
-    EVENT_VIEW_RESIZE,          //!< A view has been resized
+    EVENT_WINDOW_RESIZE,  //!< A window has been resized
+    EVENT_WINDOW_SHOW,    //!< A window is shown
+    EVENT_CHANNEL_RESIZE, //!< A channel has been resized
+    EVENT_VIEW_RESIZE,    //!< A view has been resized
 
     // PointerEvent
-    EVENT_CHANNEL_POINTER_MOTION = 10, //!< A pointer is moved over a Channel
-    EVENT_CHANNEL_POINTER_BUTTON_PRESS, //!< Mouse button pressed in a Channel
+    EVENT_CHANNEL_POINTER_MOTION = 10,    //!< A pointer is moved over a Channel
+    EVENT_CHANNEL_POINTER_BUTTON_PRESS,   //!< Mouse button pressed in a Channel
     EVENT_CHANNEL_POINTER_BUTTON_RELEASE, //!< Mouse button release in a Channel
-    EVENT_CHANNEL_POINTER_WHEEL, //!< Mouse wheel scroll over a Channel
-    EVENT_WINDOW_POINTER_WHEEL, //!< Mouse wheel scroll over a Window
-    EVENT_WINDOW_POINTER_MOTION, //!< A pointer is moved over a Window
+    EVENT_CHANNEL_POINTER_WHEEL,          //!< Mouse wheel scroll over a Channel
+    EVENT_WINDOW_POINTER_WHEEL,           //!< Mouse wheel scroll over a Window
+    EVENT_WINDOW_POINTER_MOTION,          //!< A pointer is moved over a Window
     EVENT_WINDOW_POINTER_BUTTON_PRESS, //!< Mouse button is pressed in a Window
     EVENT_WINDOW_POINTER_BUTTON_RELEASE, //!< Mouse button release in a Window
 
     // KeyEvent
     EVENT_KEY_PRESS = 20, //!< Key pressed
-    EVENT_KEY_RELEASE, //!< Key released
+    EVENT_KEY_RELEASE,    //!< Key released
 
-    EVENT_MAGELLAN_AXIS = 30,        //!< AxisEvent: SpaceMouse touched
-    EVENT_MAGELLAN_BUTTON,      //!< ButtonEvent: SpaceMouse button pressed
+    EVENT_MAGELLAN_AXIS = 30, //!< AxisEvent: SpaceMouse touched
+    EVENT_MAGELLAN_BUTTON,    //!< ButtonEvent: SpaceMouse button pressed
 
     // Event
-    EVENT_WINDOW_CLOSE = 40,         //!< A window has been closed
-    EVENT_WINDOW_HIDE,          //!< A window is hidden
-    EVENT_WINDOW_EXPOSE,    //!< A window is dirty
+    EVENT_WINDOW_CLOSE = 40, //!< A window has been closed
+    EVENT_WINDOW_HIDE,       //!< A window is hidden
+    EVENT_WINDOW_EXPOSE,     //!< A window is dirty
     EVENT_EXIT, //!< Exit request from application or due to runtime error
     /** Window pointer grabbed by system window */
     EVENT_WINDOW_POINTER_GRAB,
@@ -76,16 +76,17 @@ enum EventType // Also update string table in event.cpp
      * 0-n Strings with additional information.
      */
     EVENT_CONFIG_ERROR = 50,
-    EVENT_NODE_ERROR, //!< Node error event. @sa CONFIG_ERROR
-    EVENT_PIPE_ERROR, //!< Pipe error event. @sa CONFIG_ERROR
-    EVENT_WINDOW_ERROR, //!< Window error event. @sa CONFIG_ERROR
+    EVENT_NODE_ERROR,    //!< Node error event. @sa CONFIG_ERROR
+    EVENT_PIPE_ERROR,    //!< Pipe error event. @sa CONFIG_ERROR
+    EVENT_WINDOW_ERROR,  //!< Window error event. @sa CONFIG_ERROR
     EVENT_CHANNEL_ERROR, //!< Channel error event. @sa CONFIG_ERROR
 
-    EVENT_VIEW_SCREENSHOT, //!< Viewport, frameNumber, Image with requested buffers
+    EVENT_VIEW_SCREENSHOT, //!< Viewport, frameNumber, Image with requested
+                           //! buffers
 
     // todo
-    EVENT_NODE_TIMEOUT,         //!< Node has timed out
-    EVENT_WINDOW_SCREENSAVER,   //!< A window screensaver request (Win32 only)
+    EVENT_NODE_TIMEOUT,       //!< Node has timed out
+    EVENT_WINDOW_SCREENSAVER, //!< A window screensaver request (Win32 only)
 
     EVENT_UNKNOWN, //!< Event type not known by the event handler
 
@@ -95,8 +96,7 @@ enum EventType // Also update string table in event.cpp
 };
 
 /** Print the event type to the given output stream. @version 1.0 */
-EQFABRIC_API std::ostream& operator << ( std::ostream&, const EventType& );
-
+EQFABRIC_API std::ostream& operator<<(std::ostream&, const EventType&);
 }
 }
 }

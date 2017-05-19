@@ -27,26 +27,27 @@
 
 #define USE_AVERAGE
 #define VSYNC_CAP 60.f
-#define SLOWDOWN  1.05f
+#define SLOWDOWN 1.05f
 
 namespace eq
 {
 namespace server
 {
-
 namespace
 {
 class LoadSubscriber : public CompoundVisitor
 {
 public:
-    explicit LoadSubscriber( ChannelListener* listener )
-        : _listener( listener ) {}
+    explicit LoadSubscriber(ChannelListener* listener)
+        : _listener(listener)
+    {
+    }
 
-    virtual VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit(Compound* compound)
     {
         Channel* channel = compound->getChannel();
-        LBASSERT( channel );
-        channel->addListener( _listener );
+        LBASSERT(channel);
+        channel->addListener(_listener);
 
         return TRAVERSE_CONTINUE;
     }
@@ -58,14 +59,16 @@ private:
 class LoadUnsubscriber : public CompoundVisitor
 {
 public:
-    explicit LoadUnsubscriber( ChannelListener* listener )
-        : _listener( listener ) {}
-
-    virtual VisitorResult visit( Compound* compound )
+    explicit LoadUnsubscriber(ChannelListener* listener)
+        : _listener(listener)
     {
-        Channel*  channel = compound->getChannel();
-        LBASSERT( channel );
-        channel->removeListener( _listener );
+    }
+
+    virtual VisitorResult visit(Compound* compound)
+    {
+        Channel* channel = compound->getChannel();
+        LBASSERT(channel);
+        channel->removeListener(_listener);
 
         return TRAVERSE_CONTINUE;
     }
@@ -73,41 +76,39 @@ public:
 private:
     ChannelListener* const _listener;
 };
-
 }
 
 // The smooth load balancer adapts the framerate of the compound to be the
 // average frame rate of all children, taking the DPlex period into account.
 
 FramerateEqualizer::FramerateEqualizer()
-        : _nSamples( 0 )
+    : _nSamples(0)
 {
     LBINFO << "New FramerateEqualizer @" << (void*)this << std::endl;
 }
 
-FramerateEqualizer::FramerateEqualizer( const FramerateEqualizer& from )
-        : Equalizer( from )
-        , _nSamples( 0 )
+FramerateEqualizer::FramerateEqualizer(const FramerateEqualizer& from)
+    : Equalizer(from)
+    , _nSamples(0)
 {
 }
 
 FramerateEqualizer::~FramerateEqualizer()
 {
-    attach( 0 );
+    attach(0);
 }
 
-void FramerateEqualizer::attach( Compound* compound )
+void FramerateEqualizer::attach(Compound* compound)
 {
     _exit();
-    Equalizer::attach( compound );
+    Equalizer::attach(compound);
 }
-
 
 void FramerateEqualizer::_init()
 {
     const Compound* compound = getCompound();
 
-    if( _nSamples > 0 || !compound )
+    if (_nSamples > 0 || !compound)
         return;
 
     _nSamples = 1;
@@ -115,43 +116,43 @@ void FramerateEqualizer::_init()
     // Subscribe to child channel load events
     const Compounds& children = compound->getChildren();
 
-    LBASSERT( _loadListeners.empty( ));
-    _loadListeners.resize( children.size( ));
+    LBASSERT(_loadListeners.empty());
+    _loadListeners.resize(children.size());
 
-    for( size_t i = 0; i < children.size(); ++i )
+    for (size_t i = 0; i < children.size(); ++i)
     {
-        Compound*      child        = children[i];
-        const uint32_t period       = child->getInheritPeriod();
-        LoadListener&  loadListener = _loadListeners[i];
+        Compound* child = children[i];
+        const uint32_t period = child->getInheritPeriod();
+        LoadListener& loadListener = _loadListeners[i];
 
         loadListener.parent = this;
         loadListener.period = period;
 
-        LoadSubscriber subscriber( &loadListener );
-        child->accept( subscriber );
+        LoadSubscriber subscriber(&loadListener);
+        child->accept(subscriber);
 
-        _nSamples = LB_MAX( _nSamples, period );
+        _nSamples = LB_MAX(_nSamples, period);
     }
 
-    _nSamples = LB_MIN( _nSamples, 100 );
+    _nSamples = LB_MIN(_nSamples, 100);
 }
 
 void FramerateEqualizer::_exit()
 {
     const Compound* compound = getCompound();
-    if( !compound || _nSamples == 0 )
+    if (!compound || _nSamples == 0)
         return;
 
     const Compounds& children = compound->getChildren();
 
-    LBASSERT( _loadListeners.size() == children.size( ));
-    for( size_t i = 0; i < children.size(); ++i )
+    LBASSERT(_loadListeners.size() == children.size());
+    for (size_t i = 0; i < children.size(); ++i)
     {
-        Compound*      child        = children[i];
-        LoadListener&  loadListener = _loadListeners[i];
+        Compound* child = children[i];
+        LoadListener& loadListener = _loadListeners[i];
 
-        LoadUnsubscriber unsubscriber( &loadListener );
-        child->accept( unsubscriber );
+        LoadUnsubscriber unsubscriber(&loadListener);
+        child->accept(unsubscriber);
     }
 
     _loadListeners.clear();
@@ -159,20 +160,19 @@ void FramerateEqualizer::_exit()
     _nSamples = 0;
 }
 
-
-void FramerateEqualizer::notifyUpdatePre( Compound* compound,
-                                          const uint32_t frameNumber )
+void FramerateEqualizer::notifyUpdatePre(Compound* compound,
+                                         const uint32_t frameNumber)
 {
     _init();
 
     // find starting point of contiguous block
-    const ssize_t size = ssize_t( _times.size( ));
-    ssize_t       from = 0;
-    if( size > 0 )
+    const ssize_t size = ssize_t(_times.size());
+    ssize_t from = 0;
+    if (size > 0)
     {
-        for( ssize_t i = size-1; i >= 0; --i )
+        for (ssize_t i = size - 1; i >= 0; --i)
         {
-            if( _times[i].second == 0.f )
+            if (_times[i].second == 0.f)
             {
                 from = i;
                 break;
@@ -185,40 +185,40 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #ifdef USE_AVERAGE
     float sumTime = 0.f;
 #else
-    float maxTime  = 0.f;
+    float maxTime = 0.f;
 #endif
 
-    LBLOG( LOG_LB2 ) << "Searching " << from+1 << ".." << size << std::endl;
-    for( ++from; from < size && nSamples < _nSamples; ++from )
+    LBLOG(LOG_LB2) << "Searching " << from + 1 << ".." << size << std::endl;
+    for (++from; from < size && nSamples < _nSamples; ++from)
     {
         const FrameTime& time = _times[from];
-        LBASSERT( time.first > 0 );
-        LBASSERT( time.second != 0.f );
+        LBASSERT(time.first > 0);
+        LBASSERT(time.second != 0.f);
 
         ++nSamples;
 #ifdef USE_AVERAGE
         sumTime += time.second;
 #else
-        maxTime = LB_MAX( maxTime, time.second );
+        maxTime = LB_MAX(maxTime, time.second);
 #endif
-        LBLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second
-                         << "ms" << std::endl;
+        LBLOG(LOG_LB2) << "Using " << time.first << ", " << time.second << "ms"
+                       << std::endl;
     }
 
-    if( nSamples == _nSamples )       // If we have a full set
-        while( from < ssize_t( _times.size( )))
-            _times.pop_back();            //  delete all older samples
+    if (nSamples == _nSamples) // If we have a full set
+        while (from < ssize_t(_times.size()))
+            _times.pop_back(); //  delete all older samples
     // always execute code above to not leak memory
 
-    if( isFrozen() || !compound->isActive() || !isActive( ))
+    if (isFrozen() || !compound->isActive() || !isActive())
     {
-        compound->setMaxFPS( std::numeric_limits< float >::max( ));
+        compound->setMaxFPS(std::numeric_limits<float>::max());
         return;
     }
 
-    if( nSamples > 0 )
+    if (nSamples > 0)
     {
-        //TODO: totalTime *= 1.f - damping;
+// TODO: totalTime *= 1.f - damping;
 #ifdef USE_AVERAGE
         const float time = (sumTime / nSamples) * SLOWDOWN;
 #else
@@ -227,74 +227,72 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 
         const float fps = 1000.f / time;
 #ifdef VSYNC_CAP
-        if( fps > VSYNC_CAP )
-            compound->setMaxFPS( std::numeric_limits< float >::max( ));
+        if (fps > VSYNC_CAP)
+            compound->setMaxFPS(std::numeric_limits<float>::max());
         else
 #endif
-            compound->setMaxFPS( fps );
+            compound->setMaxFPS(fps);
 
-        LBLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/"
-                         << _times.size() << " samples, " << time << "ms"
-                         << std::endl;
+        LBLOG(LOG_LB2) << fps << " Hz from " << nSamples << "/" << _times.size()
+                       << " samples, " << time << "ms" << std::endl;
     }
 
-    if( frameNumber > 0 )
-        _times.push_front( FrameTime( frameNumber, 0.f ));
-    LBASSERT( _times.size() < 10 );
+    if (frameNumber > 0)
+        _times.push_front(FrameTime(frameNumber, 0.f));
+    LBASSERT(_times.size() < 10);
 }
 
 void FramerateEqualizer::LoadListener::notifyLoadData(
     Channel* channel, const uint32_t frameNumber, const Statistics& statistics,
-    const Viewport& /*region*/  )
+    const Viewport& /*region*/)
 {
     // gather required load data
-    int64_t startTime = std::numeric_limits< int64_t >::max();
-    int64_t endTime   = 0;
-    for( size_t i = 0; i < statistics.size(); ++i )
+    int64_t startTime = std::numeric_limits<int64_t>::max();
+    int64_t endTime = 0;
+    for (size_t i = 0; i < statistics.size(); ++i)
     {
         const Statistic& data = statistics[i];
-        switch( data.type )
+        switch (data.type)
         {
-            case Statistic::CHANNEL_CLEAR:
-            case Statistic::CHANNEL_DRAW:
-            case Statistic::CHANNEL_ASSEMBLE:
-            case Statistic::CHANNEL_READBACK:
-                startTime = LB_MIN( startTime, data.startTime );
-                endTime   = LB_MAX( endTime, data.endTime );
-                break;
+        case Statistic::CHANNEL_CLEAR:
+        case Statistic::CHANNEL_DRAW:
+        case Statistic::CHANNEL_ASSEMBLE:
+        case Statistic::CHANNEL_READBACK:
+            startTime = LB_MIN(startTime, data.startTime);
+            endTime = LB_MAX(endTime, data.endTime);
+            break;
 
-            default:
-                break;
+        default:
+            break;
         }
     }
 
-    if( startTime == std::numeric_limits< int64_t >::max( ))
+    if (startTime == std::numeric_limits<int64_t>::max())
         return;
 
-    if( startTime == endTime ) // very fast draws might report 0 times
+    if (startTime == endTime) // very fast draws might report 0 times
         ++endTime;
 
-    for( std::deque< FrameTime >::iterator i = parent->_times.begin();
-         i != parent->_times.end(); ++i )
+    for (std::deque<FrameTime>::iterator i = parent->_times.begin();
+         i != parent->_times.end(); ++i)
     {
         FrameTime& frameTime = *i;
-        if( frameTime.first != frameNumber )
+        if (frameTime.first != frameNumber)
             continue;
 
-        const float time = static_cast< float >( endTime - startTime ) / period;
-        frameTime.second = LB_MAX( frameTime.second, time );
-        LBLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel "
-                        << channel->getName() << " time " << time
-                        << " period " << period << std::endl;
+        const float time = static_cast<float>(endTime - startTime) / period;
+        frameTime.second = LB_MAX(frameTime.second, time);
+        LBLOG(LOG_LB2) << "Frame " << frameNumber << " channel "
+                       << channel->getName() << " time " << time << " period "
+                       << period << std::endl;
     }
 }
 
-std::ostream& operator << ( std::ostream& os, const FramerateEqualizer* lb )
+std::ostream& operator<<(std::ostream& os, const FramerateEqualizer* lb)
 {
-    if( lb )
+    if (lb)
         os << "framerate_equalizer {}" << std::endl;
     return os;
 }
-
 }
 }

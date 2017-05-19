@@ -36,9 +36,8 @@
 
 namespace osgScaleViewer
 {
-
-Pipe::Pipe( eq::Node* parent )
-    : eq::Pipe( parent )
+Pipe::Pipe(eq::Node* parent)
+    : eq::Pipe(parent)
 {
 }
 
@@ -51,31 +50,29 @@ const FrameData& Pipe::getFrameData() const
     return _frameData;
 }
 
-bool Pipe::configInit( const eq::uint128_t& initID )
+bool Pipe::configInit(const eq::uint128_t& initID)
 {
-    if( !eq::Pipe::configInit( initID ))
+    if (!eq::Pipe::configInit(initID))
         return false;
 
-    Config* config = static_cast<Config*>( getConfig( ));
+    Config* config = static_cast<Config*>(getConfig());
     const InitData& initData = config->getInitData();
     const eq::uint128_t& frameDataID = initData.getFrameDataID();
-    const bool mapped = config->mapObject( &_frameData, frameDataID );
-    LBASSERT( mapped );
+    const bool mapped = config->mapObject(&_frameData, frameDataID);
+    LBASSERT(mapped);
 
     return mapped;
 }
 
 bool Pipe::configExit()
 {
-    getConfig()->unmapObject( &_frameData );
+    getConfig()->unmapObject(&_frameData);
     return eq::Pipe::configExit();
 }
 
-void Pipe::frameStart( const eq::uint128_t& frameID,
-                       const uint32_t frameNumber )
+void Pipe::frameStart(const eq::uint128_t& frameID, const uint32_t frameNumber)
 {
-    _frameData.sync( frameID );
-    eq::Pipe::frameStart( frameID, frameNumber );
+    _frameData.sync(frameID);
+    eq::Pipe::frameStart(frameID, frameNumber);
 }
-
 }

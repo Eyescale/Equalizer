@@ -21,12 +21,14 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/pixelViewport.h>
 
-
 namespace eq
 {
 namespace fabric
 {
-namespace detail { class WindowSettings; }
+namespace detail
+{
+class WindowSettings;
+}
 
 /** A set of settings to setup an eq::fabric::Window. */
 class WindowSettings
@@ -39,10 +41,10 @@ public:
     EQFABRIC_API virtual ~WindowSettings();
 
     /** @internal */
-    EQFABRIC_API WindowSettings( const WindowSettings& rhs );
+    EQFABRIC_API WindowSettings(const WindowSettings& rhs);
 
     /** @internal */
-    EQFABRIC_API WindowSettings& operator=( const WindowSettings& rhs );
+    EQFABRIC_API WindowSettings& operator=(const WindowSettings& rhs);
 
     /**
      * Window attributes.
@@ -56,27 +58,27 @@ public:
     enum IAttribute
     {
         // Note: also update string array initialization in window.ipp
-        IATTR_HINT_CORE_PROFILE,     //!< Core profile context if possible
-        IATTR_HINT_OPENGL_MAJOR,     //!< Major version for GL context creation
-        IATTR_HINT_OPENGL_MINOR,     //!< Minor version for GL context creation
-        IATTR_HINT_STEREO,           //!< Active stereo
-        IATTR_HINT_DOUBLEBUFFER,     //!< Front and back buffer
-        IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
-        IATTR_HINT_DECORATION,       //!< Window decorations
-        IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
-        IATTR_HINT_DRAWABLE,         //!< Window, FBO or OFF
-        IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
-        IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
-        IATTR_HINT_GRAB_POINTER,     //!< Capture mouse outside window
-        IATTR_HINT_WIDTH,            //!< Default horizontal resolution
-        IATTR_HINT_HEIGHT,           //!< Default vertical resolution
-        IATTR_PLANES_COLOR,          //!< No of per-component color planes
-        IATTR_PLANES_ALPHA,          //!< No of alpha planes
-        IATTR_PLANES_DEPTH,          //!< No of z-buffer planes
-        IATTR_PLANES_STENCIL,        //!< No of stencil planes
-        IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
-        IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
-        IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
+        IATTR_HINT_CORE_PROFILE,  //!< Core profile context if possible
+        IATTR_HINT_OPENGL_MAJOR,  //!< Major version for GL context creation
+        IATTR_HINT_OPENGL_MINOR,  //!< Minor version for GL context creation
+        IATTR_HINT_STEREO,        //!< Active stereo
+        IATTR_HINT_DOUBLEBUFFER,  //!< Front and back buffer
+        IATTR_HINT_FULLSCREEN,    //!< Fullscreen drawable
+        IATTR_HINT_DECORATION,    //!< Window decorations
+        IATTR_HINT_SWAPSYNC,      //!< Swap sync on vertical retrace
+        IATTR_HINT_DRAWABLE,      //!< Window, FBO or OFF
+        IATTR_HINT_STATISTICS,    //!< Statistics gathering hint
+        IATTR_HINT_SCREENSAVER,   //!< Screensaver (de)activation (WGL)
+        IATTR_HINT_GRAB_POINTER,  //!< Capture mouse outside window
+        IATTR_HINT_WIDTH,         //!< Default horizontal resolution
+        IATTR_HINT_HEIGHT,        //!< Default vertical resolution
+        IATTR_PLANES_COLOR,       //!< No of per-component color planes
+        IATTR_PLANES_ALPHA,       //!< No of alpha planes
+        IATTR_PLANES_DEPTH,       //!< No of z-buffer planes
+        IATTR_PLANES_STENCIL,     //!< No of stencil planes
+        IATTR_PLANES_ACCUM,       //!< No of accumulation buffer planes
+        IATTR_PLANES_ACCUM_ALPHA, //!< No of alpha accum buffer planes
+        IATTR_PLANES_SAMPLES,     //!< No of multisample (AA) planes
         IATTR_LAST,
         IATTR_ALL = IATTR_LAST
     };
@@ -87,11 +89,10 @@ public:
      * @return true if the attribute was changed, false otherwise.
      * @version 1.7.2
      */
-    EQFABRIC_API bool setIAttribute( const IAttribute attr,
-                                     const int32_t value );
+    EQFABRIC_API bool setIAttribute(const IAttribute attr, const int32_t value);
 
     /** @return the value of a window attribute. @version 1.7.2 */
-    EQFABRIC_API int32_t getIAttribute( const IAttribute attr ) const;
+    EQFABRIC_API int32_t getIAttribute(const IAttribute attr) const;
 
     /**
      * @return the window's pixel viewport wrt the parent pipe.
@@ -105,25 +106,24 @@ public:
      * @param pvp the viewport in pixels.
      * @version 1.7.2
      */
-    EQFABRIC_API void setPixelViewport( const PixelViewport& pvp );
+    EQFABRIC_API void setPixelViewport(const PixelViewport& pvp);
 
     /**  @return the window's name. @version 1.7.2 */
     EQFABRIC_API const std::string& getName() const;
 
     /** Set the window's name. @version 1.7.2 */
-    EQFABRIC_API void setName( const std::string& name );
+    EQFABRIC_API void setName(const std::string& name);
 
     /** @internal */
-    EQFABRIC_API void serialize( co::DataOStream& os ) const;
+    EQFABRIC_API void serialize(co::DataOStream& os) const;
 
     /** @internal */
-    EQFABRIC_API void deserialize( co::DataIStream& is );
+    EQFABRIC_API void deserialize(co::DataIStream& is);
 
 private:
     detail::WindowSettings* const _impl;
 };
 }
 }
-
 
 #endif // EQFABRIC_WINDOW_SETTINGS_H

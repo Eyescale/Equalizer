@@ -35,36 +35,33 @@ class FrameData;
 
 namespace eqPly
 {
-    /**
-     * Manages the argument parsing and non-distributed part of the
-     * initialization data.
-     */
-    class LocalInitData : public InitData
-    {
-    public:
-        LocalInitData();
+/**
+ * Manages the argument parsing and non-distributed part of the
+ * initialization data.
+ */
+class LocalInitData : public InitData
+{
+public:
+    LocalInitData();
 
-        void parseArguments( const int argc, char** argv );
+    void parseArguments(const int argc, char** argv);
 
-        const std::string& getPathFilename() const { return _pathFilename; }
-        uint32_t           getMaxFrames()    const { return _maxFrames; }
-        bool               useColor()        const { return _color; }
-        bool               isResident()      const { return _isResident; }
-        bool               ignoreNoConfig()  const { return _ignoreNoConfig; }
+    const std::string& getPathFilename() const { return _pathFilename; }
+    uint32_t getMaxFrames() const { return _maxFrames; }
+    bool useColor() const { return _color; }
+    bool isResident() const { return _isResident; }
+    bool ignoreNoConfig() const { return _ignoreNoConfig; }
+    const std::vector<std::string>& getFilenames() const { return _filenames; }
+    LocalInitData& operator=(const LocalInitData& from);
 
-        const std::vector< std::string >& getFilenames() const
-            { return _filenames; }
-
-        LocalInitData& operator = ( const LocalInitData& from );
-
-    private:
-        eq::Strings _filenames;
-        std::string _pathFilename;
-        uint32_t    _maxFrames;
-        bool        _color;
-        bool        _isResident;
-        bool        _ignoreNoConfig;
-    };
+private:
+    eq::Strings _filenames;
+    std::string _pathFilename;
+    uint32_t _maxFrames;
+    bool _color;
+    bool _isResident;
+    bool _ignoreNoConfig;
+};
 }
 
 #endif // EQ_PLY_LOCALINITDATA_H

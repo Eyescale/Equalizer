@@ -27,13 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef PLYLIB_VERTEXBUFFERROOT_H
 #define PLYLIB_VERTEXBUFFERROOT_H
 
-#include <triply/api.h>
 #include "vertexBufferData.h"
 #include "vertexBufferNode.h"
+#include <triply/api.h>
 
 namespace triply
 {
@@ -41,39 +40,38 @@ namespace triply
 class VertexBufferRoot : public VertexBufferNode
 {
 public:
-    VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
-    TRIPLY_API VertexBufferRoot( const std::string& filename );
+    VertexBufferRoot()
+        : VertexBufferNode()
+        , _invertFaces(false)
+    {
+    }
+    TRIPLY_API VertexBufferRoot(const std::string& filename);
 
-    TRIPLY_API virtual void cullDraw( VertexBufferState& state ) const;
-    TRIPLY_API virtual void draw( VertexBufferState& state ) const;
+    TRIPLY_API virtual void cullDraw(VertexBufferState& state) const;
+    TRIPLY_API virtual void draw(VertexBufferState& state) const;
 
-    TRIPLY_API void setupTree( VertexData& data, boost::progress_display& );
-    TRIPLY_API bool writeToFile( const std::string& filename );
-    TRIPLY_API bool readFromFile( const std::string& filename );
+    TRIPLY_API void setupTree(VertexData& data, boost::progress_display&);
+    TRIPLY_API bool writeToFile(const std::string& filename);
+    TRIPLY_API bool readFromFile(const std::string& filename);
     bool hasColors() const { return !_data.colors.empty(); }
-
     void useInvertedFaces() { _invertFaces = true; }
-
     const std::string& getName() const { return _name; }
-
 protected:
-    TRIPLY_API void toStream( std::ostream& os ) final;
-    TRIPLY_API void fromMemory( char* start );
+    TRIPLY_API void toStream(std::ostream& os) final;
+    TRIPLY_API void fromMemory(char* start);
     Type getType() const final { return Type::root; }
-
 private:
-    bool _constructFromPly( const std::string& filename );
-    bool _readBinary( std::string filename );
+    bool _constructFromPly(const std::string& filename);
+    bool _readBinary(std::string filename);
 
-    void _beginRendering( VertexBufferState& state ) const;
-    void _endRendering( VertexBufferState& state ) const;
+    void _beginRendering(VertexBufferState& state) const;
+    void _endRendering(VertexBufferState& state) const;
 
     friend class VertexBufferDist;
     VertexBufferData _data;
-    bool             _invertFaces;
-    std::string      _name;
+    bool _invertFaces;
+    std::string _name;
 };
 }
-
 
 #endif // PLYLIB_VERTEXBUFFERROOT_H

@@ -23,12 +23,11 @@
 #include "fileFrameWriter.h"
 
 #ifdef EQUALIZER_USE_DEFLECT
-#  include "../deflect/proxy.h"
+#include "../deflect/proxy.h"
 #endif
 
 namespace eq
 {
-
 namespace detail
 {
 enum State
@@ -43,56 +42,52 @@ class Channel
 {
 public:
     Channel()
-        : state( STATE_STOPPED )
+        : state(STATE_STOPPED)
 #ifdef EQUALIZER_USE_DEFLECT
-        , _deflectProxy( 0 )
+        , _deflectProxy(0)
 #endif
-        , _updateFrameBuffer( false )
+        , _updateFrameBuffer(false)
     {
         lunchbox::RNG rng;
-        color.r() = rng.get< uint8_t >();
-        color.g() = rng.get< uint8_t >();
-        color.b() = rng.get< uint8_t >();
+        color.r() = rng.get<uint8_t>();
+        color.g() = rng.get<uint8_t>();
+        color.b() = rng.get<uint8_t>();
     }
 
-    ~Channel()
+    ~Channel() { statistics->clear(); }
+    void addResultImageListener(ResultImageListener* listener)
     {
-        statistics->clear();
+        LBASSERT(std::find(resultImageListeners.begin(),
+                           resultImageListeners.end(),
+                           listener) == resultImageListeners.end());
+
+        resultImageListeners.push_back(listener);
     }
 
-    void addResultImageListener( ResultImageListener* listener )
-    {
-        LBASSERT( std::find( resultImageListeners.begin(),
-                             resultImageListeners.end(), listener ) ==
-                  resultImageListeners.end( ));
-
-        resultImageListeners.push_back( listener );
-    }
-
-    void removeResultImageListener( ResultImageListener* listener )
+    void removeResultImageListener(ResultImageListener* listener)
     {
         ResultImageListeners::iterator i =
-                std::find( resultImageListeners.begin(),
-                           resultImageListeners.end(), listener );
-        if( i != resultImageListeners.end( ))
-            resultImageListeners.erase( i );
+            std::find(resultImageListeners.begin(), resultImageListeners.end(),
+                      listener);
+        if (i != resultImageListeners.end())
+            resultImageListeners.erase(i);
     }
 
-    void frameViewFinish( eq::Channel& channel )
+    void frameViewFinish(eq::Channel& channel)
     {
-        if( channel.getSAttribute( channel.SATTR_DUMP_IMAGE ).empty( ))
-            removeResultImageListener( &frameWriter );
+        if (channel.getSAttribute(channel.SATTR_DUMP_IMAGE).empty())
+            removeResultImageListener(&frameWriter);
         else
         {
             ResultImageListeners::iterator i =
-                    std::find( resultImageListeners.begin(),
-                               resultImageListeners.end(), &frameWriter );
-            if( i == resultImageListeners.end( ))
-                addResultImageListener( &frameWriter );
+                std::find(resultImageListeners.begin(),
+                          resultImageListeners.end(), &frameWriter);
+            if (i == resultImageListeners.end())
+                addResultImageListener(&frameWriter);
         }
 
 #ifdef EQUALIZER_USE_DEFLECT
-        if( _deflectProxy && !_deflectProxy->isRunning( ))
+        if (_deflectProxy && !_deflectProxy->isRunning())
         {
             delete _deflectProxy;
             _deflectProxy = 0;
@@ -101,56 +96,56 @@ public:
 
         eq::View* view = channel.getView();
         eq::Frame::Buffer buffers = view->getScreenshotBuffers();
-        if( !resultImageListeners.empty( ))
+        if (!resultImageListeners.empty())
             buffers |= eq::Frame::Buffer::color;
 
-        if( buffers == eq::Frame::Buffer::none )
+        if (buffers == eq::Frame::Buffer::none)
             return;
 
-        downloadFramebuffer( channel, buffers );
-        for( ResultImageListener* listener : resultImageListeners )
-            listener->notifyNewImage( channel, framebufferImage );
+        downloadFramebuffer(channel, buffers);
+        for (ResultImageListener* listener : resultImageListeners)
+            listener->notifyNewImage(channel, framebufferImage);
         _finishImageListeners = true;
 
-        if( view->getScreenshotBuffers() != eq::Frame::Buffer::none )
+        if (view->getScreenshotBuffers() != eq::Frame::Buffer::none)
         {
-            view->sendScreenshotEvent( channel.getViewport(),
-                                       channel.getPipe()->getCurrentFrame(),
-                                       framebufferImage );
+            view->sendScreenshotEvent(channel.getViewport(),
+                                      channel.getPipe()->getCurrentFrame(),
+                                      framebufferImage);
         }
     }
 
     void frameFinish()
     {
-        if( _finishImageListeners )
-            for( ResultImageListener* listener : resultImageListeners )
+        if (_finishImageListeners)
+            for (ResultImageListener* listener : resultImageListeners)
                 listener->notifyFinishFrame();
         _finishImageListeners = false;
     }
 
-    void downloadFramebuffer( eq::Channel& channel,
-                              const eq::Frame::Buffer buffers )
+    void downloadFramebuffer(eq::Channel& channel,
+                             const eq::Frame::Buffer buffers)
     {
-        framebufferImage.setAlphaUsage( true );
-        framebufferImage.setQuality( eq::Frame::Buffer::color, 1.0f );
-        framebufferImage.setStorageType( eq::Frame::TYPE_MEMORY );
-        framebufferImage.setInternalFormat( eq::Frame::Buffer::color, GL_RGBA );
+        framebufferImage.setAlphaUsage(true);
+        framebufferImage.setQuality(eq::Frame::Buffer::color, 1.0f);
+        framebufferImage.setStorageType(eq::Frame::TYPE_MEMORY);
+        framebufferImage.setInternalFormat(eq::Frame::Buffer::color, GL_RGBA);
 
-        if( buffers & eq::Frame::Buffer::color )
-            framebufferImage.startReadback( eq::Frame::Buffer::color,
-                                            channel.getPixelViewport(),
-                                            channel.getContext(),
-                                            channel.getZoom(),
-                                            channel.getObjectManager( ));
+        if (buffers & eq::Frame::Buffer::color)
+            framebufferImage.startReadback(eq::Frame::Buffer::color,
+                                           channel.getPixelViewport(),
+                                           channel.getContext(),
+                                           channel.getZoom(),
+                                           channel.getObjectManager());
 
-        if( buffers & eq::Frame::Buffer::depth )
-            framebufferImage.startReadback( eq::Frame::Buffer::depth,
-                                            channel.getPixelViewport(),
-                                            channel.getContext(),
-                                            channel.getZoom(),
-                                            channel.getObjectManager( ));
+        if (buffers & eq::Frame::Buffer::depth)
+            framebufferImage.startReadback(eq::Frame::Buffer::depth,
+                                           channel.getPixelViewport(),
+                                           channel.getContext(),
+                                           channel.getZoom(),
+                                           channel.getObjectManager());
 
-        framebufferImage.finishReadback( channel.glewGetContext( ));
+        framebufferImage.finishReadback(channel.glewGetContext());
     }
 
     /** The configInit/configExit state. */
@@ -159,20 +154,20 @@ public:
     /** A random, unique color for this channel. */
     Vector3ub color;
 
-    typedef std::vector< Statistic > Statistics;
+    typedef std::vector<Statistic> Statistics;
     struct FrameStatistics
     {
-        Statistics data; //!< all events for one frame
+        Statistics data;     //!< all events for one frame
         eq::Viewport region; //!< from draw for equalizers
         /** reference count by pipe and transmit thread */
         lunchbox::a_int32_t used;
     };
 
-    typedef std::vector< FrameStatistics > StatisticsRB;
+    typedef std::vector<FrameStatistics> StatisticsRB;
     typedef StatisticsRB::const_iterator StatisticsRBCIter;
 
     /** Global statistics events, index per frame and channel. */
-    lunchbox::Lockable< StatisticsRB, lunchbox::SpinLock > statistics;
+    lunchbox::Lockable<StatisticsRB, lunchbox::SpinLock> statistics;
 
     /** The initial channel size, used for view resize events. */
     Vector2i initialSize;
@@ -182,10 +177,10 @@ public:
     PixelViewports regions;
 
     /** The number of the last finished frame. */
-    lunchbox::Monitor< uint32_t > finishedFrame;
+    lunchbox::Monitor<uint32_t> finishedFrame;
 
     /** Listeners that get notified on each new rendered image */
-    typedef std::vector< ResultImageListener* > ResultImageListeners;
+    typedef std::vector<ResultImageListener*> ResultImageListeners;
     ResultImageListeners resultImageListeners;
 
     /** Image of the current framebuffer if result listeners are present */
@@ -201,6 +196,5 @@ public:
     bool _updateFrameBuffer;
     bool _finishImageListeners = false;
 };
-
 }
 }

@@ -33,22 +33,21 @@
 
 namespace eqPly
 {
-bool Node::configInit( const eq::uint128_t& initID )
+bool Node::configInit(const eq::uint128_t& initID)
 {
     // All render data is static or multi-buffered, we can run asynchronously
-    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
-        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
+    if (getIAttribute(IATTR_THREAD_MODEL) == eq::UNDEFINED)
+        setIAttribute(IATTR_THREAD_MODEL, eq::ASYNC);
 
-    if( !eq::Node::configInit( initID ))
+    if (!eq::Node::configInit(initID))
         return false;
 
-    Config* config = static_cast< Config* >( getConfig( ));
-    if( !isApplicationNode() && !config->loadInitData( initID ))
+    Config* config = static_cast<Config*>(getConfig());
+    if (!isApplicationNode() && !config->loadInitData(initID))
     {
-        sendError( ERROR_EQPLY_MAPOBJECT_FAILED );
+        sendError(ERROR_EQPLY_MAPOBJECT_FAILED);
         return false;
     }
     return true;
 }
-
 }

@@ -36,15 +36,14 @@ namespace eqCpu
 class Window : public eq::Window
 {
 public:
-    Window( eq::Pipe* parent );
+    Window(eq::Pipe* parent);
 
 protected:
-    bool configInitSystemWindow( const eq::uint128_t& initID ) final;
+    bool configInitSystemWindow(const eq::uint128_t& initID) final;
 
-    bool configInitGL( const eq::uint128_t& ) final { return true; }
+    bool configInitGL(const eq::uint128_t&) final { return true; }
     bool configExitGL() final { return true; }
 };
-
 }
 
 #endif // EQ_CPU_WINDOW_H

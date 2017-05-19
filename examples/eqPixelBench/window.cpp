@@ -31,13 +31,13 @@
 
 namespace eqPixelBench
 {
-
-bool Window::configInit( const eq::uint128_t& initID )
+bool Window::configInit(const eq::uint128_t& initID)
 {
-    setIAttribute( eq::WindowSettings::IATTR_PLANES_ALPHA,   8 ); // enforce visual with alpha
-    setIAttribute( eq::WindowSettings::IATTR_PLANES_STENCIL, 8 ); // enforce visual with stencil
+    setIAttribute(eq::WindowSettings::IATTR_PLANES_ALPHA,
+                  8); // enforce visual with alpha
+    setIAttribute(eq::WindowSettings::IATTR_PLANES_STENCIL,
+                  8); // enforce visual with stencil
 
-    return eq::Window::configInit( initID );
+    return eq::Window::configInit(initID);
 }
 }
-

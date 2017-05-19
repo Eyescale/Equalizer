@@ -25,41 +25,34 @@ namespace eq
 {
 namespace server
 {
-
-std::ostream& operator << ( std::ostream& os, const TileEqualizer* );
+std::ostream& operator<<(std::ostream& os, const TileEqualizer*);
 
 class TileEqualizer : public Equalizer
 {
 public:
     EQSERVER_API TileEqualizer();
-    TileEqualizer( const TileEqualizer& from );
+    TileEqualizer(const TileEqualizer& from);
     ~TileEqualizer() {}
-
     /** @sa CompoundListener::notifyUpdatePre */
-    void notifyUpdatePre( Compound* compound,
-                          const uint32_t frameNumber ) final;
+    void notifyUpdatePre(Compound* compound, const uint32_t frameNumber) final;
 
-    void toStream( std::ostream& os ) const final { os << this; }
-    void setName( const std::string& name ) { _name = name; }
-
+    void toStream(std::ostream& os) const final { os << this; }
+    void setName(const std::string& name) { _name = name; }
     const std::string& getName() const { return _name; }
-
     uint32_t getType() const final { return fabric::TILE_EQUALIZER; }
-
 protected:
-    void notifyChildAdded( Compound*, Compound* ) override {}
-    void notifyChildRemove( Compound*, Compound* ) override {}
-
+    void notifyChildAdded(Compound*, Compound*) override {}
+    void notifyChildRemove(Compound*, Compound*) override {}
 private:
     std::string _getQueueName() const;
-    void _destroyQueues( Compound* compound );
-    void _createQueues( Compound* compound );
+    void _destroyQueues(Compound* compound);
+    void _createQueues(Compound* compound);
 
     bool _created;
     std::string _name;
 };
 
-} //server
-} //eq
+} // server
+} // eq
 
 #endif // EQS_TILEEQUALIZER_H

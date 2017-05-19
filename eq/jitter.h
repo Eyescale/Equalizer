@@ -35,7 +35,6 @@
  * OpenGL(TM) is a trademark of Silicon Graphics, Inc.
  */
 
-
 #ifndef JITTER_H_
 #define JITTER_H_
 
@@ -44,17 +43,17 @@
 
 namespace eq
 {
-    /** Optimal jitter points for 2,3,4,8,15,24 and 66 FSAA samples. @internal*/
-    struct Jitter
-    {
-        static Vector2f j2[2];   //!< Jitter values for 2 samples
-        static Vector2f j3[3];   //!< Jitter values for 3 samples
-        static Vector2f j4[4];   //!< Jitter values for 4 samples
-        static Vector2f j8[8];   //!< Jitter values for 8 samples
-        static Vector2f j15[15]; //!< Jitter values for 15 samples
-        static Vector2f j24[24]; //!< Jitter values for 24 samples
-        static Vector2f j66[66]; //!< Jitter values for 66 samples
-    };
+/** Optimal jitter points for 2,3,4,8,15,24 and 66 FSAA samples. @internal*/
+struct Jitter
+{
+    static Vector2f j2[2];   //!< Jitter values for 2 samples
+    static Vector2f j3[3];   //!< Jitter values for 3 samples
+    static Vector2f j4[4];   //!< Jitter values for 4 samples
+    static Vector2f j8[8];   //!< Jitter values for 8 samples
+    static Vector2f j15[15]; //!< Jitter values for 15 samples
+    static Vector2f j24[24]; //!< Jitter values for 24 samples
+    static Vector2f j66[66]; //!< Jitter values for 66 samples
+};
 }
 
 #endif /* JITTER_H_ */

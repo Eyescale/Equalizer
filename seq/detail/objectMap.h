@@ -18,44 +18,44 @@
 #ifndef EQSEQUEL_DETAIL_OBJECTMAP_H
 #define EQSEQUEL_DETAIL_OBJECTMAP_H
 
+#include <co/objectMap.h>   // base class
 #include <seq/objectType.h> // used inline
 #include <seq/types.h>
-#include <co/objectMap.h>      // base class
 
 namespace seq
 {
 namespace detail
 {
-    /** Central distributed object registry. */
-    class ObjectMap : public co::ObjectMap
+/** Central distributed object registry. */
+class ObjectMap : public co::ObjectMap
+{
+public:
+    ObjectMap(eq::Config& config, co::ObjectFactory& factory);
+    ~ObjectMap();
+
+    void setInitData(co::Object* object);
+    void setFrameData(co::Object* object);
+
+    co::Object* getInitData(co::Object* object)
     {
-    public:
-        ObjectMap( eq::Config& config, co::ObjectFactory& factory );
-        ~ObjectMap();
+        return map(_initData, object);
+    }
+    co::Object* getFrameData() { return map(_frameData); }
+protected:
+    virtual void serialize(co::DataOStream& os, const uint64_t dirtyBits);
+    virtual void deserialize(co::DataIStream& is, const uint64_t dirtyBits);
 
-        void setInitData( co::Object* object );
-        void setFrameData( co::Object* object );
+private:
+    uint128_t _initData;
+    uint128_t _frameData;
 
-        co::Object* getInitData( co::Object* object )
-            { return map( _initData, object ); }
-        co::Object* getFrameData() { return map( _frameData ); }
-
-    protected:
-        virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
-        virtual void deserialize( co::DataIStream& is,
-                                  const uint64_t dirtyBits );
-
-    private:
-        uint128_t _initData;
-        uint128_t _frameData;
-
-        /** The changed parts of the object since the last serialize(). */
-        enum DirtyBits
-        {
-            DIRTY_INITDATA    = co::ObjectMap::DIRTY_CUSTOM << 0, // 4
-            DIRTY_FRAMEDATA   = co::ObjectMap::DIRTY_CUSTOM << 1  // 8
-        };
+    /** The changed parts of the object since the last serialize(). */
+    enum DirtyBits
+    {
+        DIRTY_INITDATA = co::ObjectMap::DIRTY_CUSTOM << 0, // 4
+        DIRTY_FRAMEDATA = co::ObjectMap::DIRTY_CUSTOM << 1 // 8
     };
+};
 }
 }
 #endif // EQSEQUEL_DETAIL_OBJECTMAP_H

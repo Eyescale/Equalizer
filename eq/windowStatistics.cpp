@@ -26,53 +26,49 @@
 #include <cstdio>
 
 #ifdef _MSC_VER
-#  define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 namespace eq
 {
-
-WindowStatistics::WindowStatistics( const Statistic::Type type,
-                                    Window* window )
-        : StatisticSampler< Window >( type, window )
+WindowStatistics::WindowStatistics(const Statistic::Type type, Window* window)
+    : StatisticSampler<Window>(type, window)
 {
     const int32_t hint =
-        _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
-    if( hint == OFF )
+        _owner->getIAttribute(WindowSettings::IATTR_HINT_STATISTICS);
+    if (hint == OFF)
         return;
 
     const std::string& name = window->getName();
-    if( name.empty( ))
-        snprintf( statistic.resourceName, 32, "Window %s",
-                  window->getID().getShortString().c_str( ));
+    if (name.empty())
+        snprintf(statistic.resourceName, 32, "Window %s",
+                 window->getID().getShortString().c_str());
     else
-        snprintf( statistic.resourceName, 32, "%s", name.c_str());
+        snprintf(statistic.resourceName, 32, "%s", name.c_str());
     statistic.resourceName[31] = 0;
 
-    if( type != Statistic::WINDOW_FPS && hint == NICEST )
+    if (type != Statistic::WINDOW_FPS && hint == NICEST)
         window->finish();
 
-    statistic.startTime  = window->getConfig()->getTime();
+    statistic.startTime = window->getConfig()->getTime();
 }
-
 
 WindowStatistics::~WindowStatistics()
 {
     const int32_t hint =
-        _owner->getIAttribute( WindowSettings::IATTR_HINT_STATISTICS );
-    if( hint == OFF )
+        _owner->getIAttribute(WindowSettings::IATTR_HINT_STATISTICS);
+    if (hint == OFF)
         return;
 
-    if( statistic.frameNumber == 0 ) // does not belong to a frame
+    if (statistic.frameNumber == 0) // does not belong to a frame
         return;
 
-    if( statistic.type != Statistic::WINDOW_FPS && hint == NICEST )
+    if (statistic.type != Statistic::WINDOW_FPS && hint == NICEST)
         _owner->finish();
 
     statistic.endTime = _owner->getConfig()->getTime();
-    if( statistic.endTime <= statistic.startTime )
+    if (statistic.endTime <= statistic.startTime)
         statistic.endTime = statistic.startTime + 1;
-    _owner->processEvent( statistic );
+    _owner->processEvent(statistic);
 }
-
 }

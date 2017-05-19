@@ -25,7 +25,10 @@ namespace eq
 {
 namespace fabric
 {
-namespace detail { class ErrorRegistry; }
+namespace detail
+{
+class ErrorRegistry;
+}
 
 /**
  * The registry translating error codes to strings.
@@ -47,23 +50,21 @@ public:
     ~ErrorRegistry(); //!< @internal
 
     /** @return the error string for the given error code. @version 1.0 */
-    EQFABRIC_API const std::string& getString( const uint32_t error ) const;
+    EQFABRIC_API const std::string& getString(const uint32_t error) const;
 
     /** Set an error string for the given error code. @version 1.0 */
-    EQFABRIC_API void setString( const uint32_t error,
-                                 const std::string& text );
+    EQFABRIC_API void setString(const uint32_t error, const std::string& text);
 
     /** Clear a given error code string. @version 1.0 */
-    EQFABRIC_API void eraseString( const uint32_t error );
+    EQFABRIC_API void eraseString(const uint32_t error);
 
     EQFABRIC_API bool isEmpty() const; //!< @internal
 
 private:
-    ErrorRegistry( const ErrorRegistry& ) = delete;
-    ErrorRegistry& operator=( const ErrorRegistry& ) = delete;
+    ErrorRegistry(const ErrorRegistry&) = delete;
+    ErrorRegistry& operator=(const ErrorRegistry&) = delete;
     detail::ErrorRegistry* const _impl;
 };
-
 }
 }
 #endif // EQFABRIC_ERRORREGISTRY_H

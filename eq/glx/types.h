@@ -36,7 +36,6 @@ namespace eq
  */
 namespace glx
 {
-
 class EventHandler;
 class MessagePump;
 class Pipe;
@@ -54,7 +53,7 @@ class WindowIF;
  *
  * @param display the current display connection to use.
  */
-void XSetCurrentDisplay( Display* display );
+void XSetCurrentDisplay(Display* display);
 
 /** @return the current display connection for the calling thread. */
 Display* XGetCurrentDisplay();

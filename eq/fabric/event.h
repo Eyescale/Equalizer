@@ -35,16 +35,22 @@ namespace fabric
  */
 struct Event
 {
-    Event() : serial(0), time(0) {}
+    Event()
+        : serial(0)
+        , time(0)
+    {
+    }
 
-    uint32_t serial; //!< unique originator serial number
-    int64_t time; //!< The config time when the event was created
+    uint32_t serial;      //!< unique originator serial number
+    int64_t time;         //!< The config time when the event was created
     uint128_t originator; //!< The identifier of the entity emitting the event
 };
 
 /** Print the event to the given output stream. @version 1.0 */
-inline std::ostream& operator << ( std::ostream& os, const Event& event )
-    { return os << event.originator; }
+inline std::ostream& operator<<(std::ostream& os, const Event& event)
+{
+    return os << event.originator;
+}
 }
 }
 

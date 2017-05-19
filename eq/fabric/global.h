@@ -26,31 +26,30 @@ namespace eq
 {
 namespace fabric
 {
-    /** Global parameter handling for the Equalizer fabric namespace. */
-    class Global
-    {
-    public:
-        /**
-         * Set the default Equalizer server.
-         *
-         * @param server the default server.
-         */
-        EQFABRIC_API static void setServer( const std::string& server );
+/** Global parameter handling for the Equalizer fabric namespace. */
+class Global
+{
+public:
+    /**
+     * Set the default Equalizer server.
+     *
+     * @param server the default server.
+     */
+    EQFABRIC_API static void setServer(const std::string& server);
 
-        /** @return the default Equalizer server. */
-        EQFABRIC_API static const std::string& getServer();
+    /** @return the default Equalizer server. */
+    EQFABRIC_API static const std::string& getServer();
 
-        /** @return the error registry. @version 1.5 */
-        EQFABRIC_API static ErrorRegistry& getErrorRegistry();
+    /** @return the error registry. @version 1.5 */
+    EQFABRIC_API static ErrorRegistry& getErrorRegistry();
 
-        EQFABRIC_API static void setFlags( const uint32_t flags );//!< @internal
-        EQFABRIC_API static uint32_t getFlags(); //!< @internal
+    EQFABRIC_API static void setFlags(const uint32_t flags); //!< @internal
+    EQFABRIC_API static uint32_t getFlags();                 //!< @internal
 
-        /** @internal */
-        EQFABRIC_API static void setPrefixes( const Strings& prefixes );
-        EQFABRIC_API static const Strings& getPrefixes(); //!< @internal
-    };
+    /** @internal */
+    EQFABRIC_API static void setPrefixes(const Strings& prefixes);
+    EQFABRIC_API static const Strings& getPrefixes(); //!< @internal
+};
 }
 }
 #endif // EQFABRIC_GLOBAL_H
-

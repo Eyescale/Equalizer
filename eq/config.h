@@ -23,12 +23,15 @@
 #include <eq/api.h>
 #include <eq/types.h>
 
-#include <eq/fabric/config.h>        // base class
-#include <co/objectHandler.h>        // base class
+#include <co/objectHandler.h> // base class
+#include <eq/fabric/config.h> // base class
 
 namespace eq
 {
-namespace detail { class Config; }
+namespace detail
+{
+class Config;
+}
 
 /**
  * A configuration is a visualization session driven by an application.
@@ -52,16 +55,17 @@ namespace detail { class Config; }
  *
  * @sa fabric::Config for public methods
  */
-class Config : public fabric::Config< Server, Config, Observer, Layout, Canvas,
-                                      Node, ConfigVisitor >,
+class Config : public fabric::Config<Server, Config, Observer, Layout, Canvas,
+                                     Node, ConfigVisitor>,
                public co::ObjectHandler
 {
 public:
-    typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
-                            ConfigVisitor > Super; //!< base class
+    typedef fabric::Config<Server, Config, Observer, Layout, Canvas, Node,
+                           ConfigVisitor>
+        Super; //!< base class
 
     /** Construct a new config. @version 1.0 */
-    EQ_API explicit Config( ServerPtr parent );
+    EQ_API explicit Config(ServerPtr parent);
 
     /** Destruct a config. @version 1.0 */
     EQ_API virtual ~Config();
@@ -80,7 +84,7 @@ public:
      */
     EQ_API co::NodePtr getApplicationNode();
 
-    EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+    EQ_API co::CommandQueue* getMainThreadQueue();    //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
     /** @return the frame number of the last frame started. @version 1.0 */
@@ -118,8 +122,10 @@ public:
     EQ_API MessagePump* getMessagePump();
 
     /** @internal */
-    const Channel* findChannel( const std::string& name ) const
-        { return find< Channel >( name ); }
+    const Channel* findChannel(const std::string& name) const
+    {
+        return find<Channel>(name);
+    }
     //@}
 
     /** @name Operations */
@@ -147,7 +153,7 @@ public:
      * @return true if the initialization was successful, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool init( const uint128_t& initID );
+    EQ_API virtual bool init(const uint128_t& initID);
 
     /**
      * Exit this configuration.
@@ -187,7 +193,7 @@ public:
     EQ_API bool update();
 
     /** @sa fabric::Config::setLatency() */
-    EQ_API void setLatency( const uint32_t latency ) override;
+    EQ_API void setLatency(const uint32_t latency) override;
     //@}
 
     /** @name Object registry. */
@@ -199,7 +205,7 @@ public:
      * local client node.
      * @version 1.0
      */
-    EQ_API bool registerObject( co::Object* object ) override;
+    EQ_API bool registerObject(co::Object* object) override;
 
     /**
      * Deregister a distributed object.
@@ -210,7 +216,7 @@ public:
      * @param object the object instance.
      * @version 1.0
      */
-    EQ_API void deregisterObject( co::Object* object ) override;
+    EQ_API void deregisterObject(co::Object* object) override;
 
     /**
      * Map a distributed object.
@@ -219,22 +225,22 @@ public:
      * local client node.
      * @version 1.0
      */
-    EQ_API virtual bool mapObject( co::Object* object, const uint128_t& id,
-                                const uint128_t& version = co::VERSION_OLDEST );
-
+    EQ_API virtual bool mapObject(
+        co::Object* object, const uint128_t& id,
+        const uint128_t& version = co::VERSION_OLDEST);
 
     /** Start mapping a distributed object. @version 1.0 */
-    EQ_API virtual uint32_t mapObjectNB( co::Object* object, const uint128_t& id,
-                                const uint128_t& version = co::VERSION_OLDEST );
+    EQ_API virtual uint32_t mapObjectNB(
+        co::Object* object, const uint128_t& id,
+        const uint128_t& version = co::VERSION_OLDEST);
 
     /** Start mapping a distributed object from a known master. @version 1.0 */
-    EQ_API uint32_t mapObjectNB( co::Object* object,
-                                 const uint128_t& id,
-                                 const uint128_t& version,
-                                 co::NodePtr master ) override;
+    EQ_API uint32_t mapObjectNB(co::Object* object, const uint128_t& id,
+                                const uint128_t& version,
+                                co::NodePtr master) override;
 
     /** Finalize the mapping of a distributed object. @version 1.0 */
-    EQ_API bool mapObjectSync( const uint32_t requestID ) override;
+    EQ_API bool mapObjectSync(const uint32_t requestID) override;
 
     /**
      * Unmap a mapped object.
@@ -243,7 +249,7 @@ public:
      * local client node.
      * @version 1.0
      */
-    EQ_API void unmapObject( co::Object* object ) override;
+    EQ_API void unmapObject(co::Object* object) override;
 
     /**
      * Synchronize the local object with a remote object.
@@ -251,10 +257,9 @@ public:
      * Provided for symmetry. Forwards unmapping to local client node.
      * @version 1.7.4
      */
-    EQ_API f_bool_t syncObject( co::Object* object, const uint128_t& id,
-                                co::NodePtr master,
-                                const uint32_t instanceID = CO_INSTANCE_ALL)
-        override;
+    EQ_API f_bool_t
+        syncObject(co::Object* object, const uint128_t& id, co::NodePtr master,
+                   const uint32_t instanceID = CO_INSTANCE_ALL) override;
     //@}
 
     /** @name Frame Control */
@@ -275,7 +280,7 @@ public:
      * @return the frame number of the new frame.
      * @version 1.0
      */
-    EQ_API virtual uint32_t startFrame( const uint128_t& frameID );
+    EQ_API virtual uint32_t startFrame(const uint128_t& frameID);
 
     /**
      * Finish the rendering of a frame.
@@ -316,7 +321,7 @@ public:
      * @param frameNumber the frame to release.
      * @version 1.0
      */
-    EQ_API void releaseFrameLocal( const uint32_t frameNumber );
+    EQ_API void releaseFrameLocal(const uint32_t frameNumber);
 
     /**
      * Asynchronously signal all channels to interrupt their rendering.
@@ -344,7 +349,7 @@ public:
      * @return the event command to pass additional data to
      * @version 1.5.1
      */
-    EQ_API EventOCommand sendEvent( const uint32_t type );
+    EQ_API EventOCommand sendEvent(const uint32_t type);
 
     /**
      * Send an error event to the application node.
@@ -353,7 +358,7 @@ public:
      * @param error the error message.
      * @version 1.8.0
      */
-    EQ_API EventOCommand sendError( const uint32_t type, const Error& error );
+    EQ_API EventOCommand sendError(const uint32_t type, const Error& error);
 
     /** @return the errors since the last call to this method.
      *  @version 1.9
@@ -373,8 +378,8 @@ public:
      * @version 1.5.1
      * @sa Client::processCommand()
      */
-    EQ_API EventICommand getNextEvent( const uint32_t timeout =
-                                       LB_TIMEOUT_INDEFINITE ) const;
+    EQ_API EventICommand
+        getNextEvent(const uint32_t timeout = LB_TIMEOUT_INDEFINITE) const;
 
     /**
      * Handle the given event. Thread safe.
@@ -383,13 +388,13 @@ public:
      * @return true if the event requires a redraw, false if not.
      * @version 1.5.1
      */
-    EQ_API virtual bool handleEvent( EventICommand command );
-    EQ_API virtual bool handleEvent( EventType type, const Event& event );
-    EQ_API virtual bool handleEvent( EventType type, const SizeEvent& event );
-    EQ_API virtual bool handleEvent( EventType type, const PointerEvent& event);
-    EQ_API virtual bool handleEvent( EventType type, const KeyEvent& event );
-    EQ_API virtual bool handleEvent( const AxisEvent& event );
-    EQ_API virtual bool handleEvent( const ButtonEvent& event );
+    EQ_API virtual bool handleEvent(EventICommand command);
+    EQ_API virtual bool handleEvent(EventType type, const Event& event);
+    EQ_API virtual bool handleEvent(EventType type, const SizeEvent& event);
+    EQ_API virtual bool handleEvent(EventType type, const PointerEvent& event);
+    EQ_API virtual bool handleEvent(EventType type, const KeyEvent& event);
+    EQ_API virtual bool handleEvent(const AxisEvent& event);
+    EQ_API virtual bool handleEvent(const ButtonEvent& event);
 
     /** @return true if events are pending. Thread safe. @version 1.0 */
     EQ_API bool checkEvent() const;
@@ -411,7 +416,7 @@ public:
      * @param stat the statistic event.
      * @warning experimental, may not be supported in the future
      */
-    EQ_API virtual void addStatistic( const Statistic& stat );
+    EQ_API virtual void addStatistic(const Statistic& stat);
     //@}
 
     /**
@@ -419,20 +424,19 @@ public:
      * Set up the config's message pump for the given pipe.
      * Used by non-threaded and AGL pipes.
      */
-    void setupMessagePump( Pipe* pipe );
+    void setupMessagePump(Pipe* pipe);
 
     /** @internal Set up appNode connections configured by server. */
-    void setupServerConnections( const std::string& connectionData );
+    void setupServerConnections(const std::string& connectionData);
 
 protected:
     /** @internal */
-    EQ_API void attach( const uint128_t& id,
-                        const uint32_t instanceID ) override;
+    EQ_API void attach(const uint128_t& id, const uint32_t instanceID) override;
 
     EQ_API void notifyAttached() override; //!< @internal
-    EQ_API void notifyDetach() override; //!< @internal
+    EQ_API void notifyDetach() override;   //!< @internal
     /** @internal */
-    EQ_API void changeLatency( const uint32_t latency ) override;
+    EQ_API void changeLatency(const uint32_t latency) override;
     EQ_API bool mapViewObjects() const override; //!< @internal
 
 private:
@@ -454,16 +458,16 @@ private:
     void _exitMessagePump();
 
     /** The command functions. */
-    bool _cmdSyncClock( co::ICommand& command );
-    bool _cmdCreateNode( co::ICommand& command );
-    bool _cmdDestroyNode( co::ICommand& command );
-    bool _cmdInitReply( co::ICommand& command );
-    bool _cmdExitReply( co::ICommand& command );
-    bool _cmdUpdateVersion( co::ICommand& command );
-    bool _cmdUpdateReply( co::ICommand& command );
-    bool _cmdReleaseFrameLocal( co::ICommand& command );
-    bool _cmdFrameFinish( co::ICommand& command );
-    bool _cmdSwapObject( co::ICommand& command );
+    bool _cmdSyncClock(co::ICommand& command);
+    bool _cmdCreateNode(co::ICommand& command);
+    bool _cmdDestroyNode(co::ICommand& command);
+    bool _cmdInitReply(co::ICommand& command);
+    bool _cmdExitReply(co::ICommand& command);
+    bool _cmdUpdateVersion(co::ICommand& command);
+    bool _cmdUpdateReply(co::ICommand& command);
+    bool _cmdReleaseFrameLocal(co::ICommand& command);
+    bool _cmdFrameFinish(co::ICommand& command);
+    bool _cmdSwapObject(co::ICommand& command);
 };
 }
 

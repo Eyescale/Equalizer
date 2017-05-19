@@ -19,13 +19,13 @@
 #ifndef EQSERVER_SERVER_H
 #define EQSERVER_SERVER_H
 
-#include <eq/server/api.h>
 #include "types.h"
 #include "visitorResult.h" // enum
+#include <eq/server/api.h>
 
-#include <eq/fabric/server.h>    // base class
 #include <co/commandQueue.h>  // member
 #include <co/localNode.h>     // base class
+#include <eq/fabric/server.h> // base class
 #include <lunchbox/clock.h>   // member
 
 namespace eq
@@ -33,8 +33,8 @@ namespace eq
 namespace server
 {
 /** The Equalizer server. */
-class Server : public fabric::Server< co::Node, Server, Config, NodeFactory,
-                                      co::LocalNode, ServerVisitor >
+class Server : public fabric::Server<co::Node, Server, Config, NodeFactory,
+                                     co::LocalNode, ServerVisitor>
 {
 public:
     /** Construct a new server. */
@@ -61,10 +61,8 @@ public:
 
     /** @return the command queue to the server thread */
     co::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
-
     /** @return the global time in milliseconds. */
     int64_t getTime() const { return _clock.getTime64(); }
-
 protected:
     virtual ~Server();
 
@@ -83,16 +81,16 @@ private:
     struct Private;
     Private* _private; // placeholder for binary-compatible changes
 
-    friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
-                                 server::Node, ConfigVisitor >;
+    friend class fabric::Config<Server, Config, Observer, Layout, Canvas,
+                                server::Node, ConfigVisitor>;
 
     /** The command functions. */
-    bool _cmdChooseConfig( co::ICommand& command );
-    bool _cmdReleaseConfig( co::ICommand& command );
-    bool _cmdDestroyConfigReply( co::ICommand& command );
-    bool _cmdShutdown( co::ICommand& command );
-    bool _cmdMap( co::ICommand& command );
-    bool _cmdUnmap( co::ICommand& command );
+    bool _cmdChooseConfig(co::ICommand& command);
+    bool _cmdReleaseConfig(co::ICommand& command);
+    bool _cmdDestroyConfigReply(co::ICommand& command);
+    bool _cmdShutdown(co::ICommand& command);
+    bool _cmdMap(co::ICommand& command);
+    bool _cmdUnmap(co::ICommand& command);
 };
 }
 }

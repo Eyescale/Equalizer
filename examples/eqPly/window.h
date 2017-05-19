@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,39 +33,42 @@
 
 namespace eqPly
 {
-    class VertexBufferState;
+class VertexBufferState;
 
-    /**
-     * A window represent an OpenGL drawable and context
-     *
-     * Manages OpenGL-specific data, i.e., it creates the logo texture during
-     * initialization and holds a state object for GL object creation. It
-     * initializes the OpenGL state and draws the statistics overlay.
-     */
-    class Window : public eq::Window
+/**
+ * A window represent an OpenGL drawable and context
+ *
+ * Manages OpenGL-specific data, i.e., it creates the logo texture during
+ * initialization and holds a state object for GL object creation. It
+ * initializes the OpenGL state and draws the statistics overlay.
+ */
+class Window : public eq::Window
+{
+public:
+    Window(eq::Pipe* parent)
+        : eq::Window(parent)
+        , _state(0)
+        , _logoTexture(0)
     {
-    public:
-        Window( eq::Pipe* parent ) 
-                : eq::Window( parent ), _state( 0 ), _logoTexture( 0 ) {}
+    }
 
-        const eq::util::Texture* getLogoTexture() const { return _logoTexture; }
-        VertexBufferState& getState() { return *_state; }
-        
-    protected:
-        virtual ~Window() {}
-        virtual bool configInitSystemWindow( const eq::uint128_t& initID );
-        virtual bool configInitGL( const eq::uint128_t& initID );
-        virtual bool configExitGL();
-        virtual void frameStart( const eq::uint128_t& frameID,
-                                 const uint32_t frameNumber );
+    const eq::util::Texture* getLogoTexture() const { return _logoTexture; }
+    VertexBufferState& getState() { return *_state; }
+protected:
+    virtual ~Window() {}
+    virtual bool configInitSystemWindow(const eq::uint128_t& initID);
+    virtual bool configInitGL(const eq::uint128_t& initID);
+    virtual bool configExitGL();
+    virtual void frameStart(const eq::uint128_t& frameID,
+                            const uint32_t frameNumber);
 
-    private:
-        VertexBufferState* _state;
-        eq::util::Texture* _logoTexture;
+private:
+    VertexBufferState* _state;
+    eq::util::Texture* _logoTexture;
 
-        void _loadLogo();
-        void _loadShaders();
-    };
+    void _loadLogo();
+    void _loadShaders();
+};
 }
 
 #endif // EQ_PLY_WINDOW_H

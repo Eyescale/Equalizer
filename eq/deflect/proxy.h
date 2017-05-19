@@ -18,9 +18,9 @@
 #ifndef EQ_DEFLECT_PROXY_H
 #define EQ_DEFLECT_PROXY_H
 
+#include <deflect/types.h>
 #include <eq/resultImageListener.h> // base class
 #include <eq/types.h>
-#include <deflect/types.h>
 
 namespace eq
 {
@@ -31,13 +31,13 @@ class Proxy : public ResultImageListener
 {
 public:
     /** Construct a Deflect proxy associated to a destination channel. */
-    explicit Proxy( Channel& channel );
+    explicit Proxy(Channel& channel);
 
     /** Destruct the Deflect proxy. */
     ~Proxy();
 
     /** Stream the given image to the Deflect host. */
-    void notifyNewImage( Channel& channel, const Image& image ) final;
+    void notifyNewImage(Channel& channel, const Image& image) final;
 
     /** Complete stream operations and show image on server. */
     void notifyFinishFrame() final;
@@ -66,7 +66,7 @@ public:
 
 private:
     class Impl;
-    std::unique_ptr< Impl > _impl;
+    std::unique_ptr<Impl> _impl;
 };
 }
 }

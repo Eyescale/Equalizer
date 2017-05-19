@@ -24,24 +24,24 @@ namespace eq
 {
 namespace fabric
 {
-    /** A visitor to traverse leaf nodes of a graph. */
-    template< class T > class LeafVisitor
+/** A visitor to traverse leaf nodes of a graph. */
+template <class T>
+class LeafVisitor
+{
+public:
+    /** Constructs a new leaf visitor. @version 1.0 */
+    LeafVisitor() {}
+    /** Destruct the leaf visitor. @version 1.0 */
+    virtual ~LeafVisitor() {}
+    /** Visit a leaf node. @version 1.0 */
+    virtual VisitorResult visit(T* leaf)
     {
-    public:
-        /** Constructs a new leaf visitor. @version 1.0 */
-        LeafVisitor(){}
+        return visit(static_cast<const T*>(leaf));
+    }
 
-        /** Destruct the leaf visitor. @version 1.0 */
-        virtual ~LeafVisitor(){}
-
-        /** Visit a leaf node. @version 1.0 */
-        virtual VisitorResult visit( T* leaf )
-            { return visit( static_cast< const T* >( leaf )); }
-
-        /** Visit a leaf node during a const traversal. @version 1.0 */
-        virtual VisitorResult visit( const T* )
-            { return TRAVERSE_CONTINUE; }
-    };
+    /** Visit a leaf node during a const traversal. @version 1.0 */
+    virtual VisitorResult visit(const T*) { return TRAVERSE_CONTINUE; }
+};
 }
 }
 #endif // EQFABRIC_LEAFVISITOR_H

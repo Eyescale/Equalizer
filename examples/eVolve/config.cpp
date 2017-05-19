@@ -30,53 +30,55 @@
 
 #include "config.h"
 
-
 namespace eVolve
 {
+Config::Config(eq::ServerPtr parent)
+    : eq::Config(parent)
+    , _spinX(5)
+    , _spinY(5)
+    , _currentCanvas(0)
+    , _messageTime(0)
+{
+}
 
-Config::Config( eq::ServerPtr parent )
-        : eq::Config( parent )
-        , _spinX( 5 )
-        , _spinY( 5 )
-        , _currentCanvas( 0 )
-        , _messageTime( 0 ){}
-
-Config::~Config(){}
+Config::~Config()
+{
+}
 
 bool Config::init()
 {
     // init distributed objects
-    LBCHECK( registerObject( &_frameData ));
+    LBCHECK(registerObject(&_frameData));
 
-    _frameData.setOrtho( _initData.getOrtho( ));
-    _initData.setFrameDataID( _frameData.getID( ));
+    _frameData.setOrtho(_initData.getOrtho());
+    _initData.setFrameDataID(_frameData.getID());
 
-    _frameData.setAutoObsolete( getLatency( ));
+    _frameData.setAutoObsolete(getLatency());
 
-    LBCHECK( registerObject( &_initData ));
+    LBCHECK(registerObject(&_initData));
 
     // init config
-    if( !eq::Config::init( _initData.getID( )))
+    if (!eq::Config::init(_initData.getID()))
     {
         _deregisterData();
         return false;
     }
 
     const eq::Canvases& canvases = getCanvases();
-    if( canvases.empty( ))
+    if (canvases.empty())
         _currentCanvas = 0;
     else
         _currentCanvas = canvases.front();
 
-    _setMessage( "Welcome to eVolve\nPress F1 for help" );
+    _setMessage("Welcome to eVolve\nPress F1 for help");
 
     return true;
 }
 
-bool Config::loadInitData( const eq::uint128_t& id )
+bool Config::loadInitData(const eq::uint128_t& id)
 {
-    LBASSERT( !_initData.isAttached( ));
-    return getClient()->syncObject( &_initData, id, getApplicationNode( ));
+    LBASSERT(!_initData.isAttached());
+    return getClient()->syncObject(&_initData, id, getApplicationNode());
 }
 
 bool Config::exit()
@@ -89,40 +91,39 @@ bool Config::exit()
 
 void Config::_deregisterData()
 {
-    deregisterObject( &_initData );
-    deregisterObject( &_frameData );
+    deregisterObject(&_initData);
+    deregisterObject(&_frameData);
 
-    _initData.setFrameDataID( co::uint128_t( ));
+    _initData.setFrameDataID(co::uint128_t());
 }
-
 
 uint32_t Config::startFrame()
 {
     // update database
-    _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
+    _frameData.spinCamera(-0.001f * _spinX, -0.001f * _spinY);
     const eq::uint128_t& version = _frameData.commit();
 
     _resetMessage();
 
-    return eq::Config::startFrame( version );
+    return eq::Config::startFrame(version);
 }
 
 void Config::_resetMessage()
 {
     // reset message after two seconds
-    if( _messageTime > 0 && getTime() - _messageTime > 2000 )
+    if (_messageTime > 0 && getTime() - _messageTime > 2000)
     {
         _messageTime = 0;
-        _frameData.setMessage( "" );
+        _frameData.setMessage("");
     }
 }
 
-bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
+bool Config::handleEvent(const eq::EventType type, const eq::KeyEvent& event)
 {
-    if( type != eq::EVENT_KEY_PRESS )
-        return eq::Config::handleEvent( type, event );
+    if (type != eq::EVENT_KEY_PRESS)
+        return eq::Config::handleEvent(type, event);
 
-    switch( event.key )
+    switch (event.key)
     {
     case 'b':
     case 'B':
@@ -164,42 +165,41 @@ bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
         return true;
 
     case 'l':
-        _switchLayout( 1 );
+        _switchLayout(1);
         return true;
     case 'L':
-        _switchLayout( -1 );
+        _switchLayout(-1);
         return true;
 
     case 'q':
-        _frameData.adjustQuality( -.1f );
+        _frameData.adjustQuality(-.1f);
         return true;
 
     case 'Q':
-        _frameData.adjustQuality( .1f );
+        _frameData.adjustQuality(.1f);
         return true;
 
     case 'c':
     case 'C':
     {
         const eq::Canvases& canvases = getCanvases();
-        if( canvases.empty( ))
+        if (canvases.empty())
             return true;
 
-        _frameData.setCurrentViewID( co::uint128_t( ));
+        _frameData.setCurrentViewID(co::uint128_t());
 
-        if( !_currentCanvas )
+        if (!_currentCanvas)
         {
             _currentCanvas = canvases.front();
             return true;
         }
 
-        eq::Canvases::const_iterator i = std::find( canvases.begin(),
-                                                    canvases.end(),
-                                                    _currentCanvas );
-        LBASSERT( i != canvases.end( ));
+        eq::Canvases::const_iterator i =
+            std::find(canvases.begin(), canvases.end(), _currentCanvas);
+        LBASSERT(i != canvases.end());
 
         ++i;
-        if( i == canvases.end( ))
+        if (i == canvases.end())
             _currentCanvas = canvases.front();
         else
             _currentCanvas = *i;
@@ -210,70 +210,68 @@ bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
     case 'V':
     {
         const eq::Canvases& canvases = getCanvases();
-        if( !_currentCanvas && !canvases.empty( ))
+        if (!_currentCanvas && !canvases.empty())
             _currentCanvas = canvases.front();
 
-        if( !_currentCanvas )
+        if (!_currentCanvas)
             return true;
 
         const eq::Layout* layout = _currentCanvas->getActiveLayout();
-        if( !layout )
+        if (!layout)
             return true;
 
-        const eq::View* current =
-            find< eq::View >( _frameData.getCurrentViewID( ));
+        const eq::View* current = find<eq::View>(_frameData.getCurrentViewID());
 
         const eq::Views& views = layout->getViews();
-        LBASSERT( !views.empty( ));
+        LBASSERT(!views.empty());
 
-        if( !current )
+        if (!current)
         {
-            _frameData.setCurrentViewID( views.front()->getID( ));
+            _frameData.setCurrentViewID(views.front()->getID());
             return true;
         }
 
-        eq::Views::const_iterator i = std::find( views.begin(), views.end(),
-                                                 current );
-        LBASSERT( i != views.end( ));
+        eq::Views::const_iterator i =
+            std::find(views.begin(), views.end(), current);
+        LBASSERT(i != views.end());
 
         ++i;
-        if( i == views.end( ))
-            _frameData.setCurrentViewID( co::uint128_t( ));
+        if (i == views.end())
+            _frameData.setCurrentViewID(co::uint128_t());
         else
-            _frameData.setCurrentViewID( (*i)->getID( ));
+            _frameData.setCurrentViewID((*i)->getID());
         return true;
     }
 
     default:
         break;
     }
-    return eq::Config::handleEvent( type, event );
+    return eq::Config::handleEvent(type, event);
 }
 
-
-bool Config::handleEvent( const eq::EventType type,
-                          const eq::PointerEvent& event )
+bool Config::handleEvent(const eq::EventType type,
+                         const eq::PointerEvent& event)
 {
-    switch( type )
+    switch (type)
     {
     case eq::EVENT_CHANNEL_POINTER_BUTTON_PRESS:
     {
         const eq::uint128_t& viewID = event.context.view.identifier;
-        _frameData.setCurrentViewID( viewID );
-        if( viewID == 0 )
+        _frameData.setCurrentViewID(viewID);
+        if (viewID == 0)
         {
             _currentCanvas = 0;
             return true;
         }
 
-        const eq::View* view = find< eq::View >( viewID );
+        const eq::View* view = find<eq::View>(viewID);
         const eq::Layout* layout = view->getLayout();
         const eq::Canvases& canvases = getCanvases();
-        for( eq::Canvas* canvas : canvases )
+        for (eq::Canvas* canvas : canvases)
         {
             const eq::Layout* canvasLayout = canvas->getActiveLayout();
 
-            if( canvasLayout == layout )
+            if (canvasLayout == layout)
             {
                 _currentCanvas = canvas;
                 return true;
@@ -283,8 +281,8 @@ bool Config::handleEvent( const eq::EventType type,
     }
 
     case eq::EVENT_CHANNEL_POINTER_BUTTON_RELEASE:
-        if( event.buttons == eq::PTR_BUTTON_NONE &&
-            event.button  == eq::PTR_BUTTON1 )
+        if (event.buttons == eq::PTR_BUTTON_NONE &&
+            event.button == eq::PTR_BUTTON1)
         {
             _spinY = event.dx;
             _spinX = event.dy;
@@ -293,23 +291,23 @@ bool Config::handleEvent( const eq::EventType type,
         break;
 
     case eq::EVENT_CHANNEL_POINTER_MOTION:
-        if( event.buttons == eq::PTR_BUTTON1 )
+        if (event.buttons == eq::PTR_BUTTON1)
         {
             _spinX = 0;
             _spinY = 0;
 
-            _frameData.spinCamera(  -0.005f * event.dy, -0.005f * event.dx);
+            _frameData.spinCamera(-0.005f * event.dy, -0.005f * event.dx);
             return true;
         }
-        if( event.buttons == eq::PTR_BUTTON2 ||
-            event.buttons == ( eq::PTR_BUTTON1 | eq::PTR_BUTTON3 ))
+        if (event.buttons == eq::PTR_BUTTON2 ||
+            event.buttons == (eq::PTR_BUTTON1 | eq::PTR_BUTTON3))
         {
-            _frameData.moveCamera( .0, .0, .005f * event.dy );
+            _frameData.moveCamera(.0, .0, .005f * event.dy);
             return true;
         }
-        if( event.buttons == eq::PTR_BUTTON3 )
+        if (event.buttons == eq::PTR_BUTTON3)
         {
-            _frameData.moveCamera( .0005f * event.dx, -.0005f * event.dy, .0f );
+            _frameData.moveCamera(.0005f * event.dx, -.0005f * event.dy, .0f);
             return true;
         }
         break;
@@ -317,36 +315,36 @@ bool Config::handleEvent( const eq::EventType type,
     default:
         break;
     }
-    return eq::Config::handleEvent( type, event );
+    return eq::Config::handleEvent(type, event);
 }
 
-void Config::_setMessage( const std::string& message )
+void Config::_setMessage(const std::string& message)
 {
-    _frameData.setMessage( message );
+    _frameData.setMessage(message);
     _messageTime = getTime();
 }
 
-void Config::_switchLayout( int32_t increment )
+void Config::_switchLayout(int32_t increment)
 {
-    if( !_currentCanvas )
+    if (!_currentCanvas)
         return;
 
-    _frameData.setCurrentViewID( co::uint128_t( ));
+    _frameData.setCurrentViewID(co::uint128_t());
 
     size_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
-    LBASSERT( !layouts.empty( ));
+    LBASSERT(!layouts.empty());
 
-    index = ( index % layouts.size( ));
-    _currentCanvas->useLayout( uint32_t( index ));
+    index = (index % layouts.size());
+    _currentCanvas->useLayout(uint32_t(index));
 
     const eq::Layout* layout = _currentCanvas->getActiveLayout();
     std::ostringstream stream;
     stream << "Layout ";
-    if( layout )
+    if (layout)
     {
         const std::string& name = layout->getName();
-        if( name.empty( ))
+        if (name.empty())
             stream << index;
         else
             stream << name;
@@ -355,7 +353,6 @@ void Config::_switchLayout( int32_t increment )
         stream << "NONE";
 
     stream << " active";
-    _setMessage( stream.str( ));
+    _setMessage(stream.str());
 }
-
 }

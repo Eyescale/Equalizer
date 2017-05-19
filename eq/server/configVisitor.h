@@ -18,46 +18,45 @@
 #ifndef EQSERVER_CONFIGVISITOR_H
 #define EQSERVER_CONFIGVISITOR_H
 
-#include "compoundVisitor.h"           // base class
+#include "compoundVisitor.h" // base class
 #include "types.h"
 
-#include <eq/fabric/elementVisitor.h>  // base classes
-#include <eq/fabric/leafVisitor.h>     // base class
+#include <eq/fabric/elementVisitor.h> // base classes
+#include <eq/fabric/leafVisitor.h>    // base class
 
 namespace eq
 {
 namespace server
 {
-    /** A visitor to traverse configs and children. */
-    class ConfigVisitor : public NodeVisitor,
-                          public CompoundVisitor,
-                          public ObserverVisitor,
-                          public LayoutVisitor,
-                          public CanvasVisitor
+/** A visitor to traverse configs and children. */
+class ConfigVisitor : public NodeVisitor,
+                      public CompoundVisitor,
+                      public ObserverVisitor,
+                      public LayoutVisitor,
+                      public CanvasVisitor
+{
+public:
+    /** Constructs a new ConfigVisitor. */
+    ConfigVisitor() {}
+    /** Destruct the ConfigVisitor */
+    virtual ~ConfigVisitor() {}
+    /** Visit a config on the down traversal. */
+    virtual VisitorResult visitPre(Config* config)
     {
-    public:
-        /** Constructs a new ConfigVisitor. */
-        ConfigVisitor(){}
+        return visitPre(static_cast<const Config*>(config));
+    }
 
-        /** Destruct the ConfigVisitor */
-        virtual ~ConfigVisitor(){}
+    /** Visit a config on the up traversal. */
+    virtual VisitorResult visitPost(Config* config)
+    {
+        return visitPost(static_cast<const Config*>(config));
+    }
 
-        /** Visit a config on the down traversal. */
-        virtual VisitorResult visitPre( Config* config )
-            { return visitPre( static_cast< const Config* >( config )); }
-
-        /** Visit a config on the up traversal. */
-        virtual VisitorResult visitPost( Config* config )
-            { return visitPost( static_cast< const Config* >( config )); }
-
-        /** Visit a config on the down traversal. */
-        virtual VisitorResult visitPre( const Config* )
-            { return TRAVERSE_CONTINUE; }
-
-        /** Visit a config on the up traversal. */
-        virtual VisitorResult visitPost( const Config* )
-            { return TRAVERSE_CONTINUE; }
-    };
+    /** Visit a config on the down traversal. */
+    virtual VisitorResult visitPre(const Config*) { return TRAVERSE_CONTINUE; }
+    /** Visit a config on the up traversal. */
+    virtual VisitorResult visitPost(const Config*) { return TRAVERSE_CONTINUE; }
+};
 }
 }
 #endif // EQSERVER_CONFIGVISITOR_H

@@ -37,30 +37,29 @@
 
 namespace osgScaleViewer
 {
-
 SceneReader::SceneReader()
 {
 }
 
-osg::ref_ptr<osg::Node> SceneReader::readModel( const std::string& filename )
+osg::ref_ptr<osg::Node> SceneReader::readModel(const std::string& filename)
 {
-    osg::ref_ptr<osg::Node> root = osgDB::readNodeFile( filename );
-    if ( !root.valid( )) 
+    osg::ref_ptr<osg::Node> root = osgDB::readNodeFile(filename);
+    if (!root.valid())
     {
         LBERROR << "Failed to load model." << std::endl;
         return root;
     }
 
-    //Optimize scenegraph
+    // Optimize scenegraph
     osgUtil::Optimizer optOSGFile;
-    optOSGFile.optimize( root.get( ));
+    optOSGFile.optimize(root.get());
     return root;
 }
 
-osg::ref_ptr<osg::Image> SceneReader::readImage( const std::string& filename )
+osg::ref_ptr<osg::Image> SceneReader::readImage(const std::string& filename)
 {
-    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( filename );
-    if( !image.valid( ))
+    osg::ref_ptr<osg::Image> image = osgDB::readImageFile(filename);
+    if (!image.valid())
         LBERROR << "Failed to load image." << std::endl;
 
     return image;

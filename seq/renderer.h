@@ -37,7 +37,7 @@ class Renderer : public co::ObjectFactory
 {
 public:
     /** Construct a new renderer. @version 1.0 */
-    SEQ_API explicit Renderer( Application& application );
+    SEQ_API explicit Renderer(Application& application);
 
     /** Destruct this renderer. @version 1.0 */
     SEQ_API virtual ~Renderer();
@@ -55,9 +55,7 @@ public:
      * @return true on success, false otherwise.
      * @version 1.0
      */
-    SEQ_API virtual bool init( co::Object* initData LB_UNUSED )
-        { return true; }
-
+    SEQ_API virtual bool init(co::Object* initData LB_UNUSED) { return true; }
     /**
      * De-initialize the renderer.
      *
@@ -68,7 +66,6 @@ public:
      * @version 1.0
      */
     SEQ_API virtual bool exit() { return true; }
-
     /**
      * Initialize a rendering context.
      *
@@ -80,7 +77,7 @@ public:
      * @return true on success, false otherwise.
      * @version 1.0
      */
-    SEQ_API virtual bool initContext( co::Object* initData );
+    SEQ_API virtual bool initContext(co::Object* initData);
 
     /**
      * De-initialize a rendering context.
@@ -99,7 +96,7 @@ public:
      *                  Config::run.
      * @version 1.0
      */
-    SEQ_API virtual void clear( co::Object* frameData );
+    SEQ_API virtual void clear(co::Object* frameData);
 
     /**
      * Render the scene.
@@ -108,7 +105,7 @@ public:
      *                  Config::run.
      * @version 1.0
      */
-    virtual void draw( co::Object* frameData ) = 0;
+    virtual void draw(co::Object* frameData) = 0;
 
     /** Request another call to draw(). @version 1.12 */
     SEQ_API void requestRedraw();
@@ -119,7 +116,7 @@ public:
      * @param boundingSphere the sphere bounding of the scene to be rendered.
      * @version 1.7.1
      */
-    SEQ_API void updateNearFar( const Vector4f& boundingSphere );
+    SEQ_API void updateNearFar(const Vector4f& boundingSphere);
 
     /**
      * Set the near and far planes.
@@ -131,7 +128,7 @@ public:
      * @param farPlane the far plane.
      * @version 1.7.1
      */
-     SEQ_API void setNearFar( const float nearPlane, const float farPlane );
+    SEQ_API void setNearFar(const float nearPlane, const float farPlane);
 
     /**
      * Apply the current rendering parameters to the rendering context.
@@ -184,31 +181,28 @@ public:
      * @warning experimental
      * @return true when the event was handled, false if not.
     */
-    virtual bool processEvent( EventType ) { return false; }
-    virtual bool processEvent( EventType, const SizeEvent& ) { return false; }
-    virtual bool processEvent( EventType, const PointerEvent& ){ return false; }
-    virtual bool processEvent( EventType, const KeyEvent& ) { return false; }
-    virtual bool processEvent( const AxisEvent& ) { return false; }
-    virtual bool processEvent( const ButtonEvent& ) { return false; }
+    virtual bool processEvent(EventType) { return false; }
+    virtual bool processEvent(EventType, const SizeEvent&) { return false; }
+    virtual bool processEvent(EventType, const PointerEvent&) { return false; }
+    virtual bool processEvent(EventType, const KeyEvent&) { return false; }
+    virtual bool processEvent(const AxisEvent&) { return false; }
+    virtual bool processEvent(const ButtonEvent&) { return false; }
     //@}
 
     /** @name Data Access */
     //@{
     detail::Renderer* getImpl() { return _impl; } //!< @internal
-
-    /**
-     * @return A frame-synchronous instance of the data passed to
-     *         Application::run().
-     * @version 1.8
-     */
+                                                  /**
+                                                   * @return A frame-synchronous instance of the data passed to
+                                                   *         Application::run().
+                                                   * @version 1.8
+                                                   */
     SEQ_API co::Object* getFrameData();
 
     /** @return the application instance for this renderer. @version 1.0 */
     Application& getApplication() { return app_; }
-
     /** @return the application instance for this renderer. @version 1.0 */
     const Application& getApplication() const { return app_; }
-
     /** @return the object manager of this renderer. @version 1.0 */
     SEQ_API const ObjectManager& getObjectManager() const;
 
@@ -226,10 +220,10 @@ public:
      * @return the new view data
      * @version 1.11
      */
-    SEQ_API virtual ViewData* createViewData( View& view );
+    SEQ_API virtual ViewData* createViewData(View& view);
 
     /** Delete the given view data. @version 1.0 */
-    SEQ_API virtual void destroyViewData( ViewData* viewData );
+    SEQ_API virtual void destroyViewData(ViewData* viewData);
 
     /** @return the current view data. @version 1.12 */
     SEQ_API const ViewData* getViewData() const;
@@ -271,11 +265,10 @@ public:
     /** @name Distributed Object API */
     //@{
     /** @sa seq::Application::createObject() */
-    SEQ_API virtual co::Object* createObject( const uint32_t type );
+    SEQ_API virtual co::Object* createObject(const uint32_t type);
 
     /** @sa seq::Application::destroyObject() */
-    SEQ_API virtual void destroyObject( co::Object* object,
-                                        const uint32_t type );
+    SEQ_API virtual void destroyObject(co::Object* object, const uint32_t type);
 
     /**
      * Map and return an object.
@@ -286,8 +279,8 @@ public:
      * @version 1.8
      * @sa co::ObjectMap::map()
      */
-    SEQ_API co::Object* mapObject( const uint128_t& identifier,
-                                   co::Object* instance );
+    SEQ_API co::Object* mapObject(const uint128_t& identifier,
+                                  co::Object* instance);
 
     /**
      * Unmap an object from the object map.
@@ -297,7 +290,7 @@ public:
      * @version 1.0
      * @sa co::ObjectMap::unmap()
      */
-    SEQ_API bool unmap( co::Object* object );
+    SEQ_API bool unmap(co::Object* object);
     //@}
 
 private:

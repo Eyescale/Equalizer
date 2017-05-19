@@ -22,36 +22,34 @@ namespace eq
 {
 namespace fabric
 {
-
 // cppcheck-suppress uninitMemberVar
 RenderContext::RenderContext()
-    : frameID( 0 )
-    , buffer( 0x0405 ) // GL_BACK
-    , taskID( 0 )
-    , period( 1 )
-    , phase( 0 )
-    , eye( EYE_CYCLOP )
+    : frameID(0)
+    , buffer(0x0405) // GL_BACK
+    , taskID(0)
+    , period(1)
+    , phase(0)
+    , eye(EYE_CYCLOP)
 {
 }
 
-void RenderContext::apply( const Tile& tile, const bool local )
+void RenderContext::apply(const Tile& tile, const bool local)
 {
     frustum = tile.frustum;
     ortho = tile.ortho;
     pvp = tile.pvp;
     vp = tile.vp;
-    if( !local )
+    if (!local)
     {
         pvp.x = 0;
         pvp.y = 0;
     }
 }
 
-std::ostream& operator << ( std::ostream& os, const RenderContext& ctx )
+std::ostream& operator<<(std::ostream& os, const RenderContext& ctx)
 {
     return os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp
               << " " << ctx.range << " " << ctx.eye << " " << ctx.zoom;
 }
-
 }
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,31 +29,35 @@
 #ifndef EQ_PLY_MODELASSIGNER_H
 #define EQ_PLY_MODELASSIGNER_H
 
+#include "view.h"
+
 namespace eqPly
 {
 /** Helper to assign models to views. */
 class ModelAssigner : public eq::ConfigVisitor
 {
 public:
-    ModelAssigner( const ModelDists& models )
-            : _models( models ), _current( models.begin( )) {}
+    ModelAssigner(const ModelDists& models)
+        : _models(models)
+        , _current(models.begin())
+    {
+    }
 
-    virtual eq::VisitorResult visit( eq::View* view )
-        {
-            const ModelDist* model = *_current;
-            static_cast< View* >( view )->setModelID( model->getID( ));
+    virtual eq::VisitorResult visit(eq::View* view)
+    {
+        const ModelDist* model = *_current;
+        static_cast<View*>(view)->setModelID(model->getID());
 
-            ++_current;
-            if( _current == _models.end( ))
-                _current = _models.begin(); // wrap around
+        ++_current;
+        if (_current == _models.end())
+            _current = _models.begin(); // wrap around
 
-            return eq::TRAVERSE_CONTINUE;
-        }
+        return eq::TRAVERSE_CONTINUE;
+    }
 
 private:
-    const ModelDists&          _models;
+    const ModelDists& _models;
     ModelDists::const_iterator _current;
 };
-
 }
 #endif // EQ_PLY_MODELASSIGNER_H

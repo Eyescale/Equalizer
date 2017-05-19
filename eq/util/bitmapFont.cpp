@@ -30,54 +30,54 @@ namespace detail
 class BitmapFont
 {
 public:
-    BitmapFont( util::ObjectManager& om_, const void* key_ )
+    BitmapFont(util::ObjectManager& om_, const void* key_)
         // We create a new shared object manager. Typically we are exited by
         // the last user, at which point the given OM may have been deleted
-        : om( om_ )
-        , key( key_ )
-    {}
+        : om(om_),
+          key(key_)
+    {
+    }
 
     util::ObjectManager om;
     const void* key;
 };
 }
 
-BitmapFont::BitmapFont( ObjectManager& om, const void* key )
-    : _impl( new detail::BitmapFont( om, key ))
+BitmapFont::BitmapFont(ObjectManager& om, const void* key)
+    : _impl(new detail::BitmapFont(om, key))
 {
 }
 
 BitmapFont::~BitmapFont()
 {
-    const GLuint lists = _impl->om.getList( _impl->key );
-    if( lists != ObjectManager::INVALID )
+    const GLuint lists = _impl->om.getList(_impl->key);
+    if (lists != ObjectManager::INVALID)
         LBWARN << "OpenGL BitmapFont was not freed" << std::endl;
     delete _impl;
 }
 
-bool BitmapFont::init( const WindowSystem& ws, const std::string& name,
-                       const uint32_t size )
+bool BitmapFont::init(const WindowSystem& ws, const std::string& name,
+                      const uint32_t size)
 {
-    return ws.setupFont( _impl->om, _impl->key, name, size );
+    return ws.setupFont(_impl->om, _impl->key, name, size);
 }
 
 void BitmapFont::exit()
 {
-    GLuint lists = _impl->om.getList( _impl->key );
-    if( lists != ObjectManager::INVALID )
-        _impl->om.deleteList( _impl->key );
+    GLuint lists = _impl->om.getList(_impl->key);
+    if (lists != ObjectManager::INVALID)
+        _impl->om.deleteList(_impl->key);
 }
 
-void BitmapFont::draw( const std::string& text ) const
+void BitmapFont::draw(const std::string& text) const
 {
-    const GLuint lists = _impl->om.getList( _impl->key );
-    if( lists != ObjectManager::INVALID )
+    const GLuint lists = _impl->om.getList(_impl->key);
+    if (lists != ObjectManager::INVALID)
     {
-        glListBase( lists );
-        glCallLists( GLsizei( text.size( )), GL_UNSIGNED_BYTE, text.c_str( ));
-        glListBase( 0 );
+        glListBase(lists);
+        glCallLists(GLsizei(text.size()), GL_UNSIGNED_BYTE, text.c_str());
+        glListBase(0);
     }
 }
-
 }
 }

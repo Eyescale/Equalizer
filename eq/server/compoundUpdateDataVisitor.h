@@ -31,15 +31,14 @@ class Channel;
 class CompoundUpdateDataVisitor : public CompoundVisitor
 {
 public:
-    explicit CompoundUpdateDataVisitor( const uint32_t frameNumber );
+    explicit CompoundUpdateDataVisitor(const uint32_t frameNumber);
     virtual ~CompoundUpdateDataVisitor() {}
-
     /** Visit all compounds. */
-    virtual VisitorResult visit( Compound* compound );
+    virtual VisitorResult visit(Compound* compound);
 
 private:
     const uint32_t _frameNumber;
-    void _updateDrawFinish( Compound* compound );
+    void _updateDrawFinish(Compound* compound);
 };
 }
 }

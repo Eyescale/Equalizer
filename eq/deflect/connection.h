@@ -21,7 +21,6 @@
 #include "proxy.h"
 #include <co/connection.h>
 
-
 namespace eq
 {
 namespace deflect
@@ -36,22 +35,31 @@ namespace deflect
 class Connection : public co::Connection
 {
 public:
-    Connection( Proxy* proxy )
-        : _proxy( proxy ) { _setState( STATE_CONNECTED ); }
+    Connection(Proxy* proxy)
+        : _proxy(proxy)
+    {
+        _setState(STATE_CONNECTED);
+    }
 
-    virtual ~Connection() { _setState( STATE_CLOSED ); }
-
+    virtual ~Connection() { _setState(STATE_CLOSED); }
     virtual Notifier getNotifier() const
-        { return _proxy->getSocketDescriptor(); }
+    {
+        return _proxy->getSocketDescriptor();
+    }
 
     const Proxy* getProxy() const { return _proxy; }
-
 protected:
-    virtual void readNB( void*, const uint64_t ) { LBDONTCALL; }
-    virtual int64_t readSync( void*, const uint64_t, const bool )
-        { LBDONTCALL; return -1; }
-    virtual int64_t write( const void*, const uint64_t )
-        { LBDONTCALL; return -1; }
+    virtual void readNB(void*, const uint64_t) { LBDONTCALL; }
+    virtual int64_t readSync(void*, const uint64_t, const bool)
+    {
+        LBDONTCALL;
+        return -1;
+    }
+    virtual int64_t write(const void*, const uint64_t)
+    {
+        LBDONTCALL;
+        return -1;
+    }
 
 private:
     Proxy* const _proxy;

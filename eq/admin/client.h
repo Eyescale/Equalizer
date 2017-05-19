@@ -18,10 +18,10 @@
 #ifndef EQADMIN_CLIENT_H
 #define EQADMIN_CLIENT_H
 
+#include <co/commandQueue.h> // member
 #include <eq/admin/api.h>
 #include <eq/admin/types.h>
-#include <eq/fabric/client.h>      // base class
-#include <co/commandQueue.h>   // member
+#include <eq/fabric/client.h> // base class
 
 namespace eq
 {
@@ -53,7 +53,7 @@ public:
      * @return true if the server was connected, false if not.
      * @version 1.0
      */
-    EQADMIN_API bool connectServer( ServerPtr server );
+    EQADMIN_API bool connectServer(ServerPtr server);
 
     /**
      * Disconnect and close the connection to an Equalizer server.
@@ -62,12 +62,10 @@ public:
      * @return true if the server was disconnected, false if not.
      * @version 1.0
      */
-    EQADMIN_API bool disconnectServer( ServerPtr server );
+    EQADMIN_API bool disconnectServer(ServerPtr server);
 
     /** @return the command queue to the main node thread. @internal */
-    virtual co::CommandQueue* getMainThreadQueue()
-        { return &_mainThreadQueue; }
-
+    virtual co::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
 private:
     /** The command->node command queue. */
     co::CommandQueue _mainThreadQueue;
@@ -76,7 +74,7 @@ private:
     Private* _private; // placeholder for binary-compatible changes
 
     /** @sa co::LocalNode::createNode */
-    EQADMIN_API virtual co::NodePtr createNode( const uint32_t type );
+    EQADMIN_API virtual co::NodePtr createNode(const uint32_t type);
 };
 }
 }

@@ -38,39 +38,39 @@
 
 namespace eVolve
 {
-
 InitData::InitData()
     : _frameDataID()
 #ifdef AGL
-    , _windowSystem( "AGL" )
+    , _windowSystem("AGL")
 #elif GLX
-    , _windowSystem( "GLX" )
+    , _windowSystem("GLX")
 #elif WGL
-    , _windowSystem( "WGL" )
+    , _windowSystem("WGL")
 #endif
-    , _precision( 2 )
-    , _brightness( 1.0f )
-    , _alpha( 1.0f )
-    , _filename( lunchbox::getRootPath() +
-                 "/share/Equalizer/data/Bucky32x32x32_d.raw" )
-{}
+    , _precision(2)
+    , _brightness(1.0f)
+    , _alpha(1.0f)
+    , _filename(lunchbox::getRootPath() +
+                "/share/Equalizer/data/Bucky32x32x32_d.raw")
+{
+}
 
 InitData::~InitData()
 {
-    setFrameDataID( eq::uint128_t( ));
+    setFrameDataID(eq::uint128_t());
 }
 
-void InitData::getInstanceData( co::DataOStream& os )
+void InitData::getInstanceData(co::DataOStream& os)
 {
     os << _frameDataID << _windowSystem << _precision << _brightness << _alpha
        << _filename;
 }
 
-void InitData::applyInstanceData( co::DataIStream& is )
+void InitData::applyInstanceData(co::DataIStream& is)
 {
-    is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
-       >> _filename;
+    is >> _frameDataID >> _windowSystem >> _precision >> _brightness >>
+        _alpha >> _filename;
 
-    LBASSERT( _frameDataID != 0 );
+    LBASSERT(_frameDataID != 0);
 }
 }

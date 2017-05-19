@@ -36,21 +36,20 @@ namespace eq
 {
 namespace server
 {
-
-typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
+typedef fabric::Pipe<Node, Pipe, Window, PipeVisitor> Super;
 typedef co::CommandFunc<Pipe> PipeFunc;
 
-Pipe::Pipe( Node* parent )
-        : Super( parent )
-        , _active( 0 )
-        , _state( STATE_STOPPED )
-        , _lastDrawWindow( 0 )
+Pipe::Pipe(Node* parent)
+    : Super(parent)
+    , _active(0)
+    , _state(STATE_STOPPED)
+    , _lastDrawWindow(0)
 {
     const Global* global = Global::instance();
-    for( unsigned i = 0; i < IATTR_LAST; ++i )
+    for (unsigned i = 0; i < IATTR_LAST; ++i)
     {
-        const IAttribute attr = static_cast< IAttribute >( i );
-        setIAttribute( attr, global->getPipeIAttribute( attr ));
+        const IAttribute attr = static_cast<IAttribute>(i);
+        setIAttribute(attr, global->getPipeIAttribute(attr));
     }
 }
 
@@ -58,120 +57,120 @@ Pipe::~Pipe()
 {
 }
 
-void Pipe::attach( const uint128_t& id, const uint32_t instanceID )
+void Pipe::attach(const uint128_t& id, const uint32_t instanceID)
 {
-    Super::attach( id, instanceID );
+    Super::attach(id, instanceID);
 
     co::CommandQueue* cmdQ = getCommandThreadQueue();
-    registerCommand( fabric::CMD_OBJECT_SYNC,
-                     PipeFunc( this, &Pipe::_cmdSync ), cmdQ );
-    registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
-                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), cmdQ );
-    registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
-                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
+    registerCommand(fabric::CMD_OBJECT_SYNC, PipeFunc(this, &Pipe::_cmdSync),
+                    cmdQ);
+    registerCommand(fabric::CMD_PIPE_CONFIG_INIT_REPLY,
+                    PipeFunc(this, &Pipe::_cmdConfigInitReply), cmdQ);
+    registerCommand(fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
+                    PipeFunc(this, &Pipe::_cmdConfigExitReply), cmdQ);
 }
 
-void Pipe::removeChild( const uint128_t& id )
+void Pipe::removeChild(const uint128_t& id)
 {
-    LBASSERT( getConfig()->isRunning( ));
+    LBASSERT(getConfig()->isRunning());
 
-    Window* window = _findWindow( id );
-    LBASSERT( window );
-    if( window )
+    Window* window = _findWindow(id);
+    LBASSERT(window);
+    if (window)
         window->postDelete();
 }
 
 ServerPtr Pipe::getServer()
 {
     Node* node = getNode();
-    LBASSERT( node );
-    return ( node ? node->getServer() : 0);
+    LBASSERT(node);
+    return (node ? node->getServer() : 0);
 }
 
 ConstServerPtr Pipe::getServer() const
 {
     const Node* node = getNode();
-    LBASSERT( node );
+    LBASSERT(node);
     return node ? node->getServer() : 0;
 }
 
 Config* Pipe::getConfig()
 {
     Node* node = getNode();
-    LBASSERT( node );
-    return ( node ? node->getConfig() : 0);
+    LBASSERT(node);
+    return (node ? node->getConfig() : 0);
 }
 
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
-    LBASSERT( node );
-    return ( node ? node->getConfig() : 0);
+    LBASSERT(node);
+    return (node ? node->getConfig() : 0);
 }
 
 co::CommandQueue* Pipe::getMainThreadQueue()
 {
     Node* node = getNode();
-    LBASSERT( node );
+    LBASSERT(node);
     return node->getMainThreadQueue();
 }
 
 co::CommandQueue* Pipe::getCommandThreadQueue()
 {
     Node* node = getNode();
-    LBASSERT( node );
+    LBASSERT(node);
     return node->getCommandThreadQueue();
 }
 
-Channel* Pipe::getChannel( const ChannelPath& path )
+Channel* Pipe::getChannel(const ChannelPath& path)
 {
     const Windows& windows = getWindows();
-    LBASSERTINFO( windows.size() > path.windowIndex,
-                  "Path " << path << " for " << *this );
+    LBASSERTINFO(windows.size() > path.windowIndex, "Path " << path << " for "
+                                                            << *this);
 
-    if( windows.size() <= path.windowIndex )
+    if (windows.size() <= path.windowIndex)
         return 0;
 
-    return windows[ path.windowIndex ]->getChannel( path );
+    return windows[path.windowIndex]->getChannel(path);
 }
 
 void Pipe::activate()
 {
     Node* node = getNode();
-    LBASSERT( node );
+    LBASSERT(node);
 
     ++_active;
-    if( node )
+    if (node)
         node->activate();
 
-    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG(LOG_VIEW) << "activate: " << _active << std::endl;
 }
 
 void Pipe::deactivate()
 {
-    LBASSERT( _active != 0 );
+    LBASSERT(_active != 0);
 
     Node* node = getNode();
-    LBASSERT( node );
+    LBASSERT(node);
 
     --_active;
-    if( node )
+    if (node)
         node->deactivate();
 
-    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG(LOG_VIEW) << "deactivate: " << _active << std::endl;
 };
 
-void Pipe::addTasks( const uint32_t tasks )
+void Pipe::addTasks(const uint32_t tasks)
 {
     Node* node = getNode();
-    LBASSERT( node );
-    setTasks( getTasks() | tasks );
-    node->addTasks( tasks );
+    LBASSERT(node);
+    setTasks(getTasks() | tasks);
+    node->addTasks(tasks);
 }
 
-co::ObjectOCommand Pipe::send( const uint32_t cmd )
+co::ObjectOCommand Pipe::send(const uint32_t cmd)
 {
-    return getNode()->send( cmd, getID( ));
+    return getNode()->send(cmd, getID());
 }
 
 //===========================================================================
@@ -181,27 +180,27 @@ co::ObjectOCommand Pipe::send( const uint32_t cmd )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Pipe::configInit( const uint128_t& initID, const uint32_t frameNumber )
+void Pipe::configInit(const uint128_t& initID, const uint32_t frameNumber)
 {
-    LBASSERT( _state == STATE_STOPPED );
+    LBASSERT(_state == STATE_STOPPED);
     _state = STATE_INITIALIZING;
 
-    LBLOG( LOG_INIT ) << "Create pipe" << std::endl;
-    getNode()->send( fabric::CMD_NODE_CREATE_PIPE, getNode()->getID( ))
-            << getID() << isThreaded();
+    LBLOG(LOG_INIT) << "Create pipe" << std::endl;
+    getNode()->send(fabric::CMD_NODE_CREATE_PIPE, getNode()->getID())
+        << getID() << isThreaded();
 
-    LBLOG( LOG_INIT ) << "Init pipe" << std::endl;
-    send( fabric::CMD_PIPE_CONFIG_INIT ) << initID << frameNumber;
+    LBLOG(LOG_INIT) << "Init pipe" << std::endl;
+    send(fabric::CMD_PIPE_CONFIG_INIT) << initID << frameNumber;
 }
 
 bool Pipe::syncConfigInit()
 {
-    LBASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
-              _state == STATE_INIT_FAILED );
+    LBASSERT(_state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
+             _state == STATE_INIT_FAILED);
 
-    _state.waitNE( STATE_INITIALIZING );
+    _state.waitNE(STATE_INITIALIZING);
 
-    if( _state == STATE_INIT_SUCCESS )
+    if (_state == STATE_INIT_SUCCESS)
     {
         _state = STATE_RUNNING;
         return true;
@@ -217,77 +216,74 @@ bool Pipe::syncConfigInit()
 //---------------------------------------------------------------------------
 void Pipe::configExit()
 {
-    if( _state == STATE_EXITING )
+    if (_state == STATE_EXITING)
         return;
 
-    LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
+    LBASSERT(_state == STATE_RUNNING || _state == STATE_INIT_FAILED);
     _state = STATE_EXITING;
 
-    LBLOG( LOG_INIT ) << "Exit pipe" << std::endl;
-    send( fabric::CMD_PIPE_CONFIG_EXIT );
+    LBLOG(LOG_INIT) << "Exit pipe" << std::endl;
+    send(fabric::CMD_PIPE_CONFIG_EXIT);
 }
 
 bool Pipe::syncConfigExit()
 {
-    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS ||
-              _state == STATE_EXIT_FAILED );
+    LBASSERT(_state == STATE_EXITING || _state == STATE_EXIT_SUCCESS ||
+             _state == STATE_EXIT_FAILED);
 
-    _state.waitNE( STATE_EXITING );
-    const bool success = ( _state == STATE_EXIT_SUCCESS );
-    LBASSERT( success || _state == STATE_EXIT_FAILED );
+    _state.waitNE(STATE_EXITING);
+    const bool success = (_state == STATE_EXIT_SUCCESS);
+    LBASSERT(success || _state == STATE_EXIT_FAILED);
 
     _state = isActive() ? STATE_FAILED : STATE_STOPPED;
-    setTasks( fabric::TASK_NONE );
+    setTasks(fabric::TASK_NONE);
     return success;
 }
 
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
+void Pipe::update(const uint128_t& frameID, const uint32_t frameNumber)
 {
-    if( !isRunning( ))
+    if (!isRunning())
         return;
 
-    LBASSERT( isActive( ))
-    send( fabric::CMD_PIPE_FRAME_START_CLOCK );
+    LBASSERT(isActive())
+    send(fabric::CMD_PIPE_FRAME_START_CLOCK);
 
-    send( fabric::CMD_PIPE_FRAME_START )
-            << getVersion() << frameID << frameNumber;
-    LBLOG( LOG_TASKS ) << "TASK pipe start frame " << frameNumber << " id "
-                       << frameID << std::endl;
+    send(fabric::CMD_PIPE_FRAME_START) << getVersion() << frameID
+                                       << frameNumber;
+    LBLOG(LOG_TASKS) << "TASK pipe start frame " << frameNumber << " id "
+                     << frameID << std::endl;
 
     const Windows& windows = getWindows();
-    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-        (*i)->updateDraw( frameID, frameNumber );
+    for (Windows::const_iterator i = windows.begin(); i != windows.end(); ++i)
+        (*i)->updateDraw(frameID, frameNumber);
 
-    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-        (*i)->updatePost( frameID, frameNumber );
+    for (Windows::const_iterator i = windows.begin(); i != windows.end(); ++i)
+        (*i)->updatePost(frameID, frameNumber);
 
-    if( !_lastDrawWindow ) // no FrameDrawFinish sent
+    if (!_lastDrawWindow) // no FrameDrawFinish sent
     {
-        send( fabric::CMD_PIPE_FRAME_DRAW_FINISH ) << frameID << frameNumber;
-        LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName()
-                           << " frame " << frameNumber
-                           << " id " << frameID << std::endl;
+        send(fabric::CMD_PIPE_FRAME_DRAW_FINISH) << frameID << frameNumber;
+        LBLOG(LOG_TASKS) << "TASK pipe draw finish " << getName() << " frame "
+                         << frameNumber << " id " << frameID << std::endl;
     }
     _lastDrawWindow = 0;
 
-    send( fabric::CMD_PIPE_FRAME_FINISH ) << frameID << frameNumber;
+    send(fabric::CMD_PIPE_FRAME_FINISH) << frameID << frameNumber;
 
-    LBLOG( LOG_TASKS ) << "TASK pipe finish frame " << frameNumber
-                       << " id " << frameID << std::endl;
+    LBLOG(LOG_TASKS) << "TASK pipe finish frame " << frameNumber << " id "
+                     << frameID << std::endl;
 }
-
-
 
 //===========================================================================
 // command handling
 //===========================================================================
-bool Pipe::_cmdConfigInitReply( co::ICommand& cmd )
+bool Pipe::_cmdConfigInitReply(co::ICommand& cmd)
 {
-    co::ObjectICommand command( cmd );
-    const bool result = command.read< bool >();
+    co::ObjectICommand command(cmd);
+    const bool result = command.read<bool>();
 
     LBVERB << "handle pipe configInit reply " << command << " result " << result
            << std::endl;
@@ -296,51 +292,49 @@ bool Pipe::_cmdConfigInitReply( co::ICommand& cmd )
     return true;
 }
 
-bool Pipe::_cmdConfigExitReply( co::ICommand& cmd )
+bool Pipe::_cmdConfigExitReply(co::ICommand& cmd)
 {
-    co::ObjectICommand command( cmd );
+    co::ObjectICommand command(cmd);
     LBVERB << "handle pipe configExit reply " << command << std::endl;
 
-    _state = command.read< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.read<bool>() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 
-void Pipe::output( std::ostream& os ) const
+void Pipe::output(std::ostream& os) const
 {
-    bool attrPrinted   = false;
-    for( IAttribute i = static_cast<IAttribute>( 0 );
-         i < IATTR_LAST;
-         i = static_cast<IAttribute>( static_cast<uint32_t>( i )+1))
+    bool attrPrinted = false;
+    for (IAttribute i = static_cast<IAttribute>(0); i < IATTR_LAST;
+         i = static_cast<IAttribute>(static_cast<uint32_t>(i) + 1))
     {
-        const int value = getIAttribute( i );
-        if( value == Global::instance()->getPipeIAttribute( i ))
+        const int value = getIAttribute(i);
+        if (value == Global::instance()->getPipeIAttribute(i))
             continue;
 
-        if( !attrPrinted )
+        if (!attrPrinted)
         {
             os << std::endl << "attributes" << std::endl;
             os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
 
-        os << ( i == IATTR_HINT_THREAD ? "hint_thread "                   :
-                i == IATTR_HINT_AFFINITY ? "hint_affinity "               :
-                    "ERROR" )
-           << static_cast< fabric::IAttribute >( value ) << std::endl;
+        os << (i == IATTR_HINT_THREAD
+                   ? "hint_thread "
+                   : i == IATTR_HINT_AFFINITY ? "hint_affinity " : "ERROR")
+           << static_cast<fabric::IAttribute>(value) << std::endl;
     }
 
-    if( attrPrinted )
+    if (attrPrinted)
         os << lunchbox::exdent << "}" << std::endl;
 }
-
 }
 }
 
 #include "../fabric/pipe.ipp"
-template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe,
-                                 eq::server::Window, eq::server::PipeVisitor >;
+template class eq::fabric::Pipe<eq::server::Node, eq::server::Pipe,
+                                eq::server::Window, eq::server::PipeVisitor>;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::server::Super& );
+template std::ostream& eq::fabric::operator<<(std::ostream&,
+                                              const eq::server::Super&);
 /** @endcond */

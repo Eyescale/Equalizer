@@ -28,42 +28,63 @@ namespace fabric
 /** Event for a pointer (mouse) motion or click. */
 struct PointerEvent : public Event
 {
-    PointerEvent() : x(0), y(0), dx(0), dy(0), buttons(0), button(0), xAxis(0)
-                   , yAxis(0) {}
+    PointerEvent()
+        : x(0)
+        , y(0)
+        , dx(0)
+        , dy(0)
+        , buttons(0)
+        , button(0)
+        , xAxis(0)
+        , yAxis(0)
+    {
+    }
 
-    int32_t x;        //!< X position relative to entity
-    int32_t y;        //!< Y position relative to entity (0 is on top)
-    int32_t dx;       //!< X position change since last event
-    int32_t dy;       //!< Y position change since last event
-    uint32_t buttons; //!< current state of all buttons
-    uint32_t button;  //!< fired button
+    int32_t x;             //!< X position relative to entity
+    int32_t y;             //!< Y position relative to entity (0 is on top)
+    int32_t dx;            //!< X position change since last event
+    int32_t dy;            //!< Y position change since last event
+    uint32_t buttons;      //!< current state of all buttons
+    uint32_t button;       //!< fired button
     KeyModifier modifiers; //!< state of modifier keys
-    float xAxis;      //!< x wheel rotation in clicks
-    float yAxis;      //!< y wheel rotation in clicks
+    float xAxis;           //!< x wheel rotation in clicks
+    float yAxis;           //!< y wheel rotation in clicks
     RenderContext context; //!< The last rendering context at position
 };
 
 /** Print the pointer event to the given output stream. @version 1.0 */
-inline std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
+inline std::ostream& operator<<(std::ostream& os, const PointerEvent& event)
 {
-    os << static_cast< const Event& >( event ) << " [" << event.x << "], ["
+    os << static_cast<const Event&>(event) << " [" << event.x << "], ["
        << event.y << "] d(" << event.dx << ", " << event.dy << ')' << " wheel "
        << '[' << event.xAxis << ", " << event.yAxis << "] buttons ";
 
-    if( event.buttons == PTR_BUTTON_NONE ) os << "none";
-    if( event.buttons & PTR_BUTTON1 ) os << "1";
-    if( event.buttons & PTR_BUTTON2 ) os << "2";
-    if( event.buttons & PTR_BUTTON3 ) os << "3";
-    if( event.buttons & PTR_BUTTON4 ) os << "4";
-    if( event.buttons & PTR_BUTTON5 ) os << "5";
+    if (event.buttons == PTR_BUTTON_NONE)
+        os << "none";
+    if (event.buttons & PTR_BUTTON1)
+        os << "1";
+    if (event.buttons & PTR_BUTTON2)
+        os << "2";
+    if (event.buttons & PTR_BUTTON3)
+        os << "3";
+    if (event.buttons & PTR_BUTTON4)
+        os << "4";
+    if (event.buttons & PTR_BUTTON5)
+        os << "5";
 
     os << event.modifiers << " fired ";
-    if( event.button == PTR_BUTTON_NONE ) os << "none";
-    if( event.button & PTR_BUTTON1 ) os << "1";
-    if( event.button & PTR_BUTTON2 ) os << "2";
-    if( event.button & PTR_BUTTON3 ) os << "3";
-    if( event.button & PTR_BUTTON4 ) os << "4";
-    if( event.button & PTR_BUTTON5 ) os << "5";
+    if (event.button == PTR_BUTTON_NONE)
+        os << "none";
+    if (event.button & PTR_BUTTON1)
+        os << "1";
+    if (event.button & PTR_BUTTON2)
+        os << "2";
+    if (event.button & PTR_BUTTON3)
+        os << "3";
+    if (event.button & PTR_BUTTON4)
+        os << "4";
+    if (event.button & PTR_BUTTON5)
+        os << "5";
 
     return os << " context " << event.context;
 }

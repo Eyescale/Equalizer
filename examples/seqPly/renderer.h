@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,23 +34,24 @@
 
 namespace seqPly
 {
-    class Renderer : public seq::Renderer
+class Renderer : public seq::Renderer
+{
+public:
+    Renderer(seq::Application& app)
+        : seq::Renderer(app)
+        , _state(0)
     {
-    public:
-        Renderer( seq::Application& app ) : seq::Renderer( app ), _state( 0 ) {}
-        virtual ~Renderer() {}
+    }
+    virtual ~Renderer() {}
+    State& getState() { return *_state; }
+protected:
+    virtual bool init(co::Object* initData);
+    virtual bool exit();
+    virtual void draw(co::Object* frameData);
 
-        State& getState() { return *_state; }
-
-    protected:
-        virtual bool init( co::Object* initData );
-        virtual bool exit();
-        virtual void draw( co::Object* frameData );
-
-    private:
-        State* _state;
-    };
-
+private:
+    State* _state;
+};
 }
 
 #endif // SEQ_PLY_RENDERER_H

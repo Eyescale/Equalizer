@@ -26,18 +26,17 @@ namespace server
 {
 namespace
 {
-
 class ConfigUpdateSyncVisitor : public ConfigVisitor
 {
 public:
     ConfigUpdateSyncVisitor()
-        : _runningChannels( 0 )
-        , _failure( false )
-        , _sync( false )
-    {}
+        : _runningChannels(0)
+        , _failure(false)
+        , _sync(false)
+    {
+    }
     virtual ~ConfigUpdateSyncVisitor() {}
-
-    VisitorResult visitPre( Config* ) override
+    VisitorResult visitPre(Config*) override
     {
         _runningChannels = 0;
         _failure = false;
@@ -45,29 +44,29 @@ public:
         return TRAVERSE_CONTINUE;
     }
 
-    VisitorResult visitPre( Node* node ) override
-        { return _updateDown( node ); }
-    VisitorResult visitPost( Node* node ) override
+    VisitorResult visitPre(Node* node) override { return _updateDown(node); }
+    VisitorResult visitPost(Node* node) override
     {
-        const VisitorResult& result = _updateUp( node );
+        const VisitorResult& result = _updateUp(node);
         node->flushSendBuffer();
         return result;
     }
 
-    VisitorResult visitPre( Pipe* pipe ) override
-        { return _updateDown( pipe ); }
-    VisitorResult visitPost( Pipe* pipe ) override
-        { return _updateUp( pipe ); }
-
-    VisitorResult visitPre( Window* window ) override
-        { return _updateDown( window ); }
-    VisitorResult visitPost( Window* window ) override
-        { return _updateUp( window ); }
-
-    VisitorResult visit( Channel* channel ) override
+    VisitorResult visitPre(Pipe* pipe) override { return _updateDown(pipe); }
+    VisitorResult visitPost(Pipe* pipe) override { return _updateUp(pipe); }
+    VisitorResult visitPre(Window* window) override
     {
-        const VisitorResult result = _updateUp( channel );
-        if( channel->isRunning( ))
+        return _updateDown(window);
+    }
+    VisitorResult visitPost(Window* window) override
+    {
+        return _updateUp(window);
+    }
+
+    VisitorResult visit(Channel* channel) override
+    {
+        const VisitorResult result = _updateUp(channel);
+        if (channel->isRunning())
             ++_runningChannels;
         return result;
     }
@@ -75,78 +74,78 @@ public:
     size_t getNumRunningChannels() const { return _runningChannels; }
     bool hadFailure() const { return _failure; }
     bool needsSync() const { return _sync; }
-
 private:
     size_t _runningChannels;
     bool _failure;
-    bool _sync;   // call again after init failure
+    bool _sync; // call again after init failure
 
-    template< class T > VisitorResult _updateDown( T* entity ) const
+    template <class T>
+    VisitorResult _updateDown(T* entity) const
     {
         const uint32_t state = entity->getState() & ~STATE_DELETE;
-        switch( state )
+        switch (state)
         {
-            case STATE_INITIALIZING:
-            case STATE_INIT_FAILED:
-            case STATE_INIT_SUCCESS:
-            case STATE_EXITING:
-            case STATE_EXIT_FAILED:
-            case STATE_EXIT_SUCCESS:
-            case STATE_RUNNING:
-                return TRAVERSE_CONTINUE;
+        case STATE_INITIALIZING:
+        case STATE_INIT_FAILED:
+        case STATE_INIT_SUCCESS:
+        case STATE_EXITING:
+        case STATE_EXIT_FAILED:
+        case STATE_EXIT_SUCCESS:
+        case STATE_RUNNING:
+            return TRAVERSE_CONTINUE;
 
-            case STATE_STOPPED:
-            case STATE_FAILED:
-                return TRAVERSE_PRUNE;
+        case STATE_STOPPED:
+        case STATE_FAILED:
+            return TRAVERSE_PRUNE;
         }
         LBUNREACHABLE;
         return TRAVERSE_PRUNE;
     }
 
-    template< class T > VisitorResult _updateUp( T* entity )
+    template <class T>
+    VisitorResult _updateUp(T* entity)
     {
         const uint32_t state = entity->getState() & ~STATE_DELETE;
-        switch( state )
+        switch (state)
         {
-            case STATE_INITIALIZING:
-            case STATE_INIT_FAILED:
-            case STATE_INIT_SUCCESS:
-                if( !entity->syncConfigInit( ))
-                {
-                    entity->sync();
-                    _failure = true;
-                    _sync = true;
-                    LBWARN << lunchbox::className( entity ) << " init failed"
-                           << std::endl;
-                }
-                else
-                    entity->sync();
-                return TRAVERSE_CONTINUE;
+        case STATE_INITIALIZING:
+        case STATE_INIT_FAILED:
+        case STATE_INIT_SUCCESS:
+            if (!entity->syncConfigInit())
+            {
+                entity->sync();
+                _failure = true;
+                _sync = true;
+                LBWARN << lunchbox::className(entity) << " init failed"
+                       << std::endl;
+            }
+            else
+                entity->sync();
+            return TRAVERSE_CONTINUE;
 
-            case STATE_EXITING:
-            case STATE_EXIT_FAILED:
-            case STATE_EXIT_SUCCESS:
-                if( !entity->syncConfigExit( ))
-                {
-                    entity->sync();
-                    _failure = true;
-                    LBWARN << lunchbox::className( entity ) << " exit failed"
-                           << std::endl;
-                }
-                else
-                    entity->sync();
-                return TRAVERSE_CONTINUE;
+        case STATE_EXITING:
+        case STATE_EXIT_FAILED:
+        case STATE_EXIT_SUCCESS:
+            if (!entity->syncConfigExit())
+            {
+                entity->sync();
+                _failure = true;
+                LBWARN << lunchbox::className(entity) << " exit failed"
+                       << std::endl;
+            }
+            else
+                entity->sync();
+            return TRAVERSE_CONTINUE;
 
-            case STATE_RUNNING:
-            case STATE_STOPPED:
-            case STATE_FAILED:
-                return TRAVERSE_CONTINUE;
+        case STATE_RUNNING:
+        case STATE_STOPPED:
+        case STATE_FAILED:
+            return TRAVERSE_CONTINUE;
         }
         LBUNREACHABLE;
         return TRAVERSE_PRUNE;
     }
 };
-
 }
 }
 }

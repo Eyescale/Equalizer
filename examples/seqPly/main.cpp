@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,12 +28,12 @@
 
 #include "application.h"
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
     seqPly::ApplicationPtr app = new seqPly::Application();
 
-    if( app->init( argc, argv ) && app->run() && app->exit( ))
+    if (app->init(argc, argv) && app->run() && app->exit())
         return EXIT_SUCCESS;
-    
+
     return EXIT_FAILURE;
 }

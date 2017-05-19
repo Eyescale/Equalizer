@@ -18,8 +18,8 @@
 #ifndef EQ_X11_WINDOW_H
 #define EQ_X11_WINDOW_H
 
-#include <eq/systemWindow.h>         // base class
 #include <eq/glx/types.h>
+#include <eq/systemWindow.h> // base class
 
 namespace eq
 {
@@ -29,7 +29,6 @@ namespace eq
  */
 namespace x11
 {
-
 /**
  * A system window for CPU rendering on X11.
  *
@@ -39,28 +38,26 @@ namespace x11
 class Window : public SystemWindow
 {
 public:
-    Window( NotifierInterface& parent, const WindowSettings& settings,
-            Display* xDisplay );
+    Window(NotifierInterface& parent, const WindowSettings& settings,
+           Display* xDisplay);
 
     bool configInit() override;
     void configExit() override;
-    void makeCurrent( bool /*cache*/ ) const override {}
+    void makeCurrent(bool /*cache*/) const override {}
     void doneCurrent() const override {}
     void bindFrameBuffer() const override {}
     void bindDrawFrameBuffer() const override {}
     void updateFrameBuffer() const override {}
     void swapBuffers() override {}
-    void joinNVSwapBarrier( const uint32_t, const uint32_t ) override {}
-    void queryDrawableConfig( eq::DrawableConfig& drawableConfig ) override;
+    void joinNVSwapBarrier(const uint32_t, const uint32_t) override {}
+    void queryDrawableConfig(eq::DrawableConfig& drawableConfig) override;
     void flush() override;
     void finish() override { flush(); }
-
     /** @return the X11 display connection */
     virtual Display* getXDisplay();
 
     /**  @return the X11 drawable ID. */
     virtual XID getXDrawable() const { return _xDrawable; }
-
     /** @name Data Access */
     //@{
     /**
@@ -71,18 +68,16 @@ public:
      *
      * @param drawable the X11 drawable ID.
      */
-    virtual void setXDrawable( XID drawable ) { _xDrawable = drawable; }
-
+    virtual void setXDrawable(XID drawable) { _xDrawable = drawable; }
 private:
-    Window( const Window& ) = delete;
-    Window& operator=( const Window& ) = delete;
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
     XID _createWindow();
     Display* _xDisplay; //!< The display connection (maintained by GLXPipe)
     XID _xDrawable;
 
-    void resize( const PixelViewport& pvp ) override;
+    void resize(const PixelViewport& pvp) override;
 };
-
 }
 }
 

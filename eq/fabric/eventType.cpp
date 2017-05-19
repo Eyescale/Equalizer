@@ -39,8 +39,7 @@ public:
         _names[EVENT_WINDOW_SCREENSAVER] = "window screensaver";
         _names[EVENT_CHANNEL_POINTER_MOTION] = "pointer motion";
         _names[EVENT_CHANNEL_POINTER_BUTTON_PRESS] = "pointer button press";
-        _names[EVENT_CHANNEL_POINTER_BUTTON_RELEASE] =
-            "pointer button release";
+        _names[EVENT_CHANNEL_POINTER_BUTTON_RELEASE] = "pointer button release";
         _names[EVENT_CHANNEL_POINTER_WHEEL] = "pointer wheel";
         _names[EVENT_WINDOW_POINTER_WHEEL] = "pointer wheel";
         _names[EVENT_WINDOW_POINTER_MOTION] = "window pointer motion";
@@ -62,27 +61,25 @@ public:
         _names[EVENT_USER] = "user-specific";
     }
 
-    const std::string &operator[]( const EventType type ) const
+    const std::string& operator[](const EventType type) const
     {
-        return _names[ type ];
+        return _names[type];
     }
 
 private:
-    std::string _names[ EVENT_ALL ];
+    std::string _names[EVENT_ALL];
 };
 static EventTypeNames _eventTypeNames;
 }
 
 namespace eventTypes
 {
-
-std::ostream& operator << ( std::ostream& os, const EventType& type )
+std::ostream& operator<<(std::ostream& os, const EventType& type)
 {
-    if( type >= EVENT_ALL )
-        return os << "user event (" << unsigned( type ) << ')';
-    return os << _eventTypeNames[ type ] << " (" << unsigned( type ) << ')';
+    if (type >= EVENT_ALL)
+        return os << "user event (" << unsigned(type) << ')';
+    return os << _eventTypeNames[type] << " (" << unsigned(type) << ')';
 }
-
 }
 }
 }

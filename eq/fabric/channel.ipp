@@ -33,337 +33,335 @@ namespace fabric
 {
 namespace
 {
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CHANNEL_") + #attr )
+#define MAKE_ATTR_STRING(attr) (std::string("EQ_CHANNEL_") + #attr)
 static std::string _iAttributeStrings[] = {
-    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
-    MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN )
-};
+    MAKE_ATTR_STRING(IATTR_HINT_STATISTICS),
+    MAKE_ATTR_STRING(IATTR_HINT_SENDTOKEN)};
 
-static std::string _sAttributeStrings[] = {
-    MAKE_ATTR_STRING( SATTR_DUMP_IMAGE )
-};
+static std::string _sAttributeStrings[] = {MAKE_ATTR_STRING(SATTR_DUMP_IMAGE)};
 }
 
-template< class W, class C > Channel< W, C >::Channel( W* parent )
-    : _window( parent )
-    , _context( &_data.nativeContext )
+template <class W, class C>
+Channel<W, C>::Channel(W* parent)
+    : _window(parent)
+    , _context(&_data.nativeContext)
 {
-    memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
-    parent->_addChannel( static_cast< C* >( this ));
-    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    memset(_iAttributes, 0xff, IATTR_ALL * sizeof(int32_t));
+    parent->_addChannel(static_cast<C*>(this));
+    LBLOG(LOG_INIT) << "New " << lunchbox::className(this) << std::endl;
 }
 
-template< class W, class C > Channel< W, C >::Channel( const Channel& from )
-        : Object( from )
-        , _window( from._window )
-        , _data( from._data )
-        , _context( &_data.nativeContext )
+template <class W, class C>
+Channel<W, C>::Channel(const Channel& from)
+    : Object(from)
+    , _window(from._window)
+    , _data(from._data)
+    , _context(&_data.nativeContext)
 {
-    _window->_addChannel( static_cast< C* >( this ));
+    _window->_addChannel(static_cast<C*>(this));
 
-    for( int i = 0; i < IATTR_ALL; ++i )
+    for (int i = 0; i < IATTR_ALL; ++i)
         _iAttributes[i] = from._iAttributes[i];
-    for( int i = 0; i < SATTR_ALL; ++i )
+    for (int i = 0; i < SATTR_ALL; ++i)
         _sAttributes[i] = from._sAttributes[i];
-    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG(LOG_INIT) << "New " << lunchbox::className(this) << std::endl;
 }
 
-template< class W, class C > void Channel< W, C >::init()
+template <class W, class C>
+void Channel<W, C>::init()
 {
     notifyViewportChanged();
-    unsetDirty( DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT );
+    unsetDirty(DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT);
 }
 
-template< class W, class C > Channel< W, C >::~Channel()
+template <class W, class C>
+Channel<W, C>::~Channel()
 {
-    _window->_removeChannel( static_cast< C* >( this ));
+    _window->_removeChannel(static_cast<C*>(this));
 }
 
-template< class W, class C >
-VisitorResult Channel< W, C >::accept( Visitor& visitor )
+template <class W, class C>
+VisitorResult Channel<W, C>::accept(Visitor& visitor)
 {
-    return visitor.visit( static_cast< C* >( this ));
+    return visitor.visit(static_cast<C*>(this));
 }
 
-template< class W, class C >
-VisitorResult Channel< W, C >::accept( Visitor& visitor ) const
+template <class W, class C>
+VisitorResult Channel<W, C>::accept(Visitor& visitor) const
 {
-    return visitor.visit( static_cast< const C* >( this ));
+    return visitor.visit(static_cast<const C*>(this));
 }
 
-template< class W, class C >
-void Channel< W, C >::backup()
+template <class W, class C>
+void Channel<W, C>::backup()
 {
     Object::backup();
     _backup = _data;
 }
 
-template< class W, class C >
-void Channel< W, C >::restore()
+template <class W, class C>
+void Channel<W, C>::restore()
 {
     _data = _backup;
     Object::restore();
     notifyViewportChanged();
-    setDirty( DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT | DIRTY_MEMBER |
-              DIRTY_FRUSTUM );
+    setDirty(DIRTY_VIEWPORT | DIRTY_PIXELVIEWPORT | DIRTY_MEMBER |
+             DIRTY_FRUSTUM);
 }
 
-template< class W, class C >
-void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+template <class W, class C>
+void Channel<W, C>::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    LBASSERT( dirtyBits == DIRTY_ALL ||
-              getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
-    Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        os << co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           << co::Array< std::string >( _sAttributes, SATTR_ALL );
-    if( dirtyBits & DIRTY_VIEWPORT )
+    LBASSERT(dirtyBits == DIRTY_ALL ||
+             getWindow()->Serializable::isDirty(W::DIRTY_CHANNELS));
+    Object::serialize(os, dirtyBits);
+    if (dirtyBits & DIRTY_ATTRIBUTES)
+        os << co::Array<int32_t>(_iAttributes, IATTR_ALL)
+           << co::Array<std::string>(_sAttributes, SATTR_ALL);
+    if (dirtyBits & DIRTY_VIEWPORT)
         os << _data.nativeContext.vp << _data.fixedVP;
-    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+    if (dirtyBits & DIRTY_PIXELVIEWPORT)
         os << _data.nativeContext.pvp << _data.fixedVP;
-    if( dirtyBits & DIRTY_MEMBER )
+    if (dirtyBits & DIRTY_MEMBER)
         os << _data.nativeContext.view << _data.nativeContext.overdraw;
-    if( dirtyBits & DIRTY_FRUSTUM )
+    if (dirtyBits & DIRTY_FRUSTUM)
         os << _data.nativeContext.frustum;
-    if( dirtyBits & DIRTY_CAPABILITIES )
+    if (dirtyBits & DIRTY_CAPABILITIES)
         os << _data.capabilities;
 }
 
-template< class W, class C >
-void Channel< W, C >::deserialize( co::DataIStream& is,
-                                   const uint64_t dirtyBits )
+template <class W, class C>
+void Channel<W, C>::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        is >> co::Array< int32_t >( _iAttributes, IATTR_ALL )
-           >> co::Array< std::string >( _sAttributes, SATTR_ALL );
-    if( dirtyBits & DIRTY_VIEWPORT )
+    Object::deserialize(is, dirtyBits);
+    if (dirtyBits & DIRTY_ATTRIBUTES)
+        is >> co::Array<int32_t>(_iAttributes, IATTR_ALL) >>
+            co::Array<std::string>(_sAttributes, SATTR_ALL);
+    if (dirtyBits & DIRTY_VIEWPORT)
     {
         // Ignore data from master (server) if we have local changes
-        if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
+        if (!Serializable::isDirty(DIRTY_VIEWPORT) || isMaster())
         {
             is >> _data.nativeContext.vp >> _data.fixedVP;
             notifyViewportChanged();
         }
         else // consume unused data
-            is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) +
-                                   sizeof( _data.fixedVP ));
+            is.getRemainingBuffer(sizeof(_data.nativeContext.vp) +
+                                  sizeof(_data.fixedVP));
     }
-    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+    if (dirtyBits & DIRTY_PIXELVIEWPORT)
     {
         // Ignore data from master (server) if we have local changes
-        if( !Serializable::isDirty( DIRTY_PIXELVIEWPORT ) || isMaster( ))
+        if (!Serializable::isDirty(DIRTY_PIXELVIEWPORT) || isMaster())
         {
             is >> _data.nativeContext.pvp >> _data.fixedVP;
             notifyViewportChanged();
         }
         else // consume unused data
-            is.getRemainingBuffer( sizeof( _data.nativeContext.pvp ) +
-                                   sizeof( _data.fixedVP ));
+            is.getRemainingBuffer(sizeof(_data.nativeContext.pvp) +
+                                  sizeof(_data.fixedVP));
     }
-    if( dirtyBits & DIRTY_MEMBER )
-        is >> _data.nativeContext.view  >> _data.nativeContext.overdraw;
-    if( dirtyBits & DIRTY_FRUSTUM )
+    if (dirtyBits & DIRTY_MEMBER)
+        is >> _data.nativeContext.view >> _data.nativeContext.overdraw;
+    if (dirtyBits & DIRTY_FRUSTUM)
         is >> _data.nativeContext.frustum;
-    if( dirtyBits & DIRTY_CAPABILITIES )
+    if (dirtyBits & DIRTY_CAPABILITIES)
     {
         is >> _data.capabilities;
         updateCapabilities();
     }
 }
 
-template< class W, class C >
-void Channel< W, C >::setDirty( const uint64_t dirtyBits )
+template <class W, class C>
+void Channel<W, C>::setDirty(const uint64_t dirtyBits)
 {
-    Object::setDirty( dirtyBits );
-    _window->setDirty( W::DIRTY_CHANNELS );
+    Object::setDirty(dirtyBits);
+    _window->setDirty(W::DIRTY_CHANNELS);
 }
 
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-template< class W, class C >
-void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
+template <class W, class C>
+void Channel<W, C>::setPixelViewport(const PixelViewport& pvp)
 {
-    LBASSERT( pvp.isValid( ));
-    if( !pvp.isValid( ))
+    LBASSERT(pvp.isValid());
+    if (!pvp.isValid())
         return;
 
     _data.fixedVP = false;
 
-    if( _data.nativeContext.pvp == pvp && _data.nativeContext.vp.hasArea( ))
+    if (_data.nativeContext.pvp == pvp && _data.nativeContext.vp.hasArea())
         return;
 
     _data.nativeContext.pvp = pvp;
     _data.nativeContext.vp.invalidate();
 
     notifyViewportChanged();
-    setDirty( DIRTY_PIXELVIEWPORT );
+    setDirty(DIRTY_PIXELVIEWPORT);
 }
 
-template< class W, class C >
-void Channel< W, C >::setViewport( const Viewport& vp )
+template <class W, class C>
+void Channel<W, C>::setViewport(const Viewport& vp)
 {
-    if( !vp.hasArea( ))
+    if (!vp.hasArea())
         return;
 
     _data.fixedVP = true;
 
-    if( _data.nativeContext.vp == vp && _data.nativeContext.pvp.hasArea( ))
+    if (_data.nativeContext.vp == vp && _data.nativeContext.pvp.hasArea())
         return;
 
     _data.nativeContext.vp = vp;
     _data.nativeContext.pvp.invalidate();
 
     notifyViewportChanged();
-    setDirty( DIRTY_VIEWPORT );
+    setDirty(DIRTY_VIEWPORT);
 }
 
-template< class W, class C >
-void Channel< W, C >::notifyViewportChanged()
+template <class W, class C>
+void Channel<W, C>::notifyViewportChanged()
 {
-    if( !_window )
+    if (!_window)
         return;
 
     PixelViewport windowPVP = _window->getPixelViewport();
-    if( !windowPVP.isValid( ))
+    if (!windowPVP.isValid())
         return;
 
     windowPVP.x = 0;
     windowPVP.y = 0;
 
-    if( _data.fixedVP ) // update pixel viewport
+    if (_data.fixedVP) // update pixel viewport
     {
         const PixelViewport oldPVP = _data.nativeContext.pvp;
         _data.nativeContext.pvp = windowPVP;
-        _data.nativeContext.pvp.apply( _data.nativeContext.vp );
-        if( oldPVP != _data.nativeContext.pvp )
-            setDirty( DIRTY_PIXELVIEWPORT );
+        _data.nativeContext.pvp.apply(_data.nativeContext.vp);
+        if (oldPVP != _data.nativeContext.pvp)
+            setDirty(DIRTY_PIXELVIEWPORT);
     }
     else // update viewport
     {
         const Viewport oldVP = _data.nativeContext.vp;
         _data.nativeContext.vp = _data.nativeContext.pvp / windowPVP;
-        if( oldVP != _data.nativeContext.vp )
-            setDirty( DIRTY_VIEWPORT );
+        if (oldVP != _data.nativeContext.vp)
+            setDirty(DIRTY_VIEWPORT);
     }
 
     LBVERB << getName() << " viewport update: " << _data.nativeContext.vp << ":"
            << _data.nativeContext.pvp << std::endl;
 }
 
-template< class W, class C >
-void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
+template <class W, class C>
+void Channel<W, C>::setNearFar(const float nearPlane, const float farPlane)
 {
-    LBASSERT( _context );
-    if( _data.nativeContext.frustum.nearPlane() != nearPlane ||
-        _data.nativeContext.frustum.farPlane() != farPlane )
+    LBASSERT(_context);
+    if (_data.nativeContext.frustum.nearPlane() != nearPlane ||
+        _data.nativeContext.frustum.farPlane() != farPlane)
     {
-        _data.nativeContext.frustum.adjustNearPlane( nearPlane );
+        _data.nativeContext.frustum.adjustNearPlane(nearPlane);
         _data.nativeContext.frustum.farPlane() = farPlane;
         _data.nativeContext.ortho.nearPlane() = nearPlane;
         _data.nativeContext.ortho.farPlane() = farPlane;
-        setDirty( DIRTY_FRUSTUM );
+        setDirty(DIRTY_FRUSTUM);
     }
 
-    if( _context == &_data.nativeContext )
+    if (_context == &_data.nativeContext)
         return;
 
-    if( _context->frustum.nearPlane() != nearPlane ||
-        _context->frustum.farPlane() != farPlane )
+    if (_context->frustum.nearPlane() != nearPlane ||
+        _context->frustum.farPlane() != farPlane)
     {
-        _context->frustum.adjustNearPlane( nearPlane );
+        _context->frustum.adjustNearPlane(nearPlane);
         _context->frustum.farPlane() = farPlane;
         _context->ortho.nearPlane() = nearPlane;
         _context->ortho.farPlane() = farPlane;
     }
 }
 
-template< class W, class C >
-void Channel< W, C >::setViewVersion( const co::ObjectVersion& view )
+template <class W, class C>
+void Channel<W, C>::setViewVersion(const co::ObjectVersion& view)
 {
-    if( _data.nativeContext.view == view )
+    if (_data.nativeContext.view == view)
         return;
-    LBASSERTINFO( view.identifier != 0 ||
-                  _data.nativeContext.view.version <= view.version,
-                  _data.nativeContext.view << " != " << view );
+    LBASSERTINFO(view.identifier != 0 ||
+                     _data.nativeContext.view.version <= view.version,
+                 _data.nativeContext.view << " != " << view);
 
     _data.nativeContext.view = view;
-    setDirty( DIRTY_MEMBER );
+    setDirty(DIRTY_MEMBER);
 }
 
-template< class W, class C >
-uint64_t Channel< W, C >::getCapabilities() const
+template <class W, class C>
+uint64_t Channel<W, C>::getCapabilities() const
 {
     return _data.capabilities;
 }
 
-template< class W, class C >
-void Channel< W, C >::setCapabilities( const uint64_t bitmask )
+template <class W, class C>
+void Channel<W, C>::setCapabilities(const uint64_t bitmask)
 {
-    if ( bitmask == _data.capabilities )
+    if (bitmask == _data.capabilities)
         return;
 
     _data.capabilities = bitmask;
-    setDirty( DIRTY_CAPABILITIES );
+    setDirty(DIRTY_CAPABILITIES);
 }
 
-template< class W, class C >
-void Channel< W, C >::setOverdraw( const Vector4i& overdraw )
+template <class W, class C>
+void Channel<W, C>::setOverdraw(const Vector4i& overdraw)
 {
-    if( _data.nativeContext.overdraw == overdraw )
+    if (_data.nativeContext.overdraw == overdraw)
         return;
     _data.nativeContext.overdraw = overdraw;
-    setDirty( DIRTY_MEMBER );
+    setDirty(DIRTY_MEMBER);
 }
 
-template< class W, class C >
-ChannelPath Channel< W, C >::getPath() const
+template <class W, class C>
+ChannelPath Channel<W, C>::getPath() const
 {
     const W* window = getWindow();
-    LBASSERT( window );
-    ChannelPath path( window->getPath( ));
+    LBASSERT(window);
+    ChannelPath path(window->getPath());
 
     const typename W::Channels& channels = window->getChannels();
-    typename W::Channels::const_iterator i = std::find( channels.begin(),
-                                                        channels.end(), this );
-    LBASSERT( i != channels.end( ));
-    path.channelIndex = std::distance( channels.begin(), i );
+    typename W::Channels::const_iterator i =
+        std::find(channels.begin(), channels.end(), this);
+    LBASSERT(i != channels.end());
+    path.channelIndex = std::distance(channels.begin(), i);
     return path;
 }
 
-
-template< class W, class C >
-int32_t Channel< W, C >::getIAttribute( const IAttribute attr ) const
+template <class W, class C>
+int32_t Channel<W, C>::getIAttribute(const IAttribute attr) const
 {
-    LBASSERT( attr < IATTR_ALL );
-    return _iAttributes[ attr ];
+    LBASSERT(attr < IATTR_ALL);
+    return _iAttributes[attr];
 }
 
-template< class W, class C >
-const std::string& Channel< W, C >::getSAttribute( const SAttribute attr ) const
+template <class W, class C>
+const std::string& Channel<W, C>::getSAttribute(const SAttribute attr) const
 {
-    LBASSERT( attr < SATTR_ALL );
-    return _sAttributes[ attr ];
+    LBASSERT(attr < SATTR_ALL);
+    return _sAttributes[attr];
 }
 
-template< class W, class C >
-const std::string& Channel< W, C >::getIAttributeString( const IAttribute attr )
+template <class W, class C>
+const std::string& Channel<W, C>::getIAttributeString(const IAttribute attr)
 {
     return _iAttributeStrings[attr];
 }
 
-template< class W, class C >
-const std::string& Channel< W, C >::getSAttributeString( const SAttribute attr )
+template <class W, class C>
+const std::string& Channel<W, C>::getSAttributeString(const SAttribute attr)
 {
     return _sAttributeStrings[attr];
 }
 
-template< class W, class C >
-std::ostream& operator << ( std::ostream& os,
-                            const Channel< W, C >& channel)
+template <class W, class C>
+std::ostream& operator<<(std::ostream& os, const Channel<W, C>& channel)
 {
-    if( channel.omitOutput( ))
+    if (channel.omitOutput())
         return os;
 
     os << lunchbox::disableFlush << lunchbox::disableHeader << "channel"
@@ -371,29 +369,28 @@ std::ostream& operator << ( std::ostream& os,
     os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = channel.getName();
-    if( !name.empty( ))
+    if (!name.empty())
         os << "name     \"" << name << "\"" << std::endl;
 
     const Viewport& vp = channel.getViewport();
     const PixelViewport& pvp = channel.getPixelViewport();
-    if( vp.hasArea() && channel.hasFixedViewport( ))
+    if (vp.hasArea() && channel.hasFixedViewport())
     {
-        if( pvp.hasArea( ))
+        if (pvp.hasArea())
             os << "viewport " << pvp << std::endl;
         os << "viewport " << vp << std::endl;
     }
-    else if( pvp.hasArea() && !channel.hasFixedViewport( ))
+    else if (pvp.hasArea() && !channel.hasFixedViewport())
     {
-        if( vp.hasArea( ))
+        if (vp.hasArea())
             os << "viewport " << vp << std::endl;
         os << "viewport " << pvp << std::endl;
     }
 
-    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
-       << lunchbox::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl
+       << lunchbox::enableHeader << lunchbox::enableFlush;
 
     return os;
 }
-
 }
 }

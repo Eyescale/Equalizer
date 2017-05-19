@@ -6,5 +6,5 @@ out vec3 color;
 
 void main()
 {
-    color = vec3(0.7,0.7,0.7) * fragmentColor;
+    color = vec3(0.7, 0.7, 0.7) * fragmentColor;
 }

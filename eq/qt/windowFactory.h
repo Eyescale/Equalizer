@@ -18,8 +18,8 @@
 #ifndef EQ_QT_WINDOWSYSTEMFACTORY_H
 #define EQ_QT_WINDOWSYSTEMFACTORY_H
 
-#include <eq/qt/types.h>
 #include <QObject>
+#include <eq/qt/types.h>
 
 namespace eq
 {
@@ -30,11 +30,10 @@ class WindowFactory : public QObject
     Q_OBJECT
 
 public slots:
-    Window* onCreateImpl( eq::Window& window, const WindowSettings&,
-                          QThread* thread_ );
-    void onDestroyImpl( detail::Window* window );
+    Window* onCreateImpl(eq::Window& window, const WindowSettings&,
+                         QThread* thread_);
+    void onDestroyImpl(detail::Window* window);
 };
-
 }
 }
 

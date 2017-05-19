@@ -46,7 +46,7 @@ public:
      * Create an OSG application.
      * @param initData the init data object.
      */
-    OSGScaleViewer( const InitData& initData );
+    OSGScaleViewer(const InitData& initData);
 
     /** Run the application. */
     int run();

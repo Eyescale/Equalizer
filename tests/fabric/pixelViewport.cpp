@@ -17,39 +17,39 @@
 
 // Tests the functionality of the pixel viewport
 
-#include <lunchbox/test.h>
-#include <eq/fabric/types.h>
 #include <eq/fabric/pixelViewport.h>
+#include <eq/fabric/types.h>
+#include <lunchbox/test.h>
 
 using eq::fabric::PixelViewport;
 using eq::fabric::Viewport;
 
-int main( int, char** )
+int main(int, char**)
 {
-    PixelViewport pvp( 0, 0, 1000, 1000 );
-    const Viewport vp( 0.25f, 0.25f, 0.5f, 0.5f );
+    PixelViewport pvp(0, 0, 1000, 1000);
+    const Viewport vp(0.25f, 0.25f, 0.5f, 0.5f);
 
-    TEST( pvp.isValid( ));
-    TEST( pvp.hasArea( ));
+    TEST(pvp.isValid());
+    TEST(pvp.hasArea());
 
-    pvp.apply( vp );
-    TESTINFO( pvp == PixelViewport( 250, 250, 500, 500 ), pvp );
+    pvp.apply(vp);
+    TESTINFO(pvp == PixelViewport(250, 250, 500, 500), pvp);
 
     pvp.x = -1000;
-    pvp.y =  1000;
-    pvp.w =  1000;
-    pvp.h =  1000;
+    pvp.y = 1000;
+    pvp.w = 1000;
+    pvp.h = 1000;
 
-    pvp.apply( vp );
-    TESTINFO( pvp == PixelViewport( -750, 1250, 500, 500 ), pvp );
+    pvp.apply(vp);
+    TESTINFO(pvp == PixelViewport(-750, 1250, 500, 500), pvp);
 
-    const Viewport vp2 = pvp / PixelViewport( -1000, 1000, 1000, 1000 );
-    TESTINFO( vp == vp2, vp2 );
+    const Viewport vp2 = pvp / PixelViewport(-1000, 1000, 1000, 1000);
+    TESTINFO(vp == vp2, vp2);
 
-    const PixelViewport empty( 10, 20, 0, 0 );
+    const PixelViewport empty(10, 20, 0, 0);
     PixelViewport merged;
-    merged.merge( empty );
-    TEST( merged == empty );
+    merged.merge(empty);
+    TEST(merged == empty);
 
     return EXIT_SUCCESS;
 }

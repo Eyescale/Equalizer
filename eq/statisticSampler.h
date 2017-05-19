@@ -19,8 +19,8 @@
 #ifndef EQ_STATISTICSAMPLER_H
 #define EQ_STATISTICSAMPLER_H
 
-#include <eq/types.h>
 #include <eq/fabric/statistic.h> // member
+#include <eq/types.h>
 
 namespace eq
 {
@@ -31,7 +31,8 @@ namespace eq
  * ctor. Subclasses implement the constructor and destructor to sample the times
  * and process the gathered statistics.
  */
-template< typename Owner > class StatisticSampler
+template <typename Owner>
+class StatisticSampler
 {
 public:
     /**
@@ -42,27 +43,27 @@ public:
      * @param frameNumber The current frame.
      * @version 1.0
      */
-    StatisticSampler( const Statistic::Type type, Owner* owner,
-                      const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
-        : _owner( owner )
+    StatisticSampler(const Statistic::Type type, Owner* owner,
+                     const uint32_t frameNumber = LB_UNDEFINED_UINT32)
+        : _owner(owner)
     {
-        LBASSERT( owner );
-        LBASSERT( owner->getID() != 0 );
-        LBASSERT( owner->getSerial() != CO_INSTANCE_INVALID );
+        LBASSERT(owner);
+        LBASSERT(owner->getID() != 0);
+        LBASSERT(owner->getSerial() != CO_INSTANCE_INVALID);
         statistic.type = type;
         statistic.frameNumber = frameNumber;
         statistic.resourceName[0] = '\0';
         statistic.startTime = 0;
         statistic.endTime = 0;
 
-        if( statistic.frameNumber == LB_UNDEFINED_UINT32 )
+        if (statistic.frameNumber == LB_UNDEFINED_UINT32)
             statistic.frameNumber = owner->getCurrentFrame();
     }
 
     /** Destruct and finish statistics sampling. @version 1.0 */
     virtual ~StatisticSampler()
     {
-        LBASSERTINFO( statistic.startTime <= statistic.endTime, statistic );
+        LBASSERTINFO(statistic.startTime <= statistic.endTime, statistic);
     }
 
     Statistic statistic; //!< The statistics event.
@@ -70,7 +71,6 @@ public:
 protected:
     Owner* const _owner;
 };
-
 }
 
 #endif // EQ_STATISTICSAMPLER_H

@@ -20,12 +20,12 @@
 #include "renderer.h"
 
 #include "channel.h"
+#include "objectMap.h"
 #include "pipe.h"
 #include "window.h"
-#include "objectMap.h"
 
-#include <seq/renderer.h>
 #include <eq/config.h>
+#include <seq/renderer.h>
 
 namespace seq
 {
@@ -34,31 +34,32 @@ namespace detail
 static const RenderContext dummyContext;
 
 Renderer::Renderer()
-    : _glewContext( 0 )
-    , _pipe( 0 )
-    , _window( 0 )
-    , _channel( 0 )
-{}
+    : _glewContext(0)
+    , _pipe(0)
+    , _window(0)
+    , _channel(0)
+{
+}
 
 Renderer::~Renderer()
 {
-    LBASSERT( !_pipe );
-    LBASSERT( !_channel );
+    LBASSERT(!_pipe);
+    LBASSERT(!_channel);
 }
 
-co::Object* Renderer::mapObject( const uint128_t& identifier,
-                                 co::Object* instance )
+co::Object* Renderer::mapObject(const uint128_t& identifier,
+                                co::Object* instance)
 {
-    if( !_pipe )
+    if (!_pipe)
         return 0;
 
     seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
     return objectMap ? objectMap->map(identifier, instance) : 0;
 }
 
-bool Renderer::unmap( co::Object* object )
+bool Renderer::unmap(co::Object* object)
 {
-    if( !_pipe )
+    if (!_pipe)
         return false;
 
     seq::detail::ObjectMap* objectMap = _pipe->getObjectMap();
@@ -87,66 +88,66 @@ const ViewData* Renderer::getViewData() const
 
 const Frustumf& Renderer::getFrustum() const
 {
-    LBASSERT( _channel );
+    LBASSERT(_channel);
     static Frustumf none;
     return _channel ? _channel->getFrustum() : none;
 }
 
 const Matrix4f& Renderer::getViewMatrix() const
 {
-    LBASSERT( _channel );
+    LBASSERT(_channel);
     static const Matrix4f identity;
     return _channel ? _channel->getViewMatrix() : identity;
 }
 
 const Matrix4f& Renderer::getModelMatrix() const
 {
-    LBASSERT( _channel );
+    LBASSERT(_channel);
     static const Matrix4f identity;
     return _channel ? _channel->getModelMatrix() : identity;
 }
 
 const PixelViewport& Renderer::getPixelViewport() const
 {
-    LBASSERT( _channel );
+    LBASSERT(_channel);
     static const PixelViewport nullPVP;
     return _channel ? _channel->getPixelViewport() : nullPVP;
 }
 
 bool Renderer::useOrtho() const
 {
-    LBASSERT( _channel );
+    LBASSERT(_channel);
     return _channel ? _channel->useOrtho() : false;
 }
 
 void Renderer::applyScreenFrustum()
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         _channel->applyScreenFrustum();
 }
 
 void Renderer::applyPerspectiveFrustum()
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         _channel->applyPerspective();
 }
 
-void Renderer::setNearFar( const float nearPlane, const float farPlane )
+void Renderer::setNearFar(const float nearPlane, const float farPlane)
 {
-    LBASSERT( _channel );
-    if( _channel )
-        _channel->setNearFar( nearPlane, farPlane );
+    LBASSERT(_channel);
+    if (_channel)
+        _channel->setNearFar(nearPlane, farPlane);
 }
 
-void Renderer::setWindow( Window* window )
+void Renderer::setWindow(Window* window)
 {
     _window = window;
     _glewContext = window ? window->glewGetContext() : 0;
 }
 
-void Renderer::setChannel( Channel* channel )
+void Renderer::setChannel(Channel* channel)
 {
     _channel = channel;
     _glewContext = channel ? channel->glewGetContext() : 0;
@@ -164,46 +165,45 @@ bool Renderer::exitContext()
 
 void Renderer::clear()
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         _channel->clear();
 }
 
 void Renderer::requestRedraw()
 {
-    LBASSERT( _channel );
-    if( _channel )
-        _channel->getConfig()->sendEvent( EVENT_REDRAW );
+    LBASSERT(_channel);
+    if (_channel)
+        _channel->getConfig()->sendEvent(EVENT_REDRAW);
 }
 
 void Renderer::applyRenderContext()
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         _channel->applyRenderContext();
 }
 
 void Renderer::bindDrawFrameBuffer()
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         _channel->bindDrawFrameBuffer();
 }
 
 const RenderContext& Renderer::getRenderContext() const
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         return _channel->getRenderContext();
     return dummyContext;
 }
 
 void Renderer::applyModelMatrix()
 {
-    LBASSERT( _channel );
-    if( _channel )
+    LBASSERT(_channel);
+    if (_channel)
         _channel->applyModelMatrix();
 }
-
 }
 }

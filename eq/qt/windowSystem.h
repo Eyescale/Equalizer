@@ -18,14 +18,17 @@
 #pragma once
 
 #include "types.h"
-#include <eq/windowSystem.h> // base class
 #include <QObject>
+#include <eq/windowSystem.h> // base class
 
 namespace eq
 {
 namespace qt
 {
-namespace detail { class Window; }
+namespace detail
+{
+class Window;
+}
 
 class WindowSystem : public QObject, public WindowSystemIF
 {
@@ -36,20 +39,19 @@ public:
     EQ_API ~WindowSystem();
 
 signals:
-    eq::qt::Window* createImpl( eq::Window&, const WindowSettings&, QThread* );
+    eq::qt::Window* createImpl(eq::Window&, const WindowSettings&, QThread*);
 
 private:
     WindowFactory* _factory;
 
     std::string getName() const final;
-    eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) final;
-    eq::SystemPipe* createPipe( eq::Pipe* pipe ) final;
+    eq::SystemWindow* createWindow(eq::Window* window,
+                                   const WindowSettings& settings) final;
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) final;
     eq::MessagePump* createMessagePump() final;
     bool hasMainThreadEvents() const final { return true; }
-    bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const final;
+    bool setupFont(util::ObjectManager& gl, const void* key,
+                   const std::string& name, const uint32_t size) const final;
 };
-
 }
 }

@@ -18,8 +18,8 @@
 #ifndef EQSERVER_COMPOUNDVISITOR_H
 #define EQSERVER_COMPOUNDVISITOR_H
 
-#include "visitorResult.h"  // enum
 #include "types.h"
+#include "visitorResult.h" // enum
 
 namespace eq
 {
@@ -30,39 +30,49 @@ class CompoundVisitor
 {
 public:
     /** Constructs a new CompoundVisitor. */
-    CompoundVisitor(){}
-
+    CompoundVisitor() {}
     /** Destruct the CompoundVisitor */
-    virtual ~CompoundVisitor(){}
-
+    virtual ~CompoundVisitor() {}
     /** Visit a non-leaf compound on the down traversal. */
-    virtual VisitorResult visitPre( Compound* compound )
-        { return visit( compound ); }
+    virtual VisitorResult visitPre(Compound* compound)
+    {
+        return visit(compound);
+    }
     /** Visit a leaf compound. */
-    virtual VisitorResult visitLeaf( Compound* compound )
-        { return visit( compound ); }
+    virtual VisitorResult visitLeaf(Compound* compound)
+    {
+        return visit(compound);
+    }
     /** Visit a non-leaf compound on the up traversal. */
-    virtual VisitorResult visitPost( Compound* compound )
-        { return visitPost( static_cast< const Compound* >( compound )); }
+    virtual VisitorResult visitPost(Compound* compound)
+    {
+        return visitPost(static_cast<const Compound*>(compound));
+    }
 
     /** Visit every compound on the down traversal. */
-    virtual VisitorResult visit( Compound* compound )
-        { return visit( static_cast< const Compound* >( compound )); }
-
+    virtual VisitorResult visit(Compound* compound)
+    {
+        return visit(static_cast<const Compound*>(compound));
+    }
 
     /** Visit a non-leaf compound on the down traversal. */
-    virtual VisitorResult visitPre( const Compound* compound )
-        { return visit( compound ); }
+    virtual VisitorResult visitPre(const Compound* compound)
+    {
+        return visit(compound);
+    }
     /** Visit a leaf compound. */
-    virtual VisitorResult visitLeaf( const Compound* compound )
-        { return visit( compound ); }
+    virtual VisitorResult visitLeaf(const Compound* compound)
+    {
+        return visit(compound);
+    }
     /** Visit a non-leaf compound on the up traversal. */
-    virtual VisitorResult visitPost( const Compound* )
-        { return TRAVERSE_CONTINUE; }
+    virtual VisitorResult visitPost(const Compound*)
+    {
+        return TRAVERSE_CONTINUE;
+    }
 
     /** Visit every compound on the down traversal. */
-    virtual VisitorResult visit( const Compound* )
-        { return TRAVERSE_CONTINUE; }
+    virtual VisitorResult visit(const Compound*) { return TRAVERSE_CONTINUE; }
 };
 }
 }

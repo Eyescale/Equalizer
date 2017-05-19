@@ -27,13 +27,11 @@ namespace server
 {
 namespace config
 {
-
 class Display
 {
 public:
-    static void discoverLocal( Config* config, const ConfigParams& params );
+    static void discoverLocal(Config* config, const ConfigParams& params);
 };
-
 }
 }
 }

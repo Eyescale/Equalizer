@@ -27,19 +27,18 @@ class WindowSettings
 {
 public:
     WindowSettings()
-        : sharedContextWindow( 0 )
+        : sharedContextWindow(0)
     {
     }
     ~WindowSettings() {}
-
-    WindowSettings( const WindowSettings& rhs )
-        : sharedContextWindow( rhs.sharedContextWindow )
+    WindowSettings(const WindowSettings& rhs)
+        : sharedContextWindow(rhs.sharedContextWindow)
     {
     }
 
-    WindowSettings& operator=( const WindowSettings& rhs )
+    WindowSettings& operator=(const WindowSettings& rhs)
     {
-        if( this == &rhs )
+        if (this == &rhs)
             return *this;
 
         sharedContextWindow = rhs.sharedContextWindow;
@@ -52,13 +51,13 @@ public:
 
 WindowSettings::WindowSettings()
     : fabric::WindowSettings()
-    , _impl( new detail::WindowSettings( ))
+    , _impl(new detail::WindowSettings())
 {
 }
 
-WindowSettings::WindowSettings( const WindowSettings& rhs )
-    : fabric::WindowSettings( rhs )
-    , _impl( new detail::WindowSettings( *rhs._impl ))
+WindowSettings::WindowSettings(const WindowSettings& rhs)
+    : fabric::WindowSettings(rhs)
+    , _impl(new detail::WindowSettings(*rhs._impl))
 {
 }
 
@@ -67,14 +66,14 @@ WindowSettings::~WindowSettings()
     delete _impl;
 }
 
-WindowSettings& WindowSettings::operator=( const WindowSettings& rhs )
+WindowSettings& WindowSettings::operator=(const WindowSettings& rhs)
 {
-    fabric::WindowSettings::operator =( rhs );
+    fabric::WindowSettings::operator=(rhs);
     *_impl = *rhs._impl;
     return *this;
 }
 
-void WindowSettings::setSharedContextWindow( const SystemWindow* window )
+void WindowSettings::setSharedContextWindow(const SystemWindow* window)
 {
     _impl->sharedContextWindow = window;
 }
@@ -86,12 +85,14 @@ const SystemWindow* WindowSettings::getSharedContextWindow() const
 
 uint32_t WindowSettings::getColorFormat() const
 {
-    switch( getIAttribute( IATTR_PLANES_COLOR ))
+    switch (getIAttribute(IATTR_PLANES_COLOR))
     {
-        case RGBA32F:  return GL_RGBA32F;
-        case RGBA16F:  return GL_RGBA16F;
-        default:       return GL_RGBA;
+    case RGBA32F:
+        return GL_RGBA32F;
+    case RGBA16F:
+        return GL_RGBA16F;
+    default:
+        return GL_RGBA;
     }
 }
-
 }

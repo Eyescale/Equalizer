@@ -36,20 +36,27 @@ namespace eVolve
 class Window : public eq::Window
 {
 public:
-    Window( eq::Pipe* parent ) : eq::Window( parent ), _logoTexture( 0 ) {}
+    Window(eq::Pipe* parent)
+        : eq::Window(parent)
+        , _logoTexture(0)
+    {
+    }
 
     // display list cache (windows share the context and object manager)
-    GLuint getDisplayList( const void* key )
-        { return getObjectManager().getList( key ); }
-    GLuint newDisplayList( const void* key )
-        { return getObjectManager().newList( key ); }
+    GLuint getDisplayList(const void* key)
+    {
+        return getObjectManager().getList(key);
+    }
+    GLuint newDisplayList(const void* key)
+    {
+        return getObjectManager().newList(key);
+    }
 
     const eq::util::Texture* getLogoTexture() const { return _logoTexture; }
-
 protected:
     virtual ~Window() {}
-    virtual bool configInit( const eq::uint128_t& initID );
-    virtual bool configInitGL( const eq::uint128_t& initID );
+    virtual bool configInit(const eq::uint128_t& initID);
+    virtual bool configInitGL(const eq::uint128_t& initID);
     virtual void swapBuffers();
 
 private:

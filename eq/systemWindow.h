@@ -36,8 +36,8 @@ class SystemWindow
 {
 public:
     /** Create a new SystemWindow for the given eq::Window. @version 1.7.2 */
-    EQ_API SystemWindow( NotifierInterface& parent,
-                         const WindowSettings& settings );
+    EQ_API SystemWindow(NotifierInterface& parent,
+                        const WindowSettings& settings);
 
     /** Destroy the SystemWindow. @version 1.0 */
     EQ_API virtual ~SystemWindow();
@@ -71,7 +71,7 @@ public:
      * This function invalidates the pipe's make current cache.
      * @version 1.0
      */
-    EQ_API virtual void makeCurrent( const bool cache = true ) const = 0;
+    EQ_API virtual void makeCurrent(const bool cache = true) const = 0;
 
     /**
      * This results in no context being current in the current thread.
@@ -109,15 +109,17 @@ public:
      * @param barrier the swap barrier name.
      * @version 1.0
      */
-    EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
-                                           const uint32_t barrier ) = 0;
+    EQ_API virtual void joinNVSwapBarrier(const uint32_t group,
+                                          const uint32_t barrier) = 0;
     //@}
 
     /** @name Frame Buffer Object support. */
     //@{
     /** @return the FBO of this window, or 0. @version 1.0 */
-    virtual const util::FrameBufferObject* getFrameBufferObject()
-        const { return 0; }
+    virtual const util::FrameBufferObject* getFrameBufferObject() const
+    {
+        return 0;
+    }
     /** @return the FBO of this window, or 0. @version 1.0 */
     virtual util::FrameBufferObject* getFrameBufferObject() { return 0; }
     //@}
@@ -126,7 +128,7 @@ public:
      * Set up the given drawable based on the current context.
      * @version 1.0
      */
-    EQ_API virtual void queryDrawableConfig( DrawableConfig& dc ) = 0;
+    EQ_API virtual void queryDrawableConfig(DrawableConfig& dc) = 0;
 
     /**
      * Get the GLEW context for this window.
@@ -143,32 +145,31 @@ public:
      * @version 1.0
      */
     virtual const GLEWContext* glewGetContext() const { return 0; }
-
     /**
      * Send a window error event to the application node.
      *
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error );
+    EQ_API EventOCommand sendError(const uint32_t error);
 
     /** Process a stateless event. @return true if the event was handled. */
-    EQ_API bool processEvent( EventType type );
+    EQ_API bool processEvent(EventType type);
 
     /** Process a (re)size event. @return true if the event was handled. */
-    EQ_API bool processEvent( EventType type, SizeEvent& event );
+    EQ_API bool processEvent(EventType type, SizeEvent& event);
 
     /** Process a mouse event. @return true if the event was handled. */
-    EQ_API bool processEvent( EventType type, PointerEvent& event );
+    EQ_API bool processEvent(EventType type, PointerEvent& event);
 
     /** Process a keyboard event. @return true if the event was handled. */
-    EQ_API bool processEvent( EventType type, KeyEvent& event );
+    EQ_API bool processEvent(EventType type, KeyEvent& event);
 
     /** Process an axis event. @return true if the event was handled. */
-    EQ_API bool processEvent( AxisEvent& event );
+    EQ_API bool processEvent(AxisEvent& event);
 
     /** Process a button event. @return true if the event was handled. */
-    EQ_API bool processEvent( ButtonEvent& event );
+    EQ_API bool processEvent(ButtonEvent& event);
 
     /**
      * Set the window's pixel viewport wrt its parent pipe.
@@ -176,7 +177,7 @@ public:
      * @param pvp the viewport in pixels.
      * @version 1.7.2
      */
-    EQ_API void setPixelViewport( const PixelViewport& pvp );
+    EQ_API void setPixelViewport(const PixelViewport& pvp);
 
     /**
      * @return the window's pixel viewport wrt the parent pipe.
@@ -190,7 +191,7 @@ public:
      * @param pvp the viewport in pixels.
      * @version 2.1
      */
-    EQ_API virtual void resize( const PixelViewport& pvp ) = 0;
+    EQ_API virtual void resize(const PixelViewport& pvp) = 0;
 
     /**
      * @internal
@@ -200,13 +201,13 @@ public:
     EQ_API uint32_t getColorFormat() const;
 
     /** Set the window's name. @version 1.7.2 */
-    EQ_API void setName( const std::string& name );
+    EQ_API void setName(const std::string& name);
 
     /** @return the window's name. @version 1.7.2 */
     EQ_API const std::string& getName() const;
 
     /** @return the value of an integer attribute. @version 1.7.2 */
-    EQ_API int32_t getIAttribute( const WindowSettings::IAttribute attr ) const;
+    EQ_API int32_t getIAttribute(const WindowSettings::IAttribute attr) const;
 
     /**
      * @return the window with which this window shares the GL context.
@@ -219,6 +220,5 @@ private:
     WindowSettings _settings;
 };
 }
-
 
 #endif // EQ_SYSTEM_WINDOW_H

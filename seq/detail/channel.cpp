@@ -21,18 +21,18 @@
 #include "renderer.h"
 #include "view.h"
 
+#include <eq/gl.h>
 #include <seq/renderer.h>
 #include <seq/viewData.h>
-#include <eq/gl.h>
 
 namespace seq
 {
 namespace detail
 {
-
-Channel::Channel( eq::Window* parent )
-        : eq::Channel( parent )
-{}
+Channel::Channel(eq::Window* parent)
+    : eq::Channel(parent)
+{
+}
 
 Channel::~Channel()
 {
@@ -40,12 +40,12 @@ Channel::~Channel()
 
 Pipe* Channel::getPipe()
 {
-    return static_cast< Pipe* >( eq::Channel::getPipe( ));
+    return static_cast<Pipe*>(eq::Channel::getPipe());
 }
 
 const View* Channel::getView() const
 {
-    return static_cast< const View* >( eq::Channel::getView( ));
+    return static_cast<const View*>(eq::Channel::getView());
 }
 
 const ViewData* Channel::getViewData() const
@@ -67,9 +67,9 @@ detail::Renderer* Channel::getRendererImpl()
 const Matrix4f& Channel::getModelMatrix() const
 {
     const ViewData* data = getViewData();
-    LBASSERT( data );
+    LBASSERT(data);
     static const Matrix4f identity;
-    if( !data )
+    if (!data)
         return identity;
 
     return data->getModelMatrix();
@@ -78,57 +78,56 @@ const Matrix4f& Channel::getModelMatrix() const
 bool Channel::useOrtho() const
 {
     const ViewData* data = getViewData();
-    LBASSERT( data );
-    if( !data )
+    LBASSERT(data);
+    if (!data)
         return false;
 
     return data->useOrtho();
 }
 
-void Channel::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart(const uint128_t& frameID, const uint32_t frameNumber)
 {
-    getRendererImpl()->setChannel( this );
-    eq::Channel::frameStart( frameID, frameNumber );
+    getRendererImpl()->setChannel(this);
+    eq::Channel::frameStart(frameID, frameNumber);
 }
 
-void Channel::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
+void Channel::frameFinish(const uint128_t& frameID, const uint32_t frameNumber)
 {
-    getRendererImpl()->setChannel( 0 );
-    eq::Channel::frameFinish( frameID, frameNumber );
+    getRendererImpl()->setChannel(0);
+    eq::Channel::frameFinish(frameID, frameNumber);
 }
 
-void Channel::frameClear( const uint128_t& )
+void Channel::frameClear(const uint128_t&)
 {
     seq::Renderer* const renderer = getRenderer();
     co::Object* const frameData = renderer->getFrameData();
-    renderer->clear( frameData );
+    renderer->clear(frameData);
 }
 
-void Channel::frameDraw( const uint128_t& )
+void Channel::frameDraw(const uint128_t&)
 {
     seq::Renderer* const renderer = getRenderer();
     co::Object* const frameData = renderer->getFrameData();
-    renderer->draw( frameData );
+    renderer->draw(frameData);
 }
 
 void Channel::applyModelMatrix()
 {
-    EQ_GL_CALL( glMultMatrixf( getModelMatrix().array ));
+    EQ_GL_CALL(glMultMatrixf(getModelMatrix().array));
 }
 
-void Channel::frameViewFinish( const uint128_t& frameID )
+void Channel::frameViewFinish(const uint128_t& frameID)
 {
     const ViewData* data = getViewData();
-    LBASSERT( data );
-    if( data && data->getStatistics( ))
+    LBASSERT(data);
+    if (data && data->getStatistics())
     {
         applyBuffer();
         applyViewport();
         drawStatistics();
     }
 
-    eq::Channel::frameViewFinish( frameID );
+    eq::Channel::frameViewFinish(frameID);
 }
-
 }
 }

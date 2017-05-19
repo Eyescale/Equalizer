@@ -26,44 +26,44 @@ namespace eq
 namespace wgl
 {
 MessagePump::MessagePump()
-        : _win32ThreadID( 0 )
+    : _win32ThreadID(0)
 {
 }
 
 void MessagePump::postWakeup()
 {
-    if( !_win32ThreadID )
+    if (!_win32ThreadID)
     {
         LBWARN << "Receiver thread not waiting?" << std::endl;
         return;
     }
 
-    PostThreadMessage( _win32ThreadID, WM_APP, 0, 0 ); // Wake up pop()
+    PostThreadMessage(_win32ThreadID, WM_APP, 0, 0); // Wake up pop()
 }
 
 void MessagePump::_initReceiverQueue()
 {
-    if( !_win32ThreadID )
+    if (!_win32ThreadID)
     {
         MSG msg;
-        PeekMessage( &msg, 0, WM_USER, WM_USER, PM_NOREMOVE );
+        PeekMessage(&msg, 0, WM_USER, WM_USER, PM_NOREMOVE);
         _win32ThreadID = GetCurrentThreadId();
-        LBASSERT( _win32ThreadID );
+        LBASSERT(_win32ThreadID);
     }
-    LBASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
-                  "wgl::MessagePump::pop() called from two different threads" );
+    LBASSERTINFO(_win32ThreadID == GetCurrentThreadId(),
+                 "wgl::MessagePump::pop() called from two different threads");
 }
 
-void MessagePump::dispatchOne( const uint32_t timeout )
+void MessagePump::dispatchOne(const uint32_t timeout)
 {
     _initReceiverQueue();
 
     // TODO timeout implementation using MsgWaitForMultipleObjects
     MSG msg;
-    if( GetMessage( &msg, 0, 0, 0 ))
+    if (GetMessage(&msg, 0, 0, 0))
     {
-        TranslateMessage( &msg );
-        DispatchMessage( &msg );
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 }
 
@@ -72,12 +72,11 @@ void MessagePump::dispatchAll()
     _initReceiverQueue();
 
     MSG msg;
-    while( PeekMessage( &msg, 0, 0, 0, PM_REMOVE ))
+    while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
     {
-        TranslateMessage( &msg );
-        DispatchMessage( &msg );
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 }
-
 }
 }

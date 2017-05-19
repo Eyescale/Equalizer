@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,29 +29,31 @@
 #ifndef OSG_SV_WINDOW_H
 #define OSG_SV_WINDOW_H
 
-#include <eq/eq.h>
 #include "sceneView.h"
+#include <eq/eq.h>
 
 namespace osgScaleViewer
 {
-    /**
-     * A window represents an OpenGL drawable and context
-     */
-    class Window : public eq::Window
+/**
+ * A window represents an OpenGL drawable and context
+ */
+class Window : public eq::Window
+{
+public:
+    Window(eq::Pipe* parent)
+        : eq::Window(parent)
     {
-    public:
-        Window( eq::Pipe* parent ) : eq::Window( parent ) {}
-        
-        osg::ref_ptr< SceneView > getSceneView() { return _sceneView; }
+    }
 
-    protected:
-        virtual ~Window() {}
-        virtual bool configInitGL( const eq::uint128_t& initID );
-        virtual bool configExitGL();
+    osg::ref_ptr<SceneView> getSceneView() { return _sceneView; }
+protected:
+    virtual ~Window() {}
+    virtual bool configInitGL(const eq::uint128_t& initID);
+    virtual bool configExitGL();
 
-    private:
-        osg::ref_ptr< SceneView > _sceneView;
-    };
+private:
+    osg::ref_ptr<SceneView> _sceneView;
+};
 }
 
 #endif // OSG_SV_WINDOW_H

@@ -32,12 +32,12 @@
 #define EQ_PLY_CONFIG_H
 
 // members
-#include "localInitData.h"
-#include "frameData.h"
 #include "cameraAnimation.h"
+#include "frameData.h"
+#include "localInitData.h"
 
-#include <eq/eq.h>
 #include <eq/admin/base.h>
+#include <eq/eq.h>
 
 namespace eqPly
 {
@@ -51,7 +51,7 @@ namespace eqPly
 class Config : public eq::Config
 {
 public:
-    Config( eq::ServerPtr parent );
+    Config(eq::ServerPtr parent);
 
     /** @sa eq::Config::init. */
     virtual bool init();
@@ -61,22 +61,21 @@ public:
     /** @sa eq::Config::startFrame. */
     virtual uint32_t startFrame();
 
-    void setInitData( const LocalInitData& data ) { _initData = data; }
+    void setInitData(const LocalInitData& data) { _initData = data; }
     const InitData& getInitData() const { return _initData; }
-
     /** Map per-config data to the local node process */
-    bool loadInitData( const eq::uint128_t& initDataID );
+    bool loadInitData(const eq::uint128_t& initDataID);
 
     /** @return the requested, default model or 0. */
-    const Model* getModel( const eq::uint128_t& id );
+    const Model* getModel(const eq::uint128_t& id);
 
     /** @sa eq::Config::handleEvent */
-    bool handleEvent( eq::EventICommand command ) override;
-    bool handleEvent( eq::EventType type, const eq::Event& event ) override;
-    bool handleEvent( eq::EventType type, const eq::KeyEvent& event ) override;
-    bool handleEvent( eq::EventType type, const eq::PointerEvent& ) override;
-    bool handleEvent( const eq::AxisEvent& event ) override;
-    bool handleEvent( const eq::ButtonEvent& ) override;
+    bool handleEvent(eq::EventICommand command) override;
+    bool handleEvent(eq::EventType type, const eq::Event& event) override;
+    bool handleEvent(eq::EventType type, const eq::KeyEvent& event) override;
+    bool handleEvent(eq::EventType type, const eq::PointerEvent&) override;
+    bool handleEvent(const eq::AxisEvent& event) override;
+    bool handleEvent(const eq::ButtonEvent&) override;
 
     /** @return true if the application is idling. */
     bool isIdleAA();
@@ -91,20 +90,19 @@ protected:
     virtual ~Config();
 
     /** Synchronize config and admin copy. */
-    co::uint128_t sync( const co::uint128_t& version = co::VERSION_HEAD )
-        final;
+    co::uint128_t sync(const co::uint128_t& version = co::VERSION_HEAD) final;
 
 private:
-    int         _spinX, _spinY;
-    int         _advance;
+    int _spinX, _spinY;
+    int _advance;
     eq::Canvas* _currentCanvas;
 
     LocalInitData _initData;
-    FrameData     _frameData;
+    FrameData _frameData;
 
-    Models     _models;
+    Models _models;
     ModelDists _modelDist;
-    std::mutex  _modelLock;
+    std::mutex _modelLock;
 
     CameraAnimation _animation;
 
@@ -128,20 +126,20 @@ private:
     void _switchView();
     void _switchViewMode();
     void _switchModel();
-    void _freezeLoadBalancing( const bool onOff );
-    void _adjustEyeBase( const float delta );
-    void _adjustTileSize( const int delta );
-    void _adjustResistance( const int delta );
-    void _adjustModelScale( const float factor );
+    void _freezeLoadBalancing(const bool onOff);
+    void _adjustEyeBase(const float delta);
+    void _adjustTileSize(const int delta);
+    void _adjustResistance(const int delta);
+    void _adjustModelScale(const float factor);
     void _screenshot();
-    void _switchLayout( int32_t increment );
+    void _switchLayout(int32_t increment);
     void _switchLayoutSize();
     void _toggleEqualizer();
 
-    void _setHeadMatrix( const eq::Matrix4f& matrix );
+    void _setHeadMatrix(const eq::Matrix4f& matrix);
     const eq::Matrix4f& _getHeadMatrix() const;
-    void _changeFocusDistance( const float delta );
-    void _setFocusMode( const eq::FocusMode mode );
+    void _changeFocusDistance(const float delta);
+    void _setFocusMode(const eq::FocusMode mode);
 
     /** @return a pointer to a connected admin server. */
     eq::admin::ServerPtr _getAdminServer();
@@ -150,7 +148,7 @@ private:
     View* _getCurrentView();
     const View* _getCurrentView() const;
 
-    void _setMessage( const std::string& message );
+    void _setMessage(const std::string& message);
     void _updateData();
 };
 }

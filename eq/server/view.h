@@ -20,8 +20,8 @@
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
-#include <eq/server/api.h>
 #include "types.h"
+#include <eq/server/api.h>
 
 #include <eq/fabric/view.h>     // base class
 #include <eq/fabric/viewport.h> // member
@@ -30,10 +30,10 @@ namespace eq
 {
 namespace server
 {
-class View : public fabric::View< Layout, View, Observer >
+class View : public fabric::View<Layout, View, Observer>
 {
 public:
-    EQSERVER_API explicit View( Layout* parent );
+    EQSERVER_API explicit View(Layout* parent);
 
     virtual ~View();
 
@@ -56,7 +56,7 @@ public:
      *
      * @param channel the channel.
      */
-    void addChannel( Channel* channel );
+    void addChannel(Channel* channel);
 
     /**
      * Removes a destination channel from this view.
@@ -65,11 +65,10 @@ public:
      * @return <code>true</code> if the channel was removed,
      *         <code>false</code> otherwise.
      */
-    bool removeChannel( Channel* channel );
+    bool removeChannel(Channel* channel);
 
     /** @return the vector of destination channels. */
     const Channels& getChannels() const { return _channels; }
-
     /** @name Operations */
     //@{
     /** Initialize the view parameters. */
@@ -82,31 +81,32 @@ public:
      *               canvases using this view's layout.
      * @param active true to activate, false to deactivate.
      */
-    void trigger( const Canvas* canvas, const bool active );
+    void trigger(const Canvas* canvas, const bool active);
 
     /**
      * Activate the given mode on this view.
      *
      * @param mode the new rendering mode
      */
-    void activateMode( const Mode mode ) override;
+    void activateMode(const Mode mode) override;
 
     void updateCapabilities() override;
 
     /** Update all segment frusta based on the current settings. */
     void updateFrusta();
 
-    void setSAttribute( const SAttribute attr, const std::string& value )
-    { fabric::View< Layout, View, Observer >::setSAttribute( attr, value ); }
+    void setSAttribute(const SAttribute attr, const std::string& value)
+    {
+        fabric::View<Layout, View, Observer>::setSAttribute(attr, value);
+    }
 
-    void setDirty( const uint64_t bits ) override; //!< @internal
+    void setDirty(const uint64_t bits) override; //!< @internal
     //@}
 
 protected:
     /** @internal */
-    void deserialize( co::DataIStream&, const uint64_t ) override;
+    void deserialize(co::DataIStream&, const uint64_t) override;
     void notifyAttached() override { _updateChannels(); }
-
 private:
     /** The list of channels. */
     Channels _channels;
@@ -115,7 +115,7 @@ private:
     Private* _private; // placeholder for binary-compatible changes
 
     void _updateChannels() const;
-    float _computeFocusRatio( Vector3f& eye );
+    float _computeFocusRatio(Vector3f& eye);
 };
 }
 }

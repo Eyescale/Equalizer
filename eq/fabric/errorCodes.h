@@ -94,7 +94,6 @@ enum ErrorCode
 
     ERROR_CUSTOM = LB_64KB, // 0x10000
 };
-
 }
 }
 #endif // EQFABRIC_ERRORCODES_H

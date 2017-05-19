@@ -32,290 +32,288 @@ namespace fabric
 {
 namespace
 {
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
+#define MAKE_ATTR_STRING(attr) (std::string("EQ_NODE_") + #attr)
 
-std::string _iAttributeStrings[] = {
-    MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
-    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
-    MAKE_ATTR_STRING( IATTR_HINT_AFFINITY )
-};
-
+std::string _iAttributeStrings[] = {MAKE_ATTR_STRING(IATTR_THREAD_MODEL),
+                                    MAKE_ATTR_STRING(IATTR_LAUNCH_TIMEOUT),
+                                    MAKE_ATTR_STRING(IATTR_HINT_AFFINITY)};
 }
 
-template< class C, class N, class P, class V >
-Node< C, N, P, V >::Node( C* parent )
-        : _config( parent )
-        , _isAppNode( false )
+template <class C, class N, class P, class V>
+Node<C, N, P, V>::Node(C* parent)
+    : _config(parent)
+    , _isAppNode(false)
 {
-    parent->_addNode( static_cast< N* >( this ) );
-    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    parent->_addNode(static_cast<N*>(this));
+    LBLOG(LOG_INIT) << "New " << lunchbox::className(this) << std::endl;
 }
 
-template< class C, class N, class P, class V >
-Node< C, N, P, V >::~Node()
+template <class C, class N, class P, class V>
+Node<C, N, P, V>::~Node()
 {
-    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
-    while( !_pipes.empty() )
+    LBLOG(LOG_INIT) << "Delete " << lunchbox::className(this) << std::endl;
+    while (!_pipes.empty())
     {
         P* pipe = _pipes.back();
-        LBASSERT( pipe->getNode() == static_cast< N* >( this ) );
-        _removePipe( pipe );
+        LBASSERT(pipe->getNode() == static_cast<N*>(this));
+        _removePipe(pipe);
         delete pipe;
     }
 
-    _config->_removeNode( static_cast< N* >( this ) );
+    _config->_removeNode(static_cast<N*>(this));
 }
 
-template< class C, class N, class P, class V >
-Node< C, N, P, V >::BackupData::BackupData()
+template <class C, class N, class P, class V>
+Node<C, N, P, V>::BackupData::BackupData()
 {
-    memset( iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
+    memset(iAttributes, 0xff, IATTR_ALL * sizeof(int32_t));
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::backup()
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::backup()
 {
     Object::backup();
     _backup = _data;
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::restore()
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::restore()
 {
     _data = _backup;
     Object::restore();
 }
 
-template< class C, class N, class P, class V >
-uint128_t Node< C, N, P, V >::commit( const uint32_t incarnation )
+template <class C, class N, class P, class V>
+uint128_t Node<C, N, P, V>::commit(const uint32_t incarnation)
 {
-    if( Serializable::isDirty( DIRTY_PIPES ))
-        commitChildren( _pipes, incarnation );
-    return Object::commit( incarnation );
+    if (Serializable::isDirty(DIRTY_PIPES))
+        commitChildren(_pipes, incarnation);
+    return Object::commit(incarnation);
 }
 
-template< class C, class N, class P, class V > void
-Node< C, N, P, V >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        os << co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
-    if( dirtyBits & DIRTY_PIPES && isMaster( ))
+    Object::serialize(os, dirtyBits);
+    if (dirtyBits & DIRTY_ATTRIBUTES)
+        os << co::Array<int32_t>(_data.iAttributes, IATTR_ALL);
+    if (dirtyBits & DIRTY_PIPES && isMaster())
     {
         os << _mapNodeObjects();
-        os.serializeChildren( _pipes );
+        os.serializeChildren(_pipes);
     }
-    if( dirtyBits & DIRTY_MEMBER )
+    if (dirtyBits & DIRTY_MEMBER)
         os << _isAppNode;
 }
 
-template< class C, class N, class P, class V > void
-Node< C, N, P, V >::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::deserialize(co::DataIStream& is,
+                                   const uint64_t dirtyBits)
 {
-    Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        is >> co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
-    if( dirtyBits & DIRTY_PIPES )
+    Object::deserialize(is, dirtyBits);
+    if (dirtyBits & DIRTY_ATTRIBUTES)
+        is >> co::Array<int32_t>(_data.iAttributes, IATTR_ALL);
+    if (dirtyBits & DIRTY_PIPES)
     {
-        if( isMaster( ))
-            syncChildren( _pipes );
+        if (isMaster())
+            syncChildren(_pipes);
         else
         {
-            const bool useChildren = is.read< bool >();
-            if( useChildren && _mapNodeObjects( ))
+            const bool useChildren = is.read<bool>();
+            if (useChildren && _mapNodeObjects())
             {
                 Pipes result;
-                is.deserializeChildren( this, _pipes, result );
-                _pipes.swap( result );
-                LBASSERT( _pipes.size() == result.size( ));
+                is.deserializeChildren(this, _pipes, result);
+                _pipes.swap(result);
+                LBASSERT(_pipes.size() == result.size());
             }
             else // consume unused ObjectVersions
-                is.read< co::ObjectVersions >();
+                is.read<co::ObjectVersions>();
         }
     }
-    if( dirtyBits & DIRTY_MEMBER )
+    if (dirtyBits & DIRTY_MEMBER)
         is >> _isAppNode;
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::setDirty( const uint64_t dirtyBits )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::setDirty(const uint64_t dirtyBits)
 {
-    Object::setDirty( dirtyBits );
-    _config->setDirty( C::DIRTY_NODES );
+    Object::setDirty(dirtyBits);
+    _config->setDirty(C::DIRTY_NODES);
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::notifyDetach()
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::notifyDetach()
 {
     Object::notifyDetach();
-    while( !_pipes.empty( ))
+    while (!_pipes.empty())
     {
         P* pipe = _pipes.back();
-        if( !pipe->isAttached( ))
+        if (!pipe->isAttached())
         {
-            LBASSERT( isMaster( ));
+            LBASSERT(isMaster());
             return;
         }
 
-        LBASSERT( !isMaster( ));
-        getLocalNode()->unmapObject( pipe );
-        _removePipe( pipe );
-        _config->getServer()->getNodeFactory()->releasePipe( pipe );
+        LBASSERT(!isMaster());
+        getLocalNode()->unmapObject(pipe);
+        _removePipe(pipe);
+        _config->getServer()->getNodeFactory()->releasePipe(pipe);
     }
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::create( P** pipe )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::create(P** pipe)
 {
     *pipe = _config->getServer()->getNodeFactory()->createPipe(
-        static_cast< N* >( this ));
+        static_cast<N*>(this));
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::release( P* pipe )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::release(P* pipe)
 {
-    _config->getServer()->getNodeFactory()->releasePipe( pipe );
+    _config->getServer()->getNodeFactory()->releasePipe(pipe);
 }
 
 namespace
 {
-template< class N, class V >
-VisitorResult _accept( N* node, V& visitor )
+template <class N, class V>
+VisitorResult _accept(N* node, V& visitor)
 {
-    VisitorResult result = visitor.visitPre( node );
-    if( result != TRAVERSE_CONTINUE )
+    VisitorResult result = visitor.visitPre(node);
+    if (result != TRAVERSE_CONTINUE)
         return result;
 
     const typename N::Pipes& pipes = node->getPipes();
-    for( typename N::Pipes::const_iterator i = pipes.begin();
-         i != pipes.end(); ++i )
+    for (typename N::Pipes::const_iterator i = pipes.begin(); i != pipes.end();
+         ++i)
     {
-        switch( (*i)->accept( visitor ))
+        switch ((*i)->accept(visitor))
         {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( node ))
-    {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
 
         case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
+            result = TRAVERSE_PRUNE;
+            break;
 
         case TRAVERSE_CONTINUE:
         default:
             break;
+        }
+    }
+
+    switch (visitor.visitPost(node))
+    {
+    case TRAVERSE_TERMINATE:
+        return TRAVERSE_TERMINATE;
+
+    case TRAVERSE_PRUNE:
+        return TRAVERSE_PRUNE;
+
+    case TRAVERSE_CONTINUE:
+    default:
+        break;
     }
 
     return result;
 }
 }
 
-template< class C, class N, class P, class V >
-VisitorResult Node< C, N, P, V >::accept( V& visitor )
+template <class C, class N, class P, class V>
+VisitorResult Node<C, N, P, V>::accept(V& visitor)
 {
-    return _accept( static_cast< N* >( this ), visitor );
+    return _accept(static_cast<N*>(this), visitor);
 }
 
-template< class C, class N, class P, class V >
-VisitorResult Node< C, N, P, V >::accept( V& visitor ) const
+template <class C, class N, class P, class V>
+VisitorResult Node<C, N, P, V>::accept(V& visitor) const
 {
-    return _accept( static_cast< const N* >( this ), visitor );
+    return _accept(static_cast<const N*>(this), visitor);
 }
 
-template< class C, class N, class P, class V >
-NodePath Node< C, N, P, V >::getPath() const
+template <class C, class N, class P, class V>
+NodePath Node<C, N, P, V>::getPath() const
 {
-    const C* config = static_cast< const N* >( this )->getConfig( );
-    LBASSERT( config );
+    const C* config = static_cast<const N*>(this)->getConfig();
+    LBASSERT(config);
 
-    const typename std::vector< N* >& nodes = config->getNodes();
-    typename std::vector< N* >::const_iterator i =
-        std::find( nodes.begin(), nodes.end(), this );
-    LBASSERT( i != nodes.end( ));
+    const typename std::vector<N*>& nodes = config->getNodes();
+    typename std::vector<N*>::const_iterator i =
+        std::find(nodes.begin(), nodes.end(), this);
+    LBASSERT(i != nodes.end());
 
     NodePath path;
-    path.nodeIndex = std::distance( nodes.begin(), i );
+    path.nodeIndex = std::distance(nodes.begin(), i);
     return path;
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::setApplicationNode( const bool isAppNode )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::setApplicationNode(const bool isAppNode)
 {
-    if( _isAppNode == isAppNode )
+    if (_isAppNode == isAppNode)
         return;
     _isAppNode = isAppNode;
-    setDirty( DIRTY_MEMBER );
+    setDirty(DIRTY_MEMBER);
 }
 
-template< class C, class N, class P, class V > void
-Node< C, N, P, V >::setIAttribute( const IAttribute attr, const int32_t value )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::setIAttribute(const IAttribute attr, const int32_t value)
 {
-    if( _data.iAttributes[attr] == value )
+    if (_data.iAttributes[attr] == value)
         return;
     _data.iAttributes[attr] = value;
-    setDirty( DIRTY_ATTRIBUTES );
+    setDirty(DIRTY_ATTRIBUTES);
 }
 
-template< class C, class N, class P, class V >
-int32_t Node< C, N, P, V >::getIAttribute( const IAttribute attr ) const
+template <class C, class N, class P, class V>
+int32_t Node<C, N, P, V>::getIAttribute(const IAttribute attr) const
 {
     return _data.iAttributes[attr];
 }
 
-template< class C, class N, class P, class V > const std::string&
-Node< C, N, P, V >::getIAttributeString( const IAttribute attr )
+template <class C, class N, class P, class V>
+const std::string& Node<C, N, P, V>::getIAttributeString(const IAttribute attr)
 {
     return _iAttributeStrings[attr];
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::_addPipe( P* pipe )
+template <class C, class N, class P, class V>
+void Node<C, N, P, V>::_addPipe(P* pipe)
 {
-    LBASSERT( pipe->getNode() == this );
-    _pipes.push_back( pipe );
+    LBASSERT(pipe->getNode() == this);
+    _pipes.push_back(pipe);
 }
 
-template< class C, class N, class P, class V >
-bool Node< C, N, P, V >::_removePipe( P* pipe )
+template <class C, class N, class P, class V>
+bool Node<C, N, P, V>::_removePipe(P* pipe)
 {
-    typename Pipes::iterator i = lunchbox::find( _pipes, pipe );
-    if( i == _pipes.end( ))
+    typename Pipes::iterator i = lunchbox::find(_pipes, pipe);
+    if (i == _pipes.end())
         return false;
 
-    _pipes.erase( i );
+    _pipes.erase(i);
     return true;
 }
 
-template< class C, class N, class P, class V >
-P* Node< C, N, P, V >::findPipe( const uint128_t& id )
+template <class C, class N, class P, class V>
+P* Node<C, N, P, V>::findPipe(const uint128_t& id)
 {
-    for( typename Pipes::const_iterator i = _pipes.begin();
-         i != _pipes.end(); ++i )
+    for (typename Pipes::const_iterator i = _pipes.begin(); i != _pipes.end();
+         ++i)
     {
         P* pipe = *i;
-        if( pipe->getID() == id )
+        if (pipe->getID() == id)
             return pipe;
     }
     return 0;
 }
 
-template< class C, class N, class P, class V >
-std::ostream& operator << ( std::ostream& os, const Node< C, N, P, V >& node )
+template <class C, class N, class P, class V>
+std::ostream& operator<<(std::ostream& os, const Node<C, N, P, V>& node)
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader;
-    if( node.isApplicationNode( ))
+    if (node.isApplicationNode())
         os << "appNode" << std::endl;
     else
         os << "node" << std::endl;
@@ -323,14 +321,14 @@ std::ostream& operator << ( std::ostream& os, const Node< C, N, P, V >& node )
     os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = node.getName();
-    if( !name.empty( ))
+    if (!name.empty())
         os << "name     \"" << name << "\"" << std::endl;
 
-    node.output( os );
+    node.output(os);
 
     const typename N::Pipes& pipes = node.getPipes();
-    for( typename N::Pipes::const_iterator i = pipes.begin();
-         i != pipes.end(); ++i )
+    for (typename N::Pipes::const_iterator i = pipes.begin(); i != pipes.end();
+         ++i)
     {
         os << **i;
     }
@@ -338,6 +336,5 @@ std::ostream& operator << ( std::ostream& os, const Node< C, N, P, V >& node )
        << lunchbox::enableHeader << lunchbox::enableFlush;
     return os;
 }
-
 }
 }

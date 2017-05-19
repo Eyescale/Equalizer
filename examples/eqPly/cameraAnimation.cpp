@@ -28,65 +28,63 @@
 
 #include "cameraAnimation.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace eqPly
 {
-
 CameraAnimation::Step CameraAnimation::getNextStep()
 {
-    LBASSERT( _steps.size() > 0 );
-    LBASSERT( _curStep < _steps.size() );
+    LBASSERT(_steps.size() > 0);
+    LBASSERT(_curStep < _steps.size());
 
-    if( _steps.size() == 0 )
+    if (_steps.size() == 0)
         return Step();
 
-    if( _steps.size() == 1 )
-        return _steps[ _curStep ];
+    if (_steps.size() == 1)
+        return _steps[_curStep];
 
-    LBASSERT( _curStep < _steps.size()-1 );
+    LBASSERT(_curStep < _steps.size() - 1);
 
     ++_curFrame;
-    if( _curFrame > _steps[_curStep+1].frame )
+    if (_curFrame > _steps[_curStep + 1].frame)
     {
-        if( _curStep == _steps.size()-2 )
+        if (_curStep == _steps.size() - 2)
         {
             _curFrame = 1;
-            _curStep  = 0;
+            _curStep = 0;
         }
         else
             ++_curStep;
     }
-    //else
-    const Step& curStep  = _steps[ _curStep   ];
-    const Step& nextStep = _steps[ _curStep+1 ];
+    // else
+    const Step& curStep = _steps[_curStep];
+    const Step& nextStep = _steps[_curStep + 1];
 
-    if( _curFrame < curStep.frame )
-        _curFrame = curStep.frame+1;
+    if (_curFrame < curStep.frame)
+        _curFrame = curStep.frame + 1;
 
-    const float interval  = float( nextStep.frame - curStep.frame );
-    const float curCoeff  = ( nextStep.frame - _curFrame ) / interval;
-    const float nextCoeff = ( _curFrame - curStep.frame ) / interval;
+    const float interval = float(nextStep.frame - curStep.frame);
+    const float curCoeff = (nextStep.frame - _curFrame) / interval;
+    const float nextCoeff = (_curFrame - curStep.frame) / interval;
 
-    Step result( _curFrame,
-                 curStep.position * curCoeff + nextStep.position * nextCoeff,
-                 curStep.rotation * curCoeff + nextStep.rotation * nextCoeff );
+    Step result(_curFrame,
+                curStep.position * curCoeff + nextStep.position * nextCoeff,
+                curStep.rotation * curCoeff + nextStep.rotation * nextCoeff);
 
     return result;
 }
 
-
-bool CameraAnimation::loadAnimation( const std::string& fileName )
+bool CameraAnimation::loadAnimation(const std::string& fileName)
 {
     _steps.clear();
 
-    if( fileName.empty( ))
+    if (fileName.empty())
         return false;
 
     std::ifstream file;
-    file.open( fileName.c_str( ));
-    if( !file )
+    file.open(fileName.c_str());
+    if (!file)
     {
         LBERROR << "Path file could not be opened" << std::endl;
         return false;
@@ -103,22 +101,20 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
     uint32_t count = 0;
     float v[7];
     int frameNum = 0;
-    while ( !file.eof( ))
+    while (!file.eof())
     {
         file >> v[count++];
-        if( count == 7 )
+        if (count == 7)
         {
             count = 0;
-            frameNum += LB_MAX( static_cast<int>( v[0] ), 1 );
+            frameNum += LB_MAX(static_cast<int>(v[0]), 1);
 
-            _steps.push_back( Step( frameNum,
-                             eq::Vector3f(  v[1]  , v[2]  , v[3]   ),
-                             eq::Vector3f( -v[5]*m, v[4]*m, v[6]*m )));
+            _steps.push_back(Step(frameNum, eq::Vector3f(v[1], v[2], v[3]),
+                                  eq::Vector3f(-v[5] * m, v[4] * m, v[6] * m)));
         }
     }
     file.close();
 
     return true;
 }
-
 }

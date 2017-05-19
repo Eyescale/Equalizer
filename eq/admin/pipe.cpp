@@ -4,12 +4,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,43 +28,44 @@ namespace eq
 {
 namespace admin
 {
-typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
+typedef fabric::Pipe<Node, Pipe, Window, PipeVisitor> Super;
 
-Pipe::Pipe( Node* parent )
-        : Super( parent )
-{}
+Pipe::Pipe(Node* parent)
+    : Super(parent)
+{
+}
 
 Pipe::~Pipe()
-{}
+{
+}
 
 Config* Pipe::getConfig()
 {
     Node* node = getNode();
-    LBASSERT( node );
-    return ( node ? node->getConfig() : 0);
+    LBASSERT(node);
+    return (node ? node->getConfig() : 0);
 }
 
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
-    LBASSERT( node );
-    return ( node ? node->getConfig() : 0);
+    LBASSERT(node);
+    return (node ? node->getConfig() : 0);
 }
-
 
 ServerPtr Pipe::getServer()
 {
     Config* config = getConfig();
-    LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    LBASSERT(config);
+    return (config ? config->getServer() : 0);
 }
 
 ClientPtr Pipe::getClient()
 {
     ServerPtr server = getServer();
-    LBASSERT( server.isValid( ));
+    LBASSERT(server.isValid());
 
-    if( !server )
+    if (!server)
         return 0;
     return server->getClient();
 }
@@ -73,17 +74,14 @@ co::CommandQueue* Pipe::getMainThreadQueue()
 {
     return getServer()->getMainThreadQueue();
 }
-
-
 }
 }
 
 #include "../fabric/pipe.ipp"
-template class eq::fabric::Pipe< eq::admin::Node, eq::admin::Pipe,
-                                 eq::admin::Window, eq::admin::PipeVisitor >;
+template class eq::fabric::Pipe<eq::admin::Node, eq::admin::Pipe,
+                                eq::admin::Window, eq::admin::PipeVisitor>;
 
 /** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::admin::Super& );
+template EQFABRIC_API std::ostream& eq::fabric::operator<<(
+    std::ostream&, const eq::admin::Super&);
 /** @endcond */
-

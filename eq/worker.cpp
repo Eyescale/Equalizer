@@ -20,4 +20,4 @@
 #include <co/worker.ipp>
 
 // eq::Worker typedef in types.h
-template class co::WorkerThread< eq::CommandQueue >;
+template class co::WorkerThread<eq::CommandQueue>;

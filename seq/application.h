@@ -20,8 +20,8 @@
 #define EQSEQUEL_APPLICATION_H
 
 #include <co/objectFactory.h> // interface
+#include <eq/client.h>        // base class
 #include <seq/types.h>
-#include <eq/client.h>               // base class
 
 namespace seq
 {
@@ -56,7 +56,7 @@ public:
      * @return true on success, false otherwise.
      * @version 1.0
      */
-    SEQ_API virtual bool init( int argc, char** argv, co::Object* initData );
+    SEQ_API virtual bool init(int argc, char** argv, co::Object* initData);
 
     /**
      * Run the application main loop.
@@ -72,7 +72,7 @@ public:
      * @param frameData a distributed object holding frame-specific data.
      * @version 1.0
      */
-    SEQ_API virtual bool run( co::Object* frameData );
+    SEQ_API virtual bool run(co::Object* frameData);
 
     /**
      * Exit this application instance.
@@ -98,12 +98,9 @@ public:
      * @return true on success, false on error.
      * @version 1.0
      */
-    virtual bool clientInit( co::Object* initData LB_UNUSED )
-        { return true; }
-
+    virtual bool clientInit(co::Object* initData LB_UNUSED) { return true; }
     /** Exit a render client. @version 1.0 */
     virtual bool clientExit() { return true; }
-
     /**
      * Create a new renderer instance.
      *
@@ -116,7 +113,7 @@ public:
     virtual Renderer* createRenderer() = 0;
 
     /** Delete the given renderer. @version 1.0 */
-    SEQ_API virtual void destroyRenderer( Renderer* renderer );
+    SEQ_API virtual void destroyRenderer(Renderer* renderer);
 
     /**
      * Create a new per-view data instance.
@@ -128,17 +125,17 @@ public:
      * @return the new view data
      * @version 1.11
      */
-    SEQ_API virtual ViewData* createViewData( View& view );
+    SEQ_API virtual ViewData* createViewData(View& view);
 
     /** Delete the given view data. @version 1.0 */
-    SEQ_API virtual void destroyViewData( ViewData* viewData );
+    SEQ_API virtual void destroyViewData(ViewData* viewData);
     //@}
 
     /** @name Internal */
     //@{
-    SEQ_API eq::Config* getConfig(); //!< @internal
+    SEQ_API eq::Config* getConfig();                 //!< @internal
     detail::Application* getImpl() { return _impl; } //!< @internal
-    //@}
+                                                     //@}
 
     /** @name Distributed Object API */
     //@{
@@ -151,7 +148,7 @@ public:
      * @version 1.8
      * @sa co::ObjectMap::register_()
      */
-    SEQ_API bool registerObject( co::Object* object, const uint32_t type );
+    SEQ_API bool registerObject(co::Object* object, const uint32_t type);
 
     /**
      * Remove and deregister an object.
@@ -161,7 +158,7 @@ public:
      * @version 1.8
      * @sa co::ObjectMap::deregister()
      */
-    SEQ_API bool deregister( co::Object* object );
+    SEQ_API bool deregister(co::Object* object);
     //@}
 
 protected:

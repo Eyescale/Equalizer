@@ -26,7 +26,8 @@
 
 #include <co/node.h>
 
-#define CONFIG "server{ config{ appNode{ pipe {                            \
+#define CONFIG \
+    "server{ config{ appNode{ pipe {                            \
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
     compound { channel \"channel\" wall { }}}}"
 
@@ -41,30 +42,24 @@ class ServerThread : public lunchbox::Thread
 public:
     ServerThread() {}
     virtual ~ServerThread() {}
+    bool start(eq::server::ServerPtr server)
+    {
+        LBASSERT(!_server);
+        _server = server;
+        return Thread::start();
+    }
 
-    bool start( eq::server::ServerPtr server )
-        {
-            LBASSERT( !_server );
-            _server = server;
-            return Thread::start();
-        }
-
-    eq::server::ServerPtr getServer()
-        {
-            return _server;
-        }
-
+    eq::server::ServerPtr getServer() { return _server; }
 protected:
-
     void run() final
     {
         _server->run();
         _server->close();
         _server->deleteConfigs();
 
-        LBASSERTINFO( _server->getRefCount() == 1,
-                      "Server thread done, still referenced by " <<
-                      _server->getRefCount( ));
+        LBASSERTINFO(_server->getRefCount() == 1,
+                     "Server thread done, still referenced by "
+                         << _server->getRefCount());
         _server = 0;
         eq::server::Global::clear();
     }
@@ -76,9 +71,9 @@ private:
 static ServerThread _serverThread;
 }
 
-bool startLocalServer( const std::string& config )
+bool startLocalServer(const std::string& config)
 {
-    if( _serverThread.isRunning( ))
+    if (_serverThread.isRunning())
     {
         LBWARN << "Only one app-local per process server allowed" << std::endl;
         return false;
@@ -87,41 +82,41 @@ bool startLocalServer( const std::string& config )
     eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    if( config.length() > 3 &&
-        config.compare( config.size() - 4, 4, ".eqc" ) == 0 )
+    if (config.length() > 3 &&
+        config.compare(config.size() - 4, 4, ".eqc") == 0)
     {
-        server = loader.loadFile( config );
+        server = loader.loadFile(config);
     }
     else
     {
 #ifdef EQUALIZER_USE_HWSD
         server = new eq::server::Server; // configured upon Server::chooseConfig
 #else
-        server = loader.parseServer( CONFIG );
+        server = loader.parseServer(CONFIG);
 #endif
     }
 
-    if( !server )
+    if (!server)
     {
         LBERROR << "Failed to load configuration" << std::endl;
         return false;
     }
 
-    eq::server::Loader::addOutputCompounds( server );
-    eq::server::Loader::addDestinationViews( server );
-    eq::server::Loader::addDefaultObserver( server );
-    eq::server::Loader::convertTo11( server );
-    eq::server::Loader::convertTo12( server );
+    eq::server::Loader::addOutputCompounds(server);
+    eq::server::Loader::addDestinationViews(server);
+    eq::server::Loader::addDefaultObserver(server);
+    eq::server::Loader::convertTo11(server);
+    eq::server::Loader::convertTo12(server);
     // TODO: ref count is 2 since config holds ServerPtr
     // LBASSERTINFO( server->getRefCount() == 1, server );
 
-    if( !server->listen( ))
+    if (!server->listen())
     {
         LBERROR << "Failed to setup server listener" << std::endl;
         return false;
     }
 
-    if( !_serverThread.start( server ))
+    if (!_serverThread.start(server))
     {
         LBERROR << "Failed to start server thread" << std::endl;
         return false;
@@ -132,13 +127,13 @@ bool startLocalServer( const std::string& config )
 
 co::ConnectionPtr connectLocalServer()
 {
-    if( !_serverThread.getServer( ))
+    if (!_serverThread.getServer())
         return nullptr;
 
     co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
     desc->type = co::CONNECTIONTYPE_PIPE;
-    co::ConnectionPtr connection = co::Connection::create( desc );
-    if( !connection->connect( ))
+    co::ConnectionPtr connection = co::Connection::create(desc);
+    if (!connection->connect())
     {
         LBERROR << "Failed to set up server connection" << std::endl;
         return nullptr;
@@ -146,7 +141,7 @@ co::ConnectionPtr connectLocalServer()
 
     co::ConnectionPtr sibling = connection->acceptSync();
 
-    _serverThread.getServer()->addConnection( sibling );
+    _serverThread.getServer()->addConnection(sibling);
 
     return connection;
 }
@@ -155,6 +150,5 @@ void joinLocalServer()
 {
     _serverThread.join();
 }
-
 }
 }

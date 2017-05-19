@@ -33,51 +33,50 @@
 
 namespace eVolve
 {
-
-bool Window::configInit( const eq::uint128_t& initID )
+bool Window::configInit(const eq::uint128_t& initID)
 {
     // Enforce alpha channel, since we need one for rendering
-    setIAttribute( eq::WindowSettings::IATTR_PLANES_ALPHA, 8 );
-    setIAttribute( eq::WindowSettings::IATTR_PLANES_DEPTH, 0 );
+    setIAttribute(eq::WindowSettings::IATTR_PLANES_ALPHA, 8);
+    setIAttribute(eq::WindowSettings::IATTR_PLANES_DEPTH, 0);
 
-    return eq::Window::configInit( initID );
+    return eq::Window::configInit(initID);
 }
 
-bool Window::configInitGL( const eq::uint128_t& )
+bool Window::configInitGL(const eq::uint128_t&)
 {
-    Pipe*     pipe     = static_cast<Pipe*>( getPipe() );
+    Pipe* pipe = static_cast<Pipe*>(getPipe());
     Renderer* renderer = pipe->getRenderer();
 
-    if( !renderer )
+    if (!renderer)
         return false;
 
-    if( !GLEW_ARB_shader_objects )
+    if (!GLEW_ARB_shader_objects)
     {
-        sendError( ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING );
+        sendError(ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING);
         return false;
     }
-    if( !GLEW_EXT_blend_func_separate )
+    if (!GLEW_EXT_blend_func_separate)
     {
-        sendError( ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING );
+        sendError(ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING);
         return false;
     }
-    if( !GLEW_ARB_multitexture )
+    if (!GLEW_ARB_multitexture)
     {
-        sendError( ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING );
+        sendError(ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING);
         return false;
     }
 
-    glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
+    glEnable(GL_SCISSOR_TEST); // needed to constrain channel viewport
 
-    glClear( GL_COLOR_BUFFER_BIT );
+    glClear(GL_COLOR_BUFFER_BIT);
     swapBuffers();
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderer->glewSetContext( glewGetContext( ));
+    renderer->glewSetContext(glewGetContext());
 
-    if( !renderer->loadShaders( ))
+    if (!renderer->loadShaders())
     {
-        sendError( ERROR_EVOLVE_LOADSHADERS_FAILED );
+        sendError(ERROR_EVOLVE_LOADSHADERS_FAILED);
         return false;
     }
 
@@ -88,13 +87,12 @@ bool Window::configInitGL( const eq::uint128_t& )
 namespace
 {
 static const std::string _logoTextureName =
-                              std::string( lunchbox::getRootPath() +
-                                          "/share/Equalizer/data/logo.rgb" );
+    std::string(lunchbox::getRootPath() + "/share/Equalizer/data/logo.rgb");
 }
 
 void Window::_loadLogo()
 {
-    if( !GLEW_ARB_texture_rectangle )
+    if (!GLEW_ARB_texture_rectangle)
     {
         LBWARN << "Can't load overlay logo, GL_ARB_texture_rectangle not "
                << "available" << std::endl;
@@ -102,36 +100,35 @@ void Window::_loadLogo()
     }
 
     eq::util::ObjectManager& om = getObjectManager();
-    _logoTexture = om.getEqTexture( _logoTextureName.c_str( ));
-    if( _logoTexture )
+    _logoTexture = om.getEqTexture(_logoTextureName.c_str());
+    if (_logoTexture)
         return;
 
     eq::Image image;
-    if( !image.readImage( _logoTextureName, eq::Frame::Buffer::color ))
+    if (!image.readImage(_logoTextureName, eq::Frame::Buffer::color))
     {
         LBWARN << "Can't load overlay logo " << _logoTextureName << std::endl;
         return;
     }
 
-    _logoTexture = om.newEqTexture( _logoTextureName.c_str(),
-                                     GL_TEXTURE_RECTANGLE_ARB );
-    LBASSERT( _logoTexture );
+    _logoTexture =
+        om.newEqTexture(_logoTextureName.c_str(), GL_TEXTURE_RECTANGLE_ARB);
+    LBASSERT(_logoTexture);
 
-    image.upload( eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(), om );
-    image.deleteGLObjects( om );
+    image.upload(eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(), om);
+    image.deleteGLObjects(om);
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;
 }
 
-
 void Window::swapBuffers()
 {
-    const Pipe*         pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData&    frameData = pipe->getFrameData();
-    const eq::Channels& channels  = getChannels();
+    const Pipe* pipe = static_cast<Pipe*>(getPipe());
+    const FrameData& frameData = pipe->getFrameData();
+    const eq::Channels& channels = getChannels();
 
-    if( frameData.useStatistics() && !channels.empty( ))
-        EQ_GL_CALL( channels.back()->drawStatistics( ));
+    if (frameData.useStatistics() && !channels.empty())
+        EQ_GL_CALL(channels.back()->drawStatistics());
 
     eq::Window::swapBuffers();
 }

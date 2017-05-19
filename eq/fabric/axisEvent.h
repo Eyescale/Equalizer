@@ -27,21 +27,28 @@ namespace fabric
 /** Event for a (SpaceMouse) axis movement. */
 struct AxisEvent : public Event
 {
-    AxisEvent() : xAxis(0), yAxis(0), zAxis(0),
-                  xRotation(0), yRotation(0), zRotation(0) {}
+    AxisEvent()
+        : xAxis(0)
+        , yAxis(0)
+        , zAxis(0)
+        , xRotation(0)
+        , yRotation(0)
+        , zRotation(0)
+    {
+    }
 
-    int32_t xAxis;         //!< X translation
-    int32_t yAxis;         //!< Y translation
-    int32_t zAxis;         //!< Z translation
-    int32_t xRotation;     //!< X rotation
-    int32_t yRotation;     //!< Y rotation
-    int32_t zRotation;     //!< Z rotation
+    int32_t xAxis;     //!< X translation
+    int32_t yAxis;     //!< Y translation
+    int32_t zAxis;     //!< Z translation
+    int32_t xRotation; //!< X rotation
+    int32_t yRotation; //!< Y rotation
+    int32_t zRotation; //!< Z rotation
 };
 
 /** Print the axis event to the given output stream. @version 1.0 */
-inline std::ostream& operator << ( std::ostream& os, const AxisEvent& event )
+inline std::ostream& operator<<(std::ostream& os, const AxisEvent& event)
 {
-    return os << static_cast< const Event& >( event ) << " translation "
+    return os << static_cast<const Event&>(event) << " translation "
               << event.xAxis << ", " << event.yAxis << ", " << event.zAxis
               << " rotation " << event.xRotation << ", " << event.yRotation
               << ", " << event.zRotation;

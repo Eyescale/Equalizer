@@ -20,34 +20,33 @@
 
 #include "config.h"
 #include "global.h"
-#include "pipe.h"
 #include "node.h"
+#include "pipe.h"
 
 #include <cstdio>
 
 #ifdef _MSC_VER
-#  define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 namespace eq
 {
-
-NodeStatistics::NodeStatistics( const Statistic::Type type, Node* node,
-                                const uint32_t frameNumber )
-        : StatisticSampler< Node >( type, node, frameNumber )
+NodeStatistics::NodeStatistics(const Statistic::Type type, Node* node,
+                               const uint32_t frameNumber)
+    : StatisticSampler<Node>(type, node, frameNumber)
 {
     const std::string& name = node->getName();
-    if( name.empty( ))
-        snprintf( statistic.resourceName, 32, "Node %s",
-                  node->getID().getShortString().c_str( ));
+    if (name.empty())
+        snprintf(statistic.resourceName, 32, "Node %s",
+                 node->getID().getShortString().c_str());
     else
-        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf(statistic.resourceName, 32, "%s", name.c_str());
 
     statistic.resourceName[31] = 0;
 
     co::LocalNodePtr localNode = node->getLocalNode();
-    LBASSERT( localNode );
-    if( !localNode )
+    LBASSERT(localNode);
+    if (!localNode)
     {
         statistic.frameNumber = 0;
         return;
@@ -55,25 +54,23 @@ NodeStatistics::NodeStatistics( const Statistic::Type type, Node* node,
 
     Config* config = _owner->getConfig();
     statistic.startTime = config->getTime();
-    LBASSERT( _owner->getID() != 0 );
+    LBASSERT(_owner->getID() != 0);
 }
-
 
 NodeStatistics::~NodeStatistics()
 {
-    if( statistic.frameNumber == 0 ) // does not belong to a frame
+    if (statistic.frameNumber == 0) // does not belong to a frame
         return;
 
     co::LocalNodePtr localNode = _owner->getLocalNode();
-    LBASSERT( localNode );
-    if( !localNode )
+    LBASSERT(localNode);
+    if (!localNode)
         return;
 
     Config* config = _owner->getConfig();
     statistic.endTime = config->getTime();
-    if( statistic.endTime <= statistic.startTime )
+    if (statistic.endTime <= statistic.startTime)
         statistic.endTime = statistic.startTime + 1;
-    _owner->processEvent( statistic );
+    _owner->processEvent(statistic);
 }
-
 }

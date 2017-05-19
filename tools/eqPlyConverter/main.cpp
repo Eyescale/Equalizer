@@ -31,14 +31,14 @@
 
 namespace
 {
-static bool _isPlyfile( const std::string& filename )
+static bool _isPlyfile(const std::string& filename)
 {
     const size_t size = filename.length();
-    if( size < 5 )
+    if (size < 5)
         return false;
 
-    if( filename[size-4] != '.' || filename[size-3] != 'p' ||
-        filename[size-2] != 'l' || filename[size-1] != 'y' )
+    if (filename[size - 4] != '.' || filename[size - 3] != 'p' ||
+        filename[size - 2] != 'l' || filename[size - 1] != 'y')
     {
         return false;
     }
@@ -46,48 +46,49 @@ static bool _isPlyfile( const std::string& filename )
 }
 }
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
     eq::Strings filenames;
-    for( int i=1; i < argc; ++i )
+    for (int i = 1; i < argc; ++i)
     {
-        if( std::string( argv[ i ]) == "--help" )
+        if (std::string(argv[i]) == "--help")
         {
-            std::cout << lunchbox::getFilename( argv[0] ) << " .ply files"
+            std::cout << lunchbox::getFilename(argv[0]) << " .ply files"
                       << std::endl
                       << "  Convert polygonal meshes to eqPly binary kd-Tree"
                       << std::endl;
             return EXIT_SUCCESS;
         }
 
-        filenames.push_back( argv[i] );
+        filenames.push_back(argv[i]);
     }
 
-    while( !filenames.empty( ))
+    while (!filenames.empty())
     {
         const std::string filename = filenames.back();
         filenames.pop_back();
 
-        if( _isPlyfile( filename ))
+        if (_isPlyfile(filename))
         {
             triply::VertexBufferRoot* model = new triply::VertexBufferRoot;
-            if( !model->readFromFile( filename.c_str( )))
+            if (!model->readFromFile(filename.c_str()))
                 LBWARN << "Can't load model: " << filename << std::endl;
 
             delete model;
         }
         else
         {
-            const std::string basename = lunchbox::getFilename( filename );
-            if( basename == "." || basename == ".." )
+            const std::string basename = lunchbox::getFilename(filename);
+            if (basename == "." || basename == "..")
                 continue;
 
             // recursively search directories
             const eq::Strings& subFiles =
-                lunchbox::searchDirectory( filename, ".*" );
+                lunchbox::searchDirectory(filename, ".*");
 
-            for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
-                filenames.push_back( filename + '/' + *i );
+            for (eq::StringsCIter i = subFiles.begin(); i != subFiles.end();
+                 ++i)
+                filenames.push_back(filename + '/' + *i);
         }
     }
     return EXIT_SUCCESS;

@@ -33,16 +33,16 @@
 
 namespace eqPly
 {
-    /** Defines errors produced by eqPly. */
-    enum Error
-    {
-        ERROR_EQPLY_MAPOBJECT_FAILED = eq::ERROR_CUSTOM
-    };
+/** Defines errors produced by eqPly. */
+enum Error
+{
+    ERROR_EQPLY_MAPOBJECT_FAILED = eq::ERROR_CUSTOM
+};
 
-    /** Set up eqPly-specific error codes. */
-    void initErrors();
+/** Set up eqPly-specific error codes. */
+void initErrors();
 
-    /** Clear eqPly-specific error codes. */
-    void exitErrors();
+/** Clear eqPly-specific error codes. */
+void exitErrors();
 }
 #endif // EQPLY_ERROR_H

@@ -18,14 +18,14 @@
 #ifndef EQ_ROI_TRACKER_H
 #define EQ_ROI_TRACKER_H
 
-#include <eq/types.h>
 #include <eq/fabric/pixelViewport.h> // member
+#include <eq/types.h>
 
 #include <co/types.h>
 
-#include <vector>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace eq
 {
@@ -55,10 +55,8 @@ public:
      *
      * @return true if ROIFinder should be called for given region.
      */
-    bool useROIFinder( const PixelViewport&   pvp,
-                       const uint32_t        stage,
-                       const uint128_t&      frameID,
-                       uint8_t*&       ticket );
+    bool useROIFinder(const PixelViewport& pvp, const uint32_t stage,
+                      const uint128_t& frameID, uint8_t*& ticket);
 
     /**
      * Has to be called once after every positive result from useROIFinder.
@@ -72,43 +70,42 @@ public:
      * @param  pvps    result from ROIFinder
      * @param  ticket  value from useROIFinder
      */
-    void updateDelay( const PixelViewports& pvps, const uint8_t* ticket );
+    void updateDelay(const PixelViewports& pvps, const uint8_t* ticket);
 
 private:
-    ROITracker( const ROITracker& ) = delete;
-    ROITracker& operator=( const ROITracker& ) = delete;
+    ROITracker(const ROITracker&) = delete;
+    ROITracker& operator=(const ROITracker&) = delete;
 
     /** Area of readback */
     struct Area
     {
-        Area( const PixelViewport& pvp_,
-              uint32_t       lastSkip_ = 0,
-              uint32_t       skip_     = 0 );
+        Area(const PixelViewport& pvp_, uint32_t lastSkip_ = 0,
+             uint32_t skip_ = 0);
 
         PixelViewport pvp;
-        uint32_t      lastSkip; //!< Previousely skiped number of frames
-        uint32_t      skip;     //!< Number of frames to skip ROIFinder
+        uint32_t lastSkip; //!< Previousely skiped number of frames
+        uint32_t skip;     //!< Number of frames to skip ROIFinder
     };
     /** Set of readback areas per compositiong stage */
     struct Stage
     {
-        std::vector< Area > areas;
+        std::vector<Area> areas;
     };
     /** Areas for different compositiong stages for current frame.
         This data if filled during useROIFinder calls, it uses
         useROIFinder parameters and _prvFrame data as refference */
-    std::unordered_map< uint32_t, Stage >* _curFrame;
+    std::unordered_map<uint32_t, Stage>* _curFrame;
 
     /** Areas for different compositiong stages for previous frame. */
-    std::unordered_map< uint32_t, Stage >* _prvFrame;
+    std::unordered_map<uint32_t, Stage>* _prvFrame;
 
-    uint8_t* _ticket;//!< returned on getDelay, should match on updateDelay
-    bool     _needsUpdate;//!< true after getDelay, false after updateDelay
-    uint128_t _lastFrameID;//!< used to determine new frames
-    uint32_t _lastStage;  //!< used in updateDelay to find last added area
+    uint8_t* _ticket;  //!< returned on getDelay, should match on updateDelay
+    bool _needsUpdate; //!< true after getDelay, false after updateDelay
+    uint128_t _lastFrameID; //!< used to determine new frames
+    uint32_t _lastStage;    //!< used in updateDelay to find last added area
 
-    bool _returnPositive( uint8_t*& ticket );
+    bool _returnPositive(uint8_t*& ticket);
 };
 }
 
-#endif //EQ_ROI_TRACKER_H
+#endif // EQ_ROI_TRACKER_H

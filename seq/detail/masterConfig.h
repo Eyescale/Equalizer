@@ -28,10 +28,10 @@ namespace detail
 class MasterConfig : public Config
 {
 public:
-    explicit MasterConfig( eq::ServerPtr parent );
+    explicit MasterConfig(eq::ServerPtr parent);
 
     bool init() final;
-    bool run( co::Object* frameData ) final;
+    bool run(co::Object* frameData) final;
     bool exit() final;
 
     bool needRedraw() final { return _redraw; }
@@ -44,16 +44,18 @@ private:
     uint128_t _currentViewID;
     bool _redraw;
 
-    bool handleEvent( EventICommand command ) final;
-    bool handleEvent( eq::EventType type, const SizeEvent& event ) final;
-    bool handleEvent( eq::EventType type, const PointerEvent& event ) final;
-    bool handleEvent( eq::EventType type, const KeyEvent& event ) final;
-    bool handleEvent( const AxisEvent& event ) final;
-    bool handleEvent( const ButtonEvent& event ) final;
-    bool handleEvent( eq::EventType type, const Event& event ) final;
-    void addStatistic( const Statistic& stat ) final;
-    template< class E > bool _handleEvent( eq::EventType type, E& event );
-    template< class E > bool _handleEvent( E& event );
+    bool handleEvent(EventICommand command) final;
+    bool handleEvent(eq::EventType type, const SizeEvent& event) final;
+    bool handleEvent(eq::EventType type, const PointerEvent& event) final;
+    bool handleEvent(eq::EventType type, const KeyEvent& event) final;
+    bool handleEvent(const AxisEvent& event) final;
+    bool handleEvent(const ButtonEvent& event) final;
+    bool handleEvent(eq::EventType type, const Event& event) final;
+    void addStatistic(const Statistic& stat) final;
+    template <class E>
+    bool _handleEvent(eq::EventType type, E& event);
+    template <class E>
+    bool _handleEvent(E& event);
 };
 }
 }

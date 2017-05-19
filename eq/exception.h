@@ -28,20 +28,22 @@ class Exception : public co::Exception
 public:
     enum Type
     {
-        TIMEOUT_INPUTFRAME  = co::Exception::CUSTOM,
+        TIMEOUT_INPUTFRAME = co::Exception::CUSTOM,
         GL_ERROR,
-        CUSTOM              = co::Exception::CUSTOM + 20 // leave some room
+        CUSTOM = co::Exception::CUSTOM + 20 // leave some room
     };
 
     /** Construct a new Exception. */
-    explicit Exception( const uint32_t type ) : co::Exception( type ) {}
+    explicit Exception(const uint32_t type)
+        : co::Exception(type)
+    {
+    }
 
     /** Destruct this exception. */
     virtual ~Exception() throw() {}
-
     const char* what() const throw() override
     {
-        switch( getType( ))
+        switch (getType())
         {
         case Exception::TIMEOUT_INPUTFRAME:
             return " Timeout waiting on input frame";

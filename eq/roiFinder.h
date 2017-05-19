@@ -22,7 +22,7 @@
 #include "roiEmptySpaceFinder.h"
 #include "roiTracker.h"
 
-#include "image.h"   // member
+#include "image.h"                 // member
 #include <eq/util/objectManager.h> // member
 
 namespace eq
@@ -36,7 +36,6 @@ class ROIFinder
 public:
     ROIFinder();
     virtual ~ROIFinder() {}
-
     /**
      * Processes current rendering target and selects areas for read back.
      *
@@ -49,46 +48,44 @@ public:
      *
      * @return Areas for readback
      */
-    PixelViewports findRegions( const uint32_t         buffers,
-                                const PixelViewport&   pvp,
-                                const Zoom&            zoom,
-                                const uint32_t         stage,
-                                const uint128_t&       frameID,
-                                util::ObjectManager&   glObjects );
+    PixelViewports findRegions(const uint32_t buffers, const PixelViewport& pvp,
+                               const Zoom& zoom, const uint32_t stage,
+                               const uint128_t& frameID,
+                               util::ObjectManager& glObjects);
+
 private:
-    ROIFinder( const ROIFinder& ) = delete;
-    ROIFinder& operator=( const ROIFinder& ) = delete;
+    ROIFinder(const ROIFinder&) = delete;
+    ROIFinder& operator=(const ROIFinder&) = delete;
 
     struct Area;
 
-    const void* _getInfoKey( ) const;
+    const void* _getInfoKey() const;
 
     /** Called from getReadbackInfo. Calculates per-block statistic before
         actuall read-back */
-    void _readbackInfo( util::ObjectManager& glObjects );
+    void _readbackInfo(util::ObjectManager& glObjects);
 
     /** Clears masks, filles per-block occupancy _mask from _perBlockInfo,
         that was previously read-back from GPU in _readbackInfo */
-    void _init( );
+    void _init();
 
     /** Updates dimensions and resizes arrays */
-    void _resize( const PixelViewport& pvp );
+    void _resize(const PixelViewport& pvp);
 
     /** Histogram based based AABB calculation of a region. */
-    PixelViewport _getObjectPVP( const PixelViewport& pvp,
-                                 const uint8_t* src );
+    PixelViewport _getObjectPVP(const PixelViewport& pvp, const uint8_t* src);
 
     /** Result is returned via _finalAreas array */
-    uint8_t _splitArea( Area& area );
+    uint8_t _splitArea(Area& area);
 
     /** Finds empty area in sub area. Used during optimal split search */
-    void _updateSubArea( const uint8_t type );
+    void _updateSubArea(const uint8_t type);
 
     /** Find areas in current mask*/
-    void _findAreas( PixelViewports& resultPVPs );
+    void _findAreas(PixelViewports& resultPVPs);
 
     /** Only used in debug build, to invalidate unused areas */
-    void _invalidateAreas( Area* areas, uint8_t num );
+    void _invalidateAreas(Area* areas, uint8_t num);
 
     /** Dimensions of regions around currntly found hole. Used
         to estimate optimal split */
@@ -104,44 +101,49 @@ private:
     struct Area
     {
         Area()
-            : emptySize( 0 ),  valid( false )
-        {}
-        explicit Area( PixelViewport pvp_ )
-            : emptySize( 0 ), pvp ( pvp_ ), valid( false )
-        {}
+            : emptySize(0)
+            , valid(false)
+        {
+        }
+        explicit Area(PixelViewport pvp_)
+            : emptySize(0)
+            , pvp(pvp_)
+            , valid(false)
+        {
+        }
 
-        int32_t       emptySize; //!< number of empty blocks
-        PixelViewport pvp;       //!< PVP of area
-        PixelViewport hole;      //!< largest hole
+        int32_t emptySize;  //!< number of empty blocks
+        PixelViewport pvp;  //!< PVP of area
+        PixelViewport hole; //!< largest hole
 
-        bool          valid; //!< Used in debug build only
+        bool valid; //!< Used in debug build only
     };
 
     Area _tmpAreas[17];  //!< possible arreas
     Area _finalAreas[4]; //!< links to picked areas from _tmpAreas
 
-    std::vector< Area > _areasToCheck;//!< Areas used to search for holes
+    std::vector<Area> _areasToCheck; //!< Areas used to search for holes
 
-    PixelViewport       _pvp;        //<! current, alligned to grid, PVP
-    PixelViewport       _pvpOriginal;//<! original PVP
+    PixelViewport _pvp;         //<! current, alligned to grid, PVP
+    PixelViewport _pvpOriginal; //<! original PVP
 
-    ROIEmptySpaceFinder _emptyFinder;//!< class to search for holes
+    ROIEmptySpaceFinder _emptyFinder; //!< class to search for holes
 
-    int32_t _w;     //!< alligned to grid width
-    int32_t _h;     //!< alligned to grid height
-    int32_t _wh;    //!< _w * _h
-    int32_t _wb;    //!< _w + 1 (only 1 block currently is used as border)
-    int32_t _hb;    //!< _h + 1 (only 1 block currently is used as border)
-    int32_t _wbhb;  //!< _wb * _wh (total number of blocks in _mask)
+    int32_t _w;    //!< alligned to grid width
+    int32_t _h;    //!< alligned to grid height
+    int32_t _wh;   //!< _w * _h
+    int32_t _wb;   //!< _w + 1 (only 1 block currently is used as border)
+    int32_t _hb;   //!< _h + 1 (only 1 block currently is used as border)
+    int32_t _wbhb; //!< _wb * _wh (total number of blocks in _mask)
 
-    Vectorub _mask;    //!< mask of occupied blocks (main data)
+    Vectorub _mask; //!< mask of occupied blocks (main data)
 
     std::vector<float> _perBlockInfo; //!< buffer for data from GPU
 
     uint8_t _histX[256]; //!< histogram to find BB along X axis
     uint8_t _histY[256]; //!< histogram to find BB along Y axis
 
-    Image _tmpImg;   //!< used for dumping debug info
+    Image _tmpImg; //!< used for dumping debug info
 
     ROITracker _roiTracker; //!< disables ROI when ROI is inefficient
 };

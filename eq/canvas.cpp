@@ -22,22 +22,21 @@
 #include "nodeFactory.h"
 #include "segment.h"
 
-#include <eq/fabric/elementVisitor.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <eq/fabric/elementVisitor.h>
 
 #pragma clang diagnostic ignored "-Wunused-private-field" // _impl is unused
 
 namespace eq
 {
-typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
+typedef fabric::Canvas<Config, Canvas, Segment, Layout> Super;
 
-Canvas::Canvas( Config* parent )
-        : Super( parent )
-        , _impl( 0 )
+Canvas::Canvas(Config* parent)
+    : Super(parent)
+    , _impl(0)
 {
 }
-
 
 Canvas::~Canvas()
 {
@@ -46,18 +45,16 @@ Canvas::~Canvas()
 ServerPtr Canvas::getServer()
 {
     Config* config = getConfig();
-    LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    LBASSERT(config);
+    return (config ? config->getServer() : 0);
 }
-
 }
-
 
 #include "server.h"
 #include <eq/fabric/canvas.ipp>
-template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
-                                   eq::Layout >;
+template class eq::fabric::Canvas<eq::Config, eq::Canvas, eq::Segment,
+                                  eq::Layout>;
 /** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::Super& );
+template EQFABRIC_API std::ostream& eq::fabric::operator<<(std::ostream&,
+                                                           const eq::Super&);
 /** @endcond */

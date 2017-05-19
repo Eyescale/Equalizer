@@ -35,4 +35,3 @@
 #include <eq/util/shader.h>
 
 #endif // EQUTIL_H
-

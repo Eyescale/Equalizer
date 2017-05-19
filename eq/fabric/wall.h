@@ -41,8 +41,8 @@ public:
     EQFABRIC_API Wall();
 
     /** Construct a new wall description with default values. */
-    EQFABRIC_API Wall( const Vector3f& bottomLeft,
-                       const Vector3f& bottomRight, const Vector3f& topLeft );
+    EQFABRIC_API Wall(const Vector3f& bottomLeft, const Vector3f& bottomRight,
+                      const Vector3f& topLeft);
 
     /**
      * Resize the wall horizontally.
@@ -50,7 +50,7 @@ public:
      * @param ratio the amount by which the wall is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeHorizontal( const float ratio );
+    EQFABRIC_API void resizeHorizontal(const float ratio);
 
     /**
      * Resize the wall vertically.
@@ -58,7 +58,7 @@ public:
      * @param ratio the amount by which the wall is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeVertical( const float ratio );
+    EQFABRIC_API void resizeVertical(const float ratio);
 
     /**
      * Resize the wall on the left side.
@@ -66,7 +66,7 @@ public:
      * @param ratio the amount by which the wall is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeLeft( const float ratio );
+    EQFABRIC_API void resizeLeft(const float ratio);
 
     /**
      * Resize the wall on the right side.
@@ -74,7 +74,7 @@ public:
      * @param ratio the amount by which the wall is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeRight( const float ratio );
+    EQFABRIC_API void resizeRight(const float ratio);
 
     /**
      * Resize the wall on the top side.
@@ -82,7 +82,7 @@ public:
      * @param ratio the amount by which the wall is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeTop( const float ratio );
+    EQFABRIC_API void resizeTop(const float ratio);
 
     /**
      * Resize the wall on the bottom side.
@@ -90,7 +90,7 @@ public:
      * @param ratio the amount by which the wall is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeBottom( const float ratio );
+    EQFABRIC_API void resizeBottom(const float ratio);
 
     /**
      * Resize the wall horizontally to match the given aspect ratio.
@@ -98,7 +98,7 @@ public:
      * @param aspectRatio the destination aspect ratio.
      * @version 1.1.2
      */
-    EQFABRIC_API void resizeHorizontalToAR( const float aspectRatio );
+    EQFABRIC_API void resizeHorizontalToAR(const float aspectRatio);
 
     /**
      * Resize the wall by the given ratio as observed from the eye position.
@@ -110,53 +110,48 @@ public:
      * @param ratio the relative ratio to the current position
      * @version 1.1
      */
-    EQFABRIC_API void moveFocus( const Vector3f& eye, const float ratio );
+    EQFABRIC_API void moveFocus(const Vector3f& eye, const float ratio);
 
     /**
      * Compute the sub-frustum for a 2D area on the full wall.
      * @version 1.0
      */
-    EQFABRIC_API void apply( const Viewport& viewport);
+    EQFABRIC_API void apply(const Viewport& viewport);
 
     /**
      * Move each wall corner by the given ratio.
      * @version 1.3.1
      */
-    EQFABRIC_API void scale( const float ratio );
+    EQFABRIC_API void scale(const float ratio);
 
     /**
      * Set the wall parameters from a projection description.
      * @version 1.0
      */
-    EQFABRIC_API Wall& operator = ( const Projection& projection );
+    EQFABRIC_API Wall& operator=(const Projection& projection);
 
     /**
      * Set the wall parameters from an inverse projection matrix.
      * @version 1.5.2
      */
-    EQFABRIC_API Wall& operator = ( const Matrix4f& xfm );
+    EQFABRIC_API Wall& operator=(const Matrix4f& xfm);
 
     /** @return the width of the wall. @version 1.0 */
     float getWidth() const { return (bottomRight - bottomLeft).length(); }
-
     /** @return the height of the wall. @version 1.0 */
     float getHeight() const { return (topLeft - bottomLeft).length(); }
-
     /** @return true if the two walls are identical. @version 1.0 */
-    EQFABRIC_API bool operator == ( const Wall& rhs ) const;
+    EQFABRIC_API bool operator==(const Wall& rhs) const;
 
     /** @return true if the two walls are not identical. @version 1.0 */
-    EQFABRIC_API bool operator != ( const Wall& rhs ) const;
+    EQFABRIC_API bool operator!=(const Wall& rhs) const;
 
     /** @return the horizontal vector. @version 1.1 */
     Vector3f getU() const { return bottomRight - bottomLeft; }
-
     /** @return the vertical vector. @version 1.1 */
     Vector3f getV() const { return topLeft - bottomLeft; }
-
     /** @return the perpendicular vector. @version 1.1 */
-    Vector3f getW() const { return vmml::cross( getU(), getV( )); }
-
+    Vector3f getW() const { return vmml::cross(getU(), getV()); }
     Vector3f bottomLeft;  //!< The bottom-left corner
     Vector3f bottomRight; //!< The bottom-right corner
     Vector3f topLeft;     //!< The top-left corner
@@ -170,8 +165,8 @@ public:
     Type type; //!< The wall type
 };
 
-EQFABRIC_API std::ostream& operator << ( std::ostream&, const Wall& );
-EQFABRIC_API std::ostream& operator << ( std::ostream&, const Wall::Type& );
+EQFABRIC_API std::ostream& operator<<(std::ostream&, const Wall&);
+EQFABRIC_API std::ostream& operator<<(std::ostream&, const Wall::Type&);
 }
 }
 

@@ -20,168 +20,216 @@
 #ifndef EQSERVER_GLOBAL_H
 #define EQSERVER_GLOBAL_H
 
-#include "compound.h"                // nested enum
-#include "channel.h"                 // nested enum
-#include "config.h"                  // nested enum
-#include "connectionDescription.h"   // nested enum
-#include "pipe.h"                    // nested enum
-#include "node.h"                    // nested enum
-#include "window.h"                  // nested enum
-#include "view.h"                    // nested enum
+#include "channel.h"               // nested enum
+#include "compound.h"              // nested enum
+#include "config.h"                // nested enum
+#include "connectionDescription.h" // nested enum
+#include "node.h"                  // nested enum
+#include "pipe.h"                  // nested enum
+#include "view.h"                  // nested enum
+#include "window.h"                // nested enum
 
 namespace eq
 {
 namespace server
 {
-    /**
-     * The global default attributes.
-     */
-    class Global
+/**
+ * The global default attributes.
+ */
+class Global
+{
+public:
+    EQSERVER_API static Global* instance();
+
+    /** De-allocate the global instance. */
+    EQSERVER_API static void clear();
+
+    /** @name Connection (Description) Attributes. */
+    //@{
+    void setConnectionSAttribute(const ConnectionDescription::SAttribute attr,
+                                 const std::string& value)
     {
-    public:
-        EQSERVER_API static Global* instance();
+        _connectionSAttributes[attr] = value;
+    }
+    const std::string& getConnectionSAttribute(
+        const ConnectionDescription::SAttribute attr) const
+    {
+        return _connectionSAttributes[attr];
+    }
 
-        /** De-allocate the global instance. */
-        EQSERVER_API static void clear();
+    void setConnectionIAttribute(const ConnectionDescription::IAttribute attr,
+                                 const int32_t value)
+    {
+        _connectionIAttributes[attr] = value;
+    }
+    int32_t getConnectionIAttribute(
+        const ConnectionDescription::IAttribute attr) const
+    {
+        return _connectionIAttributes[attr];
+    }
+    //@}
 
-        /** @name Connection (Description) Attributes. */
-        //@{
-        void setConnectionSAttribute( const ConnectionDescription::SAttribute
-                                      attr, const std::string& value )
-            { _connectionSAttributes[attr] = value; }
-        const std::string& getConnectionSAttribute(
-            const ConnectionDescription::SAttribute attr ) const
-            { return _connectionSAttributes[attr]; }
+    /** @name Config Attributes. */
+    //@{
+    void setConfigFAttribute(const Config::FAttribute attr, const float value)
+    {
+        _configFAttributes[attr] = value;
+    }
+    float getConfigFAttribute(const Config::FAttribute attr) const
+    {
+        return _configFAttributes[attr];
+    }
 
-        void setConnectionIAttribute( const ConnectionDescription::IAttribute
-                                      attr, const int32_t value)
-            { _connectionIAttributes[attr] = value; }
-        int32_t getConnectionIAttribute(
-            const ConnectionDescription::IAttribute attr ) const
-            { return _connectionIAttributes[attr]; }
-        //@}
+    void setConfigIAttribute(const Config::IAttribute attr, const int32_t value)
+    {
+        _configIAttributes[attr] = value;
+    }
+    int32_t getConfigIAttribute(const Config::IAttribute attr) const
+    {
+        return _configIAttributes[attr];
+    }
+    //@}
 
-        /** @name Config Attributes. */
-        //@{
-        void setConfigFAttribute( const Config::FAttribute attr,
-                                  const float value )
-            { _configFAttributes[attr] = value; }
-        float getConfigFAttribute( const Config::FAttribute attr ) const
-            { return _configFAttributes[attr]; }
+    /** @name Node Attributes. */
+    //@{
+    void setNodeSAttribute(const Node::SAttribute attr,
+                           const std::string& value)
+    {
+        _nodeSAttributes[attr] = value;
+    }
+    const std::string& getNodeSAttribute(const Node::SAttribute attr) const
+    {
+        return _nodeSAttributes[attr];
+    }
 
-        void setConfigIAttribute( const Config::IAttribute attr,
-                                  const int32_t value )
-            { _configIAttributes[attr] = value; }
-        int32_t getConfigIAttribute( const Config::IAttribute attr ) const
-            { return _configIAttributes[attr]; }
-        //@}
+    void setNodeCAttribute(const Node::CAttribute attr, const char value)
+    {
+        _nodeCAttributes[attr] = value;
+    }
+    char getNodeCAttribute(const Node::CAttribute attr) const
+    {
+        return _nodeCAttributes[attr];
+    }
 
-        /** @name Node Attributes. */
-        //@{
-        void setNodeSAttribute( const Node::SAttribute attr,
-                                const std::string& value )
-            { _nodeSAttributes[attr] = value; }
-        const std::string& getNodeSAttribute( const Node::SAttribute attr) const
-            { return _nodeSAttributes[attr]; }
+    void setNodeIAttribute(const Node::IAttribute attr, const int32_t value)
+    {
+        _nodeIAttributes[attr] = value;
+    }
+    int32_t getNodeIAttribute(const Node::IAttribute attr) const
+    {
+        return _nodeIAttributes[attr];
+    }
+    //@}
 
-        void setNodeCAttribute( const Node::CAttribute attr, const char value )
-            { _nodeCAttributes[attr] = value; }
-        char getNodeCAttribute( const Node::CAttribute attr ) const
-            { return _nodeCAttributes[attr]; }
+    /** @name Pipe Attributes. */
+    //@{
+    void setPipeIAttribute(const Pipe::IAttribute attr, const int32_t value)
+    {
+        _pipeIAttributes[attr] = value;
+    }
+    int32_t getPipeIAttribute(const Pipe::IAttribute attr) const
+    {
+        return _pipeIAttributes[attr];
+    }
+    //@}
 
-        void setNodeIAttribute( const Node::IAttribute attr,
-                                const int32_t value )
-            { _nodeIAttributes[attr] = value; }
-        int32_t getNodeIAttribute( const Node::IAttribute attr ) const
-            { return _nodeIAttributes[attr]; }
-        //@}
+    /** @name Window Attributes. */
+    //@{
+    void setWindowIAttribute(const WindowSettings::IAttribute attr,
+                             const int32_t value)
+    {
+        _windowIAttributes[attr] = value;
+    }
+    int32_t getWindowIAttribute(const WindowSettings::IAttribute attr) const
+    {
+        return _windowIAttributes[attr];
+    }
+    //@}
 
-        /** @name Pipe Attributes. */
-        //@{
-        void setPipeIAttribute( const Pipe::IAttribute attr,
-                                  const int32_t value )
-            { _pipeIAttributes[attr] = value; }
-        int32_t getPipeIAttribute( const Pipe::IAttribute attr ) const
-            { return _pipeIAttributes[attr]; }
-        //@}
+    /** @name Channel Attributes. */
+    //@{
+    void setChannelIAttribute(const Channel::IAttribute attr,
+                              const int32_t value)
+    {
+        _channelIAttributes[attr] = value;
+    }
+    int32_t getChannelIAttribute(const Channel::IAttribute attr) const
+    {
+        return _channelIAttributes[attr];
+    }
 
-        /** @name Window Attributes. */
-        //@{
-        void setWindowIAttribute( const WindowSettings::IAttribute attr,
-                                  const int32_t value )
-            { _windowIAttributes[attr] = value; }
-        int32_t getWindowIAttribute( const WindowSettings::IAttribute attr ) const
-            { return _windowIAttributes[attr]; }
-        //@}
+    void setChannelSAttribute(const Channel::SAttribute attr,
+                              const std::string& value)
+    {
+        _channelSAttributes[attr] = value;
+    }
+    const std::string& getChannelSAttribute(
+        const Channel::SAttribute attr) const
+    {
+        return _channelSAttributes[attr];
+    }
+    //@}
 
-        /** @name Channel Attributes. */
-        //@{
-        void setChannelIAttribute( const Channel::IAttribute attr,
-                                   const int32_t value )
-            { _channelIAttributes[attr] = value; }
-        int32_t getChannelIAttribute( const Channel::IAttribute attr ) const
-            { return _channelIAttributes[attr]; }
+    /** @name Compound Attributes. */
+    //@{
+    void setCompoundIAttribute(const Compound::IAttribute attr,
+                               const int32_t value)
+    {
+        _compoundIAttributes[attr] = value;
+    }
+    int32_t getCompoundIAttribute(const Compound::IAttribute attr) const
+    {
+        return _compoundIAttributes[attr];
+    }
+    //@}
 
-        void setChannelSAttribute( const Channel::SAttribute attr,
-                                   const std::string& value )
-            { _channelSAttributes[attr] = value; }
-        const std::string& getChannelSAttribute( const Channel::SAttribute attr) const
-            { return _channelSAttributes[attr]; }
-        //@}
+    /** @name View Attributes. */
+    //@{
+    void setViewSAttribute(const View::SAttribute attr,
+                           const std::string& value)
+    {
+        _viewSAttributes[attr] = value;
+    }
+    const std::string& getViewSAttribute(const View::SAttribute attr) const
+    {
+        return _viewSAttributes[attr];
+    }
+    //@}
 
-        /** @name Compound Attributes. */
-        //@{
-        void setCompoundIAttribute( const Compound::IAttribute attr,
-                                    const int32_t value )
-            { _compoundIAttributes[attr] = value; }
-        int32_t getCompoundIAttribute( const Compound::IAttribute attr ) const
-            { return _compoundIAttributes[attr]; }
-        //@}
+private:
+    Global();
 
-        /** @name View Attributes. */
-        //@{
-        void setViewSAttribute( const View::SAttribute attr,
-                                const std::string& value )
-            { _viewSAttributes[attr] = value; }
-        const std::string& getViewSAttribute( const View::SAttribute attr) const
-            { return _viewSAttributes[attr]; }
-        //@}
+    std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
+    int32_t _connectionIAttributes[ConnectionDescription::IATTR_ALL];
 
-    private:
-        Global();
+    float _configFAttributes[Config::FATTR_ALL];
+    int32_t _configIAttributes[Config::IATTR_ALL];
 
-        std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
-        int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
+    std::string _nodeSAttributes[Node::SATTR_ALL];
+    char _nodeCAttributes[Node::CATTR_ALL];
+    int32_t _nodeIAttributes[Node::IATTR_ALL];
 
-        float       _configFAttributes[Config::FATTR_ALL];
-        int32_t     _configIAttributes[Config::IATTR_ALL];
+    int32_t _pipeIAttributes[Pipe::IATTR_ALL];
 
-        std::string _nodeSAttributes[Node::SATTR_ALL];
-        char        _nodeCAttributes[Node::CATTR_ALL];
-        int32_t     _nodeIAttributes[Node::IATTR_ALL];
+    int32_t _windowIAttributes[WindowSettings::IATTR_ALL];
 
-        int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
+    int32_t _channelIAttributes[Channel::IATTR_ALL];
+    std::string _channelSAttributes[Channel::SATTR_ALL];
 
-        int32_t     _windowIAttributes[WindowSettings::IATTR_ALL];
+    int32_t _compoundIAttributes[Compound::IATTR_ALL];
 
-        int32_t     _channelIAttributes[Channel::IATTR_ALL];
-        std::string _channelSAttributes[Channel::SATTR_ALL];
+    std::string _viewSAttributes[View::SATTR_ALL];
 
-        int32_t     _compoundIAttributes[Compound::IATTR_ALL];
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        std::string _viewSAttributes[View::SATTR_ALL];
+    void _setupDefaults();
+    void _readEnvironment();
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    friend EQSERVER_API std::ostream& operator<<(std::ostream&, const Global*);
+};
 
-        void _setupDefaults();
-        void _readEnvironment();
-
-        friend EQSERVER_API std::ostream& operator << ( std::ostream&,
-                                                           const Global* );
-    };
-
-    EQSERVER_API std::ostream& operator << ( std::ostream&, const Global* );
+EQSERVER_API std::ostream& operator<<(std::ostream&, const Global*);
 }
 }
 #endif // EQSERVER_GLOBAL_H

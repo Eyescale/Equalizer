@@ -17,30 +17,30 @@
 
 // Tests the functionality of the pixel viewport
 
-#include <lunchbox/test.h>
 #include <eq/fabric/range.h>
 #include <eq/types.h>
+#include <lunchbox/test.h>
 
-int main( int, char** )
+int main(int, char**)
 {
     eq::Range range;
-    TEST( range == eq::Range::ALL );
+    TEST(range == eq::Range::ALL);
 
-    range.merge( eq::Range( .5f, .6f ));
-    TEST( range == eq::Range::ALL );
+    range.merge(eq::Range(.5f, .6f));
+    TEST(range == eq::Range::ALL);
 
-    range = eq::Range( .5f, .6f );
-    TEST( range != eq::Range::ALL );
-    TEST( range == eq::Range( .5f, .6f ));
+    range = eq::Range(.5f, .6f);
+    TEST(range != eq::Range::ALL);
+    TEST(range == eq::Range(.5f, .6f));
 
-    range.merge( eq::Range( 0.1f, 0.2f ));
-    TEST( range == eq::Range( .1f, .6f ));
+    range.merge(eq::Range(0.1f, 0.2f));
+    TEST(range == eq::Range(.1f, .6f));
 
-    range.merge( eq::Range( 0.3f, 0.4f ));
-    TEST( range == eq::Range( .1f, .6f ));
+    range.merge(eq::Range(0.3f, 0.4f));
+    TEST(range == eq::Range(.1f, .6f));
 
-    range.merge( eq::Range( ));
-    TEST( range == eq::Range::ALL );
+    range.merge(eq::Range());
+    TEST(range == eq::Range::ALL);
 
     return EXIT_SUCCESS;
 }

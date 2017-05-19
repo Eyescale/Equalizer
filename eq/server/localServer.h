@@ -18,20 +18,18 @@
 #ifndef EQSERVER_LOCALSERVER_H
 #define EQSERVER_LOCALSERVER_H
 
-#include <eq/server/api.h>
 #include "types.h"
+#include <eq/server/api.h>
 
 namespace eq
 {
 namespace server
 {
-
-EQSERVER_API bool startLocalServer( const std::string& config );
+EQSERVER_API bool startLocalServer(const std::string& config);
 
 EQSERVER_API co::ConnectionPtr connectLocalServer();
 
 EQSERVER_API void joinLocalServer();
-
 }
 }
 

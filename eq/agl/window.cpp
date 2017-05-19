@@ -19,12 +19,12 @@
 #include "window.h"
 #ifdef AGL
 
-#include "eventHandler.h"
-#include "pipe.h"
 #include "../global.h"
 #include "../os.h"
 #include "../pipe.h"
 #include "../window.h"
+#include "eventHandler.h"
+#include "pipe.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -38,7 +38,7 @@ namespace
 {
 std::string aglError()
 {
-    return (const char*)( aglErrorString( aglGetError( )));
+    return (const char*)(aglErrorString(aglGetError()));
 }
 }
 namespace detail
@@ -46,13 +46,14 @@ namespace detail
 class Window
 {
 public:
-    Window( const CGDirectDisplayID displayID, const bool threaded_ )
-        : aglContext( 0 )
-        , carbonWindow( 0 )
-        , eventHandler( 0 )
-        , cgDisplayID( displayID )
-        , threaded( threaded_ )
-    {}
+    Window(const CGDirectDisplayID displayID, const bool threaded_)
+        : aglContext(0)
+        , carbonWindow(0)
+        , eventHandler(0)
+        , cgDisplayID(displayID)
+        , threaded(threaded_)
+    {
+    }
 
     /** The AGL context. */
     AGLContext aglContext;
@@ -70,10 +71,10 @@ public:
 };
 }
 
-Window::Window( NotifierInterface& parent, const WindowSettings& settings,
-                const CGDirectDisplayID displayID, const bool threaded )
-    : WindowIF( parent, settings )
-    , _impl( new detail::Window( displayID, threaded ))
+Window::Window(NotifierInterface& parent, const WindowSettings& settings,
+               const CGDirectDisplayID displayID, const bool threaded)
+    : WindowIF(parent, settings)
+    , _impl(new detail::Window(displayID, threaded))
 {
 }
 
@@ -85,43 +86,43 @@ Window::~Window()
 void Window::configExit()
 {
     WindowRef window = getCarbonWindow();
-    setCarbonWindow( 0 );
+    setCarbonWindow(0);
 
     AGLContext context = getAGLContext();
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
+    if (getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON)
     {
-        LBASSERT( !window );
+        LBASSERT(!window);
         exitEventHandler();
     }
-    else if( window )
+    else if (window)
     {
         Global::enterCarbon();
-        aglSetWindowRef( context, 0 );
-        DisposeWindow( window );
+        aglSetWindowRef(context, 0);
+        DisposeWindow(window);
         Global::leaveCarbon();
     }
 
     configExitFBO();
     exitGLEW();
 
-    if( context )
+    if (context)
     {
         Global::enterCarbon();
-        aglSetCurrentContext( 0 );
-        aglDestroyContext( context );
+        aglSetCurrentContext(0);
+        aglDestroyContext(context);
         Global::leaveCarbon();
-        setAGLContext( 0 );
+        setAGLContext(0);
     }
 
     LBVERB << "Destroyed AGL window and context" << std::endl;
 }
 
-void Window::_resize( const PixelViewport& pvp )
+void Window::_resize(const PixelViewport& pvp)
 {
     WindowRef window = getCarbonWindow();
-    LBASSERT( window );
-    if( !window )
+    LBASSERT(window);
+    if (!window)
         return;
 
     const bool decoration =
@@ -129,54 +130,54 @@ void Window::_resize( const PixelViewport& pvp )
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0;
 
     Global::enterCarbon();
-    MoveWindow( window, pvp.y + menuHeight, pvp.x, FALSE );
-    SizeWindow( window, pvp.w, pvp.h, TRUE );
+    MoveWindow(window, pvp.y + menuHeight, pvp.x, FALSE);
+    SizeWindow(window, pvp.w, pvp.h, TRUE);
     Global::leaveCarbon();
 }
 
-void Window::makeCurrent( const bool cache ) const
+void Window::makeCurrent(const bool cache) const
 {
-    if( cache && isCurrent( ))
+    if (cache && isCurrent())
         return;
 
-    aglSetCurrentContext( _impl->aglContext );
+    aglSetCurrentContext(_impl->aglContext);
     WindowIF::makeCurrent();
 
-    if( _impl->aglContext )
+    if (_impl->aglContext)
     {
-        EQ_GL_ERROR( "After aglSetCurrentContext" );
+        EQ_GL_ERROR("After aglSetCurrentContext");
     }
 }
 
 void Window::doneCurrent() const
 {
-    if( !isCurrent( ))
+    if (!isCurrent())
         return;
 
-    aglSetCurrentContext( 0 );
+    aglSetCurrentContext(0);
     WindowIF::doneCurrent();
 }
 
 void Window::swapBuffers()
 {
-    aglSwapBuffers( _impl->aglContext );
+    aglSwapBuffers(_impl->aglContext);
 }
 
-void Window::joinNVSwapBarrier( const uint32_t, const uint32_t )
+void Window::joinNVSwapBarrier(const uint32_t, const uint32_t)
 {
     LBWARN << "NV_swap_group not supported on AGL" << std::endl;
 }
 
-bool Window::processEvent( const EventType type, const EventRef eventRef,
-                           SizeEvent& event )
+bool Window::processEvent(const EventType type, const EventRef eventRef,
+                          SizeEvent& event)
 {
-    if( type == EVENT_WINDOW_RESIZE && _impl->aglContext )
-        aglUpdateContext( _impl->aglContext );
+    if (type == EVENT_WINDOW_RESIZE && _impl->aglContext)
+        aglUpdateContext(_impl->aglContext);
 
-    return WindowIF::processEvent( type, eventRef, event );
+    return WindowIF::processEvent(type, eventRef, event);
 }
 
-void Window::setAGLContext( AGLContext context )
+void Window::setAGLContext(AGLContext context)
 {
     _impl->aglContext = context;
 }
@@ -208,14 +209,14 @@ bool Window::isThreaded() const
 bool Window::configInit()
 {
     AGLPixelFormat pixelFormat = chooseAGLPixelFormat();
-    if( !pixelFormat )
+    if (!pixelFormat)
         return false;
 
-    AGLContext context = createAGLContext( pixelFormat );
-    destroyAGLPixelFormat ( pixelFormat );
-    setAGLContext( context );
+    AGLContext context = createAGLContext(pixelFormat);
+    destroyAGLPixelFormat(pixelFormat);
+    setAGLContext(context);
 
-    if( !context )
+    if (!context)
         return false;
 
     makeCurrent();
@@ -228,130 +229,131 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     Global::enterCarbon();
 
     CGOpenGLDisplayMask glDisplayMask =
-        CGDisplayIDToOpenGLDisplayMask( _impl->cgDisplayID );
+        CGDisplayIDToOpenGLDisplayMask(_impl->cgDisplayID);
 
     // build attribute list
     std::vector<GLint> attributes;
 
-    attributes.push_back( AGL_RGBA );
-    attributes.push_back( GL_TRUE );
-    attributes.push_back( AGL_ACCELERATED );
-    attributes.push_back( GL_TRUE );
+    attributes.push_back(AGL_RGBA);
+    attributes.push_back(GL_TRUE);
+    attributes.push_back(AGL_ACCELERATED);
+    attributes.push_back(GL_TRUE);
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
-        attributes.push_back( AGL_FULLSCREEN );
+    if (getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON)
+        attributes.push_back(AGL_FULLSCREEN);
 
-    attributes.push_back( AGL_DISPLAY_MASK );
-    attributes.push_back( glDisplayMask );
+    attributes.push_back(AGL_DISPLAY_MASK);
+    attributes.push_back(glDisplayMask);
 
-    GLint colorSize = getIAttribute( WindowSettings::IATTR_PLANES_COLOR );
-    if( colorSize != OFF )
+    GLint colorSize = getIAttribute(WindowSettings::IATTR_PLANES_COLOR);
+    if (colorSize != OFF)
     {
-        switch( colorSize )
+        switch (colorSize)
         {
-          case RGBA16F:
-            attributes.push_back( AGL_COLOR_FLOAT );
+        case RGBA16F:
+            attributes.push_back(AGL_COLOR_FLOAT);
             colorSize = 16;
             break;
-          case RGBA32F:
-            attributes.push_back( AGL_COLOR_FLOAT );
+        case RGBA32F:
+            attributes.push_back(AGL_COLOR_FLOAT);
             colorSize = 32;
             break;
-          case AUTO:
+        case AUTO:
             colorSize = 8;
             break;
-          default:
-              break;
+        default:
+            break;
         }
 
-        attributes.push_back( AGL_RED_SIZE );
-        attributes.push_back( colorSize );
-        attributes.push_back( AGL_GREEN_SIZE );
-        attributes.push_back( colorSize );
-        attributes.push_back( AGL_BLUE_SIZE );
-        attributes.push_back( colorSize );
+        attributes.push_back(AGL_RED_SIZE);
+        attributes.push_back(colorSize);
+        attributes.push_back(AGL_GREEN_SIZE);
+        attributes.push_back(colorSize);
+        attributes.push_back(AGL_BLUE_SIZE);
+        attributes.push_back(colorSize);
 
-        const int alphaSize = getIAttribute( WindowSettings::IATTR_PLANES_ALPHA );
-        if( alphaSize > 0 || alphaSize == AUTO )
+        const int alphaSize = getIAttribute(WindowSettings::IATTR_PLANES_ALPHA);
+        if (alphaSize > 0 || alphaSize == AUTO)
         {
-            attributes.push_back( AGL_ALPHA_SIZE );
-            attributes.push_back( alphaSize > 0 ? alphaSize : colorSize );
+            attributes.push_back(AGL_ALPHA_SIZE);
+            attributes.push_back(alphaSize > 0 ? alphaSize : colorSize);
         }
     }
 
-    const int depthSize = getIAttribute( WindowSettings::IATTR_PLANES_DEPTH );
-    if( depthSize > 0 || depthSize == AUTO )
+    const int depthSize = getIAttribute(WindowSettings::IATTR_PLANES_DEPTH);
+    if (depthSize > 0 || depthSize == AUTO)
     {
-        attributes.push_back( AGL_DEPTH_SIZE );
-        attributes.push_back( depthSize>0 ? depthSize : 24 );
+        attributes.push_back(AGL_DEPTH_SIZE);
+        attributes.push_back(depthSize > 0 ? depthSize : 24);
     }
-    const int stencilSize = getIAttribute( WindowSettings::IATTR_PLANES_STENCIL );
-    if( stencilSize > 0 || stencilSize == AUTO )
+    const int stencilSize = getIAttribute(WindowSettings::IATTR_PLANES_STENCIL);
+    if (stencilSize > 0 || stencilSize == AUTO)
     {
-        attributes.push_back( AGL_STENCIL_SIZE );
-        attributes.push_back( stencilSize>0 ? stencilSize : 1 );
+        attributes.push_back(AGL_STENCIL_SIZE);
+        attributes.push_back(stencilSize > 0 ? stencilSize : 1);
     }
-    const int accumSize  = getIAttribute( WindowSettings::IATTR_PLANES_ACCUM );
-    const int accumAlpha = getIAttribute( WindowSettings::IATTR_PLANES_ACCUM_ALPHA );
-    if( accumSize >= 0 )
+    const int accumSize = getIAttribute(WindowSettings::IATTR_PLANES_ACCUM);
+    const int accumAlpha =
+        getIAttribute(WindowSettings::IATTR_PLANES_ACCUM_ALPHA);
+    if (accumSize >= 0)
     {
-        attributes.push_back( AGL_ACCUM_RED_SIZE );
-        attributes.push_back( accumSize );
-        attributes.push_back( AGL_ACCUM_GREEN_SIZE );
-        attributes.push_back( accumSize );
-        attributes.push_back( AGL_ACCUM_BLUE_SIZE );
-        attributes.push_back( accumSize );
-        attributes.push_back( AGL_ACCUM_ALPHA_SIZE );
-        attributes.push_back( accumAlpha >= 0 ? accumAlpha : accumSize );
+        attributes.push_back(AGL_ACCUM_RED_SIZE);
+        attributes.push_back(accumSize);
+        attributes.push_back(AGL_ACCUM_GREEN_SIZE);
+        attributes.push_back(accumSize);
+        attributes.push_back(AGL_ACCUM_BLUE_SIZE);
+        attributes.push_back(accumSize);
+        attributes.push_back(AGL_ACCUM_ALPHA_SIZE);
+        attributes.push_back(accumAlpha >= 0 ? accumAlpha : accumSize);
     }
-    else if( accumAlpha >= 0 )
+    else if (accumAlpha >= 0)
     {
-        attributes.push_back( AGL_ACCUM_ALPHA_SIZE );
-        attributes.push_back( accumAlpha );
-    }
-
-    const int samplesSize  = getIAttribute( WindowSettings::IATTR_PLANES_SAMPLES );
-    if( samplesSize >= 0 )
-    {
-        attributes.push_back( AGL_SAMPLE_BUFFERS_ARB );
-        attributes.push_back( 1 );
-        attributes.push_back( AGL_SAMPLES_ARB );
-        attributes.push_back( samplesSize );
+        attributes.push_back(AGL_ACCUM_ALPHA_SIZE);
+        attributes.push_back(accumAlpha);
     }
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
-          getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE )     == WINDOW ))
+    const int samplesSize = getIAttribute(WindowSettings::IATTR_PLANES_SAMPLES);
+    if (samplesSize >= 0)
     {
-        attributes.push_back( AGL_DOUBLEBUFFER );
-        attributes.push_back( GL_TRUE );
-    }
-    if( getIAttribute( WindowSettings::IATTR_HINT_STEREO ) == ON )
-    {
-        attributes.push_back( AGL_STEREO );
-        attributes.push_back( GL_TRUE );
+        attributes.push_back(AGL_SAMPLE_BUFFERS_ARB);
+        attributes.push_back(1);
+        attributes.push_back(AGL_SAMPLES_ARB);
+        attributes.push_back(samplesSize);
     }
 
-    attributes.push_back( AGL_NONE );
+    if (getIAttribute(WindowSettings::IATTR_HINT_DOUBLEBUFFER) == ON ||
+        (getIAttribute(WindowSettings::IATTR_HINT_DOUBLEBUFFER) == AUTO &&
+         getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == WINDOW))
+    {
+        attributes.push_back(AGL_DOUBLEBUFFER);
+        attributes.push_back(GL_TRUE);
+    }
+    if (getIAttribute(WindowSettings::IATTR_HINT_STEREO) == ON)
+    {
+        attributes.push_back(AGL_STEREO);
+        attributes.push_back(GL_TRUE);
+    }
+
+    attributes.push_back(AGL_NONE);
 
     // build backoff list, least important attribute last
     std::vector<int> backoffAttributes;
-    if( getIAttribute( WindowSettings::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
-        getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE )     == WINDOW  )
+    if (getIAttribute(WindowSettings::IATTR_HINT_DOUBLEBUFFER) == AUTO &&
+        getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == WINDOW)
 
-        backoffAttributes.push_back( AGL_DOUBLEBUFFER );
+        backoffAttributes.push_back(AGL_DOUBLEBUFFER);
 
-    if( stencilSize == AUTO )
-        backoffAttributes.push_back( AGL_STENCIL_SIZE );
+    if (stencilSize == AUTO)
+        backoffAttributes.push_back(AGL_STENCIL_SIZE);
 
     // choose pixel format
     AGLPixelFormat pixelFormat = 0;
-    while( true )
+    while (true)
     {
-        pixelFormat = aglCreatePixelFormat( &attributes.front( ));
+        pixelFormat = aglCreatePixelFormat(&attributes.front());
 
-        if( pixelFormat ||              // found one or
-            backoffAttributes.empty( )) // nothing else to try
+        if (pixelFormat ||             // found one or
+            backoffAttributes.empty()) // nothing else to try
 
             break;
 
@@ -359,54 +361,54 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
         const GLint attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
-        std::vector<GLint>::iterator iter = find( attributes.begin(),
-                                             attributes.end(), attribute );
-        LBASSERT( iter != attributes.end( ));
+        std::vector<GLint>::iterator iter =
+            find(attributes.begin(), attributes.end(), attribute);
+        LBASSERT(iter != attributes.end());
 
-        attributes.erase( iter, iter+2 ); // remove two item (attr, value)
+        attributes.erase(iter, iter + 2); // remove two item (attr, value)
     }
 
-    if( !pixelFormat )
-        sendError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
+    if (!pixelFormat)
+        sendError(ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND);
 
     Global::leaveCarbon();
     return pixelFormat;
 }
 
-void Window::destroyAGLPixelFormat( AGLPixelFormat pixelFormat )
+void Window::destroyAGLPixelFormat(AGLPixelFormat pixelFormat)
 {
-    if( !pixelFormat )
+    if (!pixelFormat)
         return;
 
     Global::enterCarbon();
-    aglDestroyPixelFormat( pixelFormat );
+    aglDestroyPixelFormat(pixelFormat);
     Global::leaveCarbon();
 }
 
-AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
+AGLContext Window::createAGLContext(AGLPixelFormat pixelFormat)
 {
-    if( !pixelFormat )
+    if (!pixelFormat)
     {
-        sendError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
+        sendError(ERROR_SYSTEMWINDOW_NO_PIXELFORMAT);
         return 0;
     }
 
     const WindowIF* aglShareWindow =
-                dynamic_cast< const WindowIF* >( getSharedContextWindow( ));
+        dynamic_cast<const WindowIF*>(getSharedContextWindow());
     AGLContext shareCtx = aglShareWindow ? aglShareWindow->getAGLContext() : 0;
 
     Global::enterCarbon();
-    AGLContext context = aglCreateContext( pixelFormat, shareCtx );
+    AGLContext context = aglCreateContext(pixelFormat, shareCtx);
 
-    if( !context )
+    if (!context)
     {
-        sendError( ERROR_AGLWINDOW_CREATECONTEXT_FAILED ) << aglError();
+        sendError(ERROR_AGLWINDOW_CREATECONTEXT_FAILED) << aglError();
         Global::leaveCarbon();
         return 0;
     }
 
-    _initSwapSync( context );
-    aglSetCurrentContext( context );
+    _initSwapSync(context);
+    aglSetCurrentContext(context);
 
     Global::leaveCarbon();
 
@@ -415,56 +417,55 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
     return context;
 }
 
-
 bool Window::configInitAGLDrawable()
 {
-    switch( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ))
+    switch (getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE))
     {
-        case FBO:
-            return configInitFBO();
+    case FBO:
+        return configInitFBO();
 
-        default:
-            LBWARN << "Unknown drawable type "
-                   << getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE )
-                   << ", using window" << std::endl;
-            // no break;
-        case UNDEFINED:
-        case WINDOW:
-            if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
-                return configInitAGLFullscreen();
-            return configInitAGLWindow();
+    default:
+        LBWARN << "Unknown drawable type "
+               << getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE)
+               << ", using window" << std::endl;
+    // no break;
+    case UNDEFINED:
+    case WINDOW:
+        if (getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON)
+            return configInitAGLFullscreen();
+        return configInitAGLWindow();
 
-        case OFF:
-            return true;
+    case OFF:
+        return true;
     }
 }
 
 bool Window::configInitAGLFullscreen()
 {
     AGLContext context = getAGLContext();
-    if( !context )
+    if (!context)
     {
-        sendError( ERROR_AGLWINDOW_NO_CONTEXT );
+        sendError(ERROR_AGLWINDOW_NO_CONTEXT);
         return false;
     }
 
     Global::enterCarbon();
-    aglEnable( context, AGL_FS_CAPTURE_SINGLE );
+    aglEnable(context, AGL_FS_CAPTURE_SINGLE);
 
     const PixelViewport& pvp = getPixelViewport();
-    if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
+    if (!aglSetFullScreen(context, pvp.w, pvp.h, 0, 0))
         LBWARN << "aglSetFullScreen to " << pvp << " failed: " << aglError()
                << std::endl;
 
     // Do focus hell
-    ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
-    SetFrontProcess( &selfProcess );
+    ProcessSerialNumber selfProcess = {0, kCurrentProcess};
+    SetFrontProcess(&selfProcess);
 
     Global::leaveCarbon();
 
-    setPixelViewport( pvp );
+    setPixelViewport(pvp);
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) != OFF )
+    if (getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) != OFF)
         initEventHandler();
     return true;
 }
@@ -472,38 +473,35 @@ bool Window::configInitAGLFullscreen()
 bool Window::configInitAGLWindow()
 {
     AGLContext context = getAGLContext();
-    if( !context )
+    if (!context)
     {
-        sendError( ERROR_AGLWINDOW_NO_CONTEXT );
+        sendError(ERROR_AGLWINDOW_NO_CONTEXT);
         return false;
     }
 
     // window
     const bool decoration =
         getIAttribute(WindowSettings::IATTR_HINT_DECORATION) != OFF;
-    WindowAttributes winAttributes = ( decoration ?
-                                       kWindowStandardDocumentAttributes :
-                                       kWindowNoTitleBarAttribute |
-                                       kWindowNoShadowAttribute   |
-                                       kWindowResizableAttribute  ) |
+    WindowAttributes winAttributes =
+        (decoration ? kWindowStandardDocumentAttributes
+                    : kWindowNoTitleBarAttribute | kWindowNoShadowAttribute |
+                          kWindowResizableAttribute) |
         kWindowStandardHandlerAttribute | kWindowInWindowMenuAttribute;
 
     // top, left, bottom, right
     const PixelViewport& pvp = getPixelViewport();
-    const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
-    Rect windowRect = { short( pvp.y + menuHeight ), short( pvp.x ),
-                        short( pvp.getYEnd() + menuHeight ),
-                        short( pvp.getXEnd( )) };
+    const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0;
+    Rect windowRect = {short(pvp.y + menuHeight), short(pvp.x),
+                       short(pvp.getYEnd() + menuHeight), short(pvp.getXEnd())};
     WindowRef windowRef;
 
     Global::enterCarbon();
-    const OSStatus status = CreateNewWindow( kDocumentWindowClass,
-                                             winAttributes,
-                                             &windowRect, &windowRef );
-    if( status != noErr )
+    const OSStatus status = CreateNewWindow(kDocumentWindowClass, winAttributes,
+                                            &windowRect, &windowRef);
+    if (status != noErr)
     {
-        sendError( ERROR_AGLWINDOW_CREATEWINDOW_FAILED )
-            << lexical_cast< std::string >( status );
+        sendError(ERROR_AGLWINDOW_CREATEWINDOW_FAILED)
+            << lexical_cast<std::string>(status);
         Global::leaveCarbon();
         return false;
     }
@@ -512,7 +510,7 @@ bool Window::configInitAGLWindow()
     const std::string& name = getName();
     std::stringstream windowTitle;
 
-    if( name.empty( ))
+    if (name.empty())
     {
         windowTitle << "Equalizer";
 #ifndef NDEBUG
@@ -522,85 +520,85 @@ bool Window::configInitAGLWindow()
     else
         windowTitle << name;
 
-    CFStringRef title = CFStringCreateWithCString( kCFAllocatorDefault,
-                                                   windowTitle.str().c_str(),
-                                                   kCFStringEncodingMacRoman );
-    SetWindowTitleWithCFString( windowRef, title );
-    CFRelease( title );
+    CFStringRef title = CFStringCreateWithCString(kCFAllocatorDefault,
+                                                  windowTitle.str().c_str(),
+                                                  kCFStringEncodingMacRoman);
+    SetWindowTitleWithCFString(windowRef, title);
+    CFRelease(title);
 
-    if( !aglSetWindowRef( context, windowRef ))
+    if (!aglSetWindowRef(context, windowRef))
     {
-        sendError( ERROR_AGLWINDOW_SETWINDOW_FAILED ) << aglError();
+        sendError(ERROR_AGLWINDOW_SETWINDOW_FAILED) << aglError();
         Global::leaveCarbon();
         return false;
     }
 
     // show
-    ShowWindow( windowRef );
+    ShowWindow(windowRef);
 
     // Do focus hell
-    ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
-    SetFrontProcess( &selfProcess );
+    ProcessSerialNumber selfProcess = {0, kCurrentProcess};
+    SetFrontProcess(&selfProcess);
 
     Global::leaveCarbon();
-    setCarbonWindow( windowRef );
+    setCarbonWindow(windowRef);
 
     return true;
 }
 
-void Window::_initSwapSync( AGLContext context )
+void Window::_initSwapSync(AGLContext context)
 {
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == OFF )
+    if (getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == OFF)
         return;
 
-    int32_t swapSync = getIAttribute( WindowSettings::IATTR_HINT_SWAPSYNC );
-    if( swapSync == AUTO )
+    int32_t swapSync = getIAttribute(WindowSettings::IATTR_HINT_SWAPSYNC);
+    if (swapSync == AUTO)
         return;
 
-    if( swapSync < 0 )
+    if (swapSync < 0)
         swapSync = 1;
 
-    aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
+    aglSetInteger(context, AGL_SWAP_INTERVAL, &swapSync);
 }
 
-void Window::setCarbonWindow( WindowRef window )
+void Window::setCarbonWindow(WindowRef window)
 {
     LBVERB << "set Carbon window " << window << std::endl;
 
-    if( _impl->carbonWindow == window )
+    if (_impl->carbonWindow == window)
         return;
 
-    if( _impl->carbonWindow )
+    if (_impl->carbonWindow)
         exitEventHandler();
     _impl->carbonWindow = window;
 
-    if( !window )
+    if (!window)
         return;
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_DRAWABLE ) == OFF )
+    if (getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) == OFF)
         return;
 
     initEventHandler();
 
     Rect rect;
     Global::enterCarbon();
-    if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
+    if (GetWindowBounds(window, kWindowContentRgn, &rect) == noErr)
     {
-        PixelViewport pvp( rect.left, rect.top,
-                           rect.right - rect.left, rect.bottom - rect.top );
+        PixelViewport pvp(rect.left, rect.top, rect.right - rect.left,
+                          rect.bottom - rect.top);
 
-        if( getIAttribute( WindowSettings::IATTR_HINT_DECORATION ) != OFF )
+        if (getIAttribute(WindowSettings::IATTR_HINT_DECORATION) != OFF)
             pvp.y -= EQ_AGL_MENUBARHEIGHT;
 
-        setPixelViewport( pvp );
+        setPixelViewport(pvp);
     }
     Global::leaveCarbon();
 }
 
 void Window::initEventHandler()
 {
-    LBASSERT( !_impl->eventHandler );
-    _impl->eventHandler = new EventHandler( this );
+    LBASSERT(!_impl->eventHandler);
+    _impl->eventHandler = new EventHandler(this);
 }
 
 void Window::exitEventHandler()
@@ -608,7 +606,6 @@ void Window::exitEventHandler()
     delete _impl->eventHandler;
     _impl->eventHandler = 0;
 }
-
 }
 }
 #endif // AGL

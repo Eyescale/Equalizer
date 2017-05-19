@@ -19,9 +19,9 @@
 #ifndef EQ_QT_EVENT_H
 #define EQ_QT_EVENT_H
 
+#include <QEvent> // base class
 #include <eq/api.h>
 #include <eq/types.h>
-#include <QEvent> // base class
 
 namespace eq
 {
@@ -31,14 +31,15 @@ namespace qt
 class EQ_API Event : public QEvent
 {
 public:
-    Event( const QEvent* from ) : QEvent( QEvent::User ), qtype( from->type( ))
+    Event(const QEvent* from)
+        : QEvent(QEvent::User)
+        , qtype(from->type())
     {
-        static_cast< QEvent& >( *this ) = *from;
+        static_cast<QEvent&>(*this) = *from;
     }
 
     const int32_t qtype;
 };
-
 }
 }
 #endif

@@ -19,14 +19,14 @@
 #ifndef EQSERVER_CHANNEL_H
 #define EQSERVER_CHANNEL_H
 
-#include <eq/server/api.h>
-#include "state.h"  // enum
+#include "state.h" // enum
 #include "types.h"
+#include <eq/server/api.h>
 
 #include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
-#include <lunchbox/monitor.h> // member
+#include <lunchbox/monitor.h>        // member
 
 #include <iostream>
 #include <vector>
@@ -35,24 +35,22 @@ namespace eq
 {
 namespace server
 {
-class Channel : public fabric::Channel< Window, Channel >
+class Channel : public fabric::Channel<Window, Channel>
 {
 public:
     /** Construct a new channel. */
-    EQSERVER_API explicit Channel( Window* parent );
+    EQSERVER_API explicit Channel(Window* parent);
 
     /** Construct a copy of a channel. */
-    Channel( const Channel& from );
+    Channel(const Channel& from);
 
     /** Destruct this channel. */
     virtual ~Channel();
 
     /** @return the state of this channel. */
     State getState() const { return _state.get(); }
-
     /** @internal */
-    void setState( const State state ) { _state = state; }
-
+    void setState(const State state) { _state = state; }
     /**
      * @name Data Access
      */
@@ -82,10 +80,8 @@ public:
 
     /** @return if this channel is actively used for rendering. */
     bool isActive() const { return (_active != 0); }
-
     /** @return if this window is running. */
     bool isRunning() const { return _state == STATE_RUNNING; }
-
     /** Schedule deletion of this channel. */
     void postDelete();
 
@@ -93,47 +89,48 @@ public:
      * Add additional tasks this channel, and all its parents, might
      * potentially execute.
      */
-    void addTasks( const uint32_t tasks );
+    void addTasks(const uint32_t tasks);
 
     /** Set the output view and segment for this channel. */
-    void setOutput( View* view, Segment* segment );
+    void setOutput(View* view, Segment* segment);
 
     /** Unset the output view and segment for this channel. */
     void unsetOutput();
 
     /** @return the channel's view. */
     const View* getView() const { return _view; }
-
     /** @return the channel's canvas. */
     const Canvas* getCanvas() const;
 
     /** @return the channel's view. */
     View* getView() { return _view; }
-
     /**
      * @return true if this channel supports the capabilities needed for
      *         the view.
      */
-    bool supportsView( const View* view ) const;
+    bool supportsView(const View* view) const;
 
     /** @return the channel's layout. */
     EQSERVER_API const Layout* getLayout() const;
 
     /** @return the channel's segment. */
     const Segment* getSegment() const { return _segment; }
-
     /** @return the channel's segment. */
     Segment* getSegment() { return _segment; }
-
     /** The last drawing compound for this entity. */
-    void setLastDrawCompound( const Compound* compound )
-        { _lastDrawCompound = compound; }
-    const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
-
-    void setIAttribute( const IAttribute attr, const int32_t value )
-        { fabric::Channel< Window, Channel >::setIAttribute( attr, value );}
-    void setSAttribute( const SAttribute attr, const std::string& value )
-        { fabric::Channel< Window, Channel >::setSAttribute( attr, value );}
+    void setLastDrawCompound(const Compound* compound)
+    {
+        _lastDrawCompound = compound;
+    }
+    const Compound* getLastDrawCompound() const { return _lastDrawCompound; }
+    void setIAttribute(const IAttribute attr, const int32_t value)
+    {
+        fabric::Channel<Window, Channel>::setIAttribute(attr, value);
+    }
+    void setSAttribute(const SAttribute attr, const std::string& value)
+    {
+        fabric::Channel<Window, Channel>::setSAttribute(attr, value);
+    }
     //@}
 
     /**
@@ -141,7 +138,7 @@ public:
      */
     //@{
     /** Start initializing this entity. */
-    void configInit( const uint128_t& initID, const uint32_t frameNumber );
+    void configInit(const uint128_t& initID, const uint32_t frameNumber);
 
     /** Sync initialization of this entity. */
     bool syncConfigInit();
@@ -160,27 +157,27 @@ public:
      * @param frameNumber the number of the frame.
      * @return true if at least one rendering task was sent.
      */
-    bool update( const uint128_t& frameID, const uint32_t frameNumber );
+    bool update(const uint128_t& frameID, const uint32_t frameNumber);
 
-    co::ObjectOCommand send( const uint32_t cmd );
+    co::ObjectOCommand send(const uint32_t cmd);
     //@}
 
     /** @name Channel listener interface. */
     //@{
     /** Register a channel listener. */
-    void addListener( ChannelListener* listener );
+    void addListener(ChannelListener* listener);
     /** Deregister a channel listener. */
-    void removeListener( ChannelListener* listener );
+    void removeListener(ChannelListener* listener);
     /** @return true if the channel has listeners */
     bool hasListeners() const { return !_listeners.empty(); }
     //@}
 
-    bool omitOutput() const; //!< @internal
-    void output( std::ostream& ) const; //!< @internal
+    bool omitOutput() const;          //!< @internal
+    void output(std::ostream&) const; //!< @internal
 
 protected:
     /** @sa net::Object::attach. */
-    virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    virtual void attach(const uint128_t& id, const uint32_t instanceID);
 
 private:
     //-------------------- Members --------------------
@@ -196,15 +193,15 @@ private:
     Vector4i _overdraw;
 
     /** The current state for state change synchronization. */
-    lunchbox::Monitor< State > _state;
+    lunchbox::Monitor<State> _state;
 
     /** The last draw compound for this entity */
     const Compound* _lastDrawCompound;
 
-    typedef std::vector< ChannelListener* > ChannelListeners;
+    typedef std::vector<ChannelListener*> ChannelListeners;
     ChannelListeners _listeners;
 
-    LB_TS_VAR( _serverThread );
+    LB_TS_VAR(_serverThread);
 
     struct Private;
     Private* _private; // placeholder for binary-compatible changes
@@ -212,20 +209,16 @@ private:
     //-------------------- Methods --------------------
     Vector3ub _getUniqueColor() const;
 
-    void _setupRenderContext( const uint128_t& frameID,
-                              RenderContext& context );
+    void _setupRenderContext(const uint128_t& frameID, RenderContext& context);
 
-    void _fireLoadData( const uint32_t frameNumber,
-                        const Statistics& statistics,
-                        const Viewport& region );
+    void _fireLoadData(const uint32_t frameNumber, const Statistics& statistics,
+                       const Viewport& region);
 
     /* command handler functions. */
-    bool _cmdConfigInitReply( co::ICommand& command );
-    bool _cmdConfigExitReply( co::ICommand& command );
-    bool _cmdFrameFinishReply( co::ICommand& command );
-    bool _cmdNop( co::ICommand& /*command*/ )
-        { return true; }
-
+    bool _cmdConfigInitReply(co::ICommand& command);
+    bool _cmdConfigExitReply(co::ICommand& command);
+    bool _cmdFrameFinishReply(co::ICommand& command);
+    bool _cmdNop(co::ICommand& /*command*/) { return true; }
     virtual void updateCapabilities();
 };
 }

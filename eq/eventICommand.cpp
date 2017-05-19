@@ -21,28 +21,30 @@
 
 namespace eq
 {
-
 namespace detail
 {
 class EventICommand
 {
 public:
-    EventICommand() : eventType( 0 ) {}
+    EventICommand()
+        : eventType(0)
+    {
+    }
 
     uint32_t eventType;
 };
 }
 
-EventICommand::EventICommand( const co::ICommand& command )
-    : co::ObjectICommand( command )
-    , _impl( new detail::EventICommand )
+EventICommand::EventICommand(const co::ICommand& command)
+    : co::ObjectICommand(command)
+    , _impl(new detail::EventICommand)
 {
     _init();
 }
 
-EventICommand::EventICommand( const EventICommand& rhs )
-    : co::ObjectICommand( rhs )
-    , _impl( new detail::EventICommand )
+EventICommand::EventICommand(const EventICommand& rhs)
+    : co::ObjectICommand(rhs)
+    , _impl(new detail::EventICommand)
 {
     _init();
 }
@@ -54,7 +56,7 @@ EventICommand::~EventICommand()
 
 void EventICommand::_init()
 {
-    if( isValid( ))
+    if (isValid())
         *this >> _impl->eventType;
 }
 
@@ -63,9 +65,8 @@ uint32_t EventICommand::getEventType() const
     return _impl->eventType;
 }
 
-std::ostream& operator << ( std::ostream& os, const EventICommand& event )
+std::ostream& operator<<(std::ostream& os, const EventICommand& event)
 {
-    return os << "Event command, type " << EventType( event.getEventType( ));
+    return os << "Event command, type " << EventType(event.getEventType());
 }
-
 }

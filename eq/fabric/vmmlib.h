@@ -23,10 +23,10 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4996)
-#  include <vmmlib/aabb.hpp>
-#  include <vmmlib/frustum.hpp>
-#  include <vmmlib/matrix.hpp>
-#  include <vmmlib/vector.hpp>
+#include <vmmlib/aabb.hpp>
+#include <vmmlib/frustum.hpp>
+#include <vmmlib/matrix.hpp>
+#include <vmmlib/vector.hpp>
 #pragma warning(pop)
 
 #endif // EQFABRIC_VMMLIB_H

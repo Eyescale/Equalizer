@@ -19,11 +19,11 @@
 #ifndef EQSERVER_OBSERVER_H
 #define EQSERVER_OBSERVER_H
 
-#include <eq/server/api.h>
 #include "types.h"
+#include <eq/server/api.h>
 
-#include <eq/fabric/observer.h>   // base class
-#include <eq/fabric/eye.h>        // enum
+#include <eq/fabric/eye.h>         // enum
+#include <eq/fabric/observer.h>    // base class
 #include <lunchbox/bitOperation.h> // function getIndexOfLastBit
 
 #include <string>
@@ -33,11 +33,11 @@ namespace eq
 namespace server
 {
 /** The observer. @sa eq::Observer */
-class Observer : public fabric::Observer< Config, Observer >
+class Observer : public fabric::Observer<Config, Observer>
 {
 public:
     /** Construct a new Observer. */
-    EQSERVER_API explicit Observer( Config* parent );
+    EQSERVER_API explicit Observer(Config* parent);
 
     /** Destruct this observer. */
     virtual ~Observer();
@@ -48,12 +48,16 @@ public:
     ServerPtr getServer();
 
     /** @return the position of an eye in world-space coordinates. */
-    const fabric::Vector3f& getEyeWorld( const fabric::Eye eye ) const
-    { return _eyeWorld[ lunchbox::getIndexOfLastBit( eye ) ]; }
+    const fabric::Vector3f& getEyeWorld(const fabric::Eye eye) const
+    {
+        return _eyeWorld[lunchbox::getIndexOfLastBit(eye)];
+    }
 
     /** @return the inverse of the current head matrix. */
     const fabric::Matrix4f& getInverseHeadMatrix() const
-    { return _inverseHeadMatrix; }
+    {
+        return _inverseHeadMatrix;
+    }
 
     /** @return true if this observer should be deleted. */
     bool needsDelete() const { return _state == STATE_DELETE; }
@@ -70,32 +74,30 @@ public:
     void postDelete();
     //@}
 
-    void addView( View* view );    //!< @internal
-    void removeView( View* view ); //!< @internal
+    void addView(View* view);    //!< @internal
+    void removeView(View* view); //!< @internal
 
 protected:
-    virtual void setDirty( const uint64_t bits ); //!< @internal
+    virtual void setDirty(const uint64_t bits); //!< @internal
 
     /** @sa Object::deserialize */
-    virtual void deserialize( co::DataIStream& is,
-                              const uint64_t dirtyBits );
+    virtual void deserialize(co::DataIStream& is, const uint64_t dirtyBits);
 
 private:
     /** Cached inverse head matrix. */
     fabric::Matrix4f _inverseHeadMatrix;
 
     /** The eye positions in world space. */
-    fabric::Vector3f _eyeWorld[ eq::fabric::NUM_EYES ];
+    fabric::Vector3f _eyeWorld[eq::fabric::NUM_EYES];
 
     /** Views tracked by this observer. */
     Views _views;
 
     enum State
     {
-        STATE_ACTIVE = 0,  // next: DELETE
-        STATE_DELETE,      // next: destructor
-    }
-        _state;
+        STATE_ACTIVE = 0, // next: DELETE
+        STATE_DELETE,     // next: destructor
+    } _state;
 
     struct Private;
     Private* _private; // placeholder for binary-compatible changes

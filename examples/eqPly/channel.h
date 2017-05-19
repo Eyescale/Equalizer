@@ -34,41 +34,41 @@
 
 #include <eq/eq.h>
 
-
 namespace eqPly
 {
 /** The rendering entity, updating a part of a Window. */
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent );
+    Channel(eq::Window* parent);
 
     bool stopRendering() const;
 
 protected:
     virtual ~Channel() {}
-
-    bool configInit( const eq::uint128_t& initID ) override;
-    void frameClear( const eq::uint128_t& frameID ) override;
-    void frameDraw( const eq::uint128_t& frameID ) override;
-    void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
-    void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
-    void frameStart( const eq::uint128_t&, const uint32_t ) override;
-    void frameFinish( const eq::uint128_t&, const uint32_t ) override;
-    void frameViewStart( const eq::uint128_t& frameID ) override;
-    void frameViewFinish( const eq::uint128_t& frameID ) override;
+    bool configInit(const eq::uint128_t& initID) override;
+    void frameClear(const eq::uint128_t& frameID) override;
+    void frameDraw(const eq::uint128_t& frameID) override;
+    void frameAssemble(const eq::uint128_t&, const eq::Frames&) override;
+    void frameReadback(const eq::uint128_t&, const eq::Frames&) override;
+    void frameStart(const eq::uint128_t&, const uint32_t) override;
+    void frameFinish(const eq::uint128_t&, const uint32_t) override;
+    void frameViewStart(const eq::uint128_t& frameID) override;
+    void frameViewFinish(const eq::uint128_t& frameID) override;
 
     bool useOrtho() const override;
     eq::Vector2f getJitter() const override;
 
-    void notifyStopFrame( const uint32_t lastFrameNumber ) override
-    { _frameRestart = lastFrameNumber + 1; }
+    void notifyStopFrame(const uint32_t lastFrameNumber) override
+    {
+        _frameRestart = lastFrameNumber + 1;
+    }
 
 private:
-    void _drawModel( const Model* model );
+    void _drawModel(const Model* model);
     void _drawOverlay();
     void _drawHelp();
-    void _updateNearFar( const triply::BoundingSphere& boundingSphere );
+    void _updateNearFar(const triply::BoundingSphere& boundingSphere);
 
     bool _isDone() const;
 
@@ -79,7 +79,7 @@ private:
     eq::Vector2i _getJitterStep() const;
 
     const FrameData& _getFrameData() const;
-    const Model*     _getModel();
+    const Model* _getModel();
 
     const Model* _model;
     eq::uint128_t _modelID;
@@ -87,15 +87,18 @@ private:
 
     struct Accum
     {
-        Accum() : step( 0 ), stepsDone( 0 ), transfer( false )
-        {}
+        Accum()
+            : step(0)
+            , stepsDone(0)
+            , transfer(false)
+        {
+        }
 
-        std::unique_ptr< eq::util::Accum > buffer;
+        std::unique_ptr<eq::util::Accum> buffer;
         int32_t step;
         uint32_t stepsDone;
         bool transfer;
-    }
-        _accum[ eq::NUM_EYES ];
+    } _accum[eq::NUM_EYES];
 
     eq::PixelViewport _currentPVP;
 };

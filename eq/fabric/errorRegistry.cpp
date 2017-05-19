@@ -28,7 +28,7 @@ namespace fabric
 namespace
 {
 static std::string _empty;
-typedef std::unordered_map< uint32_t, std::string > ErrorHash;
+typedef std::unordered_map<uint32_t, std::string> ErrorHash;
 }
 
 namespace detail
@@ -41,9 +41,9 @@ public:
 }
 
 ErrorRegistry::ErrorRegistry()
-        : _impl( new detail::ErrorRegistry )
+    : _impl(new detail::ErrorRegistry)
 {
-    _impl->errors[ ERROR_NONE ] = "no error";
+    _impl->errors[ERROR_NONE] = "no error";
 }
 
 ErrorRegistry::~ErrorRegistry()
@@ -51,30 +51,28 @@ ErrorRegistry::~ErrorRegistry()
     delete _impl;
 }
 
-const std::string& ErrorRegistry::getString( const uint32_t error ) const
+const std::string& ErrorRegistry::getString(const uint32_t error) const
 {
-    ErrorHash::const_iterator i = _impl->errors.find( error );
-    if( i == _impl->errors.end( ))
+    ErrorHash::const_iterator i = _impl->errors.find(error);
+    if (i == _impl->errors.end())
         return _empty;
 
     return i->second;
 }
 
-
-void ErrorRegistry::setString( const uint32_t error, const std::string& text )
+void ErrorRegistry::setString(const uint32_t error, const std::string& text)
 {
-    _impl->errors[ error ] = text;
+    _impl->errors[error] = text;
 }
 
-void ErrorRegistry::eraseString( const uint32_t error )
+void ErrorRegistry::eraseString(const uint32_t error)
 {
-    _impl->errors.erase( error );
+    _impl->errors.erase(error);
 }
 
 bool ErrorRegistry::isEmpty() const
 {
     return _impl->errors.empty();
 }
-
 }
 }

@@ -33,8 +33,7 @@
 
 namespace osgScaleViewer
 {
-
-void InitData::setFrameDataID( const eq::uint128_t& id )
+void InitData::setFrameDataID(const eq::uint128_t& id)
 {
     _frameDataID = id;
 }
@@ -44,17 +43,17 @@ const eq::uint128_t& InitData::getFrameDataID() const
     return _frameDataID;
 }
 
-void InitData::getInstanceData( co::DataOStream& stream )
+void InitData::getInstanceData(co::DataOStream& stream)
 {
     stream << _frameDataID << _modelFileName << _imageFileName;
 }
 
-void InitData::applyInstanceData( co::DataIStream& stream )
+void InitData::applyInstanceData(co::DataIStream& stream)
 {
     stream >> _frameDataID >> _modelFileName >> _imageFileName;
 }
 
-void InitData::setModelFileName( const std::string &fileName )
+void InitData::setModelFileName(const std::string& fileName)
 {
     _modelFileName = fileName;
 }
@@ -64,7 +63,7 @@ std::string InitData::getModelFileName() const
     return _modelFileName;
 }
 
-void InitData::setImageFileName( const std::string& fileName )
+void InitData::setImageFileName(const std::string& fileName)
 {
     _imageFileName = fileName;
 }
@@ -79,47 +78,46 @@ const std::string InitData::getTrackerPort() const
     return _trackerPort;
 }
 
-bool InitData::parseCommandLine( char **argv, int argc )
+bool InitData::parseCommandLine(char** argv, int argc)
 {
-    for ( int i = 1; i < argc; i++ )
+    for (int i = 1; i < argc; i++)
     {
-        if( strcmp( argv[i], "--help" ) == 0 )
+        if (strcmp(argv[i], "--help") == 0)
         {
             std::cout << argv[0] << " [--model file][--image file]: "
                       << "OpenSceneGraph/Equalizer example" << std::endl
                       << eq::getHelp() << eq::Client::getHelp() << std::endl;
-            ::exit( EXIT_SUCCESS );
+            ::exit(EXIT_SUCCESS);
         }
     }
 
-    std::string model = _parseCommandLineParam( argc, argv, "--model" );
-    if( model.size() > 0 )
+    std::string model = _parseCommandLineParam(argc, argv, "--model");
+    if (model.size() > 0)
     {
-        setModelFileName( model );
+        setModelFileName(model);
         return true;
     }
 
-    std::string image = _parseCommandLineParam( argc, argv, "--image" );
-    if( image.size() > 0 )
-        setImageFileName( image );
+    std::string image = _parseCommandLineParam(argc, argv, "--image");
+    if (image.size() > 0)
+        setImageFileName(image);
 
     return true;
 }
 
-std::string InitData::_parseCommandLineParam( int argc, char** argv,
-                                              std::string param )
+std::string InitData::_parseCommandLineParam(int argc, char** argv,
+                                             std::string param)
 {
-    for ( int i = 1; i < argc; i++ )
+    for (int i = 1; i < argc; i++)
     {
-        if( strcmp( argv[i], param.c_str( )) == 0 )
+        if (strcmp(argv[i], param.c_str()) == 0)
         {
             ++i;
-            if( i < argc )
+            if (i < argc)
                 return argv[i];
         }
     }
 
     return "";
 }
-
 }

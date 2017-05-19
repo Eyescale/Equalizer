@@ -26,48 +26,47 @@
 #include "view.h"
 #include "window.h"
 
-
 namespace eq
 {
 namespace server
 {
-CompoundInitVisitor::CompoundInitVisitor( )
-    : _taskID( 0 )
-{}
+CompoundInitVisitor::CompoundInitVisitor()
+    : _taskID(0)
+{
+}
 
-VisitorResult CompoundInitVisitor::visit( Compound* compound )
+VisitorResult CompoundInitVisitor::visit(Compound* compound)
 {
     Channel* channel = compound->getChannel();
 
-    compound->setTaskID( ++_taskID );
-    if( channel && channel->getView( ))
+    compound->setTaskID(++_taskID);
+    if (channel && channel->getView())
         channel->getView()->updateFrusta();
     else
-        compound->updateFrustum( Vector3f(), 1.f );
+        compound->updateFrustum(Vector3f(), 1.f);
 
-    compound->updateInheritData( 0 ); // Compound::activate needs _inherit.eyes
+    compound->updateInheritData(0); // Compound::activate needs _inherit.eyes
 
-    if( !channel || // non-channel root compounds
-        ( compound->isDestination() && !channel->getSegment( )))
+    if (!channel || // non-channel root compounds
+        (compound->isDestination() && !channel->getSegment()))
     {
         // Note: The second case are non-view destination compounds. One use
         // case is swap-syncing all output channels using task-less compounds.
 
-        LBASSERT( !channel || !channel->getView( ));
+        LBASSERT(!channel || !channel->getView());
         uint32_t eyes = compound->getEyes();
-        if( eyes == fabric::EYE_UNDEFINED )
+        if (eyes == fabric::EYE_UNDEFINED)
             eyes = fabric::EYES_ALL;
 
-        compound->activate( eyes );
+        compound->activate(eyes);
     }
 
-    if( channel )
+    if (channel)
     {
         compound->updateInheritTasks();
-        channel->addTasks( compound->getInheritTasks( ));
+        channel->addTasks(compound->getInheritTasks());
     }
     return TRAVERSE_CONTINUE;
 }
-
 }
 }

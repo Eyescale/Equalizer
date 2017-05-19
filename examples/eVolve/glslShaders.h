@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007-2011,  Maxim Makhinya  <maxmah@gmail.com>
-   Copyright (c) 2008-2010,  Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2008-2010,  Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,31 +34,32 @@
 
 namespace eVolve
 {
-    class GLSLShaders
+class GLSLShaders
+{
+public:
+    GLSLShaders()
+        : _program(0)
+        , _shadersLoaded(false)
+        , _glewContext(0)
     {
-    public:
-        GLSLShaders(): _program( 0 ), _shadersLoaded( false ), _glewContext( 0 )
-            {}
+    }
 
-        bool loadShaders( const std::string &vShader,
-                          const std::string &fShader,
-                          const GLEWContext* glewContext );
+    bool loadShaders(const std::string &vShader, const std::string &fShader,
+                     const GLEWContext *glewContext);
 
-        void unloadShaders();
+    void unloadShaders();
 
-        GLhandleARB  getProgram() const { return _program; }
-        const GLEWContext* glewGetContext() const { return _glewContext; }
+    GLhandleARB getProgram() const { return _program; }
+    const GLEWContext *glewGetContext() const { return _glewContext; }
+private:
+    GLhandleARB _program;            //!< GLSL vertex and fragment shaders
+    bool _shadersLoaded;             //!< flag of loaded shaders
+    const GLEWContext *_glewContext; //!< OpenGL function table
 
-    private:
-        GLhandleARB     _program;       //!< GLSL vertex and fragment shaders
-        bool            _shadersLoaded; //!< flag of loaded shaders
-        const GLEWContext* _glewContext;   //!< OpenGL function table
+    GLhandleARB _loadShader(const std::string &shader, GLenum shaderType);
+    void _printLog(GLhandleARB shader, const std::string &type);
 
-        GLhandleARB _loadShader( const std::string &shader, GLenum shaderType );
-        void _printLog( GLhandleARB shader, const std::string &type );
-
-        bool _cleanupOnError( GLhandleARB vShader=0, GLhandleARB fShader=0 );
-    };
-
+    bool _cleanupOnError(GLhandleARB vShader = 0, GLhandleARB fShader = 0);
+};
 }
 #endif // EVOLVE_GLSL_SHADERS_H

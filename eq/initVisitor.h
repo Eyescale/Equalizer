@@ -22,40 +22,43 @@ namespace detail
 class InitVisitor : public ConfigVisitor
 {
 public:
-    InitVisitor( const Strings& activeLayouts, const float modelUnit )
-        : _layouts( activeLayouts ), _modelUnit( modelUnit ), _update( false )
-    {}
-
-    virtual VisitorResult visit( eq::Observer* observer )
+    InitVisitor(const Strings& activeLayouts, const float modelUnit)
+        : _layouts(activeLayouts)
+        , _modelUnit(modelUnit)
+        , _update(false)
     {
-        if( observer->configInit( ))
+    }
+
+    virtual VisitorResult visit(eq::Observer* observer)
+    {
+        if (observer->configInit())
             return TRAVERSE_CONTINUE;
         LBWARN << *observer << " initialization failed" << std::endl;
         return TRAVERSE_TERMINATE;
     }
 
-    virtual VisitorResult visit( eq::View* view )
+    virtual VisitorResult visit(eq::View* view)
     {
-        if( view->setModelUnit( _modelUnit ))
+        if (view->setModelUnit(_modelUnit))
             _update = true;
-        if( view->configInit( ))
+        if (view->configInit())
             return TRAVERSE_CONTINUE;
         LBWARN << *view << " initialization failed" << std::endl;
         return TRAVERSE_TERMINATE;
     }
 
-    virtual VisitorResult visitPre( eq::Canvas* canvas )
+    virtual VisitorResult visitPre(eq::Canvas* canvas)
     {
         const Layouts& layouts = canvas->getLayouts();
 
-        for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
+        for (StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i)
         {
             const std::string& name = *i;
-            for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
+            for (LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j)
             {
                 const eq::Layout* layout = *j;
-                if( layout && layout->getName() == name &&
-                    canvas->useLayout( j - layouts.begin( )))
+                if (layout && layout->getName() == name &&
+                    canvas->useLayout(j - layouts.begin()))
                 {
                     _update = true;
                 }
@@ -65,7 +68,6 @@ public:
     }
 
     bool needsUpdate() const { return _update; }
-
 private:
     const Strings& _layouts;
     const float _modelUnit;

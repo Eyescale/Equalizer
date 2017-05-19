@@ -29,10 +29,8 @@ class MessagePump
 public:
     /** Construct a new message pump. @version 1.0 */
     MessagePump() {}
-
     /** Destruct this message pump. @version 1.0 */
     virtual ~MessagePump() {}
-
     /** Unblock dispatchOne(). @version 1.0 */
     virtual void postWakeup() = 0;
 
@@ -44,16 +42,18 @@ public:
      * @param timeout the time to wait for an event
      * @version 1.0
      */
-    virtual void dispatchOne( const uint32_t timeout =
-                              LB_TIMEOUT_INDEFINITE ) = 0;
+    virtual void dispatchOne(
+        const uint32_t timeout = LB_TIMEOUT_INDEFINITE) = 0;
 
     /** Register a new Deflect connection for event dispatch. @version 1.7.1 */
-    virtual void register_( deflect::Proxy* )
-        { LBWARN << "Missing message pump for Deflect" << std::endl; }
+    virtual void register_(deflect::Proxy*)
+    {
+        LBWARN << "Missing message pump for Deflect" << std::endl;
+    }
 
     /** Deregister a Deflect connection from event dispatch. @version 1.7.1 */
-    virtual void deregister( deflect::Proxy* ) { /*Not implemented*/ }
+    virtual void deregister(deflect::Proxy*) { /*Not implemented*/}
 };
 }
 
-#endif //EQ_MESSAGEPUMP_H
+#endif // EQ_MESSAGEPUMP_H

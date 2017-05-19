@@ -18,9 +18,9 @@
 #ifndef EQSERVER_LAYOUT_H
 #define EQSERVER_LAYOUT_H
 
-#include <eq/server/api.h>
-#include "visitorResult.h" // enum
 #include "types.h"
+#include "visitorResult.h" // enum
+#include <eq/server/api.h>
 
 #include <eq/fabric/layout.h> // base class
 #include <string>
@@ -29,16 +29,17 @@ namespace eq
 {
 namespace fabric
 {
-template< class L, class V, class O > class View;
+template <class L, class V, class O>
+class View;
 }
 namespace server
 {
 /** The layout. @sa eq::Layout */
-class Layout : public fabric::Layout< Config, Layout, View >
+class Layout : public fabric::Layout<Config, Layout, View>
 {
 public:
     /** Construct a new Layout. */
-    EQSERVER_API explicit Layout( Config* parent );
+    EQSERVER_API explicit Layout(Config* parent);
 
     /** Destruct this layout. */
     virtual ~Layout();
@@ -51,7 +52,6 @@ public:
 
     /** @return true if this layout should be deleted. */
     bool needsDelete() const { return _state == STATE_DELETE; }
-
     /** @name Operations */
     //@{
     /**
@@ -60,7 +60,7 @@ public:
      * @param canvas The canvas triggering the (de)activation.
      * @param active true to activate, false to deactivate.
      */
-    void trigger( const Canvas* canvas, const bool active );
+    void trigger(const Canvas* canvas, const bool active);
 
     /** Schedule deletion of this layout. */
     void postDelete();
@@ -72,13 +72,12 @@ public:
 private:
     enum State
     {
-        STATE_ACTIVE = 0,  // next: DELETE
-        STATE_DELETE,      // next: destructor
-    }
-        _state;
+        STATE_ACTIVE = 0, // next: DELETE
+        STATE_DELETE,     // next: destructor
+    } _state;
 };
 
-std::ostream& operator << ( std::ostream& os, const Layout* layout);
+std::ostream& operator<<(std::ostream& os, const Layout* layout);
 }
 }
 #endif // EQSERVER_LAYOUT_H

@@ -35,7 +35,7 @@ namespace fabric
  * @return true if the library was successfully initialized, false otherwise.
  * @version 1.0
  */
-EQFABRIC_API bool init( const int argc, char** argv );
+EQFABRIC_API bool init(const int argc, char** argv);
 
 /**
  * De-initialize the Equalizer fabric namespace.

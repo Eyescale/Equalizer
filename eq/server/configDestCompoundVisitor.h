@@ -30,49 +30,50 @@ namespace server
 {
 namespace
 {
-
 class ConfigDestCompoundVisitor : public ConfigVisitor
 {
 public:
-    ConfigDestCompoundVisitor( const Channels& channels, const bool ao )
-            : _channels( channels ), _activeOnly( ao ) {}
-    ConfigDestCompoundVisitor( Channel* channel, const bool ao )
-            : _activeOnly( ao ) { _channels.push_back( channel ); }
+    ConfigDestCompoundVisitor(const Channels& channels, const bool ao)
+        : _channels(channels)
+        , _activeOnly(ao)
+    {
+    }
+    ConfigDestCompoundVisitor(Channel* channel, const bool ao)
+        : _activeOnly(ao)
+    {
+        _channels.push_back(channel);
+    }
     virtual ~ConfigDestCompoundVisitor() {}
+    virtual VisitorResult visit(Compound* compound)
+    {
+        Channel* channel = compound->getChannel();
+        if (!channel)
+            return TRAVERSE_CONTINUE;
 
-    virtual VisitorResult visit( Compound* compound )
-        {
-            Channel* channel = compound->getChannel();
-            if( !channel )
-                return TRAVERSE_CONTINUE;
-
-            // Not in our search list
-            Channels::const_iterator i = lunchbox::find( _channels, channel );
-            if( i == _channels.end( ))
-                return TRAVERSE_PRUNE;
-
-            if( _activeOnly )
-            {
-                // Not an active compound
-                const Canvas* canvas = channel->getCanvas();
-                if( !canvas ||
-                    canvas->getActiveLayout() != channel->getLayout( ))
-                {
-                    return TRAVERSE_PRUNE;
-                }
-            }
-            _result.push_back( compound );
+        // Not in our search list
+        Channels::const_iterator i = lunchbox::find(_channels, channel);
+        if (i == _channels.end())
             return TRAVERSE_PRUNE;
+
+        if (_activeOnly)
+        {
+            // Not an active compound
+            const Canvas* canvas = channel->getCanvas();
+            if (!canvas || canvas->getActiveLayout() != channel->getLayout())
+            {
+                return TRAVERSE_PRUNE;
+            }
         }
+        _result.push_back(compound);
+        return TRAVERSE_PRUNE;
+    }
 
     const Compounds& getResult() const { return _result; }
-
 private:
     Channels _channels;
     Compounds _result;
     const bool _activeOnly;
 };
-
 }
 }
 }

@@ -20,22 +20,22 @@
 
 #include <eq/os.h>
 #ifdef AGL
-#  include <eq/agl/eventHandler.h>
-#  include <eq/agl/pipe.h>
-#  include <eq/agl/types.h>
-#  include <eq/agl/window.h>
+#include <eq/agl/eventHandler.h>
+#include <eq/agl/pipe.h>
+#include <eq/agl/types.h>
+#include <eq/agl/window.h>
 #endif
 #ifdef GLX
-#  include <eq/glx/eventHandler.h>
-#  include <eq/glx/pipe.h>
-#  include <eq/glx/types.h>
-#  include <eq/glx/window.h>
+#include <eq/glx/eventHandler.h>
+#include <eq/glx/pipe.h>
+#include <eq/glx/types.h>
+#include <eq/glx/window.h>
 #endif
 #ifdef WGL
-#  include <eq/wgl/eventHandler.h>
-#  include <eq/wgl/pipe.h>
-#  include <eq/wgl/types.h>
-#  include <eq/wgl/window.h>
+#include <eq/wgl/eventHandler.h>
+#include <eq/wgl/pipe.h>
+#include <eq/wgl/types.h>
+#include <eq/wgl/window.h>
 #endif
 
 #endif // EQ_SYSTEM_H

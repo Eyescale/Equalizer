@@ -37,14 +37,14 @@
 #include <triply/vertexBufferState.h>
 
 #ifndef M_PI_2
-#  define M_PI_2 1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 /** The Sequel polygonal rendering example. */
 namespace seqPly
 {
-typedef triply::VertexBufferRoot      Model;
-typedef triply::VertexBufferDist      ModelDist;
+typedef triply::VertexBufferRoot Model;
+typedef triply::VertexBufferDist ModelDist;
 typedef triply::VertexBufferStateSimple State;
 using eqPly::FrameData;
 
@@ -52,29 +52,28 @@ class Application : public seq::Application
 {
 public:
     Application() {}
-
-    bool init( const int argc, char** argv );
+    bool init(const int argc, char** argv);
     bool run();
     virtual bool exit();
 
     virtual seq::Renderer* createRenderer();
-    virtual co::Object* createObject( const uint32_t type );
+    virtual co::Object* createObject(const uint32_t type);
 
-    const Model* getModel( const eq::uint128_t& modelID );
+    const Model* getModel(const eq::uint128_t& modelID);
 
 private:
     FrameData _frameData;
-    std::unique_ptr< Model > _model;
-    std::unique_ptr< ModelDist > _modelDist;
+    std::unique_ptr<Model> _model;
+    std::unique_ptr<ModelDist> _modelDist;
     std::mutex _modelLock;
 
     virtual ~Application() {}
-    eq::Strings _parseArguments( const int argc, char** argv );
-    void _loadModel( const eq::Strings& models );
+    eq::Strings _parseArguments(const int argc, char** argv);
+    void _loadModel(const eq::Strings& models);
     void _unloadModel();
 };
 
-typedef lunchbox::RefPtr< Application > ApplicationPtr;
+typedef lunchbox::RefPtr<Application> ApplicationPtr;
 }
 
 #endif // SEQ_PLY_H

@@ -29,7 +29,7 @@ namespace detail
 {
 seq::Application* Config::getApplication()
 {
-    return static_cast< seq::Application* >( getClient().get( ));
+    return static_cast<seq::Application*>(getClient().get());
 }
 
 detail::Application* Config::getApplicationImpl()
@@ -39,18 +39,17 @@ detail::Application* Config::getApplicationImpl()
 
 co::Object* Config::getInitData()
 {
-    LBASSERT( _objects );
-    if( !_objects )
+    LBASSERT(_objects);
+    if (!_objects)
         return 0;
 
     co::Object* initData = getApplicationImpl()->getInitData();
-    return _objects->getInitData( initData );
+    return _objects->getInitData(initData);
 }
 
 ObjectMap* Config::getObjectMap()
 {
     return _objects;
 }
-
 }
 }

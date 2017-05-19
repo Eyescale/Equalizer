@@ -19,107 +19,106 @@
 
 #include "application.h"
 
+#include "detail/application.h"
+#include "detail/config.h"
+#include "detail/objectMap.h"
 #include "error.h"
 #include "objectType.h"
 #include "renderer.h"
 #include "viewData.h"
-#include "detail/application.h"
-#include "detail/objectMap.h"
-#include "detail/config.h"
 
 #include <eq/config.h>
+#include <eq/fabric/configParams.h>
 #include <eq/init.h>
 #include <eq/server.h>
-#include <eq/fabric/configParams.h>
 
 namespace seq
 {
-
 Application::Application()
-    : _impl( 0 )
+    : _impl(0)
 {
 }
 
 Application::~Application()
 {
-    LBASSERT( !_impl );
+    LBASSERT(!_impl);
 }
 
 co::NodePtr Application::getMasterNode()
 {
     eq::Config* config = getConfig();
-    LBASSERT( config );
-    if( !config )
+    LBASSERT(config);
+    if (!config)
         return 0;
     return config->getApplicationNode();
 }
 
 eq::Config* Application::getConfig()
 {
-    LBASSERT( _impl );
-    if( !_impl )
+    LBASSERT(_impl);
+    if (!_impl)
         return 0;
     return _impl->getConfig();
 }
 
-bool Application::registerObject( co::Object* object, const uint32_t type )
+bool Application::registerObject(co::Object* object, const uint32_t type)
 {
-    if( !_impl || !_impl->getConfig( ))
-       return false;
+    if (!_impl || !_impl->getConfig())
+        return false;
 
     seq::detail::ObjectMap* objectMap = _impl->getConfig()->getObjectMap();
-    return objectMap ? objectMap->register_( object, type ) : false;
+    return objectMap ? objectMap->register_(object, type) : false;
 }
 
-bool Application::deregister( co::Object* object )
+bool Application::deregister(co::Object* object)
 {
-    if( !_impl || !_impl->getConfig( ))
-       return false;
+    if (!_impl || !_impl->getConfig())
+        return false;
 
     seq::detail::ObjectMap* objectMap = _impl->getConfig()->getObjectMap();
-    return  objectMap ? objectMap->deregister( object ) : false;
+    return objectMap ? objectMap->deregister(object) : false;
 }
 
-void Application::destroyRenderer( Renderer* renderer )
+void Application::destroyRenderer(Renderer* renderer)
 {
     delete renderer;
 }
 
-ViewData* Application::createViewData( View& view )
+ViewData* Application::createViewData(View& view)
 {
-    return new ViewData( view );
+    return new ViewData(view);
 }
 
-void Application::destroyViewData( ViewData* viewData )
+void Application::destroyViewData(ViewData* viewData)
 {
     delete viewData;
 }
 
-bool Application::init( const int argc, char** argv, co::Object* initData )
+bool Application::init(const int argc, char** argv, co::Object* initData)
 {
-    LBASSERT( !_impl );
-    if( _impl )
+    LBASSERT(!_impl);
+    if (_impl)
     {
         LBERROR << "Already initialized" << std::endl;
         return false;
     }
 
-    _impl = new detail::Application( this, initData );
+    _impl = new detail::Application(this, initData);
     initErrors();
-    if( !eq::init( argc, argv, _impl ))
+    if (!eq::init(argc, argv, _impl))
     {
         LBERROR << "Equalizer initialization failed" << std::endl;
         return false;
     }
 
-    if( !initLocal( argc, argv ))
+    if (!initLocal(argc, argv))
     {
         LBERROR << "Can't initialization client node" << std::endl;
         exit();
         return false;
     }
 
-    if( !_impl->init( ))
+    if (!_impl->init())
     {
         exit();
         return false;
@@ -133,28 +132,28 @@ std::string Application::getHelp()
     return eq::getHelp() + eq::Client::getHelp();
 }
 
-bool Application::run( co::Object* frameData )
+bool Application::run(co::Object* frameData)
 {
-    return _impl->run( frameData );
+    return _impl->run(frameData);
 }
 
 bool Application::exit()
 {
     bool retVal = true;
-    if( _impl )
+    if (_impl)
         retVal = _impl->exit();
 
-    if( !exitLocal( ))
+    if (!exitLocal())
         retVal = false;
 
-    if( !eq::exit( ))
+    if (!eq::exit())
         retVal = false;
 
     exitErrors();
     delete _impl;
     _impl = 0;
 
-    LBASSERTINFO( getRefCount() == 1, this->getRefCount( ));
+    LBASSERTINFO(getRefCount() == 1, this->getRefCount());
     return retVal;
 }
 
@@ -162,5 +161,4 @@ void Application::stopRunning()
 {
     getConfig()->stopRunning();
 }
-
 }

@@ -27,13 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #ifndef PLYLIB_VERTEXBUFFERBASE_H
 #define PLYLIB_VERTEXBUFFERBASE_H
 
-#include <triply/api.h>
 #include "typedefs.h"
 #include <fstream>
+#include <triply/api.h>
 
 namespace triply
 {
@@ -41,58 +40,55 @@ namespace triply
 class VertexBufferBase
 {
 public:
-    virtual ~VertexBufferBase() {};
+    virtual ~VertexBufferBase(){};
 
-    TRIPLY_API virtual void draw( VertexBufferState& state ) const = 0;
-    TRIPLY_API void drawBoundingSphere( VertexBufferState& state ) const;
+    TRIPLY_API virtual void draw(VertexBufferState& state) const = 0;
+    TRIPLY_API void drawBoundingSphere(VertexBufferState& state) const;
     TRIPLY_API virtual Index getNumberOfVertices() const = 0;
 
-    const BoundingSphere& getBoundingSphere() const
-        { return _boundingSphere; }
-
+    const BoundingSphere& getBoundingSphere() const { return _boundingSphere; }
     const float* getRange() const { return &_range[0]; }
-
     virtual const VertexBufferBase* getLeft() const { return nullptr; }
     virtual const VertexBufferBase* getRight() const { return nullptr; }
     virtual VertexBufferBase* getLeft() { return nullptr; }
     virtual VertexBufferBase* getRight() { return nullptr; }
-
     TRIPLY_API virtual const BoundingSphere& updateBoundingSphere() = 0;
 
 protected:
-    VertexBufferBase() : _boundingSphere( 0.0f )
+    VertexBufferBase()
+        : _boundingSphere(0.0f)
     {
         _range[0] = 0.0f;
         _range[1] = 1.0f;
     }
 
-    virtual void toStream( std::ostream& os )
+    virtual void toStream(std::ostream& os)
     {
-        os.write( reinterpret_cast< char* >( &_boundingSphere ),
-                  sizeof( BoundingSphere ));
-        os.write( reinterpret_cast< char* >( &_range ), sizeof( Range ));
+        os.write(reinterpret_cast<char*>(&_boundingSphere),
+                 sizeof(BoundingSphere));
+        os.write(reinterpret_cast<char*>(&_range), sizeof(Range));
     }
 
-    virtual void fromMemory( char** addr, VertexBufferData& /*globalData*/ )
+    virtual void fromMemory(char** addr, VertexBufferData& /*globalData*/)
     {
-        memRead( reinterpret_cast< char* >( &_boundingSphere ), addr,
-                 sizeof( BoundingSphere ));
-        memRead( reinterpret_cast< char* >( &_range ), addr, sizeof( Range ));
+        memRead(reinterpret_cast<char*>(&_boundingSphere), addr,
+                sizeof(BoundingSphere));
+        memRead(reinterpret_cast<char*>(&_range), addr, sizeof(Range));
     }
 
     friend class VertexBufferNode;
-    virtual void setupTree( VertexData& data, Index start, Index length,
-                            Axis axis, size_t depth,
-                            VertexBufferData& globalData,
-                            boost::progress_display& ) = 0;
+    virtual void setupTree(VertexData& data, Index start, Index length,
+                           Axis axis, size_t depth,
+                           VertexBufferData& globalData,
+                           boost::progress_display&) = 0;
 
     virtual void updateRange() = 0;
 
     friend class VertexBufferDist;
     virtual Type getType() const = 0;
 
-    BoundingSphere  _boundingSphere;
-    Range           _range;
+    BoundingSphere _boundingSphere;
+    Range _range;
 };
 }
 

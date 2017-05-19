@@ -38,9 +38,9 @@ public:
      * automatically created.
      * @version 1.0
      */
-    EQ_API FrameBufferObject( const GLEWContext* const glewContext,
-                              const unsigned textureTarget = 0x84F5
-                              /*GL_TEXTURE_RECTANGLE_ARB*/ );
+    EQ_API FrameBufferObject(const GLEWContext* const glewContext,
+                             const unsigned textureTarget = 0x84F5
+                             /*GL_TEXTURE_RECTANGLE_ARB*/);
 
     /** Destruct the Frame Buffer Object. @version 1.0 */
     EQ_API ~FrameBufferObject();
@@ -72,10 +72,9 @@ public:
      * @sa resize()
      * @version 1.0
      */
-    EQ_API Error init( const int32_t width, const int32_t height,
-                       const unsigned colorFormat, const int32_t depthSize,
-                       const int32_t stencilSize,
-                       const int32_t samplesSize = 1 );
+    EQ_API Error init(const int32_t width, const int32_t height,
+                      const unsigned colorFormat, const int32_t depthSize,
+                      const int32_t stencilSize, const int32_t samplesSize = 1);
 
     /** De-initialize the Frame Buffer Object. @version 1.0 */
     EQ_API void exit();
@@ -88,7 +87,7 @@ public:
      * @param target the framebuffer target to bind, default read and draw
      * @version 1.0
      */
-    EQ_API void bind( const uint32_t target = 0x8D40 /*GL_FRAMEBUFFER_EXT*/ );
+    EQ_API void bind(const uint32_t target = 0x8D40 /*GL_FRAMEBUFFER_EXT*/);
 
     /**
      * Unbind any Frame Buffer Object and use the default drawable for the
@@ -96,7 +95,7 @@ public:
      * @param target the framebuffer target to unbind, default read and draw
      * @version 1.0
      */
-    EQ_API void unbind( const uint32_t target = 0x8D40 /*GL_FRAMEBUFFER_EXT*/ );
+    EQ_API void unbind(const uint32_t target = 0x8D40 /*GL_FRAMEBUFFER_EXT*/);
 
     /**
      * Resize the FBO.
@@ -108,28 +107,30 @@ public:
      * @return ERROR_NONE on success, Error code on failure.
      * @version 1.0
      */
-    EQ_API Error resize( const int32_t width, const int32_t height );
+    EQ_API Error resize(const int32_t width, const int32_t height);
 
     /** @return the current width. @version 1.0 */
     int32_t getWidth() const
-        { LBASSERT( !_colors.empty( )); return _colors.front()->getWidth();}
+    {
+        LBASSERT(!_colors.empty());
+        return _colors.front()->getWidth();
+    }
 
     /** @return the current height. @version 1.0 */
     int32_t getHeight() const
-        { LBASSERT( !_colors.empty()); return _colors.front()->getHeight();}
+    {
+        LBASSERT(!_colors.empty());
+        return _colors.front()->getHeight();
+    }
 
     /** @return the vector of color textures. @version 1.0 */
     const Textures& getColorTextures() const { return _colors; }
-
     /** @return the depth texture. @version 1.0 */
     const Texture& getDepthTexture() const { return _depth; }
-
     /** @return the GLEW context. @version 1.0 */
     const GLEWContext* glewGetContext() const { return _glewContext; }
-
     /** @return true if the fbo is valid. @version 1.0 */
     bool isValid() const { return _valid; }
-
 private:
     unsigned _fboID; //!< the FBO GL name
 
@@ -140,7 +141,7 @@ private:
 
     bool _valid;
 
-    LB_TS_VAR( _thread );
+    LB_TS_VAR(_thread);
 
     /** Check the result after changes to an FBO and set the _valid flag. */
     Error _checkStatus();

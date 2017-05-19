@@ -33,17 +33,20 @@ public:
 
     ZoomFilter zoomFilter; // texture filter
 
-    Frame() : zoomFilter( FILTER_LINEAR ) {}
+    Frame()
+        : zoomFilter(FILTER_LINEAR)
+    {
+    }
     ~Frame()
     {
-        if( frameData )
+        if (frameData)
             LBDEBUG << "FrameData attached in frame destructor" << std::endl;
     }
 };
 }
 
 Frame::Frame()
-        : _impl( new detail::Frame )
+    : _impl(new detail::Frame)
 {
 }
 
@@ -52,7 +55,7 @@ Frame::~Frame()
     delete _impl;
 }
 
-void Frame::setZoomFilter( const ZoomFilter zoomFilter )
+void Frame::setZoomFilter(const ZoomFilter zoomFilter)
 {
     _impl->zoomFilter = zoomFilter;
 }
@@ -62,7 +65,7 @@ ZoomFilter Frame::getZoomFilter() const
     return _impl->zoomFilter;
 }
 
-void Frame::setFrameData( FrameDataPtr data )
+void Frame::setFrameData(FrameDataPtr data)
 {
     _impl->frameData = data;
 }
@@ -92,49 +95,49 @@ void Frame::clear()
     _impl->frameData->clear();
 }
 
-void Frame::deleteGLObjects( util::ObjectManager& om )
+void Frame::deleteGLObjects(util::ObjectManager& om)
 {
-    if( _impl->frameData )
-        _impl->frameData->deleteGLObjects( om );
+    if (_impl->frameData)
+        _impl->frameData->deleteGLObjects(om);
 }
 
-void Frame::setAlphaUsage( const bool useAlpha )
+void Frame::setAlphaUsage(const bool useAlpha)
 {
-    if( _impl->frameData )
-        _impl->frameData->setAlphaUsage( useAlpha );
+    if (_impl->frameData)
+        _impl->frameData->setAlphaUsage(useAlpha);
 }
 
-void Frame::setQuality( const Buffer buffer, const float quality )
+void Frame::setQuality(const Buffer buffer, const float quality)
 {
-    if( _impl->frameData )
-        _impl->frameData->setQuality( buffer, quality );
+    if (_impl->frameData)
+        _impl->frameData->setQuality(buffer, quality);
 }
 
-void Frame::useCompressor( const Buffer buffer, const uint32_t name )
+void Frame::useCompressor(const Buffer buffer, const uint32_t name)
 {
-    if( _impl->frameData )
-        _impl->frameData->useCompressor( buffer, name );
+    if (_impl->frameData)
+        _impl->frameData->useCompressor(buffer, name);
 }
 
-void Frame::readback( util::ObjectManager& glObjects,
-                      const DrawableConfig& config,
-                      const PixelViewports& regions,
-                      const RenderContext& context )
+void Frame::readback(util::ObjectManager& glObjects,
+                     const DrawableConfig& config,
+                     const PixelViewports& regions,
+                     const RenderContext& context)
 {
     const Images& images =
-        _impl->frameData->startReadback( *this, glObjects, config, regions,
-                                         context );
-    for( Image* image : images )
-        image->finishReadback( glObjects.glewGetContext( ));
+        _impl->frameData->startReadback(*this, glObjects, config, regions,
+                                        context);
+    for (Image* image : images)
+        image->finishReadback(glObjects.glewGetContext());
 }
 
-Images Frame::startReadback( util::ObjectManager& glObjects,
-                             const DrawableConfig& config,
-                             const PixelViewports& regions,
-                             const RenderContext& context )
+Images Frame::startReadback(util::ObjectManager& glObjects,
+                            const DrawableConfig& config,
+                            const PixelViewports& regions,
+                            const RenderContext& context)
 {
-    return _impl->frameData->startReadback( *this, glObjects, config, regions,
-                                            context );
+    return _impl->frameData->startReadback(*this, glObjects, config, regions,
+                                           context);
 }
 
 void Frame::setReady()
@@ -147,24 +150,23 @@ bool Frame::isReady() const
     return _impl->frameData->isReady();
 }
 
-void Frame::waitReady( const uint32_t timeout ) const
+void Frame::waitReady(const uint32_t timeout) const
 {
-    _impl->frameData->waitReady( timeout );
+    _impl->frameData->waitReady(timeout);
 }
 
-void Frame::disableBuffer( const Buffer buffer )
+void Frame::disableBuffer(const Buffer buffer)
 {
-    _impl->frameData->disableBuffer( buffer );
+    _impl->frameData->disableBuffer(buffer);
 }
 
-void Frame::addListener( lunchbox::Monitor<uint32_t>& listener )
+void Frame::addListener(lunchbox::Monitor<uint32_t>& listener)
 {
-    _impl->frameData->addListener( listener );
+    _impl->frameData->addListener(listener);
 }
 
-void Frame::removeListener( lunchbox::Monitor<uint32_t>& listener )
+void Frame::removeListener(lunchbox::Monitor<uint32_t>& listener)
 {
-    _impl->frameData->removeListener( listener );
+    _impl->frameData->removeListener(listener);
 }
-
 }

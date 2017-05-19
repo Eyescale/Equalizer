@@ -21,8 +21,8 @@
 
 #include "compressor.h"
 
-#include <eq/util/texture.h>
 #include <eq/gl.h>
+#include <eq/util/texture.h>
 #include <eq/util/types.h>
 #include <lunchbox/buffer.h>
 
@@ -30,45 +30,44 @@ namespace eq
 {
 namespace plugin
 {
-
 class CompressorYUV : public Compressor
 {
 public:
     CompressorYUV();
     virtual ~CompressorYUV();
 
-    static void* getNewCompressor( const unsigned )
-        { return new CompressorYUV; }
-    static void* getNewDecompressor( const unsigned )
-        { return new CompressorYUV; }
+    static void* getNewCompressor(const unsigned) { return new CompressorYUV; }
+    static void* getNewDecompressor(const unsigned)
+    {
+        return new CompressorYUV;
+    }
 
-    void compress( const void* const, const eq_uint64_t, const bool ) override
-        { LBDONTCALL; }
+    void compress(const void* const, const eq_uint64_t, const bool) override
+    {
+        LBDONTCALL;
+    }
 
-    static bool isCompatible( const GLEWContext* );
+    static bool isCompatible(const GLEWContext*);
 
-    void download( const GLEWContext*, const eq_uint64_t*, const unsigned,
-                   const eq_uint64_t, eq_uint64_t*, void** ) override;
+    void download(const GLEWContext*, const eq_uint64_t*, const unsigned,
+                  const eq_uint64_t, eq_uint64_t*, void**) override;
 
-    void upload( const GLEWContext*, const void*, const eq_uint64_t*,
-                 const eq_uint64_t, const eq_uint64_t*,
-                 const unsigned ) override;
+    void upload(const GLEWContext*, const void*, const eq_uint64_t*,
+                const eq_uint64_t, const eq_uint64_t*, const unsigned) override;
 
 protected:
-    GLuint   _program;
+    GLuint _program;
     lunchbox::Bufferb buffer;
 
 private:
-    void _initShader( const GLEWContext*, const char* );
-    void _compress( const GLEWContext*, const eq_uint64_t*, eq_uint64_t* );
-    void _decompress( const GLEWContext*, const eq_uint64_t* );
-    void _download( void* );
+    void _initShader(const GLEWContext*, const char*);
+    void _compress(const GLEWContext*, const eq_uint64_t*, eq_uint64_t*);
+    void _decompress(const GLEWContext*, const eq_uint64_t*);
+    void _download(void*);
 
     util::FrameBufferObject* _fbo;
     util::Texture* _texture;
-
 };
-
 }
 }
-#endif //EQ_PLUGIN_COMPRESSORYUV
+#endif // EQ_PLUGIN_COMPRESSORYUV

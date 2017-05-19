@@ -18,11 +18,11 @@
 #ifndef EQSERVER_EQUALIZER_H
 #define EQSERVER_EQUALIZER_H
 
-#include <eq/server/api.h>
 #include "../compoundListener.h" // base class
 #include "../types.h"
 #include <eq/fabric/equalizer.h> // base class
 #include <eq/fabric/equalizerTypes.h>
+#include <eq/server/api.h>
 
 namespace eq
 {
@@ -39,46 +39,41 @@ class Equalizer : public fabric::Equalizer, protected CompoundListener
 {
 public:
     Equalizer();
-    explicit Equalizer( const fabric::Equalizer& );
-    explicit Equalizer( const Equalizer& );
+    explicit Equalizer(const fabric::Equalizer&);
+    explicit Equalizer(const Equalizer&);
 
     // cppcheck-suppress passedByValue
-    Equalizer& operator = ( const fabric::Equalizer& );
+    Equalizer& operator=(const fabric::Equalizer&);
     virtual ~Equalizer();
 
     /** Output to a stream. */
-    virtual void toStream( std::ostream& os ) const = 0;
+    virtual void toStream(std::ostream& os) const = 0;
 
     /** @return the compound attached to. */
     const Compound* getCompound() const { return _compound; }
-    Compound* getCompound()             { return _compound; }
-
+    Compound* getCompound() { return _compound; }
     /** @return the config. */
     const Config* getConfig() const;
 
     /** Attach to a compound and detach the previous compound. */
-    virtual void attach( Compound* );
+    virtual void attach(Compound*);
 
-    void setActive( bool flag ) { _active = flag; }
+    void setActive(bool flag) { _active = flag; }
     bool isActive() const { return _active; }
-
     virtual uint32_t getType() const = 0;
 
 private:
     // override in sub-classes to handle dynamic compounds.
-    void notifyChildAdded( Compound*, Compound* ) override
-    { LBUNIMPLEMENTED }
-    void notifyChildRemove( Compound*, Compound* ) override
-    { LBUNIMPLEMENTED }
-
-    Compound* _compound;       //!< The attached compound
-    bool      _active;
+    void notifyChildAdded(Compound*, Compound*) override { LBUNIMPLEMENTED }
+    void notifyChildRemove(Compound*, Compound*) override { LBUNIMPLEMENTED }
+    Compound* _compound; //!< The attached compound
+    bool _active;
 };
 
-inline std::ostream& operator << ( std::ostream& os, const Equalizer* eq )
+inline std::ostream& operator<<(std::ostream& os, const Equalizer* eq)
 {
-    if( eq )
-        eq->toStream( os );
+    if (eq)
+        eq->toStream(os);
     return os;
 }
 }

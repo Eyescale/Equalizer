@@ -46,32 +46,32 @@ namespace eVolve
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Config* config = static_cast<const Config*>( getConfig( ));
-    return eq::WindowSystem( config->getInitData().getWindowSystem( ));
+    const Config* config = static_cast<const Config*>(getConfig());
+    return eq::WindowSystem(config->getInitData().getWindowSystem());
 }
 
-bool Pipe::configInit( const eq::uint128_t& initID )
+bool Pipe::configInit(const eq::uint128_t& initID)
 {
-    if( !eq::Pipe::configInit( initID ))
+    if (!eq::Pipe::configInit(initID))
         return false;
 
-    Config*         config      = static_cast<Config*>( getConfig( ));
-    const InitData& initData    = config->getInitData();
+    Config* config = static_cast<Config*>(getConfig());
+    const InitData& initData = config->getInitData();
     const eq::uint128_t frameDataID = initData.getFrameDataID();
 
-    const bool mapped = config->mapObject( &_frameData, frameDataID );
-    LBASSERT( mapped );
+    const bool mapped = config->mapObject(&_frameData, frameDataID);
+    LBASSERT(mapped);
 
     const std::string& filename = initData.getFilename();
     const uint32_t precision = initData.getPrecision();
     LBINFO << "Loading model " << filename << std::endl;
 
-    _renderer = new Renderer( filename, precision );
-    LBASSERT( _renderer );
+    _renderer = new Renderer(filename, precision);
+    LBASSERT(_renderer);
 
-    if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))
+    if (!_renderer->loadHeader(initData.getBrightness(), initData.getAlpha()))
     {
-        sendError( ERROR_EVOLVE_LOADMODEL_FAILED ) << filename;
+        sendError(ERROR_EVOLVE_LOADMODEL_FAILED) << filename;
         delete _renderer;
         _renderer = 0;
         return false;
@@ -86,16 +86,16 @@ bool Pipe::configExit()
     _renderer = 0;
 
     eq::Config* config = getConfig();
-    config->unmapObject( &_frameData );
+    config->unmapObject(&_frameData);
 
     return eq::Pipe::configExit();
 }
 
-void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Pipe::frameStart(const eq::uint128_t& frameID, const uint32_t frameNumber)
 {
-    eq::Pipe::frameStart( frameID, frameNumber );
-    _frameData.sync( frameID );
+    eq::Pipe::frameStart(frameID, frameNumber);
+    _frameData.sync(frameID);
 
-    _renderer->setOrtho( _frameData.useOrtho( ));
+    _renderer->setOrtho(_frameData.useOrtho());
 }
 }

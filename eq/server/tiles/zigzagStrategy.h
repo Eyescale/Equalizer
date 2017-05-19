@@ -24,22 +24,19 @@ namespace server
 {
 namespace tiles
 {
-
 /** Generates tiles for a channel using a zigzag strategy */
-inline void generateZigzag( std::vector< Vector2i >& tiles,
-                            const Vector2i& dim )
+inline void generateZigzag(std::vector<Vector2i>& tiles, const Vector2i& dim)
 {
-    for( int y = 0; y < dim.y(); ++y )
+    for (int y = 0; y < dim.y(); ++y)
     {
-        if( y % 2 )
-            for( int x = dim.x()-1; x >= 0; --x )
-                tiles.push_back( Vector2i( x, y ));
+        if (y % 2)
+            for (int x = dim.x() - 1; x >= 0; --x)
+                tiles.push_back(Vector2i(x, y));
         else
-            for( int x = 0; x < dim.x(); ++x )
-                tiles.push_back( Vector2i( x, y ));
+            for (int x = 0; x < dim.x(); ++x)
+                tiles.push_back(Vector2i(x, y));
     }
 }
-
 }
 }
 }

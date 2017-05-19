@@ -19,90 +19,88 @@
 
 #include "frameBufferObject.h"
 
-#include <eq/gl.h>
 #include <eq/fabric/pixelViewport.h>
+#include <eq/gl.h>
 
 #ifdef _WIN32
-#  define bzero( ptr, size ) memset( ptr, 0, size );
+#define bzero(ptr, size) memset(ptr, 0, size);
 #endif
 
 namespace eq
 {
 namespace util
 {
-
-FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
-                                      const GLenum textureTarget )
-    : _fboID( 0 )
-    , _depth( textureTarget, glewContext )
-    , _glewContext( glewContext )
-    , _valid( false )
+FrameBufferObject::FrameBufferObject(const GLEWContext* glewContext,
+                                     const GLenum textureTarget)
+    : _fboID(0)
+    , _depth(textureTarget, glewContext)
+    , _glewContext(glewContext)
+    , _valid(false)
 {
-    LBASSERT( GLEW_EXT_framebuffer_object );
-    _colors.push_back( new Texture( textureTarget, glewContext ));
+    LBASSERT(GLEW_EXT_framebuffer_object);
+    _colors.push_back(new Texture(textureTarget, glewContext));
 }
 
 FrameBufferObject::~FrameBufferObject()
 {
     this->exit();
-    for( Texture* color : _colors )
+    for (Texture* color : _colors)
         delete color;
 }
 
 bool FrameBufferObject::addColorTexture()
 {
-    if( _colors.size() >= 16 )
+    if (_colors.size() >= 16)
     {
         LBWARN << "Too many color textures, can't add another one" << std::endl;
         return false;
     }
 
-    _colors.push_back( new Texture(_colors.front()->getTarget(), _glewContext));
+    _colors.push_back(new Texture(_colors.front()->getTarget(), _glewContext));
     _valid = false;
     return true;
 }
 
-Error FrameBufferObject::init( const int32_t width, const int32_t height,
-                               const GLuint colorFormat,
-                               const int32_t depthSize,
-                               const int32_t stencilSize,
-                               const int32_t samplesSize )
+Error FrameBufferObject::init(const int32_t width, const int32_t height,
+                              const GLuint colorFormat, const int32_t depthSize,
+                              const int32_t stencilSize,
+                              const int32_t samplesSize)
 {
-    LB_TS_THREAD( _thread );
+    LB_TS_THREAD(_thread);
 
     // Check for frame dimensions
     GLint maxViewportDims[2];
-    EQ_GL_CALL( glGetIntegerv( GL_MAX_VIEWPORT_DIMS, &maxViewportDims[0] ));
-    if( width > maxViewportDims[0] || height > maxViewportDims[1] )
-        return Error( ERROR_FRAMEBUFFER_INVALID_SIZE );
+    EQ_GL_CALL(glGetIntegerv(GL_MAX_VIEWPORT_DIMS, &maxViewportDims[0]));
+    if (width > maxViewportDims[0] || height > maxViewportDims[1])
+        return Error(ERROR_FRAMEBUFFER_INVALID_SIZE);
 
     // Check for MAX_SAMPLES
     GLint maxSamples;
-    glGetIntegerv( GL_MAX_SAMPLES, &maxSamples );
-    if( samplesSize < 0 || samplesSize > maxSamples )
-        return Error( ERROR_FRAMEBUFFER_INVALID_SAMPLES );
+    glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+    if (samplesSize < 0 || samplesSize > maxSamples)
+        return Error(ERROR_FRAMEBUFFER_INVALID_SAMPLES);
 
-    if( _fboID )
-        return Error( ERROR_FRAMEBUFFER_INITIALIZED );
+    if (_fboID)
+        return Error(ERROR_FRAMEBUFFER_INITIALIZED);
 
     // generate and bind the framebuffer
-    EQ_GL_CALL( glGenFramebuffersEXT( 1, &_fboID ));
-    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
+    EQ_GL_CALL(glGenFramebuffersEXT(1, &_fboID));
+    EQ_GL_CALL(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _fboID));
 
     GLint mask;
-    glGetIntegerv( GL_CONTEXT_PROFILE_MASK, &mask );
+    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &mask);
     const GLenum glError = glGetError(); // might get GL_INVALID_ENUM
     const bool coreContext =
         glError ? false : mask & GL_CONTEXT_CORE_PROFILE_BIT;
 
     // create and bind textures
-    for( unsigned i = 0; i < _colors.size(); ++i )
+    for (unsigned i = 0; i < _colors.size(); ++i)
     {
-        _colors[i]->init( colorFormat, width, height );
-        _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height,
-                               samplesSize );
+        _colors[i]->init(colorFormat, width, height);
+        _colors[i]->bindToFBO(GL_COLOR_ATTACHMENT0 + i, width, height,
+                              samplesSize);
         const Error error = _checkStatus();
-        if( error )
+        if (error)
         {
             LBDEBUG << "FrameBufferObject::init: " << error << " when binding "
                     << _colors.size() << " color texture(s) of format 0x"
@@ -112,13 +110,13 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
             return error;
         }
     }
-    if( stencilSize > 0 && ( GLEW_EXT_packed_depth_stencil || coreContext ))
+    if (stencilSize > 0 && (GLEW_EXT_packed_depth_stencil || coreContext))
     {
-        _depth.init( GL_DEPTH24_STENCIL8, width, height );
-        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height,
-                          samplesSize );
+        _depth.init(GL_DEPTH24_STENCIL8, width, height);
+        _depth.bindToFBO(GL_DEPTH_STENCIL_ATTACHMENT, width, height,
+                         samplesSize);
         const Error error = _checkStatus();
-        if( error )
+        if (error)
         {
             LBDEBUG << "FrameBufferObject::init: " << error
                     << " when binding GL_DEPTH24_STENCIL8 texture" << std::endl;
@@ -126,12 +124,12 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
             return error;
         }
     }
-    else if( depthSize > 0 )
+    else if (depthSize > 0)
     {
-        _depth.init( GL_DEPTH_COMPONENT, width, height );
-        _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height, samplesSize );
+        _depth.init(GL_DEPTH_COMPONENT, width, height);
+        _depth.bindToFBO(GL_DEPTH_ATTACHMENT, width, height, samplesSize);
         const Error error = _checkStatus();
-        if( error )
+        if (error)
         {
             LBDEBUG << "FrameBufferObject::init: " << error
                     << " when binding GL_DEPTH_COMPONENT texture" << std::endl;
@@ -141,7 +139,7 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
     }
 
     const Error error = _checkStatus();
-    if( error )
+    if (error)
     {
         LBDEBUG << "FrameBufferObject::init: " << error << std::endl;
         exit();
@@ -151,15 +149,15 @@ Error FrameBufferObject::init( const int32_t width, const int32_t height,
 
 void FrameBufferObject::exit()
 {
-    LB_TS_THREAD( _thread );
-    if( _fboID )
+    LB_TS_THREAD(_thread);
+    if (_fboID)
     {
-        glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
-        glDeleteFramebuffersEXT( 1, &_fboID );
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        glDeleteFramebuffersEXT(1, &_fboID);
         _fboID = 0;
     }
 
-    for( size_t i = 0; i < _colors.size(); ++i )
+    for (size_t i = 0; i < _colors.size(); ++i)
         _colors[i]->flush();
     _depth.flush();
 
@@ -170,76 +168,75 @@ Error FrameBufferObject::_checkStatus()
 {
     _valid = false;
 
-    const GLenum status = glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT );
-    switch( status )
+    const GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    switch (status)
     {
     case GL_FRAMEBUFFER_COMPLETE_EXT:
         _valid = true;
-        return Error( ERROR_NONE );
+        return Error(ERROR_NONE);
 
     case 0: // error?!
-        EQ_GL_ERROR( "glCheckFramebufferStatusEXT" );
-        return Error( ERROR_FRAMEBUFFER_STATUS );
+        EQ_GL_ERROR("glCheckFramebufferStatusEXT");
+        return Error(ERROR_FRAMEBUFFER_STATUS);
 
     case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-        return Error( ERROR_FRAMEBUFFER_UNSUPPORTED );
+        return Error(ERROR_FRAMEBUFFER_UNSUPPORTED);
 
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT );
+        return Error(ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT);
 
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT );
+        return Error(ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT);
 
     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS );
+        return Error(ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS);
 
     case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS );
+        return Error(ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS);
 
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER );
+        return Error(ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER);
 
     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-        return Error( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
+        return Error(ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER);
 
     default:
-        LBWARN << "Unhandled frame buffer status 0x" << std::hex
-               << status << std::dec << std::endl;
-        return Error( ERROR_FRAMEBUFFER_STATUS );
+        LBWARN << "Unhandled frame buffer status 0x" << std::hex << status
+               << std::dec << std::endl;
+        return Error(ERROR_FRAMEBUFFER_STATUS);
     }
 }
 
-void FrameBufferObject::bind( const uint32_t target )
+void FrameBufferObject::bind(const uint32_t target)
 {
-    LB_TS_THREAD( _thread );
-    LBASSERT( _fboID );
-    EQ_GL_CALL( glBindFramebufferEXT( target, _fboID ));
+    LB_TS_THREAD(_thread);
+    LBASSERT(_fboID);
+    EQ_GL_CALL(glBindFramebufferEXT(target, _fboID));
 }
 
-void FrameBufferObject::unbind( const uint32_t target )
+void FrameBufferObject::unbind(const uint32_t target)
 {
-    EQ_GL_CALL( glBindFramebufferEXT( target, 0 ));
+    EQ_GL_CALL(glBindFramebufferEXT(target, 0));
 }
 
-Error FrameBufferObject::resize( const int32_t width, const int32_t height )
+Error FrameBufferObject::resize(const int32_t width, const int32_t height)
 {
-    LB_TS_THREAD( _thread );
-    LBASSERT( width > 0 && height > 0 );
+    LB_TS_THREAD(_thread);
+    LBASSERT(width > 0 && height > 0);
 
-    LBASSERT( !_colors.empty( ));
+    LBASSERT(!_colors.empty());
     Texture* color = _colors.front();
 
-    if( color->getWidth() == width && color->getHeight() == height && _valid )
-        return Error( ERROR_NONE );
+    if (color->getWidth() == width && color->getHeight() == height && _valid)
+        return Error(ERROR_NONE);
 
-    for( size_t i = 0; i < _colors.size(); ++i )
-        _colors[i]->resize( width, height );
+    for (size_t i = 0; i < _colors.size(); ++i)
+        _colors[i]->resize(width, height);
 
-    if ( _depth.isValid( ))
-        _depth.resize( width, height );
+    if (_depth.isValid())
+        _depth.resize(width, height);
 
     return _checkStatus();
 }
-
 }
 }

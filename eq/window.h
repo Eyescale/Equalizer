@@ -19,16 +19,15 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <eq/types.h>
 #include <eq/notifierInterface.h> // base class
-#include <eq/windowSettings.h>    // template param
-#include <eq/visitorResult.h>     // enum
+#include <eq/types.h>
+#include <eq/visitorResult.h>  // enum
+#include <eq/windowSettings.h> // template param
 
-#include <eq/fabric/renderContext.h>     // member
-#include <eq/fabric/window.h>            // base class
-#include <eq/util/bitmapFont.h>          // member
-#include <eq/util/objectManager.h>       // member
-
+#include <eq/fabric/renderContext.h> // member
+#include <eq/fabric/window.h>        // base class
+#include <eq/util/bitmapFont.h>      // member
+#include <eq/util/objectManager.h>   // member
 
 /** @file eq/window.h */
 
@@ -60,19 +59,19 @@ namespace eq
  *
  * @sa fabric::Window
  */
-class Window : public fabric::Window< Pipe, Window, Channel, WindowSettings >,
+class Window : public fabric::Window<Pipe, Window, Channel, WindowSettings>,
                public NotifierInterface
 {
 public:
     /** Construct a new window. @version 1.0 */
-    EQ_API explicit Window( Pipe* parent );
+    EQ_API explicit Window(Pipe* parent);
 
     /** Destruct the window. @version 1.0 */
     EQ_API virtual ~Window();
 
     /** @name Data Access */
     //@{
-    EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
+    EQ_API co::CommandQueue* getPipeThreadQueue();    //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
     EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
@@ -80,13 +79,13 @@ public:
     EQ_API const Node* getNode() const;
 
     /** @return the Node of this window. @version 1.0 */
-    EQ_API Node*       getNode();
+    EQ_API Node* getNode();
 
     /** @return the Config of this window. @version 1.0 */
     EQ_API const Config* getConfig() const;
 
     /** @return the Config of this window. @version 1.0 */
-    EQ_API Config*       getConfig();
+    EQ_API Config* getConfig();
 
     /** @return the Client of this window. @version 1.0 */
     EQ_API ClientPtr getClient();
@@ -99,13 +98,11 @@ public:
      * @version 1.0
      */
     bool isRunning() const { return (_state == STATE_RUNNING); }
-
     /**
      * @return true if this window is stopped, false otherwise.
      * @version 1.0
      */
     bool isStopped() const { return (_state == STATE_STOPPED); }
-
     /**
      * Get the last rendering context at the x, y position.
      *
@@ -115,8 +112,8 @@ public:
      * @return true if a render context was found, false otherwise.
      * @warning experimental - may not be supported in the future.
      */
-    EQ_API bool getRenderContext( const int32_t x, const int32_t y,
-                                  RenderContext& context ) const;
+    EQ_API bool getRenderContext(const int32_t x, const int32_t y,
+                                 RenderContext& context) const;
     //@}
 
     /** @name OpenGL context handling and sharing */
@@ -132,7 +129,7 @@ public:
      * SystemWindow.
      * @version 1.0
      */
-    EQ_API void setSharedContextWindow( const Window* sharedContextWindow );
+    EQ_API void setSharedContextWindow(const Window* sharedContextWindow);
 
     /**
      * @return the window with which this window shares the GL context.
@@ -142,10 +139,11 @@ public:
 
     /** @return the window's object manager instance. @version 1.0 */
     util::ObjectManager& getObjectManager() { return _objectManager; }
-
     /** @return the window's object manager instance. @version 1.0 */
     const util::ObjectManager& getObjectManager() const
-        { return _objectManager; }
+    {
+        return _objectManager;
+    }
 
     /**
      * @return a small bitmap font used for overlays.
@@ -214,7 +212,6 @@ public:
 
     /** @return the window's average framerate. @version 1.0 */
     float getFPS() const { return _avgFPS; }
-
     /**
      * Make the window's drawable and context current.
      *
@@ -224,7 +221,7 @@ public:
      * for this window on this thread.
      * @version 1.3.2
      */
-    EQ_API virtual void makeCurrent( const bool cache = true ) const;
+    EQ_API virtual void makeCurrent(const bool cache = true) const;
 
     /**
      * This results in no context being current in the current thread.
@@ -235,7 +232,8 @@ public:
     /** @internal Bind the window's FBO, if it uses one. */
     EQ_API virtual void bindFrameBuffer() const;
 
-    /** @internal Bind the window's draw (aka multisampled) FBO, if it uses one. */
+    /** @internal Bind the window's draw (aka multisampled) FBO, if it uses one.
+     */
     EQ_API virtual void bindDrawFrameBuffer() const;
 
     /** @internal Blit from multisampled FBO to window FBO */
@@ -256,14 +254,12 @@ public:
      * initialized.
      * @version 1.0
      */
-    EQ_API void setSystemWindow( SystemWindow* window );
+    EQ_API void setSystemWindow(SystemWindow* window);
 
     /** @return the OS-specific window implementation. @version 1.0 */
     const SystemWindow* getSystemWindow() const { return _systemWindow; }
-
     /** @return the OS-specific window implementation. @version 1.0 */
     SystemWindow* getSystemWindow() { return _systemWindow; }
-
     /** @return the OS-specific pipe implementation. @version 1.0 */
     const SystemPipe* getSystemPipe() const;
 
@@ -279,7 +275,7 @@ public:
     /** @internal @return the transfer window, or 0 if not created yet. */
     SystemWindow* getTransferWindow();
     const SystemWindow* getTransferWindow() const; //!< @internal
-    //@}
+                                                   //@}
 
     /** @name Events */
     //@{
@@ -289,27 +285,27 @@ public:
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error ) final;
+    EQ_API EventOCommand sendError(const uint32_t error) final;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( EventType type ) override;
+    EQ_API bool processEvent(EventType type) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( EventType type, SizeEvent& event ) override;
+    EQ_API bool processEvent(EventType type, SizeEvent& event) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( EventType type, PointerEvent& event ) override;
+    EQ_API bool processEvent(EventType type, PointerEvent& event) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( EventType type, KeyEvent& event ) override;
+    EQ_API bool processEvent(EventType type, KeyEvent& event) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( AxisEvent& event ) override;
+    EQ_API bool processEvent(AxisEvent& event) override;
 
     /** @sa NotifierInterface::processEvent(). */
-    EQ_API bool processEvent( ButtonEvent& event ) override;
+    EQ_API bool processEvent(ButtonEvent& event) override;
 
-    EQ_API bool processEvent( Statistic& event );
+    EQ_API bool processEvent(Statistic& event);
     //@}
 
 protected:
@@ -317,7 +313,7 @@ protected:
 
     /** @internal */
     EQ_API
-    void attach( const uint128_t& id, const uint32_t instanceID ) override;
+    void attach(const uint128_t& id, const uint32_t instanceID) override;
 
     /** @name Actions */
     //@{
@@ -327,7 +323,7 @@ protected:
      * @param frameNumber the frame to start.
      * @version 1.0
      */
-    EQ_API void startFrame( const uint32_t frameNumber );
+    EQ_API void startFrame(const uint32_t frameNumber);
 
     /**
      * Signal the completion of a frame to the parent.
@@ -335,7 +331,7 @@ protected:
      * @param frameNumber the frame to end.
      * @version 1.0
      */
-    EQ_API void releaseFrame( const uint32_t frameNumber );
+    EQ_API void releaseFrame(const uint32_t frameNumber);
 
     /**
      * Signal the release of the local synchronization to the parent.
@@ -343,7 +339,7 @@ protected:
      * @param frameNumber the frame to release.
      * @version 1.0
      */
-    EQ_API void releaseFrameLocal( const uint32_t frameNumber );
+    EQ_API void releaseFrameLocal(const uint32_t frameNumber);
     //@}
 
     /**
@@ -359,7 +355,7 @@ protected:
      * @param initID the init identifier.
      * @version 1.0
      */
-    EQ_API virtual bool configInit( const uint128_t& initID );
+    EQ_API virtual bool configInit(const uint128_t& initID);
 
     /**
      * Initialize the OS-specific window.
@@ -367,7 +363,7 @@ protected:
      * @sa setSystemWindow()
      * @version 1.0
      */
-    EQ_API virtual bool configInitSystemWindow( const uint128_t& initID );
+    EQ_API virtual bool configInitSystemWindow(const uint128_t& initID);
 
     /**
      * Initialize the OpenGL state for this window.
@@ -379,7 +375,7 @@ protected:
      * @return true if the initialization was successful, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool configInitGL( const uint128_t& initID );
+    EQ_API virtual bool configInitGL(const uint128_t& initID);
 
     /** Exit this window. @version 1.0 */
     EQ_API virtual bool configExit();
@@ -389,7 +385,6 @@ protected:
 
     /** De-initialize the OpenGL state for this window. @version 1.0 */
     virtual bool configExitGL() { return true; }
-
     /**
      * Start rendering a frame.
      *
@@ -400,8 +395,8 @@ protected:
      * @param frameNumber the frame to start.
      * @version 1.0
      */
-    EQ_API virtual void frameStart( const uint128_t& frameID,
-                                    const uint32_t frameNumber );
+    EQ_API virtual void frameStart(const uint128_t& frameID,
+                                   const uint32_t frameNumber);
 
     /**
      * Finish rendering a frame.
@@ -416,8 +411,8 @@ protected:
      * @param frameNumber the frame to finish.
      * @version 1.0
      */
-    EQ_API virtual void frameFinish( const uint128_t& frameID,
-                                     const uint32_t frameNumber );
+    EQ_API virtual void frameFinish(const uint128_t& frameID,
+                                    const uint32_t frameNumber);
 
     /**
      * Finish drawing.
@@ -429,8 +424,8 @@ protected:
      * @param frameNumber the frame to finished with draw.
      * @version 1.0
      */
-    EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
-                                         const uint32_t frameNumber );
+    EQ_API virtual void frameDrawFinish(const uint128_t& frameID,
+                                        const uint32_t frameNumber);
     //@}
 
 private:
@@ -464,11 +459,11 @@ private:
     float _avgFPS;
 
     /** The list of render context used since the last frame start. */
-    std::vector< RenderContext > _renderContexts[2];
+    std::vector<RenderContext> _renderContexts[2];
     enum
     {
         FRONT = 0,
-        BACK  = 1
+        BACK = 1
     };
 
     /** The time of the last swap command. */
@@ -481,11 +476,11 @@ private:
     Private* _private; // placeholder for binary-compatible changes
 
     /** Add a channel's rendering context to the current frame's list */
-    void _addRenderContext( const RenderContext& context );
+    void _addRenderContext(const RenderContext& context);
     friend class Channel;
 
     /** @return the channels concerned by the given mouse event. */
-    Channels _getEventChannels( const PointerEvent& event );
+    Channels _getEventChannels(const PointerEvent& event);
 
     /** Set up object manager during initialization. */
     void _setupObjectManager();
@@ -496,25 +491,25 @@ private:
     void _updateFPS();
 
     /** Enter the given barrier. */
-    void _enterBarrier( co::ObjectVersion barrier );
+    void _enterBarrier(co::ObjectVersion barrier);
 
     /* The command functions. */
-    bool _cmdCreateChannel( co::ICommand& command );
-    bool _cmdDestroyChannel(co::ICommand& command );
-    bool _cmdConfigInit( co::ICommand& command );
-    bool _cmdConfigExit( co::ICommand& command );
-    bool _cmdFrameStart( co::ICommand& command );
-    bool _cmdFrameFinish( co::ICommand& command );
-    bool _cmdThrottleFramerate( co::ICommand& command );
-    bool _cmdFlush( co::ICommand& command );
-    bool _cmdFinish( co::ICommand& command );
-    bool _cmdBarrier( co::ICommand& command );
-    bool _cmdNVBarrier( co::ICommand& command );
-    bool _cmdSwap( co::ICommand& command );
-    bool _cmdFrameDrawFinish( co::ICommand& command );
-    bool _cmdResize( co::ICommand& command );
+    bool _cmdCreateChannel(co::ICommand& command);
+    bool _cmdDestroyChannel(co::ICommand& command);
+    bool _cmdConfigInit(co::ICommand& command);
+    bool _cmdConfigExit(co::ICommand& command);
+    bool _cmdFrameStart(co::ICommand& command);
+    bool _cmdFrameFinish(co::ICommand& command);
+    bool _cmdThrottleFramerate(co::ICommand& command);
+    bool _cmdFlush(co::ICommand& command);
+    bool _cmdFinish(co::ICommand& command);
+    bool _cmdBarrier(co::ICommand& command);
+    bool _cmdNVBarrier(co::ICommand& command);
+    bool _cmdSwap(co::ICommand& command);
+    bool _cmdFrameDrawFinish(co::ICommand& command);
+    bool _cmdResize(co::ICommand& command);
 
-    LB_TS_VAR( _pipeThread )
+    LB_TS_VAR(_pipeThread)
 };
 }
 

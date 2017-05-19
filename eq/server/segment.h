@@ -18,22 +18,22 @@
 #ifndef EQSERVER_SEGMENT_H
 #define EQSERVER_SEGMENT_H
 
-#include <eq/server/api.h>
 #include "types.h"
-#include "visitorResult.h"  // enum
+#include "visitorResult.h" // enum
+#include <eq/server/api.h>
 
-#include <eq/fabric/segment.h>      // base class
+#include <eq/fabric/segment.h> // base class
 
 namespace eq
 {
 namespace server
 {
 /** The segment. @sa eq::Segment */
-class Segment : public fabric::Segment< Canvas, Segment, Channel >
+class Segment : public fabric::Segment<Canvas, Segment, Channel>
 {
 public:
     /** Construct a new Segment. */
-    EQSERVER_API explicit Segment( Canvas* parent );
+    EQSERVER_API explicit Segment(Canvas* parent);
 
     /** Destruct this segment. */
     virtual ~Segment();
@@ -53,19 +53,20 @@ public:
     SegmentPath getPath() const;
 
     /** Add a destination (View) channel. */
-    void addDestinationChannel( Channel* channel );
+    void addDestinationChannel(Channel* channel);
 
     /** Remove a destination (View) channel. */
-    bool removeDestinationChannel( Channel* channel );
+    bool removeDestinationChannel(Channel* channel);
 
     /** @return the vector of channels resulting from the segment/view
      *          intersection. */
     const Channels& getDestinationChannels() const
-    { return _destinationChannels; }
+    {
+        return _destinationChannels;
+    }
 
     /** @return the vector of destination channels for the given layout. */
-    void findDestinationChannels( const Layout* layout,
-                                  Channels& result ) const;
+    void findDestinationChannels(const Layout* layout, Channels& result) const;
     //@}
 
 protected:

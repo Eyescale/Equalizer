@@ -35,30 +35,31 @@
 
 namespace eVolve
 {
-    class Pipe : public eq::Pipe
+class Pipe : public eq::Pipe
+{
+public:
+    Pipe(eq::Node* parent)
+        : eq::Pipe(parent)
+        , _renderer(0)
     {
-    public:
-        Pipe( eq::Node* parent ) : eq::Pipe( parent ), _renderer( 0 ) {}
+    }
 
-        const FrameData& getFrameData() const { return _frameData; }
+    const FrameData& getFrameData() const { return _frameData; }
+    Renderer* getRenderer() { return _renderer; }
+    const Renderer* getRenderer() const { return _renderer; }
+protected:
+    virtual ~Pipe() {}
+    virtual eq::WindowSystem selectWindowSystem() const;
+    virtual bool configInit(const eq::uint128_t& initID);
+    virtual bool configExit();
+    virtual void frameStart(const eq::uint128_t& frameID,
+                            const uint32_t frameNumber);
 
-        Renderer*        getRenderer()        { return _renderer;  }
-        const Renderer*  getRenderer() const  { return _renderer;  }
+private:
+    FrameData _frameData;
 
-    protected:
-        virtual ~Pipe() {}
-
-        virtual eq::WindowSystem selectWindowSystem() const;
-        virtual bool configInit( const eq::uint128_t& initID );
-        virtual bool configExit();
-        virtual void frameStart( const eq::uint128_t& frameID,
-                                 const uint32_t frameNumber );
-
-    private:
-        FrameData _frameData;
-
-        Renderer*   _renderer;      //!< The renderer, holding the volume
-    };
+    Renderer* _renderer; //!< The renderer, holding the volume
+};
 }
 
 #endif // EVOLVE_PIPE_H

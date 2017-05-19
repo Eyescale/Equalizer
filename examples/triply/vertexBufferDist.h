@@ -27,66 +27,62 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef PLYLIB_VERTEXBUFFERDIST_H
 #define PLYLIB_VERTEXBUFFERDIST_H
 
-#include <triply/api.h>
 #include "typedefs.h"
+#include <triply/api.h>
 
 #include <co/co.h>
 #include <pression/data/CompressorInfo.h>
 
 namespace triply
 {
-static const co::CompressorInfo COMPRESSOR_AUTO( -1.f, -1.f );
+static const co::CompressorInfo COMPRESSOR_AUTO(-1.f, -1.f);
 
 /** Uses co::Object to distribute a model, holds a VertexBufferBase node. */
 class VertexBufferDist : public co::Object
 {
 public:
     /** Register the master version of a ply tree. */
-    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
-                                 co::LocalNodePtr node,
-                                 co::Object::ChangeType type = STATIC,
-                       const co::CompressorInfo& compressor = COMPRESSOR_AUTO );
+    TRIPLY_API VertexBufferDist(
+        triply::VertexBufferRoot& root, co::LocalNodePtr node,
+        co::Object::ChangeType type = STATIC,
+        const co::CompressorInfo& compressor = COMPRESSOR_AUTO);
 
     /** Map a slave version of a ply tree. */
-    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
-                                 co::NodePtr master, co::LocalNodePtr localNode,
-                                 const co::uint128_t& modelID );
+    TRIPLY_API VertexBufferDist(triply::VertexBufferRoot& root,
+                                co::NodePtr master, co::LocalNodePtr localNode,
+                                const co::uint128_t& modelID);
     TRIPLY_API virtual ~VertexBufferDist();
 
 protected:
-    TRIPLY_API VertexBufferDist( VertexBufferRoot& root,
-                                 VertexBufferBase& node,
-                                 co::LocalNodePtr localNode,
-                                 co::Object::ChangeType type,
-                                 const co::CompressorInfo& compressor );
+    TRIPLY_API VertexBufferDist(VertexBufferRoot& root, VertexBufferBase& node,
+                                co::LocalNodePtr localNode,
+                                co::Object::ChangeType type,
+                                const co::CompressorInfo& compressor);
 
-    TRIPLY_API VertexBufferDist( triply::VertexBufferRoot& root,
-                                 triply::VertexBufferBase& node,
-                                 co::NodePtr master, co::LocalNodePtr localNode,
-                                 const co::uint128_t& modelID );
+    TRIPLY_API VertexBufferDist(triply::VertexBufferRoot& root,
+                                triply::VertexBufferBase& node,
+                                co::NodePtr master, co::LocalNodePtr localNode,
+                                const co::uint128_t& modelID);
 
-    TRIPLY_API void getInstanceData( co::DataOStream& os ) override;
-    TRIPLY_API void applyInstanceData( co::DataIStream& is ) override;
+    TRIPLY_API void getInstanceData(co::DataOStream& os) override;
+    TRIPLY_API void applyInstanceData(co::DataIStream& is) override;
 
 private:
     bool _isRoot() const { return (void*)(&_root) == (void*)(&_node); }
-    std::unique_ptr< VertexBufferBase > _createNode( Type ) const;
+    std::unique_ptr<VertexBufferBase> _createNode(Type) const;
 
     ChangeType getChangeType() const final { return _changeType; }
     co::CompressorInfo chooseCompressor() const final { return _compressor; }
-
     VertexBufferRoot& _root;
     VertexBufferBase& _node;
-    std::unique_ptr< VertexBufferDist > _left;
-    std::unique_ptr< VertexBufferDist > _right;
+    std::unique_ptr<VertexBufferDist> _left;
+    std::unique_ptr<VertexBufferDist> _right;
     const co::Object::ChangeType _changeType;
     const co::CompressorInfo _compressor;
 };
 }
-
 
 #endif // PLYLIB_VERTEXBUFFERDIST_H

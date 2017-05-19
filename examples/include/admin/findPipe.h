@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,12 +32,11 @@
 
 namespace eqAdmin
 {
-
-inline eq::admin::Pipe* findPipe( eq::admin::ServerPtr server )
+inline eq::admin::Pipe* findPipe(eq::admin::ServerPtr server)
 {
     // Find first pipe...
     const eq::admin::Configs& configs = server->getConfigs();
-    if( configs.empty( ))
+    if (configs.empty())
     {
         std::cout << "No configs on server, exiting" << std::endl;
         return 0;
@@ -45,15 +44,15 @@ inline eq::admin::Pipe* findPipe( eq::admin::ServerPtr server )
 
     eq::admin::Config* config = configs.front();
     const eq::admin::Nodes& nodes = config->getNodes();
-    if( nodes.empty( ))
+    if (nodes.empty())
     {
         std::cout << "No nodes in config, exiting" << std::endl;
         return 0;
     }
- 
+
     const eq::admin::Node* node = nodes.front();
     const eq::admin::Pipes& pipes = node->getPipes();
-    if( pipes.empty( ))
+    if (pipes.empty())
     {
         std::cout << "No pipes in node, exiting" << std::endl;
         return 0;
@@ -61,6 +60,5 @@ inline eq::admin::Pipe* findPipe( eq::admin::ServerPtr server )
 
     return pipes.front();
 }
-
 }
 #endif // EQ_ADMIN_FIND_PIPE_H

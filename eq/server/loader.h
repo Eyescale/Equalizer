@@ -19,8 +19,8 @@
 #ifndef EQSERVER_LOADER_H
 #define EQSERVER_LOADER_H
 
-#include <eq/server/api.h>
 #include "types.h"
+#include <eq/server/api.h>
 
 #include <iostream>
 
@@ -28,89 +28,89 @@ namespace eq
 {
 namespace server
 {
-    /** The config file loader. */
-    class Loader
-    {
-    public:
-        Loader() {}
-        virtual ~Loader() {}
+/** The config file loader. */
+class Loader
+{
+public:
+    Loader() {}
+    virtual ~Loader() {}
+    /**
+     * Loads a config file.
+     *
+     * The returned config has to be deleted by the caller.
+     *
+     * @param filename the name of the config file.
+     * @return The parsed config, or <code>0</code> upon error.
+     */
+    EQSERVER_API ServerPtr loadFile(const std::string& filename);
 
-        /**
-         * Loads a config file.
-         *
-         * The returned config has to be deleted by the caller.
-         *
-         * @param filename the name of the config file.
-         * @return The parsed config, or <code>0</code> upon error.
-         */
-        EQSERVER_API ServerPtr loadFile( const std::string& filename );
+    /**
+     * Parse a config file given as a parameter.
+     *
+     * @param config the config file.
+     * @return the parsed server.
+     */
+    EQSERVER_API ServerPtr parseServer(const char* config);
 
-        /**
-         * Parse a config file given as a parameter.
-         *
-         * @param config the config file.
-         * @return the parsed server.
-         */
-        EQSERVER_API ServerPtr parseServer( const char* config );
+    /**
+     * Add a Compound for each output channel.
+     *
+     * This function creates a compound for each output channel which is not
+     * used as a destination channel yet.
+     *
+     * @param server the server.
+     */
+    EQSERVER_API static Compounds addOutputCompounds(ServerPtr server);
 
-        /**
-         * Add a Compound for each output channel.
-         *
-         * This function creates a compound for each output channel which is not
-         * used as a destination channel yet.
-         *
-         * @param server the server.
-         */
-        EQSERVER_API static Compounds addOutputCompounds( ServerPtr server );
+    /**
+     * Add segments and layouts for dest channels in non-view configs.
+     *
+     * This function creates the appropriate views and segments for
+     * destination channels, and reassigns the compound channel.
+     *
+     * @param server the server.
+     */
+    EQSERVER_API static void addDestinationViews(ServerPtr server);
 
-        /**
-         * Add segments and layouts for dest channels in non-view configs.
-         *
-         * This function creates the appropriate views and segments for
-         * destination channels, and reassigns the compound channel.
-         *
-         * @param server the server.
-         */
-        EQSERVER_API static void addDestinationViews( ServerPtr server );
+    /**
+     * Convert config to version 1.1
+     *
+     * This function converts a 1.0 to a 1.1 configuration.
+     * Most notably, the stereo setting is migrated from compounds to
+     * views and segments (see
+     * <a
+     * href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
+     * stereo switch doc</a>).
+     *
+     * @param server the server.
+     */
+    EQSERVER_API static void convertTo11(ServerPtr server);
 
-        /**
-         * Convert config to version 1.1
-         *
-         * This function converts a 1.0 to a 1.1 configuration.
-         * Most notably, the stereo setting is migrated from compounds to
-         * views and segments (see
-         * <a href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
-         * stereo switch doc</a>).
-         *
-         * @param server the server.
-         */
-        EQSERVER_API static void convertTo11( ServerPtr server );
+    /**
+     * Convert config to version 1.2
+     *
+     * This function converts a 1.1 to a 1.2 configuration.
+     * Most notably, the node's host is derived from the connection
+     * description.
+     *
+     * @param server the server.
+     */
+    EQSERVER_API static void convertTo12(ServerPtr server);
 
-        /**
-         * Convert config to version 1.2
-         *
-         * This function converts a 1.1 to a 1.2 configuration.
-         * Most notably, the node's host is derived from the connection
-         * description.
-         *
-         * @param server the server.
-         */
-        EQSERVER_API static void convertTo12( ServerPtr server );
+    /**
+     * Add one observer for observer-less configurations.
+     *
+     * If a configuration has no observers, one is created and assigned to
+     * all views, which retains the behaviour of legacy configurations.
+     *
+     * @param server the server.
+     */
+    EQSERVER_API static void addDefaultObserver(ServerPtr server);
 
-        /**
-         * Add one observer for observer-less configurations.
-         *
-         * If a configuration has no observers, one is created and assigned to
-         * all views, which retains the behaviour of legacy configurations.
-         *
-         * @param server the server.
-         */
-        EQSERVER_API static void addDefaultObserver( ServerPtr server );
-
-    private:
-        void _parseString( const char* config );
-        void _parse();
-    };
+private:
+    void _parseString(const char* config);
+    void _parse();
+};
 }
 }
 #endif // EQSERVER_LOADER_H

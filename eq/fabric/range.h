@@ -18,10 +18,10 @@
 #ifndef EQFABRIC_RANGE_H
 #define EQFABRIC_RANGE_H
 
-#include <eq/fabric/api.h>
-#include <lunchbox/bitOperation.h>
 #include <algorithm> // min,max
+#include <eq/fabric/api.h>
 #include <iostream>
+#include <lunchbox/bitOperation.h>
 
 namespace eq
 {
@@ -34,49 +34,64 @@ public:
     /** @name Constructors */
     //@{
     /** Construct a new range covering all data. @version 1.0 */
-    Range() : start(0.f), end(1.f)  {}
+    Range()
+        : start(0.f)
+        , end(1.f)
+    {
+    }
 
     /** Construct a new range with default values. @version 1.0 */
-    Range( const float start_, const float end_ )
-        : start(start_), end(end_) {}
+    Range(const float start_, const float end_)
+        : start(start_)
+        , end(end_)
+    {
+    }
     //@}
 
     /** @name Data Access */
     //@{
     /** @return true if the two ranges are identical. @version 1.0 */
-    bool operator == ( const Range& rhs ) const
-        { return start==rhs.start && end==rhs.end; }
+    bool operator==(const Range& rhs) const
+    {
+        return start == rhs.start && end == rhs.end;
+    }
 
     /** @return true if the two ranges are not identical. @version 1.0 */
-    bool operator != ( const Range& rhs ) const
-        { return start!=rhs.start || end!=rhs.end; }
+    bool operator!=(const Range& rhs) const
+    {
+        return start != rhs.start || end != rhs.end;
+    }
 
     /** @return the interval spanned by this range. @version 1.3 */
     float getSize() const { return end - start; }
-
     /** @internal Invalidate the database range. */
-    void invalidate() { start=0.f; end=0.f; }
+    void invalidate()
+    {
+        start = 0.f;
+        end = 0.f;
+    }
 
     /** @internal @return true if the database range is valid. */
     bool isValid() const
-        { return ( start>=0.f && end <=1.f && (end - start) >= 0.f ); }
+    {
+        return (start >= 0.f && end <= 1.f && (end - start) >= 0.f);
+    }
 
     /** @internal @return true if the database range covers some data. */
-    bool hasData() const { return  (end - start) > 0.f; }
-
+    bool hasData() const { return (end - start) > 0.f; }
     /** @internal Apply (accumulate) another database range. */
-    void apply( const Range& rhs )
+    void apply(const Range& rhs)
     {
-        const float w = end-start;
-        end    = start + rhs.end * w;
+        const float w = end - start;
+        end = start + rhs.end * w;
         start += rhs.start * w;
     }
 
     /** Merge the two ranges (form the union). @version 1.11 */
-    void merge( const Range& rhs )
+    void merge(const Range& rhs)
     {
-        start = std::min( start, rhs.start );
-        end = std::max( end, rhs.end );
+        start = std::min(start, rhs.start);
+        end = std::max(end, rhs.end);
     }
 
     float start; //!< The start position
@@ -85,7 +100,7 @@ public:
     EQFABRIC_API static const Range ALL; //!< A full database range
 };
 
-inline std::ostream& operator << ( std::ostream& os, const Range& range )
+inline std::ostream& operator<<(std::ostream& os, const Range& range)
 {
     os << "range    [ " << range.start << " " << range.end << " ]";
     return os;

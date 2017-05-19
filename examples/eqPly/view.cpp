@@ -32,71 +32,69 @@
 
 namespace eqPly
 {
+#pragma warning(push)
+#pragma warning(disable : 4355)
 
-#pragma warning( push )
-#pragma warning( disable : 4355 )
-
-View::View( eq::Layout* parent )
-        : eq::View( parent )
-        , _proxy( this )
-        , _idleSteps( 0 )
+View::View(eq::Layout* parent)
+    : eq::View(parent)
+    , _proxy(this)
+    , _idleSteps(0)
 {
-    setUserData( &_proxy );
+    setUserData(&_proxy);
 }
 
-#pragma warning( pop )
+#pragma warning(pop)
 
 View::~View()
 {
-    setUserData( 0 );
+    setUserData(0);
     _modelID = 0;
     _idleSteps = 0;
 }
 
-void View::Proxy::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+void View::Proxy::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_MODEL )
+    if (dirtyBits & DIRTY_MODEL)
         os << _view->_modelID;
-    if( dirtyBits & DIRTY_IDLE )
+    if (dirtyBits & DIRTY_IDLE)
         os << _view->_idleSteps;
 }
 
-void View::Proxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+void View::Proxy::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_MODEL )
+    if (dirtyBits & DIRTY_MODEL)
         is >> _view->_modelID;
-    if( dirtyBits & DIRTY_IDLE )
+    if (dirtyBits & DIRTY_IDLE)
     {
         is >> _view->_idleSteps;
-        if( isMaster( ))
-            setDirty( DIRTY_IDLE ); // redistribute slave settings
+        if (isMaster())
+            setDirty(DIRTY_IDLE); // redistribute slave settings
     }
 }
 
-void View::setModelID( const eq::uint128_t& id )
+void View::setModelID(const eq::uint128_t& id)
 {
-    if( _modelID == id )
+    if (_modelID == id)
         return;
 
     _modelID = id;
-    _proxy.setDirty( Proxy::DIRTY_MODEL );
+    _proxy.setDirty(Proxy::DIRTY_MODEL);
 }
 
-void View::setIdleSteps( const int32_t steps )
+void View::setIdleSteps(const int32_t steps)
 {
-    if( _idleSteps == steps )
+    if (_idleSteps == steps)
         return;
 
     _idleSteps = steps;
-    _proxy.setDirty( Proxy::DIRTY_IDLE );
+    _proxy.setDirty(Proxy::DIRTY_IDLE);
 }
 
 void View::toggleEqualizer()
 {
-    if( getEqualizers() & eq::fabric::LOAD_EQUALIZER )
-        useEqualizer( eq::fabric::EQUALIZER_ALL & ~eq::fabric::LOAD_EQUALIZER );
+    if (getEqualizers() & eq::fabric::LOAD_EQUALIZER)
+        useEqualizer(eq::fabric::EQUALIZER_ALL & ~eq::fabric::LOAD_EQUALIZER);
     else
-        useEqualizer( eq::fabric::EQUALIZER_ALL & ~eq::fabric::TILE_EQUALIZER );
+        useEqualizer(eq::fabric::EQUALIZER_ALL & ~eq::fabric::TILE_EQUALIZER);
 }
-
 }

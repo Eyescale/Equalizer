@@ -20,13 +20,13 @@
 
 #include <eq/api.h>
 #include <eq/types.h>
-#include <eq/version.h>    // used inline
-#include <lunchbox/log.h>   // used inline
+#include <eq/version.h>   // used inline
+#include <lunchbox/log.h> // used inline
 
 namespace eq
 {
 /** @internal */
-EQ_API bool _init( const int argc, char** argv, NodeFactory* nodeFactory );
+EQ_API bool _init(const int argc, char** argv, NodeFactory* nodeFactory);
 
 /**
  * Initialize the Equalizer client library.
@@ -55,10 +55,10 @@ EQ_API bool _init( const int argc, char** argv, NodeFactory* nodeFactory );
  * @param nodeFactory the factory for allocating Equalizer objects.
  * @return true if the library was successfully initialized, false otherwise.
  */
-inline bool init( const int argc, char** argv, NodeFactory* nodeFactory )
+inline bool init(const int argc, char** argv, NodeFactory* nodeFactory)
 {
-    if( EQ_VERSION_ABI == Version::getABI( ))
-        return eq::_init( argc, argv, nodeFactory );
+    if (EQ_VERSION_ABI == Version::getABI())
+        return eq::_init(argc, argv, nodeFactory);
     LBWARN << "Equalizer shared library v" << Version::getABI()
            << " not binary compatible with application v" << EQ_VERSION_ABI
            << std::endl;
@@ -81,7 +81,7 @@ EQ_API bool exit();
  *
  * @return the pointer to a configuration, or 0 upon error.
  */
-EQ_API Config* getConfig( const int argc, char** argv );
+EQ_API Config* getConfig(const int argc, char** argv);
 
 /**
  * Convenience function to release a configuration.
@@ -89,11 +89,10 @@ EQ_API Config* getConfig( const int argc, char** argv );
  * This function releases the configuration, disconnects the server,
  * and stops the local client node.
  */
-EQ_API void releaseConfig( Config* config );
+EQ_API void releaseConfig(Config* config);
 
 /** @return a help string for all parsed command line arguments. @version 2.1 */
 EQ_API std::string getHelp();
-
 }
 
 #endif // EQ_INIT_H

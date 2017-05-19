@@ -32,15 +32,15 @@
 
 #include <eq/eq.h>
 
-#include "localInitData.h" // member
 #include "frameData.h"     // member
+#include "localInitData.h" // member
 
 namespace eVolve
 {
 class Config : public eq::Config
 {
 public:
-    Config( eq::ServerPtr parent );
+    Config(eq::ServerPtr parent);
 
     /** @sa eq::Config::init. */
     bool init();
@@ -50,36 +50,34 @@ public:
     /** @sa eq::Config::startFrame. */
     virtual uint32_t startFrame();
 
-    void setInitData( const LocalInitData& data ) { _initData = data; }
+    void setInitData(const LocalInitData& data) { _initData = data; }
     const InitData& getInitData() const { return _initData; }
-
     /** Map per-config data to the local node process */
-    bool loadInitData( const eq::uint128_t& initDataID );
+    bool loadInitData(const eq::uint128_t& initDataID);
 
 protected:
     virtual ~Config();
 
     /** @sa eq::Config::handleEvent */
-    bool handleEvent( eq::EventType type, const eq::KeyEvent& event ) override;
-    bool handleEvent( eq::EventType type, const eq::PointerEvent& ) override;
+    bool handleEvent(eq::EventType type, const eq::KeyEvent& event) override;
+    bool handleEvent(eq::EventType type, const eq::PointerEvent&) override;
 
-    int        _spinX, _spinY;
+    int _spinX, _spinY;
 
     eq::Canvas* _currentCanvas;
 
     LocalInitData _initData;
-    FrameData     _frameData;
+    FrameData _frameData;
 
-    uint64_t      _messageTime;
+    uint64_t _messageTime;
 
 private:
     void _resetMessage();
-    void _setMessage( const std::string& message );
-    void _switchLayout( int32_t increment );
+    void _setMessage(const std::string& message);
+    void _switchLayout(int32_t increment);
     void _deregisterData();
 
-    static void _applyRotation( float m[16], const float dx,
-                                const float dy );
+    static void _applyRotation(float m[16], const float dx, const float dy);
 };
 }
 

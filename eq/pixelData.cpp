@@ -28,14 +28,14 @@ PixelData::PixelData()
     reset();
 }
 
-PixelData::PixelData( const PixelData& rhs )
-    : internalFormat( rhs.internalFormat )
-    , externalFormat( rhs.externalFormat )
-    , pixelSize( rhs.pixelSize )
-    , pvp( rhs.pvp )
-    , compressedData( rhs.compressedData )
-    , compressorName( rhs.compressorName )
-    , compressorFlags( rhs.compressorFlags )
+PixelData::PixelData(const PixelData& rhs)
+    : internalFormat(rhs.internalFormat)
+    , externalFormat(rhs.externalFormat)
+    , pixelSize(rhs.pixelSize)
+    , pvp(rhs.pvp)
+    , compressedData(rhs.compressedData)
+    , compressorName(rhs.compressorName)
+    , compressorFlags(rhs.compressorFlags)
 {
 }
 
@@ -54,5 +54,4 @@ void PixelData::reset()
     compressorName = EQ_COMPRESSOR_INVALID;
     compressorFlags = 0;
 }
-
 }

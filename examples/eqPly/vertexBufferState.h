@@ -32,8 +32,8 @@
 
 #include "channel.h"
 
-#include <triply/vertexBufferState.h>
 #include <eq/eq.h>
+#include <triply/vertexBufferState.h>
 
 namespace eqPly
 {
@@ -41,52 +41,65 @@ namespace eqPly
 class VertexBufferState : public triply::VertexBufferState
 {
 public:
-    VertexBufferState( eq::util::ObjectManager& objectManager )
-        : triply::VertexBufferState( objectManager.glewGetContext( ))
-        , _objectManager( objectManager )
-        , _channel( 0 )
-    {}
+    VertexBufferState(eq::util::ObjectManager& objectManager)
+        : triply::VertexBufferState(objectManager.glewGetContext())
+        , _objectManager(objectManager)
+        , _channel(0)
+    {
+    }
 
     virtual ~VertexBufferState() {}
-
-    GLuint getDisplayList( const void* key ) override
-        { return _objectManager.getList( key ); }
-
-    GLuint newDisplayList( const void* key ) override
-        { return _objectManager.newList( key ); }
-
-    GLuint getBufferObject( const void* key ) override
-        { return _objectManager.getBuffer( key ); }
-
-    GLuint newBufferObject( const void* key ) override
-        { return _objectManager.newBuffer( key ); }
-
-    void deleteAll()  override
-        { _objectManager.deleteAll(); }
-
-    GLuint getProgram( const void* key )
-        { return _objectManager.getProgram( key ); }
-
-    GLuint newProgram( const void* key )
-        { return _objectManager.newProgram( key ); }
-
-    bool linkProgram( const unsigned program, const char* vertexShaderSource,
-                      const char* fragmentShaderSource )
+    GLuint getDisplayList(const void* key) override
     {
-        return eq::util::shader::linkProgram( _objectManager.glewGetContext(),
-                                              program, vertexShaderSource,
-                                              fragmentShaderSource );
+        return _objectManager.getList(key);
+    }
+
+    GLuint newDisplayList(const void* key) override
+    {
+        return _objectManager.newList(key);
+    }
+
+    GLuint getBufferObject(const void* key) override
+    {
+        return _objectManager.getBuffer(key);
+    }
+
+    GLuint newBufferObject(const void* key) override
+    {
+        return _objectManager.newBuffer(key);
+    }
+
+    void deleteAll() override { _objectManager.deleteAll(); }
+    GLuint getProgram(const void* key)
+    {
+        return _objectManager.getProgram(key);
+    }
+
+    GLuint newProgram(const void* key)
+    {
+        return _objectManager.newProgram(key);
+    }
+
+    bool linkProgram(const unsigned program, const char* vertexShaderSource,
+                     const char* fragmentShaderSource)
+    {
+        return eq::util::shader::linkProgram(_objectManager.glewGetContext(),
+                                             program, vertexShaderSource,
+                                             fragmentShaderSource);
     }
 
     bool isShared() const { return _objectManager.isShared(); }
+    void setChannel(Channel* channel) { _channel = channel; }
+    bool stopRendering() const override
+    {
+        return _channel ? _channel->stopRendering() : false;
+    }
 
-    void setChannel( Channel* channel ) { _channel = channel; }
-
-    bool stopRendering( ) const override
-        { return _channel ? _channel->stopRendering() : false; }
-
-    void declareRegion( const triply::Vector4f& region ) override
-        { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
+    void declareRegion(const triply::Vector4f& region) override
+    {
+        if (_channel)
+            _channel->declareRegion(eq::Viewport(region));
+    }
 
 private:
     eq::util::ObjectManager& _objectManager;

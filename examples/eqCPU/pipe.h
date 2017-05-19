@@ -29,23 +29,26 @@
 #ifndef EQ_CPU_PIPE_H
 #define EQ_CPU_PIPE_H
 
-#include <eq/pipe.h> // base class
+#include <eq/pipe.h>         // base class
 #include <eq/windowSystem.h> // used inline
 
 namespace eqCpu
 {
-
 class Pipe : public eq::Pipe
 {
 public:
-    Pipe( eq::Node* parent ) : eq::Pipe ( parent ) {}
+    Pipe(eq::Node* parent)
+        : eq::Pipe(parent)
+    {
+    }
 
 protected:
     eq::MessagePump* createMessagePump() final { return 0; }
     eq::WindowSystem selectWindowSystem() const final
-        { return eq::WindowSystem( "GLX" ); }
+    {
+        return eq::WindowSystem("GLX");
+    }
 };
-
 }
 
 #endif // EQ_CPU_PIPE_H

@@ -25,29 +25,27 @@ namespace server
 {
 using fabric::TASK_DRAW;
 
-CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
-    const uint32_t frameNumber )
-        : _frameNumber( frameNumber )
-{}
-
-VisitorResult CompoundUpdateDataVisitor::visit( Compound* compound )
+CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(const uint32_t frameNumber)
+    : _frameNumber(frameNumber)
 {
-    compound->fireUpdatePre( _frameNumber );
-    compound->updateInheritData( _frameNumber );
+}
 
-    _updateDrawFinish( compound );
+VisitorResult CompoundUpdateDataVisitor::visit(Compound* compound)
+{
+    compound->fireUpdatePre(_frameNumber);
+    compound->updateInheritData(_frameNumber);
+
+    _updateDrawFinish(compound);
     return TRAVERSE_CONTINUE;
 }
 
-
-void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
+void CompoundUpdateDataVisitor::_updateDrawFinish(Compound* compound)
 {
-    if( compound->testInheritTask( TASK_DRAW ) && compound->isActive( ))
+    if (compound->testInheritTask(TASK_DRAW) && compound->isActive())
     {
         Channel* channel = compound->getChannel();
-        channel->setLastDrawCompound( compound );
+        channel->setLastDrawCompound(compound);
     }
 }
-
 }
 }

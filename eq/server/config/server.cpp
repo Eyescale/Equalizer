@@ -36,60 +36,59 @@ namespace server
 {
 namespace config
 {
-
-Config* Server::configure( ServerPtr server, const std::string& session,
-                           const fabric::ConfigParams& params )
+Config* Server::configure(ServerPtr server, const std::string& session,
+                          const fabric::ConfigParams& params)
 {
-    if( !server->getConfigs().empty( )) // don't do more than one auto config
+    if (!server->getConfigs().empty()) // don't do more than one auto config
         return 0;
 
-    Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
+    Global::instance()->setConfigFAttribute(Config::FATTR_VERSION, 1.2f);
 
-    Config* config = new Config( server );
-    config->setName( session + " autoconfig" );
+    Config* config = new Config(server);
+    config->setName(session + " autoconfig");
 
-    if( !Resources::discover( server, config, session, params ))
+    if (!Resources::discover(server, config, session, params))
     {
         delete config;
         return 0;
     }
 
-    Display::discoverLocal( config, params );
-    const Compounds compounds = Loader::addOutputCompounds( server );
-    if( compounds.empty( ))
+    Display::discoverLocal(config, params);
+    const Compounds compounds = Loader::addOutputCompounds(server);
+    if (compounds.empty())
     {
         delete config;
         return 0;
     }
 
-    const Channels channels = Resources::configureSourceChannels( config );
-    Resources::configure( compounds, channels, params );
+    const Channels channels = Resources::configureSourceChannels(config);
+    Resources::configure(compounds, channels, params);
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";
-    configFile.open( filename.c_str( ));
-    if( configFile.is_open( ))
+    configFile.open(filename.c_str());
+    if (configFile.is_open())
     {
         std::ostream& previous = lunchbox::Log::getOutput();
 
-        lunchbox::Log::setOutput( configFile );
-        lunchbox::Log::instance( __FILE__, __LINE__ )
+        lunchbox::Log::setOutput(configFile);
+        lunchbox::Log::instance(__FILE__, __LINE__)
             << lunchbox::disableHeader << Global::instance() << *server
-            << std::endl << lunchbox::enableHeader;
-        lunchbox::Log::setOutput( previous );
+            << std::endl
+            << lunchbox::enableHeader;
+        lunchbox::Log::setOutput(previous);
 
         configFile.close();
     }
     return config;
 }
 
-void Server::release( Config* config )
+void Server::release(Config* config)
 {
     const co::Connections& connections = config->getServerConnections();
-    config->getServer()->removeListeners( connections );
+    config->getServer()->removeListeners(connections);
     delete config;
 }
-
 }
 }
 }

@@ -18,18 +18,18 @@
 #ifndef EQADMIN_SEGMENT_H
 #define EQADMIN_SEGMENT_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/segment.h>      // base class
+#include <eq/admin/types.h>    // typedefs
+#include <eq/fabric/segment.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Segment : public fabric::Segment< Canvas, Segment, Channel >
+class Segment : public fabric::Segment<Canvas, Segment, Channel>
 {
 public:
     /** Construct a new segment. @version 1.0 */
-    EQADMIN_API explicit Segment( Canvas* parent );
+    EQADMIN_API explicit Segment(Canvas* parent);
 
     /** Destruct a segment. @version 1.0 */
     EQADMIN_API virtual ~Segment();

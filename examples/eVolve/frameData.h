@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,93 +36,84 @@
 
 namespace eVolve
 {
-    class FrameData : public co::Serializable
+class FrameData : public co::Serializable
+{
+public:
+    FrameData();
+
+    void reset();
+
+    /** @name Rendering flags. */
+    //*{
+    void setOrtho(const bool ortho);
+    void adjustQuality(const float delta);
+    void toggleBackground();
+    void toggleNormalsQuality();
+    void toggleColorMode();
+    void toggleOrtho();
+    void toggleHelp();
+    void toggleStatistics();
+
+    void spinCamera(const float x, const float y);
+    void moveCamera(const float x, const float y, const float z);
+
+    void setTranslation(const eq::Vector3f& translation);
+    void setRotation(const eq::Vector3f& rotation);
+
+    bool showHelp() const { return _help; }
+    bool useOrtho() const { return _ortho; }
+    bool useStatistics() const { return _statistics; }
+    const eq::Vector3f& getTranslation() const { return _translation; }
+    const eq::Matrix4f& getRotation() const { return _rotation; }
+    float getQuality() const { return _quality; }
+    ColorMode getColorMode() const { return _colorMode; }
+    BackgroundMode getBackgroundMode() const { return _bgMode; }
+    NormalsQuality getNormalsQuality() const { return _normalsQuality; }
+    //*}
+
+    /** @name View interface. */
+    //*{
+    void setCurrentViewID(const eq::uint128_t& id);
+
+    eq::uint128_t getCurrentViewID() const { return _currentViewID; }
+    //*}
+
+    /** @name Message overlay. */
+    //*{
+    void setMessage(const std::string& message);
+    const std::string& getMessage() const { return _message; }
+    //*}
+
+protected:
+    /** @sa Object::serialize() */
+    virtual void serialize(co::DataOStream& os, const uint64_t dirtyBits);
+
+    /** @sa Object::deserialize() */
+    virtual void deserialize(co::DataIStream& is, const uint64_t dirtyBits);
+
+    virtual ChangeType getChangeType() const { return DELTA; }
+    /** The changed parts of the data since the last pack(). */
+    enum DirtyBits
     {
-    public:
-
-        FrameData();
-
-        void reset();
-
-        /** @name Rendering flags. */
-        //*{
-        void setOrtho( const bool ortho );
-        void adjustQuality( const float delta );
-        void toggleBackground();
-        void toggleNormalsQuality();
-        void toggleColorMode();
-        void toggleOrtho();
-        void toggleHelp();
-        void toggleStatistics();
-
-        void spinCamera( const float x, const float y );
-        void moveCamera( const float x, const float y, const float z );
-
-        void setTranslation( const eq::Vector3f& translation );
-        void setRotation(    const eq::Vector3f& rotation    );
-
-        bool showHelp()      const { return _help;       }
-        bool useOrtho( )     const { return _ortho;      }
-        bool useStatistics() const { return _statistics; }
-
-        const eq::Vector3f& getTranslation() const { return _translation; }
-        const eq::Matrix4f& getRotation()    const { return _rotation;    }
-        float getQuality() const { return _quality; }
-        ColorMode getColorMode() const { return _colorMode; }
-        BackgroundMode getBackgroundMode() const { return _bgMode; }
-        NormalsQuality getNormalsQuality() const { return _normalsQuality; }
-        //*}
-
-        /** @name View interface. */
-        //*{
-        void setCurrentViewID( const eq::uint128_t& id );
-
-        eq::uint128_t getCurrentViewID() const { return _currentViewID; }
-        //*}
-
-        /** @name Message overlay. */
-        //*{
-        void setMessage( const std::string& message );
-        const std::string& getMessage() const { return _message; }
-        //*}
-
-    protected:
-        /** @sa Object::serialize() */
-        virtual void serialize(         co::DataOStream& os,
-                                  const uint64_t              dirtyBits );
-
-        /** @sa Object::deserialize() */
-        virtual void deserialize(       co::DataIStream& is,
-                                  const uint64_t              dirtyBits );
-
-
-        virtual ChangeType getChangeType() const { return DELTA; }
-
-        /** The changed parts of the data since the last pack(). */
-        enum DirtyBits
-        {
-            DIRTY_CAMERA  = co::Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_FLAGS   = co::Serializable::DIRTY_CUSTOM << 1,
-            DIRTY_VIEW    = co::Serializable::DIRTY_CUSTOM << 2,
-            DIRTY_MESSAGE = co::Serializable::DIRTY_CUSTOM << 3,
-        };
-
-    private:
-
-        eq::Matrix4f    _rotation;
-        eq::Vector3f    _translation;
-        bool            _ortho;
-        ColorMode       _colorMode;
-        BackgroundMode  _bgMode;
-        NormalsQuality  _normalsQuality;
-        bool            _statistics;
-        bool            _help;
-        float           _quality;
-        eq::uint128_t   _currentViewID;
-        std::string     _message;
+        DIRTY_CAMERA = co::Serializable::DIRTY_CUSTOM << 0,
+        DIRTY_FLAGS = co::Serializable::DIRTY_CUSTOM << 1,
+        DIRTY_VIEW = co::Serializable::DIRTY_CUSTOM << 2,
+        DIRTY_MESSAGE = co::Serializable::DIRTY_CUSTOM << 3,
     };
+
+private:
+    eq::Matrix4f _rotation;
+    eq::Vector3f _translation;
+    bool _ortho;
+    ColorMode _colorMode;
+    BackgroundMode _bgMode;
+    NormalsQuality _normalsQuality;
+    bool _statistics;
+    bool _help;
+    float _quality;
+    eq::uint128_t _currentViewID;
+    std::string _message;
+};
 }
 
-
 #endif // EVOLVE_FRAMEDATA_H
-

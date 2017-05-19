@@ -19,8 +19,8 @@
 #ifndef EQSERVER_CONFIG_SERVER_H
 #define EQSERVER_CONFIG_SERVER_H
 
-#include <eq/server/api.h>
 #include "../types.h"
+#include <eq/server/api.h>
 
 namespace eq
 {
@@ -28,16 +28,14 @@ namespace server
 {
 namespace config
 {
-
 class Server
 {
 public:
-    static EQSERVER_API Config* configure( ServerPtr server,
-                                           const std::string& session,
-                                           const fabric::ConfigParams& params );
-    static EQSERVER_API void release( Config* config );
+    static EQSERVER_API Config* configure(ServerPtr server,
+                                          const std::string& session,
+                                          const fabric::ConfigParams& params);
+    static EQSERVER_API void release(Config* config);
 };
-
 }
 }
 }

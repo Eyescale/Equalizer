@@ -20,23 +20,27 @@
 #ifndef EQ_GLX_WINDOW_H
 #define EQ_GLX_WINDOW_H
 
+#include <eq/glWindow.h> // base class
 #include <eq/glx/types.h>
-#include <eq/glWindow.h>       // base class
 
 namespace eq
 {
 namespace glx
 {
-namespace detail { class Window; }
+namespace detail
+{
+class Window;
+}
 
 /** The interface defining the minimum functionality for a glX window. */
 class WindowIF : public GLWindow
 {
 public:
-    WindowIF( NotifierInterface& parent,
-              const WindowSettings& settings ) : GLWindow( parent, settings ) {}
+    WindowIF(NotifierInterface& parent, const WindowSettings& settings)
+        : GLWindow(parent, settings)
+    {
+    }
     virtual ~WindowIF() {}
-
     /** @return the glX rendering context. @version 1.0 */
     virtual GLXContext getGLXContext() const = 0;
 
@@ -47,33 +51,42 @@ public:
     virtual Display* getXDisplay() = 0;
 
     /** Process a (re)size event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, const XEvent&,
-                               SizeEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, const XEvent&, SizeEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a mouse event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, const XEvent&,
-                               PointerEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, const XEvent&,
+                              PointerEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a keyboard event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, const XEvent&, KeyEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, const XEvent&, KeyEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process an axis event. @return true if the event was handled. */
-    virtual bool processEvent( const XEvent&, AxisEvent& event )
-        { return GLWindow::processEvent( event ); }
+    virtual bool processEvent(const XEvent&, AxisEvent& event)
+    {
+        return GLWindow::processEvent(event);
+    }
 
     /** Process a button event. @return true if the event was handled. */
-    virtual bool processEvent( const XEvent&, ButtonEvent& event )
-        { return GLWindow::processEvent( event ); }
+    virtual bool processEvent(const XEvent&, ButtonEvent& event)
+    {
+        return GLWindow::processEvent(event);
+    }
 
     /** Process a stateless event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, const XEvent& )
+    virtual bool processEvent(EventType type, const XEvent&)
     {
-        if( type == EVENT_UNKNOWN )
+        if (type == EVENT_UNKNOWN)
             return false;
-        return GLWindow::processEvent( type );
+        return GLWindow::processEvent(type);
     }
 };
 
@@ -85,9 +98,9 @@ public:
      * Construct a new glX/X11 system window.
      * @version 1.7.2
      */
-    Window( NotifierInterface& parent, const WindowSettings& settings,
-            Display* xDisplay, const GLXEWContext* glxewContext,
-            MessagePump* messagePump );
+    Window(NotifierInterface& parent, const WindowSettings& settings,
+           Display* xDisplay, const GLXEWContext* glxewContext,
+           MessagePump* messagePump);
 
     /** Destruct this glX window. @version 1.0 */
     virtual ~Window();
@@ -128,7 +141,7 @@ public:
      * @return the context, or 0 if context creation failed.
      * @version 1.0
      */
-    virtual GLXContext createGLXContext( GLXFBConfig* fbConfig );
+    virtual GLXContext createGLXContext(GLXFBConfig* fbConfig);
 
     /**
      * Initialize the window's drawable and bind the glX context.
@@ -139,7 +152,7 @@ public:
      * @return true if the drawable was created, false otherwise.
      * @version 1.0
      */
-    virtual bool configInitGLXDrawable( GLXFBConfig* fbConfig );
+    virtual bool configInitGLXDrawable(GLXFBConfig* fbConfig);
 
     /**
      * Initialize the window with a window and bind the glX context.
@@ -150,7 +163,7 @@ public:
      * @return true if the window was created, false otherwise.
      * @version 1.0
      */
-    virtual bool configInitGLXWindow( GLXFBConfig* fbConfig );
+    virtual bool configInitGLXWindow(GLXFBConfig* fbConfig);
 
     /**
      * Register with the pipe's GLXEventHandler, called by setXDrawable().
@@ -188,7 +201,7 @@ public:
      * @param drawable the X11 drawable ID.
      * @version 1.0
      */
-    virtual void setXDrawable( XID drawable );
+    virtual void setXDrawable(XID drawable);
 
     /**
      * Set the glX rendering context for this window.
@@ -200,13 +213,13 @@ public:
      * @param context the glX rendering context.
      * @version 1.0
      */
-    virtual void setGLXContext( GLXContext context );
+    virtual void setGLXContext(GLXContext context);
     //@}
 
     /** @name Operations. */
     //@{
     /** @version 1.0 */
-    void makeCurrent( const bool cache = true ) const override;
+    void makeCurrent(const bool cache = true) const override;
 
     /** @version 1.10 */
     void doneCurrent() const override;
@@ -215,26 +228,26 @@ public:
     void swapBuffers() override;
 
     /** Implementation untested for glX. @version 1.0 */
-    void joinNVSwapBarrier( const uint32_t group,
-                            const uint32_t barrier ) override;
+    void joinNVSwapBarrier(const uint32_t group,
+                           const uint32_t barrier) override;
 
     /** Unbind a GLX_NV_swap_barrier. @version 1.0 */
     void leaveNVSwapBarrier();
 
-    bool processEvent( EventType type, const XEvent& xEvent,
-                       PointerEvent& event ) override;
+    bool processEvent(EventType type, const XEvent& xEvent,
+                      PointerEvent& event) override;
     //@}
 
 private:
     detail::Window* const _impl;
 
     /** Create an unmapped X11 window. */
-    XID _createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp );
+    XID _createGLXWindow(GLXFBConfig* fbConfig, const PixelViewport& pvp);
 
     /** Init sync-to-vertical-retrace setting. */
     void _initSwapSync();
 
-    void _resize( const PixelViewport& pvp ) override;
+    void _resize(const PixelViewport& pvp) override;
 };
 }
 }

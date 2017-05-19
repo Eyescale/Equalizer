@@ -17,62 +17,61 @@
 
 #include "objectMap.h"
 
-#include <eq/config.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <eq/config.h>
 
 namespace seq
 {
 namespace detail
 {
-
-ObjectMap::ObjectMap( eq::Config& config, co::ObjectFactory &factory )
-        : co::ObjectMap( config, factory )
-{}
+ObjectMap::ObjectMap(eq::Config& config, co::ObjectFactory& factory)
+    : co::ObjectMap(config, factory)
+{
+}
 
 ObjectMap::~ObjectMap()
 {
 }
 
-void ObjectMap::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+void ObjectMap::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    co::ObjectMap::serialize( os, dirtyBits );
+    co::ObjectMap::serialize(os, dirtyBits);
 
-    if( dirtyBits & DIRTY_INITDATA )
+    if (dirtyBits & DIRTY_INITDATA)
         os << _initData;
-    if( dirtyBits & DIRTY_FRAMEDATA )
+    if (dirtyBits & DIRTY_FRAMEDATA)
         os << _frameData;
 }
 
-void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+void ObjectMap::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    co::ObjectMap::deserialize( is, dirtyBits );
+    co::ObjectMap::deserialize(is, dirtyBits);
 
-    if( dirtyBits & DIRTY_INITDATA )
+    if (dirtyBits & DIRTY_INITDATA)
         is >> _initData;
-    if( dirtyBits & DIRTY_FRAMEDATA )
+    if (dirtyBits & DIRTY_FRAMEDATA)
         is >> _frameData;
 }
 
-void ObjectMap::setInitData( co::Object* object )
+void ObjectMap::setInitData(co::Object* object)
 {
     const uint128_t identifier = object ? object->getID() : uint128_t();
-    if( _initData == identifier )
+    if (_initData == identifier)
         return;
 
     _initData = identifier;
-    setDirty( DIRTY_INITDATA );
+    setDirty(DIRTY_INITDATA);
 }
 
-void ObjectMap::setFrameData( co::Object* object )
+void ObjectMap::setFrameData(co::Object* object)
 {
     const uint128_t identifier = object ? object->getID() : uint128_t();
-    if( _frameData == identifier )
+    if (_frameData == identifier)
         return;
 
     _frameData = identifier;
-    setDirty( DIRTY_FRAMEDATA );
+    setDirty(DIRTY_FRAMEDATA);
 }
-
 }
 }

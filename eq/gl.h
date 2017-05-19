@@ -33,73 +33,78 @@
 
 /** @cond IGNORE */
 #ifndef NOMINMAX
-#  define NOMINMAX
+#define NOMINMAX
 #endif
 #ifndef EQ_IGNORE_GLEW
-#  ifdef EQ_FOUND_GLEW_MX
-#    include <GL/glew.h>
-#    ifdef GLX
-#      include <GL/glxew.h>
-#    endif
-#    ifdef WGL
-#      include <GL/wglew.h>
-#    endif
-#  else
-#    include <eq/GL/glew.h>
-#    ifdef GLX
-#      include <eq/GL/glxew.h>
-#    endif
-#    ifdef WGL
-#      include <eq/GL/wglew.h>
-#    endif
-#  endif
+#ifdef EQ_FOUND_GLEW_MX
+#include <GL/glew.h>
+#ifdef GLX
+#include <GL/glxew.h>
+#endif
+#ifdef WGL
+#include <GL/wglew.h>
+#endif
+#else
+#include <eq/GL/glew.h>
+#ifdef GLX
+#include <eq/GL/glxew.h>
+#endif
+#ifdef WGL
+#include <eq/GL/wglew.h>
+#endif
+#endif
 #endif
 
 #ifdef AGL
-#  include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #else
-#  include <eq/os.h>
-#  include <GL/gl.h>
+#include <GL/gl.h>
+#include <eq/os.h>
 #endif
 
 #ifndef GL_TEXTURE_RECTANGLE_ARB
-#  define GL_TEXTURE_RECTANGLE_ARB 0x84F5
+#define GL_TEXTURE_RECTANGLE_ARB 0x84F5
 #endif
 #ifndef GLX_RGBA_FLOAT_BIT
-#  define GLX_RGBA_FLOAT_BIT GLX_RGBA_FLOAT_BIT_ARB
-#  define GLX_RGBA_FLOAT_TYPE GLX_RGBA_FLOAT_TYPE_ARB
+#define GLX_RGBA_FLOAT_BIT GLX_RGBA_FLOAT_BIT_ARB
+#define GLX_RGBA_FLOAT_TYPE GLX_RGBA_FLOAT_TYPE_ARB
 #endif
 
-# define EQ_UNKNOWN_GL_ERROR 0x1 // GL error codes seem to start at 0x500
+#define EQ_UNKNOWN_GL_ERROR 0x1 // GL error codes seem to start at 0x500
 /** @endcond */
 
 // Error-check macros
 namespace eq
 {
 /** Output an error OpenGL in a human-readable form to LBWARN */
-EQ_API void debugGLError( const std::string& when, const GLenum error,
-                          const char* file, const int line );
+EQ_API void debugGLError(const std::string& when, const GLenum error,
+                         const char* file, const int line);
 
 /** @return the given error in human-readable form. */
-EQ_API std::string glError( const GLenum error );
+EQ_API std::string glError(const GLenum error);
 }
 
 #ifdef NDEBUG
-#  define EQ_GL_ERROR( when ) {}
-#  define EQ_GL_CALL( code ) { code; }
+#define EQ_GL_ERROR(when) \
+    {                     \
+    }
+#define EQ_GL_CALL(code) \
+    {                    \
+        code;            \
+    }
 #else // NDEBUG
-#  define EQ_GL_ERROR( when )                                           \
-    {                                                                   \
-        const GLenum eqGlError = glGetError();                          \
-        if( eqGlError )                                                 \
-            eq::debugGLError( when, eqGlError, __FILE__, __LINE__ );    \
+#define EQ_GL_ERROR(when)                                          \
+    {                                                              \
+        const GLenum eqGlError = glGetError();                     \
+        if (eqGlError)                                             \
+            eq::debugGLError(when, eqGlError, __FILE__, __LINE__); \
     }
 
-#  define EQ_GL_CALL( code )                              \
-    {                                                     \
-        EQ_GL_ERROR( std::string( "before " ) + #code );  \
-        code;                                             \
-        EQ_GL_ERROR( std::string( "after " ) + #code );   \
+#define EQ_GL_CALL(code)                             \
+    {                                                \
+        EQ_GL_ERROR(std::string("before ") + #code); \
+        code;                                        \
+        EQ_GL_ERROR(std::string("after ") + #code);  \
     }
 #endif // NDEBUG
 

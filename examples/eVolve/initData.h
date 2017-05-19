@@ -36,42 +36,39 @@
 
 namespace eVolve
 {
-    class InitData : public co::Object
+class InitData : public co::Object
+{
+public:
+    InitData();
+    virtual ~InitData();
+
+    void setFrameDataID(const eq::uint128_t& id) { _frameDataID = id; }
+    eq::uint128_t getFrameDataID() const { return _frameDataID; }
+    const std::string& getWindowSystem() const { return _windowSystem; }
+    uint32_t getPrecision() const { return _precision; }
+    float getBrightness() const { return _brightness; }
+    float getAlpha() const { return _alpha; }
+    const std::string& getFilename() const { return _filename; }
+protected:
+    virtual void getInstanceData(co::DataOStream& os);
+    virtual void applyInstanceData(co::DataIStream& is);
+
+    void setWindowSystem(const std::string& windowSystem)
     {
-    public:
-        InitData();
-        virtual ~InitData();
-
-        void setFrameDataID( const eq::uint128_t& id )   { _frameDataID = id; }
-
-        eq::uint128_t      getFrameDataID()  const { return _frameDataID;  }
-        const std::string& getWindowSystem() const { return _windowSystem; }
-        uint32_t           getPrecision()    const { return _precision;    }
-        float              getBrightness()   const { return _brightness;   }
-        float              getAlpha()        const { return _alpha;        }
-        const std::string& getFilename()     const { return _filename;     }
-
-    protected:
-        virtual void getInstanceData(   co::DataOStream& os );
-        virtual void applyInstanceData( co::DataIStream& is );
-
-        void setWindowSystem( const std::string& windowSystem )
-            { _windowSystem = windowSystem; }
-        void setPrecision( const uint32_t precision ){ _precision = precision; }
-        void setBrightness( const float brightness ) {_brightness = brightness;}
-        void setAlpha( const float alpha )           { _alpha = alpha;}
-        void setFilename( const std::string& filename ) { _filename = filename;}
-
-    private:
-        eq::uint128_t _frameDataID;
-        std::string   _windowSystem;
-        uint32_t      _precision;
-        float         _brightness;
-        float         _alpha;
-        std::string   _filename;
-    };
+        _windowSystem = windowSystem;
+    }
+    void setPrecision(const uint32_t precision) { _precision = precision; }
+    void setBrightness(const float brightness) { _brightness = brightness; }
+    void setAlpha(const float alpha) { _alpha = alpha; }
+    void setFilename(const std::string& filename) { _filename = filename; }
+private:
+    eq::uint128_t _frameDataID;
+    std::string _windowSystem;
+    uint32_t _precision;
+    float _brightness;
+    float _alpha;
+    std::string _filename;
+};
 }
 
-
 #endif // EVOLVE_INITDATA_H
-

@@ -35,24 +35,29 @@
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Pipe*    createPipe( eq::Node* parent )
-        { return new eqAsync::Pipe( parent ); }
+    virtual eq::Pipe* createPipe(eq::Node* parent)
+    {
+        return new eqAsync::Pipe(parent);
+    }
 
-    virtual eq::Window*  createWindow( eq::Pipe* parent )
-        { return new eqAsync::Window( parent ); }
+    virtual eq::Window* createWindow(eq::Pipe* parent)
+    {
+        return new eqAsync::Window(parent);
+    }
 
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new eqAsync::Channel( parent ); }
+    virtual eq::Channel* createChannel(eq::Window* parent)
+    {
+        return new eqAsync::Channel(parent);
+    }
 };
 
-
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
-    for( int i=1; i < argc; ++i )
+    for (int i = 1; i < argc; ++i)
     {
-        if( std::string( argv[ i ]) == "--help" )
+        if (std::string(argv[i]) == "--help")
         {
-            std::cout << lunchbox::getFilename( argv[0] )
+            std::cout << lunchbox::getFilename(argv[0])
                       << ": asynchronous GPU upload example" << std::endl
                       << eq::getHelp() << eq::Client::getHelp() << std::endl;
             return EXIT_SUCCESS;
@@ -61,7 +66,7 @@ int main( const int argc, char** argv )
 
     // 1. Equalizer initialization
     NodeFactory nodeFactory;
-    if( !eq::init( argc, argv, &nodeFactory ))
+    if (!eq::init(argc, argv, &nodeFactory))
     {
         LBERROR << "Equalizer init failed" << std::endl;
         eq::exit();
@@ -69,18 +74,18 @@ int main( const int argc, char** argv )
     }
 
     // 2. get a configuration
-    bool        error  = false;
-    eq::Config* config = eq::getConfig( argc, argv );
-    if( config )
+    bool error = false;
+    eq::Config* config = eq::getConfig(argc, argv);
+    if (config)
     {
         // 3. init config
-        if( config->init( co::uint128_t( )))
+        if (config->init(co::uint128_t()))
         {
             // 4. run main loop
             eq::uint128_t spin;
-            while( config->isRunning( ))
+            while (config->isRunning())
             {
-                config->startFrame( ++spin );
+                config->startFrame(++spin);
                 config->finishFrame();
             }
 
@@ -91,7 +96,7 @@ int main( const int argc, char** argv )
             error = true;
 
         // 6. release config
-        eq::releaseConfig( config );
+        eq::releaseConfig(config);
     }
     else
     {

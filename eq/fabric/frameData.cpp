@@ -26,16 +26,14 @@ namespace eq
 {
 namespace fabric
 {
-
-void FrameData::serialize( co::DataOStream& os ) const
+void FrameData::serialize(co::DataOStream& os) const
 {
     os << _pvp << _context << _zoom << _frameType << _buffers;
 }
 
-void FrameData::deserialize( co::DataIStream& is )
+void FrameData::deserialize(co::DataIStream& is)
 {
     is >> _pvp >> _context >> _zoom >> _frameType >> _buffers;
 }
-
 }
 }

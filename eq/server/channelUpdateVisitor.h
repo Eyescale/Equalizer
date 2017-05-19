@@ -21,64 +21,59 @@
 #include "compoundVisitor.h" // base class
 #include "types.h"
 
-#include <eq/fabric/eye.h>         // member
+#include <eq/fabric/eye.h> // member
 
 namespace eq
 {
 namespace server
 {
-
 /** The compound visitor generating the draw tasks for a channel. */
 class ChannelUpdateVisitor : public CompoundVisitor
 {
 public:
-    ChannelUpdateVisitor( Channel* channel, const uint128_t frameID,
-                          const uint32_t frameNumber );
+    ChannelUpdateVisitor(Channel* channel, const uint128_t frameID,
+                         const uint32_t frameNumber);
     virtual ~ChannelUpdateVisitor() {}
-
-    void setEye( const fabric::Eye eye ) { _eye = eye; }
-
+    void setEye(const fabric::Eye eye) { _eye = eye; }
     /** Visit a non-leaf compound on the down traversal. */
-    virtual VisitorResult visitPre( const Compound* compound );
+    virtual VisitorResult visitPre(const Compound* compound);
     /** Visit a leaf compound. */
-    virtual VisitorResult visitLeaf( const Compound* compound );
+    virtual VisitorResult visitLeaf(const Compound* compound);
     /** Visit a non-leaf compound on the up traversal. */
-    virtual VisitorResult visitPost( const Compound* compound );
+    virtual VisitorResult visitPost(const Compound* compound);
 
     bool isUpdated() const { return _updated; }
-
 private:
-    Channel*        _channel;
-    fabric::Eye     _eye;
+    Channel* _channel;
+    fabric::Eye _eye;
     const uint128_t _frameID;
-    const uint32_t  _frameNumber;
-    bool            _updated;
+    const uint32_t _frameNumber;
+    bool _updated;
 
-    bool _skipCompound( const Compound* compound );
-    void _sendClear( const RenderContext& context );
+    bool _skipCompound(const Compound* compound);
+    void _sendClear(const RenderContext& context);
 
-    void _updateDraw( const Compound* compound,
-                      const RenderContext& context );
-    void _updateDrawTiles( const Compound* compound,
-                           const RenderContext& context );
-    void _updateDrawFinish( const Compound* compound ) const;
-    void _updateFrameRate( const Compound* compound ) const;
+    void _updateDraw(const Compound* compound, const RenderContext& context);
+    void _updateDrawTiles(const Compound* compound,
+                          const RenderContext& context);
+    void _updateDrawFinish(const Compound* compound) const;
+    void _updateFrameRate(const Compound* compound) const;
 
-    uint32_t _getDrawBuffer( const Compound* compound ) const;
-    fabric::ColorMask _getDrawBufferMask( const Compound* compound ) const;
+    uint32_t _getDrawBuffer(const Compound* compound) const;
+    fabric::ColorMask _getDrawBufferMask(const Compound* compound) const;
 
-    RenderContext _setupRenderContext( const Compound* compound );
+    RenderContext _setupRenderContext(const Compound* compound);
 
-    void _updatePostDraw( const Compound* compound,
-                          const fabric::RenderContext& context );
-    void _updateAssemble( const Compound* compound,
-                          const fabric::RenderContext& context );
-    void _updateReadback( const Compound* compound,
-                          const fabric::RenderContext& context );
-    void _updateViewStart( const Compound* compound,
-                           const fabric::RenderContext& context );
-    void _updateViewFinish( const Compound* compound,
-                            const fabric::RenderContext& context );
+    void _updatePostDraw(const Compound* compound,
+                         const fabric::RenderContext& context);
+    void _updateAssemble(const Compound* compound,
+                         const fabric::RenderContext& context);
+    void _updateReadback(const Compound* compound,
+                         const fabric::RenderContext& context);
+    void _updateViewStart(const Compound* compound,
+                          const fabric::RenderContext& context);
+    void _updateViewFinish(const Compound* compound,
+                           const fabric::RenderContext& context);
 };
 }
 }

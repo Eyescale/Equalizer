@@ -20,8 +20,8 @@
 #ifndef EQSERVER_NODE_H
 #define EQSERVER_NODE_H
 
-#include "config.h"                // used in inline method
-#include "state.h"                 // enum
+#include "config.h" // used in inline method
+#include "state.h"  // enum
 #include "types.h"
 
 #include <eq/fabric/node.h> // base class
@@ -38,11 +38,11 @@ namespace eq
 namespace server
 {
 /** The node. */
-class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
+class Node : public fabric::Node<Config, Node, Pipe, NodeVisitor>
 {
 public:
     /** Construct a new Node. */
-    EQSERVER_API explicit Node( Config* parent );
+    EQSERVER_API explicit Node(Config* parent);
 
     virtual ~Node();
 
@@ -52,19 +52,15 @@ public:
     ConstServerPtr getServer() const;
 
     co::NodePtr getNode() const { return _node; }
-    void setNode( co::NodePtr node ) { _node = node; }
-
-    void setHost( const std::string& host ) { _host = host; }
+    void setNode(co::NodePtr node) { _node = node; }
+    void setHost(const std::string& host) { _host = host; }
     const std::string& getHost() const { return _host; }
-
-    Channel* getChannel( const ChannelPath& path );
+    Channel* getChannel(const ChannelPath& path);
 
     /** @return the state of this node. */
-    State getState()    const { return _state.get(); }
-
+    State getState() const { return _state.get(); }
     /** @internal */
-    void setState( const State state ) { _state = state; }
-
+    void setState(const State state) { _state = state; }
     co::CommandQueue* getMainThreadQueue();
     co::CommandQueue* getCommandThreadQueue();
 
@@ -75,25 +71,20 @@ public:
     void deactivate();
 
     /** @return if this pipe is actively used for rendering. */
-    bool isActive() const { return ( _active != 0 ); }
-
+    bool isActive() const { return (_active != 0); }
     /** @return if this node is running. */
     bool isRunning() const { return _state == STATE_RUNNING; }
-
     /** @return if this node is stopped. */
     bool isStopped() const { return _state == STATE_STOPPED; }
-
     /**
      * Add additional tasks this pipe, and all its parents, might
      * potentially execute.
      */
-    void addTasks( const uint32_t tasks );
+    void addTasks(const uint32_t tasks);
 
     /** The last drawing channel for this entity. */
-    void setLastDrawPipe( const Pipe* pipe )
-    { _lastDrawPipe = pipe; }
-    const Pipe* getLastDrawPipe() const { return _lastDrawPipe;}
-
+    void setLastDrawPipe(const Pipe* pipe) { _lastDrawPipe = pipe; }
+    const Pipe* getLastDrawPipe() const { return _lastDrawPipe; }
     /** @return the number of the last finished frame. @internal */
     uint32_t getFinishedFrame() const { return _finishedFrame; }
     //@}
@@ -109,10 +100,10 @@ public:
     bool launch();
 
     /** Synchronize the connection of a render slave launch. */
-    bool syncLaunch( const lunchbox::Clock& time );
+    bool syncLaunch(const lunchbox::Clock& time);
 
     /** Start initializing this entity. */
-    void configInit( const uint128_t& initID, const uint32_t frameNumber );
+    void configInit(const uint128_t& initID, const uint32_t frameNumber);
 
     /** Sync initialization of this entity. */
     bool syncConfigInit();
@@ -130,17 +121,17 @@ public:
      *                methods.
      * @param frameNumber the number of the frame.
      */
-    void update( const uint128_t& frameID, const uint32_t frameNumber );
+    void update(const uint128_t& frameID, const uint32_t frameNumber);
 
     /**
      * Flush the processing of frames, including frameNumber.
      *
      * @param frameNumber the number of the frame.
      */
-    void flushFrames( const uint32_t frameNumber );
+    void flushFrames(const uint32_t frameNumber);
 
     /** Synchronize the completion of the rendering of a frame. */
-    void finishFrame( const uint32_t frame );
+    void finishFrame(const uint32_t frame);
     //@}
 
     /**
@@ -161,15 +152,15 @@ public:
      *
      * @param barrier the barrier.
      */
-    void releaseBarrier( co::Barrier* barrier );
+    void releaseBarrier(co::Barrier* barrier);
 
     /** Change the latency on all objects (barrier) */
-    void changeLatency( const uint32_t latency );
+    void changeLatency(const uint32_t latency);
     //@}
 
-    co::ObjectOCommand send( const uint32_t cmd );
-    co::ObjectOCommand send( const uint32_t cmd, const uint128_t& id );
-    EventOCommand sendError( const uint32_t error );
+    co::ObjectOCommand send(const uint32_t cmd);
+    co::ObjectOCommand send(const uint32_t cmd, const uint128_t& id);
+    EventOCommand sendError(const uint32_t error);
 
     void flushSendBuffer();
 
@@ -178,8 +169,10 @@ public:
      *
      * @param desc the connection description.
      */
-    void addConnectionDescription( co::ConnectionDescriptionPtr desc )
-    { _connectionDescriptions.push_back( desc ); }
+    void addConnectionDescription(co::ConnectionDescriptionPtr desc)
+    {
+        _connectionDescriptions.push_back(desc);
+    }
 
     /**
      * Remove a connection description.
@@ -188,12 +181,13 @@ public:
      * @return true if the connection description was removed, false otherwise.
      */
     EQSERVER_API bool removeConnectionDescription(
-        co::ConnectionDescriptionPtr cd );
+        co::ConnectionDescriptionPtr cd);
 
     /** @return the vector of connection descriptions. */
-    const co::ConnectionDescriptions& getConnectionDescriptions()
-        const { return _connectionDescriptions; }
-
+    const co::ConnectionDescriptions& getConnectionDescriptions() const
+    {
+        return _connectionDescriptions;
+    }
 
     /** @name Attributes */
     //@{
@@ -214,29 +208,29 @@ public:
     };
 
     /** @internal Set a string integer attribute. */
-    EQSERVER_API void setSAttribute( const SAttribute attr, const std::string& value );
+    EQSERVER_API void setSAttribute(const SAttribute attr,
+                                    const std::string& value);
 
     /** @internal Set a character integer attribute. */
-    void setCAttribute( const CAttribute attr, const char value );
+    void setCAttribute(const CAttribute attr, const char value);
 
     /** @return the value of a node string attribute. @version 1.0 */
-    const std::string& getSAttribute( const SAttribute attr ) const;
+    const std::string& getSAttribute(const SAttribute attr) const;
 
     /** @return the value of a node string attribute. @version 1.0 */
-    char getCAttribute( const CAttribute attr ) const;
+    char getCAttribute(const CAttribute attr) const;
 
     /** @internal @return the name of a node string attribute. */
-    static const std::string& getSAttributeString( const SAttribute attr );
+    static const std::string& getSAttributeString(const SAttribute attr);
     /** @internal @return the name of a node character attribute. */
-    static const std::string& getCAttributeString( const CAttribute attr );
+    static const std::string& getCAttributeString(const CAttribute attr);
     //@}
 
-    void output( std::ostream& os ) const; //!< @internal
+    void output(std::ostream& os) const; //!< @internal
 
 protected:
-
     /** @sa co::Object::attach. */
-    virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    virtual void attach(const uint128_t& id, const uint32_t instanceID);
 
 private:
     /** String attributes. */
@@ -256,7 +250,7 @@ private:
     /** The list of descriptions on how this node is reachable. */
     co::ConnectionDescriptions _connectionDescriptions;
 
-    typedef std::unordered_map< uint32_t, co::uint128_t > FrameIDHash;
+    typedef std::unordered_map<uint32_t, co::uint128_t> FrameIDHash;
     /** The frame identifiers non-finished frames. */
     FrameIDHash _frameIDs;
 
@@ -267,7 +261,7 @@ private:
     uint32_t _flushedFrame;
 
     /** The current state for state change synchronization. */
-    lunchbox::Monitor< State > _state;
+    lunchbox::Monitor<State> _state;
 
     /** The cached barriers. */
     std::vector<co::Barrier*> _barriers;
@@ -288,23 +282,23 @@ private:
      * @param description the connection description.
      * @return true on success, false otherwise
      */
-    bool _launch( const std::string& hostname ) const;
+    bool _launch(const std::string& hostname) const;
     std::string _createLaunchCommand() const;
-    std::string   _createRemoteCommand() const;
+    std::string _createRemoteCommand() const;
 
     uint32_t _getFinishLatency() const;
-    void _finish( const uint32_t currentFrame );
+    void _finish(const uint32_t currentFrame);
 
     /** flush cached barriers. */
     void _flushBarriers();
 
     /** Send the frame finish command for the given frame number. */
-    void _sendFrameFinish( const uint32_t frameNumber );
+    void _sendFrameFinish(const uint32_t frameNumber);
 
     /* ICommand handler functions. */
-    bool _cmdConfigInitReply( co::ICommand& command );
-    bool _cmdConfigExitReply( co::ICommand& command );
-    bool _cmdFrameFinishReply( co::ICommand& command );
+    bool _cmdConfigInitReply(co::ICommand& command);
+    bool _cmdConfigExitReply(co::ICommand& command);
+    bool _cmdFrameFinishReply(co::ICommand& command);
 };
 }
 }

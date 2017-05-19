@@ -23,15 +23,15 @@
 
 namespace eq
 {
-ImageOp::ImageOp( const Frame* frame, const Image* img )
-    : image( img )
-    , buffers( frame->getFrameData()->getBuffers( ))
-    , offset( frame->getFrameData()->getContext().offset )
-    , zoom( frame->getZoom( ))
+ImageOp::ImageOp(const Frame* frame, const Image* img)
+    : image(img)
+    , buffers(frame->getFrameData()->getBuffers())
+    , offset(frame->getFrameData()->getContext().offset)
+    , zoom(frame->getZoom())
 {
     ConstFrameDataPtr data = frame->getFrameData();
-    zoom.apply( data->getZoom( ));
-    zoom.apply( image->getZoom( ));
+    zoom.apply(data->getZoom());
+    zoom.apply(image->getZoom());
     zoomFilter = zoom == Zoom::NONE ? FILTER_NEAREST : frame->getZoomFilter();
 }
 }

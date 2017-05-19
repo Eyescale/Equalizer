@@ -21,14 +21,14 @@
 
 #include "../types.h"
 
-#define EQ_SERVER_CONFIG_LAYOUT_SIMPLE      "Simple"
-#define EQ_SERVER_CONFIG_LAYOUT_2D_STATIC   "Static2D"
-#define EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  "Dynamic2D"
-#define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC   "StaticDB"
-#define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
-#define EQ_SERVER_CONFIG_LAYOUT_DB_DS       "DBDirectSend"
-#define EQ_SERVER_CONFIG_LAYOUT_DB_2D       "DB_2D"
-#define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL    "Subpixel"
+#define EQ_SERVER_CONFIG_LAYOUT_SIMPLE "Simple"
+#define EQ_SERVER_CONFIG_LAYOUT_2D_STATIC "Static2D"
+#define EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC "Dynamic2D"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC "StaticDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC "DynamicDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DS "DBDirectSend"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_2D "DB_2D"
+#define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL "Subpixel"
 
 namespace eq
 {
@@ -36,36 +36,34 @@ namespace server
 {
 namespace config
 {
-
 class Resources
 {
 public:
-    static bool discover( ServerPtr server, Config* config,
-                          const std::string& session,
-                          const fabric::ConfigParams& params );
-    static Channels configureSourceChannels( Config* config );
-    static void configure( const Compounds& compounds, const Channels& channels,
-                           const fabric::ConfigParams& params );
+    static bool discover(ServerPtr server, Config* config,
+                         const std::string& session,
+                         const fabric::ConfigParams& params);
+    static Channels configureSourceChannels(Config* config);
+    static void configure(const Compounds& compounds, const Channels& channels,
+                          const fabric::ConfigParams& params);
 
 private:
-    static Compound* _addMonoCompound( Compound* root, const Channels& channels,
-                                       const fabric::ConfigParams& params );
-    static Compound* _addStereoCompound( Compound* root,
-                                         const Channels& channels,
-                                         const fabric::ConfigParams& params );
-    static Compound* _add2DCompound( Compound* root, const Channels& channels,
-                                     fabric::ConfigParams params );
-    static Compound* _addDBCompound( Compound* root, const Channels& channels,
-                                     fabric::ConfigParams params );
-    static Compound* _addDSCompound( Compound* root, const Channels& channels );
-    static Compound* _addDB2DCompound( Compound* root, const Channels& channels,
-                                       fabric::ConfigParams params );
-    static Compound* _addSubpixelCompound( Compound* root, const Channels& );
-    static const Compounds& _addSources( Compound* compound, const Channels&,
-                                         const bool destChannelFrame = false );
-    static void _fill2DCompound( Compound* compound, const Channels& channels );
+    static Compound* _addMonoCompound(Compound* root, const Channels& channels,
+                                      const fabric::ConfigParams& params);
+    static Compound* _addStereoCompound(Compound* root,
+                                        const Channels& channels,
+                                        const fabric::ConfigParams& params);
+    static Compound* _add2DCompound(Compound* root, const Channels& channels,
+                                    fabric::ConfigParams params);
+    static Compound* _addDBCompound(Compound* root, const Channels& channels,
+                                    fabric::ConfigParams params);
+    static Compound* _addDSCompound(Compound* root, const Channels& channels);
+    static Compound* _addDB2DCompound(Compound* root, const Channels& channels,
+                                      fabric::ConfigParams params);
+    static Compound* _addSubpixelCompound(Compound* root, const Channels&);
+    static const Compounds& _addSources(Compound* compound, const Channels&,
+                                        const bool destChannelFrame = false);
+    static void _fill2DCompound(Compound* compound, const Channels& channels);
 };
-
 }
 }
 }

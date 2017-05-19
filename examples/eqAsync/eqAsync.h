@@ -36,51 +36,56 @@
 
 namespace eqAsync
 {
-
 /* Simple Channel class */
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+    Channel(eq::Window* parent)
+        : eq::Channel(parent)
+    {
+    }
 
 protected:
-    virtual void frameDraw( const eq::uint128_t& spin );
+    virtual void frameDraw(const eq::uint128_t& spin);
 };
-
 
 /* Simple Window class that will call init of the pipe to create a shared
    context */
 class Window : public eq::Window
 {
 public:
-    Window( eq::Pipe* parent ) : eq::Window( parent ) {}
-    bool configInitGL( const eq::uint128_t& initID );
+    Window(eq::Pipe* parent)
+        : eq::Window(parent)
+    {
+    }
+    bool configInitGL(const eq::uint128_t& initID);
 };
-
 
 /* Simple Pipe class that creates a shared window for async fetching */
 class Pipe : public eq::Pipe
 {
 public:
-    Pipe( eq::Node* parent )
-            : eq::Pipe( parent ), _initialized( false ), _txId( 0 ) {}
+    Pipe(eq::Node* parent)
+        : eq::Pipe(parent)
+        , _initialized(false)
+        , _txId(0)
+    {
+    }
 
-    void startAsyncFetcher( Window* wnd );
+    void startAsyncFetcher(Window* wnd);
     AsyncFetcher& getAsyncFetcher() { return _asyncFetcher; }
     GLuint getTextureId() const { return _txId.id; }
-
 protected:
     /* checks if new textures are avaliable */
-    virtual void frameStart( const eq::uint128_t& frameID, 
-                             const uint32_t frameNumber );
+    virtual void frameStart(const eq::uint128_t& frameID,
+                            const uint32_t frameNumber);
     virtual bool configExit();
 
 private:
-    bool         _initialized;
+    bool _initialized;
     AsyncFetcher _asyncFetcher;
-    TextureId    _txId;
+    TextureId _txId;
 };
-
 }
 
 #endif // EQASYNC_ASYNC_H

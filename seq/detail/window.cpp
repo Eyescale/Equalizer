@@ -22,18 +22,18 @@
 #include "pipe.h"
 #include "renderer.h"
 
-#include <seq/renderer.h>
-#include <eq/util/objectManager.h>
 #include <eq/fabric/event.h>
+#include <eq/util/objectManager.h>
+#include <seq/renderer.h>
 
 namespace seq
 {
 namespace detail
 {
-
-Window::Window( eq::Pipe* parent )
-    : eq::Window( parent )
-{}
+Window::Window(eq::Pipe* parent)
+    : eq::Window(parent)
+{
+}
 
 Window::~Window()
 {
@@ -41,12 +41,12 @@ Window::~Window()
 
 Config* Window::getConfig()
 {
-    return static_cast< Config* >( eq::Window::getConfig( ));
+    return static_cast<Config*>(eq::Window::getConfig());
 }
 
 Pipe* Window::getPipe()
 {
-    return static_cast< Pipe* >( eq::Window::getPipe( ));
+    return static_cast<Pipe*>(eq::Window::getPipe());
 }
 
 seq::Renderer* Window::getRenderer()
@@ -59,102 +59,102 @@ detail::Renderer* Window::getRendererImpl()
     return getPipe()->getRendererImpl();
 }
 
-void Window::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+void Window::frameStart(const uint128_t& frameID, const uint32_t frameNumber)
 {
-    getRendererImpl()->setWindow( this );
-    eq::Window::frameStart( frameID, frameNumber );
+    getRendererImpl()->setWindow(this);
+    eq::Window::frameStart(frameID, frameNumber);
 }
 
-void Window::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
+void Window::frameFinish(const uint128_t& frameID, const uint32_t frameNumber)
 {
-    getRendererImpl()->setWindow( 0 );
-    eq::Window::frameFinish( frameID, frameNumber );
+    getRendererImpl()->setWindow(0);
+    eq::Window::frameFinish(frameID, frameNumber);
 }
 
-bool Window::configInitGL( const uint128_t& )
+bool Window::configInitGL(const uint128_t&)
 {
     Renderer* rendererImpl = getRendererImpl();
-    rendererImpl->setWindow( this );
+    rendererImpl->setWindow(this);
 
     co::Object* initData = getConfig()->getInitData();
     seq::Renderer* const renderer = getRenderer();
     const bool first = !getObjectManager().isShared();
 
-    if( first && !renderer->init( initData ))
+    if (first && !renderer->init(initData))
     {
-        rendererImpl->setWindow( 0 );
+        rendererImpl->setWindow(0);
         return false;
     }
-    const bool ret = renderer->initContext( initData );
+    const bool ret = renderer->initContext(initData);
 
-    rendererImpl->setWindow( 0 );
+    rendererImpl->setWindow(0);
     return ret;
 }
 
 bool Window::configExitGL()
 {
     Renderer* rendererImpl = getRendererImpl();
-    rendererImpl->setWindow( this );
+    rendererImpl->setWindow(this);
     seq::Renderer* const renderer = getRenderer();
     const bool last = !getObjectManager().isShared();
 
     bool ret = renderer->exitContext();
-    if( last && !renderer->exit( ))
+    if (last && !renderer->exit())
         ret = false;
 
-    rendererImpl->setWindow( 0 );
+    rendererImpl->setWindow(0);
     return ret;
 }
 
-bool Window::processEvent( const eq::EventType type )
+bool Window::processEvent(const eq::EventType type)
 {
     seq::Renderer* const renderer = getRenderer();
-    if( renderer->processEvent( EventType( type )))
+    if (renderer->processEvent(EventType(type)))
         return true;
-    return eq::Window::processEvent( type );
+    return eq::Window::processEvent(type);
 }
 
-template< class E >
-bool Window::_processEvent( const eq::EventType type, E& event )
+template <class E>
+bool Window::_processEvent(const eq::EventType type, E& event)
 {
     seq::Renderer* const renderer = getRenderer();
-    if( renderer->processEvent( EventType( type ), event ))
+    if (renderer->processEvent(EventType(type), event))
         return true;
-    return eq::Window::processEvent( type, event );
+    return eq::Window::processEvent(type, event);
 }
 
-template< class E > bool Window::_processEvent( E& event )
+template <class E>
+bool Window::_processEvent(E& event)
 {
     seq::Renderer* const renderer = getRenderer();
-    if( renderer->processEvent( event ))
+    if (renderer->processEvent(event))
         return true;
-    return eq::Window::processEvent( event );
+    return eq::Window::processEvent(event);
 }
 
-bool Window::processEvent( const eq::EventType type, SizeEvent& event )
+bool Window::processEvent(const eq::EventType type, SizeEvent& event)
 {
-    return _processEvent( type, event );
+    return _processEvent(type, event);
 }
 
-bool Window::processEvent( const eq::EventType type, PointerEvent& event )
+bool Window::processEvent(const eq::EventType type, PointerEvent& event)
 {
-    return _processEvent( type, event );
+    return _processEvent(type, event);
 }
 
-bool Window::processEvent( const eq::EventType type, KeyEvent& event )
+bool Window::processEvent(const eq::EventType type, KeyEvent& event)
 {
-    return _processEvent( type, event );
+    return _processEvent(type, event);
 }
 
-bool Window::processEvent( AxisEvent& event )
+bool Window::processEvent(AxisEvent& event)
 {
-    return _processEvent( event );
+    return _processEvent(event);
 }
 
-bool Window::processEvent( ButtonEvent& event )
+bool Window::processEvent(ButtonEvent& event)
 {
-    return _processEvent( event );
+    return _processEvent(event);
 }
-
 }
 }

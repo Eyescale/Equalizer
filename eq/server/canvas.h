@@ -19,9 +19,9 @@
 #ifndef EQSERVER_CANVAS_H
 #define EQSERVER_CANVAS_H
 
-#include <eq/server/api.h>
 #include "types.h"
-#include "visitorResult.h"  // enum
+#include "visitorResult.h" // enum
+#include <eq/server/api.h>
 
 #include <eq/fabric/canvas.h> // base class
 
@@ -33,11 +33,11 @@ namespace eq
 namespace server
 {
 /** The canvas. @sa eq::Canvas */
-class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
+class Canvas : public fabric::Canvas<Config, Canvas, Segment, Layout>
 {
 public:
     /** Construct a new Canvas. */
-    EQSERVER_API explicit Canvas( Config* parent );
+    EQSERVER_API explicit Canvas(Config* parent);
 
     /** Destruct this canvas. */
     virtual ~Canvas();
@@ -48,14 +48,12 @@ public:
     ServerPtr getServer();
 
     /** @return the segment of the given path. */
-    Segment* getSegment( const SegmentPath& path );
+    Segment* getSegment(const SegmentPath& path);
 
     /** @return true if this canvas is initialized. */
     bool isStopped() const { return _state == STATE_STOPPED; }
-
     /** @return true if this canvas is initialized. */
     bool isRunning() const { return _state == STATE_RUNNING; }
-
     /** @return true if this canvas should be deleted. */
     bool needsDelete() const { return _state == STATE_DELETE; }
     //@}
@@ -72,25 +70,22 @@ public:
     //@}
 
 protected:
-    virtual void activateLayout( const uint32_t index );
+    virtual void activateLayout(const uint32_t index);
 
 private:
     enum State
     {
-        STATE_STOPPED = 0,  // next: RUNNING
-        STATE_RUNNING,      // next: STOPPED or DELETE
-        STATE_DELETE,       // next: destructor
-    }
-        _state;
+        STATE_STOPPED = 0, // next: RUNNING
+        STATE_RUNNING,     // next: STOPPED or DELETE
+        STATE_DELETE,      // next: destructor
+    } _state;
 
     struct Private;
     Private* _private; // placeholder for binary-compatible changes
 
     /** Run-time layout switch */
-    void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
-
+    void _switchLayout(const uint32_t oldIndex, const uint32_t newIndex);
 };
-
 }
 }
 #endif // EQSERVER_CANVAS_H

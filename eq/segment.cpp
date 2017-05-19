@@ -28,11 +28,11 @@
 
 namespace eq
 {
-typedef fabric::Segment< Canvas, Segment, Channel > Super;
+typedef fabric::Segment<Canvas, Segment, Channel> Super;
 
-Segment::Segment( Canvas* parent )
-        : Super( parent )
-        , _impl( 0 )
+Segment::Segment(Canvas* parent)
+    : Super(parent)
+    , _impl(0)
 {
 }
 
@@ -42,28 +42,27 @@ Segment::~Segment()
 
 Config* Segment::getConfig()
 {
-    LBASSERT( getCanvas() );
+    LBASSERT(getCanvas());
     return getCanvas() ? getCanvas()->getConfig() : 0;
 }
 
 const Config* Segment::getConfig() const
 {
-    LBASSERT( getCanvas() );
+    LBASSERT(getCanvas());
     return getCanvas() ? getCanvas()->getConfig() : 0;
 }
 
 ServerPtr Segment::getServer()
 {
     Canvas* canvas = getCanvas();
-    LBASSERT( canvas );
-    return ( canvas ? canvas->getServer() : 0 );
+    LBASSERT(canvas);
+    return (canvas ? canvas->getServer() : 0);
 }
-
 }
 
 #include <eq/fabric/segment.ipp>
-template class eq::fabric::Segment< eq::Canvas, eq::Segment, eq::Channel >;
+template class eq::fabric::Segment<eq::Canvas, eq::Segment, eq::Channel>;
 /** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::Super& );
+template EQFABRIC_API std::ostream& eq::fabric::operator<<(std::ostream&,
+                                                           const eq::Super&);
 /** @endcond */

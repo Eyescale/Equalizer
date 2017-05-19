@@ -30,8 +30,11 @@ class Tile
 {
 public:
     Tile() {}
-    Tile( const PixelViewport& pvp_, const Viewport& vp_ )
-        : pvp( pvp_ ), vp( vp_ ) {}
+    Tile(const PixelViewport& pvp_, const Viewport& vp_)
+        : pvp(pvp_)
+        , vp(vp_)
+    {
+    }
 
     Frustumf frustum;
     Frustumf ortho;

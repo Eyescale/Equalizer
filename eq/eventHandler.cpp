@@ -21,28 +21,26 @@
 
 namespace eq
 {
-
-void EventHandler::_computePointerDelta( const EventType type,
-                                         PointerEvent& event )
+void EventHandler::_computePointerDelta(const EventType type,
+                                        PointerEvent& event)
 {
-    switch( type )
+    switch (type)
     {
-        case EVENT_WINDOW_POINTER_BUTTON_PRESS:
-        case EVENT_WINDOW_POINTER_BUTTON_RELEASE:
-            if( _lastEventType == EVENT_WINDOW_POINTER_MOTION )
-            {
-                event.dx = _lastPointerEvent.dx;
-                event.dy = _lastPointerEvent.dy;
-                break;
-            }
-            // fall through
+    case EVENT_WINDOW_POINTER_BUTTON_PRESS:
+    case EVENT_WINDOW_POINTER_BUTTON_RELEASE:
+        if (_lastEventType == EVENT_WINDOW_POINTER_MOTION)
+        {
+            event.dx = _lastPointerEvent.dx;
+            event.dy = _lastPointerEvent.dy;
+            break;
+        }
+    // fall through
 
-        default:
-            event.dx = event.x - _lastPointerEvent.x;
-            event.dy = event.y - _lastPointerEvent.y;
+    default:
+        event.dx = event.x - _lastPointerEvent.x;
+        event.dy = event.y - _lastPointerEvent.y;
     }
     _lastEventType = type;
     _lastPointerEvent = event;
 }
-
 }

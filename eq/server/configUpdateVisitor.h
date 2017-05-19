@@ -26,99 +26,101 @@ namespace server
 {
 namespace
 {
-
 class ConfigUpdateVisitor : public ConfigVisitor
 {
 public:
-    ConfigUpdateVisitor( const uint128_t& initID, const uint32_t frameNumber )
-            : _initID( initID ), _frameNumber( frameNumber ) {}
+    ConfigUpdateVisitor(const uint128_t& initID, const uint32_t frameNumber)
+        : _initID(initID)
+        , _frameNumber(frameNumber)
+    {
+    }
     virtual ~ConfigUpdateVisitor() {}
+    virtual VisitorResult visitPre(Node* node) { return _updateDown(node); }
+    virtual VisitorResult visitPost(Node* node)
+    {
+        const VisitorResult result = _updateUp(node);
+        if (result == TRAVERSE_CONTINUE)
+            node->flushSendBuffer();
+        return result;
+    }
 
-    virtual VisitorResult visitPre( Node* node )
-        { return _updateDown( node ); }
-    virtual VisitorResult visitPost( Node* node )
-        {
-            const VisitorResult result = _updateUp( node );
-            if( result == TRAVERSE_CONTINUE )
-                node->flushSendBuffer();
-            return result;
-        }
+    virtual VisitorResult visitPre(Pipe* pipe) { return _updateDown(pipe); }
+    virtual VisitorResult visitPost(Pipe* pipe) { return _updateUp(pipe); }
+    virtual VisitorResult visitPre(Window* window)
+    {
+        return _updateDown(window);
+    }
+    virtual VisitorResult visitPost(Window* window)
+    {
+        return _updateUp(window);
+    }
 
-    virtual VisitorResult visitPre( Pipe* pipe )
-        { return _updateDown( pipe ); }
-    virtual VisitorResult visitPost( Pipe* pipe )
-        { return _updateUp( pipe ); }
-
-    virtual VisitorResult visitPre( Window* window )
-        { return _updateDown( window ); }
-    virtual VisitorResult visitPost( Window* window )
-        { return _updateUp( window ); }
-
-    virtual VisitorResult visit( Channel* channel )
-        {
-            if( _updateDown( channel ) == TRAVERSE_CONTINUE )
-                return _updateUp( channel );
-            return TRAVERSE_CONTINUE;
-        }
+    virtual VisitorResult visit(Channel* channel)
+    {
+        if (_updateDown(channel) == TRAVERSE_CONTINUE)
+            return _updateUp(channel);
+        return TRAVERSE_CONTINUE;
+    }
 
 private:
     const uint128_t _initID;
-    const uint32_t  _frameNumber;
+    const uint32_t _frameNumber;
 
-    template< class T > VisitorResult _updateDown( T* entity ) const
+    template <class T>
+    VisitorResult _updateDown(T* entity) const
+    {
+        const uint32_t state = entity->getState() & ~STATE_DELETE;
+
+        switch (state)
         {
-            const uint32_t state = entity->getState() & ~STATE_DELETE;
-
-            switch( state )
+        case STATE_STOPPED:
+            if (entity->isActive())
             {
-                case STATE_STOPPED:
-                    if( entity->isActive( ))
-                    {
-                        entity->configInit( _initID, _frameNumber );
-                        return TRAVERSE_CONTINUE;
-                    }
-                    return TRAVERSE_PRUNE;
-
-                case STATE_RUNNING:
-                    return TRAVERSE_CONTINUE;
-                case STATE_FAILED:
-                    if( entity->isActive( ))
-                        return TRAVERSE_PRUNE;
-                    return TRAVERSE_CONTINUE;
+                entity->configInit(_initID, _frameNumber);
+                return TRAVERSE_CONTINUE;
             }
-            LBUNREACHABLE;
             return TRAVERSE_PRUNE;
-        }
 
-    template< class T > VisitorResult _updateUp( T* entity ) const
+        case STATE_RUNNING:
+            return TRAVERSE_CONTINUE;
+        case STATE_FAILED:
+            if (entity->isActive())
+                return TRAVERSE_PRUNE;
+            return TRAVERSE_CONTINUE;
+        }
+        LBUNREACHABLE;
+        return TRAVERSE_PRUNE;
+    }
+
+    template <class T>
+    VisitorResult _updateUp(T* entity) const
+    {
+        const uint32_t state = entity->getState() & ~STATE_DELETE;
+        switch (state)
         {
-            const uint32_t state = entity->getState() & ~STATE_DELETE;
-            switch( state )
+        case STATE_INITIALIZING:
+        case STATE_INIT_FAILED:
+        case STATE_INIT_SUCCESS:
+            return TRAVERSE_CONTINUE;
+
+        case STATE_RUNNING:
+            if (!entity->isActive())
+                entity->configExit();
+            return TRAVERSE_CONTINUE;
+
+        case STATE_FAILED:
+            LBASSERT(!entity->isActive());
+            if (!entity->isActive())
             {
-                case STATE_INITIALIZING:
-                case STATE_INIT_FAILED:
-                case STATE_INIT_SUCCESS:
-                    return TRAVERSE_CONTINUE;
-
-                case STATE_RUNNING:
-                    if( !entity->isActive( ))
-                        entity->configExit();
-                    return TRAVERSE_CONTINUE;
-
-                case STATE_FAILED:
-                    LBASSERT( !entity->isActive( ));
-                    if( !entity->isActive( ))
-                    {
-                        entity->setState( STATE_STOPPED );
-                        return TRAVERSE_PRUNE;
-                    }
-                    return TRAVERSE_CONTINUE;
+                entity->setState(STATE_STOPPED);
+                return TRAVERSE_PRUNE;
             }
-            LBASSERTINFO( false, State( state ));
-            return TRAVERSE_PRUNE;
+            return TRAVERSE_CONTINUE;
         }
+        LBASSERTINFO(false, State(state));
+        return TRAVERSE_PRUNE;
+    }
 };
-
 }
 }
 }

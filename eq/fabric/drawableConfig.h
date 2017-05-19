@@ -25,44 +25,51 @@ namespace eq
 {
 namespace fabric
 {
-    /** Stores the characteristics of a window's frame buffer configuration. */
-    struct DrawableConfig
+/** Stores the characteristics of a window's frame buffer configuration. */
+struct DrawableConfig
+{
+    DrawableConfig()
+        : stencilBits(0)
+        , colorBits(0)
+        , alphaBits(0)
+        , accumBits(0)
+        , glVersion(0.f)
+        , glewGLVersion(0.f)
+        , stereo(false)
+        , doublebuffered(false)
+        , coreProfile(false)
     {
-        DrawableConfig()
-                : stencilBits(0), colorBits(0), alphaBits(0), accumBits(0)
-                , glVersion( 0.f ), glewGLVersion( 0.f ), stereo( false )
-                , doublebuffered( false ) , coreProfile( false ) {}
-
-        int32_t stencilBits;    //!< Number of stencil bits
-        int32_t colorBits;      //!< Number of bits per color component
-        int32_t alphaBits;      //!< Number of alpha bits
-        int32_t accumBits;      //!< Number of accumulation bits
-        float   glVersion;      //!< OpenGL version (glGetString( GL_VERSION ))
-        float   glewGLVersion;  //!< OpenGL version (GLEW detected)
-        bool    stereo;         //!< Active stereo supported
-        bool    doublebuffered; //!< Doublebuffering supported
-        bool    coreProfile;    //!< Core or Compat profile (since OpenGL 3.2)
-    };
-
-    inline std::ostream& operator << ( std::ostream& os,
-                                       const DrawableConfig& config )
-    {
-        os << "GL" << config.glVersion << "|GLEW" << config.glewGLVersion;
-        if( config.glVersion >= 3.2f )
-            os << (config.coreProfile ? "|Core" : "|Compat");
-        os << "|rgb" << config.colorBits;
-        if( config.alphaBits )
-            os << "a" << config.alphaBits;
-        if( config.stencilBits )
-            os << "|st" << config.stencilBits;
-        if( config.accumBits )
-            os << "|acc" << config.accumBits;
-        if( config.doublebuffered )
-            os << "|DB";
-        if( config.stereo )
-            os << "|ST";
-        return os;
     }
+
+    int32_t stencilBits; //!< Number of stencil bits
+    int32_t colorBits;   //!< Number of bits per color component
+    int32_t alphaBits;   //!< Number of alpha bits
+    int32_t accumBits;   //!< Number of accumulation bits
+    float glVersion;     //!< OpenGL version (glGetString( GL_VERSION ))
+    float glewGLVersion; //!< OpenGL version (GLEW detected)
+    bool stereo;         //!< Active stereo supported
+    bool doublebuffered; //!< Doublebuffering supported
+    bool coreProfile;    //!< Core or Compat profile (since OpenGL 3.2)
+};
+
+inline std::ostream& operator<<(std::ostream& os, const DrawableConfig& config)
+{
+    os << "GL" << config.glVersion << "|GLEW" << config.glewGLVersion;
+    if (config.glVersion >= 3.2f)
+        os << (config.coreProfile ? "|Core" : "|Compat");
+    os << "|rgb" << config.colorBits;
+    if (config.alphaBits)
+        os << "a" << config.alphaBits;
+    if (config.stencilBits)
+        os << "|st" << config.stencilBits;
+    if (config.accumBits)
+        os << "|acc" << config.accumBits;
+    if (config.doublebuffered)
+        os << "|DB";
+    if (config.stereo)
+        os << "|ST";
+    return os;
+}
 }
 }
 

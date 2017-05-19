@@ -17,12 +17,12 @@
 
 #include "messagePump.h"
 
-#include "eventHandler.h"
 #include "X11Connection.h"
+#include "eventHandler.h"
 
 #ifdef EQUALIZER_USE_DEFLECT
-#  include "../deflect/connection.h"
-#  include "../deflect/eventHandler.h"
+#include "../deflect/connection.h"
+#include "../deflect/eventHandler.h"
 #endif
 
 #include <lunchbox/debug.h>
@@ -45,44 +45,44 @@ void MessagePump::postWakeup()
     _connections.interrupt();
 }
 
-void MessagePump::dispatchOne( const uint32_t timeout )
+void MessagePump::dispatchOne(const uint32_t timeout)
 {
-    const co::ConnectionSet::Event event = _connections.select( timeout );
-    switch( event )
+    const co::ConnectionSet::Event event = _connections.select(timeout);
+    switch (event)
     {
-        case co::ConnectionSet::EVENT_DISCONNECT:
-        {
-            co::ConnectionPtr connection = _connections.getConnection();
-            _connections.removeConnection( connection );
-            LBERROR << "Display connection shut down" << std::endl;
-            break;
-        }
+    case co::ConnectionSet::EVENT_DISCONNECT:
+    {
+        co::ConnectionPtr connection = _connections.getConnection();
+        _connections.removeConnection(connection);
+        LBERROR << "Display connection shut down" << std::endl;
+        break;
+    }
 
-        case co::ConnectionSet::EVENT_DATA:
-        {
+    case co::ConnectionSet::EVENT_DATA:
+    {
 #ifdef EQUALIZER_USE_DEFLECT
-            co::ConnectionPtr connection = _connections.getConnection();
-            const deflect::Connection* dcConnection =
-                dynamic_cast< const deflect::Connection* >( connection.get( ));
-            if( dcConnection )
-               deflect::EventHandler::processEvents( dcConnection->getProxy( ));
-            else
+        co::ConnectionPtr connection = _connections.getConnection();
+        const deflect::Connection* dcConnection =
+            dynamic_cast<const deflect::Connection*>(connection.get());
+        if (dcConnection)
+            deflect::EventHandler::processEvents(dcConnection->getProxy());
+        else
 #endif
             EventHandler::dispatch();
-            break;
-        }
+        break;
+    }
 
-        case co::ConnectionSet::EVENT_INTERRUPT:
-            break;
+    case co::ConnectionSet::EVENT_INTERRUPT:
+        break;
 
-        case co::ConnectionSet::EVENT_CONNECT:
-        case co::ConnectionSet::EVENT_ERROR:
-        default:
-            LBWARN << "Error during select" << std::endl;
-            break;
+    case co::ConnectionSet::EVENT_CONNECT:
+    case co::ConnectionSet::EVENT_ERROR:
+    default:
+        LBWARN << "Error during select" << std::endl;
+        break;
 
-        case co::ConnectionSet::EVENT_TIMEOUT:
-            break;
+    case co::ConnectionSet::EVENT_TIMEOUT:
+        break;
     }
 }
 
@@ -94,63 +94,62 @@ void MessagePump::dispatchAll()
 #endif
 }
 
-void MessagePump::register_( Display* display )
+void MessagePump::register_(Display* display)
 {
-    if( ++_referenced[ display ] == 1 )
-        _connections.addConnection( new X11Connection( display ));
+    if (++_referenced[display] == 1)
+        _connections.addConnection(new X11Connection(display));
 }
 
-void MessagePump::deregister( Display* display )
+void MessagePump::deregister(Display* display)
 {
-    if( --_referenced[ display ] == 0 )
+    if (--_referenced[display] == 0)
     {
         const co::Connections& connections = _connections.getConnections();
-        for( co::Connections::const_iterator i = connections.begin();
-             i != connections.end(); ++i )
+        for (co::Connections::const_iterator i = connections.begin();
+             i != connections.end(); ++i)
         {
             co::ConnectionPtr connection = *i;
             const X11Connection* x11Connection =
-                dynamic_cast< const X11Connection* >( connection.get( ));
-            if( x11Connection && x11Connection->getDisplay() == display )
+                dynamic_cast<const X11Connection*>(connection.get());
+            if (x11Connection && x11Connection->getDisplay() == display)
             {
-                _connections.removeConnection( connection );
+                _connections.removeConnection(connection);
                 break;
             }
         }
-        _referenced.erase( _referenced.find( display ));
+        _referenced.erase(_referenced.find(display));
     }
 }
 
-void MessagePump::register_( deflect::Proxy* proxy LB_UNUSED )
+void MessagePump::register_(deflect::Proxy* proxy LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_DEFLECT
-    if( ++_referenced[ proxy ] == 1 )
-        _connections.addConnection( new deflect::Connection( proxy ));
+    if (++_referenced[proxy] == 1)
+        _connections.addConnection(new deflect::Connection(proxy));
 #endif
 }
 
-void MessagePump::deregister( deflect::Proxy* proxy LB_UNUSED  )
+void MessagePump::deregister(deflect::Proxy* proxy LB_UNUSED)
 {
 #ifdef EQUALIZER_USE_DEFLECT
-    if( --_referenced[ proxy ] == 0 )
+    if (--_referenced[proxy] == 0)
     {
         const co::Connections& connections = _connections.getConnections();
-        for( co::Connections::const_iterator i = connections.begin();
-             i != connections.end(); ++i )
+        for (co::Connections::const_iterator i = connections.begin();
+             i != connections.end(); ++i)
         {
             co::ConnectionPtr connection = *i;
             const deflect::Connection* dcConnection =
-                dynamic_cast< const deflect::Connection* >( connection.get( ));
-            if( dcConnection && dcConnection->getProxy() == proxy )
+                dynamic_cast<const deflect::Connection*>(connection.get());
+            if (dcConnection && dcConnection->getProxy() == proxy)
             {
-                _connections.removeConnection( connection );
+                _connections.removeConnection(connection);
                 break;
             }
         }
-        _referenced.erase( _referenced.find( proxy ));
+        _referenced.erase(_referenced.find(proxy));
     }
 #endif
 }
-
 }
 }

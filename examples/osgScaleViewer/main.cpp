@@ -30,16 +30,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#include "osgScaleViewer.h"
 #include "initData.h"
 #include "nodeFactory.h"
+#include "osgScaleViewer.h"
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
     // 1. Equalizer initialization
     osgScaleViewer::NodeFactory nodeFactory;
-    if( !eq::init( argc, argv, &nodeFactory ))
+    if (!eq::init(argc, argv, &nodeFactory))
     {
         std::cout << "Equalizer init failed" << std::endl;
         eq::exit();
@@ -48,16 +47,16 @@ int main( const int argc, char** argv )
 
     // 2. parse arguments
     osgScaleViewer::InitData initData;
-    if( !initData.parseCommandLine( argv, argc ))
+    if (!initData.parseCommandLine(argv, argc))
     {
         eq::exit();
         return EXIT_FAILURE;
     }
 
     // 3. initialization of local client node
-    lunchbox::RefPtr< osgScaleViewer::OSGScaleViewer > client =
-        new osgScaleViewer::OSGScaleViewer( initData );
-    if( !client->initLocal( argc, argv ))
+    lunchbox::RefPtr<osgScaleViewer::OSGScaleViewer> client =
+        new osgScaleViewer::OSGScaleViewer(initData);
+    if (!client->initLocal(argc, argv))
     {
         LBERROR << "Can't init client" << std::endl;
         eq::exit();
@@ -70,8 +69,8 @@ int main( const int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
-    LBASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
-                  client->getRefCount() - 1 );
+    LBASSERTINFO(client->getRefCount() == 1, "Client still referenced by "
+                                                 << client->getRefCount() - 1);
     client = 0;
 
     eq::exit();

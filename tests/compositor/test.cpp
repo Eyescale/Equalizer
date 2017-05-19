@@ -18,126 +18,129 @@
 #include <lunchbox/test.h>
 
 #include <eq/compositor.h>
+#include <eq/fabric/drawableConfig.h>
 #include <eq/frame.h>
 #include <eq/frameData.h>
 #include <eq/image.h>
 #include <eq/init.h>
 #include <eq/nodeFactory.h>
-#include <eq/fabric/drawableConfig.h>
 #include <lunchbox/clock.h>
 
 // Tests the functionality of the compositor and computes the performance.
 
-int main( int, char **argv )
+int main(int, char** argv)
 {
     eq::NodeFactory nodeFactory;
-    TEST( eq::init( 0, 0, &nodeFactory ));
+    TEST(eq::init(0, 0, &nodeFactory));
 
     eq::Frame frame;
     eq::FrameDataPtr frameData = new eq::FrameData;
 
-    frameData->setBuffers( eq::Frame::Buffer::color | eq::Frame::Buffer::depth );
-    frame.setFrameData( frameData );
+    frameData->setBuffers(eq::Frame::Buffer::color | eq::Frame::Buffer::depth);
+    frame.setFrameData(frameData);
 
     // 1) 2D assembly test
-    eq::Image* image = frameData->newImage( eq::Frame::TYPE_MEMORY,
-                                            eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_1_color.rgb", eq::Frame::Buffer::color ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
-    image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_2_color.rgb", eq::Frame::Buffer::color ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
-    image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_3_color.rgb", eq::Frame::Buffer::color ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
+    eq::Image* image =
+        frameData->newImage(eq::Frame::TYPE_MEMORY, eq::DrawableConfig());
+    TEST(image->readImage("Image_1_color.rgb", eq::Frame::Buffer::color));
+    TEST(image->hasPixelData(eq::Frame::Buffer::color));
+    image = frameData->newImage(eq::Frame::TYPE_MEMORY, eq::DrawableConfig());
+    TEST(image->readImage("Image_2_color.rgb", eq::Frame::Buffer::color));
+    TEST(image->hasPixelData(eq::Frame::Buffer::color));
+    image = frameData->newImage(eq::Frame::TYPE_MEMORY, eq::DrawableConfig());
+    TEST(image->readImage("Image_3_color.rgb", eq::Frame::Buffer::color));
+    TEST(image->hasPixelData(eq::Frame::Buffer::color));
 
     eq::Frames frames;
     lunchbox::Clock clock;
     float time;
-    const size_t size = image->getPixelDataSize( eq::Frame::Buffer::color ) * 3;
-    frames.push_back( &frame );
+    const size_t size = image->getPixelDataSize(eq::Frame::Buffer::color) * 3;
+    frames.push_back(&frame);
 
     clock.reset();
-    const eq::Image* result = eq::Compositor::mergeFramesCPU( frames );
+    const eq::Image* result = eq::Compositor::mergeFramesCPU(frames);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": 2D first op:  " << time << " ms ("
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
+              << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)"
+              << std::endl;
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames );
+    result = eq::Compositor::mergeFramesCPU(frames);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": 2D second op: " << time << " ms ("
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
+              << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)"
+              << std::endl;
 
-    result->writeImages( "Result_2D" );
+    result->writeImages("Result_2D");
 
-    frames.push_back( &frame );
-    frames.push_back( &frame );
-    frames.push_back( &frame );
-    frames.push_back( &frame );
+    frames.push_back(&frame);
+    frames.push_back(&frame);
+    frames.push_back(&frame);
+    frames.push_back(&frame);
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames );
+    result = eq::Compositor::mergeFramesCPU(frames);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": 2D 15 images: " << time << " ms ("
-         << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
+              << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)"
+              << std::endl;
 
     // 2) DB assembly test
     const eq::Images& images = frameData->getImages();
 
     image = images[0];
-    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
-    TEST( image->readImage( "Image_1_depth.rgb", eq::Frame::Buffer::depth ));
-    TESTINFO( image->hasPixelData( eq::Frame::Buffer::color ),
-              "Color buffer removed - probably different image dimensions?" );
-    TEST( image->hasPixelData( eq::Frame::Buffer::depth ));
+    TEST(image->hasPixelData(eq::Frame::Buffer::color));
+    TEST(image->readImage("Image_1_depth.rgb", eq::Frame::Buffer::depth));
+    TESTINFO(image->hasPixelData(eq::Frame::Buffer::color),
+             "Color buffer removed - probably different image dimensions?");
+    TEST(image->hasPixelData(eq::Frame::Buffer::depth));
     image = images[1];
-    TEST( image->readImage( "Image_2_depth.rgb", eq::Frame::Buffer::depth ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::depth ));
+    TEST(image->readImage("Image_2_depth.rgb", eq::Frame::Buffer::depth));
+    TEST(image->hasPixelData(eq::Frame::Buffer::color));
+    TEST(image->hasPixelData(eq::Frame::Buffer::depth));
     image = images[2];
-    TEST( image->readImage( "Image_3_depth.rgb", eq::Frame::Buffer::depth ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::color ));
-    TEST( image->hasPixelData( eq::Frame::Buffer::depth ));
+    TEST(image->readImage("Image_3_depth.rgb", eq::Frame::Buffer::depth));
+    TEST(image->hasPixelData(eq::Frame::Buffer::color));
+    TEST(image->hasPixelData(eq::Frame::Buffer::depth));
 
     frames.clear();
-    frames.push_back( &frame );
+    frames.push_back(&frame);
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames );
+    result = eq::Compositor::mergeFramesCPU(frames);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": DB first op:  " << time << " ms ("
               << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)"
               << std::endl;
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames );
+    result = eq::Compositor::mergeFramesCPU(frames);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": DB second op: " << time << " ms ("
               << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)"
               << std::endl;
 
-    result->writeImages( "Result_DB" );
+    result->writeImages("Result_DB");
 
-    frames.push_back( &frame );
-    frames.push_back( &frame );
-    frames.push_back( &frame );
-    frames.push_back( &frame );
+    frames.push_back(&frame);
+    frames.push_back(&frame);
+    frames.push_back(&frame);
+    frames.push_back(&frame);
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames );
+    result = eq::Compositor::mergeFramesCPU(frames);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": DB 15 images: " << time << " ms ("
               << 5000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)"
@@ -145,49 +148,52 @@ int main( int, char **argv )
 
     // 3) alpha-blend assembly test
     frameData->clear();
-    frameData->setBuffers( eq::Frame::Buffer::color );
+    frameData->setBuffers(eq::Frame::Buffer::color);
 
-    image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_15_color.rgb", eq::Frame::Buffer::color ));
-    image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_14_color.rgb", eq::Frame::Buffer::color ));
-    image = frameData->newImage( eq::Frame::TYPE_MEMORY, eq::DrawableConfig( ));
-    TEST( image->readImage( "Image_13_color.rgb", eq::Frame::Buffer::color ));
+    image = frameData->newImage(eq::Frame::TYPE_MEMORY, eq::DrawableConfig());
+    TEST(image->readImage("Image_15_color.rgb", eq::Frame::Buffer::color));
+    image = frameData->newImage(eq::Frame::TYPE_MEMORY, eq::DrawableConfig());
+    TEST(image->readImage("Image_14_color.rgb", eq::Frame::Buffer::color));
+    image = frameData->newImage(eq::Frame::TYPE_MEMORY, eq::DrawableConfig());
+    TEST(image->readImage("Image_13_color.rgb", eq::Frame::Buffer::color));
     frames.clear();
-    frames.push_back( &frame );
+    frames.push_back(&frame);
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames, true );
+    result = eq::Compositor::mergeFramesCPU(frames, true);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": Alpha first op:  " << time << " ms ("
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
+              << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)"
+              << std::endl;
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames, true );
+    result = eq::Compositor::mergeFramesCPU(frames, true);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": Alpha second op: " << time << " ms ("
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
+              << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)"
+              << std::endl;
 
-    result->writeImages( "Result_Alpha" );
+    result->writeImages("Result_Alpha");
 
-    frames.push_back( &frame );
-    frames.push_back( &frame );
-    frames.push_back( &frame );
-    frames.push_back( &frame );
+    frames.push_back(&frame);
+    frames.push_back(&frame);
+    frames.push_back(&frame);
+    frames.push_back(&frame);
 
     clock.reset();
-    result = eq::Compositor::mergeFramesCPU( frames, true );
+    result = eq::Compositor::mergeFramesCPU(frames, true);
     time = clock.getTimef();
-    TEST( result );
+    TEST(result);
 
     std::cout << argv[0] << ": Alpha 15 images: " << time << " ms ("
-         << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << std::endl;
+              << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)"
+              << std::endl;
 
-    TEST( eq::exit( ));
+    TEST(eq::exit());
 
     return EXIT_SUCCESS;
 }

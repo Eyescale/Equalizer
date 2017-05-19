@@ -27,9 +27,12 @@ namespace eq
 {
 namespace fabric
 {
-template< class C, class OV, class LV, class CV, class NV > class ConfigVisitor;
-template< class T, class C > class ElementVisitor;
-template< class T > class LeafVisitor;
+template <class C, class OV, class LV, class CV, class NV>
+class ConfigVisitor;
+template <class T, class C>
+class ElementVisitor;
+template <class T>
+class LeafVisitor;
 }
 
 namespace admin
@@ -48,66 +51,67 @@ class Server;
 class View;
 class Window;
 
-typedef lunchbox::RefPtr< Client > ClientPtr;
-typedef lunchbox::RefPtr< const Client > ConstClientPtr;
-typedef lunchbox::RefPtr< Server > ServerPtr;
+typedef lunchbox::RefPtr<Client> ClientPtr;
+typedef lunchbox::RefPtr<const Client> ConstClientPtr;
+typedef lunchbox::RefPtr<Server> ServerPtr;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */
-typedef fabric::LeafVisitor< Segment > SegmentVisitor;
+typedef fabric::LeafVisitor<Segment> SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
-typedef fabric::LeafVisitor< View > ViewVisitor;
+typedef fabric::LeafVisitor<View> ViewVisitor;
 
 /** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+typedef fabric::LeafVisitor<Observer> ObserverVisitor;
 
 /** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+typedef fabric::LeafVisitor<Channel> ChannelVisitor;
 
 /** A visitor to traverse Canvas and children. */
-typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
+typedef fabric::ElementVisitor<Canvas, SegmentVisitor> CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+typedef fabric::ElementVisitor<Window, ChannelVisitor> WindowVisitor;
 
 /** A visitor to traverse pipes and children. */
-typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
+typedef fabric::ElementVisitor<Pipe, WindowVisitor> PipeVisitor;
 
 /** A visitor to traverse nodes and children. */
-typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
+typedef fabric::ElementVisitor<Node, PipeVisitor> NodeVisitor;
 
 /** A visitor to traverse layouts and children. */
-typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+typedef fabric::ElementVisitor<Layout, ViewVisitor> LayoutVisitor;
 
 /** A visitor to traverse configs and children. */
-typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
-// cppcheck-suppress unnecessaryForwardDeclaration
-                               CanvasVisitor, NodeVisitor > ConfigVisitor;
+typedef fabric::ConfigVisitor<Config, ObserverVisitor, LayoutVisitor,
+                              // cppcheck-suppress unnecessaryForwardDeclaration
+                              CanvasVisitor, NodeVisitor>
+    ConfigVisitor;
 
 /** A visitor to traverse servers and children. */
-typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
+typedef fabric::ElementVisitor<Server, ConfigVisitor> ServerVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::admin::Config */
-typedef std::vector< Config* >     Configs;
+typedef std::vector<Config*> Configs;
 /** A vector of pointers to eq::admin::Node */
-typedef std::vector< Node* >     Nodes;
+typedef std::vector<Node*> Nodes;
 /** A vector of pointers to eq::admin::Pipe */
-typedef std::vector< Pipe* >     Pipes;
+typedef std::vector<Pipe*> Pipes;
 /** A vector of pointers to eq::admin::Window */
-typedef std::vector< Window* >   Windows;
+typedef std::vector<Window*> Windows;
 /** A vector of pointers to eq::admin::Channel */
-typedef std::vector< Channel* >  Channels;
+typedef std::vector<Channel*> Channels;
 /** A vector of pointers to eq::admin::Observer */
-typedef std::vector< Observer* > Observers;
+typedef std::vector<Observer*> Observers;
 /** A vector of pointers to eq::admin::Canvas */
-typedef std::vector< Canvas* >   Canvass;
+typedef std::vector<Canvas*> Canvass;
 /** A vector of pointers to eq::admin::Layout */
-typedef std::vector< Layout* >   Layouts;
+typedef std::vector<Layout*> Layouts;
 /** A vector of pointers to eq::admin::Segment */
-typedef std::vector< Segment* >  Segments;
+typedef std::vector<Segment*> Segments;
 /** A vector of pointers to eq::admin::View */
-typedef std::vector< View* >     Views;
+typedef std::vector<View*> Views;
 
 typedef lunchbox::uint128_t uint128_t;
 }

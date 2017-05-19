@@ -29,23 +29,25 @@ namespace server
 class CompoundActivateVisitor : public CompoundVisitor
 {
 public:
-    CompoundActivateVisitor( const bool activate, const Eye eye )
-        : _activate( activate ), _eye( eye ) {}
+    CompoundActivateVisitor(const bool activate, const Eye eye)
+        : _activate(activate)
+        , _eye(eye)
+    {
+    }
     virtual ~CompoundActivateVisitor() {}
-
     /** Visit all compounds. */
-    virtual VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit(Compound* compound)
     {
         Channel* channel = compound->getChannel();
-        if( channel && compound->testInheritEye( _eye ))
+        if (channel && compound->testInheritEye(_eye))
         {
-            if( _activate )
+            if (_activate)
             {
                 channel->activate();
 
                 // Fix https://github.com/Eyescale/Equalizer/issues/147
                 compound->updateInheritTasks();
-                channel->addTasks( compound->getInheritTasks( ));
+                channel->addTasks(compound->getInheritTasks());
             }
             else
                 channel->deactivate();
@@ -57,7 +59,6 @@ private:
     const bool _activate;
     const Eye _eye;
 };
-
 }
 }
 #endif // EQSERVER_COMPOUNDACTIVATEVISITOR_H

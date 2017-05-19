@@ -19,12 +19,15 @@
 #define EQ_OBSERVER_H
 
 #include <eq/api.h>
+#include <eq/fabric/observer.h> // base class
 #include <eq/types.h>
-#include <eq/fabric/observer.h>         // base class
 
 namespace eq
 {
-namespace detail { class Observer; }
+namespace detail
+{
+class Observer;
+}
 
 /**
  * An Observer looks at one or more views from a certain position (head matrix)
@@ -34,11 +37,11 @@ namespace detail { class Observer; }
  *
  * @sa fabric::Observer
  */
-class Observer : public fabric::Observer< Config, Observer >
+class Observer : public fabric::Observer<Config, Observer>
 {
 public:
     /** Construct a new observer. @version 1.0 */
-    EQ_API explicit Observer( Config* parent );
+    EQ_API explicit Observer(Config* parent);
 
     /** Destruct this observer. @version 1.0 */
     EQ_API virtual ~Observer();
@@ -54,7 +57,7 @@ public:
      * @param command The event input command.
      * @return true if the event requires a redraw, false otherwise.
      */
-    EQ_API virtual bool handleEvent( EventICommand& command );
+    EQ_API virtual bool handleEvent(EventICommand& command);
     //@}
 
     /** @name Data Access */
@@ -63,8 +66,8 @@ public:
     EQ_API ServerPtr getServer();
     //@}
 
-    void addView( View* ) { /* nop */ } //!< @internal
-    void removeView( View* ) { /* nop */ } //!< @internal
+    void addView(View*) { /* nop */}    //!< @internal
+    void removeView(View*) { /* nop */} //!< @internal
 
 protected:
     /**
@@ -93,7 +96,7 @@ protected:
      * @param frameNumber the frame to start.
      * @version 1.5.2
      */
-    EQ_API virtual void frameStart( const uint32_t frameNumber );
+    EQ_API virtual void frameStart(const uint32_t frameNumber);
     friend class detail::FrameVisitor;
     //@}
 

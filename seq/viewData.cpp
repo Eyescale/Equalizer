@@ -19,69 +19,70 @@
 
 #include "viewData.h"
 
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
+#include <eq/eventICommand.h>
 #include <eq/fabric/axisEvent.h>
 #include <eq/fabric/keyEvent.h>
 #include <eq/fabric/pointerEvent.h>
-#include <eq/eventICommand.h>
 #include <eq/view.h>
-#include <co/dataIStream.h>
-#include <co/dataOStream.h>
 
 namespace seq
 {
-ViewData::ViewData( View& view )
-    : _view( view )
-    , _spinX( 5 )
-    , _spinY( 5 )
-    , _advance( 0 )
-    , _statistics( false )
-    , _ortho( false )
+ViewData::ViewData(View& view)
+    : _view(view)
+    , _spinX(5)
+    , _spinY(5)
+    , _advance(0)
+    , _statistics(false)
+    , _ortho(false)
 {
-    moveModel( 0.f, 0.f, -2.f );
+    moveModel(0.f, 0.f, -2.f);
 }
 
 ViewData::~ViewData()
-{}
-
-void ViewData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    if( dirtyBits & DIRTY_MODELMATRIX )
+}
+
+void ViewData::serialize(co::DataOStream& os, const uint64_t dirtyBits)
+{
+    if (dirtyBits & DIRTY_MODELMATRIX)
         os << _modelMatrix;
-    if( dirtyBits & DIRTY_STATISTICS )
+    if (dirtyBits & DIRTY_STATISTICS)
         os << _statistics;
-    if( dirtyBits & DIRTY_ORTHO )
+    if (dirtyBits & DIRTY_ORTHO)
         os << _ortho;
 }
 
-void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+void ViewData::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_MODELMATRIX )
+    if (dirtyBits & DIRTY_MODELMATRIX)
         is >> _modelMatrix;
-    if( dirtyBits & DIRTY_STATISTICS )
+    if (dirtyBits & DIRTY_STATISTICS)
         is >> _statistics;
-    if( dirtyBits & DIRTY_ORTHO )
+    if (dirtyBits & DIRTY_ORTHO)
         is >> _ortho;
 }
 
-bool ViewData::handleEvent( const eq::EventType, const SizeEvent& )
+bool ViewData::handleEvent(const eq::EventType, const SizeEvent&)
 {
     return true;
 }
 
-bool ViewData::handleEvent( const eq::EventType type, const PointerEvent& event )
+bool ViewData::handleEvent(const eq::EventType type, const PointerEvent& event)
 {
-    switch( type )
+    switch (type)
     {
     case EVENT_CHANNEL_POINTER_BUTTON_RELEASE:
-        if( event.buttons == eq::PTR_BUTTON_NONE )
+        if (event.buttons == eq::PTR_BUTTON_NONE)
         {
-            if( event.button == eq::PTR_BUTTON1 )
+            if (event.button == eq::PTR_BUTTON1)
             {
                 _spinX = event.dy;
                 _spinY = event.dx;
                 return true;
             }
-            if( event.button == eq::PTR_BUTTON2 )
+            if (event.button == eq::PTR_BUTTON2)
             {
                 _advance = -event.dy;
                 return true;
@@ -90,21 +91,21 @@ bool ViewData::handleEvent( const eq::EventType type, const PointerEvent& event 
         return false;
 
     case EVENT_CHANNEL_POINTER_MOTION:
-        switch( event.buttons )
+        switch (event.buttons)
         {
         case eq::PTR_BUTTON1:
             _spinX = 0;
             _spinY = 0;
-            spinModel( -0.005f * event.dy, -0.005f * event.dx, 0.f );
+            spinModel(-0.005f * event.dy, -0.005f * event.dx, 0.f);
             return true;
 
         case eq::PTR_BUTTON2:
             _advance = -event.dy;
-            moveModel( 0.f, 0.f, .005f * _advance );
+            moveModel(0.f, 0.f, .005f * _advance);
             return true;
 
         case eq::PTR_BUTTON3:
-            moveModel( .0005f * event.dx, -.0005f * event.dy, 0.f );
+            moveModel(.0005f * event.dx, -.0005f * event.dy, 0.f);
             return true;
 
         default:
@@ -112,7 +113,7 @@ bool ViewData::handleEvent( const eq::EventType type, const PointerEvent& event 
         }
 
     case EVENT_CHANNEL_POINTER_WHEEL:
-        moveModel( -0.05f * event.xAxis, 0.f, 0.05f * event.yAxis );
+        moveModel(-0.05f * event.xAxis, 0.f, 0.05f * event.yAxis);
         return true;
 
     default:
@@ -120,18 +121,18 @@ bool ViewData::handleEvent( const eq::EventType type, const PointerEvent& event 
     }
 }
 
-bool ViewData::handleEvent( const eq::EventType type, const KeyEvent& event )
+bool ViewData::handleEvent(const eq::EventType type, const KeyEvent& event)
 {
-    switch( type )
+    switch (type)
     {
     case EVENT_KEY_PRESS:
-        switch( event.key )
+        switch (event.key)
         {
         case 's':
-            showStatistics( !getStatistics( ));
+            showStatistics(!getStatistics());
             return true;
         case 'o':
-            setOrtho( !useOrtho( ));
+            setOrtho(!useOrtho());
             return true;
         }
         return false;
@@ -141,83 +142,82 @@ bool ViewData::handleEvent( const eq::EventType type, const KeyEvent& event )
     }
 }
 
-bool ViewData::handleEvent( const AxisEvent& event )
+bool ViewData::handleEvent(const AxisEvent& event)
 {
     _spinX = 0;
     _spinY = 0;
     _advance = 0;
-    spinModel( 0.0001f * event.zRotation, -0.0001f * event.xRotation,
-               -0.0001f * event.yRotation );
-    moveModel( 0.0001f * event.xAxis, -0.0001f * event.zAxis,
-               0.0001f * event.yAxis );
+    spinModel(0.0001f * event.zRotation, -0.0001f * event.xRotation,
+              -0.0001f * event.yRotation);
+    moveModel(0.0001f * event.xAxis, -0.0001f * event.zAxis,
+              0.0001f * event.yAxis);
     return true;
 }
 
-bool ViewData::handleEvent( const ButtonEvent& )
+bool ViewData::handleEvent(const ButtonEvent&)
 {
     return false;
 }
 
-void ViewData::spinModel( const float x, const float y, const float z )
+void ViewData::spinModel(const float x, const float y, const float z)
 {
-    if( x == 0.f && y == 0.f && z == 0.f )
+    if (x == 0.f && y == 0.f && z == 0.f)
         return;
 
     const Vector3f translation = _modelMatrix.getTranslation();
-    _modelMatrix.setTranslation( Vector3f( ));
-    _modelMatrix.pre_rotate_x( x );
-    _modelMatrix.pre_rotate_y( y );
-    _modelMatrix.pre_rotate_z( z );
-    _modelMatrix.setTranslation( translation);
-    setDirty( DIRTY_MODELMATRIX );
+    _modelMatrix.setTranslation(Vector3f());
+    _modelMatrix.pre_rotate_x(x);
+    _modelMatrix.pre_rotate_y(y);
+    _modelMatrix.pre_rotate_z(z);
+    _modelMatrix.setTranslation(translation);
+    setDirty(DIRTY_MODELMATRIX);
 }
 
-void ViewData::moveModel( const float x, const float y, const float z )
+void ViewData::moveModel(const float x, const float y, const float z)
 {
-    if( x == 0.f && y == 0.f && z == 0.f )
+    if (x == 0.f && y == 0.f && z == 0.f)
         return;
 
     const float unit = _view.getModelUnit();
-    _modelMatrix.setTranslation( _modelMatrix.getTranslation() +
-                                 Vector3f( x * unit, y * unit, z * unit ));
-    setDirty( DIRTY_MODELMATRIX );
+    _modelMatrix.setTranslation(_modelMatrix.getTranslation() +
+                                Vector3f(x * unit, y * unit, z * unit));
+    setDirty(DIRTY_MODELMATRIX);
 }
 
-void ViewData::showStatistics( const bool on )
+void ViewData::showStatistics(const bool on)
 {
-    if( _statistics == on )
+    if (_statistics == on)
         return;
 
     _statistics = on;
-    setDirty( DIRTY_STATISTICS );
+    setDirty(DIRTY_STATISTICS);
 }
 
-void ViewData::setOrtho( const bool on )
+void ViewData::setOrtho(const bool on)
 {
-    if( _ortho == on )
+    if (_ortho == on)
         return;
 
     _ortho = on;
-    setDirty( DIRTY_ORTHO );
+    setDirty(DIRTY_ORTHO);
 }
 
-void ViewData::setModelMatrix( const Matrix4f& matrix )
+void ViewData::setModelMatrix(const Matrix4f& matrix)
 {
-    if( _modelMatrix == matrix )
+    if (_modelMatrix == matrix)
         return;
 
     _modelMatrix = matrix;
-    setDirty( DIRTY_MODELMATRIX );
+    setDirty(DIRTY_MODELMATRIX);
 }
 
 bool ViewData::update()
 {
-    if( _spinX == 0 && _spinY == 0 && _advance == 0 )
+    if (_spinX == 0 && _spinY == 0 && _advance == 0)
         return false;
 
-    spinModel( -0.001f * _spinX, -0.001f * _spinY, 0.f );
-    moveModel( 0.0f, 0.0f, 0.001f * _advance );
+    spinModel(-0.001f * _spinX, -0.001f * _spinY, 0.f);
+    moveModel(0.0f, 0.0f, 0.001f * _advance);
     return true;
 }
-
 }

@@ -34,34 +34,34 @@
 
 namespace osgScaleViewer
 {
-bool Window::configInitGL( const eq::uint128_t& initID )
+bool Window::configInitGL(const eq::uint128_t& initID)
 {
-    if( !eq::Window::configInitGL( initID ))
+    if (!eq::Window::configInitGL(initID))
         return false;
 
     const eq::Window* sharedWindow = getSharedContextWindow();
-    if( sharedWindow == this || sharedWindow == 0 ) // init GL stuff
+    if (sharedWindow == this || sharedWindow == 0) // init GL stuff
     {
-        Node* node = static_cast< Node* >( getNode( ));
+        Node* node = static_cast<Node*>(getNode());
 
         // The code below is not thread-safe, since various STL containers are
         // used within the OSG classes. Since this is init-only, a simple global
         // lock is acceptable.
         static std::mutex lock;
-        lunchbox::ScopedWrite mutex( lock );
+        lunchbox::ScopedWrite mutex(lock);
 
         _sceneView = new SceneView;
-        _sceneView->setDefaults( SceneView::STANDARD_SETTINGS );
-        _sceneView->setFrameStamp( node->getFrameStamp( ));
+        _sceneView->setDefaults(SceneView::STANDARD_SETTINGS);
+        _sceneView->setFrameStamp(node->getFrameStamp());
         _sceneView->init();
-        _sceneView->getState()->setContextID( node->getUniqueContextID( ));
-        _sceneView->getRenderStage()->setColorMask( new osg::ColorMask );
+        _sceneView->getState()->setContextID(node->getUniqueContextID());
+        _sceneView->getRenderStage()->setColorMask(new osg::ColorMask);
 
-        osg::ref_ptr< osg::Node > model = node->getModel();
-        _sceneView->setSceneData( model );
+        osg::ref_ptr<osg::Node> model = node->getModel();
+        _sceneView->setSceneData(model);
     }
     else
-        _sceneView = static_cast< const Window* >( sharedWindow )->_sceneView;
+        _sceneView = static_cast<const Window*>(sharedWindow)->_sceneView;
 
     return true;
 }
@@ -71,5 +71,4 @@ bool Window::configExitGL()
     _sceneView = 0;
     return eq::Window::configExitGL();
 }
-
 }

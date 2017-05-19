@@ -20,16 +20,15 @@
 #include "systemWindow.h"
 
 #include "notifierInterface.h"
-#include <eq/fabric/sizeEvent.h>
 #include <co/objectOCommand.h>
+#include <eq/fabric/sizeEvent.h>
 
 namespace eq
 {
-
-SystemWindow::SystemWindow( NotifierInterface& parent,
-                            const WindowSettings& settings )
-    : _parent( parent )
-    , _settings( settings )
+SystemWindow::SystemWindow(NotifierInterface& parent,
+                           const WindowSettings& settings)
+    : _parent(parent)
+    , _settings(settings)
 {
 }
 
@@ -37,9 +36,9 @@ SystemWindow::~SystemWindow()
 {
 }
 
-void SystemWindow::setPixelViewport( const PixelViewport& pvp )
+void SystemWindow::setPixelViewport(const PixelViewport& pvp)
 {
-    _settings.setPixelViewport( pvp );
+    _settings.setPixelViewport(pvp);
 }
 
 const PixelViewport& SystemWindow::getPixelViewport() const
@@ -52,9 +51,9 @@ uint32_t SystemWindow::getColorFormat() const
     return _settings.getColorFormat();
 }
 
-void SystemWindow::setName( const std::string& name )
+void SystemWindow::setName(const std::string& name)
 {
-    _settings.setName( name );
+    _settings.setName(name);
 }
 
 const std::string& SystemWindow::getName() const
@@ -62,10 +61,9 @@ const std::string& SystemWindow::getName() const
     return _settings.getName();
 }
 
-int32_t
-SystemWindow::getIAttribute( const WindowSettings::IAttribute attr ) const
+int32_t SystemWindow::getIAttribute(const WindowSettings::IAttribute attr) const
 {
-    return _settings.getIAttribute( attr );
+    return _settings.getIAttribute(attr);
 }
 
 const SystemWindow* SystemWindow::getSharedContextWindow() const
@@ -73,55 +71,54 @@ const SystemWindow* SystemWindow::getSharedContextWindow() const
     return _settings.getSharedContextWindow();
 }
 
-EventOCommand SystemWindow::sendError( const uint32_t error )
+EventOCommand SystemWindow::sendError(const uint32_t error)
 {
-    return _parent.sendError( error );
+    return _parent.sendError(error);
 }
 
-bool SystemWindow::processEvent( const EventType type )
+bool SystemWindow::processEvent(const EventType type)
 {
-    return _parent.processEvent( type );
+    return _parent.processEvent(type);
 }
 
-bool SystemWindow::processEvent( const EventType type, SizeEvent& event )
+bool SystemWindow::processEvent(const EventType type, SizeEvent& event)
 {
-    switch( type )
+    switch (type)
     {
     case EVENT_WINDOW_HIDE:
-        setPixelViewport( PixelViewport( 0, 0, 0, 0 ));
+        setPixelViewport(PixelViewport(0, 0, 0, 0));
         break;
 
     case EVENT_WINDOW_EXPOSE:
     case EVENT_WINDOW_SHOW:
     case EVENT_WINDOW_RESIZE:
-        setPixelViewport( PixelViewport( event.x, event.y, event.w, event.h ));
+        setPixelViewport(PixelViewport(event.x, event.y, event.w, event.h));
         break;
 
     default:
         break;
     }
 
-    return _parent.processEvent( type, event );
+    return _parent.processEvent(type, event);
 }
 
-bool SystemWindow::processEvent( const EventType type, PointerEvent& event )
+bool SystemWindow::processEvent(const EventType type, PointerEvent& event)
 {
-    return _parent.processEvent( type, event );
+    return _parent.processEvent(type, event);
 }
 
-bool SystemWindow::processEvent( const EventType type, KeyEvent& event )
+bool SystemWindow::processEvent(const EventType type, KeyEvent& event)
 {
-    return _parent.processEvent( type, event );
+    return _parent.processEvent(type, event);
 }
 
-bool SystemWindow::processEvent( AxisEvent& event )
+bool SystemWindow::processEvent(AxisEvent& event)
 {
-    return _parent.processEvent( event );
+    return _parent.processEvent(event);
 }
 
-bool SystemWindow::processEvent( ButtonEvent& event )
+bool SystemWindow::processEvent(ButtonEvent& event)
 {
-    return _parent.processEvent( event );
+    return _parent.processEvent(event);
 }
-
 }

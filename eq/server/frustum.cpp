@@ -27,37 +27,36 @@ namespace eq
 {
 namespace server
 {
-Frustum::Frustum( FrustumData& data )
-        : _data( data )
+Frustum::Frustum(FrustumData& data)
+    : _data(data)
 {
     updateFrustum();
 }
 
-Frustum::Frustum( const Frustum& from, FrustumData& data )
-        : fabric::Frustum( from )
-        , _data( data )
+Frustum::Frustum(const Frustum& from, FrustumData& data)
+    : fabric::Frustum(from)
+    , _data(data)
 {
     updateFrustum();
 }
 
 void Frustum::updateFrustum()
 {
-    switch( getCurrentType( ))
+    switch (getCurrentType())
     {
-        case TYPE_WALL:
-            _data.applyWall( getWall( ));
-            break;
-        case TYPE_PROJECTION:
-            _data.applyProjection( getProjection( ));
-            break;
+    case TYPE_WALL:
+        _data.applyWall(getWall());
+        break;
+    case TYPE_PROJECTION:
+        _data.applyProjection(getProjection());
+        break;
 
-        case TYPE_NONE:
-            _data.invalidate();
-            break;
-        default:
-            LBUNREACHABLE;
+    case TYPE_NONE:
+        _data.invalidate();
+        break;
+    default:
+        LBUNREACHABLE;
     }
 }
-
 }
 }

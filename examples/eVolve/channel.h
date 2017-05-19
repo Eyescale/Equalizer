@@ -40,31 +40,30 @@ namespace eVolve
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent );
+    Channel(eq::Window* parent);
 
 protected:
     virtual ~Channel() {}
-
-    bool configInit( const eq::uint128_t& initID ) override;
+    bool configInit(const eq::uint128_t& initID) override;
     bool configExit() override;
 
-    void frameStart( const eq::uint128_t& frameID,
-                     const uint32_t frameNumber ) override;
+    void frameStart(const eq::uint128_t& frameID,
+                    const uint32_t frameNumber) override;
 
-    void frameDraw( const eq::uint128_t& frameID ) override;
-    void frameAssemble( const eq::uint128_t&, const eq::Frames& ) override;
-    void frameReadback( const eq::uint128_t&, const eq::Frames& ) override;
-    void frameViewFinish( const eq::uint128_t& frameID ) override;
-    void frameClear( const eq::uint128_t& frameID ) override;
+    void frameDraw(const eq::uint128_t& frameID) override;
+    void frameAssemble(const eq::uint128_t&, const eq::Frames&) override;
+    void frameReadback(const eq::uint128_t&, const eq::Frames&) override;
+    void frameViewFinish(const eq::uint128_t& frameID) override;
+    void frameClear(const eq::uint128_t& frameID) override;
 
     bool useOrtho() const override;
 
-    void clearViewport( const eq::PixelViewport &pvp );
+    void clearViewport(const eq::PixelViewport& pvp);
 
 private:
     void _startAssemble();
 
-    void _orderImages( eq::ImageOps& images );
+    void _orderImages(eq::ImageOps& images);
 
     eq::Matrix4f _computeModelView() const;
 
@@ -73,11 +72,10 @@ private:
     void _drawLogo();
     void _drawHelp();
 
-    eq::Vector3f _bgColor;   //!< background color
-    eq::Image    _image;     //!< Readback buffer for DB compositing
-    const bool   _taint;     //!< True if EQ_TAINT_CHANNELS is set
+    eq::Vector3f _bgColor; //!< background color
+    eq::Image _image;      //!< Readback buffer for DB compositing
+    const bool _taint;     //!< True if EQ_TAINT_CHANNELS is set
 };
-
 }
 
 #endif // EVOLVE_CHANNEL_H

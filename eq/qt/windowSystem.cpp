@@ -17,8 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define NOMINMAX // no min/max from windows.h
-#pragma warning( disable: 4407 ) // see lunchbox/commandFunc.h
+#define NOMINMAX                // no min/max from windows.h
+#pragma warning(disable : 4407) // see lunchbox/commandFunc.h
 #include <eq/window.h> // be first to avoid max/min name clashes on Win32
 
 #include "windowSystem.h"
@@ -29,30 +29,28 @@
 #include "window.h"
 #include "windowFactory.h"
 
-#include <eq/client.h>
 #include <QApplication>
 #include <QThread>
+#include <eq/client.h>
 
 namespace eq
 {
 namespace qt
 {
-
 WindowSystem::WindowSystem()
-    : _factory( new WindowFactory )
+    : _factory(new WindowFactory)
 {
-    qRegisterMetaType< WindowSettings >( "WindowSettings" );
+    qRegisterMetaType<WindowSettings>("WindowSettings");
     QCoreApplication* app = QApplication::instance();
-    if( !app )
+    if (!app)
         return;
 
-    _factory->moveToThread( app->thread( ));
-    app->connect( this, SIGNAL( createImpl( eq::Window&, const WindowSettings&,
-                                            QThread* )),
-                  _factory,
-                  SLOT( onCreateImpl( eq::Window&, const WindowSettings&,
-                                      QThread* )),
-                  Qt::BlockingQueuedConnection );
+    _factory->moveToThread(app->thread());
+    app->connect(this, SIGNAL(createImpl(eq::Window&, const WindowSettings&,
+                                         QThread*)),
+                 _factory, SLOT(onCreateImpl(eq::Window&, const WindowSettings&,
+                                             QThread*)),
+                 Qt::BlockingQueuedConnection);
 }
 
 WindowSystem::~WindowSystem()
@@ -61,27 +59,29 @@ WindowSystem::~WindowSystem()
 }
 
 std::string WindowSystem::getName() const
-    { return QApplication::instance() ? "Qt" : ""; }
+{
+    return QApplication::instance() ? "Qt" : "";
+}
 
-eq::SystemWindow* WindowSystem::createWindow( eq::Window* window,
-                                              const WindowSettings& settings )
+eq::SystemWindow* WindowSystem::createWindow(eq::Window* window,
+                                             const WindowSettings& settings)
 {
     // QWindow creation/destruction must happen in the app thread; unblock main
     // thread to give QApplication the chance to process the createImpl signal.
     // Note that even a QOffscreenSurface is backed by a QWindow on some
     // platforms.
     window->getClient()->interruptMainThread();
-    qt::Window* qtWindow = createImpl( *window, settings,
-                                       QThread::currentThread( ));
-    LBASSERT( qtWindow );
-    qtWindow->connect( qtWindow, SIGNAL( destroyImpl( detail::Window* )),
-                      _factory, SLOT( onDestroyImpl( detail::Window* )));
+    qt::Window* qtWindow =
+        createImpl(*window, settings, QThread::currentThread());
+    LBASSERT(qtWindow);
+    qtWindow->connect(qtWindow, SIGNAL(destroyImpl(detail::Window*)), _factory,
+                      SLOT(onDestroyImpl(detail::Window*)));
     return qtWindow;
 }
 
-eq::SystemPipe* WindowSystem::createPipe( eq::Pipe* pipe )
+eq::SystemPipe* WindowSystem::createPipe(eq::Pipe* pipe)
 {
-    return new Pipe( pipe );
+    return new Pipe(pipe);
 }
 
 eq::MessagePump* WindowSystem::createMessagePump()
@@ -89,13 +89,12 @@ eq::MessagePump* WindowSystem::createMessagePump()
     return new MessagePump;
 }
 
-bool WindowSystem::setupFont( util::ObjectManager& gl LB_UNUSED,
-                              const void* key LB_UNUSED,
-                              const std::string& name LB_UNUSED,
-                              const uint32_t size LB_UNUSED ) const
+bool WindowSystem::setupFont(util::ObjectManager& gl LB_UNUSED,
+                             const void* key LB_UNUSED,
+                             const std::string& name LB_UNUSED,
+                             const uint32_t size LB_UNUSED) const
 {
     return false;
 }
-
 }
 }

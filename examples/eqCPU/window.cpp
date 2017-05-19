@@ -28,37 +28,35 @@
 
 #include "window.h"
 #include <eq/glx/pipe.h>
-#include <eq/x11/window.h>
 #include <eq/pipe.h>
+#include <eq/x11/window.h>
 
 namespace eqCpu
 {
-
-Window::Window( eq::Pipe* parent )
-    : eq::Window( parent )
+Window::Window(eq::Pipe* parent)
+    : eq::Window(parent)
 {
 }
 
-bool Window::configInitSystemWindow( const eq::uint128_t& initID )
+bool Window::configInitSystemWindow(const eq::uint128_t& initID)
 {
     eq::Pipe* pipe = getPipe();
-    eq::glx::Pipe* glxPipe = dynamic_cast< eq::glx::Pipe* >(
-        pipe->getSystemPipe( ));
+    eq::glx::Pipe* glxPipe =
+        dynamic_cast<eq::glx::Pipe*>(pipe->getSystemPipe());
 
-    if( !glxPipe )
-        return eq::Window::configInitSystemWindow( initID );
+    if (!glxPipe)
+        return eq::Window::configInitSystemWindow(initID);
 
     eq::x11::Window* systemWindow =
-        new eq::x11::Window( *this, getSettings(), glxPipe->getXDisplay( ));
+        new eq::x11::Window(*this, getSettings(), glxPipe->getXDisplay());
 
-    if( !systemWindow->configInit( ))
+    if (!systemWindow->configInit())
     {
         delete systemWindow;
         return false;
     }
 
-    setSystemWindow( systemWindow );
+    setSystemWindow(systemWindow);
     return true;
 }
-
 }

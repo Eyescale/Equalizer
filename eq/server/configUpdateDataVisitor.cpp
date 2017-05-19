@@ -28,56 +28,55 @@ namespace eq
 namespace server
 {
 ConfigUpdateDataVisitor::ConfigUpdateDataVisitor()
-    : _lastDrawChannel( 0 )
-    , _lastDrawWindow( 0 )
-    , _lastDrawPipe( 0 )
-{}
+    : _lastDrawChannel(0)
+    , _lastDrawWindow(0)
+    , _lastDrawPipe(0)
+{
+}
 
-
-VisitorResult ConfigUpdateDataVisitor::visitPre( Node* )
+VisitorResult ConfigUpdateDataVisitor::visitPre(Node*)
 {
     _lastDrawPipe = 0;
     return TRAVERSE_CONTINUE;
 }
-VisitorResult ConfigUpdateDataVisitor::visitPost( Node* node )
+VisitorResult ConfigUpdateDataVisitor::visitPost(Node* node)
 {
-    node->setLastDrawPipe( _lastDrawPipe );
+    node->setLastDrawPipe(_lastDrawPipe);
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ConfigUpdateDataVisitor::visitPre( Pipe* )
+VisitorResult ConfigUpdateDataVisitor::visitPre(Pipe*)
 {
     _lastDrawWindow = 0;
     return TRAVERSE_CONTINUE;
 }
-VisitorResult ConfigUpdateDataVisitor::visitPost( Pipe* pipe )
+VisitorResult ConfigUpdateDataVisitor::visitPost(Pipe* pipe)
 {
-    pipe->setLastDrawWindow( _lastDrawWindow );
-    if( _lastDrawWindow )
+    pipe->setLastDrawWindow(_lastDrawWindow);
+    if (_lastDrawWindow)
         _lastDrawPipe = pipe;
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ConfigUpdateDataVisitor::visitPre( Window* )
+VisitorResult ConfigUpdateDataVisitor::visitPre(Window*)
 {
     _lastDrawChannel = 0;
     return TRAVERSE_CONTINUE;
 }
-VisitorResult ConfigUpdateDataVisitor::visitPost( Window* window )
+VisitorResult ConfigUpdateDataVisitor::visitPost(Window* window)
 {
-    window->setLastDrawChannel( _lastDrawChannel );
-    if( _lastDrawChannel )
+    window->setLastDrawChannel(_lastDrawChannel);
+    if (_lastDrawChannel)
         _lastDrawWindow = window;
     return TRAVERSE_CONTINUE;
 }
 
-VisitorResult ConfigUpdateDataVisitor::visit( Channel* channel )
+VisitorResult ConfigUpdateDataVisitor::visit(Channel* channel)
 {
-    if( channel->getLastDrawCompound( ))
+    if (channel->getLastDrawCompound())
         _lastDrawChannel = channel;
 
     return TRAVERSE_CONTINUE;
 }
-
 }
 }

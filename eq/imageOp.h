@@ -19,21 +19,25 @@
 #define EQ_IMAGEOP_H
 
 #include <eq/api.h>
-#include <eq/types.h>
-#include <eq/frame.h> // member
-#include <eq/zoomFilter.h> // member
-#include <eq/fabric/pixel.h> // member
+#include <eq/fabric/pixel.h>    // member
 #include <eq/fabric/subPixel.h> // member
-#include <eq/fabric/zoom.h> // member
+#include <eq/fabric/zoom.h>     // member
+#include <eq/frame.h>           // member
+#include <eq/types.h>
+#include <eq/zoomFilter.h> // member
 
 namespace eq
 {
 /** A structure describing an image assembly task, used by the Compositor. */
 struct ImageOp
 {
-    ImageOp() : image( 0 ), buffers( Frame::Buffer::none ),
-                zoomFilter( FILTER_LINEAR ) {}
-    EQ_API ImageOp( const Frame* frame, const Image* image );
+    ImageOp()
+        : image(0)
+        , buffers(Frame::Buffer::none)
+        , zoomFilter(FILTER_LINEAR)
+    {
+    }
+    EQ_API ImageOp(const Frame* frame, const Image* image);
 
     const Image* image;    //!< The image to assemble
     Frame::Buffer buffers; //!< The Frame buffer attachments to use

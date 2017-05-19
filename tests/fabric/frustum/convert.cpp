@@ -16,13 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <lunchbox/test.h>
-#include <eq/fabric/wall.h>
 #include <eq/fabric/projection.h>
+#include <eq/fabric/wall.h>
+#include <lunchbox/test.h>
 
 using namespace eq::fabric;
 
-int main( int, char** )
+int main(int, char**)
 {
     // Test for same default values
     Projection projection;
@@ -43,14 +43,14 @@ int main( int, char** )
     projection.origin[2] = 0;
 
     wall = projection;
-    TESTINFO( fabs( wall.getWidth() - wall.getHeight( )) <= 0.00001f,
-              wall.getWidth() << " != " << wall.getHeight( ));
+    TESTINFO(fabs(wall.getWidth() - wall.getHeight()) <= 0.00001f,
+             wall.getWidth() << " != " << wall.getHeight());
 
     projection2.distance = projection.distance;
     projection2 = wall;
-    TESTINFO( projection == projection2 ,
-              projection << std::endl << wall << std::endl <<
-              projection2  << std::endl );
+    TESTINFO(projection == projection2, projection << std::endl
+                                                   << wall << std::endl
+                                                   << projection2 << std::endl);
 
     // test 2
     projection.distance = 3;
@@ -61,10 +61,9 @@ int main( int, char** )
     projection.origin[2] = -2;
     wall = projection;
     projection2 = wall;
-    TESTINFO( projection == projection2 , "Test 2" <<
-             projection << std::endl << wall << std::endl <<
-             projection2  << std::endl );
-
+    TESTINFO(projection == projection2, "Test 2" << projection << std::endl
+                                                 << wall << std::endl
+                                                 << projection2 << std::endl);
 
     // test 3
     projection.distance = 3;
@@ -75,10 +74,9 @@ int main( int, char** )
     projection.origin[2] = 2;
     wall = projection;
     projection2 = wall;
-    TESTINFO( projection == projection2 , "Test 3" <<
-             projection << std::endl << wall << std::endl <<
-             projection2  << std::endl );
-
+    TESTINFO(projection == projection2, "Test 3" << projection << std::endl
+                                                 << wall << std::endl
+                                                 << projection2 << std::endl);
 
     // test 4
     projection.distance = 3;
@@ -95,10 +93,11 @@ int main( int, char** )
     wall = projection;
     projection2 = wall;
     Wall wall2;
-    wall2=  projection2;
-    TESTINFO( wall == wall2 , "Test 4" <<
-             projection << std::endl << wall << std::endl <<
-             projection2 << std::endl << wall2 << std::endl );
+    wall2 = projection2;
+    TESTINFO(wall == wall2, "Test 4" << projection << std::endl
+                                     << wall << std::endl
+                                     << projection2 << std::endl
+                                     << wall2 << std::endl);
 
 #if 0
     // Test n

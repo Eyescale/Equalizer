@@ -23,36 +23,74 @@ namespace eq
 {
 namespace fabric
 {
-std::ostream& operator << ( std::ostream& os, const IAttribute value )
+std::ostream& operator<<(std::ostream& os, const IAttribute value)
 {
-    if ( value >= fabric::SOCKET && value <= fabric::SOCKET_MAX )
+    if (value >= fabric::SOCKET && value <= fabric::SOCKET_MAX)
         return os << "socket " << value - fabric::SOCKET;
 
-    switch( value )
+    switch (value)
     {
-        case UNDEFINED:     os << "UNDEFINED"; break;
-        case ON:            os << "ON"; break;
-        case OFF:           os << "OFF"; break;
-        case AUTO:          os << "AUTO"; break;
-        case NICEST:        os << "NICEST"; break;
-        case PASSIVE:       os << "PASSIVE"; break;
-        case ANAGLYPH:      os << "ANAGLYPH"; break;
-        case QUAD:          os << "QUAD"; break;
-        case VERTICAL:      os << "VERTICAL"; break;
-        case WINDOW:        os << "window"; break;
-        case ASYNC:         os << "ASYNC"; break;
-        case DRAW_SYNC:     os << "DRAW_SYNC"; break;
-        case LOCAL_SYNC:    os << "LOCAL_SYNC"; break;
-        case FBO:           os << "FBO"; break;
-        case RGBA16F:       os << "RGBA16F"; break;
-        case RGBA32F:       os << "RGBA32F"; break;
-        case FIXED:         os << "fixed"; break;
-        case RELATIVE_TO_ORIGIN:   os << "relative_to_origin"; break;
-        case RELATIVE_TO_OBSERVER: os << "relative_to_observer"; break;
-        default:            os << static_cast< int >( value );
+    case UNDEFINED:
+        os << "UNDEFINED";
+        break;
+    case ON:
+        os << "ON";
+        break;
+    case OFF:
+        os << "OFF";
+        break;
+    case AUTO:
+        os << "AUTO";
+        break;
+    case NICEST:
+        os << "NICEST";
+        break;
+    case PASSIVE:
+        os << "PASSIVE";
+        break;
+    case ANAGLYPH:
+        os << "ANAGLYPH";
+        break;
+    case QUAD:
+        os << "QUAD";
+        break;
+    case VERTICAL:
+        os << "VERTICAL";
+        break;
+    case WINDOW:
+        os << "window";
+        break;
+    case ASYNC:
+        os << "ASYNC";
+        break;
+    case DRAW_SYNC:
+        os << "DRAW_SYNC";
+        break;
+    case LOCAL_SYNC:
+        os << "LOCAL_SYNC";
+        break;
+    case FBO:
+        os << "FBO";
+        break;
+    case RGBA16F:
+        os << "RGBA16F";
+        break;
+    case RGBA32F:
+        os << "RGBA32F";
+        break;
+    case FIXED:
+        os << "fixed";
+        break;
+    case RELATIVE_TO_ORIGIN:
+        os << "relative_to_origin";
+        break;
+    case RELATIVE_TO_OBSERVER:
+        os << "relative_to_observer";
+        break;
+    default:
+        os << static_cast<int>(value);
     }
     return os;
 }
-
 }
 }

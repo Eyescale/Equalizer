@@ -33,14 +33,13 @@ class CVTracker : public lunchbox::Thread
 {
 public:
     /** Construct a new tracker. */
-    CVTracker( eq::Observer* observer, const uint32_t camera );
+    CVTracker(eq::Observer* observer, const uint32_t camera);
 
     /** Destruct this tracker. */
     virtual ~CVTracker();
 
     /** @return true of the tracker is working. */
     bool isGood() const { return capture_; }
-
 protected:
     virtual void run();
 

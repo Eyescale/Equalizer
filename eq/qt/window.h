@@ -20,44 +20,58 @@
 #ifndef EQ_QT_WINDOW_H
 #define EQ_QT_WINDOW_H
 
-#include <eq/qt/types.h>
-#include <eq/glWindow.h> // base class
 #include <QObject> // base class
 #include <QScreen>
+#include <eq/glWindow.h> // base class
+#include <eq/qt/types.h>
 
 namespace eq
 {
 namespace qt
 {
-namespace detail { class Window; }
+namespace detail
+{
+class Window;
+}
 
 /** The interface defining the minimum functionality for a Qt window. */
 class WindowIF : public GLWindow
 {
 public:
-    WindowIF( NotifierInterface& parent,
-              const WindowSettings& settings ) : GLWindow( parent, settings ) {}
+    WindowIF(NotifierInterface& parent, const WindowSettings& settings)
+        : GLWindow(parent, settings)
+    {
+    }
     virtual ~WindowIF() {}
-
     /** Process a stateless event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, QEvent* )
-        { return GLWindow::processEvent( type ); }
+    virtual bool processEvent(EventType type, QEvent*)
+    {
+        return GLWindow::processEvent(type);
+    }
 
     /** Process a (re)size event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, QEvent*, SizeEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, QEvent*, SizeEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a mouse event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, QEvent*, PointerEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, QEvent*, PointerEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a keyboard event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, QEvent*, KeyEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, QEvent*, KeyEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a stateless event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type )
-        { return GLWindow::processEvent( type ); }
+    virtual bool processEvent(EventType type)
+    {
+        return GLWindow::processEvent(type);
+    }
 };
 
 /** Equalizer default implementation of a Qt window */
@@ -82,8 +96,8 @@ public:
      *
      * @version 1.9
      */
-    EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
-                   QScreen* screen, QThread* thread );
+    EQ_API Window(NotifierInterface& parent, const WindowSettings& settings,
+                  QScreen* screen, QThread* thread);
 
     /** Destruct this Qt window. @version 1.7.3 */
     EQ_API ~Window() final;
@@ -117,7 +131,7 @@ public:
     /** @name Operations. */
     //@{
     /** @version 1.7.3 */
-    EQ_API void makeCurrent( const bool cache = true ) const override;
+    EQ_API void makeCurrent(const bool cache = true) const override;
 
     /** @version 1.10 */
     EQ_API void doneCurrent() const override;
@@ -126,15 +140,15 @@ public:
     EQ_API void swapBuffers() override;
 
     /** Implementation untested for Qt. @version 1.7.3 */
-    EQ_API void joinNVSwapBarrier( const uint32_t group,
-                                   const uint32_t barrier ) override;
+    EQ_API void joinNVSwapBarrier(const uint32_t group,
+                                  const uint32_t barrier) override;
 
     /** Implementation untested for Qt. @version 1.7.3 */
     EQ_API void leaveNVSwapBarrier();
 
     /** @version 1.7.3 */
-    EQ_API bool processEvent( EventType type, QEvent* qEvent, SizeEvent& event )
-        override;
+    EQ_API bool processEvent(EventType type, QEvent* qEvent,
+                             SizeEvent& event) override;
     //@}
 
     /**
@@ -151,15 +165,15 @@ public:
     EQ_API QObject* getEventProcessor();
 
     /** Move OpenGLContext object to given thread. @version 1.10 */
-    void moveContextToThread( QThread* thread );
+    void moveContextToThread(QThread* thread);
 
 signals:
-    void destroyImpl( detail::Window* );
+    void destroyImpl(detail::Window*);
 
 private:
     detail::Window* const _impl;
 
-    void _resize( const PixelViewport& pvp ) override;
+    void _resize(const PixelViewport& pvp) override;
 };
 }
 }

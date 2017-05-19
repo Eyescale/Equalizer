@@ -33,51 +33,50 @@
 
 namespace osgScaleViewer
 {
-
 FrameData::FrameData()
-        : _cameraPosition( eq::Vector3f( 0.f, 0.f, 10.f ))
-        , _statistics( false )
-{}
-
-void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+    : _cameraPosition(eq::Vector3f(0.f, 0.f, 10.f))
+    , _statistics(false)
 {
-    if( dirtyBits & DIRTY_CAMERA )
+}
+
+void FrameData::serialize(co::DataOStream& os, const uint64_t dirtyBits)
+{
+    if (dirtyBits & DIRTY_CAMERA)
         os << _cameraPosition << _cameraLookAtPoint << _cameraUpVector;
-    if( dirtyBits & DIRTY_FLAGS )
+    if (dirtyBits & DIRTY_FLAGS)
         os << _statistics;
 }
 
-void FrameData::deserialize( co::DataIStream& is,
-                             const uint64_t dirtyBits )
+void FrameData::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_CAMERA )
+    if (dirtyBits & DIRTY_CAMERA)
         is >> _cameraPosition >> _cameraLookAtPoint >> _cameraUpVector;
-    if( dirtyBits & DIRTY_FLAGS )
+    if (dirtyBits & DIRTY_FLAGS)
         is >> _statistics;
 }
 
-void FrameData::setCameraPosition( eq::Vector3f cameraPosition )
+void FrameData::setCameraPosition(eq::Vector3f cameraPosition)
 {
     _cameraPosition = cameraPosition;
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setCameraLookAtPoint( eq::Vector3f cameraLookAtPoint )
+void FrameData::setCameraLookAtPoint(eq::Vector3f cameraLookAtPoint)
 {
     _cameraLookAtPoint = cameraLookAtPoint;
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setCameraUpVector( eq::Vector3f cameraUpVector )
+void FrameData::setCameraUpVector(eq::Vector3f cameraUpVector)
 {
     _cameraUpVector = cameraUpVector;
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
 void FrameData::toggleStatistics()
 {
     _statistics = !_statistics;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 co::Object::ChangeType FrameData::getChangeType() const

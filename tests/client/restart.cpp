@@ -17,50 +17,49 @@
 
 // https://github.com/Eyescale/Equalizer/issues/539
 
-#include <lunchbox/test.h>
 #include <eq/eq.h>
+#include <lunchbox/test.h>
 
 #ifdef _WIN32
-#  define setenv( name, value, overwrite ) \
-    _putenv_s( name, value )
+#define setenv(name, value, overwrite) _putenv_s(name, value)
 #endif
 
 #ifdef EQUALIZER_USE_HWSD
 #define LOOPS 2
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
-    ::setenv( "EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/ );
+    ::setenv("EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/);
     eq::NodeFactory nodeFactory;
-    TEST( eq::init( argc, argv, &nodeFactory ));
+    TEST(eq::init(argc, argv, &nodeFactory));
 
-    for( size_t i = 0; i < LOOPS; ++i )
+    for (size_t i = 0; i < LOOPS; ++i)
     {
         eq::ClientPtr client = new eq::Client;
-        TEST( client->initLocal( argc, argv ));
+        TEST(client->initLocal(argc, argv));
 
-        for( size_t j = 0; j < LOOPS; ++j )
+        for (size_t j = 0; j < LOOPS; ++j)
         {
             eq::ServerPtr server = new eq::Server;
-            TEST( client->connectServer( server ));
+            TEST(client->connectServer(server));
 
-            for( size_t k = 0; k < LOOPS; ++k )
+            for (size_t k = 0; k < LOOPS; ++k)
             {
                 eq::fabric::ConfigParams configParams;
-                eq::Config* config = server->chooseConfig( configParams );
-                if( !config ) // Autoconfig failed, likely there are no GPUs
+                eq::Config* config = server->chooseConfig(configParams);
+                if (!config) // Autoconfig failed, likely there are no GPUs
                     continue;
 
-                for( size_t l = 0; l < LOOPS; ++l )
+                for (size_t l = 0; l < LOOPS; ++l)
                 {
-                    TESTINFO( config->init( co::uint128_t( )),
-                              "at client " << i << " server " << j <<
-                              " config " << k << " init " << l );
+                    TESTINFO(config->init(co::uint128_t()),
+                             "at client " << i << " server " << j << " config "
+                                          << k << " init " << l);
                     config->exit();
                 }
-                server->releaseConfig( config );
+                server->releaseConfig(config);
             }
-            client->disconnectServer( server );
+            client->disconnectServer(server);
         }
         client->exitLocal();
     }
@@ -70,7 +69,7 @@ int main( const int argc, char** argv )
 
 #else
 
-int main( const int, char** )
+int main(const int, char**)
 {
     return EXIT_SUCCESS;
 }

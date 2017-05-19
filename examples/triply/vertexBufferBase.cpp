@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,18 +31,18 @@
 
 namespace triply
 {
-void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
+void VertexBufferBase::drawBoundingSphere(VertexBufferState& state) const
 {
-    GLuint displayList = state.getDisplayList( &_boundingSphere );
+    GLuint displayList = state.getDisplayList(&_boundingSphere);
 
-    if( displayList == state.INVALID )
+    if (displayList == state.INVALID)
     {
-        displayList = state.newDisplayList( &_boundingSphere );
-        glNewList( displayList, GL_COMPILE );
+        displayList = state.newDisplayList(&_boundingSphere);
+        glNewList(displayList, GL_COMPILE);
 
-        const float x  = _boundingSphere.x();
-        const float y  = _boundingSphere.y();
-        const float z  = _boundingSphere.z();
+        const float x = _boundingSphere.x();
+        const float y = _boundingSphere.y();
+        const float z = _boundingSphere.z();
         const float x1 = x - _boundingSphere.w();
         const float x2 = x + _boundingSphere.w();
         const float y1 = y - _boundingSphere.w();
@@ -51,44 +51,44 @@ void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
         const float z2 = z + _boundingSphere.w();
         const float size = _boundingSphere.w();
 
-        glBegin( GL_QUADS );
-            glNormal3f( 1.0f, 0.0f, 0.0f );
-            glVertex3f( x1, y - size, z - size );
-            glVertex3f( x1, y + size, z - size );
-            glVertex3f( x1, y + size, z + size );
-            glVertex3f( x1, y - size, z + size );
-            glNormal3f( -1.0f, 0.0f, 0.0f );
-            glVertex3f( x2, y - size, z - size );
-            glVertex3f( x2, y - size, z + size );
-            glVertex3f( x2, y + size, z + size );
-            glVertex3f( x2, y + size, z - size );
+        glBegin(GL_QUADS);
+        glNormal3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(x1, y - size, z - size);
+        glVertex3f(x1, y + size, z - size);
+        glVertex3f(x1, y + size, z + size);
+        glVertex3f(x1, y - size, z + size);
+        glNormal3f(-1.0f, 0.0f, 0.0f);
+        glVertex3f(x2, y - size, z - size);
+        glVertex3f(x2, y - size, z + size);
+        glVertex3f(x2, y + size, z + size);
+        glVertex3f(x2, y + size, z - size);
 
-            glNormal3f( 0.0f, -1.0f, 0.0f );
-            glVertex3f( x - size, y2, z - size );
-            glVertex3f( x + size, y2, z - size );
-            glVertex3f( x + size, y2, z + size );
-            glVertex3f( x - size, y2, z + size );
-            glNormal3f( 0.0f, 1.0f, 0.0f );
-            glVertex3f( x - size, y1, z - size );
-            glVertex3f( x - size, y1, z + size );
-            glVertex3f( x + size, y1, z + size );
-            glVertex3f( x + size, y1, z - size );
+        glNormal3f(0.0f, -1.0f, 0.0f);
+        glVertex3f(x - size, y2, z - size);
+        glVertex3f(x + size, y2, z - size);
+        glVertex3f(x + size, y2, z + size);
+        glVertex3f(x - size, y2, z + size);
+        glNormal3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(x - size, y1, z - size);
+        glVertex3f(x - size, y1, z + size);
+        glVertex3f(x + size, y1, z + size);
+        glVertex3f(x + size, y1, z - size);
 
-            glNormal3f( 0.0f, 0.0f, -1.0f );
-            glVertex3f( x - size, y - size, z2 );
-            glVertex3f( x - size, y + size, z2 );
-            glVertex3f( x + size, y + size, z2 );
-            glVertex3f( x + size, y - size, z2 );
-            glNormal3f( 0.0f, 0.0f, 1.0f );
-            glVertex3f( x - size, y - size, z1 );
-            glVertex3f( x + size, y - size, z1 );
-            glVertex3f( x + size, y + size, z1 );
-            glVertex3f( x - size, y + size, z1 );
+        glNormal3f(0.0f, 0.0f, -1.0f);
+        glVertex3f(x - size, y - size, z2);
+        glVertex3f(x - size, y + size, z2);
+        glVertex3f(x + size, y + size, z2);
+        glVertex3f(x + size, y - size, z2);
+        glNormal3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(x - size, y - size, z1);
+        glVertex3f(x + size, y - size, z1);
+        glVertex3f(x + size, y + size, z1);
+        glVertex3f(x - size, y + size, z1);
         glEnd();
 
         glEndList();
     }
 
-    glCallList( displayList );
+    glCallList(displayList);
 }
 }

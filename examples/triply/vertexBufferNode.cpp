@@ -27,7 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "vertexBufferNode.h"
 #include "vertexBufferLeaf.h"
 #include "vertexBufferState.h"
@@ -36,51 +35,50 @@
 
 namespace triply
 {
-
-inline static bool _subdivide( const Index length, const size_t depth )
+inline static bool _subdivide(const Index length, const size_t depth)
 {
-    return ( length > LEAF_SIZE ) || ( depth < 3 && length > 1 );
+    return (length > LEAF_SIZE) || (depth < 3 && length > 1);
 }
 
 /*  Continue kd-tree setup, create intermediary or leaf nodes as required.  */
-void VertexBufferNode::setupTree( VertexData& data, const Index start,
-                                  const Index length, const Axis axis,
-                                  const size_t depth,
-                                  VertexBufferData& globalData,
-                                  boost::progress_display& progress )
+void VertexBufferNode::setupTree(VertexData& data, const Index start,
+                                 const Index length, const Axis axis,
+                                 const size_t depth,
+                                 VertexBufferData& globalData,
+                                 boost::progress_display& progress)
 {
-    data.sort( start, length, axis );
-    const Index median = start + ( length / 2 );
+    data.sort(start, length, axis);
+    const Index median = start + (length / 2);
 
     // left child will include elements smaller than the median
-    const Index leftLength    = length / 2;
-    const bool  subdivideLeft = _subdivide( leftLength, depth );
+    const Index leftLength = length / 2;
+    const bool subdivideLeft = _subdivide(leftLength, depth);
 
-    if( subdivideLeft )
-        _left.reset( new VertexBufferNode );
+    if (subdivideLeft)
+        _left.reset(new VertexBufferNode);
     else
-        _left.reset( new VertexBufferLeaf( globalData ));
+        _left.reset(new VertexBufferLeaf(globalData));
 
     // right child will include elements equal to or greater than the median
-    const Index rightLength    = ( length + 1 ) / 2;
-    const bool  subdivideRight = _subdivide( rightLength, depth );
+    const Index rightLength = (length + 1) / 2;
+    const bool subdivideRight = _subdivide(rightLength, depth);
 
-    if( subdivideRight )
-        _right.reset( new VertexBufferNode );
+    if (subdivideRight)
+        _right.reset(new VertexBufferNode);
     else
-        _right.reset( new VertexBufferLeaf( globalData ));
+        _right.reset(new VertexBufferLeaf(globalData));
 
     // move to next axis and continue contruction in the child nodes
-    const Axis newAxisLeft  = subdivideLeft ?
-                        data.getLongestAxis( start, leftLength  ) : AXIS_X;
-    const Axis newAxisRight = subdivideRight ?
-                        data.getLongestAxis( median, rightLength ) : AXIS_X;
+    const Axis newAxisLeft =
+        subdivideLeft ? data.getLongestAxis(start, leftLength) : AXIS_X;
+    const Axis newAxisRight =
+        subdivideRight ? data.getLongestAxis(median, rightLength) : AXIS_X;
 
-    _left->setupTree( data, start, leftLength, newAxisLeft, depth+1,
-                      globalData, progress );
-    _right->setupTree( data, median, rightLength, newAxisRight, depth+1,
-                       globalData, progress );
-    if( depth == 3 )
+    _left->setupTree(data, start, leftLength, newAxisLeft, depth + 1,
+                     globalData, progress);
+    _right->setupTree(data, median, rightLength, newAxisRight, depth + 1,
+                      globalData, progress);
+    if (depth == 3)
         ++progress;
 }
 
@@ -92,19 +90,19 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     const BoundingSphere& sphere2 = _right->updateBoundingSphere();
 
     // compute enclosing sphere
-    const Vertex center1( sphere1.array );
-    const Vertex center2( sphere2.array );
-    Vertex c1ToC2     = center2 - center1;
+    const Vertex center1(sphere1.array);
+    const Vertex center2(sphere2.array);
+    Vertex c1ToC2 = center2 - center1;
     c1ToC2.normalize();
 
     const Vertex outer1 = center1 - c1ToC2 * sphere1.w();
     const Vertex outer2 = center2 + c1ToC2 * sphere2.w();
 
-    Vertex vertexBoundingSphere = Vertex( outer1 + outer2 ) * 0.5f;
+    Vertex vertexBoundingSphere = Vertex(outer1 + outer2) * 0.5f;
     _boundingSphere.x() = vertexBoundingSphere.x();
     _boundingSphere.y() = vertexBoundingSphere.y();
     _boundingSphere.z() = vertexBoundingSphere.z();
-    _boundingSphere.w() = Vertex( outer1 - outer2 ).length() * 0.5f;
+    _boundingSphere.w() = Vertex(outer1 - outer2).length() * 0.5f;
     return _boundingSphere;
 }
 
@@ -115,64 +113,65 @@ void VertexBufferNode::updateRange()
     _right->updateRange();
 
     // set node range to min/max of the children's ranges
-    _range[0] = std::min( _left->getRange()[0], _right->getRange()[0] );
-    _range[1] = std::max( _left->getRange()[1], _right->getRange()[1] );
+    _range[0] = std::min(_left->getRange()[0], _right->getRange()[0]);
+    _range[1] = std::max(_left->getRange()[1], _right->getRange()[1]);
 }
 
 /*  Draw the node by rendering the children.  */
-void VertexBufferNode::draw( VertexBufferState& state ) const
+void VertexBufferNode::draw(VertexBufferState& state) const
 {
-    if ( state.stopRendering( ))
+    if (state.stopRendering())
         return;
 
-    _left->draw( state );
-    _right->draw( state );
+    _left->draw(state);
+    _right->draw(state);
 }
 
 /*  Read node from memory and continue with remaining nodes.  */
-void VertexBufferNode::fromMemory( char** addr, VertexBufferData& globalData )
+void VertexBufferNode::fromMemory(char** addr, VertexBufferData& globalData)
 {
     // read node itself
     Type nodeType;
-    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( nodeType ));
-    if( nodeType != Type::node )
-        throw MeshException( "Error reading binary file. Expected a node, got "+
-                             std::to_string( unsigned( nodeType )));
-    VertexBufferBase::fromMemory( addr, globalData );
+    memRead(reinterpret_cast<char*>(&nodeType), addr, sizeof(nodeType));
+    if (nodeType != Type::node)
+        throw MeshException("Error reading binary file. Expected a node, got " +
+                            std::to_string(unsigned(nodeType)));
+    VertexBufferBase::fromMemory(addr, globalData);
 
     // read left child (peek ahead)
-    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( nodeType ));
-    if( nodeType != Type::node && nodeType != Type::leaf )
-        throw MeshException( "Error reading binary file. Expected either a "
-                             "regular or a leaf node, but found neither." );
-    *addr -= sizeof( nodeType );
-    if( nodeType == Type::node )
-        _left.reset( new VertexBufferNode );
+    memRead(reinterpret_cast<char*>(&nodeType), addr, sizeof(nodeType));
+    if (nodeType != Type::node && nodeType != Type::leaf)
+        throw MeshException(
+            "Error reading binary file. Expected either a "
+            "regular or a leaf node, but found neither.");
+    *addr -= sizeof(nodeType);
+    if (nodeType == Type::node)
+        _left.reset(new VertexBufferNode);
     else
-        _left.reset( new VertexBufferLeaf( globalData ));
-    _left->fromMemory( addr, globalData );
+        _left.reset(new VertexBufferLeaf(globalData));
+    _left->fromMemory(addr, globalData);
 
     // read right child (peek ahead)
-    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( nodeType ));
-    if( nodeType != Type::node && nodeType != Type::leaf )
-        throw MeshException( "Error reading binary file. Expected either a "
-                             "regular or a leaf node, but found neither." );
-    *addr -= sizeof( nodeType );
-    if( nodeType == Type::node )
-        _right.reset( new VertexBufferNode );
+    memRead(reinterpret_cast<char*>(&nodeType), addr, sizeof(nodeType));
+    if (nodeType != Type::node && nodeType != Type::leaf)
+        throw MeshException(
+            "Error reading binary file. Expected either a "
+            "regular or a leaf node, but found neither.");
+    *addr -= sizeof(nodeType);
+    if (nodeType == Type::node)
+        _right.reset(new VertexBufferNode);
     else
-        _right.reset( new VertexBufferLeaf( globalData ));
-    _right->fromMemory( addr, globalData );
+        _right.reset(new VertexBufferLeaf(globalData));
+    _right->fromMemory(addr, globalData);
 }
 
 /*  Write node to output stream and continue with remaining nodes.  */
-void VertexBufferNode::toStream( std::ostream& os )
+void VertexBufferNode::toStream(std::ostream& os)
 {
     const Type nodeType = Type::node;
-    os.write( reinterpret_cast< const char* >( &nodeType ), sizeof( nodeType ));
-    VertexBufferBase::toStream( os );
-    _left->toStream( os );
-    _right->toStream( os );
+    os.write(reinterpret_cast<const char*>(&nodeType), sizeof(nodeType));
+    VertexBufferBase::toStream(os);
+    _left->toStream(os);
+    _right->toStream(os);
 }
-
 }

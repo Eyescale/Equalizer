@@ -17,34 +17,34 @@
 
 // https://github.com/Eyescale/Equalizer/issues/270
 
-#include <lunchbox/test.h>
 #include <eq/eq.h>
+#include <lunchbox/test.h>
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
-    eq::Global::setConfig( "configs/config.eqc" );
+    eq::Global::setConfig("configs/config.eqc");
 
     eq::NodeFactory nodeFactory;
-    TEST( eq::init( 0, 0, &nodeFactory ));
+    TEST(eq::init(0, 0, &nodeFactory));
 
     eq::ClientPtr client = new eq::Client;
-    TEST( client->initLocal( argc, argv ));
+    TEST(client->initLocal(argc, argv));
 
     eq::ServerPtr server = new eq::Server;
-    TEST( client->connectServer( server ));
+    TEST(client->connectServer(server));
 
     eq::fabric::ConfigParams configParams;
-    configParams.setFlags( eq::fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
+    configParams.setFlags(eq::fabric::ConfigParams::FLAG_MULTIPROCESS_DB);
 
-    eq::Config* config = server->chooseConfig( configParams );
-    TEST( config );
+    eq::Config* config = server->chooseConfig(configParams);
+    TEST(config);
 
-    server->releaseConfig( config );
-    client->disconnectServer( server );
+    server->releaseConfig(config);
+    client->disconnectServer(server);
     client->exitLocal();
 
-    TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
-    TESTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    TESTINFO(client->getRefCount() == 1, client->getRefCount());
+    TESTINFO(server->getRefCount() == 1, server->getRefCount());
 
     eq::exit();
     return EXIT_SUCCESS;

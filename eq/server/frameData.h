@@ -19,8 +19,8 @@
 #ifndef EQSERVER_FRAMEDATA_H
 #define EQSERVER_FRAMEDATA_H
 
-#include <eq/fabric/frame.h>      // for Frame::Type
-#include <eq/fabric/frameData.h>  // member
+#include <eq/fabric/frame.h>     // for Frame::Type
+#include <eq/fabric/frameData.h> // member
 #include <eq/server/types.h>
 
 namespace eq
@@ -33,28 +33,25 @@ class FrameData : public fabric::FrameData, public co::Object
 public:
     /** Construct a new FrameData. */
     FrameData();
-    virtual ~FrameData(){}
-
+    virtual ~FrameData() {}
     /** @name Data Access */
     //@{
     /** Set the number of the frame when this data was last used. */
-    void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
+    void setFrameNumber(const uint32_t number) { _frameNumber = number; }
     uint32_t getFrameNumber() const { return _frameNumber; }
-
     /** Set the position of the data relative to the window. */
-    void setOffset( const Vector2i& offset ) { _offset = offset; }
+    void setOffset(const Vector2i& offset) { _offset = offset; }
     /** @return the position of the data relative to the window. */
     const Vector2i& getOffset() const { return _offset; }
-
     /** Set the output frame zoom factor. */
-    void setZoom( const Zoom& zoom_ ) { _zoom = zoom_; }
+    void setZoom(const Zoom& zoom_) { _zoom = zoom_; }
     const Zoom& getZoom() const { return _zoom; }
     //@}
 
 protected:
     virtual ChangeType getChangeType() const { return INSTANCE; }
-    virtual void getInstanceData( co::DataOStream& os );
-    virtual void applyInstanceData( co::DataIStream& is );
+    virtual void getInstanceData(co::DataOStream& os);
+    virtual void applyInstanceData(co::DataIStream& is);
 
 private:
     /** The zoom factor of the output frame after readback. */

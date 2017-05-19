@@ -19,13 +19,15 @@
 #define EQ_WINDOW_SETTINGS_H
 
 #include <eq/api.h>
-#include <eq/types.h>
 #include <eq/fabric/windowSettings.h> // base class
-
+#include <eq/types.h>
 
 namespace eq
 {
-namespace detail { class WindowSettings; }
+namespace detail
+{
+class WindowSettings;
+}
 
 /** A set of settings to setup an eq::SystemWindow. */
 class WindowSettings : public fabric::WindowSettings
@@ -38,13 +40,13 @@ public:
     EQ_API ~WindowSettings();
 
     /** @internal */
-    EQ_API WindowSettings( const WindowSettings& rhs );
+    EQ_API WindowSettings(const WindowSettings& rhs);
 
     /** @internal */
-    EQ_API WindowSettings& operator=( const WindowSettings& rhs );
+    EQ_API WindowSettings& operator=(const WindowSettings& rhs);
 
     /** @sa eq::Window::setSharedContextWindow() @version 1.7.2 */
-    EQ_API void setSharedContextWindow( const SystemWindow* window );
+    EQ_API void setSharedContextWindow(const SystemWindow* window);
 
     /** @sa eq::Window::getSharedContextWindow() @version 1.7.2 */
     EQ_API const SystemWindow* getSharedContextWindow() const;
@@ -60,6 +62,5 @@ private:
     detail::WindowSettings* const _impl;
 };
 }
-
 
 #endif // EQ_WINDOW_SETTINGS_H

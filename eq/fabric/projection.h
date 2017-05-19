@@ -18,8 +18,8 @@
 #ifndef EQFABRIC_PROJECTION_H
 #define EQFABRIC_PROJECTION_H
 
-#include <eq/fabric/types.h>
 #include <eq/fabric/api.h>
+#include <eq/fabric/types.h>
 #include <eq/fabric/vmmlib.h>
 #include <iostream>
 
@@ -46,7 +46,7 @@ public:
      * @param ratio the amount by which the FOV is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeHorizontal( const float ratio );
+    EQFABRIC_API void resizeHorizontal(const float ratio);
 
     /**
      * Resize the vertical FOV.
@@ -54,33 +54,33 @@ public:
      * @param ratio the amount by which the FOV is grown or shrunk.
      * @version 1.0
      */
-    EQFABRIC_API void resizeVertical( const float ratio );
+    EQFABRIC_API void resizeVertical(const float ratio);
 
     /**
      * Convert the projection parameters from a wall description.
      * @version 1.0
      */
-    EQFABRIC_API Projection& operator = ( const Wall& wall );
+    EQFABRIC_API Projection& operator=(const Wall& wall);
 
     /**
      * @return true if the two projection definitions are identical.
      * @version 1.0
      */
-    EQFABRIC_API bool operator == ( const Projection& rhs ) const;
+    EQFABRIC_API bool operator==(const Projection& rhs) const;
 
     /**
      * @return true if the two projection definitions are not identical.
      * @version 1.0
      */
-    EQFABRIC_API bool operator != ( const Projection& rhs ) const;
+    EQFABRIC_API bool operator!=(const Projection& rhs) const;
 
-    Vector3f origin;   //!< The position of the projection
-    float    distance; //!< The distance of the projection surface
-    Vector2f fov;      //!< The x and y opening angle of the projection
-    Vector3f hpr;      //!< The orientation (head, pitch, roll)
+    Vector3f origin; //!< The position of the projection
+    float distance;  //!< The distance of the projection surface
+    Vector2f fov;    //!< The x and y opening angle of the projection
+    Vector3f hpr;    //!< The orientation (head, pitch, roll)
 };
 
-EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Projection& );
+EQFABRIC_API std::ostream& operator<<(std::ostream& os, const Projection&);
 }
 }
 

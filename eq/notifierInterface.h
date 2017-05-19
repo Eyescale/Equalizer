@@ -22,20 +22,18 @@
 
 namespace eq
 {
-
 /** A base class for notifying errors and events. */
 class NotifierInterface
 {
 public:
     virtual ~NotifierInterface() {}
-
     /**
      * Send an error event to the application node.
      *
      * @param error the error code.
      * @version 1.7.2
      */
-    virtual EventOCommand sendError( const uint32_t error ) = 0;
+    virtual EventOCommand sendError(const uint32_t error) = 0;
 
     /**
      * Process a received event.
@@ -47,14 +45,13 @@ public:
      * @param event the received event.
      * @return true when the event was handled, false if not.
      */
-    virtual bool processEvent( EventType type, SizeEvent& event ) = 0;
-    virtual bool processEvent( EventType type, PointerEvent& event ) = 0;
-    virtual bool processEvent( EventType type, KeyEvent& event ) = 0;
-    virtual bool processEvent( AxisEvent& event ) = 0;
-    virtual bool processEvent( ButtonEvent& event ) = 0;
-    virtual bool processEvent( EventType type ) = 0; //!< stateless event
+    virtual bool processEvent(EventType type, SizeEvent& event) = 0;
+    virtual bool processEvent(EventType type, PointerEvent& event) = 0;
+    virtual bool processEvent(EventType type, KeyEvent& event) = 0;
+    virtual bool processEvent(AxisEvent& event) = 0;
+    virtual bool processEvent(ButtonEvent& event) = 0;
+    virtual bool processEvent(EventType type) = 0; //!< stateless event
 };
 }
-
 
 #endif // EQ_NOTIFIER_INTERFACE_H

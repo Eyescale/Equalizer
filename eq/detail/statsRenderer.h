@@ -25,19 +25,20 @@ namespace eq
 {
 namespace detail
 {
-    class StatsRenderer : public GLStats::Renderer
+class StatsRenderer : public GLStats::Renderer
+{
+public:
+    StatsRenderer(const util::BitmapFont* font)
+        : GLStats::Renderer()
+        , _font(font)
     {
-    public:
-        StatsRenderer( const util::BitmapFont* font )
-                : GLStats::Renderer(), _font( font ) {}
-        virtual ~StatsRenderer() {}
-
-    protected:
-        virtual void drawText( const std::string& text ) { _font->draw(text); }
-
-    private:
-        const util::BitmapFont* const _font;
-    };
+    }
+    virtual ~StatsRenderer() {}
+protected:
+    virtual void drawText(const std::string& text) { _font->draw(text); }
+private:
+    const util::BitmapFont* const _font;
+};
 }
 }
 

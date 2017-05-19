@@ -18,18 +18,18 @@
 #ifndef EQADMIN_NODE_H
 #define EQADMIN_NODE_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/node.h>       // base class
+#include <eq/admin/types.h> // typedefs
+#include <eq/fabric/node.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
+class Node : public fabric::Node<Config, Node, Pipe, NodeVisitor>
 {
 public:
     /** Construct a new node. @version 1.0 */
-    EQADMIN_API explicit Node( Config* parent );
+    EQADMIN_API explicit Node(Config* parent);
 
     /** Destruct a node. @version 1.0 */
     EQADMIN_API virtual ~Node();

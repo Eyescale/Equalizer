@@ -34,14 +34,12 @@
 
 namespace eqPixelBench
 {
-
 enum ConfigEventType
 {
     READBACK = eq::EVENT_USER,
     ASSEMBLE,
     START_LATENCY
 };
-
 }
 
 #endif // EQ_PIXELBENCH_CONFIGEVENT_H

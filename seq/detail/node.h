@@ -18,8 +18,8 @@
 #ifndef EQSEQUEL_DETAIL_NODE_H
 #define EQSEQUEL_DETAIL_NODE_H
 
-#include <seq/types.h>
 #include <eq/node.h> // base class
+#include <seq/types.h>
 
 namespace seq
 {
@@ -28,19 +28,19 @@ namespace detail
 class Node : public eq::Node
 {
 public:
-    explicit Node( eq::Config* parent );
+    explicit Node(eq::Config* parent);
 
     Config* getConfig();
     seq::Application* getApplication();
 
 protected:
-    virtual ~Node(){}
-
-    virtual bool configInit( const uint128_t& initID );
+    virtual ~Node() {}
+    virtual bool configInit(const uint128_t& initID);
     virtual bool configExit();
 
-    virtual void frameStart( const uint128_t& frameID,
-                             const uint32_t frameNumber );
+    virtual void frameStart(const uint128_t& frameID,
+                            const uint32_t frameNumber);
+
 private:
 };
 }

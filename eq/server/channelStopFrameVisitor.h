@@ -23,30 +23,30 @@
 
 #include <eq/fabric/commands.h>
 
-
 namespace eq
 {
 namespace server
 {
-
 class ChannelStopFrameVisitor : public ConfigVisitor
 {
 public:
-    explicit ChannelStopFrameVisitor( const uint32_t lastFrameNumber )
-        : _lastFrameNumber( lastFrameNumber ) {}
-
-    virtual VisitorResult visit( Channel* channel )
+    explicit ChannelStopFrameVisitor(const uint32_t lastFrameNumber)
+        : _lastFrameNumber(lastFrameNumber)
     {
-        if( !channel->isActive() || !channel->isRunning( ))
+    }
+
+    virtual VisitorResult visit(Channel* channel)
+    {
+        if (!channel->isActive() || !channel->isRunning())
             return TRAVERSE_CONTINUE;
 
-        channel->send( fabric::CMD_CHANNEL_STOP_FRAME ) << _lastFrameNumber;
+        channel->send(fabric::CMD_CHANNEL_STOP_FRAME) << _lastFrameNumber;
         return TRAVERSE_CONTINUE;
     }
 
-    virtual VisitorResult visitPost( Node* node )
+    virtual VisitorResult visitPost(Node* node)
     {
-        if( node->isRunning() )
+        if (node->isRunning())
             node->flushSendBuffer();
         return TRAVERSE_CONTINUE;
     }
@@ -54,6 +54,5 @@ public:
 private:
     const uint32_t _lastFrameNumber;
 };
-
 }
 }

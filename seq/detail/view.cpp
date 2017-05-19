@@ -32,10 +32,10 @@ namespace seq
 {
 namespace detail
 {
-
-View::View( eq::Layout* parent )
-        : eq::View( parent )
-{}
+View::View(eq::Layout* parent)
+    : eq::View(parent)
+{
+}
 
 View::~View()
 {
@@ -43,41 +43,41 @@ View::~View()
 
 Config* View::getConfig()
 {
-    return static_cast< Config* >( eq::View::getConfig( ));
+    return static_cast<Config*>(eq::View::getConfig());
 }
 
 Pipe* View::getPipe()
 {
-    return static_cast< Pipe* >( eq::View::getPipe( ));
+    return static_cast<Pipe*>(eq::View::getPipe());
 }
 
 ViewData* View::getViewData()
 {
-    return static_cast< ViewData* >( eq::View::getUserData( ));
+    return static_cast<ViewData*>(eq::View::getUserData());
 }
 
 const ViewData* View::getViewData() const
 {
-    return static_cast< const ViewData* >( eq::View::getUserData( ));
+    return static_cast<const ViewData*>(eq::View::getUserData());
 }
 
 bool View::configInit()
 {
-    if( !eq::View::configInit( ))
+    if (!eq::View::configInit())
         return false;
 
-    if( !getPipe() ) // application view
-        setUserData( getConfig()->getApplication()->createViewData( *this ));
+    if (!getPipe()) // application view
+        setUserData(getConfig()->getApplication()->createViewData(*this));
     return true;
 }
 
 bool View::configExit()
 {
     ViewData* viewData = getViewData();
-    if( !getPipe() && viewData ) // application view
+    if (!getPipe() && viewData) // application view
     {
-        setUserData( 0 );
-        getConfig()->getApplication()->destroyViewData( viewData );
+        setUserData(0);
+        getConfig()->getApplication()->destroyViewData(viewData);
     }
     return eq::View::configExit();
 }
@@ -87,21 +87,21 @@ void View::notifyAttach()
     eq::View::notifyAttach();
     Pipe* pipe = getPipe();
 
-    if( pipe ) // render client view
-        setUserData( pipe->getRenderer()->createViewData( *this ));
+    if (pipe) // render client view
+        setUserData(pipe->getRenderer()->createViewData(*this));
 }
 
 void View::notifyDetached()
 {
     ViewData* data = getViewData();
-    setUserData( 0 );
+    setUserData(0);
 
-    if( data )
+    if (data)
     {
         Pipe* pipe = getPipe();
 
-        if( pipe ) // render client view
-            pipe->getRenderer()->destroyViewData( data );
+        if (pipe) // render client view
+            pipe->getRenderer()->destroyViewData(data);
     }
 
     eq::View::notifyDetached();
@@ -109,61 +109,63 @@ void View::notifyDetached()
 
 bool View::updateData()
 {
-    if( !isActive( ))
+    if (!isActive())
         return false;
 
     ViewData* data = getViewData();
-    LBASSERT( data );
-    if( data )
+    LBASSERT(data);
+    if (data)
         return data->update();
     return false;
 }
 
-template< class E > bool View::_handleEvent( eq::EventType type, E& event )
+template <class E>
+bool View::_handleEvent(eq::EventType type, E& event)
 {
     ViewData* data = getViewData();
-    LBASSERT( data );
-    if( !data )
+    LBASSERT(data);
+    if (!data)
         return false;
-    if( isActive( ))
-        return data->handleEvent( type, event );
+    if (isActive())
+        return data->handleEvent(type, event);
     return false;
 }
 
-template< class E > bool View::_handleEvent( E& event )
+template <class E>
+bool View::_handleEvent(E& event)
 {
     ViewData* data = getViewData();
-    LBASSERT( data );
-    if( !data )
+    LBASSERT(data);
+    if (!data)
         return false;
-    if( isActive() )
-        return data->handleEvent( event );
+    if (isActive())
+        return data->handleEvent(event);
     return false;
 }
 
-bool View::handleEvent( eq::EventType type, const SizeEvent& event )
+bool View::handleEvent(eq::EventType type, const SizeEvent& event)
 {
-    return _handleEvent( type, event );
+    return _handleEvent(type, event);
 }
 
-bool View::handleEvent( eq::EventType type, const PointerEvent& event )
+bool View::handleEvent(eq::EventType type, const PointerEvent& event)
 {
-    return _handleEvent( type, event );
+    return _handleEvent(type, event);
 }
 
-bool View::handleEvent( eq::EventType type, const KeyEvent& event )
+bool View::handleEvent(eq::EventType type, const KeyEvent& event)
 {
-    return _handleEvent( type, event );
+    return _handleEvent(type, event);
 }
 
-bool View::handleEvent( const AxisEvent& event )
+bool View::handleEvent(const AxisEvent& event)
 {
-    return _handleEvent( event );
+    return _handleEvent(event);
 }
 
-bool View::handleEvent( const ButtonEvent& event )
+bool View::handleEvent(const ButtonEvent& event)
 {
-    return _handleEvent( event );
+    return _handleEvent(event);
 }
 }
 }

@@ -20,16 +20,19 @@
 #define EQ_VIEW_H
 
 #include <eq/api.h>
-#include <eq/types.h>          // member
-#include <eq/frame.h>          // enum
-#include <eq/visitorResult.h>  // enum
+#include <eq/frame.h>         // enum
+#include <eq/types.h>         // member
+#include <eq/visitorResult.h> // enum
 
-#include <eq/fabric/view.h>           // base class
-#include <eq/fabric/viewport.h>       // member
+#include <eq/fabric/view.h>     // base class
+#include <eq/fabric/viewport.h> // member
 
 namespace eq
 {
-namespace detail { class View; }
+namespace detail
+{
+class View;
+}
 
 /**
  * A View is a 2D area of a Layout. It is a view of the application's data on a
@@ -40,11 +43,11 @@ namespace detail { class View; }
  *          associate view version with rendering frames.
  * @sa fabric::View
  */
-class View : public fabric::View< Layout, View, Observer >
+class View : public fabric::View<Layout, View, Observer>
 {
 public:
     /** Construct a new view. @version 1.0 */
-    EQ_API explicit  View( Layout* parent );
+    EQ_API explicit View(Layout* parent);
 
     /** Destruct this view. @version 1.0 */
     EQ_API virtual ~View();
@@ -56,13 +59,11 @@ public:
      * @version 1.1.2
      */
     Pipe* getPipe() { return _pipe; }
-
     /**
      * @return the parent pipe of this view, 0 for non-render client views.
      * @version 1.1.2
      */
     EQ_API const Pipe* getPipe() const { return _pipe; }
-
     /** @return the config of this view. @version 1.0 */
     EQ_API Config* getConfig();
 
@@ -87,7 +88,7 @@ public:
      * @return true when the event was handled, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool handleEvent( EventType type, const SizeEvent& event );
+    EQ_API virtual bool handleEvent(EventType type, const SizeEvent& event);
 
     /**
      * Callback function called during eq::Config::handleEvents() after
@@ -95,7 +96,7 @@ public:
      *
      * @version 2.1
      */
-    using ScreenshotFunc = std::function< void( uint32_t, const Image& ) >;
+    using ScreenshotFunc = std::function<void(uint32_t, const Image&)>;
 
     /**
      * Enable recording of given buffers for screenshot feature.
@@ -104,18 +105,18 @@ public:
      * @param func callback function with frame number and screenshot image
      * @version 2.1
      */
-    EQ_API void enableScreenshot( Frame::Buffer buffers,
-                                  const ScreenshotFunc& func );
+    EQ_API void enableScreenshot(Frame::Buffer buffers,
+                                 const ScreenshotFunc& func);
 
     /** Stop recording of screenshots. @version 2.1 */
     EQ_API void disableScreenshot();
 
     /** @internal */
-    bool handleEvent( EventICommand& command );
+    bool handleEvent(EventICommand& command);
 
     /** @internal */
-    void sendScreenshotEvent( const Viewport& viewport,
-                              const uint32_t frameNumber, const Image& image );
+    void sendScreenshotEvent(const Viewport& viewport,
+                             const uint32_t frameNumber, const Image& image);
     //@}
 
 protected:
@@ -137,8 +138,8 @@ protected:
     //@}
 
     /** @internal */
-    EQ_API virtual void deserialize( co::DataIStream& is,
-                                     const uint64_t dirtyBits );
+    EQ_API virtual void deserialize(co::DataIStream& is,
+                                    const uint64_t dirtyBits);
 
     /** @return the initial frustum value of this view. */
     EQ_API const Frustum& getBaseFrustum() const;
@@ -149,11 +150,11 @@ protected:
 private:
     detail::View* const _impl;
 
-    bool _handleScreenshot( EventICommand& command );
+    bool _handleScreenshot(EventICommand& command);
 
     Pipe* _pipe; // for render-client views
     friend class Pipe;
 };
 }
 
-#endif //EQ_VIEW_H
+#endif // EQ_VIEW_H

@@ -22,108 +22,109 @@
 #include "compound.h"
 #include "types.h"
 
-#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
 #include <co/queueMaster.h>
+#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq
 {
 namespace server
 {
-    /** A holder for tile data and parameters. */
-    class TileQueue : public co::Object
+/** A holder for tile data and parameters. */
+class TileQueue : public co::Object
+{
+public:
+    /**
+     * Constructs a new TileQueue.
+     */
+    EQSERVER_API TileQueue();
+    EQSERVER_API virtual ~TileQueue();
+    TileQueue(const TileQueue& from);
+
+    /**
+     * @name Data Access
+     */
+    //@{
+    void setCompound(Compound* compound)
     {
-    public:
-        /**
-         * Constructs a new TileQueue.
-         */
-        EQSERVER_API TileQueue();
-        EQSERVER_API virtual ~TileQueue();
-        TileQueue( const TileQueue& from );
+        LBASSERT(!_compound);
+        _compound = compound;
+    }
+    Compound* getCompound() const { return _compound; }
+    Channel* getChannel() const
+    {
+        return _compound ? _compound->getChannel() : 0;
+    }
+    Node* getNode() const { return _compound ? _compound->getNode() : 0; }
+    void setName(const std::string& name) { _name = name; }
+    const std::string& getName() const { return _name; }
+    /** Set the size of the tiles. */
+    void setTileSize(const Vector2i& size) { _size = size; }
+    /** @return the tile size. */
+    const Vector2i& getTileSize() const { return _size; }
+    /** Add a tile to the queue. */
+    void addTile(const Tile& tile, const Eye eye);
 
-        /**
-         * @name Data Access
-         */
-        //@{
-        void setCompound( Compound* compound )
-            { LBASSERT( !_compound ); _compound = compound; }
-        Compound* getCompound() const { return _compound; }
-        Channel* getChannel() const
-            { return _compound ? _compound->getChannel() :0; }
-        Node* getNode() const { return _compound ? _compound->getNode() : 0; }
+    /**
+     * Cycle the current tile queue.
+     *
+     * Used for output tile queues to allocate/recycle queue masters.
+     *
+     * @param frameNumber the current frame number.
+     * @param compound the compound holding the output frame.
+     */
+    void cycleData(const uint32_t frameNumber, const Compound* compound);
 
-        void setName( const std::string& name ) { _name = name; }
-        const std::string& getName() const      { return _name; }
+    void setOutputQueue(TileQueue* queue, const Compound* compound);
+    const TileQueue* getOutputQueue(const Eye eye) const
+    {
+        return _outputQueue[lunchbox::getIndexOfLastBit(eye)];
+    }
 
-        /** Set the size of the tiles. */
-        void setTileSize( const Vector2i& size ) { _size = size; }
+    /**
+     * @name Operations
+     */
+    //@{
+    /** Unset the tile data. */
+    void unsetData();
 
-        /** @return the tile size. */
-        const Vector2i& getTileSize() const { return _size; }
+    /** Reset the frame and delete all tile datas. */
+    void flush();
+    //@}
 
-        /** Add a tile to the queue. */
-        void addTile( const Tile& tile, const Eye eye );
+    uint128_t getQueueMasterID(const Eye eye) const;
 
-        /**
-         * Cycle the current tile queue.
-         *
-         * Used for output tile queues to allocate/recycle queue masters.
-         *
-         * @param frameNumber the current frame number.
-         * @param compound the compound holding the output frame.
-         */
-        void cycleData( const uint32_t frameNumber, const Compound* compound );
+protected:
+    EQSERVER_API virtual ChangeType getChangeType() const { return INSTANCE; }
+    EQSERVER_API virtual void getInstanceData(co::DataOStream& os);
+    EQSERVER_API virtual void applyInstanceData(co::DataIStream& is);
 
-        void setOutputQueue( TileQueue* queue, const Compound* compound );
-        const TileQueue* getOutputQueue( const Eye eye ) const
-            { return _outputQueue[ lunchbox::getIndexOfLastBit( eye ) ]; }
-
-        /**
-         * @name Operations
-         */
-        //@{
-        /** Unset the tile data. */
-        void unsetData();
-
-        /** Reset the frame and delete all tile datas. */
-        void flush();
-        //@}
-
-        uint128_t getQueueMasterID( const Eye eye ) const;
-
-    protected:
-        EQSERVER_API virtual ChangeType getChangeType() const
-                                                            { return INSTANCE; }
-        EQSERVER_API virtual void getInstanceData( co::DataOStream& os );
-        EQSERVER_API virtual void applyInstanceData( co::DataIStream& is );
-
-    private:
-
-        struct LatencyQueue
-        {
-            uint32_t _frameNumber;
-            co::QueueMaster _queue;
-        };
-
-        /** The parent compound. */
-        Compound* _compound;
-
-        /** The name which associates input to output frames. */
-        std::string _name;
-
-        /** The size of each tile in the queue. */
-        Vector2i _size;
-
-        /** The collage queue pool. */
-        std::deque< LatencyQueue* > _queues;
-
-        /** the currently used tile queues */
-        LatencyQueue* _queueMaster[ NUM_EYES ];
-
-        /** The current output queue. */
-        TileQueue* _outputQueue[ NUM_EYES ];
+private:
+    struct LatencyQueue
+    {
+        uint32_t _frameNumber;
+        co::QueueMaster _queue;
     };
 
-    std::ostream& operator << ( std::ostream& os, const TileQueue* frame );
+    /** The parent compound. */
+    Compound* _compound;
+
+    /** The name which associates input to output frames. */
+    std::string _name;
+
+    /** The size of each tile in the queue. */
+    Vector2i _size;
+
+    /** The collage queue pool. */
+    std::deque<LatencyQueue*> _queues;
+
+    /** the currently used tile queues */
+    LatencyQueue* _queueMaster[NUM_EYES];
+
+    /** The current output queue. */
+    TileQueue* _outputQueue[NUM_EYES];
+};
+
+std::ostream& operator<<(std::ostream& os, const TileQueue* frame);
 }
 }
 #endif // EQSERVER_TILEQUEUE_H

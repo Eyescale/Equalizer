@@ -66,7 +66,7 @@ class ObjectFactory;
 class Renderer;
 class ViewData;
 
-typedef lunchbox::RefPtr< Application > ApplicationPtr;
+typedef lunchbox::RefPtr<Application> ApplicationPtr;
 
 enum EventType
 {
@@ -77,7 +77,6 @@ enum EventType
 /** @cond IGNORE */
 namespace detail
 {
-
 class Application;
 class Channel;
 class Config;
@@ -87,7 +86,6 @@ class Pipe;
 class Renderer;
 class View;
 class Window;
-
 }
 /** @endcond */
 }

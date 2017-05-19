@@ -19,23 +19,23 @@
 #define EQ_CHANNELSTATISTICS_H
 
 #include <eq/api.h>
+#include <eq/fabric/iAttribute.h>
 #include <eq/statisticSampler.h> // base class
 #include <eq/types.h>
-#include <eq/fabric/iAttribute.h>
 
 namespace eq
 {
 /** Samples one channel statistics event. */
-class ChannelStatistics : public StatisticSampler< Channel >
+class ChannelStatistics : public StatisticSampler<Channel>
 {
 public:
     /**
      * Construct a statistics sampler and sample the start time.
      * @version 1.0
      */
-    EQ_API ChannelStatistics( const Statistic::Type type, Channel* channel,
-                              uint32_t frame = LB_UNDEFINED_UINT32,
-                              const int32_t hint = AUTO );
+    EQ_API ChannelStatistics(const Statistic::Type type, Channel* channel,
+                             uint32_t frame = LB_UNDEFINED_UINT32,
+                             const int32_t hint = AUTO);
     /**
      * Destruct the sampler, sample the end time and send the event.
      * @version 1.0

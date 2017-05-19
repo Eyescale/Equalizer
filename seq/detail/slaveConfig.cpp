@@ -25,30 +25,28 @@ namespace seq
 {
 namespace detail
 {
-
-bool SlaveConfig::mapData( const uint128_t& initID )
+bool SlaveConfig::mapData(const uint128_t& initID)
 {
-    LBASSERT( !_objects );
+    LBASSERT(!_objects);
 
-    _objects = new ObjectMap( *this, *getApplication( ));
-    const uint32_t request = mapObjectNB( _objects, initID, co::VERSION_OLDEST,
-                                          getApplicationNode( ));
-    return mapObjectSync( request );
+    _objects = new ObjectMap(*this, *getApplication());
+    const uint32_t request =
+        mapObjectNB(_objects, initID, co::VERSION_OLDEST, getApplicationNode());
+    return mapObjectSync(request);
 }
 
-void SlaveConfig::syncData( const uint128_t& version )
+void SlaveConfig::syncData(const uint128_t& version)
 {
-    LBASSERT( _objects )
-    _objects->sync( version );
+    LBASSERT(_objects)
+    _objects->sync(version);
 }
 
 void SlaveConfig::unmapData()
 {
-    LBASSERT( _objects )
-    unmapObject( _objects );
+    LBASSERT(_objects)
+    unmapObject(_objects);
     delete _objects;
     _objects = 0;
 }
-
 }
 }

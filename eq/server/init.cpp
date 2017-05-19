@@ -30,21 +30,21 @@ namespace
 static bool _initialized = false;
 }
 
-bool init( const int argc, char** argv )
+bool init(const int argc, char** argv)
 {
-    if( _initialized )
+    if (_initialized)
     {
         LBERROR << "Equalizer server library already initialized" << std::endl;
         return false;
     }
     _initialized = true;
 
-    return fabric::init( argc, argv );
+    return fabric::init(argc, argv);
 }
 
 bool exit()
 {
-    if( !_initialized )
+    if (!_initialized)
     {
         LBERROR << "Equalizer server library not initialized" << std::endl;
         return false;
@@ -53,6 +53,5 @@ bool exit()
 
     return fabric::exit();
 }
-
 }
 }

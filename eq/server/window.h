@@ -19,16 +19,16 @@
 #ifndef EQSERVER_WINDOW_H
 #define EQSERVER_WINDOW_H
 
-#include <eq/server/api.h>
-#include "state.h"          // enum
+#include "state.h" // enum
 #include "types.h"
-#include "visitorResult.h"  // enum
+#include "visitorResult.h" // enum
+#include <eq/server/api.h>
 
-#include <eq/fabric/window.h> // base class
 #include <co/barrier.h>
+#include <eq/fabric/window.h> // base class
+#include <iostream>
 #include <lunchbox/monitor.h>   // member
 #include <lunchbox/uint128_t.h> // member
-#include <iostream>
 #include <vector>
 
 namespace eq
@@ -36,11 +36,11 @@ namespace eq
 namespace server
 {
 /** The window. */
-class Window : public fabric::Window< Pipe, Window, Channel >
+class Window : public fabric::Window<Pipe, Window, Channel>
 {
 public:
     /** Construct a new Window. */
-    EQSERVER_API explicit Window( Pipe* parent );
+    EQSERVER_API explicit Window(Pipe* parent);
 
     virtual ~Window();
 
@@ -55,7 +55,7 @@ public:
     /** @return the Server of this window. */
     ServerPtr getServer();
 
-    Channel* getChannel( const ChannelPath& path );
+    Channel* getChannel(const ChannelPath& path);
 
     co::CommandQueue* getMainThreadQueue();
     co::CommandQueue* getCommandThreadQueue();
@@ -68,22 +68,16 @@ public:
 
     /** @return the state of this window. */
     State getState() const { return _state.get(); }
-
     /** @internal */
-    void setState( const State state ) { _state = state; }
-
+    void setState(const State state) { _state = state; }
     /** @return if this window is actively used for rendering. */
     bool isActive() const { return (_active != 0); }
-
     /** @return true if this window is stopped. */
     bool isStopped() const { return _state & STATE_STOPPED; }
-
     /** @return true if this window is running. */
     bool isRunning() const { return _state & STATE_RUNNING; }
-
     /** @return true if this window should be deleted. */
     bool needsDelete() const { return _state & STATE_DELETE; }
-
     /** Schedule deletion of this window. */
     void postDelete();
 
@@ -91,7 +85,7 @@ public:
      * Add additional tasks this window, and all its parents, might
      * potentially execute.
      */
-    void addTasks( const uint32_t tasks );
+    void addTasks(const uint32_t tasks);
 
     /**
      * Join a swap barrier for the next update.
@@ -100,7 +94,7 @@ public:
      *                this is the first window.
      * @return the net::Barrier for the swap barrier group.
      */
-    co::Barrier* joinSwapBarrier( co::Barrier* barrier );
+    co::Barrier* joinSwapBarrier(co::Barrier* barrier);
 
     /**
      * Join a NV_swap_group barrier for the next update.
@@ -112,19 +106,19 @@ public:
      *                   entering.
      * @return the net::Barrier for protecting the swap group entry.
      */
-    co::Barrier* joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
-                                    co::Barrier* netBarrier );
+    co::Barrier* joinNVSwapBarrier(SwapBarrierConstPtr swapBarrier,
+                                   co::Barrier* netBarrier);
 
     /** @return true if this window has entered a NV_swap_group. */
     bool hasNVSwapBarrier() const { return (_nvSwapBarrier != 0); }
-
     /** The last drawing channel for this entity. @internal */
-    void setLastDrawChannel( const Channel* channel )
-    { _lastDrawChannel = channel; }
+    void setLastDrawChannel(const Channel* channel)
+    {
+        _lastDrawChannel = channel;
+    }
     const Channel* getLastDrawChannel() const { return _lastDrawChannel; }
-
     /** The maximum frame rate for this window. @internal */
-    void setMaxFPS( const float fps ) { _maxFPS = fps; }
+    void setMaxFPS(const float fps) { _maxFPS = fps; }
     float getMaxFPS() const { return _maxFPS; }
     //@}
 
@@ -133,7 +127,7 @@ public:
      */
     //@{
     /** Start initializing this entity. */
-    void configInit( const uint128_t& initID, const uint32_t frameNumber );
+    void configInit(const uint128_t& initID, const uint32_t frameNumber);
 
     /** Sync initialization of this entity. */
     bool syncConfigInit();
@@ -151,7 +145,7 @@ public:
      *                methods.
      * @param frameNumber the number of the frame.
      */
-    void updateDraw( const uint128_t& frameID, const uint32_t frameNumber );
+    void updateDraw(const uint128_t& frameID, const uint32_t frameNumber);
 
     /**
      * Trigger the post-draw operations.
@@ -160,27 +154,25 @@ public:
      *                methods.
      * @param frameNumber the number of the frame.
      */
-    void updatePost( const uint128_t& frameID, const uint32_t frameNumber );
+    void updatePost(const uint128_t& frameID, const uint32_t frameNumber);
     //@}
 
-    co::ObjectOCommand send( const uint32_t cmd );
-    void output( std::ostream& ) const; //!< @internal
+    co::ObjectOCommand send(const uint32_t cmd);
+    void output(std::ostream&) const; //!< @internal
 
 protected:
-
     /** @sa net::Object::attach. */
-    virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    virtual void attach(const uint128_t& id, const uint32_t instanceID);
 
     /** @internal Execute the slave remove request. */
-    virtual void removeChild( const uint128_t& id );
+    virtual void removeChild(const uint128_t& id);
 
 private:
-
     /** Number of activations for this window. */
     uint32_t _active;
 
     /** The current state for state change synchronization. */
-    lunchbox::Monitor< State > _state;
+    lunchbox::Monitor<State> _state;
 
     /** The maximum frame rate allowed for this window. */
     float _maxFPS;
@@ -214,14 +206,14 @@ private:
     /** Clears all swap barriers of the window. */
     void _resetSwapBarriers();
 
-    void _updateSwap( const uint32_t frameNumber );
+    void _updateSwap(const uint32_t frameNumber);
 
     /* command handler functions. */
-    bool _cmdConfigInitReply( co::ICommand& command );
-    bool _cmdConfigExitReply( co::ICommand& command );
+    bool _cmdConfigInitReply(co::ICommand& command);
+    bool _cmdConfigExitReply(co::ICommand& command);
 
     // For access to _fixedPVP
-    friend std::ostream& operator << ( std::ostream&, const Window*);
+    friend std::ostream& operator<<(std::ostream&, const Window*);
 };
 }
 }

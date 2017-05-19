@@ -19,13 +19,14 @@
 #define EQ_H
 
 #pragma warning(push)
-#pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
-#  include <eq/base.h>
-#  include <eq/util/base.h>
-#  include <eq/fabric/base.h>
-#  include <co/co.h>
-#  include <lunchbox/lunchbox.h>
-#  include <pression/pression.h>
+#pragma warning(disable : 4244) // conversion from .. to ..,possible loss of
+                                // data
+#include <co/co.h>
+#include <eq/base.h>
+#include <eq/fabric/base.h>
+#include <eq/util/base.h>
+#include <lunchbox/lunchbox.h>
+#include <pression/pression.h>
 #pragma warning(pop)
 
 #endif // EQ_H

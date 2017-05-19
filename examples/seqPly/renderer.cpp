@@ -30,23 +30,22 @@
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
-static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
-static GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat lightAmbient[] = {0.1f, 0.1f, 0.1f, 1.0f};
+static GLfloat lightDiffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
 static GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
 // material properties
-static GLfloat materialAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
-static GLfloat materialDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat materialAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+static GLfloat materialDiffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
 static GLfloat materialSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
-static GLint  materialShininess   = 64;
+static GLint materialShininess = 64;
 
 namespace seqPly
 {
-
-bool Renderer::init( co::Object* initData )
+bool Renderer::init(co::Object* initData)
 {
-    _state = new State( glewGetContext( ));
-    return seq::Renderer::init( initData );
+    _state = new State(glewGetContext());
+    return seq::Renderer::init(initData);
 }
 
 bool Renderer::exit()
@@ -57,31 +56,31 @@ bool Renderer::exit()
     return seq::Renderer::exit();
 }
 
-void Renderer::draw( co::Object* frameDataObj )
+void Renderer::draw(co::Object* frameDataObj)
 {
-    const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
-    Application& application = static_cast< Application& >( getApplication( ));
+    const FrameData* frameData = static_cast<FrameData*>(frameDataObj);
+    Application& application = static_cast<Application&>(getApplication());
     const eq::uint128_t& id = frameData->getModelID();
-    const Model* model = application.getModel( id );
-    if( !model )
+    const Model* model = application.getModel(id);
+    if (!model)
         return;
 
-    updateNearFar( model->getBoundingSphere( ));
+    updateNearFar(model->getBoundingSphere());
     applyRenderContext();
 
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
-    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
 
-    glMaterialfv( GL_FRONT, GL_AMBIENT,   materialAmbient );
-    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
-    glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
-    glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
+    glMaterialfv(GL_FRONT, GL_AMBIENT, materialAmbient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, materialDiffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, materialSpecular);
+    glMateriali(GL_FRONT, GL_SHININESS, materialShininess);
 
     applyModelMatrix();
 
-    glColor3f( .75f, .75f, .75f );
+    glColor3f(.75f, .75f, .75f);
 
     // Compute cull matrix
     const eq::Matrix4f& modelM = getModelMatrix();
@@ -91,11 +90,10 @@ void Renderer::draw( co::Object* frameDataObj )
     const eq::Matrix4f& pmv = projection * view * modelM;
     const seq::RenderContext& context = getRenderContext();
 
-    _state->setProjectionModelViewMatrix( pmv );
-    _state->setRange( triply::Range( &context.range.start ));
-    _state->setColors( model->hasColors( ));
+    _state->setProjectionModelViewMatrix(pmv);
+    _state->setRange(triply::Range(&context.range.start));
+    _state->setColors(model->hasColors());
 
-    model->cullDraw( *_state );
+    model->cullDraw(*_state);
 }
-
 }

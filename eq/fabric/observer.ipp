@@ -29,217 +29,212 @@ namespace eq
 {
 namespace fabric
 {
-
-template< typename C, typename O >
-Observer< C, O >::Observer( C* config )
-    : _config( config )
+template <typename C, typename O>
+Observer<C, O>::Observer(C* config)
+    : _config(config)
 {
-    LBASSERT( config );
-    config->_addObserver( static_cast< O* >( this ));
+    LBASSERT(config);
+    config->_addObserver(static_cast<O*>(this));
 
-    const float eyeBase_2 = config->getFAttribute( C::FATTR_EYE_BASE ) * .5f;
-    setEyePosition( EYE_LEFT, Vector3f( -eyeBase_2, 0.f, 0.f ));
-    setEyePosition( EYE_CYCLOP, Vector3f( ));
-    setEyePosition( EYE_RIGHT, Vector3f( eyeBase_2, 0.f, 0.f ));
-    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    const float eyeBase_2 = config->getFAttribute(C::FATTR_EYE_BASE) * .5f;
+    setEyePosition(EYE_LEFT, Vector3f(-eyeBase_2, 0.f, 0.f));
+    setEyePosition(EYE_CYCLOP, Vector3f());
+    setEyePosition(EYE_RIGHT, Vector3f(eyeBase_2, 0.f, 0.f));
+    LBLOG(LOG_INIT) << "New " << lunchbox::className(this) << std::endl;
 }
 
-template< typename C, typename O >
-Observer< C, O >::~Observer()
+template <typename C, typename O>
+Observer<C, O>::~Observer()
 {
-    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
-    _config->_removeObserver( static_cast< O* >( this ));
+    LBLOG(LOG_INIT) << "Delete " << lunchbox::className(this) << std::endl;
+    _config->_removeObserver(static_cast<O*>(this));
 }
 
-template< typename C, typename O >
-Observer< C, O >::BackupData::BackupData()
-    : focusDistance( 1.f )
-    , focusMode( FOCUSMODE_FIXED )
-    , camera( OFF )
+template <typename C, typename O>
+Observer<C, O>::BackupData::BackupData()
+    : focusDistance(1.f)
+    , focusMode(FOCUSMODE_FIXED)
+    , camera(OFF)
 {
-    for( size_t i = 0; i < NUM_EYES; ++i )
-        eyePosition[ i ] = Vector3f();
-    eyePosition[ EYE_LEFT_BIT ].x() = -.05f;
-    eyePosition[ EYE_RIGHT_BIT ].x() = .05f;
+    for (size_t i = 0; i < NUM_EYES; ++i)
+        eyePosition[i] = Vector3f();
+    eyePosition[EYE_LEFT_BIT].x() = -.05f;
+    eyePosition[EYE_RIGHT_BIT].x() = .05f;
 }
 
-template< typename C, typename O >
-void Observer< C, O >::backup()
+template <typename C, typename O>
+void Observer<C, O>::backup()
 {
     Object::backup();
     _backup = _data;
 }
 
-template< typename C, typename O >
-void Observer< C, O >::restore()
+template <typename C, typename O>
+void Observer<C, O>::restore()
 {
     _data = _backup;
     Object::restore();
-    setDirty( DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS );
+    setDirty(DIRTY_EYE_POSITION | DIRTY_HEAD | DIRTY_FOCUS);
 }
 
-template< typename C, typename O >
-void Observer< C, O >::serialize( co::DataOStream& os,
-                                  const uint64_t dirtyBits )
+template <typename C, typename O>
+void Observer<C, O>::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    Object::serialize( os, dirtyBits );
+    Object::serialize(os, dirtyBits);
 
-    if( dirtyBits & DIRTY_HEAD )
+    if (dirtyBits & DIRTY_HEAD)
         os << _data.headMatrix;
-    if( dirtyBits & DIRTY_EYE_POSITION )
-        for( size_t i = 0; i < NUM_EYES; ++i )
+    if (dirtyBits & DIRTY_EYE_POSITION)
+        for (size_t i = 0; i < NUM_EYES; ++i)
             os << _data.eyePosition[i];
-    if( dirtyBits & DIRTY_FOCUS )
+    if (dirtyBits & DIRTY_FOCUS)
         os << _data.focusDistance << _data.focusMode;
-    if( dirtyBits & DIRTY_TRACKER )
+    if (dirtyBits & DIRTY_TRACKER)
         os << _data.camera << _data.vrpnTracker;
 }
 
-template< typename C, typename O >
-void Observer< C, O >::deserialize( co::DataIStream& is,
-                                    const uint64_t dirtyBits )
+template <typename C, typename O>
+void Observer<C, O>::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    Object::deserialize( is, dirtyBits );
+    Object::deserialize(is, dirtyBits);
 
-    if( dirtyBits & DIRTY_HEAD )
+    if (dirtyBits & DIRTY_HEAD)
         is >> _data.headMatrix;
-    if( dirtyBits & DIRTY_EYE_POSITION )
-        for( size_t i = 0; i < NUM_EYES; ++i )
+    if (dirtyBits & DIRTY_EYE_POSITION)
+        for (size_t i = 0; i < NUM_EYES; ++i)
             is >> _data.eyePosition[i];
-    if( dirtyBits & DIRTY_FOCUS )
+    if (dirtyBits & DIRTY_FOCUS)
         is >> _data.focusDistance >> _data.focusMode;
-    if( dirtyBits & DIRTY_TRACKER )
+    if (dirtyBits & DIRTY_TRACKER)
         is >> _data.camera >> _data.vrpnTracker;
 }
 
-template< typename C, typename O >
-void Observer< C, O >::setDirty( const uint64_t dirtyBits )
+template <typename C, typename O>
+void Observer<C, O>::setDirty(const uint64_t dirtyBits)
 {
-    Object::setDirty( dirtyBits );
-    _config->setDirty( C::DIRTY_OBSERVERS );
+    Object::setDirty(dirtyBits);
+    _config->setDirty(C::DIRTY_OBSERVERS);
 }
 
-template< typename C, typename O >
-VisitorResult Observer< C, O >::accept( Visitor& visitor )
+template <typename C, typename O>
+VisitorResult Observer<C, O>::accept(Visitor& visitor)
 {
-    return visitor.visit( static_cast< O* >( this ));
+    return visitor.visit(static_cast<O*>(this));
 }
 
-template< typename C, typename O >
-VisitorResult Observer< C, O >::accept( Visitor& visitor ) const
+template <typename C, typename O>
+VisitorResult Observer<C, O>::accept(Visitor& visitor) const
 {
-    return visitor.visit( static_cast< const O* >( this ));
+    return visitor.visit(static_cast<const O*>(this));
 }
 
-template< typename C, typename O >
-ObserverPath Observer< C, O >::getPath() const
+template <typename C, typename O>
+ObserverPath Observer<C, O>::getPath() const
 {
-    const std::vector< O* >&  observers = _config->getObservers();
-    typename std::vector< O* >::const_iterator i = std::find( observers.begin(),
-                                                              observers.end(),
-                                                              this );
-    LBASSERT( i != observers.end( ));
+    const std::vector<O*>& observers = _config->getObservers();
+    typename std::vector<O*>::const_iterator i =
+        std::find(observers.begin(), observers.end(), this);
+    LBASSERT(i != observers.end());
 
     ObserverPath path;
-    path.observerIndex = std::distance( observers.begin(), i );
+    path.observerIndex = std::distance(observers.begin(), i);
     return path;
 }
 
-template< typename C, typename O >
-void Observer< C, O >::setEyePosition( const Eye eye, const Vector3f& pos )
+template <typename C, typename O>
+void Observer<C, O>::setEyePosition(const Eye eye, const Vector3f& pos)
 {
-    LBASSERT( lunchbox::getIndexOfLastBit( eye ) <= EYE_LAST );
-    Vector3f& position = _data.eyePosition[ lunchbox::getIndexOfLastBit( eye )];
-    if( position == pos )
+    LBASSERT(lunchbox::getIndexOfLastBit(eye) <= EYE_LAST);
+    Vector3f& position = _data.eyePosition[lunchbox::getIndexOfLastBit(eye)];
+    if (position == pos)
         return;
 
     position = pos;
-    setDirty( DIRTY_EYE_POSITION );
+    setDirty(DIRTY_EYE_POSITION);
 }
 
-template< typename C, typename O >
-const Vector3f& Observer< C, O >::getEyePosition( const Eye eye ) const
+template <typename C, typename O>
+const Vector3f& Observer<C, O>::getEyePosition(const Eye eye) const
 {
-    LBASSERT( lunchbox::getIndexOfLastBit( eye ) <= EYE_LAST );
-    return _data.eyePosition[ lunchbox::getIndexOfLastBit( eye )];
+    LBASSERT(lunchbox::getIndexOfLastBit(eye) <= EYE_LAST);
+    return _data.eyePosition[lunchbox::getIndexOfLastBit(eye)];
 }
 
-template< typename C, typename O >
-void Observer< C, O >::setFocusDistance( const float focusDistance )
+template <typename C, typename O>
+void Observer<C, O>::setFocusDistance(const float focusDistance)
 {
-    if( _data.focusDistance == focusDistance )
+    if (_data.focusDistance == focusDistance)
         return;
 
     _data.focusDistance = focusDistance;
-    setDirty( DIRTY_FOCUS );
+    setDirty(DIRTY_FOCUS);
 }
 
-template< typename C, typename O >
-void Observer< C, O >::setFocusMode( const FocusMode focusMode )
+template <typename C, typename O>
+void Observer<C, O>::setFocusMode(const FocusMode focusMode)
 {
-    if( _data.focusMode == focusMode )
+    if (_data.focusMode == focusMode)
         return;
 
     _data.focusMode = focusMode;
-    setDirty( DIRTY_FOCUS );
+    setDirty(DIRTY_FOCUS);
 }
 
-template< typename C, typename O >
-void Observer< C, O >::setOpenCVCamera( const int32_t camera )
+template <typename C, typename O>
+void Observer<C, O>::setOpenCVCamera(const int32_t camera)
 {
-    if( _data.camera == camera )
+    if (_data.camera == camera)
         return;
 
     _data.camera = camera;
-    setDirty( DIRTY_TRACKER );
+    setDirty(DIRTY_TRACKER);
 }
 
-template< typename C, typename O >
-void Observer< C, O >::setVRPNTracker( const std::string& tracker )
+template <typename C, typename O>
+void Observer<C, O>::setVRPNTracker(const std::string& tracker)
 {
-    if( _data.vrpnTracker == tracker )
+    if (_data.vrpnTracker == tracker)
         return;
 
     _data.vrpnTracker = tracker;
-    setDirty( DIRTY_TRACKER );
+    setDirty(DIRTY_TRACKER);
 }
 
-template< typename C, typename O >
-bool Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
+template <typename C, typename O>
+bool Observer<C, O>::setHeadMatrix(const Matrix4f& matrix)
 {
-    if( _data.headMatrix == matrix )
+    if (_data.headMatrix == matrix)
         return false;
 
     _data.headMatrix = matrix;
-    setDirty( DIRTY_HEAD );
+    setDirty(DIRTY_HEAD);
     return true;
 }
 
-template< typename C, typename O >
-std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
+template <typename C, typename O>
+std::ostream& operator<<(std::ostream& os, const Observer<C, O>& observer)
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "observer"
        << std::endl;
     os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = observer.getName();
-    if( !name.empty( ))
+    if (!name.empty())
         os << "name     \"" << name << "\"" << std::endl;
 
-    os << "eye_left       " << observer.getEyePosition( EYE_LEFT ) << std::endl
-       << "eye_cyclop     " << observer.getEyePosition( EYE_CYCLOP ) <<std::endl
-       << "eye_right      " << observer.getEyePosition( EYE_RIGHT ) << std::endl
+    os << "eye_left       " << observer.getEyePosition(EYE_LEFT) << std::endl
+       << "eye_cyclop     " << observer.getEyePosition(EYE_CYCLOP) << std::endl
+       << "eye_right      " << observer.getEyePosition(EYE_RIGHT) << std::endl
        << "focus_distance " << observer.getFocusDistance() << std::endl
        << "focus_mode     " << observer.getFocusMode() << std::endl
-       << "opencv_camera  " << IAttribute( observer.getOpenCVCamera( ))
+       << "opencv_camera  " << IAttribute(observer.getOpenCVCamera())
        << std::endl;
-    if( !observer.getVRPNTracker().empty( ))
+    if (!observer.getVRPNTracker().empty())
         os << "vrpn_tracker   \"" << observer.getVRPNTracker() << "\""
            << std::endl;
-    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
-       << lunchbox::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl
+       << lunchbox::enableHeader << lunchbox::enableFlush;
     return os;
 }
-
 }
 }

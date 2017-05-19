@@ -27,7 +27,10 @@ namespace eq
 {
 namespace util
 {
-namespace detail { class PixelBufferObject; }
+namespace detail
+{
+class PixelBufferObject;
+}
 
 /** A C++ class to abstract OpenGL pixel buffer objects.
  *
@@ -48,7 +51,7 @@ public:
      * @param glewContext the OpenGL function table.
      * @version 1.3
      */
-    EQ_API PixelBufferObject( const GLEWContext* glewContext );
+    EQ_API PixelBufferObject(const GLEWContext* glewContext);
 
     /** Destruct the pixel buffer object */
     EQ_API virtual ~PixelBufferObject();
@@ -63,7 +66,7 @@ public:
      * @return ERROR_NONE on success, the Error code on failure.
      * @version 1.3
      */
-    EQ_API virtual Error setup( const size_t size, const unsigned type );
+    EQ_API virtual Error setup(const size_t size, const unsigned type);
 
     /** Unbind and de-initialize the pixel buffer object. @version 1.3 */
     EQ_API virtual void destroy();
@@ -108,8 +111,8 @@ public:
     unsigned getID() const;
 
 private:
-    PixelBufferObject( const PixelBufferObject& ) = delete;
-    PixelBufferObject& operator=( const PixelBufferObject& ) = delete;
+    PixelBufferObject(const PixelBufferObject&) = delete;
+    PixelBufferObject& operator=(const PixelBufferObject&) = delete;
     detail::PixelBufferObject* const _impl;
 };
 }

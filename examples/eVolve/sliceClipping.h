@@ -37,31 +37,25 @@ struct SliceClipper
 {
     SliceClipper();
 
-    static const int    nSequence[8][8];
-    static const float  sequence[64];
-    static const float  v1[24];
-    static const float  v2[24];
+    static const int nSequence[8][8];
+    static const float sequence[64];
+    static const float v1[24];
+    static const float v2[24];
 
     typedef eq::Vector3f float3;
 
-    void updatePerFrameInfo( const eq::Matrix4f& modelviewM,
-                             const double sliceDistance,
-                             const eq::Range& range );
+    void updatePerFrameInfo(const eq::Matrix4f& modelviewM,
+                            const double sliceDistance, const eq::Range& range);
 
-    eq::Vector3f getPosition
-    (
-        const int vertexNum,
-        const int sliceNum
-    ) const;
+    eq::Vector3f getPosition(const int vertexNum, const int sliceNum) const;
 
-    float           shaderVertices[24];
-    eq::Vector3f    viewVecf;
-    eq::Vector4f    viewVec;
-    int             frontIndex;
-    double          sliceDistance;
-    double          planeStart;
+    float shaderVertices[24];
+    eq::Vector3f viewVecf;
+    eq::Vector4f viewVec;
+    int frontIndex;
+    double sliceDistance;
+    double planeStart;
 };
-
 }
 
 #endif // EVOLVE_SLICECLIPPING_H

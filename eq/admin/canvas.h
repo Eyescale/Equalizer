@@ -25,11 +25,11 @@ namespace eq
 {
 namespace admin
 {
-class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
+class Canvas : public fabric::Canvas<Config, Canvas, Segment, Layout>
 {
 public:
     /** Construct a new canvas. @version 1.0 */
-    EQADMIN_API explicit Canvas( Config* parent );
+    EQADMIN_API explicit Canvas(Config* parent);
 
     /** Destruct this canvas. @version 1.0 */
     EQADMIN_API virtual ~Canvas();

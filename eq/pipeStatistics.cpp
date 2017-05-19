@@ -19,45 +19,42 @@
 #include "pipeStatistics.h"
 
 #include "config.h"
-#include "pipe.h"
 #include "global.h"
+#include "pipe.h"
 
 #include <cstdio>
 
 #ifdef _MSC_VER
-#  define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 namespace eq
 {
-
-PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
-        : StatisticSampler< Pipe >( type, pipe )
+PipeStatistics::PipeStatistics(const Statistic::Type type, Pipe* pipe)
+    : StatisticSampler<Pipe>(type, pipe)
 {
     const std::string& name = pipe->getName();
-    if( name.empty( ))
-        snprintf( statistic.resourceName, 32, "Pipe %s",
-                  pipe->getID().getShortString().c_str( ));
+    if (name.empty())
+        snprintf(statistic.resourceName, 32, "Pipe %s",
+                 pipe->getID().getShortString().c_str());
     else
-        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf(statistic.resourceName, 32, "%s", name.c_str());
 
     statistic.resourceName[31] = 0;
     statistic.startTime = pipe->getConfig()->getTime();
 }
 
-
 PipeStatistics::~PipeStatistics()
 {
-    if( statistic.frameNumber == 0 ) // does not belong to a frame
+    if (statistic.frameNumber == 0) // does not belong to a frame
         return;
 
     Config* config = _owner->getConfig();
-    if( statistic.endTime == 0 )
+    if (statistic.endTime == 0)
         statistic.endTime = config->getTime();
-    if( statistic.endTime <= statistic.startTime )
+    if (statistic.endTime <= statistic.startTime)
         statistic.endTime = statistic.startTime + 1;
 
-    _owner->processEvent( statistic );
+    _owner->processEvent(statistic);
 }
-
 }

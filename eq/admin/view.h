@@ -18,18 +18,18 @@
 #ifndef EQADMIN_VIEW_H
 #define EQADMIN_VIEW_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/view.h>       // base class
+#include <eq/admin/types.h> // typedefs
+#include <eq/fabric/view.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class View : public fabric::View< Layout, View, Observer >
+class View : public fabric::View<Layout, View, Observer>
 {
 public:
     /** Construct a new view. @version 1.0 */
-    EQADMIN_API explicit View( Layout* parent );
+    EQADMIN_API explicit View(Layout* parent);
 
     /** Destruct this view. @version 1.0 */
     EQADMIN_API virtual ~View();

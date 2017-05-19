@@ -27,11 +27,11 @@
 
 namespace eq
 {
-typedef fabric::Layout< Config, Layout, View > Super;
+typedef fabric::Layout<Config, Layout, View> Super;
 
-Layout::Layout( Config* parent )
-    : Super( parent )
-    , _impl( 0 )
+Layout::Layout(Config* parent)
+    : Super(parent)
+    , _impl(0)
 {
 }
 
@@ -42,17 +42,16 @@ Layout::~Layout()
 ServerPtr Layout::getServer()
 {
     Config* config = getConfig();
-    LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    LBASSERT(config);
+    return (config ? config->getServer() : 0);
 }
-
 }
 
 #include "server.h"
 #include <eq/fabric/layout.ipp>
 
-template class eq::fabric::Layout< eq::Config, eq::Layout, eq::View >;
+template class eq::fabric::Layout<eq::Config, eq::Layout, eq::View>;
 /** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                const eq::fabric::Layout< eq::Config, eq::Layout, eq::View >& );
+template EQFABRIC_API std::ostream& eq::fabric::operator<<(
+    std::ostream&, const eq::fabric::Layout<eq::Config, eq::Layout, eq::View>&);
 /** @endcond */

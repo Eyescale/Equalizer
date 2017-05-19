@@ -19,37 +19,37 @@
 
 #include <lunchbox/test.h>
 
-#include <eq/nodeFactory.h>
+#include <boost/filesystem.hpp>
 #include <eq/image.h>
 #include <eq/init.h>
+#include <eq/nodeFactory.h>
 #include <lunchbox/file.h>
 #include <lunchbox/memoryMap.h>
-#include <boost/filesystem.hpp>
 
-int main( int argc, char **argv )
+int main(int argc, char** argv)
 {
     // setup
     eq::NodeFactory nodeFactory;
-    TEST( eq::init( argc, argv, &nodeFactory ));
+    TEST(eq::init(argc, argv, &nodeFactory));
 
     eq::Strings images;
-    eq::Strings candidates = lunchbox::searchDirectory( "images", ".*\\.rgb");
-    for( eq::Strings::const_iterator i = candidates.begin();
-        i != candidates.end(); ++i )
+    eq::Strings candidates = lunchbox::searchDirectory("images", ".*\\.rgb");
+    for (eq::Strings::const_iterator i = candidates.begin();
+         i != candidates.end(); ++i)
     {
         const std::string& filename = *i;
-        const size_t decompPos = filename.find( "out_" );
-        if( decompPos == std::string::npos )
-            images.push_back( "images/" + filename );
+        const size_t decompPos = filename.find("out_");
+        if (decompPos == std::string::npos)
+            images.push_back("images/" + filename);
     }
-    TEST( !images.empty( ));
+    TEST(!images.empty());
 
     eq::Image image;
     // For each image
-    for( eq::Strings::const_iterator i = images.begin(); i != images.end(); ++i)
+    for (eq::Strings::const_iterator i = images.begin(); i != images.end(); ++i)
     {
         const std::string& inFilename = *i;
-        const boost::filesystem::path path( inFilename );
+        const boost::filesystem::path path(inFilename);
         const std::string outFilename = path.parent_path().string() + "/out_" +
 #if BOOST_FILESYSTEM_VERSION == 3
                                         path.filename().string();
@@ -57,26 +57,28 @@ int main( int argc, char **argv )
                                         path.filename();
 #endif
 
-        TEST( image.readImage( inFilename, eq::Frame::Buffer::color ));
-        TEST( image.writeImage( outFilename, eq::Frame::Buffer::color ));
+        TEST(image.readImage(inFilename, eq::Frame::Buffer::color));
+        TEST(image.writeImage(outFilename, eq::Frame::Buffer::color));
 
         lunchbox::MemoryMap orig;
         lunchbox::MemoryMap copy;
-        const uint8_t* origPtr = reinterpret_cast< const uint8_t* >(
-                                     orig.map( inFilename ));
-        const uint8_t* copyPtr = reinterpret_cast< const uint8_t* >(
-                                     copy.map( outFilename ));
+        const uint8_t* origPtr =
+            reinterpret_cast<const uint8_t*>(orig.map(inFilename));
+        const uint8_t* copyPtr =
+            reinterpret_cast<const uint8_t*>(copy.map(outFilename));
 
-        TESTINFO( origPtr, inFilename );
-        TESTINFO( copyPtr, inFilename );
-        TESTINFO( orig.getSize() - 512 ==
-                  image.getPixelDataSize( eq::Frame::Buffer::color ),
-                  inFilename << " " << orig.getSize() - 512 << " != " <<
-                  image.getPixelDataSize( eq::Frame::Buffer::color ));
-        TESTINFO( orig.getSize() == copy.getSize(), inFilename);
-        TESTINFO( orig.getSize() > 512, inFilename );
-        TESTINFO( memcmp( origPtr+512, copyPtr+512, orig.getSize() - 512 ) == 0,
-                  inFilename );
+        TESTINFO(origPtr, inFilename);
+        TESTINFO(copyPtr, inFilename);
+        TESTINFO(orig.getSize() - 512 ==
+                     image.getPixelDataSize(eq::Frame::Buffer::color),
+                 inFilename
+                     << " " << orig.getSize() - 512 << " != "
+                     << image.getPixelDataSize(eq::Frame::Buffer::color));
+        TESTINFO(orig.getSize() == copy.getSize(), inFilename);
+        TESTINFO(orig.getSize() > 512, inFilename);
+        TESTINFO(memcmp(origPtr + 512, copyPtr + 512, orig.getSize() - 512) ==
+                     0,
+                 inFilename);
     }
 
     eq::exit();

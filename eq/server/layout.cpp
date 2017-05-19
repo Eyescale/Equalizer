@@ -24,27 +24,31 @@
 #include "view.h"
 #include "window.h"
 
+#include <co/dataOStream.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
-#include <co/dataOStream.h>
 
 namespace eq
 {
 namespace server
 {
-typedef fabric::Layout< Config, Layout, View > Super;
+typedef fabric::Layout<Config, Layout, View> Super;
 
-Layout::Layout( Config* parent )
-    : Super( parent )
-    , _state( STATE_ACTIVE ){}
+Layout::Layout(Config* parent)
+    : Super(parent)
+    , _state(STATE_ACTIVE)
+{
+}
 
-Layout::~Layout(){}
+Layout::~Layout()
+{
+}
 
 ServerPtr Layout::getServer()
 {
     Config* config = getConfig();
-    LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    LBASSERT(config);
+    return (config ? config->getServer() : 0);
 }
 
 void Layout::postDelete()
@@ -55,69 +59,70 @@ void Layout::postDelete()
 
 void Layout::notifyViewportChanged()
 {
-    for( View* view : getViews( ))
+    for (View* view : getViews())
     {
         const Viewport& vp = view->getViewport();
-        for( Channel* channel : view->getChannels( ))
+        for (Channel* channel : view->getChannels())
         {
             Window* window = channel->getWindow();
             PixelViewport windowPVP = window->getPixelViewport();
             PixelViewport channelPVP = getPixelViewport();
 
             Segment* segment = channel->getSegment();
-            const auto segmentVP = segment ? segment->getViewport() :Viewport();
-            const Viewport coverage = vp.getCoverage( segmentVP );
+            const auto segmentVP =
+                segment ? segment->getViewport() : Viewport();
+            const Viewport coverage = vp.getCoverage(segmentVP);
 
-            channelPVP.apply( vp );
-            channelPVP.apply( coverage );
+            channelPVP.apply(vp);
+            channelPVP.apply(coverage);
             channelPVP.x = channel->getPixelViewport().x;
             channelPVP.y = channel->getPixelViewport().y;
 
-            if( channel->hasFixedViewport( ))
+            if (channel->hasFixedViewport())
             {
                 // resize window to gain target channel pvp
                 const auto& channelVP = channel->getViewport();
                 windowPVP.w = channelPVP.w / channelVP.w;
                 windowPVP.h = channelPVP.h / channelVP.h;
-                window->send( fabric::CMD_WINDOW_RESIZE ) << windowPVP;
-                window->setPixelViewport( windowPVP );
+                window->send(fabric::CMD_WINDOW_RESIZE) << windowPVP;
+                window->setPixelViewport(windowPVP);
             }
             else
             {
                 // resize channel to fixed size, grow window size if needed
-                if( windowPVP.w < channelPVP.getXEnd() ||
-                    windowPVP.h < channelPVP.getYEnd( ))
+                if (windowPVP.w < channelPVP.getXEnd() ||
+                    windowPVP.h < channelPVP.getYEnd())
                 {
-                    windowPVP.w = std::max( windowPVP.w, channelPVP.getXEnd( ));
-                    windowPVP.h = std::max( windowPVP.h, channelPVP.getYEnd( ));
-                    window->send( fabric::CMD_WINDOW_RESIZE ) << windowPVP;
-                    window->setPixelViewport( windowPVP );
+                    windowPVP.w = std::max(windowPVP.w, channelPVP.getXEnd());
+                    windowPVP.h = std::max(windowPVP.h, channelPVP.getYEnd());
+                    window->send(fabric::CMD_WINDOW_RESIZE) << windowPVP;
+                    window->setPixelViewport(windowPVP);
                 }
-                channel->setPixelViewport( channelPVP );
+                channel->setPixelViewport(channelPVP);
             }
         }
     }
 }
 
-void Layout::trigger( const Canvas* canvas, const bool active )
+void Layout::trigger(const Canvas* canvas, const bool active)
 {
-    LBASSERT( canvas );
+    LBASSERT(canvas);
     getConfig()->postNeedsFinish();
 
-    for( View* view : getViews( ))
-        view->trigger( canvas, active );
+    for (View* view : getViews())
+        view->trigger(canvas, active);
+}
+}
 }
 
-}
-}
-
-#include "nodeFactory.h"
 #include "../fabric/layout.ipp"
+#include "nodeFactory.h"
 
-template class eq::fabric::Layout< eq::server::Config, eq::server::Layout,
-                                   eq::server::View >;
+template class eq::fabric::Layout<eq::server::Config, eq::server::Layout,
+                                  eq::server::View>;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
-    const eq::fabric::Layout< eq::server::Config, eq::server::Layout,
-                              eq::server::View >& );
+template std::ostream& eq::fabric::operator<<(
+    std::ostream&,
+    const eq::fabric::Layout<eq::server::Config, eq::server::Layout,
+                             eq::server::View>&);
 /** @endcond */
