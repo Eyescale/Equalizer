@@ -99,7 +99,7 @@ int EqPly::run()
     {
         LBERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
-        return EXIT_FAILURE;
+        return _initData.ignoreNoConfig() ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
     // 3. init config
