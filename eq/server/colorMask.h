@@ -32,11 +32,11 @@ class ColorMask : public eq::fabric::ColorMask
 {
 public:
     ColorMask() {}
-    explicit ColorMask( const int attribute )
+    explicit ColorMask(const int attribute)
     {
-        red   = (attribute & Compound::COLOR_MASK_RED);
+        red = (attribute & Compound::COLOR_MASK_RED);
         green = (attribute & Compound::COLOR_MASK_GREEN);
-        blue  = (attribute & Compound::COLOR_MASK_BLUE);
+        blue = (attribute & Compound::COLOR_MASK_BLUE);
     }
 };
 }

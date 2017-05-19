@@ -17,11 +17,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <eq/server/config/server.h>
 #include <eq/server/global.h>
 #include <eq/server/init.h>
 #include <eq/server/loader.h>
 #include <eq/server/server.h>
-#include <eq/server/config/server.h>
 
 #include <co/global.h>
 #include <co/init.h>
@@ -29,65 +29,66 @@
 
 #include <iostream>
 
-#define CONFIG "server{ config{ appNode{ pipe {                            \
+#define CONFIG \
+    "server{ config{ appNode{ pipe {                            \
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
     compound { channel \"channel\" wall { bottom_left  [ -.8 -.5 -1 ]      \
                                           bottom_right [  .8 -.5 -1 ]      \
                                           top_left     [ -.8  .5 -1 ] }}}}"
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
-    for( int i=1; i < argc; ++i )
+    for (int i = 1; i < argc; ++i)
     {
-        if( std::string( argv[ i ]) == "--help" )
+        if (std::string(argv[i]) == "--help")
         {
-            std::cout << lunchbox::getFilename( argv[0] ) << " [config.eqc] "
+            std::cout << lunchbox::getFilename(argv[0]) << " [config.eqc] "
                       << std::endl
                       << "  Standalone Equalizer server using the given "
-                      <<"configuration file or autoconfig" << std::endl;
+                      << "configuration file or autoconfig" << std::endl;
             return EXIT_SUCCESS;
         }
     }
 
-    if( !eq::server::init( argc, argv ))
+    if (!eq::server::init(argc, argv))
         return EXIT_FAILURE;
 
-    co::Global::setDefaultPort( EQ_DEFAULT_PORT );
+    co::Global::setDefaultPort(EQ_DEFAULT_PORT);
 
     eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    const std::string config( argc == 1 ? "" : argv[1] );
-    if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
-        server = loader.loadFile( config );
+    const std::string config(argc == 1 ? "" : argv[1]);
+    if (!config.empty() && config.find(".eqc") == config.length() - 4)
+        server = loader.loadFile(config);
 #ifdef EQUALIZER_USE_HWSD
     else
         server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif
 
-    if( !server )
-        server = loader.parseServer( CONFIG );
-    if( !server )
+    if (!server)
+        server = loader.parseServer(CONFIG);
+    if (!server)
     {
         LBERROR << "Failed to load configuration" << std::endl;
         return 0;
     }
 
-    eq::server::Loader::addOutputCompounds( server );
-    eq::server::Loader::addDestinationViews( server );
-    eq::server::Loader::addDefaultObserver( server );
-    eq::server::Loader::convertTo11( server );
-    eq::server::Loader::convertTo12( server );
+    eq::server::Loader::addOutputCompounds(server);
+    eq::server::Loader::addDestinationViews(server);
+    eq::server::Loader::addDefaultObserver(server);
+    eq::server::Loader::convertTo11(server);
+    eq::server::Loader::convertTo12(server);
 
-    if( server->getConnectionDescriptions().empty( )) // add default listener
+    if (server->getConnectionDescriptions().empty()) // add default listener
     {
         LBINFO << "Adding default server connection" << std::endl;
         co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
         connDesc->port = co::Global::getDefaultPort();
-        server->addConnectionDescription( connDesc );
+        server->addConnectionDescription(connDesc);
     }
 
-    if( !server->initLocal( argc, argv ))
+    if (!server->initLocal(argc, argv))
     {
         LBERROR << "Can't create listener for server, please consult log"
                 << std::endl;

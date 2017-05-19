@@ -18,22 +18,23 @@
 #ifndef EQADMIN_CONFIG_H
 #define EQADMIN_CONFIG_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/config.h>       // base class
+#include <eq/admin/types.h>   // typedefs
+#include <eq/fabric/config.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                      Canvas, Node, ConfigVisitor >
+class Config : public fabric::Config<Server, Config, Observer, Layout, Canvas,
+                                     Node, ConfigVisitor>
 {
 public:
-    typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
-                            ConfigVisitor > Super;
+    typedef fabric::Config<Server, Config, Observer, Layout, Canvas, Node,
+                           ConfigVisitor>
+        Super;
 
     /** Construct a new config. @version 1.0 */
-    EQADMIN_API explicit Config( ServerPtr parent );
+    EQADMIN_API explicit Config(ServerPtr parent);
 
     /** Destruct a config. @version 1.0 */
     EQADMIN_API virtual ~Config();
@@ -47,14 +48,16 @@ public:
     EQADMIN_API co::CommandQueue* getMainThreadQueue(); //!< @internal
 
     /** Commit all changes on this config and its children. @version 1.0 */
-    EQADMIN_API virtual uint128_t commit( const uint32_t incarnation =
-                                          CO_COMMIT_NEXT );
+    EQADMIN_API virtual uint128_t commit(
+        const uint32_t incarnation = CO_COMMIT_NEXT);
 
     /** @internal */
-    const Channel* findChannel( const std::string& name ) const
-    { return find< Channel >( name ); }
+    const Channel* findChannel(const std::string& name) const
+    {
+        return find<Channel>(name);
+    }
 
-    void output( std::ostream& ) const {} //!< @internal
+    void output(std::ostream&) const {}                  //!< @internal
     virtual bool mapViewObjects() const { return true; } //!< @internal
     virtual bool mapNodeObjects() const { return true; } //!< @internal
 };

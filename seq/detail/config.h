@@ -19,9 +19,9 @@
 #ifndef EQSEQUEL_DETAIL_CONFIG_H
 #define EQSEQUEL_DETAIL_CONFIG_H
 
-#include <seq/types.h>
 #include <eq/config.h> // base class
 #include <eq/server.h> // RefPtr usage
+#include <seq/types.h>
 
 namespace seq
 {
@@ -30,22 +30,45 @@ namespace detail
 class Config : public eq::Config
 {
 public:
-    explicit Config( eq::ServerPtr parent )
-        : eq::Config( parent ), _objects(0) {}
+    explicit Config(eq::ServerPtr parent)
+        : eq::Config(parent)
+        , _objects(0)
+    {
+    }
 
     seq::Application* getApplication();
     detail::Application* getApplicationImpl();
 
-    virtual bool init() { LBDONTCALL; return false; }
-    virtual bool run( co::Object* ) { LBDONTCALL; return false; }
-    virtual bool exit() { LBDONTCALL; return false; }
+    virtual bool init()
+    {
+        LBDONTCALL;
+        return false;
+    }
+    virtual bool run(co::Object*)
+    {
+        LBDONTCALL;
+        return false;
+    }
+    virtual bool exit()
+    {
+        LBDONTCALL;
+        return false;
+    }
 
-    virtual bool needRedraw() { LBDONTCALL; return false; }
-    virtual uint32_t startFrame() { LBDONTCALL; return 0; }
+    virtual bool needRedraw()
+    {
+        LBDONTCALL;
+        return false;
+    }
+    virtual uint32_t startFrame()
+    {
+        LBDONTCALL;
+        return 0;
+    }
 
-    virtual bool mapData( const uint128_t& )  { return true; }
-    virtual void syncData( const uint128_t& ) { /* nop */ }
-    virtual void unmapData() { /* nop */ }
+    virtual bool mapData(const uint128_t&) { return true; }
+    virtual void syncData(const uint128_t&) { /* nop */}
+    virtual void unmapData() { /* nop */}
 
     ObjectMap* getObjectMap();
     co::Object* getInitData();

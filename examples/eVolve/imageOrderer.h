@@ -37,76 +37,76 @@ namespace eVolve
 /** @cond IGNORE */
 namespace
 {
-bool _cmpRangesDec( const eq::ImageOp& a, const eq::ImageOp& b )
+bool _cmpRangesDec(const eq::ImageOp& a, const eq::ImageOp& b)
 {
     return a.image->getContext().range.start <
            b.image->getContext().range.start;
 }
 
-bool _cmpRangesInc( const eq::ImageOp& a, const eq::ImageOp& b )
+bool _cmpRangesInc(const eq::ImageOp& a, const eq::ImageOp& b)
 {
     return a.image->getContext().range.start >
            b.image->getContext().range.start;
 }
 }
 
-void orderImages( eq::ImageOps& images, const eq::Matrix4f& modelviewM,
-                  const eq::Matrix3f& modelviewITM,
-                  const eq::Matrix4f& rotation, const bool orthographic )
+void orderImages(eq::ImageOps& images, const eq::Matrix4f& modelviewM,
+                 const eq::Matrix3f& modelviewITM, const eq::Matrix4f& rotation,
+                 const bool orthographic)
 {
-    if( orthographic )
+    if (orthographic)
     {
         const bool orientation = rotation.array[10] < 0;
-        std::sort( images.begin(), images.end(),
-                   orientation ? _cmpRangesInc : _cmpRangesDec );
+        std::sort(images.begin(), images.end(),
+                  orientation ? _cmpRangesInc : _cmpRangesDec);
         return;
     }
     // else perspective projection
 
-    std::sort( images.begin(), images.end(), _cmpRangesInc );
+    std::sort(images.begin(), images.end(), _cmpRangesInc);
 
     // cos of angle between normal and vectors from center
-    std::vector< float > dotVals;
-    eq::Vector3f norm = modelviewITM * eq::Vector3f( 0.f, 0.f, 1.f );
+    std::vector<float> dotVals;
+    eq::Vector3f norm = modelviewITM * eq::Vector3f(0.f, 0.f, 1.f);
     norm.normalize();
 
     // of projection to the middle of slices' boundaries
-    for( const eq::ImageOp& op : images )
+    for (const eq::ImageOp& op : images)
     {
         const float px = -1.f + op.image->getContext().range.end * 2.f;
-        const eq::Vector4f pS = modelviewM * eq::Vector4f( 0.f, 0.f, px , 1.f );
-        eq::Vector3f pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
+        const eq::Vector4f pS = modelviewM * eq::Vector4f(0.f, 0.f, px, 1.f);
+        eq::Vector3f pSsub(pS[0], pS[1], pS[2]);
         pSsub.normalize();
-        dotVals.emplace_back( norm.dot( pSsub ));
+        dotVals.emplace_back(norm.dot(pSsub));
     }
 
-    const eq::Vector4f pS = modelviewM * eq::Vector4f( 0.f, 0.f,-1.f, 1.f );
-    eq::Vector3f pSsub( pS[ 0 ], pS[ 1 ], pS[ 2 ] );
+    const eq::Vector4f pS = modelviewM * eq::Vector4f(0.f, 0.f, -1.f, 1.f);
+    eq::Vector3f pSsub(pS[0], pS[1], pS[2]);
     pSsub.normalize();
-    dotVals.emplace_back( norm.dot( pSsub ));
+    dotVals.emplace_back(norm.dot(pSsub));
 
-    //check if any slices need to be rendered in reverse order
-    size_t minPos = std::numeric_limits< size_t >::max();
-    for( size_t i = 0; i < dotVals.size() - 1; ++i )
-        if( dotVals[i] > 0 && dotVals[i+1] > 0 )
-            minPos = static_cast< int >( i );
+    // check if any slices need to be rendered in reverse order
+    size_t minPos = std::numeric_limits<size_t>::max();
+    for (size_t i = 0; i < dotVals.size() - 1; ++i)
+        if (dotVals[i] > 0 && dotVals[i + 1] > 0)
+            minPos = static_cast<int>(i);
 
     const size_t nImages = images.size();
     minPos++;
-    if( minPos < images.size()-1 )
+    if (minPos < images.size() - 1)
     {
         eq::ImageOps imagesTmp = images;
 
         // copy slices that should be rendered first
-        memcpy( &images[ nImages-minPos-1 ], &imagesTmp[0],
-                (minPos+1) * sizeof( eq::ImageOp ));
+        memcpy(&images[nImages - minPos - 1], &imagesTmp[0],
+               (minPos + 1) * sizeof(eq::ImageOp));
 
-         // copy slices that should be rendered last, in reverse order
-        for( size_t i=0; i < nImages-minPos-1; ++i )
-            images[ i ] = imagesTmp[ nImages-i-1 ];
+        // copy slices that should be rendered last, in reverse order
+        for (size_t i = 0; i < nImages - minPos - 1; ++i)
+            images[i] = imagesTmp[nImages - i - 1];
     }
 }
 /** @endcond */
 }
 
-#endif //EVOLVE_IMAGE_ORDERER_H
+#endif // EVOLVE_IMAGE_ORDERER_H

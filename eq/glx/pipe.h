@@ -27,14 +27,17 @@ namespace eq
 {
 namespace glx
 {
-namespace detail { class Pipe; }
+namespace detail
+{
+class Pipe;
+}
 
 /** Default implementation of a glX system pipe. */
 class Pipe : public SystemPipe
 {
 public:
     /** Construct a new glX system pipe. @version 1.0 */
-    Pipe( eq::Pipe* parent );
+    Pipe(eq::Pipe* parent);
 
     /** Destruct this glX pipe. @version 1.0 */
     virtual ~Pipe();
@@ -65,7 +68,7 @@ public:
     EQ_API GLXEWContext* glxewGetContext();
 
     /** @internal @return the GPU info queried from an open Display. */
-    static bool getGPUInfo( Display* display, GPUInfo& info );
+    static bool getGPUInfo(Display* display, GPUInfo& info);
 
 protected:
     /**
@@ -77,7 +80,7 @@ protected:
      * @param display the X display connection for this pipe.
      * @version 1.0
      */
-    void setXDisplay( Display* display );
+    void setXDisplay(Display* display);
 
     /**
      * @return The string representation of this pipe's port and device
@@ -95,7 +98,6 @@ protected:
      * @version 1.0
      */
     virtual bool configInitGL() { return true; }
-
 private:
     detail::Pipe* const _impl;
 

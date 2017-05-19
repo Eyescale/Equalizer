@@ -29,14 +29,13 @@ namespace eq
 {
 namespace agl
 {
-
-Pipe::Pipe( eq::Pipe* parent )
-    : SystemPipe( parent )
-    , _cgDisplayID( kCGNullDirectDisplay )
+Pipe::Pipe(eq::Pipe* parent)
+    : SystemPipe(parent)
+    , _cgDisplayID(kCGNullDirectDisplay)
 {
 }
 
-Pipe::~Pipe( )
+Pipe::~Pipe()
 {
 }
 
@@ -48,48 +47,47 @@ bool Pipe::configInit()
     CGDirectDisplayID displayID = CGMainDisplayID();
     const uint32_t device = getPipe()->getDevice();
 
-    if( device != LB_UNDEFINED_UINT32 )
+    if (device != LB_UNDEFINED_UINT32)
     {
-        CGDirectDisplayID *displayIDs = static_cast< CGDirectDisplayID* >(
-            alloca( (device+1) * sizeof( displayIDs )));
-        CGDisplayCount    nDisplays;
+        CGDirectDisplayID* displayIDs = static_cast<CGDirectDisplayID*>(
+            alloca((device + 1) * sizeof(displayIDs)));
+        CGDisplayCount nDisplays;
 
-        if( CGGetOnlineDisplayList( device+1, displayIDs, &nDisplays ) !=
-            kCGErrorSuccess )
+        if (CGGetOnlineDisplayList(device + 1, displayIDs, &nDisplays) !=
+            kCGErrorSuccess)
         {
-            sendError( ERROR_AGLPIPE_DISPLAYS_NOTFOUND );
+            sendError(ERROR_AGLPIPE_DISPLAYS_NOTFOUND);
             return false;
         }
 
-        if( nDisplays <= device )
+        if (nDisplays <= device)
         {
-            sendError( ERROR_AGLPIPE_DEVICE_NOTFOUND );
+            sendError(ERROR_AGLPIPE_DEVICE_NOTFOUND);
             return false;
         }
 
         displayID = displayIDs[device];
     }
 
-    _setCGDisplayID( displayID );
+    _setCGDisplayID(displayID);
     LBVERB << "Using CG displayID " << displayID << std::endl;
     return true;
 }
 
-
-void Pipe::_setCGDisplayID( CGDirectDisplayID id )
+void Pipe::_setCGDisplayID(CGDirectDisplayID id)
 {
-    if( _cgDisplayID == id )
+    if (_cgDisplayID == id)
         return;
 
     _cgDisplayID = id;
     PixelViewport pvp = getPipe()->getPixelViewport();
 
-    if( pvp.isValid( ))
+    if (pvp.isValid())
         return;
 
-    if( id )
+    if (id)
     {
-        const CGRect displayRect = CGDisplayBounds( id );
+        const CGRect displayRect = CGDisplayBounds(id);
         pvp.x = int32_t(displayRect.origin.x);
         pvp.y = int32_t(displayRect.origin.y);
         pvp.w = int32_t(displayRect.size.width);
@@ -98,15 +96,13 @@ void Pipe::_setCGDisplayID( CGDirectDisplayID id )
     else
         pvp.invalidate();
 
-    getPipe()->setPixelViewport( pvp );
+    getPipe()->setPixelViewport(pvp);
 }
-
 
 void Pipe::configExit()
 {
-    _setCGDisplayID( kCGNullDirectDisplay );
+    _setCGDisplayID(kCGNullDirectDisplay);
 }
-
 }
 }
 #endif // AGL

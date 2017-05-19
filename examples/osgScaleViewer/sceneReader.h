@@ -35,33 +35,33 @@
 
 #include <eq/eq.h>
 
-#include <osg/ref_ptr>
-#include <osg/Node>
 #include <osg/Image>
+#include <osg/Node>
+#include <osg/ref_ptr>
 
 namespace osgScaleViewer
 {
-    class SceneReader
-    {
-    public:
-        /** 
-         * Constructs a new SceneReader.
-         */
-        SceneReader();
+class SceneReader
+{
+public:
+    /**
+     * Constructs a new SceneReader.
+     */
+    SceneReader();
 
-        /** 
-         * Reads an osg model from its filename.
-         * @param filename the model filename.
-         * @return the root node of the scenegraph.
-         */
-        osg::ref_ptr<osg::Node> readModel( const std::string& filename );
+    /**
+     * Reads an osg model from its filename.
+     * @param filename the model filename.
+     * @return the root node of the scenegraph.
+     */
+    osg::ref_ptr<osg::Node> readModel(const std::string& filename);
 
-        /** 
-         * Reads an osg image from its filename.
-         * @param filename the image filename.
-         * @return the image object.
-         */
-        osg::ref_ptr<osg::Image> readImage( const std::string& filename );
-    };
+    /**
+     * Reads an osg image from its filename.
+     * @param filename the image filename.
+     * @return the image object.
+     */
+    osg::ref_ptr<osg::Image> readImage(const std::string& filename);
+};
 }
 #endif

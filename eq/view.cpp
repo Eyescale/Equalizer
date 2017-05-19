@@ -50,20 +50,16 @@ public:
 
     struct Screenshot
     {
-        std::unique_ptr< eq::Image > _image;
+        std::unique_ptr<eq::Image> _image;
         Viewport _viewport;
 
-        bool isComplete() const
+        bool isComplete() const { return _viewport == Viewport::FULL; }
+        void composite(const Viewport& viewport, const eq::Image& image)
         {
-            return _viewport == Viewport::FULL;
-        }
-
-        void composite( const Viewport& viewport, const eq::Image& image )
-        {
-            if( !_image )
+            if (!_image)
             {
                 _viewport = viewport;
-                _image.reset( new eq::Image( image ));
+                _image.reset(new eq::Image(image));
                 return;
             }
 
@@ -73,25 +69,25 @@ public:
             ImageOp newImage;
             newImage.image = &image;
 
-            ops.push_back( current );
-            ops.push_back( newImage );
+            ops.push_back(current);
+            ops.push_back(newImage);
             _image.reset(
-                     new eq::Image( *Compositor::mergeImagesCPU( ops, false )));
-            _viewport.unite( viewport );
+                new eq::Image(*Compositor::mergeImagesCPU(ops, false)));
+            _viewport.unite(viewport);
         }
     };
 
-    std::map< uint32_t, Screenshot > screenshot;
+    std::map<uint32_t, Screenshot> screenshot;
     eq::View::ScreenshotFunc screenshotFunc;
 };
 }
 
-typedef fabric::View< Layout, View, Observer > Super;
+typedef fabric::View<Layout, View, Observer> Super;
 
-View::View( Layout* parent )
-        : Super( parent )
-        , _impl( new detail::View )
-        , _pipe( 0 )
+View::View(Layout* parent)
+    : Super(parent)
+    , _impl(new detail::View)
+    , _pipe(0)
 {
 }
 
@@ -100,11 +96,11 @@ View::~View()
     delete _impl;
 }
 
-void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+void View::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    Super::deserialize( is, dirtyBits );
-    if( _impl->baseFrustum.getCurrentType() == TYPE_NONE &&
-        ( dirtyBits & DIRTY_FRUSTUM ))
+    Super::deserialize(is, dirtyBits);
+    if (_impl->baseFrustum.getCurrentType() == TYPE_NONE &&
+        (dirtyBits & DIRTY_FRUSTUM))
     {
         _impl->baseFrustum = *this; // save baseline data for resizing
     }
@@ -114,12 +110,13 @@ void View::detach()
 {
     // if pipe is not running, detach comes from _flushViews in state stopping
     //  Don't send command to stopping pipe (see issue #11)
-    if( _pipe && _pipe->isRunning( ))
+    if (_pipe && _pipe->isRunning())
     {
         // local command dispatching
-        co::ObjectOCommand( _pipe, getLocalNode(), fabric::CMD_PIPE_DETACH_VIEW,
-                            co::COMMANDTYPE_OBJECT, _pipe->getID(),
-                            CO_INSTANCE_ALL ) << getID();
+        co::ObjectOCommand(_pipe, getLocalNode(), fabric::CMD_PIPE_DETACH_VIEW,
+                           co::COMMANDTYPE_OBJECT, _pipe->getID(),
+                           CO_INSTANCE_ALL)
+            << getID();
     }
     Super::detach();
 }
@@ -127,10 +124,10 @@ void View::detach()
 Config* View::getConfig()
 {
     Layout* layout = getLayout();
-    if( layout )
+    if (layout)
         return layout->getConfig();
 
-    if( _pipe )
+    if (_pipe)
         return _pipe->getConfig();
 
     LBUNREACHABLE;
@@ -140,10 +137,10 @@ Config* View::getConfig()
 const Config* View::getConfig() const
 {
     const Layout* layout = getLayout();
-    if( layout )
+    if (layout)
         return layout->getConfig();
 
-    if( _pipe )
+    if (_pipe)
         return _pipe->getConfig();
 
     LBUNREACHABLE;
@@ -153,8 +150,8 @@ const Config* View::getConfig() const
 ServerPtr View::getServer()
 {
     Config* config = getConfig();
-    LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    LBASSERT(config);
+    return (config ? config->getServer() : 0);
 }
 
 const Frustum& View::getBaseFrustum() const
@@ -162,35 +159,35 @@ const Frustum& View::getBaseFrustum() const
     return _impl->baseFrustum;
 }
 
-bool View::handleEvent( const EventType type, const SizeEvent& event )
+bool View::handleEvent(const EventType type, const SizeEvent& event)
 {
-    if( type != EVENT_VIEW_RESIZE )
+    if (type != EVENT_VIEW_RESIZE)
         return false;
 
-    if( event.dw == 0.f || event.dh == 0.f )
+    if (event.dw == 0.f || event.dh == 0.f)
         return true;
 
-    switch( getCurrentType( ))
+    switch (getCurrentType())
     {
     case TYPE_WALL:
     {
-        const float ratio( event.dw / event.dh );
-        Wall wall( _impl->baseFrustum.getWall( ));
-        wall.resizeHorizontal( ratio );
+        const float ratio(event.dw / event.dh);
+        Wall wall(_impl->baseFrustum.getWall());
+        wall.resizeHorizontal(ratio);
 
-        lunchbox::ScopedFastWrite mutex( _impl->eventLock );
-        setWall( wall );
+        lunchbox::ScopedFastWrite mutex(_impl->eventLock);
+        setWall(wall);
         return true;
     }
 
     case View::TYPE_PROJECTION:
     {
-        const float ratio( event.dw / event.dh );
-        eq::Projection projection( _impl->baseFrustum.getProjection( ));
-        projection.resizeHorizontal( ratio );
+        const float ratio(event.dw / event.dh);
+        eq::Projection projection(_impl->baseFrustum.getProjection());
+        projection.resizeHorizontal(ratio);
 
-        lunchbox::ScopedFastWrite mutex( _impl->eventLock );
-        setProjection( projection );
+        lunchbox::ScopedFastWrite mutex(_impl->eventLock);
+        setProjection(projection);
         return true;
     }
 
@@ -201,58 +198,57 @@ bool View::handleEvent( const EventType type, const SizeEvent& event )
     }
 }
 
-void View::enableScreenshot( Frame::Buffer buffers, const ScreenshotFunc& func )
+void View::enableScreenshot(Frame::Buffer buffers, const ScreenshotFunc& func)
 {
-    Super::_setScreenshotBuffers( buffers );
+    Super::_setScreenshotBuffers(buffers);
     _impl->screenshotFunc = func;
 }
 
 void View::disableScreenshot()
 {
-    Super::_setScreenshotBuffers( Frame::Buffer::none );
+    Super::_setScreenshotBuffers(Frame::Buffer::none);
 }
 
-void View::sendScreenshotEvent( const Viewport& viewport,
-                                const uint32_t frameNumber, const Image& image )
+void View::sendScreenshotEvent(const Viewport& viewport,
+                               const uint32_t frameNumber, const Image& image)
 {
-    getConfig()->sendEvent( EVENT_VIEW_SCREENSHOT ) << getID() << viewport
-                                                    << frameNumber << image;
+    getConfig()->sendEvent(EVENT_VIEW_SCREENSHOT) << getID() << viewport
+                                                  << frameNumber << image;
 }
 
-bool View::handleEvent( EventICommand& command )
+bool View::handleEvent(EventICommand& command)
 {
-    switch( command.getEventType( ))
+    switch (command.getEventType())
     {
     case EVENT_VIEW_SCREENSHOT:
-        return _handleScreenshot( command );
+        return _handleScreenshot(command);
     }
     return false;
 }
 
-bool View::_handleScreenshot( EventICommand& command )
+bool View::_handleScreenshot(EventICommand& command)
 {
-    const auto& vp = command.read< Viewport >();
-    const auto frameNumber = command.read< uint32_t >();
-    const auto& newImage = command.read< Image >();
+    const auto& vp = command.read<Viewport>();
+    const auto frameNumber = command.read<uint32_t>();
+    const auto& newImage = command.read<Image>();
 
-    auto& screenshot = _impl->screenshot[ frameNumber ];
-    screenshot.composite( vp, newImage );
+    auto& screenshot = _impl->screenshot[frameNumber];
+    screenshot.composite(vp, newImage);
 
-    if( screenshot.isComplete( ))
+    if (screenshot.isComplete())
     {
-        _impl->screenshotFunc( frameNumber, *screenshot._image );
-        _impl->screenshot.erase( frameNumber );
+        _impl->screenshotFunc(frameNumber, *screenshot._image);
+        _impl->screenshot.erase(frameNumber);
     }
 
     return true;
 }
-
 }
 
 #include <eq/fabric/view.ipp>
-template class eq::fabric::View< eq::Layout, eq::View, eq::Observer >;
+template class eq::fabric::View<eq::Layout, eq::View, eq::Observer>;
 
 /** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                             const eq::Super& );
+template EQFABRIC_API std::ostream& eq::fabric::operator<<(std::ostream&,
+                                                           const eq::Super&);
 /** @endcond */

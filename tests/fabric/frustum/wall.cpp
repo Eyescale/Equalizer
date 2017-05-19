@@ -23,43 +23,38 @@ using namespace eq::fabric;
 
 // Tests the wall description
 
-int main( int, char** )
+int main(int, char**)
 {
-    const Wall wall( Vector3f( -.5f, -.5f, -.5f ),
-                     Vector3f( 1.f,  1.f,  -.5f ),
-                     Vector3f( -.5f, -.5f,  .5f ));
-    Wall target( Vector3f( -.875f,  -.875f, -.5f ),
-                 Vector3f( 1.375f,  1.375f, -.5f ),
-                 Vector3f( -.875f,  -.875f,  .5f ));
-    Wall tmp( wall );
-    tmp.resizeHorizontal( 1.5f );
-    TESTINFO( tmp == target, tmp << " != " << target );
+    const Wall wall(Vector3f(-.5f, -.5f, -.5f), Vector3f(1.f, 1.f, -.5f),
+                    Vector3f(-.5f, -.5f, .5f));
+    Wall target(Vector3f(-.875f, -.875f, -.5f), Vector3f(1.375f, 1.375f, -.5f),
+                Vector3f(-.875f, -.875f, .5f));
+    Wall tmp(wall);
+    tmp.resizeHorizontal(1.5f);
+    TESTINFO(tmp == target, tmp << " != " << target);
 
-    target.bottomLeft  = Vector3f( -.125f, -.125f, -.5f );
-    target.bottomRight = Vector3f(  .625f,  .625f, -.5f );
-    target.topLeft     = Vector3f( -.125f, -.125f,  .5f );
+    target.bottomLeft = Vector3f(-.125f, -.125f, -.5f);
+    target.bottomRight = Vector3f(.625f, .625f, -.5f);
+    target.topLeft = Vector3f(-.125f, -.125f, .5f);
 
     tmp = wall;
-    tmp.resizeHorizontal( .5f );
-    TESTINFO( tmp == target, tmp << " != " << target );
+    tmp.resizeHorizontal(.5f);
+    TESTINFO(tmp == target, tmp << " != " << target);
 
-
-    target.bottomLeft  = Vector3f( -.5f, -.5f, -.25f );
-    target.bottomRight = Vector3f(  1.f, 1.f,  -.25f );
-    target.topLeft     = Vector3f( -.5f, -.5f,  .25f );
+    target.bottomLeft = Vector3f(-.5f, -.5f, -.25f);
+    target.bottomRight = Vector3f(1.f, 1.f, -.25f);
+    target.topLeft = Vector3f(-.5f, -.5f, .25f);
 
     tmp = wall;
-    tmp.resizeVertical( .5f );
-    TESTINFO( tmp == target, tmp << " != " << target );
+    tmp.resizeVertical(.5f);
+    TESTINFO(tmp == target, tmp << " != " << target);
 
-
-    const Frustumf frustum( -.8f, .8f, -.5f, .5f, 1.f, 100.f );
-    const Wall wall2( Vector3f( -.8f, -.5f, -1.f ),
-                      Vector3f(  .8f, -.5f, -1.f ),
-                      Vector3f( -.8f,  .5f, -1.f ));
+    const Frustumf frustum(-.8f, .8f, -.5f, .5f, 1.f, 100.f);
+    const Wall wall2(Vector3f(-.8f, -.5f, -1.f), Vector3f(.8f, -.5f, -1.f),
+                     Vector3f(-.8f, .5f, -1.f));
 
     target = frustum.computePerspectiveMatrix().inverse();
-    TESTINFO( wall2 == target, wall2 << " != " << target );
+    TESTINFO(wall2 == target, wall2 << " != " << target);
 
     return EXIT_SUCCESS;
 }

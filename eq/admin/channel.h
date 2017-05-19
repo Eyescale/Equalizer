@@ -18,18 +18,18 @@
 #ifndef EQADMIN_CHANNEL_H
 #define EQADMIN_CHANNEL_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/channel.h>       // base class
+#include <eq/admin/types.h>    // typedefs
+#include <eq/fabric/channel.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Channel : public fabric::Channel< Window, Channel >
+class Channel : public fabric::Channel<Window, Channel>
 {
 public:
     /** Construct a new channel. @version 1.0 */
-    EQADMIN_API explicit Channel( Window* parent );
+    EQADMIN_API explicit Channel(Window* parent);
 
     /** Destruct a channel. @version 1.0 */
     EQADMIN_API virtual ~Channel();

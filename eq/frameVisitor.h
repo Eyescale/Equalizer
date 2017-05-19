@@ -22,11 +22,14 @@ namespace detail
 class FrameVisitor : public ConfigVisitor
 {
 public:
-    explicit FrameVisitor( const uint32_t frame ) : frame_( frame ) {}
-
-    virtual VisitorResult visit( eq::Observer* observer )
+    explicit FrameVisitor(const uint32_t frame)
+        : frame_(frame)
     {
-        observer->frameStart( frame_ );
+    }
+
+    virtual VisitorResult visit(eq::Observer* observer)
+    {
+        observer->frameStart(frame_);
         return TRAVERSE_CONTINUE;
     }
 

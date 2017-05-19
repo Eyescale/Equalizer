@@ -18,7 +18,7 @@
 #ifndef EQS_MONITOREQUALIZER_H
 #define EQS_MONITOREQUALIZER_H
 
-#include "equalizer.h"          // base class
+#include "equalizer.h" // base class
 
 #include <deque>
 #include <map>
@@ -27,30 +27,26 @@ namespace eq
 {
 namespace server
 {
-std::ostream& operator << ( std::ostream& os, const MonitorEqualizer* );
+std::ostream& operator<<(std::ostream& os, const MonitorEqualizer*);
 
 /** Destination-driven scaling.*/
 class MonitorEqualizer : public Equalizer
 {
 public:
     MonitorEqualizer();
-    MonitorEqualizer( const MonitorEqualizer& from );
+    MonitorEqualizer(const MonitorEqualizer& from);
     virtual ~MonitorEqualizer();
-    void toStream( std::ostream& os ) const final { os << this; }
-
+    void toStream(std::ostream& os) const final { os << this; }
     /** @sa Equalizer::attach. */
-    void attach( Compound* compound ) final;
+    void attach(Compound* compound) final;
 
     /** @sa CompoundListener::notifyUpdatePre */
-    void notifyUpdatePre( Compound* compound,
-                          const uint32_t frameNumber ) final;
+    void notifyUpdatePre(Compound* compound, const uint32_t frameNumber) final;
 
     uint32_t getType() const final { return fabric::MONITOR_EQUALIZER; }
-
 protected:
-    void notifyChildAdded( Compound*, Compound* ) override {}
-    void notifyChildRemove( Compound*, Compound* ) override {}
-
+    void notifyChildAdded(Compound*, Compound*) override {}
+    void notifyChildRemove(Compound*, Compound*) override {}
 private:
     /** Init the source frame viewports. */
     void _updateViewports();

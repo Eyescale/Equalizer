@@ -32,10 +32,9 @@ namespace server
 {
 namespace
 {
-
-TileQueue* _findQueue( const std::string& name, const TileQueues& queues )
+TileQueue* _findQueue(const std::string& name, const TileQueues& queues)
 {
-    for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
+    for (TileQueuesCIter i = queues.begin(); i != queues.end(); ++i)
     {
         if ((*i)->getName() == name)
             return *i;
@@ -46,31 +45,31 @@ TileQueue* _findQueue( const std::string& name, const TileQueues& queues )
 class InputQueueCreator : public CompoundVisitor
 {
 public:
-    InputQueueCreator( const eq::fabric::Vector2i& size,
-                       const std::string& name )
+    InputQueueCreator(const eq::fabric::Vector2i& size, const std::string& name)
         : CompoundVisitor()
-        , _tileSize( size )
-        , _name( name )
-    {}
+        , _tileSize(size)
+        , _name(name)
+    {
+    }
 
     /** Visit a leaf compound. */
-    virtual VisitorResult visitLeaf( Compound* compound )
+    virtual VisitorResult visitLeaf(Compound* compound)
     {
-        if( _findQueue( _name, compound->getInputTileQueues( )))
+        if (_findQueue(_name, compound->getInputTileQueues()))
             return TRAVERSE_CONTINUE;
 
         // reset compound viewport to (0, 0, 1, 1) (#108)
-        if( !compound->getViewport().hasArea() )
-            compound->setViewport( Viewport( ));
+        if (!compound->getViewport().hasArea())
+            compound->setViewport(Viewport());
 
         TileQueue* input = new TileQueue;
         ServerPtr server = compound->getServer();
-        server->registerObject( input );
-        input->setTileSize( _tileSize );
-        input->setName( _name );
-        input->setAutoObsolete( compound->getConfig()->getLatency( ));
+        server->registerObject(input);
+        input->setTileSize(_tileSize);
+        input->setName(_name);
+        input->setAutoObsolete(compound->getConfig()->getLatency());
 
-        compound->addInputTileQueue( input );
+        compound->addInputTileQueue(input);
         return TRAVERSE_CONTINUE;
     }
 
@@ -82,44 +81,44 @@ private:
 class InputQueueDestroyer : public CompoundVisitor
 {
 public:
-    explicit InputQueueDestroyer( const std::string& name )
+    explicit InputQueueDestroyer(const std::string& name)
         : CompoundVisitor()
-        , _name( name )
+        , _name(name)
     {
     }
 
     /** Visit a leaf compound. */
-    virtual VisitorResult visitLeaf( Compound* compound )
+    virtual VisitorResult visitLeaf(Compound* compound)
     {
-        TileQueue* q = _findQueue( _name, compound->getInputTileQueues( ));
-        if( q )
+        TileQueue* q = _findQueue(_name, compound->getInputTileQueues());
+        if (q)
         {
-            compound->removeInputTileQueue( q );
+            compound->removeInputTileQueue(q);
             ServerPtr server = compound->getServer();
             q->flush();
-            server->deregisterObject( q );
+            server->deregisterObject(q);
             delete q;
         }
 
         return TRAVERSE_CONTINUE;
     }
+
 private:
     const std::string& _name;
 };
-
 }
 
 TileEqualizer::TileEqualizer()
     : Equalizer()
-    , _created( false )
-    , _name( "TileEqualizer" )
+    , _created(false)
+    , _name("TileEqualizer")
 {
 }
 
-TileEqualizer::TileEqualizer( const TileEqualizer& from )
-    : Equalizer( from )
-    , _created( from._created )
-    , _name( from._name )
+TileEqualizer::TileEqualizer(const TileEqualizer& from)
+    : Equalizer(from)
+    , _created(from._created)
+    , _name(from._name)
 {
 }
 
@@ -130,68 +129,67 @@ std::string TileEqualizer::_getQueueName() const
     return name.str();
 }
 
-void TileEqualizer::_createQueues( Compound* compound )
+void TileEqualizer::_createQueues(Compound* compound)
 {
     _created = true;
     const std::string& name = _getQueueName();
-    if( !_findQueue( name, compound->getOutputTileQueues( )))
+    if (!_findQueue(name, compound->getOutputTileQueues()))
     {
         TileQueue* output = new TileQueue;
         ServerPtr server = compound->getServer();
-        server->registerObject( output );
-        output->setTileSize( getTileSize( ));
-        output->setName( name );
-        output->setAutoObsolete( compound->getConfig()->getLatency( ));
+        server->registerObject(output);
+        output->setTileSize(getTileSize());
+        output->setName(name);
+        output->setAutoObsolete(compound->getConfig()->getLatency());
 
-        compound->addOutputTileQueue( output );
+        compound->addOutputTileQueue(output);
     }
 
-    InputQueueCreator creator( getTileSize(), name );
-    compound->accept( creator );
+    InputQueueCreator creator(getTileSize(), name);
+    compound->accept(creator);
 }
 
-void TileEqualizer::_destroyQueues( Compound* compound )
+void TileEqualizer::_destroyQueues(Compound* compound)
 {
     const std::string& name = _getQueueName();
-    TileQueue* q = _findQueue( name, compound->getOutputTileQueues() );
-    if ( q )
+    TileQueue* q = _findQueue(name, compound->getOutputTileQueues());
+    if (q)
     {
-        compound->removeOutputTileQueue( q );
+        compound->removeOutputTileQueue(q);
         ServerPtr server = compound->getServer();
         q->flush();
-        server->deregisterObject( q );
+        server->deregisterObject(q);
         delete q;
     }
 
-    InputQueueDestroyer destroyer( name );
-    compound->accept( destroyer );
+    InputQueueDestroyer destroyer(name);
+    compound->accept(destroyer);
     _created = false;
 }
 
-void TileEqualizer::notifyUpdatePre( Compound* compound,
-                                     const uint32_t /*frame*/ )
+void TileEqualizer::notifyUpdatePre(Compound* compound,
+                                    const uint32_t /*frame*/)
 {
-    if( isActive() && !_created )
-        _createQueues( compound );
+    if (isActive() && !_created)
+        _createQueues(compound);
 
-    if( !isActive() && _created )
-        _destroyQueues( compound );
+    if (!isActive() && _created)
+        _destroyQueues(compound);
 }
 
-std::ostream& operator << ( std::ostream& os, const TileEqualizer* lb )
+std::ostream& operator<<(std::ostream& os, const TileEqualizer* lb)
 {
-    if( lb )
+    if (lb)
     {
-        os << lunchbox::disableFlush
-           << "tile_equalizer" << std::endl
+        os << lunchbox::disableFlush << "tile_equalizer" << std::endl
            << "{" << std::endl
            << "    name \"" << lb->getName() << "\"" << std::endl
            << "    size " << lb->getTileSize() << std::endl
-           << "}" << std::endl << lunchbox::enableFlush;
+           << "}" << std::endl
+           << lunchbox::enableFlush;
     }
     return os;
 }
 
-
-} //server
-} //eq
+} // server
+} // eq

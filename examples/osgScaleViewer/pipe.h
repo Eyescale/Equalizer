@@ -36,57 +36,57 @@
 
 #include "frameData.h"
 
-#include <osg/MatrixTransform>
-#include <osg/Matrix>
-#include <osg/ref_ptr>
-#include <osg/Node>
 #include <osg/Image>
+#include <osg/Matrix>
+#include <osg/MatrixTransform>
+#include <osg/Node>
+#include <osg/ref_ptr>
 
 namespace osgScaleViewer
 {
+/**
+ * The Pipe holds the viewer and the frame data.
+ * Each frame, it updates the scene graph of the viewer with the
+ * new data of the frame data. The frame data is synced with the server.
+ */
+class Pipe : public eq::Pipe
+{
+public:
     /**
-     * The Pipe holds the viewer and the frame data.
-     * Each frame, it updates the scene graph of the viewer with the
-     * new data of the frame data. The frame data is synced with the server.
+     * Creates a Pipe.
+     * @param parent the pipe's parent.
      */
-    class Pipe : public eq::Pipe
-    {
-    public:
-        /** 
-         * Creates a Pipe.
-         * @param parent the pipe's parent.
-         */
-        Pipe( eq::Node* parent );
-   
-        /** 
-         * Gets the FrameData object.
-         * @return the frame data object.
-         */
-        const FrameData& getFrameData() const;
+    Pipe(eq::Node* parent);
 
-    protected:
-        virtual ~Pipe();
+    /**
+     * Gets the FrameData object.
+     * @return the frame data object.
+     */
+    const FrameData& getFrameData() const;
 
-        /**
-         * Creates the scene graph and registers the frame data, so it can be
-         * synced with the server later.
-         */
-        virtual bool configInit( const eq::uint128_t& initID );
+protected:
+    virtual ~Pipe();
 
-        /**
-         * Deregisters the frame data.
-         */
-        virtual bool configExit();
+    /**
+     * Creates the scene graph and registers the frame data, so it can be
+     * synced with the server later.
+     */
+    virtual bool configInit(const eq::uint128_t& initID);
 
-        /**
-         * Syncs the frame data with the server and calls updateSceneGraph().
-         */
-        virtual void frameStart( const eq::uint128_t& frameID,
-                                 const uint32_t frameNumber );
+    /**
+     * Deregisters the frame data.
+     */
+    virtual bool configExit();
 
-    private:
-        FrameData _frameData;
-    };
+    /**
+     * Syncs the frame data with the server and calls updateSceneGraph().
+     */
+    virtual void frameStart(const eq::uint128_t& frameID,
+                            const uint32_t frameNumber);
+
+private:
+    FrameData _frameData;
+};
 }
 
 #endif

@@ -26,9 +26,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifdef EQUALIZER_USE_QT5WIDGETS
-#  include <QApplication>
+#include <QApplication>
 #endif
 
 #include "eqPly.h"
@@ -46,21 +45,33 @@
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig( eq::ServerPtr parent )
-        { return new eqPly::Config( parent ); }
-    virtual eq::Node*    createNode( eq::Config* parent )
-        { return new eqPly::Node( parent ); }
-    virtual eq::Pipe*    createPipe( eq::Node* parent )
-        { return new eqPly::Pipe( parent ); }
-    virtual eq::Window*  createWindow( eq::Pipe* parent )
-        { return new eqPly::Window( parent ); }
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new eqPly::Channel( parent ); }
-    virtual eq::View* createView( eq::Layout* parent )
-        { return new eqPly::View( parent ); }
+    virtual eq::Config* createConfig(eq::ServerPtr parent)
+    {
+        return new eqPly::Config(parent);
+    }
+    virtual eq::Node* createNode(eq::Config* parent)
+    {
+        return new eqPly::Node(parent);
+    }
+    virtual eq::Pipe* createPipe(eq::Node* parent)
+    {
+        return new eqPly::Pipe(parent);
+    }
+    virtual eq::Window* createWindow(eq::Pipe* parent)
+    {
+        return new eqPly::Window(parent);
+    }
+    virtual eq::Channel* createChannel(eq::Window* parent)
+    {
+        return new eqPly::Channel(parent);
+    }
+    virtual eq::View* createView(eq::Layout* parent)
+    {
+        return new eqPly::View(parent);
+    }
 };
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
     // 1. Equalizer initialization
     NodeFactory nodeFactory;
@@ -68,20 +79,20 @@ int main( int argc, char** argv )
 
     // 2. parse arguments
     eqPly::LocalInitData initData;
-    initData.parseArguments( argc, argv );
+    initData.parseArguments(argc, argv);
 
 #ifdef EQUALIZER_USE_QT5WIDGETS
     QApplication* app = 0;
-    if( initData.getWindowSystem() == "Qt" )
+    if (initData.getWindowSystem() == "Qt")
     {
-#  ifdef __linux__
+#ifdef __linux__
         ::XInitThreads();
-#  endif
-        app = new QApplication( argc, argv );
+#endif
+        app = new QApplication(argc, argv);
     }
 #endif
 
-    if( !eq::init( argc, argv, &nodeFactory ))
+    if (!eq::init(argc, argv, &nodeFactory))
     {
         LBERROR << "Equalizer init failed" << std::endl;
         eq::exit();
@@ -89,13 +100,13 @@ int main( int argc, char** argv )
     }
 
     // 3. initialization of local client node
-    lunchbox::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
+    lunchbox::RefPtr<eqPly::EqPly> client = new eqPly::EqPly(initData);
 #ifdef EQUALIZER_USE_QT5WIDGETS
     // no working multi GPU setup for Qt yet...
-    if( initData.getWindowSystem() == "Qt" )
-        client->addActiveLayout( "Simple" );
+    if (initData.getWindowSystem() == "Qt")
+        client->addActiveLayout("Simple");
 #endif
-    if( !client->initLocal( argc, argv ))
+    if (!client->initLocal(argc, argv))
     {
         LBERROR << "Can't init client" << std::endl;
         eq::exit();
@@ -108,7 +119,7 @@ int main( int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
-    LBASSERTINFO( client->getRefCount() == 1, client );
+    LBASSERTINFO(client->getRefCount() == 1, client);
     client = 0;
 
 #ifdef EQUALIZER_USE_QT5WIDGETS

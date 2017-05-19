@@ -32,13 +32,13 @@
 
 #include "config.h"
 
-#include "util.h"
 #include "sceneReader.h"
+#include "util.h"
 
 #include <osg/Math>
 
 #ifndef M_PI_2
-#  define M_PI_2 1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 namespace osgScaleViewer
@@ -46,18 +46,18 @@ namespace osgScaleViewer
 static const float maxVerticalAngle = osg::PI;
 static const float minVerticalAngle = 0.2f;
 static const float mouseViewSpeed = 0.005f;
-static const float defaultCameraHorizontalAngle( 0.0f );
-static const float defaultCameraVerticalAngle( osg::PI / 2.0f );
-static const eq::Vector3f defaultCameraViewingDirection( 0., 0., -1. );
+static const float defaultCameraHorizontalAngle(0.0f);
+static const float defaultCameraVerticalAngle(osg::PI / 2.0f);
+static const eq::Vector3f defaultCameraViewingDirection(0., 0., -1.);
 
-Config::Config( eq::ServerPtr parent )
-    : eq::Config( parent )
-    , _moveDirection( 0.0f, 0.0f, 0.0f )
-    , _cameraWalkingVector( 0., 0., -1. )
-    , _pointerXDiff( 0.0f )
-    , _pointerYDiff( 0.0f )
-    , _cameraAngleHor( defaultCameraHorizontalAngle )
-    , _cameraAngleVer( defaultCameraVerticalAngle )
+Config::Config(eq::ServerPtr parent)
+    : eq::Config(parent)
+    , _moveDirection(0.0f, 0.0f, 0.0f)
+    , _cameraWalkingVector(0., 0., -1.)
+    , _pointerXDiff(0.0f)
+    , _pointerYDiff(0.0f)
+    , _cameraAngleHor(defaultCameraHorizontalAngle)
+    , _cameraAngleVer(defaultCameraVerticalAngle)
 {
 }
 
@@ -65,89 +65,89 @@ bool Config::init()
 {
     // init tracker
     std::string trackerPort = _initData.getTrackerPort();
-    if( !trackerPort.empty( ))
+    if (!trackerPort.empty())
     {
-        if( !_tracker.init( trackerPort ))
+        if (!_tracker.init(trackerPort))
             LBWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
             // Note: this depends on the physical installation.
             eq::Matrix4f matrix;
-            matrix.scale( eq::Vector3f( 1.f, 1.f, -1.f ));
-            _tracker.setWorldToEmitter( matrix );
+            matrix.scale(eq::Vector3f(1.f, 1.f, -1.f));
+            _tracker.setWorldToEmitter(matrix);
 
             matrix = eq::Matrix4f();
-            matrix.rotate_z( -M_PI_2 );
-            _tracker.setSensorToObject( matrix );
+            matrix.rotate_z(-M_PI_2);
+            _tracker.setSensorToObject(matrix);
             LBINFO << "Tracker initialized" << std::endl;
         }
     }
 
-    registerObject( &_frameData );
-    _initData.setFrameDataID( _frameData.getID( ));
-    registerObject( &_initData );
+    registerObject(&_frameData);
+    _initData.setFrameDataID(_frameData.getID());
+    registerObject(&_initData);
 
-    return eq::Config::init( _initData.getID( ));
+    return eq::Config::init(_initData.getID());
 }
 
 bool Config::exit()
 {
     bool ret = eq::Config::exit();
 
-    _initData.setFrameDataID( eq::uint128_t( ));
-    deregisterObject( &_initData );
-    deregisterObject( &_frameData );
+    _initData.setFrameDataID(eq::uint128_t());
+    deregisterObject(&_initData);
+    deregisterObject(&_frameData);
     return ret;
 }
 
-void Config::updateFrameData( float elapsed )
+void Config::updateFrameData(float elapsed)
 {
     // Update the viewing direction based on the mouse movement
     _cameraAngleHor += mouseViewSpeed * _pointerXDiff;
-    if( _cameraAngleHor > 2 * osg::PI || _cameraAngleHor < -2 * osg::PI )
+    if (_cameraAngleHor > 2 * osg::PI || _cameraAngleHor < -2 * osg::PI)
         _cameraAngleHor = 0.0f;
     _cameraAngleVer += mouseViewSpeed * _pointerYDiff;
-    if( _cameraAngleVer > maxVerticalAngle )
+    if (_cameraAngleVer > maxVerticalAngle)
         _cameraAngleVer = maxVerticalAngle;
-    if( _cameraAngleVer < minVerticalAngle )
+    if (_cameraAngleVer < minVerticalAngle)
         _cameraAngleVer = minVerticalAngle;
     _pointerXDiff = _pointerYDiff = 0.0f;
 
     eq::Vector3f cameraViewingDirection;
-    cameraViewingDirection.x() = sin( _cameraAngleHor ) * sin( _cameraAngleVer );
-    cameraViewingDirection.z() = -cos( _cameraAngleHor ) * sin( _cameraAngleVer );
-    cameraViewingDirection.y() = cos( _cameraAngleVer );
+    cameraViewingDirection.x() = sin(_cameraAngleHor) * sin(_cameraAngleVer);
+    cameraViewingDirection.z() = -cos(_cameraAngleHor) * sin(_cameraAngleVer);
+    cameraViewingDirection.y() = cos(_cameraAngleVer);
     _cameraWalkingVector = cameraViewingDirection;
     _cameraWalkingVector.y() = 0.0f;
 
     // save camera data to frame data and update the camera position
-    _frameData.setCameraPosition( _frameData.getCameraPosition() +
-                                  _moveDirection * elapsed );
-    _frameData.setCameraLookAtPoint( _frameData.getCameraPosition() +
-                                     cameraViewingDirection );
-    _frameData.setCameraUpVector( eq::Vector3f( 0., 1., 0. ));
+    _frameData.setCameraPosition(_frameData.getCameraPosition() +
+                                 _moveDirection * elapsed);
+    _frameData.setCameraLookAtPoint(_frameData.getCameraPosition() +
+                                    cameraViewingDirection);
+    _frameData.setCameraUpVector(eq::Vector3f(0., 1., 0.));
 }
 
 uint32_t Config::startFrame()
 {
     // update head position
-    if( _tracker.isRunning( ))
+    if (_tracker.isRunning())
     {
         _tracker.update();
         const eq::Matrix4f& headMatrix = _tracker.getMatrix();
-        _setHeadMatrix( headMatrix );
+        _setHeadMatrix(headMatrix);
     }
 
     float elapsed = _clock.getTimef();
     _clock.reset();
-    updateFrameData( elapsed );
+    updateFrameData(elapsed);
 
     const eq::uint128_t version = _frameData.commit();
-    return eq::Config::startFrame( version );
+    return eq::Config::startFrame(version);
 }
 
-void Config::setInitData( const InitData& data )
+void Config::setInitData(const InitData& data)
 {
     _initData = data;
 }
@@ -157,32 +157,33 @@ const InitData& Config::getInitData() const
     return _initData;
 }
 
-bool Config::loadInitData( const eq::uint128_t& id )
+bool Config::loadInitData(const eq::uint128_t& id)
 {
-    LBASSERT( !_initData.isAttached( ));
-    return getClient()->syncObject( &_initData, id, getApplicationNode( ));
+    LBASSERT(!_initData.isAttached());
+    return getClient()->syncObject(&_initData, id, getApplicationNode());
 }
 
-bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
+bool Config::handleEvent(const eq::EventType type, const eq::KeyEvent& event)
 {
     static const float moveSpeed = .1f;
 
-    switch( type )
+    switch (type)
     {
     case eq::EVENT_KEY_RELEASE:
         // set mMoveDirection to a null vector after a key is released so that
         // the updating of the camera position stops
-        if ( event.key >= 261 && event.key <= 266 )
-            _moveDirection = eq::Vector3f( 0, 0, 0 );
-        return eq::Config::handleEvent( type, event );
+        if (event.key >= 261 && event.key <= 266)
+            _moveDirection = eq::Vector3f(0, 0, 0);
+        return eq::Config::handleEvent(type, event);
 
     case eq::EVENT_KEY_PRESS:
         // change mMoveDirection when the appropriate key is pressed
-        switch ( event.key )
+        switch (event.key)
         {
         case eq::KC_LEFT:
-            _moveDirection = vmml::normalize(
-                orthographicVector( _cameraWalkingVector )) * moveSpeed;
+            _moveDirection =
+                vmml::normalize(orthographicVector(_cameraWalkingVector)) *
+                moveSpeed;
             return true;
 
         case eq::KC_UP:
@@ -190,8 +191,9 @@ bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
             return true;
 
         case eq::KC_RIGHT:
-            _moveDirection = -vmml::normalize(
-                orthographicVector( _cameraWalkingVector )) * moveSpeed;
+            _moveDirection =
+                -vmml::normalize(orthographicVector(_cameraWalkingVector)) *
+                moveSpeed;
             return true;
 
         case eq::KC_DOWN:
@@ -199,52 +201,50 @@ bool Config::handleEvent( const eq::EventType type, const eq::KeyEvent& event )
             return true;
 
         case eq::KC_PAGE_UP:
-            _moveDirection = vmml::normalize( _cameraWalkingVector ) *
-                             moveSpeed;
+            _moveDirection = vmml::normalize(_cameraWalkingVector) * moveSpeed;
             return true;
 
         case eq::KC_PAGE_DOWN:
-            _moveDirection = -vmml::normalize( _cameraWalkingVector ) *
-                             moveSpeed;
+            _moveDirection = -vmml::normalize(_cameraWalkingVector) * moveSpeed;
             return true;
 
         case 's':
             _frameData.toggleStatistics();
             return true;
         }
-        // no break;
+    // no break;
 
     default:
         // let Equalizer handle any events we don't handle ourselves here, like
         // the escape key for closing the application.
-        return eq::Config::handleEvent( type, event );
+        return eq::Config::handleEvent(type, event);
     }
 }
 
-bool Config::handleEvent( const eq::EventType type,
-                          const eq::PointerEvent& event )
+bool Config::handleEvent(const eq::EventType type,
+                         const eq::PointerEvent& event)
 {
     // turn left and right, up and down with mouse pointer
-    if( type == eq::EVENT_CHANNEL_POINTER_MOTION &&
+    if (type == eq::EVENT_CHANNEL_POINTER_MOTION &&
         event.buttons == eq::PTR_BUTTON1 && event.x <= event.context.pvp.w &&
-        event.x >= 0 && event.y <= event.context.pvp.h && event.y >= 0 )
+        event.x >= 0 && event.y <= event.context.pvp.h && event.y >= 0)
     {
         _pointerXDiff += event.dx;
         _pointerYDiff += event.dy;
         return true;
     }
 
-    return eq::Config::handleEvent( type, event );
+    return eq::Config::handleEvent(type, event);
 }
 
 // Note: real applications would use one tracking device per observer
-void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
+void Config::_setHeadMatrix(const eq::Matrix4f& matrix)
 {
     const eq::Observers& observers = getObservers();
-    for( eq::Observers::const_iterator i = observers.begin();
-         i != observers.end(); ++i )
+    for (eq::Observers::const_iterator i = observers.begin();
+         i != observers.end(); ++i)
     {
-        (*i)->setHeadMatrix( matrix );
+        (*i)->setHeadMatrix(matrix);
     }
 }
 
@@ -252,7 +252,7 @@ const eq::Matrix4f& Config::_getHeadMatrix() const
 {
     const eq::Observers& observers = getObservers();
     static const eq::Matrix4f identity;
-    if( observers.empty( ))
+    if (observers.empty())
         return identity;
 
     return observers[0]->getHeadMatrix();

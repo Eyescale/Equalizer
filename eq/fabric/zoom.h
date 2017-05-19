@@ -36,27 +36,33 @@ class Zoom : public Vector2f
 {
 public:
     /** Construct a new zoom specification set to 1, 1. @version 1.0 */
-    Zoom() : Vector2f( 1.f, 1.f )  {}
+    Zoom()
+        : Vector2f(1.f, 1.f)
+    {
+    }
 
     /** Construct a new zoom specification with default values.  @version 1.0 */
-    Zoom( const float x_, const float y_ ) : Vector2f( x_, y_ ) {}
+    Zoom(const float x_, const float y_)
+        : Vector2f(x_, y_)
+    {
+    }
     //@}
 
     /** @internal @return true if this zoom defines a valid zoom factor. */
-    bool isValid() const { return ( x() != 0.f && y() != 0.f ); }
-
+    bool isValid() const { return (x() != 0.f && y() != 0.f); }
     /** @internal Enforce the zoom to be valid. */
     void validate()
     {
-        if( x() == 0.f ) x() = 1.f;
-        if( y() == 0.f ) y() = 1.f;
+        if (x() == 0.f)
+            x() = 1.f;
+        if (y() == 0.f)
+            y() = 1.f;
     }
 
     /** @internal Make the zoom factor invalid. */
     void invalidate() { x() = y() = 0.f; }
-
     /** @internal Apply an additional zoom factor to this zoom. */
-    void apply( const Zoom& rhs )
+    void apply(const Zoom& rhs)
     {
         x() *= rhs.x();
         y() *= rhs.y();
@@ -66,9 +72,9 @@ public:
     EQFABRIC_API static const Zoom NONE;
 };
 
-inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )
+inline std::ostream& operator<<(std::ostream& os, const Zoom& zoom)
 {
-    if( zoom.isValid( ))
+    if (zoom.isValid())
         os << "zoom     [ " << zoom.x() << ' ' << zoom.y() << " ]";
     return os;
 }

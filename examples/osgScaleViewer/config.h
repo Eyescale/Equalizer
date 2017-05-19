@@ -45,8 +45,7 @@ namespace osgScaleViewer
 class Config : public eq::Config
 {
 public:
-
-    Config( eq::ServerPtr parent );
+    Config(eq::ServerPtr parent);
 
     /** Reimplemented */
     virtual bool init();
@@ -66,14 +65,14 @@ public:
      * mPointerYDiff, so that the new camera viewing direction can be calculated
      * in updateFrameData().
      */
-    bool handleEvent( eq::EventType type, const eq::KeyEvent& event ) override;
-    bool handleEvent( eq::EventType type, const eq::PointerEvent& ) override;
+    bool handleEvent(eq::EventType type, const eq::KeyEvent& event) override;
+    bool handleEvent(eq::EventType type, const eq::PointerEvent&) override;
 
     /**
      * Sets the InitData object.
      * @param data the init data.
      */
-    void setInitData( const InitData& data );
+    void setInitData(const InitData& data);
 
     /**
      * Gets the InitData object.
@@ -81,17 +80,17 @@ public:
      */
     const InitData& getInitData() const;
 
-    bool loadInitData( const eq::uint128_t& initDataID );
+    bool loadInitData(const eq::uint128_t& initDataID);
 
 protected:
-    void updateFrameData( float elapsed );
+    void updateFrameData(float elapsed);
 
 private:
     /**
      * Sets the head matrix.
      * @param matrix the head matrix.
      */
-    void _setHeadMatrix( const eq::Matrix4f& matrix );
+    void _setHeadMatrix(const eq::Matrix4f& matrix);
 
     /**
      * Gets the head matrix.

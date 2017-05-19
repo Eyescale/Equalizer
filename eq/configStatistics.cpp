@@ -23,32 +23,28 @@
 #include <cstdio>
 
 #ifdef _MSC_VER
-#  define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 namespace eq
 {
-
-ConfigStatistics::ConfigStatistics( const Statistic::Type type,
-                                    Config* config )
-        : StatisticSampler< Config >( type, config, config->getCurrentFrame( ))
+ConfigStatistics::ConfigStatistics(const Statistic::Type type, Config* config)
+    : StatisticSampler<Config>(type, config, config->getCurrentFrame())
 {
     const std::string& name = config->getName();
-    if( name.empty( ))
-        snprintf( statistic.resourceName, 32, "config" );
+    if (name.empty())
+        snprintf(statistic.resourceName, 32, "config");
     else
-        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf(statistic.resourceName, 32, "%s", name.c_str());
     statistic.resourceName[31] = 0;
     statistic.startTime = config->getTime();
 }
 
-
 ConfigStatistics::~ConfigStatistics()
 {
     statistic.endTime = _owner->getTime();
-    if( statistic.endTime <= statistic.startTime )
+    if (statistic.endTime <= statistic.startTime)
         statistic.endTime = statistic.startTime + 1;
-    _owner->sendEvent( EVENT_STATISTIC ) << statistic;
+    _owner->sendEvent(EVENT_STATISTIC) << statistic;
 }
-
 }

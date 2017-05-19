@@ -19,15 +19,18 @@
 #ifndef EQFABRIC_CLIENT_H
 #define EQFABRIC_CLIENT_H
 
+#include <co/localNode.h> // base class
 #include <eq/fabric/api.h>
-#include <eq/fabric/types.h>        // basic types
-#include <co/localNode.h>       // base class
+#include <eq/fabric/types.h> // basic types
 
 namespace eq
 {
 namespace fabric
 {
-namespace detail { class Client; }
+namespace detail
+{
+class Client;
+}
 
 /** A client represents a network node of the application in the cluster. */
 class Client : public co::LocalNode
@@ -42,7 +45,7 @@ public:
      * @return true if the server was connected, false if not.
      * @version 1.0
      */
-    EQFABRIC_API bool connectServer( co::NodePtr server );
+    EQFABRIC_API bool connectServer(co::NodePtr server);
 
     /**
      * Disconnect and close the connection to an Equalizer server.
@@ -51,20 +54,20 @@ public:
      * @return true if the server was disconnected, false if not.
      * @version 1.0
      */
-    EQFABRIC_API bool disconnectServer( co::NodePtr server );
+    EQFABRIC_API bool disconnectServer(co::NodePtr server);
 
     /**
      * Get and process one pending command from the node command queue.
      * @version 1.0
      */
-    EQFABRIC_API void processCommand( const uint32_t timeout =
-                                      LB_TIMEOUT_INDEFINITE );
+    EQFABRIC_API void processCommand(
+        const uint32_t timeout = LB_TIMEOUT_INDEFINITE);
 
     /** @return the command queue to the main node thread. @internal */
     virtual co::CommandQueue* getMainThreadQueue() = 0;
 
     /** @internal */
-    EQFABRIC_API virtual bool dispatchCommand( co::ICommand& command );
+    EQFABRIC_API virtual bool dispatchCommand(co::ICommand& command);
 
 protected:
     /** Construct a new client. @internal */

@@ -32,7 +32,7 @@ class EventHandler : public eq::EventHandler
 {
 public:
     /** Construct a new Deflect event handler. @version 1.7.1 */
-    explicit EventHandler( Proxy* proxy );
+    explicit EventHandler(Proxy* proxy);
 
     /** Destruct the Deflect event handler. @version 1.7.1 */
     virtual ~EventHandler();
@@ -46,15 +46,15 @@ public:
      * @param proxy if not 0, limit processing to the given Proxy instance
      * @version 1.7.1
      */
-    static void processEvents( const Proxy* proxy = 0 );
+    static void processEvents(const Proxy* proxy = 0);
 
 private:
     /** The corresponding Deflect proxy instance. */
     Proxy* const _proxy;
 
-    void _processEvents( const Proxy* proxy );
+    void _processEvents(const Proxy* proxy);
 
-    LB_TS_VAR( _thread );
+    LB_TS_VAR(_thread);
 };
 }
 }

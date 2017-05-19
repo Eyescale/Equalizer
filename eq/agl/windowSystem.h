@@ -28,8 +28,8 @@
 
 #include "../windowSystem.h"
 
-#include "../window.h"
 #include "../pipe.h"
+#include "../window.h"
 #include "eventHandler.h"
 #include "messagePump.h"
 #include "pipe.h"
@@ -49,104 +49,93 @@ class WindowSystem : public WindowSystemIF
 {
 public:
     WindowSystem() {}
-
 private:
     std::string getName() const final { return "AGL"; }
-
-    eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) final
+    eq::SystemWindow* createWindow(eq::Window* window,
+                                   const WindowSettings& settings) final
     {
         const eq::Pipe* pipe = window->getPipe();
-        const Pipe* aglPipe = dynamic_cast<const Pipe*>( pipe->getSystemPipe());
-        LBASSERT( pipe->getSystemPipe( ));
+        const Pipe* aglPipe = dynamic_cast<const Pipe*>(pipe->getSystemPipe());
+        LBASSERT(pipe->getSystemPipe());
 
-        const CGDirectDisplayID displayID = aglPipe ?
-            aglPipe->getCGDisplayID() : kCGNullDirectDisplay;
+        const CGDirectDisplayID displayID =
+            aglPipe ? aglPipe->getCGDisplayID() : kCGNullDirectDisplay;
         const bool threaded = pipe->isThreaded();
         const bool fullscreen =
             settings.getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON;
 
-        if( !fullscreen )
-            return new Window( *window, settings, displayID, threaded );
+        if (!fullscreen)
+            return new Window(*window, settings, displayID, threaded);
 
         const PixelViewport& pipePVP = pipe->getPixelViewport();
-        if( !pipePVP.isValid( ))
-            return new Window( *window, settings, displayID, threaded );
+        if (!pipePVP.isValid())
+            return new Window(*window, settings, displayID, threaded);
 
         WindowSettings fsSettings = settings;
-        fsSettings.setPixelViewport( pipePVP );
-        return new Window( *window, fsSettings, displayID, threaded );
+        fsSettings.setPixelViewport(pipePVP);
+        return new Window(*window, fsSettings, displayID, threaded);
     }
 
-    eq::SystemPipe* createPipe( eq::Pipe* pipe ) final
-    {
-        return new Pipe( pipe );
-    }
-
-    eq::MessagePump* createMessagePump() final
-    {
-        return new MessagePump;
-    }
-
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) final { return new Pipe(pipe); }
+    eq::MessagePump* createMessagePump() final { return new MessagePump; }
     bool hasMainThreadEvents() const final { return true; }
-
-    bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const final
+    bool setupFont(util::ObjectManager& gl, const void* key,
+                   const std::string& name, const uint32_t size) const final
     {
         AGLContext context = aglGetCurrentContext();
-        LBASSERT( context );
-        if( !context )
+        LBASSERT(context);
+        if (!context)
         {
             LBWARN << "No AGL context current" << std::endl;
             return false;
         }
 
-        CFStringRef cfFontName = name.empty() ?
-            CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
-                                       kCFStringEncodingMacRoman ) :
-            CFStringCreateWithCString( kCFAllocatorDefault, name.c_str(),
-                                       kCFStringEncodingMacRoman );
+        CFStringRef cfFontName =
+            name.empty()
+                ? CFStringCreateWithCString(kCFAllocatorDefault, "Georgia",
+                                            kCFStringEncodingMacRoman)
+                : CFStringCreateWithCString(kCFAllocatorDefault, name.c_str(),
+                                            kCFStringEncodingMacRoman);
 
-        ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName,
-                                                       kATSOptionFlagsDefault );
-        CFRelease( cfFontName );
+        ATSFontFamilyRef font =
+            ATSFontFamilyFindFromName(cfFontName, kATSOptionFlagsDefault);
+        CFRelease(cfFontName);
 
-        if( font == 0 )
+        if (font == 0)
         {
             LBDEBUG << "Can't load font " << name << ", using Georgia"
                     << std::endl;
             cfFontName =
-                CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
-                                           kCFStringEncodingMacRoman );
+                CFStringCreateWithCString(kCFAllocatorDefault, "Georgia",
+                                          kCFStringEncodingMacRoman);
 
-            font = ATSFontFamilyFindFromName( cfFontName,
-                                              kATSOptionFlagsDefault );
-            CFRelease( cfFontName );
+            font =
+                ATSFontFamilyFindFromName(cfFontName, kATSOptionFlagsDefault);
+            CFRelease(cfFontName);
         }
-        LBASSERT( font );
+        LBASSERT(font);
 
-        const GLuint lists = _setupLists( gl, key, 256 );
-        if( aglUseFont( context, font, normal, size, 0, 256, (long)lists ))
+        const GLuint lists = _setupLists(gl, key, 256);
+        if (aglUseFont(context, font, normal, size, 0, 256, (long)lists))
             return true;
 
-        _setupLists( gl, key, 0 );
+        _setupLists(gl, key, 0);
         return false;
     }
 
-    void configInit( eq::Node* node LB_UNUSED )
+    void configInit(eq::Node* node LB_UNUSED)
     {
 #ifdef EQUALIZER_USE_MAGELLAN
-        EventHandler::initMagellan( node );
+        EventHandler::initMagellan(node);
 #endif
     }
 
-    void configExit( eq::Node* node LB_UNUSED )
+    void configExit(eq::Node* node LB_UNUSED)
     {
 #ifdef EQUALIZER_USE_MAGELLAN
-        EventHandler::exitMagellan( node );
+        EventHandler::exitMagellan(node);
 #endif
     }
 };
-
 }
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,14 +33,17 @@
 
 namespace eqPixelBench
 {
-    class Window : public eq::Window
+class Window : public eq::Window
+{
+public:
+    Window(eq::Pipe* parent)
+        : eq::Window(parent)
     {
-    public:
-        Window( eq::Pipe* parent ) : eq::Window( parent ) {}
+    }
 
-    protected:
-        virtual bool configInit( const eq::uint128_t& initID );
-    };
+protected:
+    virtual bool configInit(const eq::uint128_t& initID);
+};
 }
 
 #endif // EQ_PIXELBENCH_WINDOW_H

@@ -26,14 +26,16 @@ namespace
 class CompoundUpdateActivateVisitor : public eq::server::CompoundVisitor
 {
 public:
-    explicit CompoundUpdateActivateVisitor( const uint32_t frameNumber )
-        : _frameNumber( frameNumber ), _taskID( 0 ) {}
-    virtual ~CompoundUpdateActivateVisitor() {}
-
-    eq::server::VisitorResult visit( eq::server::Compound* compound )
+    explicit CompoundUpdateActivateVisitor(const uint32_t frameNumber)
+        : _frameNumber(frameNumber)
+        , _taskID(0)
     {
-        compound->setTaskID( ++_taskID );
-        compound->updateInheritData( _frameNumber );
+    }
+    virtual ~CompoundUpdateActivateVisitor() {}
+    eq::server::VisitorResult visit(eq::server::Compound* compound)
+    {
+        compound->setTaskID(++_taskID);
+        compound->updateInheritData(_frameNumber);
         return eq::server::TRAVERSE_CONTINUE;
     }
 

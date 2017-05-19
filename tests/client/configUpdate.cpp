@@ -18,63 +18,62 @@
 // https://github.com/Eyescale/Equalizer/issues/130
 
 #define EQ_TEST_RUNTIME 300 // seconds
-#include <lunchbox/test.h>
 #include <eq/eq.h>
+#include <lunchbox/test.h>
 
 #ifdef _WIN32
-#  define setenv( name, value, overwrite ) \
-    _putenv_s( name, value )
+#define setenv(name, value, overwrite) _putenv_s(name, value)
 #endif
 
 #ifdef EQUALIZER_USE_HWSD
 #define LOOPS 5
 #define LOOPTIME 200 // ms
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
 #ifndef Darwin
-    ::setenv( "EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/ );
+    ::setenv("EQ_WINDOW_IATTR_HINT_DRAWABLE", "-12" /*FBO*/, 1 /*overwrite*/);
 #endif
     eq::NodeFactory nodeFactory;
-    TEST( eq::init( argc, argv, &nodeFactory ));
+    TEST(eq::init(argc, argv, &nodeFactory));
 
     eq::ClientPtr client = new eq::Client;
-    TEST( client->initLocal( argc, argv ));
+    TEST(client->initLocal(argc, argv));
 
     eq::ServerPtr server = new eq::Server;
-    TEST( client->connectServer( server ));
+    TEST(client->connectServer(server));
 
     eq::fabric::ConfigParams configParams;
-    configParams.setFlags( eq::fabric::ConfigParams::FLAG_MULTIPROCESS_DB );
+    configParams.setFlags(eq::fabric::ConfigParams::FLAG_MULTIPROCESS_DB);
 
-    for( size_t i=0; i < LOOPS; ++i )
+    for (size_t i = 0; i < LOOPS; ++i)
     {
-        eq::Config* config = server->chooseConfig( configParams );
-        if( !config ) // Autoconfig failed, likely because there are no GPUs
+        eq::Config* config = server->chooseConfig(configParams);
+        if (!config) // Autoconfig failed, likely because there are no GPUs
             continue;
 
-        TEST( config->init( co::uint128_t( )));
+        TEST(config->init(co::uint128_t()));
 
         size_t nLoops = 0;
         const lunchbox::Clock clock;
-        while( clock.getTime64() < LOOPTIME )
+        while (clock.getTime64() < LOOPTIME)
         {
-            TEST( config->update( ));
+            TEST(config->update());
             ++nLoops;
         }
         const float time = clock.getTimef();
 
         std::cout << nLoops << " Config::update in " << time << " ms ("
-                  << time/float(nLoops) << " ms/update)" << std::endl;
+                  << time / float(nLoops) << " ms/update)" << std::endl;
 
         config->exit();
-        server->releaseConfig( config );
+        server->releaseConfig(config);
     }
 
-    client->disconnectServer( server );
+    client->disconnectServer(server);
     client->exitLocal();
-    TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
-    TESTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    TESTINFO(client->getRefCount() == 1, client->getRefCount());
+    TESTINFO(server->getRefCount() == 1, server->getRefCount());
 
     eq::exit();
     return EXIT_SUCCESS;
@@ -82,7 +81,7 @@ int main( const int argc, char** argv )
 
 #else
 
-int main( const int, char** )
+int main(const int, char**)
 {
     return EXIT_SUCCESS;
 }

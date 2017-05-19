@@ -35,38 +35,38 @@
 #define PLYLIB_TYPEDEFS_H
 
 #ifdef EQUALIZER_USE_OPENGL
-#  define EQUALIZER
+#define EQUALIZER
 #endif
 
 #ifdef EQUALIZER
-#  include <eq/eq.h>
-#  define PLYLIBASSERT  LBASSERT
-#  define PLYLIBERROR   LBERROR
-#  define PLYLIBWARN    LBWARN
-#  define PLYLIBINFO    LBINFO
+#include <eq/eq.h>
+#define PLYLIBASSERT LBASSERT
+#define PLYLIBERROR LBERROR
+#define PLYLIBWARN LBWARN
+#define PLYLIBINFO LBINFO
 #else
-#  include <GL/glew.h>
-#  ifdef _WIN32
-#    include <Winsock2.h>
-#    include <Windows.h>
-#  endif
-#  ifdef __APPLE__
-#    include <OpenGL/gl.h>
-#  else
-#    include <GL/gl.h>
-#  endif
-#  include <cassert>
-#  define PLYLIBASSERT  assert
-#  define PLYLIBERROR   std::cerr
-#  define PLYLIBWARN    std::cout
-#  define PLYLIBINFO    std::cout
+#include <GL/glew.h>
+#ifdef _WIN32
+#include <Windows.h>
+#include <Winsock2.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+#include <cassert>
+#define PLYLIBASSERT assert
+#define PLYLIBERROR std::cerr
+#define PLYLIBWARN std::cout
+#define PLYLIBINFO std::cout
 #endif
 
-#include<vmmlib/types.hpp>
 #include <boost/progress.hpp>
 #include <exception>
 #include <iostream>
 #include <string>
+#include <vmmlib/types.hpp>
 
 namespace triply
 {
@@ -80,7 +80,7 @@ class VertexData;
 
 // basic type definitions
 typedef vmml::Vector3f Vertex;
-typedef vmml::vector< 3, uint8_t > Color;
+typedef vmml::vector<3, uint8_t> Color;
 typedef vmml::Vector3f Normal;
 using vmml::Matrix4f;
 using vmml::Vector4f;
@@ -90,7 +90,10 @@ typedef unsigned short ShortIndex;
 // mesh exception
 struct MeshException : public std::exception
 {
-    explicit MeshException( const std::string& msg ) : _message( msg ) {}
+    explicit MeshException(const std::string& msg)
+        : _message(msg)
+    {
+    }
     virtual ~MeshException() throw() {}
     virtual const char* what() const throw() { return _message.c_str(); }
 private:
@@ -98,42 +101,40 @@ private:
 };
 
 // wrapper to enable array use where arrays would not be allowed otherwise
-template< class T, size_t d > struct ArrayWrapper
+template <class T, size_t d>
+struct ArrayWrapper
 {
     ArrayWrapper() {}
-    explicit ArrayWrapper( const T* from )
-        { memcpy( data, from, sizeof( data )); }
+    explicit ArrayWrapper(const T* from) { memcpy(data, from, sizeof(data)); }
+    T& operator[](const size_t i)
+    {
+        PLYLIBASSERT(i < d);
+        return data[i];
+    }
 
-    T& operator[]( const size_t i )
-        {
-            PLYLIBASSERT( i < d );
-            return data[i];
-        }
-
-    const T& operator[]( const size_t i ) const
-        {
-            PLYLIBASSERT( i < d );
-            return data[i];
-        }
+    const T& operator[](const size_t i) const
+    {
+        PLYLIBASSERT(i < d);
+        return data[i];
+    }
 
 private:
     T data[d];
 };
 
-
 // compound type definitions
-typedef vmml::vector< 3, Index >    Triangle;
-typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
-typedef vmml::vector< 4, float >    BoundingSphere;
-typedef ArrayWrapper< float, 2 >    Range;
+typedef vmml::vector<3, Index> Triangle;
+typedef ArrayWrapper<Vertex, 2> BoundingBox;
+typedef vmml::vector<4, float> BoundingSphere;
+typedef ArrayWrapper<float, 2> Range;
 
 // maximum triangle count per leaf node (keep in mind that the number of
 // different vertices per leaf must stay below ShortIndex range; usually
 // #vertices ~ #triangles/2, but max #vertices = #triangles * 3)
-const Index LEAF_SIZE( 21845 );
+const Index LEAF_SIZE(21845);
 
 // binary mesh file version, increment if changing the file format
-const unsigned short FILE_VERSION( 0x0119 );
+const unsigned short FILE_VERSION(0x0119);
 
 // enumeration for the sort axis
 enum Axis
@@ -142,10 +143,12 @@ enum Axis
     AXIS_Y,
     AXIS_Z
 };
-inline std::ostream& operator << ( std::ostream& os, const Axis axis )
+inline std::ostream& operator<<(std::ostream& os, const Axis axis)
 {
-    os << ( axis == AXIS_X ? "x axis" : axis == AXIS_Y ? "y axis" :
-            axis == AXIS_Z ? "z axis" : "ERROR" );
+    os << (axis == AXIS_X ? "x axis" : axis == AXIS_Y
+                                           ? "y axis"
+                                           : axis == AXIS_Z ? "z axis"
+                                                            : "ERROR");
     return os;
 }
 
@@ -166,11 +169,14 @@ enum RenderMode
     RENDER_MODE_BUFFER_OBJECT,
     RENDER_MODE_ALL // must be last
 };
-inline std::ostream& operator << ( std::ostream& os, const RenderMode mode )
+inline std::ostream& operator<<(std::ostream& os, const RenderMode mode)
 {
-    os << ( mode == RENDER_MODE_IMMEDIATE     ? "immediate mode" :
-            mode == RENDER_MODE_DISPLAY_LIST  ? "display list mode" :
-            mode == RENDER_MODE_BUFFER_OBJECT ? "VBO mode" : "ERROR" );
+    os << (mode == RENDER_MODE_IMMEDIATE
+               ? "immediate mode"
+               : mode == RENDER_MODE_DISPLAY_LIST
+                     ? "display list mode"
+                     : mode == RENDER_MODE_BUFFER_OBJECT ? "VBO mode"
+                                                         : "ERROR");
     return os;
 }
 
@@ -184,9 +190,9 @@ enum class Type : unsigned
 };
 
 // helper function for MMF (memory mapped file) reading
-inline void memRead( char* destination, char** source, size_t length )
+inline void memRead(char* destination, char** source, size_t length)
 {
-    memcpy( destination, *source, length );
+    memcpy(destination, *source, length);
     *source += length;
 }
 }

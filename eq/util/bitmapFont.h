@@ -25,7 +25,10 @@ namespace eq
 {
 namespace util
 {
-namespace detail { class BitmapFont; }
+namespace detail
+{
+class BitmapFont;
+}
 
 /** A wrapper around AGL, WGL and GLX bitmap fonts. */
 class BitmapFont
@@ -42,7 +45,7 @@ public:
      *            manager.
      * @version 1.0
      */
-    EQ_API BitmapFont( ObjectManager& gl, const void* key );
+    EQ_API BitmapFont(ObjectManager& gl, const void* key);
 
     /**
      * Destruct this bitmap font.
@@ -68,8 +71,8 @@ public:
      * @param size the size of the font in pixels.
      * @version 1.0
      */
-    EQ_API bool init( const WindowSystem& ws, const std::string& name,
-                      const uint32_t size = 12 );
+    EQ_API bool init(const WindowSystem& ws, const std::string& name,
+                     const uint32_t size = 12);
 
     /** De-initialize this bitmap font. @version 1.0 */
     EQ_API void exit();
@@ -78,13 +81,13 @@ public:
      * Draw text on the current raster position.
      * @version 1.0
      */
-    EQ_API void draw( const std::string& text ) const;
+    EQ_API void draw(const std::string& text) const;
 
 private:
-    BitmapFont( const BitmapFont& ) = delete;
-    BitmapFont& operator=( const BitmapFont& ) = delete;
+    BitmapFont(const BitmapFont&) = delete;
+    BitmapFont& operator=(const BitmapFont&) = delete;
     detail::BitmapFont* const _impl;
 };
 }
 }
-#endif  // EQUTIL_BITMAPFONT_H
+#endif // EQUTIL_BITMAPFONT_H

@@ -38,17 +38,16 @@ namespace eqPixelBench
 class Config : public eq::Config
 {
 public:
-    Config( eq::ServerPtr parent );
+    Config(eq::ServerPtr parent);
 
     /** @sa eq::Config::startFrame */
-    virtual uint32_t startFrame( const eq::uint128_t& frameID );
+    virtual uint32_t startFrame(const eq::uint128_t& frameID);
 
     /** @sa eq::Config::handleEvent */
-    virtual bool handleEvent( eq::EventICommand command );
+    virtual bool handleEvent(eq::EventICommand command);
 
     /** @return the clock started by startFrame, or 0 on render clients. */
     const lunchbox::Clock* getClock() const { return _clock; }
-
 protected:
     virtual ~Config();
 

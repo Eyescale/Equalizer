@@ -18,9 +18,9 @@
 #ifndef EQFABRIC_FRUSTUM_H
 #define EQFABRIC_FRUSTUM_H
 
+#include <eq/fabric/api.h>        // decl
 #include <eq/fabric/projection.h> // member
 #include <eq/fabric/wall.h>       // member
-#include <eq/fabric/api.h>       // decl
 
 namespace eq
 {
@@ -39,43 +39,42 @@ public:
     /** The type of the last specified frustum. @version 1.0 */
     enum Type
     {
-        TYPE_NONE,        //!< No frustum has been specified
-        TYPE_WALL,        //!< A wall description has been set last
-        TYPE_PROJECTION   //!< A projection description has been set last
+        TYPE_NONE,      //!< No frustum has been specified
+        TYPE_WALL,      //!< A wall description has been set last
+        TYPE_PROJECTION //!< A projection description has been set last
     };
 
     /** Set the frustum using a wall description. @version 1.0 */
-    EQFABRIC_API void setWall( const Wall& wall );
+    EQFABRIC_API void setWall(const Wall& wall);
 
     /** Set the frustum using a projection description. @version 1.0 */
-    EQFABRIC_API void setProjection( const Projection& projection );
+    EQFABRIC_API void setProjection(const Projection& projection);
 
     /** @return the last specified frustum as a wall. @version 1.0 */
     const Wall& getWall() const { return _data.wall; }
-
     /** @return the last specified frustum as a projection. @version 1.0 */
     const Projection& getProjection() const { return _data.projection; }
-
     /** @return the type of the latest specified frustum. @version 1.0 */
     Type getCurrentType() const { return _data.current; }
-
     /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
     EQFABRIC_API void unsetFrustum();
 
-    EQFABRIC_API void serialize( co::DataOStream& os ); //!< @internal
-    EQFABRIC_API void deserialize( co::DataIStream& is ); //!< @internal
+    EQFABRIC_API void serialize(co::DataOStream& os);   //!< @internal
+    EQFABRIC_API void deserialize(co::DataIStream& is); //!< @internal
 
-    EQFABRIC_API virtual void backup(); //!< @internal
+    EQFABRIC_API virtual void backup();  //!< @internal
     EQFABRIC_API virtual void restore(); //!< @internal
 
 protected:
     virtual void updateFrustum() {}
     virtual void notifyFrustumChanged() {}
-
 private:
     struct BackupData
     {
-        BackupData() : current( TYPE_NONE ) {}
+        BackupData()
+            : current(TYPE_NONE)
+        {
+        }
 
         /** The frustum description as a wall. */
         Wall wall;
@@ -85,10 +84,9 @@ private:
 
         /** The type of the last specified frustum description. */
         Type current;
-    }
-        _data, _backup;
+    } _data, _backup;
 };
-EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Frustum& );
+EQFABRIC_API std::ostream& operator<<(std::ostream& os, const Frustum&);
 }
 }
 

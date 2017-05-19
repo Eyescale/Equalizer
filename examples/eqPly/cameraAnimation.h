@@ -33,54 +33,56 @@
 
 namespace eqPly
 {
+/**
+ * Loads sequence of camera positions and interpolates them on a per-frame
+ * basis.
+ */
+class CameraAnimation
+{
+public:
+    struct Step;
 
-    /**
-     * Loads sequence of camera positions and interpolates them on a per-frame
-     * basis.
-     */
-    class CameraAnimation
+    CameraAnimation()
+        : _curStep(0)
+        , _curFrame(0)
     {
-    public:
-        struct Step;
+    }
 
-        CameraAnimation() : _curStep( 0 ), _curFrame( 0 ) {}
+    bool loadAnimation(const std::string& fileName);
 
-        bool loadAnimation( const std::string& fileName );
+    bool isValid() const { return !_steps.empty(); }
+    Step getNextStep();
 
-        bool isValid() const { return !_steps.empty(); }
-
-        Step getNextStep();
-
-        uint32_t getCurrentFrame() { return _curFrame; }
-
-        const eq::Vector3f& getModelRotation() const { return _modelRotation;}
-
-        struct Step
+    uint32_t getCurrentFrame() { return _curFrame; }
+    const eq::Vector3f& getModelRotation() const { return _modelRotation; }
+    struct Step
+    {
+        Step()
+            : frame(0)
+            , position(eq::Vector3f(.0f, .0f, -1.0f))
+            , rotation(eq::Vector3f(.0f, .0f, .0f))
         {
-            Step()
-                : frame( 0 )
-                , position( eq::Vector3f( .0f, .0f, -1.0f ))
-                , rotation( eq::Vector3f( .0f, .0f,   .0f )){}
+        }
 
-            Step( int frame_, const eq::Vector3f& position_,
-                              const eq::Vector3f& rotation_  )
-                : frame( frame_ )
-                , position( position_ ),
-                  rotation( rotation_ ){}
+        Step(int frame_, const eq::Vector3f& position_,
+             const eq::Vector3f& rotation_)
+            : frame(frame_)
+            , position(position_)
+            , rotation(rotation_)
+        {
+        }
 
-            int frame;
-            eq::Vector3f position;
-            eq::Vector3f rotation;
-        };
-
-    private:
-        eq::Vector3f        _modelRotation;
-        std::vector< Step > _steps;
-        uint32_t            _curStep;
-        int32_t             _curFrame;
+        int frame;
+        eq::Vector3f position;
+        eq::Vector3f rotation;
     };
 
+private:
+    eq::Vector3f _modelRotation;
+    std::vector<Step> _steps;
+    uint32_t _curStep;
+    int32_t _curFrame;
+};
 }
 
 #endif // EQ_PLY_CAMERAANIMATION_H
-

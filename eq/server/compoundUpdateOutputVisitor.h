@@ -19,8 +19,8 @@
 #ifndef EQSERVER_COMPOUNDUPDATEOUTPUTVISITOR_H
 #define EQSERVER_COMPOUNDUPDATEOUTPUTVISITOR_H
 
-#include "compoundVisitor.h" // base class
 #include "compound.h"        // nested type
+#include "compoundVisitor.h" // base class
 
 namespace eq
 {
@@ -33,34 +33,36 @@ namespace server
 class CompoundUpdateOutputVisitor : public CompoundVisitor
 {
 public:
-    explicit CompoundUpdateOutputVisitor( const uint32_t frameNumber );
+    explicit CompoundUpdateOutputVisitor(const uint32_t frameNumber);
     virtual ~CompoundUpdateOutputVisitor() {}
-
     /** Visit all compounds. */
-    virtual VisitorResult visit( Compound* compound );
+    virtual VisitorResult visit(Compound* compound);
 
     const Compound::BarrierMap& getSwapBarriers() const
-        { return _swapBarriers; }
-    const Compound::FrameMap& getOutputFrames() const
-        { return _outputFrames; }
+    {
+        return _swapBarriers;
+    }
+    const Compound::FrameMap& getOutputFrames() const { return _outputFrames; }
     const Compound::TileQueueMap& getOutputQueues() const
-        { return _outputTileQueues; }
+    {
+        return _outputTileQueues;
+    }
 
 private:
     const uint32_t _frameNumber;
 
-    Compound::BarrierMap   _swapBarriers;
-    Compound::FrameMap     _outputFrames;
+    Compound::BarrierMap _swapBarriers;
+    Compound::FrameMap _outputFrames;
     Compound::TileQueueMap _outputTileQueues;
 
-    void _updateQueues( Compound* compound );
-    void _updateFrames( Compound* compound );
-    void _updateSwapBarriers( Compound* compound );
-    void _updateZoom( const Compound* compound, Frame* frame );
+    void _updateQueues(Compound* compound);
+    void _updateFrames(Compound* compound);
+    void _updateSwapBarriers(Compound* compound);
+    void _updateZoom(const Compound* compound, Frame* frame);
 
-    void _generateTiles( TileQueue* queue, Compound* compound );
-    void _addTilesToQueue( TileQueue* queue, Compound* compound,
-                           const std::vector< Vector2i >& tiles );
+    void _generateTiles(TileQueue* queue, Compound* compound);
+    void _addTilesToQueue(TileQueue* queue, Compound* compound,
+                          const std::vector<Vector2i>& tiles);
 };
 }
 }

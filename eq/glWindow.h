@@ -20,11 +20,14 @@
 #ifndef EQ_GL_WINDOW_H
 #define EQ_GL_WINDOW_H
 
-#include <eq/systemWindow.h>         // base class
+#include <eq/systemWindow.h> // base class
 
 namespace eq
 {
-namespace detail { class GLWindow; }
+namespace detail
+{
+class GLWindow;
+}
 
 /**
  * A system window for OpenGL rendering.
@@ -37,17 +40,16 @@ class GLWindow : public SystemWindow
 {
 public:
     /** Construct a new OpenGL window. @version 1.7.2 */
-    EQ_API GLWindow( NotifierInterface& parent,
-                     const WindowSettings& settings );
+    EQ_API GLWindow(NotifierInterface& parent, const WindowSettings& settings);
 
     /** Destruct a new OpenGL window. @version 1.0 */
     EQ_API virtual ~GLWindow();
 
     /** Resize the underlying FBO(s) */
-    EQ_API void resize( const PixelViewport& pvp ) override;
+    EQ_API void resize(const PixelViewport& pvp) override;
 
     /** Bind the FBO and update the current cache. @version 1.0 */
-    EQ_API void makeCurrent( const bool cache = true ) const override;
+    EQ_API void makeCurrent(const bool cache = true) const override;
 
     /** Unbind the FBO and remove context from current cache. @version 1.10 */
     EQ_API void doneCurrent() const override;
@@ -113,13 +115,13 @@ public:
      * Set up the drawable config by querying the current context.
      * @version 1.0
      */
-    EQ_API void queryDrawableConfig( DrawableConfig& ) override;
+    EQ_API void queryDrawableConfig(DrawableConfig&) override;
 
 private:
-    GLWindow( const GLWindow& ) = delete;
-    GLWindow& operator=( const GLWindow& ) = delete;
-    bool _createFBO( util::FrameBufferObject*& fbo, const int samplesSize );
-    void _destroyFBO( util::FrameBufferObject*& fbo );
+    GLWindow(const GLWindow&) = delete;
+    GLWindow& operator=(const GLWindow&) = delete;
+    bool _createFBO(util::FrameBufferObject*& fbo, const int samplesSize);
+    void _destroyFBO(util::FrameBufferObject*& fbo);
 
     detail::GLWindow* const _impl;
 
@@ -131,9 +133,8 @@ private:
      * @param pvp the viewport in pixels.
      * @version 2.1
      */
-    virtual void _resize( const PixelViewport& pvp ) = 0;
+    virtual void _resize(const PixelViewport& pvp) = 0;
 };
 }
-
 
 #endif // EQ_GL_WINDOW_H

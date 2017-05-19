@@ -39,10 +39,10 @@ class SystemPipe
 {
 public:
     /** Create a new SstemPipe for the given eq::Pipe. @version 1.0 */
-    EQ_API explicit SystemPipe( Pipe* parent );
+    EQ_API explicit SystemPipe(Pipe* parent);
 
     /** Destroy the SystemPipe. @version 1.0 */
-    EQ_API virtual ~SystemPipe( );
+    EQ_API virtual ~SystemPipe();
 
     /** @name Methods forwarded from eq::Pipe. */
     //@{
@@ -55,14 +55,11 @@ public:
 
     /** @return the parent Pipe. @version 1.0 */
     Pipe* getPipe() { return _pipe; }
-
     /** @return the parent Pipe. @version 1.0 */
     const Pipe* getPipe() const { return _pipe; }
-
     /** @return the maximum available OpenGL version on this pipe.
      *  @version 1.9 */
     float getMaxOpenGLVersion() const { return _maxOpenGLVersion; }
-
 protected:
     /** @name Error information. */
     //@{
@@ -71,7 +68,7 @@ protected:
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error );
+    EQ_API EventOCommand sendError(const uint32_t error);
     //@}
 
     float _maxOpenGLVersion;

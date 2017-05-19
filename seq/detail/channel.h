@@ -18,8 +18,8 @@
 #ifndef EQSEQUEL_DETAIL_CHANNEL_H
 #define EQSEQUEL_DETAIL_CHANNEL_H
 
-#include <seq/types.h>
 #include <eq/channel.h> // base class
+#include <seq/types.h>
 
 namespace seq
 {
@@ -28,7 +28,7 @@ namespace detail
 class Channel : public eq::Channel
 {
 public:
-    explicit Channel( eq::Window* parent );
+    explicit Channel(eq::Window* parent);
 
     /** @name Data Access. */
     //@{
@@ -47,22 +47,22 @@ public:
 
     /** @name Operations. */
     //@{
-    void applyRenderContext() { eq::Channel::frameDraw( uint128_t( )); }
+    void applyRenderContext() { eq::Channel::frameDraw(uint128_t()); }
     void applyModelMatrix();
 
-    void clear() { return eq::Channel::frameClear( uint128_t( )); }
+    void clear() { return eq::Channel::frameClear(uint128_t()); }
     //@}
 
 protected:
     virtual ~Channel();
 
-    virtual void frameStart( const uint128_t& frameID,
-                             const uint32_t frameNumber );
-    virtual void frameFinish( const uint128_t& frameID,
-                              const uint32_t frameNumber );
-    virtual void frameClear( const uint128_t& frameID );
-    virtual void frameDraw( const uint128_t& frameID );
-    virtual void frameViewFinish( const uint128_t& frameID );
+    virtual void frameStart(const uint128_t& frameID,
+                            const uint32_t frameNumber);
+    virtual void frameFinish(const uint128_t& frameID,
+                             const uint32_t frameNumber);
+    virtual void frameClear(const uint128_t& frameID);
+    virtual void frameDraw(const uint128_t& frameID);
+    virtual void frameViewFinish(const uint128_t& frameID);
 
 private:
 };

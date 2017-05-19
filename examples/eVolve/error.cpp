@@ -33,7 +33,6 @@
 
 namespace eVolve
 {
-
 namespace
 {
 struct ErrorData
@@ -43,36 +42,36 @@ struct ErrorData
 };
 
 ErrorData _errors[] = {
-    { ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING,
-      "GL_ARB_shader_objects extension missing" },
-    { ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
-      "GL_ARB_shader_objects extension missing" },
-    { ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
-      "GL_ARB_shader_objects extension missing" },
-    { ERROR_EVOLVE_LOADSHADERS_FAILED, "Can't load shaders" },
-    { ERROR_EVOLVE_LOADMODEL_FAILED, "Can't load model" },
-    { ERROR_EVOLVE_MAPOBJECT_FAILED, 
-      "Mapping data from application process failed" },
+    {ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING,
+     "GL_ARB_shader_objects extension missing"},
+    {ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
+     "GL_ARB_shader_objects extension missing"},
+    {ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
+     "GL_ARB_shader_objects extension missing"},
+    {ERROR_EVOLVE_LOADSHADERS_FAILED, "Can't load shaders"},
+    {ERROR_EVOLVE_LOADMODEL_FAILED, "Can't load model"},
+    {ERROR_EVOLVE_MAPOBJECT_FAILED,
+     "Mapping data from application process failed"},
 
-    { 0, "" } // last!
+    {0, ""} // last!
 };
 }
 
 void initErrors()
 {
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry =
+        eq::fabric::Global::getErrorRegistry();
 
-    for( size_t i=0; _errors[i].code != 0; ++i )
-        registry.setString( _errors[i].code, _errors[i].text );
+    for (size_t i = 0; _errors[i].code != 0; ++i)
+        registry.setString(_errors[i].code, _errors[i].text);
 }
 
 void exitErrors()
 {
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry =
+        eq::fabric::Global::getErrorRegistry();
 
-    for( size_t i=0; _errors[i].code != 0; ++i )
-        registry.eraseString( _errors[i].code );
+    for (size_t i = 0; _errors[i].code != 0; ++i)
+        registry.eraseString(_errors[i].code);
 }
-
 }
-

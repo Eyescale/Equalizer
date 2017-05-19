@@ -39,7 +39,7 @@ namespace eqAsync
 {
 AsyncFetcher::AsyncFetcher()
     : lunchbox::Thread()
-    , _sharedWindow( 0 )
+    , _sharedWindow(0)
 {
 }
 
@@ -53,19 +53,19 @@ const GLEWContext* AsyncFetcher::glewGetContext() const
     return _sharedWindow->glewGetContext();
 }
 
-static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
+static eq::SystemWindow* initSharedContextWindow(eq::Window* window)
 {
-    LBASSERT( window );
+    LBASSERT(window);
 
     eq::WindowSettings settings = window->getSettings();
-    settings.setIAttribute( eq::WindowSettings::IATTR_HINT_DRAWABLE, eq::OFF );
+    settings.setIAttribute(eq::WindowSettings::IATTR_HINT_DRAWABLE, eq::OFF);
     const eq::Pipe* pipe = window->getPipe();
     eq::SystemWindow* sharedWindow =
-        pipe->getWindowSystem().createWindow( window, settings );
+        pipe->getWindowSystem().createWindow(window, settings);
 
-    if( sharedWindow )
+    if (sharedWindow)
     {
-        if( sharedWindow->configInit( ))
+        if (sharedWindow->configInit())
             sharedWindow->makeCurrent();
         else
         {
@@ -86,18 +86,18 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
     return sharedWindow;
 }
 
-void AsyncFetcher::setup( Window* window )
+void AsyncFetcher::setup(Window* window)
 {
-    _sharedWindow = initSharedContextWindow( window );
+    _sharedWindow = initSharedContextWindow(window);
     start();
 }
 
 void AsyncFetcher::stop()
 {
-    if( !_sharedWindow )
+    if (!_sharedWindow)
         return;
 
-    deleteTexture( 0 ); // exit async thread
+    deleteTexture(0); // exit async thread
     join();
 
     _sharedWindow->configExit();
@@ -111,54 +111,54 @@ void AsyncFetcher::stop()
  */
 void AsyncFetcher::run()
 {
-    LBASSERT( _sharedWindow );
-    if( !_sharedWindow )
+    LBASSERT(_sharedWindow);
+    if (!_sharedWindow)
         return;
 
     _sharedWindow->makeCurrent();
-    eq::util::ObjectManager objects( glewGetContext( ));
-    lunchbox::Bufferb textureData( 64*64*4 );
+    eq::util::ObjectManager objects(glewGetContext());
+    lunchbox::Bufferb textureData(64 * 64 * 4);
     LBINFO << "async fetcher initialized" << std::endl;
 
     bool running = true;
-    lunchbox::sleep( 1000 ); // imitate loading of the first texture
-    for( uint8_t* i = 0; running; ++i )
+    lunchbox::sleep(1000); // imitate loading of the first texture
+    for (uint8_t* i = 0; running; ++i)
     {
         // generate new texture
-        eq::util::Texture* tx = objects.newEqTexture( i, GL_TEXTURE_2D );
-        tx->init( GL_RGBA8, 64, 64 );
+        eq::util::Texture* tx = objects.newEqTexture(i, GL_TEXTURE_2D);
+        tx->init(GL_RGBA8, 64, 64);
 
         int j = 0;
         lunchbox::RNG rng;
-        for( int y = 0; y < 64; ++y )
+        for (int y = 0; y < 64; ++y)
         {
-            for( int x = 0; x < 64; ++x )
+            for (int x = 0; x < 64; ++x)
             {
-                const GLbyte rnd = rng.get< uint8_t >() % 127;
+                const GLbyte rnd = rng.get<uint8_t>() % 127;
                 const GLbyte val = (x / 8) % 2 == (y / 8) % 2 ? rnd : 0;
-                textureData[ j++ ] = val;
-                textureData[ j++ ] = val;
-                textureData[ j++ ] = val;
-                textureData[ j++ ] = val;
+                textureData[j++] = val;
+                textureData[j++] = val;
+                textureData[j++] = val;
+                textureData[j++] = val;
             }
         }
-        tx->upload( 64, 64, textureData.getData( ));
-        EQ_GL_CALL( glFinish( ));
+        tx->upload(64, 64, textureData.getData());
+        EQ_GL_CALL(glFinish());
 
         // add new texture to the pool
-        _outQueue.push( TextureId( tx->getName(), i ));
+        _outQueue.push(TextureId(tx->getName(), i));
 
         // imitate hard work of loading something else
-        lunchbox::sleep( rng.get< uint32_t >() % 5000u );
+        lunchbox::sleep(rng.get<uint32_t>() % 5000u);
 
         // clean unused textures
         const void* keyToDelete = 0;
-        while( _inQueue.tryPop( keyToDelete ))
+        while (_inQueue.tryPop(keyToDelete))
         {
-            if( keyToDelete )
+            if (keyToDelete)
             {
                 LBWARN << "Deleting eq texture " << keyToDelete << std::endl;
-                objects.deleteEqTexture( keyToDelete );
+                objects.deleteEqTexture(keyToDelete);
             }
             else
                 running = false;
@@ -167,4 +167,4 @@ void AsyncFetcher::run()
     objects.deleteAll();
 }
 
-} //namespace eqAsync
+} // namespace eqAsync

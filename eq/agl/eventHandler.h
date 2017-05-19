@@ -42,7 +42,7 @@ public:
      * Construct a new AGL event handler for the given AGL window.
      * @version 1.0
      */
-    EventHandler( agl::WindowIF* window );
+    EventHandler(agl::WindowIF* window);
 
     /** Destruct the AGL event handler. @version 1.0 */
     virtual ~EventHandler();
@@ -53,20 +53,19 @@ public:
      * Received space mouse events are processed by Node::processEvent().
      * @version 1.0
      */
-    static void initMagellan( Node* node );
+    static void initMagellan(Node* node);
 
     /**
      * De-initialize space mouse event handling for this process.
      * @sa Node::configInit
      * @version 1.0
      */
-    static void exitMagellan( Node* node );
+    static void exitMagellan(Node* node);
 
     /** @return the handled AGL window. @version 1.0 */
     agl::WindowIF* getWindow() const { return _window; }
-
     /** @internal */
-    bool handleEvent( EventRef event );
+    bool handleEvent(EventRef event);
 
 private:
     agl::WindowIF* const _window;
@@ -74,9 +73,9 @@ private:
     EventHandlerRef _eventHandler;
     EventHandlerRef _eventDispatcher;
 
-    bool _processWindowEvent( const EventRef eventRef );
-    bool _processMouseEvent( const EventRef eventRef );
-    bool _processKeyEvent( const EventRef eventRef );
+    bool _processWindowEvent(const EventRef eventRef);
+    bool _processMouseEvent(const EventRef eventRef);
+    bool _processKeyEvent(const EventRef eventRef);
 
     uint32_t _lastDX;
     uint32_t _lastDY;

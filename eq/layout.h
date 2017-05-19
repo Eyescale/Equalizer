@@ -20,13 +20,16 @@
 
 #include <eq/api.h>
 #include <eq/types.h>
-#include <eq/visitorResult.h>  // enum
+#include <eq/visitorResult.h> // enum
 
-#include <eq/fabric/layout.h>         // base class
+#include <eq/fabric/layout.h> // base class
 
 namespace eq
 {
-namespace detail { class Layout; }
+namespace detail
+{
+class Layout;
+}
 
 /**
  * A layout groups one or more View, logically belonging together.
@@ -43,11 +46,11 @@ namespace detail { class Layout; }
  *
  * @sa fabric::Layout
  */
-class Layout : public fabric::Layout< Config, Layout, View >
+class Layout : public fabric::Layout<Config, Layout, View>
 {
 public:
     /** Construct a new layout. @version 1.0 */
-    EQ_API explicit Layout( Config* parent );
+    EQ_API explicit Layout(Config* parent);
 
     /** Destruct a layout. @version 1.0 */
     EQ_API virtual ~Layout();

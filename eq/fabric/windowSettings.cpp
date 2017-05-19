@@ -16,11 +16,11 @@
  */
 
 #include "windowSettings.h"
-#include "window.h"
 #include "iAttribute.h"
+#include "window.h"
 
-#include <co/dataOStream.h>
 #include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {
@@ -33,32 +33,31 @@ class WindowSettings
 public:
     WindowSettings()
     {
-        memset( iAttributes, 0xff,
-                fabric::WindowSettings::IATTR_ALL * sizeof( int32_t ));
+        memset(iAttributes, 0xff,
+               fabric::WindowSettings::IATTR_ALL * sizeof(int32_t));
     }
     ~WindowSettings() {}
-
-    WindowSettings( const WindowSettings& rhs )
-        : pixelViewport( rhs.pixelViewport )
-        , windowName( rhs.windowName )
+    WindowSettings(const WindowSettings& rhs)
+        : pixelViewport(rhs.pixelViewport)
+        , windowName(rhs.windowName)
     {
-        memcpy( iAttributes, rhs.iAttributes,
-                fabric::WindowSettings::IATTR_ALL * sizeof( int32_t ));
+        memcpy(iAttributes, rhs.iAttributes,
+               fabric::WindowSettings::IATTR_ALL * sizeof(int32_t));
     }
 
-    WindowSettings& operator=( const WindowSettings& rhs )
+    WindowSettings& operator=(const WindowSettings& rhs)
     {
-        if( this == &rhs )
+        if (this == &rhs)
             return *this;
 
-        memcpy( iAttributes, rhs.iAttributes,
-                fabric::WindowSettings::IATTR_ALL * sizeof( int32_t ));
+        memcpy(iAttributes, rhs.iAttributes,
+               fabric::WindowSettings::IATTR_ALL * sizeof(int32_t));
         pixelViewport = rhs.pixelViewport;
         windowName = rhs.windowName;
         return *this;
     }
 
-    int32_t iAttributes[ fabric::WindowSettings::IATTR_ALL ];
+    int32_t iAttributes[fabric::WindowSettings::IATTR_ALL];
 
     PixelViewport pixelViewport;
     std::string windowName;
@@ -66,12 +65,12 @@ public:
 }
 
 WindowSettings::WindowSettings()
-    : _impl( new detail::WindowSettings( ))
+    : _impl(new detail::WindowSettings())
 {
 }
 
-WindowSettings::WindowSettings( const WindowSettings& rhs )
-    : _impl( new detail::WindowSettings( *rhs._impl ))
+WindowSettings::WindowSettings(const WindowSettings& rhs)
+    : _impl(new detail::WindowSettings(*rhs._impl))
 {
 }
 
@@ -80,22 +79,22 @@ WindowSettings::~WindowSettings()
     delete _impl;
 }
 
-WindowSettings& WindowSettings::operator=( const WindowSettings& rhs )
+WindowSettings& WindowSettings::operator=(const WindowSettings& rhs)
 {
     *_impl = *rhs._impl;
     return *this;
 }
 
-bool WindowSettings::setIAttribute( const IAttribute attr, const int32_t value )
+bool WindowSettings::setIAttribute(const IAttribute attr, const int32_t value)
 {
-    if( _impl->iAttributes[attr] == value )
+    if (_impl->iAttributes[attr] == value)
         return false;
 
     _impl->iAttributes[attr] = value;
     return true;
 }
 
-int32_t WindowSettings::getIAttribute( const IAttribute attr ) const
+int32_t WindowSettings::getIAttribute(const IAttribute attr) const
 {
     return _impl->iAttributes[attr];
 }
@@ -105,12 +104,12 @@ const PixelViewport& WindowSettings::getPixelViewport() const
     return _impl->pixelViewport;
 }
 
-void WindowSettings::setPixelViewport( const PixelViewport& pvp )
+void WindowSettings::setPixelViewport(const PixelViewport& pvp)
 {
     _impl->pixelViewport = pvp;
 }
 
-void WindowSettings::setName( const std::string& name )
+void WindowSettings::setName(const std::string& name)
 {
     _impl->windowName = name;
 }
@@ -120,17 +119,16 @@ const std::string& WindowSettings::getName() const
     return _impl->windowName;
 }
 
-void WindowSettings::serialize( co::DataOStream& os ) const
+void WindowSettings::serialize(co::DataOStream& os) const
 {
-    os << co::Array< int32_t >( _impl->iAttributes, IATTR_ALL )
+    os << co::Array<int32_t>(_impl->iAttributes, IATTR_ALL)
        << _impl->pixelViewport << _impl->windowName;
 }
 
-void WindowSettings::deserialize( co::DataIStream& is )
+void WindowSettings::deserialize(co::DataIStream& is)
 {
-    is >> co::Array< int32_t >( _impl->iAttributes, IATTR_ALL )
-       >> _impl->pixelViewport >> _impl->windowName;
+    is >> co::Array<int32_t>(_impl->iAttributes, IATTR_ALL) >>
+        _impl->pixelViewport >> _impl->windowName;
 }
-
 }
 }

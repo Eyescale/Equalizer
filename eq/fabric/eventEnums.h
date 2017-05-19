@@ -18,9 +18,9 @@
 #ifndef EQFABRIC_EVENTENUMS_H
 #define EQFABRIC_EVENTENUMS_H
 
+#include <iostream>
 #include <lunchbox/bitOperation.h>
 #include <lunchbox/types.h>
-#include <iostream>
 
 namespace eq
 {
@@ -88,13 +88,13 @@ enum KeyCode
 enum PointerButton
 {
     PTR_BUTTON_NONE = LB_BIT_NONE,
-    PTR_BUTTON1     = LB_BIT1,
-    PTR_BUTTON2     = LB_BIT2,
-    PTR_BUTTON3     = LB_BIT3,
-    PTR_BUTTON4     = LB_BIT4,
-    PTR_BUTTON5     = LB_BIT5,
-    PTR_BUTTON6     = LB_BIT6,
-    PTR_BUTTON7     = LB_BIT7
+    PTR_BUTTON1 = LB_BIT1,
+    PTR_BUTTON2 = LB_BIT2,
+    PTR_BUTTON3 = LB_BIT3,
+    PTR_BUTTON4 = LB_BIT4,
+    PTR_BUTTON5 = LB_BIT5,
+    PTR_BUTTON6 = LB_BIT6,
+    PTR_BUTTON7 = LB_BIT7
 };
 
 /**
@@ -103,41 +103,40 @@ enum PointerButton
  */
 enum class KeyModifier : unsigned
 {
-    none    = LB_BIT_NONE,
-    alt     = LB_BIT1,
+    none = LB_BIT_NONE,
+    alt = LB_BIT1,
     control = LB_BIT2,
-    shift   = LB_BIT3,
+    shift = LB_BIT3,
     all = LB_BIT1 | LB_BIT2 | LB_BIT3,
 };
 
-inline KeyModifier operator & ( const KeyModifier l, const KeyModifier r )
+inline KeyModifier operator&(const KeyModifier l, const KeyModifier r)
 {
-    return static_cast< KeyModifier >( static_cast< unsigned >( l ) &
-                                       static_cast< unsigned >( r ));
+    return static_cast<KeyModifier>(static_cast<unsigned>(l) &
+                                    static_cast<unsigned>(r));
 }
 
-inline KeyModifier operator | ( const KeyModifier l, const KeyModifier r )
+inline KeyModifier operator|(const KeyModifier l, const KeyModifier r)
 {
-    return static_cast< KeyModifier >( static_cast< unsigned >( l ) |
-                                       static_cast< unsigned >( r ));
+    return static_cast<KeyModifier>(static_cast<unsigned>(l) |
+                                    static_cast<unsigned>(r));
 }
 
-inline KeyModifier& operator |= ( KeyModifier& l, const KeyModifier r )
+inline KeyModifier& operator|=(KeyModifier& l, const KeyModifier r)
 {
     return l = l | r;
 }
 
-inline std::ostream& operator << ( std::ostream& os, const KeyModifier mod )
+inline std::ostream& operator<<(std::ostream& os, const KeyModifier mod)
 {
-    if( (mod & KeyModifier::alt) == KeyModifier::alt )
+    if ((mod & KeyModifier::alt) == KeyModifier::alt)
         os << " alt";
-    if( (mod & KeyModifier::control) == KeyModifier::control )
+    if ((mod & KeyModifier::control) == KeyModifier::control)
         os << " ctrl";
-    if( (mod & KeyModifier::shift) == KeyModifier::shift )
+    if ((mod & KeyModifier::shift) == KeyModifier::shift)
         os << " shift";
     return os;
 }
-
 }
 }
 }

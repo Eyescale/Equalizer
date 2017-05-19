@@ -26,7 +26,6 @@ namespace eq
 {
 namespace qt
 {
-
 /**
    Helper window to allow Open GL context sharing between Qt widgets and
    windows created by Equalizer.
@@ -38,22 +37,21 @@ namespace qt
 class ShareContextWindow : public eq::SystemWindow
 {
 public:
-    ShareContextWindow( QOpenGLContext* context,
-                        NotifierInterface& parent,
-                        const WindowSettings& settings )
-        : SystemWindow( parent, settings )
+    ShareContextWindow(QOpenGLContext* context, NotifierInterface& parent,
+                       const WindowSettings& settings)
+        : SystemWindow(parent, settings)
         , _context(context)
-    {}
-
-
-    QOpenGLContext* getContext() const
     {
-        return _context;
     }
 
-    bool configInit() final { LBUNIMPLEMENTED; return false; }
+    QOpenGLContext* getContext() const { return _context; }
+    bool configInit() final
+    {
+        LBUNIMPLEMENTED;
+        return false;
+    }
     void configExit() final { LBUNIMPLEMENTED }
-    void makeCurrent( const bool ) const final { LBUNIMPLEMENTED }
+    void makeCurrent(const bool) const final { LBUNIMPLEMENTED }
     void doneCurrent() const final { LBUNIMPLEMENTED }
     void bindFrameBuffer() const final { LBUNIMPLEMENTED }
     void bindDrawFrameBuffer() const final { LBUNIMPLEMENTED }
@@ -61,15 +59,15 @@ public:
     void swapBuffers() final { LBUNIMPLEMENTED }
     void flush() final { LBUNIMPLEMENTED }
     void finish() final { LBUNIMPLEMENTED }
-    void joinNVSwapBarrier( const uint32_t, const uint32_t ) final
-        { LBUNIMPLEMENTED }
-    void queryDrawableConfig( DrawableConfig& ) final { LBUNIMPLEMENTED }
-    void resize( const PixelViewport& ) final { LBUNIMPLEMENTED }
-
+    void joinNVSwapBarrier(const uint32_t, const uint32_t) final
+    {
+        LBUNIMPLEMENTED
+    }
+    void queryDrawableConfig(DrawableConfig&) final { LBUNIMPLEMENTED }
+    void resize(const PixelViewport&) final { LBUNIMPLEMENTED }
 private:
     QOpenGLContext* _context;
 };
-
 }
 }
 #endif // EQ_QT_SHARECONTEXTWINDOW_H

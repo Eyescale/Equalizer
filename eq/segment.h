@@ -19,12 +19,15 @@
 #define EQ_SEGMENT_H
 
 #include <eq/api.h>
+#include <eq/fabric/segment.h> // base class
 #include <eq/types.h>
-#include <eq/fabric/segment.h>        // base class
 
 namespace eq
 {
-namespace detail { class Segment; }
+namespace detail
+{
+class Segment;
+}
 
 /**
  * A segment covers a sub-area of a Canvas. It has a Frustum, and defines one
@@ -32,11 +35,11 @@ namespace detail { class Segment; }
  *
  * @sa fabric::Segment
  */
-class Segment : public fabric::Segment< Canvas, Segment, Channel >
+class Segment : public fabric::Segment<Canvas, Segment, Channel>
 {
 public:
     /** Construct a new segment. @version 1.0 */
-    EQ_API explicit Segment( Canvas* parent );
+    EQ_API explicit Segment(Canvas* parent);
 
     /** Destruct a segment. @version 1.0 */
     EQ_API virtual ~Segment();
@@ -56,6 +59,5 @@ public:
 private:
     detail::Segment* const _impl;
 };
-
 }
 #endif // EQ_SEGMENT_H

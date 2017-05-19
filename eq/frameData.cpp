@@ -20,21 +20,21 @@
 
 #include "frameData.h"
 
-#include "nodeStatistics.h"
 #include "channelStatistics.h"
 #include "exception.h"
 #include "image.h"
 #include "log.h"
+#include "nodeStatistics.h"
 #include "pixelData.h"
 #include "roiFinder.h"
 
-#include <eq/fabric/drawableConfig.h>
-#include <eq/fabric/frameData.h>
-#include <eq/util/objectManager.h>
 #include <co/commandFunc.h>
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <eq/fabric/drawableConfig.h>
+#include <eq/fabric/frameData.h>
+#include <eq/util/objectManager.h>
 #include <lunchbox/monitor.h>
 #include <lunchbox/scopedMutex.h>
 #include <pression/plugins/compressor.h>
@@ -45,8 +45,8 @@
 
 namespace eq
 {
-typedef lunchbox::Monitor< uint64_t > Monitor;
-typedef std::vector< FrameData::Listener* > Listeners;
+typedef lunchbox::Monitor<uint64_t> Monitor;
+typedef std::vector<FrameData::Listener*> Listeners;
 
 namespace detail
 {
@@ -54,13 +54,14 @@ class FrameData
 {
 public:
     FrameData()
-        : version( co::VERSION_NONE.low( ))
-        , useAlpha( true )
-        , colorQuality( 1.f )
-        , depthQuality( 1.f )
-        , colorCompressor( EQ_COMPRESSOR_AUTO )
-        , depthCompressor( EQ_COMPRESSOR_AUTO )
-    {}
+        : version(co::VERSION_NONE.low())
+        , useAlpha(true)
+        , colorQuality(1.f)
+        , depthQuality(1.f)
+        , colorCompressor(EQ_COMPRESSOR_AUTO)
+        , depthCompressor(EQ_COMPRESSOR_AUTO)
+    {
+    }
 
     Images images;
     Images imageCache;
@@ -76,7 +77,7 @@ public:
     Monitor readyVersion;
 
     /** External monitors for readiness synchronization. */
-    lunchbox::Lockable< Listeners, lunchbox::SpinLock > listeners;
+    lunchbox::Lockable<Listeners, lunchbox::SpinLock> listeners;
 
     bool useAlpha;
     float colorQuality;
@@ -87,20 +88,21 @@ public:
 };
 }
 
-typedef co::CommandFunc< FrameData > CmdFunc;
+typedef co::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData()
-    : _impl( new detail::FrameData )
-{}
+    : _impl(new detail::FrameData)
+{
+}
 
 FrameData::~FrameData()
 {
     clear();
 
-    for( Image* image : _impl->imageCache )
+    for (Image* image : _impl->imageCache)
     {
-        LBLOG( LOG_BUG ) << "Unflushed image in FrameData destructor"
-                          << std::endl;
+        LBLOG(LOG_BUG) << "Unflushed image in FrameData destructor"
+                       << std::endl;
         delete image;
     }
     _impl->imageCache.clear();
@@ -113,7 +115,7 @@ const Images& FrameData::getImages() const
     return _impl->images;
 }
 
-void FrameData::setAlphaUsage( const bool useAlpha )
+void FrameData::setAlphaUsage(const bool useAlpha)
 {
     _impl->useAlpha = useAlpha;
 }
@@ -123,11 +125,11 @@ bool FrameData::isReady() const
     return _impl->readyVersion.get() >= _impl->version;
 }
 
-void FrameData::setQuality( Frame::Buffer buffer, float quality )
+void FrameData::setQuality(Frame::Buffer buffer, float quality)
 {
-    if( buffer != Frame::Buffer::color )
+    if (buffer != Frame::Buffer::color)
     {
-        LBASSERT( buffer == Frame::Buffer::depth );
+        LBASSERT(buffer == Frame::Buffer::depth);
         _impl->depthQuality = quality;
         return;
     }
@@ -135,11 +137,11 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
     _impl->colorQuality = quality;
 }
 
-void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+void FrameData::useCompressor(const Frame::Buffer buffer, const uint32_t name)
 {
-    if( buffer != Frame::Buffer::color )
+    if (buffer != Frame::Buffer::color)
     {
-        LBASSERT( buffer == Frame::Buffer::depth );
+        LBASSERT(buffer == Frame::Buffer::depth);
         _impl->depthCompressor = name;
         return;
     }
@@ -147,24 +149,24 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
     _impl->colorCompressor = name;
 }
 
-void FrameData::getInstanceData( co::DataOStream& os )
+void FrameData::getInstanceData(co::DataOStream& os)
 {
     LBUNREACHABLE;
-    serialize( os );
+    serialize(os);
 }
 
-void FrameData::applyInstanceData( co::DataIStream& is )
+void FrameData::applyInstanceData(co::DataIStream& is)
 {
     clear();
-    deserialize( is );
-    LBLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+    deserialize(is);
+    LBLOG(LOG_ASSEMBLY) << "applied " << this << std::endl;
 }
 
 void FrameData::clear()
 {
     _impl->imageCacheLock.lock();
-    _impl->imageCache.insert( _impl->imageCache.end(), _impl->images.begin(),
-                              _impl->images.end( ));
+    _impl->imageCache.insert(_impl->imageCache.end(), _impl->images.begin(),
+                             _impl->images.end());
     _impl->imageCacheLock.unlock();
     _impl->images.clear();
 }
@@ -173,8 +175,8 @@ void FrameData::flush()
 {
     clear();
 
-    for( ImagesCIter i = _impl->imageCache.begin();
-         i != _impl->imageCache.end(); ++i )
+    for (ImagesCIter i = _impl->imageCache.begin();
+         i != _impl->imageCache.end(); ++i)
     {
         Image* image = *i;
         image->flush();
@@ -184,38 +186,38 @@ void FrameData::flush()
     _impl->imageCache.clear();
 }
 
-void FrameData::deleteGLObjects( util::ObjectManager& om )
+void FrameData::deleteGLObjects(util::ObjectManager& om)
 {
-    for( Image* image : _impl->images )
-        image->deleteGLObjects( om );
-    for( Image* image : _impl->imageCache )
-        image->deleteGLObjects( om );
+    for (Image* image : _impl->images)
+        image->deleteGLObjects(om);
+    for (Image* image : _impl->imageCache)
+        image->deleteGLObjects(om);
 }
 
 void FrameData::resetPlugins()
 {
-    BOOST_FOREACH( Image* image, _impl->images )
+    BOOST_FOREACH (Image* image, _impl->images)
         image->resetPlugins();
-    BOOST_FOREACH( Image* image, _impl->imageCache )
+    BOOST_FOREACH (Image* image, _impl->imageCache)
         image->resetPlugins();
 }
 
-Image* FrameData::newImage( const eq::Frame::Type type,
-                            const DrawableConfig& config )
+Image* FrameData::newImage(const eq::Frame::Type type,
+                           const DrawableConfig& config)
 {
-    Image* image = _allocImage( type, config, true /* set quality */ );
-    _impl->images.push_back( image );
+    Image* image = _allocImage(type, config, true /* set quality */);
+    _impl->images.push_back(image);
     return image;
 }
 
-Image* FrameData::_allocImage( const eq::Frame::Type type,
-                               const DrawableConfig& config,
-                               const bool setQuality_ )
+Image* FrameData::_allocImage(const eq::Frame::Type type,
+                              const DrawableConfig& config,
+                              const bool setQuality_)
 {
     Image* image;
     _impl->imageCacheLock.lock();
 
-    if( _impl->imageCache.empty( ))
+    if (_impl->imageCache.empty())
     {
         _impl->imageCacheLock.unlock();
         image = new Image;
@@ -229,77 +231,77 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
         image->reset();
     }
 
-    image->setAlphaUsage( _impl->useAlpha );
-    image->setStorageType( type );
-    if( setQuality_ )
+    image->setAlphaUsage(_impl->useAlpha);
+    image->setStorageType(type);
+    if (setQuality_)
     {
-        image->setQuality( Frame::Buffer::color, _impl->colorQuality );
-        image->setQuality( Frame::Buffer::depth, _impl->depthQuality );
+        image->setQuality(Frame::Buffer::color, _impl->colorQuality);
+        image->setQuality(Frame::Buffer::depth, _impl->depthQuality);
     }
 
-    image->useCompressor( Frame::Buffer::color, _impl->colorCompressor );
-    image->useCompressor( Frame::Buffer::depth, _impl->depthCompressor );
+    image->useCompressor(Frame::Buffer::color, _impl->colorCompressor);
+    image->useCompressor(Frame::Buffer::depth, _impl->depthCompressor);
 
-    image->setInternalFormat( Frame::Buffer::depth,
-                              EQ_COMPRESSOR_DATATYPE_DEPTH );
-    switch( config.colorBits )
+    image->setInternalFormat(Frame::Buffer::depth,
+                             EQ_COMPRESSOR_DATATYPE_DEPTH);
+    switch (config.colorBits)
     {
-        case 16:
-            image->setInternalFormat( Frame::Buffer::color,
-                                      EQ_COMPRESSOR_DATATYPE_RGBA16F );
-            break;
-        case 32:
-            image->setInternalFormat( Frame::Buffer::color,
-                                      EQ_COMPRESSOR_DATATYPE_RGBA32F );
-            break;
-        case 10:
-            image->setInternalFormat( Frame::Buffer::color,
-                                      EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
-            break;
-        default:
-            image->setInternalFormat( Frame::Buffer::color,
-                                      EQ_COMPRESSOR_DATATYPE_RGBA );
+    case 16:
+        image->setInternalFormat(Frame::Buffer::color,
+                                 EQ_COMPRESSOR_DATATYPE_RGBA16F);
+        break;
+    case 32:
+        image->setInternalFormat(Frame::Buffer::color,
+                                 EQ_COMPRESSOR_DATATYPE_RGBA32F);
+        break;
+    case 10:
+        image->setInternalFormat(Frame::Buffer::color,
+                                 EQ_COMPRESSOR_DATATYPE_RGB10_A2);
+        break;
+    default:
+        image->setInternalFormat(Frame::Buffer::color,
+                                 EQ_COMPRESSOR_DATATYPE_RGBA);
     }
 
     return image;
 }
 
-Images FrameData::startReadback( const Frame& frame,
-                                 util::ObjectManager& glObjects,
-                                 const DrawableConfig& config,
-                                 const PixelViewports& regions,
-                                 const RenderContext& context )
+Images FrameData::startReadback(const Frame& frame,
+                                util::ObjectManager& glObjects,
+                                const DrawableConfig& config,
+                                const PixelViewports& regions,
+                                const RenderContext& context)
 {
-    if( _buffers == Frame::Buffer::none )
+    if (_buffers == Frame::Buffer::none)
         return Images();
 
     const Zoom& frameZoom = frame.getZoom();
-    if( !frameZoom.isValid( ))
+    if (!frameZoom.isValid())
     {
         LBWARN << "Invalid zoom factor, skipping frame" << std::endl;
         return Images();
     }
 
     const eq::PixelViewport& framePVP = getPixelViewport();
-    const PixelViewport      absPVP   = framePVP + frame.getOffset();
-    if( !absPVP.isValid( ))
+    const PixelViewport absPVP = framePVP + frame.getOffset();
+    if (!absPVP.isValid())
         return Images();
 
     Images images;
 
     // readback the whole screen when using textures
-    if( getType() == eq::Frame::TYPE_TEXTURE )
+    if (getType() == eq::Frame::TYPE_TEXTURE)
     {
-        Image* image = newImage( getType(), config );
-        if( image->startReadback( getBuffers(), absPVP, context,
-            frameZoom, glObjects ))
+        Image* image = newImage(getType(), config);
+        if (image->startReadback(getBuffers(), absPVP, context, frameZoom,
+                                 glObjects))
         {
-            images.push_back( image );
+            images.push_back(image);
         }
-        image->setOffset( 0, 0 );
+        image->setOffset(0, 0);
         return images;
     }
-    //else read only required regions
+// else read only required regions
 
 #if 0
     // TODO: issue #85: move automatic ROI detection to eq::Channel
@@ -312,179 +314,178 @@ Images FrameData::startReadback( const Frame& frame,
         regions.push_back( absPVP );
 #endif
 
-    LBASSERT( getType() == eq::Frame::TYPE_MEMORY );
+    LBASSERT(getType() == eq::Frame::TYPE_MEMORY);
 
-    for( uint32_t i = 0; i < regions.size(); ++i )
+    for (uint32_t i = 0; i < regions.size(); ++i)
     {
-        PixelViewport pvp = regions[ i ] + frame.getOffset();
-        pvp.intersect( absPVP );
-        if( !pvp.hasArea( ))
+        PixelViewport pvp = regions[i] + frame.getOffset();
+        pvp.intersect(absPVP);
+        if (!pvp.hasArea())
             continue;
 
-        Image* image = newImage( getType(), config );
-        if( image->startReadback( getBuffers(), pvp, context, frameZoom, glObjects ))
-            images.push_back( image );
+        Image* image = newImage(getType(), config);
+        if (image->startReadback(getBuffers(), pvp, context, frameZoom,
+                                 glObjects))
+            images.push_back(image);
 
         pvp -= frame.getOffset();
-        pvp.apply( frameZoom );
-        image->setOffset( (pvp.x - framePVP.x) * context.pixel.w,
-                          (pvp.y - framePVP.y) * context.pixel.h );
+        pvp.apply(frameZoom);
+        image->setOffset((pvp.x - framePVP.x) * context.pixel.w,
+                         (pvp.y - framePVP.y) * context.pixel.h);
     }
     return images;
 }
 
-void FrameData::setVersion( const uint64_t version )
+void FrameData::setVersion(const uint64_t version)
 {
-    LBASSERTINFO( _impl->version <= version, _impl->version << " > "
-                                                            << version );
+    LBASSERTINFO(_impl->version <= version, _impl->version << " > " << version);
     _impl->version = version;
-    LBLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
+    LBLOG(LOG_ASSEMBLY) << "New v" << version << std::endl;
 }
 
-void FrameData::waitReady( const uint32_t timeout ) const
+void FrameData::waitReady(const uint32_t timeout) const
 {
-    if( !_impl->readyVersion.timedWaitGE( _impl->version, timeout ))
-        throw Exception( Exception::TIMEOUT_INPUTFRAME );
+    if (!_impl->readyVersion.timedWaitGE(_impl->version, timeout))
+        throw Exception(Exception::TIMEOUT_INPUTFRAME);
 }
 
 void FrameData::setReady()
 {
-    _setReady( _impl->version );
+    _setReady(_impl->version);
 }
 
-void FrameData::setReady( const co::ObjectVersion& frameData,
-                          const fabric::FrameData& data )
+void FrameData::setReady(const co::ObjectVersion& frameData,
+                         const fabric::FrameData& data)
 {
     clear();
-    LBASSERT(  frameData.version.high() == 0 );
-    LBASSERT( _impl->readyVersion < frameData.version.low( ));
-    LBASSERT( _impl->readyVersion == 0 ||
-              _impl->readyVersion + 1 == frameData.version.low( ));
-    LBASSERT( _impl->version == frameData.version.low( ));
+    LBASSERT(frameData.version.high() == 0);
+    LBASSERT(_impl->readyVersion < frameData.version.low());
+    LBASSERT(_impl->readyVersion == 0 ||
+             _impl->readyVersion + 1 == frameData.version.low());
+    LBASSERT(_impl->version == frameData.version.low());
 
-    _impl->images.swap( _impl->pendingImages );
-    fabric::FrameData::operator = ( data );
-    _setReady( frameData.version.low());
+    _impl->images.swap(_impl->pendingImages);
+    fabric::FrameData::operator=(data);
+    _setReady(frameData.version.low());
 
-    LBLOG( LOG_ASSEMBLY ) << this << " applied v"
-                          << frameData.version.low() << std::endl;
+    LBLOG(LOG_ASSEMBLY) << this << " applied v" << frameData.version.low()
+                        << std::endl;
 }
 
-void FrameData::_setReady( const uint64_t version )
+void FrameData::_setReady(const uint64_t version)
 {
-    LBASSERTINFO( _impl->readyVersion <= version,
-                  "v" << _impl->version << " ready " << _impl->readyVersion
-                      << " new " << version );
+    LBASSERTINFO(_impl->readyVersion <= version,
+                 "v" << _impl->version << " ready " << _impl->readyVersion
+                     << " new " << version);
 
-    lunchbox::ScopedFastWrite mutex( _impl->listeners );
-    if( _impl->readyVersion >= version )
+    lunchbox::ScopedFastWrite mutex(_impl->listeners);
+    if (_impl->readyVersion >= version)
         return;
 
     _impl->readyVersion = version;
-    LBLOG( LOG_ASSEMBLY ) << "set ready " << this << ", "
-                          << _impl->listeners->size() << " monitoring"
-                          << std::endl;
+    LBLOG(LOG_ASSEMBLY) << "set ready " << this << ", "
+                        << _impl->listeners->size() << " monitoring"
+                        << std::endl;
 
-    BOOST_FOREACH( Listener* listener, _impl->listeners.data )
+    BOOST_FOREACH (Listener* listener, _impl->listeners.data)
         ++(*listener);
 }
 
-void FrameData::addListener( Listener& listener )
+void FrameData::addListener(Listener& listener)
 {
-    lunchbox::ScopedFastWrite mutex( _impl->listeners );
+    lunchbox::ScopedFastWrite mutex(_impl->listeners);
 
-    _impl->listeners->push_back( &listener );
-    if( _impl->readyVersion >= _impl->version )
+    _impl->listeners->push_back(&listener);
+    if (_impl->readyVersion >= _impl->version)
         ++listener;
 }
 
-void FrameData::removeListener( Listener& listener )
+void FrameData::removeListener(Listener& listener)
 {
-    lunchbox::ScopedFastWrite mutex( _impl->listeners );
+    lunchbox::ScopedFastWrite mutex(_impl->listeners);
 
-    Listeners::iterator i = lunchbox::find( _impl->listeners.data, &listener );
-    LBASSERT( i != _impl->listeners->end( ));
-    _impl->listeners->erase( i );
+    Listeners::iterator i = lunchbox::find(_impl->listeners.data, &listener);
+    LBASSERT(i != _impl->listeners->end());
+    _impl->listeners->erase(i);
 }
 
-bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
-                          const PixelViewport& pvp, const Zoom& zoom,
-                          const RenderContext& context,
-                          const Frame::Buffer buffers_, const bool useAlpha,
-                          uint8_t* data )
+bool FrameData::addImage(const co::ObjectVersion& frameDataVersion,
+                         const PixelViewport& pvp, const Zoom& zoom,
+                         const RenderContext& context,
+                         const Frame::Buffer buffers_, const bool useAlpha,
+                         uint8_t* data)
 {
-    LBASSERT( _impl->readyVersion < frameDataVersion.version.low( ));
-    if( _impl->readyVersion >= frameDataVersion.version.low( ))
+    LBASSERT(_impl->readyVersion < frameDataVersion.version.low());
+    if (_impl->readyVersion >= frameDataVersion.version.low())
         return false;
 
-    Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig(),
-                                false /* set quality */ );
+    Image* image = _allocImage(Frame::TYPE_MEMORY, DrawableConfig(),
+                               false /* set quality */);
 
-    image->setPixelViewport( pvp );
-    image->setAlphaUsage( useAlpha );
+    image->setPixelViewport(pvp);
+    image->setAlphaUsage(useAlpha);
 
-    Frame::Buffer buffers[] = { Frame::Buffer::color, Frame::Buffer::depth };
-    for( unsigned i = 0; i < 2; ++i )
+    Frame::Buffer buffers[] = {Frame::Buffer::color, Frame::Buffer::depth};
+    for (unsigned i = 0; i < 2; ++i)
     {
         const Frame::Buffer buffer = buffers[i];
 
-        if( buffers_ & buffer )
+        if (buffers_ & buffer)
         {
             PixelData pixelData;
-            const ImageHeader* header = reinterpret_cast<ImageHeader*>( data );
-            data += sizeof( ImageHeader );
+            const ImageHeader* header = reinterpret_cast<ImageHeader*>(data);
+            data += sizeof(ImageHeader);
 
-            pixelData.internalFormat  = header->internalFormat;
-            pixelData.externalFormat  = header->externalFormat;
-            pixelData.pixelSize       = header->pixelSize;
-            pixelData.pvp             = header->pvp;
+            pixelData.internalFormat = header->internalFormat;
+            pixelData.externalFormat = header->externalFormat;
+            pixelData.pixelSize = header->pixelSize;
+            pixelData.pvp = header->pvp;
             pixelData.compressorFlags = header->compressorFlags;
 
             const uint32_t compressor = header->compressorName;
-            if( compressor > EQ_COMPRESSOR_NONE )
+            if (compressor > EQ_COMPRESSOR_NONE)
             {
                 pression::CompressorChunks chunks;
                 const uint32_t nChunks = header->nChunks;
-                chunks.reserve( nChunks );
+                chunks.reserve(nChunks);
 
-                for( uint32_t j = 0; j < nChunks; ++j )
+                for (uint32_t j = 0; j < nChunks; ++j)
                 {
-                    const uint64_t size = *reinterpret_cast< uint64_t*>( data );
-                    data += sizeof( uint64_t );
+                    const uint64_t size = *reinterpret_cast<uint64_t*>(data);
+                    data += sizeof(uint64_t);
 
-                    chunks.push_back( pression::CompressorChunk( data, size ));
+                    chunks.push_back(pression::CompressorChunk(data, size));
                     data += size;
                 }
                 pixelData.compressedData =
-                    pression::CompressorResult( compressor, chunks );
+                    pression::CompressorResult(compressor, chunks);
             }
             else
             {
-                const uint64_t size = *reinterpret_cast< uint64_t*>( data );
-                data += sizeof( uint64_t );
+                const uint64_t size = *reinterpret_cast<uint64_t*>(data);
+                data += sizeof(uint64_t);
 
                 pixelData.pixels = data;
                 data += size;
-                LBASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
+                LBASSERT(size == pixelData.pvp.getArea() * pixelData.pixelSize);
             }
 
-            image->setZoom( zoom );
-            image->setContext( context );
-            image->setQuality( buffer, header->quality );
-            image->setPixelData( buffer, pixelData );
+            image->setZoom(zoom);
+            image->setContext(context);
+            image->setQuality(buffer, header->quality);
+            image->setPixelData(buffer, pixelData);
         }
     }
 
-    _impl->pendingImages.push_back( image );
+    _impl->pendingImages.push_back(image);
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const FrameData& data )
+std::ostream& operator<<(std::ostream& os, const FrameData& data)
 {
     return os << "frame data id " << data.getID() << "." << data.getInstanceID()
               << " v" << data.getVersion() << ' ' << data.getImages().size()
-              << " images, ready " << ( data.isReady() ? 'y' :'n' ) << " "
+              << " images, ready " << (data.isReady() ? 'y' : 'n') << " "
               << data.getZoom();
 }
-
 }

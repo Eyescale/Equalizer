@@ -32,24 +32,24 @@ namespace eq
  */
 namespace server
 {
-    /**
-     * Initialize the Equalizer server namespace.
-     *
-     * @param argc the command line argument count.
-     * @param argv the command line argument values.
-     *
-     * @return <code>true</code> if the library was successfully initialized,
-     *         <code>false</code> otherwise.
-     */
-    EQSERVER_API bool init( const int argc, char** argv );
+/**
+ * Initialize the Equalizer server namespace.
+ *
+ * @param argc the command line argument count.
+ * @param argv the command line argument values.
+ *
+ * @return <code>true</code> if the library was successfully initialized,
+ *         <code>false</code> otherwise.
+ */
+EQSERVER_API bool init(const int argc, char** argv);
 
-    /**
-     * De-initialize the Equalizer server namespace.
-     *
-     * @return <code>true</code> if the library was successfully de-initialized,
-     *         <code>false</code> otherwise.
-     */
-    EQSERVER_API bool exit();
+/**
+ * De-initialize the Equalizer server namespace.
+ *
+ * @return <code>true</code> if the library was successfully de-initialized,
+ *         <code>false</code> otherwise.
+ */
+EQSERVER_API bool exit();
 }
 }
 #endif // EQSERVER_INIT_H

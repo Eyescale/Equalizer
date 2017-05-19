@@ -26,25 +26,29 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 #include <eq/agl/types.h>
-#include <eq/glWindow.h>       // base class
+#include <eq/glWindow.h> // base class
 
 namespace eq
 {
 namespace agl
 {
-namespace detail { class Window; }
+namespace detail
+{
+class Window;
+}
 
 /** The interface defining the minimum functionality for an AGL window. */
 class WindowIF : public GLWindow
 {
 public:
     /** Construct a new AGL window for the given eq::Window. @version 1.0 */
-    WindowIF( NotifierInterface& parent, const WindowSettings& settings )
-        : GLWindow( parent, settings ) {}
+    WindowIF(NotifierInterface& parent, const WindowSettings& settings)
+        : GLWindow(parent, settings)
+    {
+    }
 
     /** Destruct the AGL window. @version 1.0 */
     virtual ~WindowIF() {}
-
     /** @return the AGL rendering context. @version 1.0 */
     virtual AGLContext getAGLContext() const = 0;
 
@@ -56,22 +60,29 @@ public:
      * @version 1.7.2
      */
     virtual bool isThreaded() const { return false; }
-
     /** Process a simple event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, EventRef )
-        { return GLWindow::processEvent( type ); }
+    virtual bool processEvent(EventType type, EventRef)
+    {
+        return GLWindow::processEvent(type);
+    }
 
     /** Process a (re)size event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, EventRef, SizeEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, EventRef, SizeEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a mouse event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, EventRef, PointerEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, EventRef, PointerEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a keyboard event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, EventRef, KeyEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, EventRef, KeyEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 };
 
 /** Equalizer default implementation of an AGL window interface. */
@@ -86,8 +97,8 @@ public:
      * pipe's system pipe (agl::Pipe).
      * @version 1.0
      */
-    EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
-                   const CGDirectDisplayID displayID, const bool threaded );
+    EQ_API Window(NotifierInterface& parent, const WindowSettings& settings,
+                  const CGDirectDisplayID displayID, const bool threaded);
 
     /** Destruct the AGL window. @version 1.0 */
     EQ_API virtual ~Window();
@@ -103,7 +114,7 @@ public:
      * @param context the AGL rendering context.
      * @version 1.0
      */
-    EQ_API virtual void setAGLContext( AGLContext context );
+    EQ_API virtual void setAGLContext(AGLContext context);
 
     /**
      * Set the carbon window to be used with the current AGL context.
@@ -111,7 +122,7 @@ public:
      * @param window the window reference.
      * @version 1.0
      */
-    EQ_API virtual void setCarbonWindow( WindowRef window );
+    EQ_API virtual void setCarbonWindow(WindowRef window);
 
     /** @return the AGL rendering context. @version 1.0 */
     EQ_API AGLContext getAGLContext() const override;
@@ -170,7 +181,7 @@ public:
      * @param format a pixel format.
      * @version 1.0
      */
-    EQ_API virtual void destroyAGLPixelFormat( AGLPixelFormat format );
+    EQ_API virtual void destroyAGLPixelFormat(AGLPixelFormat format);
 
     /**
      * Create an AGL context.
@@ -184,7 +195,7 @@ public:
      * @return the context, or 0 if context creation failed.
      * @version 1.0
      */
-    EQ_API virtual AGLContext createAGLContext( AGLPixelFormat format );
+    EQ_API virtual AGLContext createAGLContext(AGLPixelFormat format);
 
     /**
      * Initialize the window's drawable and bind the AGL context.
@@ -239,7 +250,7 @@ public:
     /** @name Operations. */
     //@{
     /** @version 1.0 */
-    EQ_API void makeCurrent( const bool cache = true ) const override;
+    EQ_API void makeCurrent(const bool cache = true) const override;
 
     /** @version 1.10 */
     EQ_API void doneCurrent() const override;
@@ -248,18 +259,18 @@ public:
     EQ_API void swapBuffers() override;
 
     /** Not implemented for AGL. @version 1.0 */
-    EQ_API void joinNVSwapBarrier( const uint32_t group,
-                                   const uint32_t barrier ) override;
+    EQ_API void joinNVSwapBarrier(const uint32_t group,
+                                  const uint32_t barrier) override;
 
-    EQ_API bool processEvent( EventType type, EventRef eventRef,
-                              SizeEvent& event ) override;
+    EQ_API bool processEvent(EventType type, EventRef eventRef,
+                             SizeEvent& event) override;
     //@}
 
 private:
     detail::Window* const _impl;
 
-    void _initSwapSync( AGLContext context );
-    void _resize( const PixelViewport& pvp ) override;
+    void _initSwapSync(AGLContext context);
+    void _resize(const PixelViewport& pvp) override;
 };
 }
 }

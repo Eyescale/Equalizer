@@ -31,20 +31,19 @@ FileFrameWriter::FileFrameWriter()
 {
 }
 
-void FileFrameWriter::notifyNewImage( eq::Channel& channel,
-                                      const eq::Image& image )
+void FileFrameWriter::notifyNewImage(eq::Channel& channel,
+                                     const eq::Image& image)
 {
     const std::string& prefix =
-            channel.getSAttribute( eq::Channel::SATTR_DUMP_IMAGE );
-    LBASSERT( !prefix.empty( ));
+        channel.getSAttribute(eq::Channel::SATTR_DUMP_IMAGE);
+    LBASSERT(!prefix.empty());
     const std::string fileName = prefix + channel.getDumpImageFileName();
-    if( !image.writeImage( fileName, eq::Frame::Buffer::color ))
+    if (!image.writeImage(fileName, eq::Frame::Buffer::color))
         LBWARN << "Could not write file " << fileName << std::endl;
 }
 
 FileFrameWriter::~FileFrameWriter()
 {
 }
-
 }
 }

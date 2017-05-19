@@ -27,38 +27,36 @@
 #include <cstdio>
 
 #ifdef _MSC_VER
-#  define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 namespace eq
 {
-
-ChannelStatistics::ChannelStatistics( const Statistic::Type type,
-                                      Channel* channel, const uint32_t frame,
-                                      const int32_t hint )
-        : StatisticSampler< Channel >( type, channel, frame )
-        , _hint( hint )
+ChannelStatistics::ChannelStatistics(const Statistic::Type type,
+                                     Channel* channel, const uint32_t frame,
+                                     const int32_t hint)
+    : StatisticSampler<Channel>(type, channel, frame)
+    , _hint(hint)
 {
-    if( _hint == AUTO )
-        _hint = channel->getIAttribute( Channel::IATTR_HINT_STATISTICS );
-    if( _hint == OFF )
+    if (_hint == AUTO)
+        _hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
+    if (_hint == OFF)
         return;
 
     statistic.task = channel->getTaskID();
 
     const std::string& name = channel->getName();
-    if( name.empty( ))
-        snprintf( statistic.resourceName, 32, "Channel %s",
-                  channel->getID().getShortString().c_str( ));
+    if (name.empty())
+        snprintf(statistic.resourceName, 32, "Channel %s",
+                 channel->getID().getShortString().c_str());
     else
-        snprintf( statistic.resourceName, 32, "%s", name.c_str( ));
+        snprintf(statistic.resourceName, 32, "%s", name.c_str());
     statistic.resourceName[31] = 0;
 
-    if( _hint == NICEST &&
-        type != Statistic::CHANNEL_ASYNC_READBACK &&
+    if (_hint == NICEST && type != Statistic::CHANNEL_ASYNC_READBACK &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
         type != Statistic::CHANNEL_FRAME_COMPRESS &&
-        type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
+        type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN)
     {
         channel->getWindow()->finish();
     }
@@ -66,28 +64,25 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     statistic.startTime = channel->getConfig()->getTime();
 }
 
-
 ChannelStatistics::~ChannelStatistics()
 {
-    if( _hint == OFF )
+    if (_hint == OFF)
         return;
 
     const Statistic::Type type = statistic.type;
-    if( _hint == NICEST &&
-        type != Statistic::CHANNEL_ASYNC_READBACK &&
+    if (_hint == NICEST && type != Statistic::CHANNEL_ASYNC_READBACK &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
         type != Statistic::CHANNEL_FRAME_COMPRESS &&
-        type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
+        type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN)
     {
         _owner->getWindow()->finish();
     }
 
-    if( statistic.endTime == 0 )
+    if (statistic.endTime == 0)
         statistic.endTime = _owner->getConfig()->getTime();
-    if( statistic.endTime <= statistic.startTime )
+    if (statistic.endTime <= statistic.startTime)
         statistic.endTime = statistic.startTime + 1;
 
-    _owner->addStatistic( statistic );
+    _owner->addStatistic(statistic);
 }
-
 }

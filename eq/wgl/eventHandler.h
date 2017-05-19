@@ -27,55 +27,55 @@ namespace eq
 {
 namespace wgl
 {
-    /** The event handler for WGL. */
-    class EventHandler : public eq::EventHandler
-    {
-    public:
-        /** Construct a new WGL event handler for the window. @version 1.0 */
-        EQ_API explicit EventHandler( WindowIF* window );
+/** The event handler for WGL. */
+class EventHandler : public eq::EventHandler
+{
+public:
+    /** Construct a new WGL event handler for the window. @version 1.0 */
+    EQ_API explicit EventHandler(WindowIF* window);
 
-        /** Destruct the WGL event handler. @version 1.0 */
-        EQ_API virtual ~EventHandler();
+    /** Destruct the WGL event handler. @version 1.0 */
+    EQ_API virtual ~EventHandler();
 
-        /**
-         * Initialize space mouse event handling for this process.
-         *
-         * Received space mouse events are processed by Node::processEvent().
-         * @version 1.0
-         */
-        static bool initMagellan(Node* node);
+    /**
+     * Initialize space mouse event handling for this process.
+     *
+     * Received space mouse events are processed by Node::processEvent().
+     * @version 1.0
+     */
+    static bool initMagellan(Node* node);
 
-       /**
-         * De-initialize space mouse event handling for this process.
-         *
-         * @sa Node::configInit
-         * @version 1.0
-         */
-       static void exitMagellan( Node* node );
+    /**
+      * De-initialize space mouse event handling for this process.
+      *
+      * @sa Node::configInit
+      * @version 1.0
+      */
+    static void exitMagellan(Node* node);
 
-    private:
-        WindowIF* _window;
-        HWND      _hWnd;
-        WNDPROC   _prevWndProc;
-        uint32_t  _buttonState;
+private:
+    WindowIF* _window;
+    HWND _hWnd;
+    WNDPROC _prevWndProc;
+    uint32_t _buttonState;
 
-        int32_t      _wheelDeltaPerLine;
+    int32_t _wheelDeltaPerLine;
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-                                         LPARAM lParam );
-        LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-                                   LPARAM lParam );
-        void _magellanEventHandler( LPARAM lParam );
+    static LRESULT CALLBACK wndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
+                                    LPARAM lParam);
+    LRESULT CALLBACK _wndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
+                              LPARAM lParam);
+    void _magellanEventHandler(LPARAM lParam);
 
-        void      _syncButtonState( WPARAM wParam );
-        int32_t   _getWheelDelta( WPARAM wParam ) const;
+    void _syncButtonState(WPARAM wParam);
+    int32_t _getWheelDelta(WPARAM wParam) const;
 
-        bool _mouseButtonPress( PointerButton button, LPARAM lParam );
-        bool _mouseButtonRelease( PointerButton button, LPARAM lParam );
-    };
+    bool _mouseButtonPress(PointerButton button, LPARAM lParam);
+    bool _mouseButtonRelease(PointerButton button, LPARAM lParam);
+};
 }
 }
 #endif // EQ_WGL_EVENTHANDLER_H

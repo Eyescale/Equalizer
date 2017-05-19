@@ -30,8 +30,8 @@
 #ifndef PLYLIB_VERTEXBUFFERNODE_H
 #define PLYLIB_VERTEXBUFFERNODE_H
 
-#include <triply/api.h>
 #include "vertexBufferBase.h"
+#include <triply/api.h>
 
 namespace triply
 {
@@ -41,33 +41,31 @@ class VertexBufferNode : public VertexBufferBase
 public:
     VertexBufferNode() {}
     virtual ~VertexBufferNode() {}
-
-    TRIPLY_API void draw( VertexBufferState& state ) const override;
+    TRIPLY_API void draw(VertexBufferState& state) const override;
     Index getNumberOfVertices() const override
-        { return _left->getNumberOfVertices() + _right->getNumberOfVertices(); }
+    {
+        return _left->getNumberOfVertices() + _right->getNumberOfVertices();
+    }
 
     const VertexBufferBase* getLeft() const override { return _left.get(); }
     const VertexBufferBase* getRight() const override { return _right.get(); }
     VertexBufferBase* getLeft() override { return _left.get(); }
     VertexBufferBase* getRight() override { return _right.get(); }
-
 protected:
-    TRIPLY_API void toStream( std::ostream& os ) override;
-    TRIPLY_API void fromMemory( char** addr, VertexBufferData& globalData )
-        final;
+    TRIPLY_API void toStream(std::ostream& os) override;
+    TRIPLY_API void fromMemory(char** addr, VertexBufferData& globalData) final;
 
-    TRIPLY_API void setupTree( VertexData& data, Index start, Index length,
-                               Axis axis, size_t depth,
-                               VertexBufferData& globalData,
-                               boost::progress_display& ) override;
+    TRIPLY_API void setupTree(VertexData& data, Index start, Index length,
+                              Axis axis, size_t depth,
+                              VertexBufferData& globalData,
+                              boost::progress_display&) override;
     TRIPLY_API const BoundingSphere& updateBoundingSphere() override;
     TRIPLY_API void updateRange() override;
     Type getType() const override { return Type::node; }
-
 private:
     friend class VertexBufferDist;
-    std::unique_ptr< VertexBufferBase > _left;
-    std::unique_ptr< VertexBufferBase > _right;
+    std::unique_ptr<VertexBufferBase> _left;
+    std::unique_ptr<VertexBufferBase> _right;
 };
 }
 #endif // PLYLIB_VERTEXBUFFERNODE_H

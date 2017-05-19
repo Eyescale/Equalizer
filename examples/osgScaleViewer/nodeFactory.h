@@ -43,25 +43,29 @@
 
 namespace osgScaleViewer
 {
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config* createConfig( eq::ServerPtr parent )
-        { return new Config( parent ); }
+    virtual eq::Config* createConfig(eq::ServerPtr parent)
+    {
+        return new Config(parent);
+    }
 
-    virtual eq::Node* createNode( eq::Config* parent )
-       { return new Node( parent ); }
+    virtual eq::Node* createNode(eq::Config* parent)
+    {
+        return new Node(parent);
+    }
 
-    virtual eq::Pipe* createPipe( eq::Node* parent )
-       { return new Pipe( parent ); }
+    virtual eq::Pipe* createPipe(eq::Node* parent) { return new Pipe(parent); }
+    virtual eq::Window* createWindow(eq::Pipe* parent)
+    {
+        return new Window(parent);
+    }
 
-    virtual eq::Window* createWindow( eq::Pipe* parent )
-        { return new Window( parent ); }
-
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new Channel( parent ); }
+    virtual eq::Channel* createChannel(eq::Window* parent)
+    {
+        return new Channel(parent);
+    }
 };
-
 }
 #endif // OSG_SV_NODEFACTORY_H

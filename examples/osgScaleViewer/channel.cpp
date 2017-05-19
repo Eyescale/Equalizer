@@ -1,6 +1,7 @@
 
 /*
- * Copyright (c) 2008-2016, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
+ * Copyright (c) 2008-2016, Thomas McGuire
+ * <thomas.mcguire@student.uni-siegen.de>
  *                          Stefan Eilemann <eile@eyescale.ch>
  *                          Sarah Amsellem <sarah.amsellem@gmail.com>
  *
@@ -42,81 +43,78 @@
 
 namespace osgScaleViewer
 {
-
-Channel::Channel( eq::Window* parent )
-    : eq::Channel( parent )
+Channel::Channel(eq::Window* parent)
+    : eq::Channel(parent)
 {
 }
 
-
-void Channel::frameClear( const eq::uint128_t& frameID )
+void Channel::frameClear(const eq::uint128_t& frameID)
 {
-    glEnable( GL_SCISSOR_TEST );
-    eq::Channel::frameClear( frameID );
+    glEnable(GL_SCISSOR_TEST);
+    eq::Channel::frameClear(frameID);
 }
 
-void Channel::frameDraw( const eq::uint128_t& frameID )
+void Channel::frameDraw(const eq::uint128_t& frameID)
 {
     // setup OpenGL State
-    eq::Channel::frameDraw( frameID );
+    eq::Channel::frameDraw(frameID);
 
     // - 2D viewport
-    Window *window = static_cast< Window* >( getWindow( ));
-    osg::ref_ptr< SceneView > view = window->getSceneView();
+    Window* window = static_cast<Window*>(getWindow());
+    osg::ref_ptr<SceneView> view = window->getSceneView();
 
     const eq::PixelViewport& pvp = getPixelViewport();
-    view->setViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+    view->setViewport(pvp.x, pvp.y, pvp.w, pvp.h);
 
     // - Stereo
-    view->setDrawBufferValue( getDrawBuffer( ));
+    view->setDrawBufferValue(getDrawBuffer());
     const eq::ColorMask& colorMask = getDrawBufferMask();
 
     osgUtil::RenderStage* stage = view->getRenderStage();
-    osg::ref_ptr< osg::ColorMask > osgMask = stage->getColorMask();
-    osgMask->setMask( colorMask.red, colorMask.green, colorMask.blue, true );
+    osg::ref_ptr<osg::ColorMask> osgMask = stage->getColorMask();
+    osgMask->setMask(colorMask.red, colorMask.green, colorMask.blue, true);
 
     // - Frustum (Projection matrix)
     const eq::Frustumf& frustum = getFrustum();
-    view->setProjectionMatrixAsFrustum(
-        frustum.left(), frustum.right(), frustum.bottom(), frustum.top(),
-        frustum.nearPlane(), frustum.farPlane( ));
+    view->setProjectionMatrixAsFrustum(frustum.left(), frustum.right(),
+                                       frustum.bottom(), frustum.top(),
+                                       frustum.nearPlane(), frustum.farPlane());
 
     // - Camera (Model Matrix)
-    const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
+    const Pipe* pipe = static_cast<const Pipe*>(getPipe());
     const FrameData& frameData = pipe->getFrameData();
 
     const eq::Vector3f position = frameData.getCameraPosition();
     const eq::Vector3f lookAt = frameData.getCameraLookAtPoint();
     const eq::Vector3f upVector = frameData.getCameraUpVector();
 
-    const osg::Vec3f pos( position.x(), position.y(), position.z( ));
-    const osg::Vec3f look( lookAt.x(), lookAt.y(), lookAt.z( ));
-    const osg::Vec3f up( upVector.x(), upVector.y(), upVector.z( ));
+    const osg::Vec3f pos(position.x(), position.y(), position.z());
+    const osg::Vec3f look(lookAt.x(), lookAt.y(), lookAt.z());
+    const osg::Vec3f up(upVector.x(), upVector.y(), upVector.z());
 
-    view->setViewMatrixAsLookAt( pos, look, up );
+    view->setViewMatrixAsLookAt(pos, look, up);
 
     // - Frustum position (View Matrix)
     osg::Matrix headView = view->getViewMatrix();
-    headView.postMult( vmmlToOsg( getHeadTransform( )));
-    view->setViewMatrix( headView );
+    headView.postMult(vmmlToOsg(getHeadTransform()));
+    view->setViewMatrix(headView);
 
     // - Render
     view->cull();
     view->draw();
 }
 
-void Channel::frameViewFinish( const eq::uint128_t& frameID )
+void Channel::frameViewFinish(const eq::uint128_t& frameID)
 {
-    const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
+    const Pipe* pipe = static_cast<const Pipe*>(getPipe());
     const FrameData& frameData = pipe->getFrameData();
-    if( frameData.useStatistics( ))
+    if (frameData.useStatistics())
     {
         applyBuffer();
         applyViewport();
         drawStatistics();
     }
 
-    eq::Channel::frameViewFinish( frameID );
+    eq::Channel::frameViewFinish(frameID);
 }
-
 }

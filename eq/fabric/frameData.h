@@ -33,8 +33,11 @@ namespace fabric
 class FrameData
 {
 public:
-    FrameData() : _frameType( Frame::TYPE_MEMORY ),
-                  _buffers( Frame::Buffer::none ) {}
+    FrameData()
+        : _frameType(Frame::TYPE_MEMORY)
+        , _buffers(Frame::Buffer::none)
+    {
+    }
 
     /**
      * Set the covered area for readbacks.
@@ -43,54 +46,42 @@ public:
      * together with the Frame offset to compute the area for the readback()
      * operation.
      */
-    void setPixelViewport( const PixelViewport& pvp ) { _pvp = pvp; }
-
+    void setPixelViewport(const PixelViewport& pvp) { _pvp = pvp; }
     /** @return the covered area for readbacks. */
     const PixelViewport& getPixelViewport() const { return _pvp; }
-
     /** Set the (color, depth) buffers of the source frame. */
-    void setBuffers( const Frame::Buffer buffers ) { _buffers = buffers; }
-
+    void setBuffers(const Frame::Buffer buffers) { _buffers = buffers; }
     /** Disable the usage of a frame buffer attachment for all images. */
-    void disableBuffer( const Frame::Buffer buffer ) { _buffers &= ~buffer; }
-
+    void disableBuffer(const Frame::Buffer buffer) { _buffers &= ~buffer; }
     /** @return the (color, depth) buffers of the source frame. */
     Frame::Buffer getBuffers() const { return _buffers; }
-
     /** Set the source context decomposition wrt dest channel. */
-    void setContext( const RenderContext& context ) { _context = context; }
-
+    void setContext(const RenderContext& context) { _context = context; }
     /** @return the source context decomposition wrt dest channel. */
     const RenderContext& getContext() const { return _context; }
     RenderContext& getContext() { return _context; }
-
     /** Set additional zoom for input frames. */
-    void setZoom( const Zoom& zoom ) { _zoom = zoom; }
-
+    void setZoom(const Zoom& zoom) { _zoom = zoom; }
     /** @return the additional zoom. */
     const Zoom& getZoom() const { return _zoom; }
-
     /**
      * Set the frame storage type.
      *
      * @param type frame storage type.
      */
-    void setType( const fabric::Frame::Type type ) { _frameType = type; }
-
+    void setType(const fabric::Frame::Type type) { _frameType = type; }
     /** @return the frame storage type. */
     Frame::Type getType() const { return _frameType; }
-
-    EQFABRIC_API void serialize( co::DataOStream& os ) const;
-    EQFABRIC_API void deserialize( co::DataIStream& is );
+    EQFABRIC_API void serialize(co::DataOStream& os) const;
+    EQFABRIC_API void deserialize(co::DataIStream& is);
 
 protected:
     PixelViewport _pvp;
     RenderContext _context; //<! source channel render context
-    Zoom          _zoom;
-    Frame::Type   _frameType;
+    Zoom _zoom;
+    Frame::Type _frameType;
     Frame::Buffer _buffers;
 };
-
 }
 }
 

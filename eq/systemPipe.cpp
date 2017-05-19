@@ -22,21 +22,19 @@
 
 namespace eq
 {
-
-SystemPipe::SystemPipe( Pipe* parent )
-    : _maxOpenGLVersion( fabric::AUTO )
-    , _pipe( parent )
+SystemPipe::SystemPipe(Pipe* parent)
+    : _maxOpenGLVersion(fabric::AUTO)
+    , _pipe(parent)
 {
-    LBASSERT( _pipe );
+    LBASSERT(_pipe);
 }
 
 SystemPipe::~SystemPipe()
 {
 }
 
-EventOCommand SystemPipe::sendError( const uint32_t error )
+EventOCommand SystemPipe::sendError(const uint32_t error)
 {
-    return _pipe->sendError( error );
+    return _pipe->sendError(error);
 }
-
 }

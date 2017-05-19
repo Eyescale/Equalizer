@@ -39,7 +39,7 @@ class Pipe : public SystemPipe
 {
 public:
     /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */
-    Pipe( eq::Pipe* parent );
+    Pipe(eq::Pipe* parent);
 
     /** Destroy the AGL pipe. @version 1.0 */
     virtual ~Pipe();
@@ -65,7 +65,6 @@ public:
 
     /** @return the CG display ID for this pipe. @version 1.0 */
     CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
-
 private:
     /** @name Data Access. */
     //@{
@@ -76,7 +75,7 @@ private:
      *
      * @param id the CG display ID for this pipe.
      */
-    void _setCGDisplayID( CGDirectDisplayID id );
+    void _setCGDisplayID(CGDirectDisplayID id);
     //@}
 
     /** Carbon display identifier. */

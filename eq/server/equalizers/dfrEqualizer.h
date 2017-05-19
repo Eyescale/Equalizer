@@ -19,7 +19,7 @@
 #define EQS_DFREQUALIZER_H
 
 #include "../channelListener.h" // base class
-#include "equalizer.h"       // base class
+#include "equalizer.h"          // base class
 
 #include <deque>
 #include <map>
@@ -28,40 +28,34 @@ namespace eq
 {
 namespace server
 {
-    std::ostream& operator << ( std::ostream& os, const DFREqualizer* );
+std::ostream& operator<<(std::ostream& os, const DFREqualizer*);
 
-    /** Tries to maintain a constant frame rate by adapting the compound zoom.*/
-    class DFREqualizer : public Equalizer, protected ChannelListener
-    {
-    public:
-        DFREqualizer();
-        virtual ~DFREqualizer();
-        void toStream( std::ostream& os ) const final { os << this; }
+/** Tries to maintain a constant frame rate by adapting the compound zoom.*/
+class DFREqualizer : public Equalizer, protected ChannelListener
+{
+public:
+    DFREqualizer();
+    virtual ~DFREqualizer();
+    void toStream(std::ostream& os) const final { os << this; }
+    /** @sa Equalizer::attach */
+    void attach(Compound* compound) final;
 
-        /** @sa Equalizer::attach */
-        void attach( Compound* compound ) final;
+    /** @sa CompoundListener::notifyUpdatePre */
+    void notifyUpdatePre(Compound* compound, const uint32_t frameNumber) final;
 
-        /** @sa CompoundListener::notifyUpdatePre */
-        void notifyUpdatePre( Compound* compound,
-                              const uint32_t frameNumber ) final;
+    /** @sa ChannelListener::notifyLoadData */
+    void notifyLoadData(Channel* channel, uint32_t frameNumber,
+                        const Statistics& statistics,
+                        const Viewport& region) final;
 
-        /** @sa ChannelListener::notifyLoadData */
-        void notifyLoadData( Channel* channel,
-                             uint32_t frameNumber,
-                             const Statistics& statistics,
-                             const Viewport& region ) final;
-
-        uint32_t getType() const final { return fabric::DFR_EQUALIZER; }
-
-    protected:
-        void notifyChildAdded( Compound*, Compound* ) override {}
-        void notifyChildRemove( Compound*, Compound* ) override {}
-
-    private:
-        float _current; //!< Framerate of the last finished frame
-        int64_t _lastTime; //!< Last frames' timestamp
-    };
-
+    uint32_t getType() const final { return fabric::DFR_EQUALIZER; }
+protected:
+    void notifyChildAdded(Compound*, Compound*) override {}
+    void notifyChildRemove(Compound*, Compound*) override {}
+private:
+    float _current;    //!< Framerate of the last finished frame
+    int64_t _lastTime; //!< Last frames' timestamp
+};
 }
 }
 

@@ -23,12 +23,11 @@ namespace eq
 {
 namespace util
 {
-
-AccumBufferObject::AccumBufferObject( const GLEWContext* glewContext )
-    : FrameBufferObject( glewContext )
-    , _texture( 0 )
-    , _pvp( 0, 0, 0, 0 )
-    , _previousFBO( 0 )
+AccumBufferObject::AccumBufferObject(const GLEWContext* glewContext)
+    : FrameBufferObject(glewContext)
+    , _texture(0)
+    , _pvp(0, 0, 0, 0)
+    , _previousFBO(0)
 {
 }
 
@@ -37,16 +36,15 @@ AccumBufferObject::~AccumBufferObject()
     exit();
 }
 
-bool AccumBufferObject::init( const PixelViewport& pvp,
-                              const GLuint textureFormat )
+bool AccumBufferObject::init(const PixelViewport& pvp,
+                             const GLuint textureFormat)
 {
     _pvp = pvp;
-    _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
-    _texture->init( textureFormat, pvp.w, pvp.h );
+    _texture = new Texture(GL_TEXTURE_RECTANGLE_ARB, glewGetContext());
+    _texture->init(textureFormat, pvp.w, pvp.h);
 
-    const Error error = FrameBufferObject::init( pvp.w, pvp.h,
-                                                 GL_RGBA32F, 0, 0 );
-    if( error )
+    const Error error = FrameBufferObject::init(pvp.w, pvp.h, GL_RGBA32F, 0, 0);
+    if (error)
     {
         LBDEBUG << "FrameBufferObject init failed: " << error << std::endl;
         exit();
@@ -59,7 +57,7 @@ bool AccumBufferObject::init( const PixelViewport& pvp,
 
 void AccumBufferObject::exit()
 {
-    if( _texture )
+    if (_texture)
         _texture->flush();
 
     delete _texture;
@@ -68,17 +66,17 @@ void AccumBufferObject::exit()
     FrameBufferObject::exit();
 }
 
-void AccumBufferObject::load( const GLfloat value )
+void AccumBufferObject::load(const GLfloat value)
 {
-    EQ_GL_ERROR( "before AccumBufferObject::load" );
-    _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
+    EQ_GL_ERROR("before AccumBufferObject::load");
+    _texture->copyFromFrameBuffer(_texture->getInternalFormat(), _pvp);
 
-    const PixelViewport pvp( 0, 0, getWidth(), getHeight( ));
-    _setup( pvp );
-    _drawQuadWithTexture( _texture, pvp, value );
+    const PixelViewport pvp(0, 0, getWidth(), getHeight());
+    _setup(pvp);
+    _drawQuadWithTexture(_texture, pvp, value);
     _reset();
 
-    EQ_GL_ERROR( "after AccumBufferObject::load" );
+    EQ_GL_ERROR("after AccumBufferObject::load");
 
 #if 0
     static a_int32_t i;
@@ -91,96 +89,95 @@ void AccumBufferObject::load( const GLfloat value )
 #endif
 }
 
-void AccumBufferObject::accum( const GLfloat value )
+void AccumBufferObject::accum(const GLfloat value)
 {
-    _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
+    _texture->copyFromFrameBuffer(_texture->getInternalFormat(), _pvp);
 
-    const PixelViewport pvp( 0, 0, getWidth(), getHeight( ));
-    _setup( pvp );
-    EQ_GL_CALL( glEnable( GL_BLEND ));
-    EQ_GL_CALL( glBlendFunc( GL_ONE, GL_ONE ));
+    const PixelViewport pvp(0, 0, getWidth(), getHeight());
+    _setup(pvp);
+    EQ_GL_CALL(glEnable(GL_BLEND));
+    EQ_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
 
-    _drawQuadWithTexture( _texture, pvp, value );
+    _drawQuadWithTexture(_texture, pvp, value);
 
-    EQ_GL_CALL( glBlendFunc( GL_ONE, GL_ZERO ));
-    EQ_GL_CALL( glDisable( GL_BLEND ));
+    EQ_GL_CALL(glBlendFunc(GL_ONE, GL_ZERO));
+    EQ_GL_CALL(glDisable(GL_BLEND));
     _reset();
 }
 
-void AccumBufferObject::display( const GLfloat value )
+void AccumBufferObject::display(const GLfloat value)
 {
-    _drawQuadWithTexture( getColorTextures()[0], _pvp, value );
+    _drawQuadWithTexture(getColorTextures()[0], _pvp, value);
 }
 
-bool AccumBufferObject::resize( const PixelViewport& pvp )
+bool AccumBufferObject::resize(const PixelViewport& pvp)
 {
-    if( _pvp == pvp )
+    if (_pvp == pvp)
         return false;
 
     _pvp = pvp;
-    return FrameBufferObject::resize( pvp.w, pvp.h );
+    return FrameBufferObject::resize(pvp.w, pvp.h);
 }
 
-void AccumBufferObject::_setup( const PixelViewport& pvp )
+void AccumBufferObject::_setup(const PixelViewport& pvp)
 {
-    EQ_GL_CALL( glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, &_previousFBO ));
+    EQ_GL_CALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &_previousFBO));
     bind();
-    EQ_GL_CALL( glPushAttrib( GL_SCISSOR_BIT | GL_VIEWPORT_BIT |
-                              GL_TRANSFORM_BIT ));
-    EQ_GL_CALL( glMatrixMode(GL_PROJECTION));
-    EQ_GL_CALL( glPushMatrix());
-    EQ_GL_CALL( glLoadIdentity());
-    EQ_GL_CALL( glOrtho(0, pvp.w, 0, pvp.h, -1, 1));
-    EQ_GL_CALL( glScissor(0, 0, pvp.w, pvp.h));
-    EQ_GL_CALL( glViewport(0, 0, pvp.w, pvp.h));
+    EQ_GL_CALL(
+        glPushAttrib(GL_SCISSOR_BIT | GL_VIEWPORT_BIT | GL_TRANSFORM_BIT));
+    EQ_GL_CALL(glMatrixMode(GL_PROJECTION));
+    EQ_GL_CALL(glPushMatrix());
+    EQ_GL_CALL(glLoadIdentity());
+    EQ_GL_CALL(glOrtho(0, pvp.w, 0, pvp.h, -1, 1));
+    EQ_GL_CALL(glScissor(0, 0, pvp.w, pvp.h));
+    EQ_GL_CALL(glViewport(0, 0, pvp.w, pvp.h));
 }
 
 void AccumBufferObject::_reset()
 {
-    EQ_GL_CALL( glMatrixMode(GL_PROJECTION));
-    EQ_GL_CALL( glPopMatrix());
-    EQ_GL_CALL( glPopAttrib());
-    EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _previousFBO ));
+    EQ_GL_CALL(glMatrixMode(GL_PROJECTION));
+    EQ_GL_CALL(glPopMatrix());
+    EQ_GL_CALL(glPopAttrib());
+    EQ_GL_CALL(glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _previousFBO));
 }
 
-void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
-                                              const PixelViewport& pvp,
-                                              const GLfloat value )
+void AccumBufferObject::_drawQuadWithTexture(Texture* texture,
+                                             const PixelViewport& pvp,
+                                             const GLfloat value)
 {
     texture->bind();
 
-    EQ_GL_CALL( glDepthMask( false ));
-    EQ_GL_CALL( glDisable( GL_LIGHTING ));
-    EQ_GL_CALL( glEnable( GL_TEXTURE_RECTANGLE_ARB ));
-    EQ_GL_CALL( glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ));
+    EQ_GL_CALL(glDepthMask(false));
+    EQ_GL_CALL(glDisable(GL_LIGHTING));
+    EQ_GL_CALL(glEnable(GL_TEXTURE_RECTANGLE_ARB));
+    EQ_GL_CALL(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
     texture->applyWrap();
-    texture->applyZoomFilter( FILTER_NEAREST );
+    texture->applyZoomFilter(FILTER_NEAREST);
 
-    EQ_GL_CALL( glColor4f( value, value, value, value ));
+    EQ_GL_CALL(glColor4f(value, value, value, value));
 
-    const float startX = static_cast< float >( pvp.x );
-    const float endX   = static_cast< float >( pvp.x + pvp.w );
-    const float startY = static_cast< float >( pvp.y );
-    const float endY   = static_cast< float >( pvp.y + pvp.h );
+    const float startX = static_cast<float>(pvp.x);
+    const float endX = static_cast<float>(pvp.x + pvp.w);
+    const float startY = static_cast<float>(pvp.y);
+    const float endY = static_cast<float>(pvp.y + pvp.h);
 
-    glBegin( GL_QUADS );
-        glTexCoord2f( 0.0f, 0.0f );
-        glVertex3f( startX, startY, 0.0f );
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(startX, startY, 0.0f);
 
-        glTexCoord2f( static_cast< float >( pvp.w ), 0.0f );
-        glVertex3f( endX, startY, 0.0f );
+    glTexCoord2f(static_cast<float>(pvp.w), 0.0f);
+    glVertex3f(endX, startY, 0.0f);
 
-        glTexCoord2f( static_cast<float>( pvp.w ), static_cast<float>( pvp.h ));
-        glVertex3f( endX, endY, 0.0f );
+    glTexCoord2f(static_cast<float>(pvp.w), static_cast<float>(pvp.h));
+    glVertex3f(endX, endY, 0.0f);
 
-        glTexCoord2f( 0.0f, static_cast< float >( pvp.h ));
-        glVertex3f( startX, endY, 0.0f );
+    glTexCoord2f(0.0f, static_cast<float>(pvp.h));
+    glVertex3f(startX, endY, 0.0f);
     glEnd();
 
     // restore state
-    EQ_GL_CALL( glDisable( GL_TEXTURE_RECTANGLE_ARB ));
-    EQ_GL_CALL( glDepthMask( true ));
+    EQ_GL_CALL(glDisable(GL_TEXTURE_RECTANGLE_ARB));
+    EQ_GL_CALL(glDepthMask(true));
 }
-
 }
 }

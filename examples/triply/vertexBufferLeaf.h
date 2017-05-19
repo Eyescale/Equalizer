@@ -38,38 +38,40 @@ namespace triply
 class VertexBufferLeaf : public VertexBufferBase
 {
 public:
-    explicit VertexBufferLeaf( VertexBufferData& data )
-        : _globalData( data ), _vertexStart( 0 ), _indexStart( 0 )
-        , _indexLength( 0 ), _vertexLength( 0 ) {}
+    explicit VertexBufferLeaf(VertexBufferData& data)
+        : _globalData(data)
+        , _vertexStart(0)
+        , _indexStart(0)
+        , _indexLength(0)
+        , _vertexLength(0)
+    {
+    }
     virtual ~VertexBufferLeaf() {}
-
-    virtual void draw( VertexBufferState& state ) const;
+    virtual void draw(VertexBufferState& state) const;
     virtual Index getNumberOfVertices() const { return _indexLength; }
-
 protected:
-    void toStream( std::ostream& os ) final;
-    void fromMemory( char** addr, VertexBufferData& globalData ) final;
+    void toStream(std::ostream& os) final;
+    void fromMemory(char** addr, VertexBufferData& globalData) final;
 
-    void setupTree( VertexData& data, Index start, Index length, Axis axis,
-                    size_t depth, VertexBufferData& globalData,
-                    boost::progress_display& ) final;
+    void setupTree(VertexData& data, Index start, Index length, Axis axis,
+                   size_t depth, VertexBufferData& globalData,
+                   boost::progress_display&) final;
     const BoundingSphere& updateBoundingSphere() final;
     void updateRange() final;
     Type getType() const final { return Type::leaf; }
-
 private:
-    void setupRendering( VertexBufferState& state, GLuint* data ) const;
-    void renderImmediate( VertexBufferState& state ) const;
-    void renderDisplayList( VertexBufferState& state ) const;
-    void renderBufferObject( VertexBufferState& state ) const;
+    void setupRendering(VertexBufferState& state, GLuint* data) const;
+    void renderImmediate(VertexBufferState& state) const;
+    void renderDisplayList(VertexBufferState& state) const;
+    void renderBufferObject(VertexBufferState& state) const;
 
     friend class VertexBufferDist;
-    VertexBufferData&   _globalData;
-    BoundingBox         _boundingBox;
-    Index               _vertexStart;
-    Index               _indexStart;
-    Index               _indexLength;
-    ShortIndex          _vertexLength;
+    VertexBufferData& _globalData;
+    BoundingBox _boundingBox;
+    Index _vertexStart;
+    Index _indexStart;
+    Index _indexLength;
+    ShortIndex _vertexLength;
 };
 }
 

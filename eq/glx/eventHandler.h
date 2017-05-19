@@ -19,8 +19,8 @@
 #ifndef EQ_GLX_EVENTHANDLER_H
 #define EQ_GLX_EVENTHANDLER_H
 
-#include <eq/glx/types.h>
 #include <eq/eventHandler.h> // base class
+#include <eq/glx/types.h>
 #include <eq/types.h>
 
 #include <lunchbox/thread.h> // thread-safety macro
@@ -34,7 +34,7 @@ class EventHandler : public eq::EventHandler
 {
 public:
     /** Construct a new glX event handler. @version 1.0 */
-    EventHandler( WindowIF* window );
+    EventHandler(WindowIF* window);
 
     /** Destruct the glX event handler. @version 1.0 */
     virtual ~EventHandler();
@@ -54,9 +54,9 @@ private:
     bool _magellanUsed; //!< Window registered with spnav
 
     void _dispatch();
-    bool _processEvent( const XEvent& event );
+    bool _processEvent(const XEvent& event);
 
-    LB_TS_VAR( _thread );
+    LB_TS_VAR(_thread);
 };
 }
 }

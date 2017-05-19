@@ -25,7 +25,7 @@
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
 
-#include <pression/compressorResult.h>          // member
+#include <pression/compressorResult.h> // member
 
 namespace eq
 {
@@ -36,7 +36,7 @@ struct PixelData
     EQ_API PixelData();
 
     /** Copy-construct new pixel data. @version 2.1 */
-    EQ_API PixelData( const PixelData& rhs );
+    EQ_API PixelData(const PixelData& rhs);
 
     /** Destruct the pixel data. @version 1.0 */
     EQ_API ~PixelData();
@@ -96,9 +96,8 @@ struct PixelData
     uint32_t compressorFlags; //!< Flags used for compression. @version 1.0
 
 private:
-    PixelData& operator=( const PixelData& ) = delete;
+    PixelData& operator=(const PixelData&) = delete;
 };
-
 }
 
 #endif // EQ_PIXELDATA_H

@@ -22,7 +22,6 @@
 
 namespace eq
 {
-
 /**
  * The result image listener gets notified on new images produced by
  * destination channels.
@@ -35,10 +34,8 @@ class ResultImageListener
 public:
     /** Construct a new result image listener. @version 1.9 */
     ResultImageListener() {}
-
     /** Destruct the result image listener. @version 1.9 */
     virtual ~ResultImageListener() {}
-
     /**
      * Notify on new image, called from rendering thread in
      * Channel::frameViewFinish().
@@ -47,16 +44,15 @@ public:
      * @param image the new image, valid only in the current frame
      * @version 1.9
      */
-    virtual void notifyNewImage( Channel& channel, const Image& image ) = 0;
+    virtual void notifyNewImage(Channel& channel, const Image& image) = 0;
 
     /** Notify on completion of a frame. */
-    virtual void notifyFinishFrame() { /*nop*/ }
+    virtual void notifyFinishFrame() { /*nop*/}
 
 private:
-    ResultImageListener( const ResultImageListener& ) = delete;
-    ResultImageListener& operator=( const ResultImageListener& ) = delete;
+    ResultImageListener(const ResultImageListener&) = delete;
+    ResultImageListener& operator=(const ResultImageListener&) = delete;
 };
-
 }
 
 #endif // EQ_RESULTIMAGELISTENER_H

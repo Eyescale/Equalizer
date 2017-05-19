@@ -24,14 +24,14 @@
 namespace eq
 {
 /** A statistics sampler for window-related events. */
-class WindowStatistics : public StatisticSampler< Window >
+class WindowStatistics : public StatisticSampler<Window>
 {
 public:
     /**
      * Construct a statistics sampler and sample the start time.
      * @version 1.0
      */
-    WindowStatistics( const Statistic::Type type, Window* window );
+    WindowStatistics(const Statistic::Type type, Window* window);
 
     /**
      * Destruct the sampler, sample the end time and send the event.

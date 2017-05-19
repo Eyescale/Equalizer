@@ -20,16 +20,19 @@
 #ifndef EQ_FRAMEDATA_H
 #define EQ_FRAMEDATA_H
 
-#include <eq/frame.h>         // enum Frame::Buffer
-#include <eq/types.h>
+#include <co/object.h>           // base class
 #include <eq/fabric/frameData.h> // base class
-#include <co/object.h>               // base class
-#include <lunchbox/monitor.h>        // member
-#include <lunchbox/spinLock.h>       // member
+#include <eq/frame.h>            // enum Frame::Buffer
+#include <eq/types.h>
+#include <lunchbox/monitor.h>  // member
+#include <lunchbox/spinLock.h> // member
 
 namespace eq
 {
-namespace detail { class FrameData; }
+namespace detail
+{
+class FrameData;
+}
 
 /**
  * A holder for multiple images.
@@ -46,21 +49,22 @@ namespace detail { class FrameData; }
  * Parameters set on an Equalizer output frame data are automatically
  * transported to the corresponding input frames.
  */
-class FrameData : public fabric::FrameData, public co::Object,
+class FrameData : public fabric::FrameData,
+                  public co::Object,
                   public lunchbox::Referenced
 {
 public:
-    void assembleFrame( Frame* frame, Channel* channel );
+    void assembleFrame(Frame* frame, Channel* channel);
     struct ImageHeader
     {
-        uint32_t                internalFormat;
-        uint32_t                externalFormat;
-        uint32_t                pixelSize;
-        fabric::PixelViewport   pvp;
-        uint32_t                compressorName;
-        uint32_t                compressorFlags;
-        uint32_t                nChunks;
-        float                   quality;
+        uint32_t internalFormat;
+        uint32_t externalFormat;
+        uint32_t pixelSize;
+        fabric::PixelViewport pvp;
+        uint32_t compressorName;
+        uint32_t compressorFlags;
+        uint32_t nChunks;
+        float quality;
     };
 
     /** Construct a new frame data holder. @version 1.0 */
@@ -81,7 +85,7 @@ public:
      * plugins which drop the alpha channel for better performance.
      * @version 1.0
      */
-    EQ_API void setAlphaUsage( const bool useAlpha );
+    EQ_API void setAlphaUsage(const bool useAlpha);
 
     /**
      * Set the minimum quality after download and compression.
@@ -92,7 +96,7 @@ public:
      * provides lossless image compositing.
      * @version 1.0
      */
-    void setQuality( const Frame::Buffer buffer, const float quality );
+    void setQuality(const Frame::Buffer buffer, const float quality);
 
     /**
      * Sets a compressor which will be allocated and used during transmit of
@@ -104,7 +108,7 @@ public:
      * @param buffer the frame buffer attachment.
      * @param name the compressor name.
      */
-    void useCompressor( const Frame::Buffer buffer, const uint32_t name );
+    void useCompressor(const Frame::Buffer buffer, const uint32_t name);
     //@}
 
     /** @name Operations */
@@ -119,8 +123,8 @@ public:
      * @return the image.
      * @version 1.0
      */
-    EQ_API Image* newImage( const Frame::Type type,
-                            const DrawableConfig& config );
+    EQ_API Image* newImage(const Frame::Type type,
+                           const DrawableConfig& config);
 
     /** Clear the frame by recycling the attached images. @version 1.0 */
     EQ_API void clear();
@@ -129,7 +133,7 @@ public:
     EQ_API void flush();
 
     /** Delete data allocated by the given object manager on all images.*/
-    void deleteGLObjects( util::ObjectManager& om );
+    void deleteGLObjects(util::ObjectManager& om);
 
     /** Deallocate all transfer and compression plugins on all images. */
     EQ_API void resetPlugins();
@@ -148,11 +152,10 @@ public:
      * @return the new images which need finishReadback.
      * @version 1.3.0
      */
-    Images startReadback( const Frame& frame,
-                          util::ObjectManager& glObjects,
-                          const DrawableConfig& config,
-                          const PixelViewports& regions,
-                          const RenderContext& context );
+    Images startReadback(const Frame& frame, util::ObjectManager& glObjects,
+                         const DrawableConfig& config,
+                         const PixelViewports& regions,
+                         const RenderContext& context);
 
     /**
      * Set the frame data ready.
@@ -167,13 +170,12 @@ public:
     EQ_API bool isReady() const;
 
     /** Wait for the frame data to become available. @version 1.0 */
-    EQ_API void waitReady( const uint32_t timeout = LB_TIMEOUT_INDEFINITE )
-        const;
+    EQ_API void waitReady(const uint32_t timeout = LB_TIMEOUT_INDEFINITE) const;
 
     /** @internal */
-    void setVersion( const uint64_t version );
+    void setVersion(const uint64_t version);
 
-    typedef lunchbox::Monitor< uint32_t > Listener; //!< Ready listener
+    typedef lunchbox::Monitor<uint32_t> Listener; //!< Ready listener
 
     /**
      * Add a ready listener.
@@ -184,7 +186,7 @@ public:
      * @param listener the listener.
      * @version 1.0
      */
-    void addListener( Listener& listener );
+    void addListener(Listener& listener);
 
     /**
      * Remove a frame listener.
@@ -192,41 +194,40 @@ public:
      * @param listener the listener.
      * @version 1.0
      */
-    void removeListener( Listener& listener );
+    void removeListener(Listener& listener);
     //@}
 
     /** @internal */
-    bool addImage( const co::ObjectVersion& frameDataVersion,
-                   const PixelViewport& pvp, const Zoom& zoom,
-                   const RenderContext& context, const Frame::Buffer buffers,
-                   const bool useAlpha, uint8_t* data );
-    void setReady( const co::ObjectVersion& frameData,
-                   const fabric::FrameData& data ); //!< @internal
+    bool addImage(const co::ObjectVersion& frameDataVersion,
+                  const PixelViewport& pvp, const Zoom& zoom,
+                  const RenderContext& context, const Frame::Buffer buffers,
+                  const bool useAlpha, uint8_t* data);
+    void setReady(const co::ObjectVersion& frameData,
+                  const fabric::FrameData& data); //!< @internal
 
 protected:
     virtual ChangeType getChangeType() const { return INSTANCE; }
-    virtual void getInstanceData( co::DataOStream& os );
-    virtual void applyInstanceData( co::DataIStream& is );
+    virtual void getInstanceData(co::DataOStream& os);
+    virtual void applyInstanceData(co::DataIStream& is);
 
 private:
     detail::FrameData* const _impl;
 
     /** Allocate or reuse an image. */
-    Image* _allocImage( const Frame::Type type,
-                        const DrawableConfig& config,
-                        const bool setQuality );
+    Image* _allocImage(const Frame::Type type, const DrawableConfig& config,
+                       const bool setQuality);
 
     /** Apply all received images of the given version. */
-    void _applyVersion( const uint128_t& version );
+    void _applyVersion(const uint128_t& version);
 
     /** Set a specific version ready. */
-    void _setReady( const uint64_t version );
+    void _setReady(const uint64_t version);
 
-    LB_TS_VAR( _commandThread );
+    LB_TS_VAR(_commandThread);
 };
 
 /** Print the frame data to the given output stream. @version 1.4 */
-EQ_API std::ostream& operator << ( std::ostream&, const FrameData& );
+EQ_API std::ostream& operator<<(std::ostream&, const FrameData&);
 }
 
 #endif // EQ_FRAMEDATA_H

@@ -28,22 +28,21 @@ namespace eq
 namespace fabric
 {
 /** Base data transport class for pipes. @sa eq::Pipe */
-template< class N, class P, class W, class V > class Pipe : public Object
+template <class N, class P, class W, class V>
+class Pipe : public Object
 {
 public:
     /** A vector of pointers to windows. @version 1.0 */
-    typedef std::vector< W* >  Windows;
+    typedef std::vector<W*> Windows;
 
     /** @name Data Access */
     //@{
     /** @return the parent node of this pipe. @version 1.0 */
-    N*       getNode()       { return _node; }
+    N* getNode() { return _node; }
     /** @return the parent node of this pipe. @version 1.0 */
     const N* getNode() const { return _node; }
-
     /** @return the vector of child windows. @version 1.0 */
     const Windows& getWindows() const { return _windows; }
-
     /**
      * Returns the port number of this pipe.
      *
@@ -55,8 +54,7 @@ public:
      * @version 1.0
      */
     uint32_t getPort() const { return _port; }
-
-    EQFABRIC_INL void setPort( const uint32_t port ); //!< @internal
+    EQFABRIC_INL void setPort(const uint32_t port); //!< @internal
 
     /**
      * Returns the device number of this pipe.
@@ -70,12 +68,10 @@ public:
      * @version 1.0
      */
     uint32_t getDevice() const { return _device; }
-
-    EQFABRIC_INL void setDevice( const uint32_t device ); //!< @internal
+    EQFABRIC_INL void setDevice(const uint32_t device); //!< @internal
 
     /** @return the pixel viewport. @version 1.0 */
     const PixelViewport& getPixelViewport() const { return _data.pvp; }
-
     /**
      * Set the pipe's pixel viewport.
      *
@@ -85,7 +81,7 @@ public:
      * @param pvp the viewport in pixels.
      * @version 1.0
      */
-    EQFABRIC_INL void setPixelViewport( const PixelViewport& pvp );
+    EQFABRIC_INL void setPixelViewport(const PixelViewport& pvp);
 
     /** @internal Notify this pipe that the viewport has changed. */
     void notifyPixelViewportChanged();
@@ -100,10 +96,10 @@ public:
      * @return the result of the visitor traversal.
      * @version 1.0
      */
-    EQFABRIC_INL VisitorResult accept( V& visitor );
+    EQFABRIC_INL VisitorResult accept(V& visitor);
 
     /** Const-version of accept(). @version 1.0 */
-    EQFABRIC_INL VisitorResult accept( V& visitor ) const;
+    EQFABRIC_INL VisitorResult accept(V& visitor) const;
     //@}
 
     /** @name Attributes */
@@ -119,73 +115,68 @@ public:
     };
 
     /** @internal Set a pipe attribute. */
-    EQFABRIC_INL void setIAttribute( const IAttribute attr,
-                                     const int32_t value );
+    EQFABRIC_INL void setIAttribute(const IAttribute attr, const int32_t value);
 
     /** @return the value of a pipe integer attribute. @version 1.0 */
-    int32_t getIAttribute( const IAttribute attr ) const
-    { return _iAttributes[attr]; }
+    int32_t getIAttribute(const IAttribute attr) const
+    {
+        return _iAttributes[attr];
+    }
 
     /** @internal @return true if tasks are executed in a separate thread.*/
-    bool isThreaded() const
-    { return (getIAttribute( IATTR_HINT_THREAD ) == 1 ); }
-
+    bool isThreaded() const { return (getIAttribute(IATTR_HINT_THREAD) == 1); }
     /** @internal @return the name of a pipe attribute. */
     EQFABRIC_INL static const std::string& getIAttributeString(
-        const IAttribute attr );
+        const IAttribute attr);
     //@}
 
     /** @name internal */
     //@{
-    EQFABRIC_INL virtual void backup(); //!< @internal
-    EQFABRIC_INL virtual void restore(); //!< @internal
-    void create( W** window ); //!< @internal
-    void release( W* window ); //!< @internal
-    virtual void output( std::ostream& ) const {} //!< @internal
+    EQFABRIC_INL virtual void backup();         //!< @internal
+    EQFABRIC_INL virtual void restore();        //!< @internal
+    void create(W** window);                    //!< @internal
+    void release(W* window);                    //!< @internal
+    virtual void output(std::ostream&) const {} //!< @internal
     /** @internal */
-    EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation =
-                                           CO_COMMIT_NEXT );
+    EQFABRIC_INL virtual uint128_t commit(
+        const uint32_t incarnation = CO_COMMIT_NEXT);
     //@}
 
 protected:
     /** @internal Construct a new pipe. */
-    explicit Pipe( N* parent );
-    EQFABRIC_INL virtual ~Pipe( ); //!< @internal
+    explicit Pipe(N* parent);
+    EQFABRIC_INL virtual ~Pipe(); //!< @internal
 
-    virtual void attach( const uint128_t& id,
-                         const uint32_t instanceID ); //!< @internal
+    virtual void attach(const uint128_t& id,
+                        const uint32_t instanceID); //!< @internal
     /** @internal */
-    EQFABRIC_INL virtual void serialize( co::DataOStream& os,
-                                         const uint64_t dirtyBits );
+    EQFABRIC_INL virtual void serialize(co::DataOStream& os,
+                                        const uint64_t dirtyBits);
     /** @internal */
-    EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
-                                           const uint64_t dirtyBits );
+    EQFABRIC_INL virtual void deserialize(co::DataIStream& is,
+                                          const uint64_t dirtyBits);
 
     EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
     /** @internal @sa Serializable::setDirty() */
-    EQFABRIC_INL virtual void setDirty( const uint64_t bits );
+    EQFABRIC_INL virtual void setDirty(const uint64_t bits);
 
     /** @internal */
     virtual ChangeType getChangeType() const { return UNBUFFERED; }
-
-    W* _findWindow( const uint128_t& id ); //!< @internal
+    W* _findWindow(const uint128_t& id); //!< @internal
 
     enum DirtyBits
     {
-        DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-        DIRTY_WINDOWS         = Object::DIRTY_CUSTOM << 1,
-        DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 2,
-        DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 3,
-        DIRTY_PIPE_BITS =
-        DIRTY_ATTRIBUTES | DIRTY_WINDOWS | DIRTY_PIXELVIEWPORT |
-        DIRTY_MEMBER | DIRTY_OBJECT_BITS
+        DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
+        DIRTY_WINDOWS = Object::DIRTY_CUSTOM << 1,
+        DIRTY_PIXELVIEWPORT = Object::DIRTY_CUSTOM << 2,
+        DIRTY_MEMBER = Object::DIRTY_CUSTOM << 3,
+        DIRTY_PIPE_BITS = DIRTY_ATTRIBUTES | DIRTY_WINDOWS |
+                          DIRTY_PIXELVIEWPORT | DIRTY_MEMBER | DIRTY_OBJECT_BITS
     };
 
     /** @internal @return the bits to be re-committed by the master. */
-    virtual uint64_t getRedistributableBits() const
-        { return DIRTY_PIPE_BITS; }
-
+    virtual uint64_t getRedistributableBits() const { return DIRTY_PIPE_BITS; }
 private:
     /** The parent node. */
     N* const _node;
@@ -206,26 +197,25 @@ private:
     {
         /** The size (and location) of the pipe. */
         PixelViewport pvp;
-    }
-        _data, _backup;
+    } _data, _backup;
 
     struct Private;
     Private* _private; // placeholder for binary-compatible changes
 
-    void _addWindow( W* window );
-    EQFABRIC_INL bool _removeWindow( W* window );
-    template< class, class, class, class > friend class Window;
+    void _addWindow(W* window);
+    EQFABRIC_INL bool _removeWindow(W* window);
+    template <class, class, class, class>
+    friend class Window;
 
     /** @internal */
     bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
-
-    typedef co::CommandFunc< Pipe< N, P, W, V > > CmdFunc;
-    bool _cmdNewWindow( co::ICommand& command );
-    bool _cmdNewWindowReply( co::ICommand& command );
+    typedef co::CommandFunc<Pipe<N, P, W, V>> CmdFunc;
+    bool _cmdNewWindow(co::ICommand& command);
+    bool _cmdNewWindowReply(co::ICommand& command);
 };
 
-template< class N, class P, class W, class V > EQFABRIC_INL
-std::ostream& operator << ( std::ostream&, const Pipe< N, P, W, V >& );
+template <class N, class P, class W, class V>
+EQFABRIC_INL std::ostream& operator<<(std::ostream&, const Pipe<N, P, W, V>&);
 }
 }
 

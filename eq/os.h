@@ -35,95 +35,105 @@
 
 /** @cond IGNORE */
 #ifdef GLX
-#  include <X11/Xlib.h>
-#  include <GL/glx.h>
-#  ifndef GLX_SAMPLE_BUFFERS
-#    define GLX_SAMPLE_BUFFERS 100000
-#  endif
-#  ifndef GLX_SAMPLES
-#    define GLX_SAMPLES 100001
-#  endif
+#include <GL/glx.h>
+#include <X11/Xlib.h>
+#ifndef GLX_SAMPLE_BUFFERS
+#define GLX_SAMPLE_BUFFERS 100000
+#endif
+#ifndef GLX_SAMPLES
+#define GLX_SAMPLES 100001
+#endif
 #endif
 
 #ifdef _WIN32
 #ifndef _WIN32_WINNT
-#  define _WIN32_WINNT 0x501 // XP
+#define _WIN32_WINNT 0x501 // XP
 #endif
 #endif
 
 #ifdef AGL
-#  ifdef __LP64__ // AGL is not supported in 64 bit
-#    undef AGL
-#  else
-#    define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
-#    include <ApplicationServices/ApplicationServices.h>
-#    include <AGL/agl.h>
-#    include <Carbon/Carbon.h>
-#    define EQ_AGL_MENUBARHEIGHT 22
-#    ifdef check // undo global namespace pollution (AssertMacros.h)
-#      undef check
-#    endif
-#  endif
+#ifdef __LP64__ // AGL is not supported in 64 bit
+#undef AGL
+#else
+#define Cursor CGLCursor // avoid name clash with X11 'Cursor'
+#include <AGL/agl.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <Carbon/Carbon.h>
+#define EQ_AGL_MENUBARHEIGHT 22
+#ifdef check // undo global namespace pollution (AssertMacros.h)
+#undef check
+#endif
+#endif
 #endif
 
 #ifdef WGL
-#  include <wingdi.h>
+#include <wingdi.h>
 
-#  ifndef WGL_NV_gpu_affinity
-#    define WGL_NV_gpu_affinity 1
+#ifndef WGL_NV_gpu_affinity
+#define WGL_NV_gpu_affinity 1
 DECLARE_HANDLE(HGPUNV);
-typedef struct _GPU_DEVICE {
-    DWORD  cb;
-    CHAR   DeviceName[32];
-    CHAR   DeviceString[128];
-    DWORD  Flags;
-    RECT   rcVirtualScreen;
+typedef struct _GPU_DEVICE
+{
+    DWORD cb;
+    CHAR DeviceName[32];
+    CHAR DeviceString[128];
+    DWORD Flags;
+    RECT rcVirtualScreen;
 } GPU_DEVICE, *PGPU_DEVICE;
 
-#    ifdef WGL_WGLEXT_PROTOTYPES
-extern BOOL WINAPI wglEnumGpusNV (UINT iIndex, HGPUNV *hGpu);
-extern BOOL WINAPI wglEnumGpuDevicesNV (HGPUNV hGpu, UINT iIndex, PGPU_DEVICE pGpuDevice);
-extern HDC WINAPI wglCreateAffinityDCNV (const HGPUNV *pGpuList);
-extern BOOL WINAPI wglEnumGpusFromAffinityDCNV (HDC hAffinityDC, UINT iIndex, HGPUNV *hGpu);
-extern BOOL WINAPI wglDeleteDCNV (HDC hAffinityDC);
-#    else
-typedef BOOL (WINAPI * PFNWGLENUMGPUSNVPROC) (UINT iIndex, HGPUNV *hGpu);
-typedef BOOL (WINAPI * PFNWGLENUMGPUDEVICESNVPROC) (HGPUNV hGpu, UINT iIndex, PGPU_DEVICE pGpuDevice);
-typedef HDC (WINAPI * PFNWGLCREATEAFFINITYDCNVPROC) (const HGPUNV *pGpuList);
-typedef BOOL (WINAPI * PFNWGLENUMGPUSFROMAFFINITYDCNVPROC) (HDC hAffinityDC, UINT iIndex, HGPUNV *hGpu);
-typedef BOOL (WINAPI * PFNWGLDELETEDCNVPROC) (HDC hAffinityDC);
-#    endif // WGL_WGLEXT_PROTOTYPES
-#  endif // WGL_NV_gpu_affinity
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglEnumGpusNV(UINT iIndex, HGPUNV* hGpu);
+extern BOOL WINAPI wglEnumGpuDevicesNV(HGPUNV hGpu, UINT iIndex,
+                                       PGPU_DEVICE pGpuDevice);
+extern HDC WINAPI wglCreateAffinityDCNV(const HGPUNV* pGpuList);
+extern BOOL WINAPI wglEnumGpusFromAffinityDCNV(HDC hAffinityDC, UINT iIndex,
+                                               HGPUNV* hGpu);
+extern BOOL WINAPI wglDeleteDCNV(HDC hAffinityDC);
+#else
+typedef BOOL(WINAPI* PFNWGLENUMGPUSNVPROC)(UINT iIndex, HGPUNV* hGpu);
+typedef BOOL(WINAPI* PFNWGLENUMGPUDEVICESNVPROC)(HGPUNV hGpu, UINT iIndex,
+                                                 PGPU_DEVICE pGpuDevice);
+typedef HDC(WINAPI* PFNWGLCREATEAFFINITYDCNVPROC)(const HGPUNV* pGpuList);
+typedef BOOL(WINAPI* PFNWGLENUMGPUSFROMAFFINITYDCNVPROC)(HDC hAffinityDC,
+                                                         UINT iIndex,
+                                                         HGPUNV* hGpu);
+typedef BOOL(WINAPI* PFNWGLDELETEDCNVPROC)(HDC hAffinityDC);
+#endif // WGL_WGLEXT_PROTOTYPES
+#endif // WGL_NV_gpu_affinity
 
 #ifndef WGL_ARB_pbuffer
-#   define WGL_ARB_pbuffer 1
+#define WGL_ARB_pbuffer 1
 
-#   define WGL_DRAW_TO_PBUFFER_ARB 0x202D
-#   define WGL_MAX_PBUFFER_PIXELS_ARB 0x202E
-#   define WGL_MAX_PBUFFER_WIDTH_ARB 0x202F
-#   define WGL_MAX_PBUFFER_HEIGHT_ARB 0x2030
-#   define WGL_PBUFFER_LARGEST_ARB 0x2033
-#   define WGL_PBUFFER_WIDTH_ARB 0x2034
-#   define WGL_PBUFFER_HEIGHT_ARB 0x2035
-#   define WGL_PBUFFER_LOST_ARB 0x2036
+#define WGL_DRAW_TO_PBUFFER_ARB 0x202D
+#define WGL_MAX_PBUFFER_PIXELS_ARB 0x202E
+#define WGL_MAX_PBUFFER_WIDTH_ARB 0x202F
+#define WGL_MAX_PBUFFER_HEIGHT_ARB 0x2030
+#define WGL_PBUFFER_LARGEST_ARB 0x2033
+#define WGL_PBUFFER_WIDTH_ARB 0x2034
+#define WGL_PBUFFER_HEIGHT_ARB 0x2035
+#define WGL_PBUFFER_LOST_ARB 0x2036
 
 DECLARE_HANDLE(HPBUFFERARB);
 
-typedef HPBUFFERARB (WINAPI * PFNWGLCREATEPBUFFERARBPROC) (HDC hDC, int iPixelFormat, int iWidth, int iHeight, const int* piAttribList);
-typedef BOOL (WINAPI * PFNWGLDESTROYPBUFFERARBPROC) (HPBUFFERARB hPbuffer);
-typedef HDC (WINAPI * PFNWGLGETPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer);
-typedef BOOL (WINAPI * PFNWGLQUERYPBUFFERARBPROC) (HPBUFFERARB hPbuffer, int iAttribute, int* piValue);
-typedef int (WINAPI * PFNWGLRELEASEPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer, HDC hDC);
+typedef HPBUFFERARB(WINAPI* PFNWGLCREATEPBUFFERARBPROC)(
+    HDC hDC, int iPixelFormat, int iWidth, int iHeight,
+    const int* piAttribList);
+typedef BOOL(WINAPI* PFNWGLDESTROYPBUFFERARBPROC)(HPBUFFERARB hPbuffer);
+typedef HDC(WINAPI* PFNWGLGETPBUFFERDCARBPROC)(HPBUFFERARB hPbuffer);
+typedef BOOL(WINAPI* PFNWGLQUERYPBUFFERARBPROC)(HPBUFFERARB hPbuffer,
+                                                int iAttribute, int* piValue);
+typedef int(WINAPI* PFNWGLRELEASEPBUFFERDCARBPROC)(HPBUFFERARB hPbuffer,
+                                                   HDC hDC);
 
-#   define wglCreatePbufferARB WGLEW_GET_FUN(__wglewCreatePbufferARB)
-#   define wglDestroyPbufferARB WGLEW_GET_FUN(__wglewDestroyPbufferARB)
-#   define wglGetPbufferDCARB WGLEW_GET_FUN(__wglewGetPbufferDCARB)
-#   define wglQueryPbufferARB WGLEW_GET_FUN(__wglewQueryPbufferARB)
-#   define wglReleasePbufferDCARB WGLEW_GET_FUN(__wglewReleasePbufferDCARB)
+#define wglCreatePbufferARB WGLEW_GET_FUN(__wglewCreatePbufferARB)
+#define wglDestroyPbufferARB WGLEW_GET_FUN(__wglewDestroyPbufferARB)
+#define wglGetPbufferDCARB WGLEW_GET_FUN(__wglewGetPbufferDCARB)
+#define wglQueryPbufferARB WGLEW_GET_FUN(__wglewQueryPbufferARB)
+#define wglReleasePbufferDCARB WGLEW_GET_FUN(__wglewReleasePbufferDCARB)
 
-#   define WGLEW_ARB_pbuffer WGLEW_GET_VAR(__WGLEW_ARB_pbuffer)
+#define WGLEW_ARB_pbuffer WGLEW_GET_VAR(__WGLEW_ARB_pbuffer)
 
-#   endif /* WGL_ARB_pbuffer */
+#endif /* WGL_ARB_pbuffer */
 #endif
 
 #ifndef WGL
@@ -131,8 +141,8 @@ typedef void* HDC;
 typedef void* HWND;
 typedef void* HPBUFFERARB;
 typedef void* HGLRC;
-#  define PFNWGLDELETEDCNVPROC void*
-#  define WINAPI
+#define PFNWGLDELETEDCNVPROC void*
+#define WINAPI
 #endif
 /** @endcond */
 

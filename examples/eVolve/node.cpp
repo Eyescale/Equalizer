@@ -33,19 +33,19 @@
 
 namespace eVolve
 {
-bool Node::configInit( const eq::uint128_t& initID )
+bool Node::configInit(const eq::uint128_t& initID)
 {
-    if( !eq::Node::configInit( initID ))
+    if (!eq::Node::configInit(initID))
         return false;
 
     // All render data is static or multi-buffered, we can run asynchronously
-    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
-        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
+    if (getIAttribute(IATTR_THREAD_MODEL) == eq::UNDEFINED)
+        setIAttribute(IATTR_THREAD_MODEL, eq::ASYNC);
 
-    Config* config = static_cast< Config* >( getConfig( ));
-    if( !isApplicationNode() && !config->loadInitData( initID ))
+    Config* config = static_cast<Config*>(getConfig());
+    if (!isApplicationNode() && !config->loadInitData(initID))
     {
-        sendError( ERROR_EVOLVE_MAPOBJECT_FAILED );
+        sendError(ERROR_EVOLVE_MAPOBJECT_FAILED);
         return false;
     }
     return true;

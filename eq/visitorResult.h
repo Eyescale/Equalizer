@@ -22,13 +22,13 @@
 
 namespace eq
 {
-     /** The result code from any visit operation. */
-    using lunchbox::VisitorResult;
+/** The result code from any visit operation. */
+using lunchbox::VisitorResult;
 
-    /** @cond IGNORE */
-    using lunchbox::TRAVERSE_CONTINUE;
-    using lunchbox::TRAVERSE_TERMINATE;
-    using lunchbox::TRAVERSE_PRUNE;
-    /** @endcond */
+/** @cond IGNORE */
+using lunchbox::TRAVERSE_CONTINUE;
+using lunchbox::TRAVERSE_TERMINATE;
+using lunchbox::TRAVERSE_PRUNE;
+/** @endcond */
 }
 #endif // EQ_VISITORRESULT_H

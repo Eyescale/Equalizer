@@ -19,8 +19,8 @@
 #ifndef EQSEQUEL_DETAIL_PIPE_H
 #define EQSEQUEL_DETAIL_PIPE_H
 
-#include <seq/types.h>
 #include <eq/pipe.h> // base class
+#include <seq/types.h>
 
 namespace seq
 {
@@ -29,7 +29,7 @@ namespace detail
 class Pipe : public eq::Pipe
 {
 public:
-    explicit Pipe( eq::Node* parent );
+    explicit Pipe(eq::Node* parent);
 
     /** @name Data Access. */
     //@{
@@ -45,14 +45,15 @@ public:
 protected:
     virtual ~Pipe();
 
-    virtual bool configInit( const uint128_t& initID );
+    virtual bool configInit(const uint128_t& initID);
     virtual bool configExit();
 
-    virtual void frameStart( const uint128_t& frameID,
-                             const uint32_t frameNumber );
+    virtual void frameStart(const uint128_t& frameID,
+                            const uint32_t frameNumber);
+
 private:
-    bool _mapData( const uint128_t& initID );
-    void _syncData( const uint128_t& version );
+    bool _mapData(const uint128_t& initID);
+    void _syncData(const uint128_t& version);
     void _unmapData();
 
     ObjectMap* _objects;

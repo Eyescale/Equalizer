@@ -18,8 +18,8 @@
 #ifndef EQSERVER_CONNECTION_DESCRIPTION_H
 #define EQSERVER_CONNECTION_DESCRIPTION_H
 
-#include <eq/server/api.h>
 #include <co/connectionDescription.h>
+#include <eq/server/api.h>
 
 namespace eq
 {
@@ -55,8 +55,8 @@ public:
     };
     //@}
 
-    static const std::string& getSAttributeString( const SAttribute attr );
-    static const std::string& getIAttributeString( const IAttribute attr );
+    static const std::string& getSAttributeString(const SAttribute attr);
+    static const std::string& getIAttributeString(const IAttribute attr);
 
 protected:
     virtual ~ConnectionDescription() {}

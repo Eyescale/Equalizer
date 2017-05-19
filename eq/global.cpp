@@ -21,7 +21,7 @@
 
 #include "nodeFactory.h"
 #ifdef EQUALIZER_USE_HWSD
-#  include <hwsd/nodeInfo.h>
+#include <hwsd/nodeInfo.h>
 #endif
 
 namespace eq
@@ -40,7 +40,7 @@ std::string Global::_config = "configs/config.eqc";
 static std::mutex _carbonLock;
 #endif
 
-void Global::setProgramName( const std::string& programName )
+void Global::setProgramName(const std::string& programName)
 {
     _programName = programName;
 }
@@ -50,7 +50,7 @@ const std::string& Global::getProgramName()
     return _programName;
 }
 
-void Global::setWorkDir( const std::string& workDir )
+void Global::setWorkDir(const std::string& workDir)
 {
     _workDir = workDir;
 }
@@ -60,7 +60,7 @@ const std::string& Global::getWorkDir()
     return _workDir;
 }
 
-void Global::setConfig( const std::string& config )
+void Global::setConfig(const std::string& config)
 {
     _config = config;
 }
@@ -83,5 +83,4 @@ void Global::leaveCarbon()
     _carbonLock.unlock();
 #endif
 }
-
 }

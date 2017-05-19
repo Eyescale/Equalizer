@@ -42,36 +42,34 @@
 
 namespace osgScaleViewer
 {
-    class Node : public eq::Node
-    {
-    public:
-        /** 
-         * Creates a Node.
-         * @param parent the node's parent.
-         */
-        Node( eq::Config* parent );
+class Node : public eq::Node
+{
+public:
+    /**
+     * Creates a Node.
+     * @param parent the node's parent.
+     */
+    Node(eq::Config* parent);
 
-        int32_t getUniqueContextID() { return ++_contextID; }
-        osg::ref_ptr< osg::Node > getModel() { return _model; }
-        osg::ref_ptr< osg::FrameStamp > getFrameStamp() { return _frameStamp; }
+    int32_t getUniqueContextID() { return ++_contextID; }
+    osg::ref_ptr<osg::Node> getModel() { return _model; }
+    osg::ref_ptr<osg::FrameStamp> getFrameStamp() { return _frameStamp; }
+protected:
+    virtual bool configInit(const eq::uint128_t& initID);
+    virtual bool configExit();
+    virtual void frameStart(const eq::uint128_t& frameID,
+                            const uint32_t frameNumber);
 
-    protected:
-        virtual bool configInit( const eq::uint128_t& initID );
-        virtual bool configExit();
-        virtual void frameStart( const eq::uint128_t& frameID,
-                                 const uint32_t frameNumber );
+private:
+    lunchbox::a_int32_t _contextID;
+    osg::ref_ptr<osg::Node> _model;
+    osg::ref_ptr<osg::FrameStamp> _frameStamp;
+    osg::ref_ptr<osg::NodeVisitor> _updateVisitor;
 
-    private:
-        lunchbox::a_int32_t _contextID;
-        osg::ref_ptr< osg::Node > _model;
-        osg::ref_ptr< osg::FrameStamp > _frameStamp;
-        osg::ref_ptr< osg::NodeVisitor > _updateVisitor;
-
-        osg::ref_ptr< osg::Node > _createSceneGraph();
-        osg::ref_ptr< osg::Node > _createSceneGraph( osg::ref_ptr<osg::Image> );
-        osg::ref_ptr< osg::Group > _initSceneGraph();
-        osg::ref_ptr< osg::LightSource > _createLightSource();
-    };
-
+    osg::ref_ptr<osg::Node> _createSceneGraph();
+    osg::ref_ptr<osg::Node> _createSceneGraph(osg::ref_ptr<osg::Image>);
+    osg::ref_ptr<osg::Group> _initSceneGraph();
+    osg::ref_ptr<osg::LightSource> _createLightSource();
+};
 }
 #endif

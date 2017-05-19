@@ -21,12 +21,16 @@
 #define EQ_CHANNEL_H
 
 #include <eq/api.h>
-#include <eq/types.h>
 #include <eq/fabric/channel.h> // base class
+#include <eq/types.h>
 
 namespace eq
 {
-namespace detail { class Channel; struct RBStat; }
+namespace detail
+{
+class Channel;
+struct RBStat;
+}
 
 /**
  * A channel represents a two-dimensional viewport within a Window.
@@ -39,23 +43,23 @@ namespace detail { class Channel; struct RBStat; }
  *
  * @sa fabric::Channel
  */
-class Channel : public fabric::Channel< Window, Channel >
+class Channel : public fabric::Channel<Window, Channel>
 {
 public:
     /** Construct a new channel. @version 1.0 */
-    EQ_API explicit Channel( Window* parent );
+    EQ_API explicit Channel(Window* parent);
 
     /** Destruct the channel. @version 1.0 */
     EQ_API virtual ~Channel();
 
     /** @name Data Access */
     //@{
-    EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
+    EQ_API co::CommandQueue* getPipeThreadQueue();    //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
     EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
     /** @internal */
-    bool waitFrameFinished( uint32_t frame, uint32_t timeout ) const;
+    bool waitFrameFinished(uint32_t frame, uint32_t timeout) const;
 
     /**
      * @return true if this channel is stopped, false otherwise.
@@ -124,7 +128,7 @@ public:
     EQ_API const Vector3ub& getUniqueColor() const;
 
     /** @internal Add a new statistics event for the current frame. */
-    EQ_API void addStatistic( Statistic& event );
+    EQ_API void addStatistic(Statistic& event);
     //@}
 
     /**
@@ -305,7 +309,7 @@ public:
      *
      * @version 1.3
      */
-    EQ_API virtual void declareRegion( const eq::PixelViewport& region );
+    EQ_API virtual void declareRegion(const eq::PixelViewport& region);
 
     /**
      * Convenience method to declare a region in relative coordinates.
@@ -313,7 +317,7 @@ public:
      * The given viewport is relative to the current pixel viewport.
      * @version 1.3
      */
-    EQ_API void declareRegion( const eq::Viewport& vp );
+    EQ_API void declareRegion(const eq::Viewport& vp);
 
     /** @return a region covering all declared regions. @version 1.3 */
     EQ_API PixelViewport getRegion() const;
@@ -340,7 +344,7 @@ public:
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error );
+    EQ_API EventOCommand sendError(const uint32_t error);
 
     /**
      * Process a received event.
@@ -353,10 +357,10 @@ public:
      * @return true when the event was handled, false if not.
      * @version 1.0
      */
-    EQ_API virtual bool processEvent( EventType type, SizeEvent& event );
-    EQ_API virtual bool processEvent( EventType type, PointerEvent& event );
-    EQ_API virtual bool processEvent( EventType type, KeyEvent& event );
-    EQ_API virtual bool processEvent( Statistic& event );
+    EQ_API virtual bool processEvent(EventType type, SizeEvent& event);
+    EQ_API virtual bool processEvent(EventType type, PointerEvent& event);
+    EQ_API virtual bool processEvent(EventType type, KeyEvent& event);
+    EQ_API virtual bool processEvent(Statistic& event);
     //@}
 
     /** Draw a statistics overlay. @version 1.0 */
@@ -371,7 +375,7 @@ public:
      *
      * @param latency the new latency.
      */
-    void changeLatency( const uint32_t latency );
+    void changeLatency(const uint32_t latency);
 
     /**
      * Add a listener that gets notified everytime a new frame was rendered for
@@ -383,7 +387,7 @@ public:
      * @param listener the new listener to add
      * @version 1.9
      */
-    EQ_API void addResultImageListener( ResultImageListener* listener );
+    EQ_API void addResultImageListener(ResultImageListener* listener);
 
     /**
      * Remove a result image listener to stop receival of notifications on new
@@ -392,7 +396,7 @@ public:
      * @param listener the new listener to remove
      * @version 1.9
      */
-    EQ_API void removeResultImageListener( ResultImageListener* listener );
+    EQ_API void removeResultImageListener(ResultImageListener* listener);
 
     /**
      * @return filename for image if SATTR_DUMP_IMAGE,
@@ -403,7 +407,7 @@ public:
 
 protected:
     /** @internal */
-    EQ_API void attach( const uint128_t& id, const uint32_t instanceID );
+    EQ_API void attach(const uint128_t& id, const uint32_t instanceID);
 
     /** @name Actions */
     //@{
@@ -413,7 +417,7 @@ protected:
      * @param frameNumber the frame to start.
      * @version 1.0
      */
-    EQ_API void startFrame( const uint32_t frameNumber );
+    EQ_API void startFrame(const uint32_t frameNumber);
 
     /**
      * Signal the completion of a frame to the parent.
@@ -421,7 +425,7 @@ protected:
      * @param frameNumber the frame to end.
      * @version 1.0
      */
-    EQ_API void releaseFrame( const uint32_t frameNumber );
+    EQ_API void releaseFrame(const uint32_t frameNumber);
 
     /**
      * Release the local synchronization of the parent for a frame.
@@ -429,7 +433,7 @@ protected:
      * @param frameNumber the frame to release.
      * @version 1.0
      */
-    EQ_API void releaseFrameLocal( const uint32_t frameNumber );
+    EQ_API void releaseFrameLocal(const uint32_t frameNumber);
 
     /**
      * Setup the OpenGL state for a readback or assemble operation.
@@ -462,7 +466,7 @@ protected:
      * @param initID the init identifier.
      * @version 1.0
      */
-    EQ_API virtual bool configInit( const uint128_t& initID );
+    EQ_API virtual bool configInit(const uint128_t& initID);
 
     /** Exit this channel. @version 1.0 */
     EQ_API virtual bool configExit();
@@ -478,8 +482,8 @@ protected:
      * @sa Config::startFrame()
      * @version 1.0
      */
-    EQ_API virtual void frameStart( const uint128_t& frameID,
-                                    const uint32_t frameNumber );
+    EQ_API virtual void frameStart(const uint128_t& frameID,
+                                   const uint32_t frameNumber);
 
     /**
      * Finish rendering a frame.
@@ -491,8 +495,8 @@ protected:
      * @param frameNumber the frame to finish.
      * @version 1.0
      */
-    EQ_API virtual void frameFinish( const uint128_t& frameID,
-                                     const uint32_t frameNumber );
+    EQ_API virtual void frameFinish(const uint128_t& frameID,
+                                    const uint32_t frameNumber);
 
     /**
      * Finish drawing.
@@ -504,8 +508,8 @@ protected:
      * @param frameNumber the frame to finished with draw.
      * @version 1.0
      */
-    EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
-                                         const uint32_t frameNumber );
+    EQ_API virtual void frameDrawFinish(const uint128_t& frameID,
+                                        const uint32_t frameNumber);
 
     /**
      * Clear the frame buffer.
@@ -515,7 +519,7 @@ protected:
      * @param frameID the per-frame identifier.
      * @version 1.0
      */
-    EQ_API virtual void frameClear( const uint128_t& frameID );
+    EQ_API virtual void frameClear(const uint128_t& frameID);
 
     /**
      * Draw the scene.
@@ -525,7 +529,7 @@ protected:
      * @param frameID the per-frame identifier.
      * @version 1.0
      */
-    EQ_API virtual void frameDraw( const uint128_t& frameID );
+    EQ_API virtual void frameDraw(const uint128_t& frameID);
 
     /**
      * Assemble all input frames.
@@ -536,8 +540,8 @@ protected:
      * @param frames the input frames.
      * @version 1.7.3
      */
-    EQ_API virtual void frameAssemble( const uint128_t& frameID,
-                                       const Frames& frames );
+    EQ_API virtual void frameAssemble(const uint128_t& frameID,
+                                      const Frames& frames);
 
     /**
      * Read back the rendered frame buffer into the output frames.
@@ -549,8 +553,8 @@ protected:
      * @version 1.7.3
      * @version 1.0
      */
-    EQ_API virtual void frameReadback( const uint128_t& frameID,
-                                       const Frames& frames );
+    EQ_API virtual void frameReadback(const uint128_t& frameID,
+                                      const Frames& frames);
 
     /**
      * Start updating a destination channel.
@@ -563,7 +567,7 @@ protected:
      * @param frameID the per-frame identifier.
      * @version 1.0
      */
-    EQ_API virtual void frameViewStart( const uint128_t& frameID );
+    EQ_API virtual void frameViewStart(const uint128_t& frameID);
 
     /**
      * Finish updating a destination channel.
@@ -580,7 +584,7 @@ protected:
      * @param frameID the per-frame identifier.
      * @version 1.0
      */
-    EQ_API virtual void frameViewFinish( const uint128_t& frameID );
+    EQ_API virtual void frameViewFinish(const uint128_t& frameID);
 
     /**
      * Draw 2D overlay content on a destination channel.
@@ -590,15 +594,13 @@ protected:
      * @param frameID the per-frame identifier.
      * @version 1.11
      */
-    EQ_API virtual void frameDrawOverlay( const uint128_t& frameID );
+    EQ_API virtual void frameDrawOverlay(const uint128_t& frameID);
     //@}
 
     /** Start a batch of tile rendering operations. @version 1.1.6 */
-    virtual void frameTilesStart( const uint128_t& /*frameID*/ ) {}
-
+    virtual void frameTilesStart(const uint128_t& /*frameID*/) {}
     /** Finish a batch of tile rendering operations. @version 1.1.6 */
-    virtual void frameTilesFinish( const uint128_t& /*frameID*/ ) {}
-
+    virtual void frameTilesFinish(const uint128_t& /*frameID*/) {}
     /** Notification that parameters influencing the vp/pvp have changed.*/
     EQ_API virtual void notifyViewportChanged();
 
@@ -614,96 +616,91 @@ protected:
      *        processed.
      * @version 1.0
      */
-    EQ_API virtual void notifyStopFrame( const uint32_t lastFrameNumber );
+    EQ_API virtual void notifyStopFrame(const uint32_t lastFrameNumber);
 
 private:
     detail::Channel* const _impl;
-    friend class fabric::Window< Pipe, Window, Channel, WindowSettings >;
+    friend class fabric::Window<Pipe, Window, Channel, WindowSettings>;
 
     //-------------------- Methods --------------------
     /** Setup the current rendering context. */
-    void _overrideContext( RenderContext& context );
+    void _overrideContext(RenderContext& context);
 
     /** Initialize the channel's drawable config. */
     void _initDrawableConfig();
 
     /** Tile render loop. */
-    void _frameTiles( RenderContext& context, const bool isLocal,
-                      const uint128_t& queueID, const uint32_t tasks,
-                      const co::ObjectVersions& frames );
+    void _frameTiles(RenderContext& context, const bool isLocal,
+                     const uint128_t& queueID, const uint32_t tasks,
+                     const co::ObjectVersions& frames);
 
     /** Reference the frame for an async operation. */
-    void _refFrame( const uint32_t frameNumber );
+    void _refFrame(const uint32_t frameNumber);
 
     /** Check for and send frame finish reply. */
-    void _unrefFrame( const uint32_t frameNumber );
+    void _unrefFrame(const uint32_t frameNumber);
 
     /** Transmit one image of a frame to one node. */
-    void _transmitImage( const co::ObjectVersion& frameDataVersion,
-                         const uint128_t& nodeID,
-                         const co::NodeID& netNodeID,
-                         const uint64_t imageIndex,
-                         const uint32_t frameNumber,
-                         const uint32_t taskID );
+    void _transmitImage(const co::ObjectVersion& frameDataVersion,
+                        const uint128_t& nodeID, const co::NodeID& netNodeID,
+                        const uint64_t imageIndex, const uint32_t frameNumber,
+                        const uint32_t taskID);
 
-    void _frameReadback( const uint128_t& frameID,
-                         const co::ObjectVersions& frames );
-    void _finishReadback( const co::ObjectVersion& frameDataVersion,
-                          const uint64_t imageIndex,
-                          const uint32_t frameNumber,
-                          const uint32_t taskID,
-                          const std::vector< uint128_t >& nodes,
-                          const co::NodeIDs& netNodes );
+    void _frameReadback(const uint128_t& frameID,
+                        const co::ObjectVersions& frames);
+    void _finishReadback(const co::ObjectVersion& frameDataVersion,
+                         const uint64_t imageIndex, const uint32_t frameNumber,
+                         const uint32_t taskID,
+                         const std::vector<uint128_t>& nodes,
+                         const co::NodeIDs& netNodes);
 
-    bool _asyncFinishReadback( const std::vector< size_t >& imagePos,
-                               const Frames& frames );
+    bool _asyncFinishReadback(const std::vector<size_t>& imagePos,
+                              const Frames& frames);
 
-    void _asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
-                         const uint64_t image,
-                         const std::vector< uint128_t >& nodes,
-                         const co::NodeIDs& netNodes,
-                         const uint32_t taskID );
+    void _asyncTransmit(FrameDataPtr frame, const uint32_t frameNumber,
+                        const uint64_t image,
+                        const std::vector<uint128_t>& nodes,
+                        const co::NodeIDs& netNodes, const uint32_t taskID);
 
-    void _setReady( const bool async, detail::RBStat* stat,
-                    const Frames& frames );
-    void _asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
-                         const std::vector< uint128_t >& nodes,
-                         const co::NodeIDs& netNodes );
+    void _setReady(const bool async, detail::RBStat* stat,
+                   const Frames& frames);
+    void _asyncSetReady(const FrameDataPtr frame, detail::RBStat* stat,
+                        const std::vector<uint128_t>& nodes,
+                        const co::NodeIDs& netNodes);
 
-    void _setReady( FrameDataPtr frame, detail::RBStat* stat,
-                    const std::vector< uint128_t >& nodes,
-                    const co::NodeIDs& netNodes );
+    void _setReady(FrameDataPtr frame, detail::RBStat* stat,
+                   const std::vector<uint128_t>& nodes,
+                   const co::NodeIDs& netNodes);
 
     /** Getsthe channel's current input queue. */
-    co::QueueSlave* _getQueue( const uint128_t& queueID );
+    co::QueueSlave* _getQueue(const uint128_t& queueID);
 
-    Frames _getFrames( const co::ObjectVersions& frameIDs,
-                       const bool isOutput );
+    Frames _getFrames(const co::ObjectVersions& frameIDs, const bool isOutput);
 
     void _createTransferWindow();
     void _deleteTransferWindow();
 
     /* The command handler functions. */
-    bool _cmdConfigInit( co::ICommand& command );
-    bool _cmdConfigExit( co::ICommand& command );
-    bool _cmdFrameStart( co::ICommand& command );
-    bool _cmdFrameFinish( co::ICommand& command );
-    bool _cmdFrameClear( co::ICommand& command );
-    bool _cmdFrameDraw( co::ICommand& command );
-    bool _cmdFrameDrawFinish( co::ICommand& command );
-    bool _cmdFrameAssemble( co::ICommand& command );
-    bool _cmdFrameReadback( co::ICommand& command );
-    bool _cmdFinishReadback( co::ICommand& command );
-    bool _cmdFrameSetReady( co::ICommand& command );
-    bool _cmdFrameTransmitImage( co::ICommand& command );
-    bool _cmdFrameSetReadyNode( co::ICommand& command );
-    bool _cmdFrameViewStart( co::ICommand& command );
-    bool _cmdFrameViewFinish( co::ICommand& command );
-    bool _cmdStopFrame( co::ICommand& command );
-    bool _cmdFrameTiles( co::ICommand& command );
-    bool _cmdDeleteTransferWindow( co::ICommand& command );
+    bool _cmdConfigInit(co::ICommand& command);
+    bool _cmdConfigExit(co::ICommand& command);
+    bool _cmdFrameStart(co::ICommand& command);
+    bool _cmdFrameFinish(co::ICommand& command);
+    bool _cmdFrameClear(co::ICommand& command);
+    bool _cmdFrameDraw(co::ICommand& command);
+    bool _cmdFrameDrawFinish(co::ICommand& command);
+    bool _cmdFrameAssemble(co::ICommand& command);
+    bool _cmdFrameReadback(co::ICommand& command);
+    bool _cmdFinishReadback(co::ICommand& command);
+    bool _cmdFrameSetReady(co::ICommand& command);
+    bool _cmdFrameTransmitImage(co::ICommand& command);
+    bool _cmdFrameSetReadyNode(co::ICommand& command);
+    bool _cmdFrameViewStart(co::ICommand& command);
+    bool _cmdFrameViewFinish(co::ICommand& command);
+    bool _cmdStopFrame(co::ICommand& command);
+    bool _cmdFrameTiles(co::ICommand& command);
+    bool _cmdDeleteTransferWindow(co::ICommand& command);
 
-    LB_TS_VAR( _pipeThread );
+    LB_TS_VAR(_pipeThread);
 };
 }
 

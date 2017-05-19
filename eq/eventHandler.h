@@ -19,8 +19,8 @@
 #ifndef EQ_EVENTHANDLER_H
 #define EQ_EVENTHANDLER_H
 
-#include <eq/fabric/pointerEvent.h>         // member
 #include <eq/api.h>
+#include <eq/fabric/pointerEvent.h> // member
 #include <eq/types.h>
 
 namespace eq
@@ -30,16 +30,18 @@ class EventHandler
 {
 protected:
     /** Construct a new event handler. @version 1.0 */
-    EventHandler() : _lastEventType( EVENT_UNKNOWN ) {}
+    EventHandler()
+        : _lastEventType(EVENT_UNKNOWN)
+    {
+    }
 
     /** Destruct the event handler. @version 1.0 */
     virtual ~EventHandler() {}
-
     /**
      * @internal
      * Compute the mouse move delta from the previous pointer event.
      */
-    EQ_API void _computePointerDelta( EventType type, PointerEvent& event );
+    EQ_API void _computePointerDelta(EventType type, PointerEvent& event);
 
 private:
     /** Previous (pointer) event type */

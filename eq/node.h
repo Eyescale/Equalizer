@@ -20,16 +20,19 @@
 #define EQ_NODE_H
 
 #include <eq/api.h>
-#include <eq/types.h>
-#include <eq/visitorResult.h>  // enum
-#include <eq/fabric/node.h> // base class
 #include <eq/fabric/eventType.h> // EventType enum
+#include <eq/fabric/node.h>      // base class
+#include <eq/types.h>
+#include <eq/visitorResult.h> // enum
 
 #include <co/types.h>
 
 namespace eq
 {
-namespace detail { class Node; }
+namespace detail
+{
+class Node;
+}
 
 /**
  * A Node represents a single computer in the cluster.
@@ -46,11 +49,11 @@ namespace detail { class Node; }
  *
  * @sa fabric::Node
  */
-class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
+class Node : public fabric::Node<Config, Node, Pipe, NodeVisitor>
 {
 public:
     /** Construct a new node. @version 1.0 */
-    EQ_API explicit Node( Config* parent );
+    EQ_API explicit Node(Config* parent);
 
     /** Destruct the node. @version 1.0 */
     EQ_API virtual ~Node();
@@ -61,9 +64,9 @@ public:
     /** @return the parent server node. @version 1.0 */
     EQ_API ServerPtr getServer();
 
-    EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+    EQ_API co::CommandQueue* getMainThreadQueue();    //!< @internal
     EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
-    co::CommandQueue* getTransmitterQueue(); //!< @internal
+    co::CommandQueue* getTransmitterQueue();          //!< @internal
 
     /** @internal node thread only. */
     uint32_t getCurrentFrame() const;
@@ -75,7 +78,7 @@ public:
      * @param barrier the barrier identifier and version.
      * @return the barrier.
      */
-    co::Barrier* getBarrier( const co::ObjectVersion& barrier );
+    co::Barrier* getBarrier(const co::ObjectVersion& barrier);
 
     /**
      * @internal
@@ -84,10 +87,10 @@ public:
      * @param frameDataVersion the frame data identifier and version.
      * @return the frame.
      */
-    FrameDataPtr getFrameData( const co::ObjectVersion& frameDataVersion );
+    FrameDataPtr getFrameData(const co::ObjectVersion& frameDataVersion);
 
     /** @internal Release the frame data instance. */
-    void releaseFrameData( FrameDataPtr data );
+    void releaseFrameData(FrameDataPtr data);
 
     /** @internal Wait for the node to be initialized. */
     EQ_API void waitInitialized() const;
@@ -114,7 +117,7 @@ public:
      * @sa releaseFrame()
      * @version 1.0
      */
-    EQ_API void waitFrameStarted( const uint32_t frameNumber ) const;
+    EQ_API void waitFrameStarted(const uint32_t frameNumber) const;
 
     /** @internal @return the number of the last finished frame. */
     uint32_t getFinishedFrame() const;
@@ -125,7 +128,7 @@ public:
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error );
+    EQ_API EventOCommand sendError(const uint32_t error);
 
     /**
      * Process a received spacemouse event.
@@ -137,12 +140,12 @@ public:
      * @return true if the event was handled, false if not.
      * @version 1.5.2
      */
-    EQ_API virtual bool processEvent( AxisEvent& event );
-    EQ_API virtual bool processEvent( ButtonEvent& event );
-    EQ_API virtual bool processEvent( Statistic& event );
+    EQ_API virtual bool processEvent(AxisEvent& event);
+    EQ_API virtual bool processEvent(ButtonEvent& event);
+    EQ_API virtual bool processEvent(Statistic& event);
 
     /** @internal @sa Serializable::setDirty() */
-    EQ_API void setDirty( const uint64_t bits ) override;
+    EQ_API void setDirty(const uint64_t bits) override;
 
     /** @internal */
     EQ_API void dirtyClientExit();
@@ -150,7 +153,7 @@ public:
 protected:
     /** @internal */
     EQ_API
-    void attach( const uint128_t& id, const uint32_t instanceID ) override;
+    void attach(const uint128_t& id, const uint32_t instanceID) override;
 
     /** @name Actions */
     //@{
@@ -160,7 +163,7 @@ protected:
      * @param frameNumber the frame to start.
      * @version 1.0
      */
-    EQ_API void startFrame( const uint32_t frameNumber );
+    EQ_API void startFrame(const uint32_t frameNumber);
 
     /**
      * Signal the completion of a frame to the parent.
@@ -168,7 +171,7 @@ protected:
      * @param frameNumber the frame to end.
      * @version 1.0
      */
-    EQ_API void releaseFrame( const uint32_t frameNumber );
+    EQ_API void releaseFrame(const uint32_t frameNumber);
 
     /**
      * Release the local synchronization of the parent for a frame.
@@ -176,7 +179,7 @@ protected:
      * @param frameNumber the frame to release.
      * @version 1.0
      */
-    EQ_API void releaseFrameLocal( const uint32_t frameNumber );
+    EQ_API void releaseFrameLocal(const uint32_t frameNumber);
     //@}
 
     /**
@@ -193,7 +196,7 @@ protected:
      * @param initID the init identifier.
      * @version 1.0
      */
-    EQ_API virtual bool configInit( const uint128_t&  initID );
+    EQ_API virtual bool configInit(const uint128_t& initID);
 
     /** Exit this node. @version 1.0 */
     EQ_API virtual bool configExit();
@@ -211,8 +214,8 @@ protected:
      * @sa startFrame(), Config::beginFrame()
      * @version 1.0
      */
-    EQ_API virtual void frameStart( const uint128_t& frameID,
-                                    const uint32_t frameNumber );
+    EQ_API virtual void frameStart(const uint128_t& frameID,
+                                   const uint32_t frameNumber);
 
     /**
      * Finish rendering a frame.
@@ -226,8 +229,8 @@ protected:
      * @sa endFrame(), Config::finishFrame()
      * @version 1.0
      */
-    EQ_API virtual void frameFinish( const uint128_t& frameID,
-                                     const uint32_t frameNumber );
+    EQ_API virtual void frameFinish(const uint128_t& frameID,
+                                    const uint32_t frameNumber);
 
     /**
      * Finish drawing.
@@ -241,8 +244,8 @@ protected:
      * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
      * @version 1.0
      */
-    EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
-                                         const uint32_t frameNumber );
+    EQ_API virtual void frameDrawFinish(const uint128_t& frameID,
+                                        const uint32_t frameNumber);
 
     /**
      * Finish all rendering tasks.
@@ -259,8 +262,8 @@ protected:
      * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
      * @version 1.0
      */
-    EQ_API virtual void frameTasksFinish( const uint128_t& frameID,
-                                          const uint32_t frameNumber );
+    EQ_API virtual void frameTasksFinish(const uint128_t& frameID,
+                                         const uint32_t frameNumber);
     //@}
 
 private:
@@ -268,26 +271,25 @@ private:
 
     void _setAffinity();
 
-    void _finishFrame( const uint32_t frameNumber ) const;
-    void _frameFinish( const uint128_t& frameID,
-                       const uint32_t frameNumber );
+    void _finishFrame(const uint32_t frameNumber) const;
+    void _frameFinish(const uint128_t& frameID, const uint32_t frameNumber);
 
     void _flushObjects();
 
     /** The command functions. */
-    bool _cmdCreatePipe( co::ICommand& command );
-    bool _cmdDestroyPipe( co::ICommand& command );
-    bool _cmdConfigInit( co::ICommand& command );
-    bool _cmdConfigExit( co::ICommand& command );
-    bool _cmdFrameStart( co::ICommand& command );
-    bool _cmdFrameFinish( co::ICommand& command );
-    bool _cmdFrameDrawFinish( co::ICommand& command );
-    bool _cmdFrameTasksFinish( co::ICommand& command );
-    bool _cmdFrameDataTransmit( co::ICommand& command );
-    bool _cmdFrameDataReady( co::ICommand& command );
-    bool _cmdSetAffinity( co::ICommand& command );
+    bool _cmdCreatePipe(co::ICommand& command);
+    bool _cmdDestroyPipe(co::ICommand& command);
+    bool _cmdConfigInit(co::ICommand& command);
+    bool _cmdConfigExit(co::ICommand& command);
+    bool _cmdFrameStart(co::ICommand& command);
+    bool _cmdFrameFinish(co::ICommand& command);
+    bool _cmdFrameDrawFinish(co::ICommand& command);
+    bool _cmdFrameTasksFinish(co::ICommand& command);
+    bool _cmdFrameDataTransmit(co::ICommand& command);
+    bool _cmdFrameDataReady(co::ICommand& command);
+    bool _cmdSetAffinity(co::ICommand& command);
 
-    LB_TS_VAR( _nodeThread );
+    LB_TS_VAR(_nodeThread);
 };
 }
 

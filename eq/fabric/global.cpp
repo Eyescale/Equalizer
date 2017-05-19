@@ -33,7 +33,7 @@ static uint32_t _flags = ConfigParams::FLAG_NONE;
 static Strings _prefixes;
 }
 
-void Global::setServer( const std::string& server )
+void Global::setServer(const std::string& server)
 {
     _server = server;
 }
@@ -48,7 +48,7 @@ ErrorRegistry& Global::getErrorRegistry()
     return _errorRegistry;
 }
 
-void Global::setFlags( const uint32_t flags )
+void Global::setFlags(const uint32_t flags)
 {
     _flags = flags;
 }
@@ -58,7 +58,7 @@ uint32_t Global::getFlags()
     return _flags;
 }
 
-void Global::setPrefixes( const Strings& prefixes )
+void Global::setPrefixes(const Strings& prefixes)
 {
     _prefixes = prefixes;
 }
@@ -67,6 +67,5 @@ const Strings& Global::getPrefixes()
 {
     return _prefixes;
 }
-
 }
 }

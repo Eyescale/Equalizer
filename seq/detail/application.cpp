@@ -26,28 +26,28 @@
 #include "view.h"
 #include "window.h"
 
-#include <seq/application.h>
 #include <eq/config.h>
+#include <eq/fabric/configParams.h>
 #include <eq/init.h>
 #include <eq/pipe.h>
 #include <eq/server.h>
-#include <eq/fabric/configParams.h>
+#include <seq/application.h>
 
 namespace seq
 {
 namespace detail
 {
-
-Application::Application( ApplicationPtr app, co::Object* initData )
-        : _app( app )
-        , _config( 0 )
-        , _initData( initData )
-        , _isMaster( false )
-{}
+Application::Application(ApplicationPtr app, co::Object* initData)
+    : _app(app)
+    , _config(0)
+    , _initData(initData)
+    , _isMaster(false)
+{
+}
 
 Application::~Application()
 {
-    LBASSERT( !_config );
+    LBASSERT(!_config);
     _app = 0;
 }
 
@@ -65,7 +65,7 @@ bool Application::init()
 {
     _isMaster = true;
     eq::ServerPtr server = new eq::Server;
-    if( !_app->connectServer( server ))
+    if (!_app->connectServer(server))
     {
         LBERROR << "Can't open Equalizer server" << std::endl;
         exit();
@@ -73,17 +73,17 @@ bool Application::init()
     }
 
     const eq::fabric::ConfigParams cp;
-    _config = static_cast< Config* >( server->chooseConfig( cp ));
+    _config = static_cast<Config*>(server->chooseConfig(cp));
 
-    if( !_config )
+    if (!_config)
     {
         LBERROR << "No matching configuration on Equalizer server" << std::endl;
-        _app->disconnectServer( server );
+        _app->disconnectServer(server);
         exit();
         return false;
     }
 
-    if( !_config->init( ))
+    if (!_config->init())
         return false;
     return true;
 }
@@ -91,69 +91,68 @@ bool Application::init()
 bool Application::exit()
 {
     bool retVal = true;
-    if( _config )
+    if (_config)
     {
         eq::ServerPtr server = _config->getServer();
 
-        if( !_config->exit( ))
+        if (!_config->exit())
             retVal = false;
 
-        server->releaseConfig( _config );
-        if( !_app->disconnectServer( server ))
+        server->releaseConfig(_config);
+        if (!_app->disconnectServer(server))
             retVal = false;
     }
 
-    LBASSERT( !_config );
+    LBASSERT(!_config);
     _isMaster = false;
     return retVal;
 }
 
-bool Application::run( co::Object* frameData )
+bool Application::run(co::Object* frameData)
 {
-    return _config->run( frameData );
+    return _config->run(frameData);
 }
 
-eq::Config* Application::createConfig( eq::ServerPtr parent )
+eq::Config* Application::createConfig(eq::ServerPtr parent)
 {
-    if( isMaster( ))
-        return new MasterConfig( parent );
+    if (isMaster())
+        return new MasterConfig(parent);
 
-    LBASSERT( !_config );
-    _config = new SlaveConfig( parent );
+    LBASSERT(!_config);
+    _config = new SlaveConfig(parent);
     return _config;
 }
 
-void Application::releaseConfig( eq::Config* config )
+void Application::releaseConfig(eq::Config* config)
 {
-    LBASSERT( config == _config );
+    LBASSERT(config == _config);
     _config = 0;
     delete config;
 }
 
-eq::View* Application::createView( eq::Layout* parent )
+eq::View* Application::createView(eq::Layout* parent)
 {
-    return new View( parent );
+    return new View(parent);
 }
 
-eq::Node* Application::createNode( eq::Config* parent )
+eq::Node* Application::createNode(eq::Config* parent)
 {
-    return new Node( parent );
+    return new Node(parent);
 }
 
-eq::Pipe* Application::createPipe( eq::Node* parent )
+eq::Pipe* Application::createPipe(eq::Node* parent)
 {
-    return new Pipe( parent );
+    return new Pipe(parent);
 }
 
-eq::Window* Application::createWindow( eq::Pipe* parent )
+eq::Window* Application::createWindow(eq::Pipe* parent)
 {
-    return new Window( parent );
+    return new Window(parent);
 }
 
-eq::Channel* Application::createChannel( eq::Window* parent )
+eq::Channel* Application::createChannel(eq::Window* parent)
 {
-    return new Channel( parent );
+    return new Channel(parent);
 }
-
 }
 }

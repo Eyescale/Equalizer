@@ -27,19 +27,19 @@
 #include <locale.h>
 
 // Tests (re)loading of all examples/configs/*.eqc files
-int main( int argc, char **argv )
+int main(int argc, char** argv)
 {
     // Test for: https://github.com/Eyescale/Equalizer/issues/56
-    setlocale( LC_ALL, "de_DE.UTF-8" );
+    setlocale(LC_ALL, "de_DE.UTF-8");
 
-    TEST( lunchbox::init( argc, argv ));
+    TEST(lunchbox::init(argc, argv));
 
     eq::server::Loader loader;
-    lunchbox::Strings configs = lunchbox::searchDirectory( "configs",
-                                                           ".*\\.eqc" );
-    TESTINFO( configs.size() > 20, configs.size( ));
+    lunchbox::Strings configs =
+        lunchbox::searchDirectory("configs", ".*\\.eqc");
+    TESTINFO(configs.size() > 20, configs.size());
 
-    for( lunchbox::StringsCIter i = configs.begin(); i != configs.end(); ++i )
+    for (lunchbox::StringsCIter i = configs.begin(); i != configs.end(); ++i)
     {
         const std::string& filename = "configs/" + *i;
         eq::server::Global* global = eq::server::Global::instance();
@@ -47,49 +47,50 @@ int main( int argc, char **argv )
             eq::server::Config::FATTR_VERSION;
 
         // load
-        global->setConfigFAttribute( attr, 0.f );
-        eq::server::ServerPtr server = loader.loadFile( filename );
-        TESTINFO( server.isValid(), "Load of " << filename << " failed" );
-        TESTINFO( global->getConfigFAttribute( attr ) == 1.1f ||
-                  global->getConfigFAttribute( attr ) == 1.2f,
-                  global->getConfigFAttribute( attr ) << "f for " << filename );
+        global->setConfigFAttribute(attr, 0.f);
+        eq::server::ServerPtr server = loader.loadFile(filename);
+        TESTINFO(server.isValid(), "Load of " << filename << " failed");
+        TESTINFO(global->getConfigFAttribute(attr) == 1.1f ||
+                     global->getConfigFAttribute(attr) == 1.2f,
+                 global->getConfigFAttribute(attr) << "f for " << filename);
 
         // convert
-        eq::server::Loader::addOutputCompounds( server );
-        eq::server::Loader::addDestinationViews( server );
-        eq::server::Loader::addDefaultObserver( server );
-        eq::server::Loader::convertTo11( server );
-        eq::server::Loader::convertTo12( server );
+        eq::server::Loader::addOutputCompounds(server);
+        eq::server::Loader::addDestinationViews(server);
+        eq::server::Loader::addDefaultObserver(server);
+        eq::server::Loader::convertTo11(server);
+        eq::server::Loader::convertTo12(server);
 
         // output
-        std::ofstream logFile( "testOutput.eqc" );
-        TEST( logFile.is_open( ));
+        std::ofstream logFile("testOutput.eqc");
+        TEST(logFile.is_open());
 
         std::ostream& oldOut = lunchbox::Log::getOutput();
-        lunchbox::Log::setOutput( logFile );
+        lunchbox::Log::setOutput(logFile);
         OUTPUT << eq::server::Global::instance() << *server
                << lunchbox::forceFlush;
-        lunchbox::Log::setOutput( oldOut );
+        lunchbox::Log::setOutput(oldOut);
         OUTPUT << lunchbox::enableHeader << std::endl;
         logFile.close();
 
         // cleanup
         eq::server::Global::clear();
         server->deleteConfigs(); // break server <-> config ref circle
-        TESTINFO( server->getRefCount() == 1,
-                  server->getRefCount() << ": " << server );
+        TESTINFO(server->getRefCount() == 1, server->getRefCount() << ": "
+                                                                   << server);
 
         // reload output
-        server = loader.loadFile( "testOutput.eqc" );
-        TESTINFO( server.isValid(), "Output/reload of " << filename <<
-                  " failed, see testOutput.eqc" );
+        server = loader.loadFile("testOutput.eqc");
+        TESTINFO(server.isValid(), "Output/reload of "
+                                       << filename
+                                       << " failed, see testOutput.eqc");
 
         eq::server::Global::clear();
         server->deleteConfigs(); // break server <-> config ref circle
-        TESTINFO( server->getRefCount() == 1,
-                  server->getRefCount() << ": " << server );
+        TESTINFO(server->getRefCount() == 1, server->getRefCount() << ": "
+                                                                   << server);
     }
 
-    TEST( lunchbox::exit( ));
+    TEST(lunchbox::exit());
     return EXIT_SUCCESS;
 }

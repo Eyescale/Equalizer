@@ -22,14 +22,13 @@
 #include <eq/messagePump.h> // base class
 #include <eq/types.h>
 
-#include <co/connectionSet.h>  // member
+#include <co/connectionSet.h> // member
 #include <unordered_map>
 
 namespace eq
 {
 namespace glx
 {
-
 /** A message pump receiving and dispatching X11 events. */
 class MessagePump : public eq::MessagePump
 {
@@ -42,7 +41,7 @@ public:
 
     void postWakeup() final;
     void dispatchAll() final;
-    void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE ) final;
+    void dispatchOne(const uint32_t timeout = LB_TIMEOUT_INDEFINITE) final;
 
     /**
      * Register a new Display connection for event dispatch.
@@ -55,22 +54,21 @@ public:
      * @sa EventHandler
      * @version 1.0
      */
-    void register_( Display* display );
+    void register_(Display* display);
 
     /** Deregister a Display connection from event dispatch. @version 1.0 */
-    void deregister( Display* display );
+    void deregister(Display* display);
 
     /** Register a new Deflect connection for event dispatch. @version 1.7.1 */
-    void register_( deflect::Proxy* proxy ) override;
+    void register_(deflect::Proxy* proxy) override;
 
     /** Deregister a Deflect connection from event dispatch. @version 1.7.1 */
-    void deregister( deflect::Proxy* proxy ) override;
+    void deregister(deflect::Proxy* proxy) override;
 
 private:
     co::ConnectionSet _connections; //!< Registered Display connections
-    std::unordered_map< void*, size_t > _referenced; //!< # of registrations
+    std::unordered_map<void*, size_t> _referenced; //!< # of registrations
 };
-
 }
 }
-#endif //EQ_GLX_MESSAGEPUMP_H
+#endif // EQ_GLX_MESSAGEPUMP_H

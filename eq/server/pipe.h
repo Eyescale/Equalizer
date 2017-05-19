@@ -19,15 +19,15 @@
 #ifndef EQSERVER_PIPE_H
 #define EQSERVER_PIPE_H
 
-#include <eq/server/api.h>
+#include "state.h" // enum
 #include "types.h"
-#include "state.h"         // enum
 #include "visitorResult.h" // enum
+#include <eq/server/api.h>
 
-#include <eq/fabric/iAttribute.h>       // eq::OFF enum
-#include <eq/fabric/pipe.h>             // parent
-#include <eq/fabric/pixelViewport.h>    // member
-#include <lunchbox/monitor.h>            // member
+#include <eq/fabric/iAttribute.h>    // eq::OFF enum
+#include <eq/fabric/pipe.h>          // parent
+#include <eq/fabric/pixelViewport.h> // member
+#include <lunchbox/monitor.h>        // member
 
 #include <ostream>
 #include <vector>
@@ -37,11 +37,11 @@ namespace eq
 namespace server
 {
 /** The pipe. */
-class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
+class Pipe : public fabric::Pipe<Node, Pipe, Window, PipeVisitor>
 {
 public:
     /** Construct a new Pipe. */
-    EQSERVER_API explicit Pipe( Node* parent );
+    EQSERVER_API explicit Pipe(Node* parent);
 
     virtual ~Pipe();
 
@@ -54,14 +54,12 @@ public:
     co::CommandQueue* getMainThreadQueue();
     co::CommandQueue* getCommandThreadQueue();
 
-    Channel* getChannel( const ChannelPath& path );
+    Channel* getChannel(const ChannelPath& path);
 
     /** @return the state of this pipe. */
-    State getState()    const { return _state.get(); }
-
+    State getState() const { return _state.get(); }
     /** @internal */
-    void setState( const State state ) { _state = state; }
-
+    void setState(const State state) { _state = state; }
     /** Increase pipe activition count. */
     void activate();
 
@@ -70,23 +68,20 @@ public:
 
     /** @return if this pipe is actively used for rendering. */
     bool isActive() const { return (_active != 0); }
-
     /** @return if this pipe is running. */
     bool isRunning() const { return _state == STATE_RUNNING; }
-
     /**
      * Add additional tasks this pipe, and all its parents, might
      * potentially execute.
      */
-    void addTasks( const uint32_t tasks );
+    void addTasks(const uint32_t tasks);
 
     /**
      * @name Data Access
      */
     //@{
     /** The last drawing compound for this entity. @internal */
-    void setLastDrawWindow( const Window* window )
-    { _lastDrawWindow = window; }
+    void setLastDrawWindow(const Window* window) { _lastDrawWindow = window; }
     const Window* getLastDrawWindow() const { return _lastDrawWindow; }
     //@}
 
@@ -95,7 +90,7 @@ public:
      */
     //@{
     /** Start initializing this entity. */
-    void configInit( const uint128_t& initID, const uint32_t frameNumber );
+    void configInit(const uint128_t& initID, const uint32_t frameNumber);
 
     /** Sync initialization of this entity. */
     bool syncConfigInit();
@@ -113,19 +108,18 @@ public:
      *                methods.
      * @param frameNumber the number of the frame.
      */
-    void update( const uint128_t& frameID, const uint32_t frameNumber );
+    void update(const uint128_t& frameID, const uint32_t frameNumber);
     //@}
 
-    co::ObjectOCommand send( const uint32_t cmd );
-    void output( std::ostream& ) const; //!< @internal
+    co::ObjectOCommand send(const uint32_t cmd);
+    void output(std::ostream&) const; //!< @internal
 
 protected:
-
     /** @sa co::Object::attachToSession. */
-    virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    virtual void attach(const uint128_t& id, const uint32_t instanceID);
 
     /** @internal Execute the slave remove request. */
-    virtual void removeChild( const uint128_t& id );
+    virtual void removeChild(const uint128_t& id);
 
 private:
     /** Number of activations for this pipe. */
@@ -134,7 +128,7 @@ private:
     friend class Node;
 
     /** The current state for state change synchronization. */
-    lunchbox::Monitor< State > _state;
+    lunchbox::Monitor<State> _state;
 
     /** The last draw window for this entity. */
     const Window* _lastDrawWindow;
@@ -143,8 +137,8 @@ private:
     Private* _private; // placeholder for binary-compatible changes
 
     /* command handler functions. */
-    bool _cmdConfigInitReply( co::ICommand& command );
-    bool _cmdConfigExitReply( co::ICommand& command );
+    bool _cmdConfigInitReply(co::ICommand& command);
+    bool _cmdConfigExitReply(co::ICommand& command);
 };
 }
 }

@@ -32,30 +32,36 @@
 
 #include <eq/client.h>
 #include <eq/config.h>
+#include <eq/fabric/configParams.h>
 #include <eq/init.h>
 #include <eq/nodeFactory.h>
 #include <eq/server.h>
-#include <eq/fabric/configParams.h>
 #include <lunchbox/file.h>
 
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    eq::Pipe* createPipe( eq::Node* parent ) final
-        { return new eqCpu::Pipe( parent ); }
-    eq::Window* createWindow( eq::Pipe* parent ) final
-        { return new eqCpu::Window( parent ); }
-    eq::Channel* createChannel( eq::Window* parent ) final
-        { return new eqCpu::Channel( parent ); }
+    eq::Pipe* createPipe(eq::Node* parent) final
+    {
+        return new eqCpu::Pipe(parent);
+    }
+    eq::Window* createWindow(eq::Pipe* parent) final
+    {
+        return new eqCpu::Window(parent);
+    }
+    eq::Channel* createChannel(eq::Window* parent) final
+    {
+        return new eqCpu::Channel(parent);
+    }
 };
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-    for( int i=1; i < argc; ++i )
+    for (int i = 1; i < argc; ++i)
     {
-        if( std::string( argv[ i ]) == "--help" )
+        if (std::string(argv[i]) == "--help")
         {
-            std::cout << lunchbox::getFilename( argv[0] )
+            std::cout << lunchbox::getFilename(argv[0])
                       << ": minimal OpenGL-free Equalizer example " << std::endl
                       << eq::getHelp() << eq::Client::getHelp() << std::endl;
             return EXIT_SUCCESS;
@@ -64,14 +70,14 @@ int main( int argc, char** argv )
 
     // 1. initialization of local node
     NodeFactory nodeFactory;
-    if( !eq::init( argc, argv, &nodeFactory ))
+    if (!eq::init(argc, argv, &nodeFactory))
     {
         LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
 
     eq::ClientPtr client = new eq::Client;
-    if( !client->initLocal( argc, argv ))
+    if (!client->initLocal(argc, argv))
     {
         LBERROR << "Can't init client" << std::endl;
         eq::exit();
@@ -80,7 +86,7 @@ int main( int argc, char** argv )
 
     // 2. connect to server
     eq::ServerPtr server = new eq::Server;
-    if( !client->connectServer( server ))
+    if (!client->connectServer(server))
     {
         LBERROR << "Can't open server" << std::endl;
         client->exitLocal();
@@ -90,22 +96,22 @@ int main( int argc, char** argv )
 
     // 3. choose config
     eq::fabric::ConfigParams configParams;
-    eq::Config* config = server->chooseConfig( configParams );
+    eq::Config* config = server->chooseConfig(configParams);
 
-    if( !config )
+    if (!config)
     {
         LBERROR << "No matching config on server" << std::endl;
-        client->disconnectServer( server );
+        client->disconnectServer(server);
         client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
     }
 
     // 4. init config
-    if( !config->init( eq::uint128_t( )))
+    if (!config->init(eq::uint128_t()))
     {
-        server->releaseConfig( config );
-        client->disconnectServer( server );
+        server->releaseConfig(config);
+        client->disconnectServer(server);
         client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
@@ -113,9 +119,9 @@ int main( int argc, char** argv )
 
     // 5. run main loop
     eq::uint128_t spin;
-    while( config->isRunning( ))
+    while (config->isRunning())
     {
-        config->startFrame( spin );
+        config->startFrame(spin);
         config->finishFrame();
         ++spin;
     }
@@ -124,8 +130,8 @@ int main( int argc, char** argv )
     config->exit();
 
     // 7. cleanup and exit
-    server->releaseConfig( config );
-    if( !client->disconnectServer( server ))
+    server->releaseConfig(config);
+    if (!client->disconnectServer(server))
         LBERROR << "Client::disconnectServer failed" << std::endl;
     server = 0;
 

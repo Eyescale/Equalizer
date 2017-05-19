@@ -17,8 +17,8 @@
 
 #include "pipe.h"
 
-#include <eq/pipe.h>
 #include <QDesktopWidget>
+#include <eq/pipe.h>
 
 namespace eq
 {
@@ -27,19 +27,18 @@ namespace qt
 bool Pipe::configInit()
 {
     eq::Pipe* pipe = getPipe();
-    if( pipe->getPixelViewport().isValid( ))
+    if (pipe->getPixelViewport().isValid())
         return true;
 
     QDesktopWidget desktop;
     const uint32_t device = getPipe()->getDevice();
-    const int qtScreen = device == LB_UNDEFINED_UINT32 ?
-                             desktop.primaryScreen() : int( device );
-    const QRect rect = desktop.availableGeometry( qtScreen );
+    const int qtScreen =
+        device == LB_UNDEFINED_UINT32 ? desktop.primaryScreen() : int(device);
+    const QRect rect = desktop.availableGeometry(qtScreen);
 
-    pipe->setPixelViewport( PixelViewport( rect.x(), rect.y(),
-                                           rect.width(), rect.height( )));
+    pipe->setPixelViewport(
+        PixelViewport(rect.x(), rect.y(), rect.width(), rect.height()));
     return true;
 }
-
 }
 }

@@ -27,10 +27,10 @@ namespace eq
 {
 namespace admin
 {
-typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
+typedef fabric::Canvas<Config, Canvas, Segment, Layout> Super;
 
-Canvas::Canvas( Config* parent )
-    : Super( parent )
+Canvas::Canvas(Config* parent)
+    : Super(parent)
 {
 }
 
@@ -41,19 +41,17 @@ Canvas::~Canvas()
 ServerPtr Canvas::getServer()
 {
     Config* config = getConfig();
-    LBASSERT( config );
-    return ( config ? config->getServer() : 0 );
+    LBASSERT(config);
+    return (config ? config->getServer() : 0);
 }
-
 }
 }
 
 #include "../fabric/canvas.ipp"
-template class eq::fabric::Canvas< eq::admin::Config, eq::admin::Canvas,
-                                   eq::admin::Segment, eq::admin::Layout >;
+template class eq::fabric::Canvas<eq::admin::Config, eq::admin::Canvas,
+                                  eq::admin::Segment, eq::admin::Layout>;
 
 /** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::admin::Super& );
+template EQFABRIC_API std::ostream& eq::fabric::operator<<(
+    std::ostream&, const eq::admin::Super&);
 /** @endcond */
-

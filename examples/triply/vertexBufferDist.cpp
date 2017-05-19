@@ -34,159 +34,157 @@
 
 namespace triply
 {
-
-VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
-                                    co::NodePtr master,
-                                    co::LocalNodePtr localNode,
-                                    const eq::uint128_t& modelID )
-    : VertexBufferDist( root, root, master, localNode, modelID )
-{}
-
-VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
-                                    VertexBufferBase& node,
-                                    co::NodePtr master,
-                                    co::LocalNodePtr localNode,
-                                    const eq::uint128_t& modelID )
-    : _root( root )
-    , _node( node )
-    , _changeType( STATIC )
+VertexBufferDist::VertexBufferDist(VertexBufferRoot& root, co::NodePtr master,
+                                   co::LocalNodePtr localNode,
+                                   const eq::uint128_t& modelID)
+    : VertexBufferDist(root, root, master, localNode, modelID)
 {
-    if( !localNode->mapObject( this, modelID, master, co::VERSION_FIRST ))
-        throw std::runtime_error( "Mapping of ply node failed" );
 }
 
-
-VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
-                                    co::LocalNodePtr localNode,
-                                    const co::Object::ChangeType type,
-                                    const co::CompressorInfo& compressor )
-    : VertexBufferDist( root, root, localNode, type, compressor )
-{}
-
-VertexBufferDist::VertexBufferDist( VertexBufferRoot& root,
-                                    VertexBufferBase& node,
-                                    co::LocalNodePtr localNode,
-                                    const co::Object::ChangeType type,
-                                    const co::CompressorInfo& compressor )
-    : _root( root )
-    , _node( node )
-    , _left( node.getLeft() ?
-             new VertexBufferDist( root, *node.getLeft(), localNode,
-                                   type, compressor ) : nullptr )
-    , _right( node.getRight() ?
-              new VertexBufferDist( root, *node.getRight(), localNode,
-                                    type, compressor ) : nullptr )
-    , _changeType( type )
-    , _compressor( compressor == COMPRESSOR_AUTO ?
-                   co::Object::chooseCompressor() : compressor )
+VertexBufferDist::VertexBufferDist(VertexBufferRoot& root,
+                                   VertexBufferBase& node, co::NodePtr master,
+                                   co::LocalNodePtr localNode,
+                                   const eq::uint128_t& modelID)
+    : _root(root)
+    , _node(node)
+    , _changeType(STATIC)
 {
-    if( !localNode->registerObject( this ))
-        throw std::runtime_error( "Register of ply node failed" );
+    if (!localNode->mapObject(this, modelID, master, co::VERSION_FIRST))
+        throw std::runtime_error("Mapping of ply node failed");
+}
+
+VertexBufferDist::VertexBufferDist(VertexBufferRoot& root,
+                                   co::LocalNodePtr localNode,
+                                   const co::Object::ChangeType type,
+                                   const co::CompressorInfo& compressor)
+    : VertexBufferDist(root, root, localNode, type, compressor)
+{
+}
+
+VertexBufferDist::VertexBufferDist(VertexBufferRoot& root,
+                                   VertexBufferBase& node,
+                                   co::LocalNodePtr localNode,
+                                   const co::Object::ChangeType type,
+                                   const co::CompressorInfo& compressor)
+    : _root(root)
+    , _node(node)
+    , _left(node.getLeft() ? new VertexBufferDist(root, *node.getLeft(),
+                                                  localNode, type, compressor)
+                           : nullptr)
+    , _right(node.getRight() ? new VertexBufferDist(root, *node.getRight(),
+                                                    localNode, type, compressor)
+                             : nullptr)
+    , _changeType(type)
+    , _compressor(compressor == COMPRESSOR_AUTO ? co::Object::chooseCompressor()
+                                                : compressor)
+{
+    if (!localNode->registerObject(this))
+        throw std::runtime_error("Register of ply node failed");
 }
 
 VertexBufferDist::~VertexBufferDist()
 {
     _left.reset();
     _right.reset();
-    if( getLocalNode( ))
-        getLocalNode()->releaseObject( this );
+    if (getLocalNode())
+        getLocalNode()->releaseObject(this);
 }
 
-void VertexBufferDist::getInstanceData( co::DataOStream& os )
+void VertexBufferDist::getInstanceData(co::DataOStream& os)
 {
-    if( _left )
+    if (_left)
         os << _left->getID() << _left->_node.getType();
     else
         os << eq::uint128_t() << Type::none;
 
-    if( _right )
+    if (_right)
         os << _right->getID() << _right->_node.getType();
     else
         os << eq::uint128_t() << Type::none;
 
     os << _node._boundingSphere << _node._range;
 
-    if( _isRoot( ))
+    if (_isRoot())
     {
         const VertexBufferData& data = _root._data;
         os << data.vertices << data.colors << data.normals << data.indices
            << _root._name;
     }
-    if( _node.getType() == Type::leaf )
+    if (_node.getType() == Type::leaf)
     {
         const VertexBufferLeaf& leaf =
-            dynamic_cast< const VertexBufferLeaf& >( _node );
+            dynamic_cast<const VertexBufferLeaf&>(_node);
 
         os << leaf._boundingBox[0] << leaf._boundingBox[1]
-           << uint64_t( leaf._vertexStart ) << uint64_t( leaf._indexStart )
-           << uint64_t( leaf._indexLength ) << leaf._vertexLength;
+           << uint64_t(leaf._vertexStart) << uint64_t(leaf._indexStart)
+           << uint64_t(leaf._indexLength) << leaf._vertexLength;
     }
 }
 
-void VertexBufferDist::applyInstanceData( co::DataIStream& is )
+void VertexBufferDist::applyInstanceData(co::DataIStream& is)
 {
-    const eq::uint128_t& leftID = is.read< eq::uint128_t >();
-    const Type leftType = is.read< Type >();
-    const eq::uint128_t& rightID = is.read< eq::uint128_t >();
-    const Type rightType = is.read< Type >();
+    const eq::uint128_t& leftID = is.read<eq::uint128_t>();
+    const Type leftType = is.read<Type>();
+    const eq::uint128_t& rightID = is.read<eq::uint128_t>();
+    const Type rightType = is.read<Type>();
 
     is >> _node._boundingSphere >> _node._range;
 
-    if( _isRoot( ))
+    if (_isRoot())
     {
         VertexBufferData& data = _root._data;
-        is >> data.vertices >> data.colors >> data.normals >> data.indices
-           >> _root._name;
+        is >> data.vertices >> data.colors >> data.normals >> data.indices >>
+            _root._name;
     }
-    switch( _node.getType() )
+    switch (_node.getType())
     {
     case Type::leaf:
     {
-        VertexBufferLeaf& leaf = dynamic_cast< VertexBufferLeaf& >( _node );
+        VertexBufferLeaf& leaf = dynamic_cast<VertexBufferLeaf&>(_node);
         uint64_t i1, i2, i3;
-        is >> leaf._boundingBox[0] >> leaf._boundingBox[1]
-           >> i1 >> i2 >> i3 >> leaf._vertexLength;
-        leaf._vertexStart = size_t( i1 );
-        leaf._indexStart = size_t( i2 );
-        leaf._indexLength = size_t( i3 );
+        is >> leaf._boundingBox[0] >> leaf._boundingBox[1] >> i1 >> i2 >> i3 >>
+            leaf._vertexLength;
+        leaf._vertexStart = size_t(i1);
+        leaf._indexStart = size_t(i2);
+        leaf._indexLength = size_t(i3);
         return;
     }
-    case Type::node: break;
-    case Type::root: break;
-    default:
-        throw std::runtime_error( "Internal error: unexpected node type " +
-                                  std::to_string( unsigned( _node.getType( ))));
-    }
-
-    VertexBufferNode& node = dynamic_cast< VertexBufferNode& >( _node );
-    node._left = _createNode( leftType );
-    if( node._left )
-        _left.reset(
-            new VertexBufferDist( _root, *node._left,
-                                  getMasterNode(), getLocalNode(), leftID ));
-
-    node._right = _createNode( rightType );
-    if( node._right )
-        _right.reset(
-            new VertexBufferDist( _root, *node._right,
-                                  getMasterNode(), getLocalNode(), rightID ));
-}
-
-std::unique_ptr< VertexBufferBase >
-VertexBufferDist::_createNode( const Type type ) const
-{
-    switch( type )
-    {
-    case Type::none: return nullptr;
     case Type::node:
-        return std::unique_ptr< VertexBufferBase >( new VertexBufferNode );
-    case Type::leaf:
-        return std::unique_ptr< VertexBufferBase >( new VertexBufferLeaf(
-                                                                  _root._data ));
+        break;
+    case Type::root:
+        break;
     default:
-        throw std::runtime_error( "Internal error: unexpected node type "+
-                                  std::to_string( unsigned( type )));
+        throw std::runtime_error("Internal error: unexpected node type " +
+                                 std::to_string(unsigned(_node.getType())));
     }
+
+    VertexBufferNode& node = dynamic_cast<VertexBufferNode&>(_node);
+    node._left = _createNode(leftType);
+    if (node._left)
+        _left.reset(new VertexBufferDist(_root, *node._left, getMasterNode(),
+                                         getLocalNode(), leftID));
+
+    node._right = _createNode(rightType);
+    if (node._right)
+        _right.reset(new VertexBufferDist(_root, *node._right, getMasterNode(),
+                                          getLocalNode(), rightID));
 }
 
+std::unique_ptr<VertexBufferBase> VertexBufferDist::_createNode(
+    const Type type) const
+{
+    switch (type)
+    {
+    case Type::none:
+        return nullptr;
+    case Type::node:
+        return std::unique_ptr<VertexBufferBase>(new VertexBufferNode);
+    case Type::leaf:
+        return std::unique_ptr<VertexBufferBase>(
+            new VertexBufferLeaf(_root._data));
+    default:
+        throw std::runtime_error("Internal error: unexpected node type " +
+                                 std::to_string(unsigned(type)));
+    }
+}
 }

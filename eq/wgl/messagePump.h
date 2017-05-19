@@ -24,27 +24,26 @@ namespace eq
 {
 namespace wgl
 {
-    /** Processes OS messages on Win32 systems. */
-  class MessagePump : public eq::MessagePump
-    {
-    public:
-        /** Construct a new WGL message pump. @version 1.0 */
-        EQ_API MessagePump();
+/** Processes OS messages on Win32 systems. */
+class MessagePump : public eq::MessagePump
+{
+public:
+    /** Construct a new WGL message pump. @version 1.0 */
+    EQ_API MessagePump();
 
-        /** Destruct this message pump. @version 1.0 */
-        virtual ~MessagePump() {}
+    /** Destruct this message pump. @version 1.0 */
+    virtual ~MessagePump() {}
+    EQ_API void postWakeup() override;
+    EQ_API void dispatchAll() override;
+    EQ_API void dispatchOne(
+        const uint32_t timeout = LB_TIMEOUT_INDEFINITE) override;
 
-        EQ_API void postWakeup() override;
-        EQ_API void dispatchAll() override;
-        EQ_API void dispatchOne( const uint32_t timeout =
-                                   LB_TIMEOUT_INDEFINITE ) override;
+private:
+    /** Thread ID of the receiver. */
+    unsigned long _win32ThreadID;
 
-    private:
-        /** Thread ID of the receiver. */
-        unsigned long _win32ThreadID;
-        
-        void _initReceiverQueue();
-    };
+    void _initReceiverQueue();
+};
 }
 }
-#endif //EQ_WGL_MESSAGEPUMP_H
+#endif // EQ_WGL_MESSAGEPUMP_H

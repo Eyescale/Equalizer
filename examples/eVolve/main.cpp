@@ -40,25 +40,35 @@
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig( eq::ServerPtr parent )
-        { return new eVolve::Config( parent ); }
-    virtual eq::Node*    createNode( eq::Config* parent )
-        { return new eVolve::Node( parent ); }
-    virtual eq::Pipe*    createPipe( eq::Node* parent )
-        { return new eVolve::Pipe( parent ); }
-    virtual eq::Window*  createWindow( eq::Pipe* parent )
-        { return new eVolve::Window( parent ); }
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new eVolve::Channel( parent ); }
+    virtual eq::Config* createConfig(eq::ServerPtr parent)
+    {
+        return new eVolve::Config(parent);
+    }
+    virtual eq::Node* createNode(eq::Config* parent)
+    {
+        return new eVolve::Node(parent);
+    }
+    virtual eq::Pipe* createPipe(eq::Node* parent)
+    {
+        return new eVolve::Pipe(parent);
+    }
+    virtual eq::Window* createWindow(eq::Pipe* parent)
+    {
+        return new eVolve::Window(parent);
+    }
+    virtual eq::Channel* createChannel(eq::Window* parent)
+    {
+        return new eVolve::Channel(parent);
+    }
 };
 
-int main( const int argc, char** argv )
+int main(const int argc, char** argv)
 {
     // 1. Equalizer initialization
     NodeFactory nodeFactory;
     eVolve::initErrors();
 
-    if( !eq::init( argc, argv, &nodeFactory ))
+    if (!eq::init(argc, argv, &nodeFactory))
     {
         LBERROR << "Equalizer init failed" << std::endl;
         eq::exit(); // cppcheck-suppress unreachableCode
@@ -68,11 +78,11 @@ int main( const int argc, char** argv )
 
     // 2. parse arguments
     eVolve::LocalInitData initData;
-    initData.parseArguments( argc, argv );
+    initData.parseArguments(argc, argv);
 
     // 3. initialization of local client node
-    lunchbox::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
-    if( !client->initLocal( argc, argv ))
+    lunchbox::RefPtr<eVolve::EVolve> client = new eVolve::EVolve(initData);
+    if (!client->initLocal(argc, argv))
     {
         LBERROR << "Can't init client" << std::endl;
         eq::exit(); // cppcheck-suppress unreachableCode
@@ -86,8 +96,8 @@ int main( const int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
-    LBASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
-                  client->getRefCount() - 1 );
+    LBASSERTINFO(client->getRefCount() == 1, "Client still referenced by "
+                                                 << client->getRefCount() - 1);
     client = 0;
 
     eq::exit(); // cppcheck-suppress unreachableCode

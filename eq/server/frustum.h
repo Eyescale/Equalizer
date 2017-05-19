@@ -18,7 +18,7 @@
 #ifndef EQSERVER_FRUSTUM_H
 #define EQSERVER_FRUSTUM_H
 
-#include <eq/fabric/frustum.h>     // base class
+#include <eq/fabric/frustum.h> // base class
 
 namespace eq
 {
@@ -30,10 +30,9 @@ class FrustumData;
 class Frustum : public fabric::Frustum
 {
 public:
-    explicit Frustum( FrustumData& data );
-    Frustum( const Frustum& from, FrustumData& data );
-    virtual ~Frustum(){}
-
+    explicit Frustum(FrustumData& data);
+    Frustum(const Frustum& from, FrustumData& data);
+    virtual ~Frustum() {}
 private:
     FrustumData& _data;
 

@@ -19,8 +19,8 @@
 #ifndef EQSEQUEL_DETAIL_WINDOW_H
 #define EQSEQUEL_DETAIL_WINDOW_H
 
-#include <seq/types.h>
 #include <eq/window.h> // base class
+#include <seq/types.h>
 
 namespace seq
 {
@@ -29,7 +29,7 @@ namespace detail
 class Window : public eq::Window
 {
 public:
-    explicit Window( eq::Pipe* parent );
+    explicit Window(eq::Pipe* parent);
 
     Config* getConfig();
     Pipe* getPipe();
@@ -38,29 +38,30 @@ public:
 
     /** @name Operations. */
     //@{
-    void frameStart( const uint128_t& frameID, const uint32_t frameNumber )
-        final;
-    void frameFinish( const uint128_t& frameID, const uint32_t frameNumber )
-        final;
-    bool configInitGL( const uint128_t& initID ) final;
+    void frameStart(const uint128_t& frameID, const uint32_t frameNumber) final;
+    void frameFinish(const uint128_t& frameID,
+                     const uint32_t frameNumber) final;
+    bool configInitGL(const uint128_t& initID) final;
     bool configExitGL() final;
 
-    bool processEvent( eq::EventType type ) final;
-    bool processEvent( eq::EventType type, SizeEvent& event ) final;
-    bool processEvent( eq::EventType type, PointerEvent& event ) final;
-    bool processEvent( eq::EventType type, KeyEvent& event ) final;
-    bool processEvent( AxisEvent& event ) final;
-    bool processEvent( ButtonEvent& event ) final;
+    bool processEvent(eq::EventType type) final;
+    bool processEvent(eq::EventType type, SizeEvent& event) final;
+    bool processEvent(eq::EventType type, PointerEvent& event) final;
+    bool processEvent(eq::EventType type, KeyEvent& event) final;
+    bool processEvent(AxisEvent& event) final;
+    bool processEvent(ButtonEvent& event) final;
 
-    bool initContext() { return eq::Window::configInitGL( uint128_t( )); }
+    bool initContext() { return eq::Window::configInitGL(uint128_t()); }
     bool exitContext() { return eq::Window::configExitGL(); }
     //@}
 
 private:
     virtual ~Window();
 
-    template< class E > bool _processEvent( eq::EventType type, E& event );
-    template< class E > bool _processEvent( E& event );
+    template <class E>
+    bool _processEvent(eq::EventType type, E& event);
+    template <class E>
+    bool _processEvent(E& event);
 };
 }
 }

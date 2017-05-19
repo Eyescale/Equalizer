@@ -28,11 +28,11 @@ namespace tiles
 class RasterStrategy
 {
 public:
-    void operator()( std::vector< Vector2i >& tiles, const Vector2i& dim )
+    void operator()(std::vector<Vector2i>& tiles, const Vector2i& dim)
     {
-        for( int y = 0; y < dim.y(); ++y )
-            for( int x = 0; x < dim.x(); ++x )
-                tiles.push_back( Vector2i( x, y ));
+        for (int y = 0; y < dim.y(); ++y)
+            for (int x = 0; x < dim.x(); ++x)
+                tiles.push_back(Vector2i(x, y));
     }
 };
 }

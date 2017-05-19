@@ -36,7 +36,7 @@
 #include <triply/vertexBufferRoot.h>
 
 #ifndef M_PI_2
-#  define M_PI_2 1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 /** The Equalizer polygonal rendering example. */
@@ -46,7 +46,7 @@ namespace eqPly
 class EqPly : public eq::Client
 {
 public:
-    EqPly( const LocalInitData& initData );
+    EqPly(const LocalInitData& initData);
 
     /** Run an eqPly instance. */
     int run();
@@ -60,7 +60,6 @@ protected:
 
 private:
     virtual ~EqPly() {}
-
     const LocalInitData& _initData;
 };
 }

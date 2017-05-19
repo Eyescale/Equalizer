@@ -21,7 +21,7 @@
 #define EQ_GLOBAL_H
 
 #include <eq/api.h>
-#include <eq/init.h>       // friend
+#include <eq/init.h> // friend
 #include <eq/types.h>
 
 #include <eq/fabric/global.h>     // base class
@@ -34,20 +34,19 @@ class Global : public fabric::Global
 {
 public:
     /** Set the name of the program. @version 1.5.2 */
-    EQ_API static void setProgramName( const std::string& programName );
+    EQ_API static void setProgramName(const std::string& programName);
 
     /** @return the program name. @version 1.5.2 */
     EQ_API static const std::string& getProgramName();
 
     /** Set the working directory of the program. @version 1.5.2 */
-    EQ_API static void setWorkDir( const std::string& workDir );
+    EQ_API static void setWorkDir(const std::string& workDir);
 
     /** @return the working directory of the program. @version 1.5.2 */
     EQ_API static const std::string& getWorkDir();
 
     /** @return the node factory. @version 1.0 */
     static NodeFactory* getNodeFactory() { return _nodeFactory; }
-
     /**
      * Set the config file or hwsd session for the app-local server.
      *
@@ -60,7 +59,7 @@ public:
      * @param config the default configuration.
      * @version 1.0
      */
-    EQ_API static void setConfig( const std::string& config );
+    EQ_API static void setConfig(const std::string& config);
 
     /** @return the configuration for the app-local server. @version 1.0 */
     EQ_API static const std::string& getConfig();
@@ -79,11 +78,11 @@ public:
     static void leaveCarbon();
 
 private:
-    EQ_API friend bool _init( const int argc, char** argv, NodeFactory* );
+    EQ_API friend bool _init(const int argc, char** argv, NodeFactory*);
     EQ_API friend bool exit();
 
     static NodeFactory* _nodeFactory;
-    static std::string  _config;
+    static std::string _config;
 };
 }
 

@@ -30,7 +30,6 @@
 
 namespace eqPly
 {
-
 namespace
 {
 struct ErrorData
@@ -40,28 +39,28 @@ struct ErrorData
 };
 
 ErrorData _errors[] = {
-    { ERROR_EQPLY_MAPOBJECT_FAILED, 
-      "Mapping data from application process failed" },
+    {ERROR_EQPLY_MAPOBJECT_FAILED,
+     "Mapping data from application process failed"},
 
-    { 0, "" } // last!
+    {0, ""} // last!
 };
 }
 
 void initErrors()
 {
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry =
+        eq::fabric::Global::getErrorRegistry();
 
-    for( size_t i=0; _errors[i].code != 0; ++i )
-        registry.setString( _errors[i].code, _errors[i].text );
+    for (size_t i = 0; _errors[i].code != 0; ++i)
+        registry.setString(_errors[i].code, _errors[i].text);
 }
 
 void exitErrors()
 {
-    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry =
+        eq::fabric::Global::getErrorRegistry();
 
-    for( size_t i=0; _errors[i].code != 0; ++i )
-        registry.eraseString( _errors[i].code );
+    for (size_t i = 0; _errors[i].code != 0; ++i)
+        registry.eraseString(_errors[i].code);
 }
-
 }
-

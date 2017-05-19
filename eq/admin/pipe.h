@@ -18,27 +18,27 @@
 #ifndef EQADMIN_PIPE_H
 #define EQADMIN_PIPE_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/pipe.h>       // base class
+#include <eq/admin/types.h> // typedefs
+#include <eq/fabric/pipe.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
+class Pipe : public fabric::Pipe<Node, Pipe, Window, PipeVisitor>
 {
 public:
     /** Construct a new pipe. @version 1.0 */
-    EQADMIN_API explicit Pipe( Node* parent );
+    EQADMIN_API explicit Pipe(Node* parent);
 
     /** Destruct a pipe. @version 1.0 */
     EQADMIN_API virtual ~Pipe();
 
     /** @name Data Access. */
     //@{
-    ServerPtr getServer(); //!< @return the server node
-    ClientPtr getClient(); //!< @return the local client node
-    EQADMIN_API Config* getConfig();   //!< @return the parent configuration
+    ServerPtr getServer();           //!< @return the server node
+    ClientPtr getClient();           //!< @return the local client node
+    EQADMIN_API Config* getConfig(); //!< @return the parent configuration
     const Config* getConfig() const; //!< @return the parent configuration
 
     co::CommandQueue* getMainThreadQueue(); //!< @internal

@@ -29,33 +29,33 @@ namespace
 class TransferFinder : public pression::ConstPluginVisitor
 {
 public:
-    TransferFinder( const uint32_t internal, const uint32_t external,
-                    const uint64_t caps, const float minQuality,
-                    const bool ignoreAlpha, const GLEWContext* gl )
-        : internal_( internal )
-        , external_( external )
-        , caps_( caps | EQ_COMPRESSOR_TRANSFER )
-        , minQuality_( minQuality )
-        , ignoreAlpha_( ignoreAlpha )
-        , gl_( gl )
-    {}
+    TransferFinder(const uint32_t internal, const uint32_t external,
+                   const uint64_t caps, const float minQuality,
+                   const bool ignoreAlpha, const GLEWContext* gl)
+        : internal_(internal)
+        , external_(external)
+        , caps_(caps | EQ_COMPRESSOR_TRANSFER)
+        , minQuality_(minQuality)
+        , ignoreAlpha_(ignoreAlpha)
+        , gl_(gl)
+    {
+    }
 
     virtual ~TransferFinder() {}
-
-    fabric::VisitorResult visit( const pression::Plugin& plugin,
-                                 const EqCompressorInfo& info ) final
+    fabric::VisitorResult visit(const pression::Plugin& plugin,
+                                const EqCompressorInfo& info) final
     {
-        if(( (info.capabilities & caps_) == caps_ )                &&
-           ( internal_ == EQ_COMPRESSOR_DATATYPE_NONE ||
-             info.tokenType == internal_ )                         &&
-           ( external_ == EQ_COMPRESSOR_DATATYPE_NONE ||
-             info.outputTokenType == external_ )                   &&
-           ( info.quality >= minQuality_ )                         &&
-           ( ignoreAlpha_ ||
-             !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA ))   &&
-           ( !gl_ || plugin.isCompatible( info.name, gl_ )))
+        if (((info.capabilities & caps_) == caps_) &&
+            (internal_ == EQ_COMPRESSOR_DATATYPE_NONE ||
+             info.tokenType == internal_) &&
+            (external_ == EQ_COMPRESSOR_DATATYPE_NONE ||
+             info.outputTokenType == external_) &&
+            (info.quality >= minQuality_) &&
+            (ignoreAlpha_ ||
+             !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA)) &&
+            (!gl_ || plugin.isCompatible(info.name, gl_)))
         {
-            result.push_back( info );
+            result.push_back(info);
         }
         return fabric::TRAVERSE_CONTINUE;
     }

@@ -29,7 +29,6 @@ namespace eq
 {
 namespace server
 {
-
 class Canvas;
 class Channel;
 class ChannelListener;
@@ -59,21 +58,21 @@ class View;
 class ViewEqualizer;
 class Window;
 
-typedef std::vector< Config* >   Configs;
-typedef std::vector< Node* >     Nodes;
-typedef std::vector< Pipe* >     Pipes;
-typedef std::vector< Window* >   Windows;
-typedef std::vector< Channel* >  Channels;
+typedef std::vector<Config*> Configs;
+typedef std::vector<Node*> Nodes;
+typedef std::vector<Pipe*> Pipes;
+typedef std::vector<Window*> Windows;
+typedef std::vector<Channel*> Channels;
 
-typedef std::vector< Canvas* >       Canvases;
-typedef std::vector< Compound* >     Compounds;
-typedef std::vector< Frame* >        Frames;
-typedef std::vector< TileQueue* >    TileQueues;
-typedef std::vector< Layout* >       Layouts;
-typedef std::vector< Equalizer* >    Equalizers;
-typedef std::vector< Observer* >     Observers;
-typedef std::vector< Segment* >      Segments;
-typedef std::vector< View* >         Views;
+typedef std::vector<Canvas*> Canvases;
+typedef std::vector<Compound*> Compounds;
+typedef std::vector<Frame*> Frames;
+typedef std::vector<TileQueue*> TileQueues;
+typedef std::vector<Layout*> Layouts;
+typedef std::vector<Equalizer*> Equalizers;
+typedef std::vector<Observer*> Observers;
+typedef std::vector<Segment*> Segments;
+typedef std::vector<View*> Views;
 
 using lunchbox::uint128_t;
 using lunchbox::uint128_t;
@@ -107,8 +106,8 @@ typedef Equalizers::iterator EqualizersIter;
 typedef Windows::const_iterator WindowsCIter;
 typedef Windows::iterator WindowsIter;
 
-typedef lunchbox::RefPtr< Server > ServerPtr;
-typedef lunchbox::RefPtr< const Server > ConstServerPtr;
+typedef lunchbox::RefPtr<Server> ServerPtr;
+typedef lunchbox::RefPtr<const Server> ConstServerPtr;
 
 using namespace fabric::eventTypes;
 
@@ -158,37 +157,37 @@ using fabric::EYES_STEREO;
 using fabric::UNDEFINED;
 
 /** A visitor to traverse segments. @sa Segment::accept() */
-typedef fabric::LeafVisitor< Segment > SegmentVisitor;
+typedef fabric::LeafVisitor<Segment> SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
-typedef fabric::LeafVisitor< View > ViewVisitor;
+typedef fabric::LeafVisitor<View> ViewVisitor;
 
 /** A visitor to traverse layouts and children. */
-typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+typedef fabric::ElementVisitor<Layout, ViewVisitor> LayoutVisitor;
 
 /** A visitor to traverse observers. @sa Observer::accept() */
-typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+typedef fabric::LeafVisitor<Observer> ObserverVisitor;
 
 /** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+typedef fabric::LeafVisitor<Channel> ChannelVisitor;
 
 /** A visitor to traverse Canvas and children. */
-typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
+typedef fabric::ElementVisitor<Canvas, SegmentVisitor> CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+typedef fabric::ElementVisitor<Window, ChannelVisitor> WindowVisitor;
 
 /** A visitor to traverse pipes and children. */
-typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
+typedef fabric::ElementVisitor<Pipe, WindowVisitor> PipeVisitor;
 
 /** A visitor to traverse nodes and children. */
-typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
+typedef fabric::ElementVisitor<Node, PipeVisitor> NodeVisitor;
 
 /** A visitor to traverse layouts and children. */
-typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+typedef fabric::ElementVisitor<Layout, ViewVisitor> LayoutVisitor;
 
 /** A visitor to traverse servers and children. */
-typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
+typedef fabric::ElementVisitor<Server, ConfigVisitor> ServerVisitor;
 
 using fabric::Eye;
 using fabric::EYE_UNDEFINED;

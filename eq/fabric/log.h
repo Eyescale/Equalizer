@@ -24,17 +24,17 @@ namespace eq
 {
 namespace fabric
 {
-    /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
-    enum LogTopics
-    {
-        LOG_INIT     = co::LOG_CUSTOM << 0, //!< Log initialization (512)
-        LOG_ASSEMBLY = co::LOG_CUSTOM << 1, //!< Compositing tasks (1024)
-        LOG_TASKS    = co::LOG_CUSTOM << 2, //!< Rendering tasks (2048)
-        LOG_LB1      = co::LOG_CUSTOM << 3, // 4096
-        LOG_LB2      = co::LOG_CUSTOM << 4, // 8192
-        LOG_VIEW     = co::LOG_CUSTOM << 5, // 16384
-        LOG_CUSTOM   = co::LOG_CUSTOM << 6  //!< 32768
-    };
+/** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
+enum LogTopics
+{
+    LOG_INIT = co::LOG_CUSTOM << 0,     //!< Log initialization (512)
+    LOG_ASSEMBLY = co::LOG_CUSTOM << 1, //!< Compositing tasks (1024)
+    LOG_TASKS = co::LOG_CUSTOM << 2,    //!< Rendering tasks (2048)
+    LOG_LB1 = co::LOG_CUSTOM << 3,      // 4096
+    LOG_LB2 = co::LOG_CUSTOM << 4,      // 8192
+    LOG_VIEW = co::LOG_CUSTOM << 5,     // 16384
+    LOG_CUSTOM = co::LOG_CUSTOM << 6    //!< 32768
+};
 }
 }
 #endif // EQFABRIC_LOG_H

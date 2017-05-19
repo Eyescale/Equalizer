@@ -21,12 +21,15 @@
 #ifndef EQ_IMAGE_H
 #define EQ_IMAGE_H
 
-#include <eq/frame.h>         // for Frame::Buffer enum
+#include <eq/frame.h> // for Frame::Buffer enum
 #include <eq/types.h>
 
 namespace eq
 {
-namespace detail { class Image; }
+namespace detail
+{
+class Image;
+}
 
 /**
  * A holder for pixel data.
@@ -40,10 +43,10 @@ public:
     EQ_API Image();
 
     /** Copy-construct a new Image. @version 2.1 */
-    EQ_API Image( const Image& );
+    EQ_API Image(const Image&);
 
     /** Move-assign a new Image. @version 2.1 */
-    EQ_API Image& operator=( Image&& rhs );
+    EQ_API Image& operator=(Image&& rhs);
 
     /** Destruct the Image. @version 1.0 */
     EQ_API virtual ~Image();
@@ -61,11 +64,11 @@ public:
      * @param internalFormat the internal format.
      * @version 1.0
      */
-    EQ_API void setInternalFormat( const Frame::Buffer buffer,
-                                   const uint32_t internalFormat );
+    EQ_API void setInternalFormat(const Frame::Buffer buffer,
+                                  const uint32_t internalFormat);
 
     /** @return the internal format of the pixel data. @version 1.0 */
-    EQ_API uint32_t getInternalFormat( const Frame::Buffer buffer )const;
+    EQ_API uint32_t getInternalFormat(const Frame::Buffer buffer) const;
 
     /**
      * Get the external format of the given buffer.
@@ -78,7 +81,7 @@ public:
      * @return the external format of the pixel data.
      * @version 1.0
      */
-    EQ_API uint32_t getExternalFormat( const Frame::Buffer buffer ) const;
+    EQ_API uint32_t getExternalFormat(const Frame::Buffer buffer) const;
 
     /**
      * Get the size, in bytes, of one pixel in the external pixel data.
@@ -87,7 +90,7 @@ public:
      * @sa getExternalFormat()
      * @version 1.0
      */
-    EQ_API uint32_t getPixelSize( const Frame::Buffer buffer ) const;
+    EQ_API uint32_t getPixelSize(const Frame::Buffer buffer) const;
 
     /**
      * @return true if the image has a color buffer with alpha values.
@@ -107,7 +110,7 @@ public:
      * which can be accessed using getTexture().
      * @version 1.0
      */
-    EQ_API void setStorageType( const Frame::Type type );
+    EQ_API void setStorageType(const Frame::Type type);
 
     /** @return the pixel data storage type. @version 1.0 */
     EQ_API Frame::Type getStorageType() const;
@@ -123,19 +126,19 @@ public:
      * @param pvp the pixel viewport.
      * @version 1.0
      */
-    EQ_API void setPixelViewport( const PixelViewport& pvp );
+    EQ_API void setPixelViewport(const PixelViewport& pvp);
 
     /** @return the internal pixel viewport. @version 1.0 */
     EQ_API const PixelViewport& getPixelViewport() const;
 
     /** Sets the zoom factor to be used for compositing. */
-    EQ_API void setZoom( const Zoom& zoom );
+    EQ_API void setZoom(const Zoom& zoom);
 
     /** @return zoom factor to be used for compositing. */
     EQ_API const Zoom& getZoom() const;
 
     /** Set the render context producing this image. */
-    EQ_API void setContext( const RenderContext& context );
+    EQ_API void setContext(const RenderContext& context);
 
     /** @return the rendering context which created this image, or a default. */
     EQ_API const RenderContext& getContext() const;
@@ -149,7 +152,7 @@ public:
      * @param buffer the frame buffer attachment.
      * @param name the compressor name
      */
-    EQ_API void useCompressor( Frame::Buffer buffer, uint32_t name );
+    EQ_API void useCompressor(Frame::Buffer buffer, uint32_t name);
 
     /**
      * Reset the image to its default state.
@@ -171,7 +174,7 @@ public:
      * Requires the appropriate OpenGL context to be current.
      * @version 1.3.2
      */
-    EQ_API void deleteGLObjects( util::ObjectManager& om );
+    EQ_API void deleteGLObjects(util::ObjectManager& om);
 
     /**
      * Deallocate all transfer and compression plugins.
@@ -185,32 +188,31 @@ public:
     /** @name Pixel Data Access */
     //@{
     /** @return a pointer to the raw pixel data. @version 1.0 */
-    EQ_API const uint8_t* getPixelPointer( const Frame::Buffer buffer )
-        const;
+    EQ_API const uint8_t* getPixelPointer(const Frame::Buffer buffer) const;
 
     /** @return a pointer to the raw pixel data. @version 1.0 */
-    EQ_API uint8_t* getPixelPointer( const Frame::Buffer buffer );
+    EQ_API uint8_t* getPixelPointer(const Frame::Buffer buffer);
 
     /** @return the total size of the pixel data in bytes. @version 1.0 */
-    EQ_API uint32_t getPixelDataSize( const Frame::Buffer buffer ) const;
+    EQ_API uint32_t getPixelDataSize(const Frame::Buffer buffer) const;
 
     /** @return the pixel data. @version 1.0 */
-    EQ_API const PixelData& getPixelData( const Frame::Buffer ) const;
+    EQ_API const PixelData& getPixelData(const Frame::Buffer) const;
 
     /** @return the pixel data, compressing it if needed. @version 1.0 */
-    EQ_API const PixelData& compressPixelData( const Frame::Buffer );
+    EQ_API const PixelData& compressPixelData(const Frame::Buffer);
 
     /**
      * @return true if the image has valid pixel data for the buffer.
      * @version 1.0
      */
-    EQ_API bool hasPixelData( const Frame::Buffer buffer ) const;
+    EQ_API bool hasPixelData(const Frame::Buffer buffer) const;
 
     /**
      * @return true if an async readback for a buffer is in progress.
      * @version 1.3.2
      */
-    EQ_API bool hasAsyncReadback( const Frame::Buffer buffer ) const;
+    EQ_API bool hasAsyncReadback(const Frame::Buffer buffer) const;
 
     /**
      * @return true if an async readback for any buffer is in progress.
@@ -228,10 +230,10 @@ public:
      * @param buffer the image buffer to clear.
      * @version 1.0
      */
-    EQ_API void clearPixelData( const Frame::Buffer buffer );
+    EQ_API void clearPixelData(const Frame::Buffer buffer);
 
     /** Allocate an image buffer without initialization. @version 1.0 */
-    EQ_API void validatePixelData( const Frame::Buffer buffer );
+    EQ_API void validatePixelData(const Frame::Buffer buffer);
 
     /**
      * Set the pixel data of the given image buffer.
@@ -244,14 +246,13 @@ public:
      * @param data the pixel data.
      * @version 1.0
      */
-    EQ_API void setPixelData( const Frame::Buffer buffer,
-                              const PixelData& data );
+    EQ_API void setPixelData(const Frame::Buffer buffer, const PixelData& data);
 
     /**
      * Set alpha data preservation during download and compression.
      * @version 1.0
      */
-    EQ_API void setAlphaUsage( const bool enabled );
+    EQ_API void setAlphaUsage(const bool enabled);
 
     /** @return true if alpha data can not be ignored. @version 1.0 */
     EQ_API bool getAlphaUsage() const;
@@ -268,24 +269,22 @@ public:
      * @param quality the minimum quality to maintain.
      * @version 1.0
      */
-    EQ_API void setQuality( const Frame::Buffer buffer,
-                            const float quality );
+    EQ_API void setQuality(const Frame::Buffer buffer, const float quality);
 
     /** @return the minimum quality. @version 1.0 */
-    EQ_API float getQuality( const Frame::Buffer buffer ) const;
+    EQ_API float getQuality(const Frame::Buffer buffer) const;
     //@}
 
     /** @name Texture Data Access */
     //@{
     /** Get the texture of this image. @version 1.0 */
-    EQ_API const util::Texture& getTexture( const Frame::Buffer buffer )
-        const;
+    EQ_API const util::Texture& getTexture(const Frame::Buffer buffer) const;
 
     /**
      * @return true if the image has texture data for the buffer.
      * @version 1.0
      */
-    EQ_API bool hasTextureData( const Frame::Buffer buffer ) const;
+    EQ_API bool hasTextureData(const Frame::Buffer buffer) const;
     //@}
 
     /** @name Operations */
@@ -301,15 +300,14 @@ public:
      * @return true when the operation requires a finishReadback().
      * @version 1.3.2
      */
-    EQ_API bool startReadback( const Frame::Buffer buffers,
-                               const PixelViewport& pvp,
-                               const RenderContext& context, const Zoom& zoom,
-                               util::ObjectManager& glObjects );
+    EQ_API bool startReadback(const Frame::Buffer buffers,
+                              const PixelViewport& pvp,
+                              const RenderContext& context, const Zoom& zoom,
+                              util::ObjectManager& glObjects);
 
     /** @internal Start reading back data from a texture. */
-    bool startReadback( const Frame::Buffer buffer,
-                        const util::Texture* texture,
-                        const GLEWContext* glewContext );
+    bool startReadback(const Frame::Buffer buffer, const util::Texture* texture,
+                       const GLEWContext* glewContext);
 
     /**
      * Finish an asynchronous readback.
@@ -317,7 +315,7 @@ public:
      * @param glewContext the OpenGL function table.
      * @version 1.7.1
      */
-    EQ_API void finishReadback( const GLEWContext* glewContext );
+    EQ_API void finishReadback(const GLEWContext* glewContext);
 
     /**
      * Upload this image to the frame buffer or a texture.
@@ -333,9 +331,9 @@ public:
      * @return true on success, false on error.
      * @version 1.0
      */
-    EQ_API bool upload( const Frame::Buffer buffer, util::Texture* texture,
-                        const Vector2i& position,
-                        util::ObjectManager& glObjects ) const;
+    EQ_API bool upload(const Frame::Buffer buffer, util::Texture* texture,
+                       const Vector2i& position,
+                       util::ObjectManager& glObjects) const;
 
     /**
      * Write the pixel data as rgb image file.
@@ -345,18 +343,18 @@ public:
      * http://trac.openscenegraph.org/projects/osg/wiki/Support/UserGuides/Plugins
      * @version 1.0
      */
-    EQ_API bool writeImage( const std::string& filename,
-                            const Frame::Buffer buffer ) const;
+    EQ_API bool writeImage(const std::string& filename,
+                           const Frame::Buffer buffer) const;
 
     /** Write all valid pixel data as separate images. @version 1.0 */
-    EQ_API bool writeImages( const std::string& filenameTemplate ) const;
+    EQ_API bool writeImages(const std::string& filenameTemplate) const;
 
     /** Read pixel data from an uncompressed rgb image file. @version 1.0 */
-    EQ_API bool readImage( const std::string& filename,
-                           const Frame::Buffer buffer );
+    EQ_API bool readImage(const std::string& filename,
+                          const Frame::Buffer buffer);
 
     /** @internal Set image offset after readback to correct position. */
-    void setOffset( int32_t x, int32_t y );
+    void setOffset(int32_t x, int32_t y);
     //@}
 
     /** @name Internal */
@@ -365,44 +363,42 @@ public:
      * @internal
      * @return the list of possible compressors for the given buffer.
      */
-    EQ_API std::vector< uint32_t >
-    findCompressors( const Frame::Buffer buffer ) const;
+    EQ_API std::vector<uint32_t> findCompressors(
+        const Frame::Buffer buffer) const;
 
     /**
      * @internal
      * @return a list of possible up/downloaders for the given buffer.
      */
-    EQ_API std::vector< uint32_t >
-    findTransferers( const Frame::Buffer buffer, const GLEWContext* gl )
-        const;
+    EQ_API std::vector<uint32_t> findTransferers(const Frame::Buffer buffer,
+                                                 const GLEWContext* gl) const;
 
     /** @internal Re-allocate, if needed, a compressor instance. */
-    EQ_API bool allocCompressor( const Frame::Buffer buffer,
-                                 const uint32_t name );
+    EQ_API bool allocCompressor(const Frame::Buffer buffer,
+                                const uint32_t name);
 
     /** @internal Re-allocate, if needed, a downloader instance. */
-    EQ_API bool allocDownloader( const Frame::Buffer buffer,
-                                 const uint32_t name,
-                                 const GLEWContext* glewContext );
+    EQ_API bool allocDownloader(const Frame::Buffer buffer, const uint32_t name,
+                                const GLEWContext* glewContext);
 
     /** @internal */
-    EQ_API uint32_t getDownloaderName( const Frame::Buffer buffer ) const;
+    EQ_API uint32_t getDownloaderName(const Frame::Buffer buffer) const;
     //@}
 
 private:
-    Image& operator=( const Image& ) = delete;
+    Image& operator=(const Image&) = delete;
     detail::Image* _impl;
 
     EQ_API
-    friend co::DataOStream& operator << ( co::DataOStream& os, const Image& );
+    friend co::DataOStream& operator<<(co::DataOStream& os, const Image&);
     EQ_API
-    friend co::DataIStream& operator >> ( co::DataIStream& is, Image& );
+    friend co::DataIStream& operator>>(co::DataIStream& is, Image&);
 
     /** @return a unique key for the frame buffer attachment. */
-    const void* _getBufferKey( const Frame::Buffer buffer ) const;
+    const void* _getBufferKey(const Frame::Buffer buffer) const;
 
     /** @return a unique key for the frame buffer attachment. */
-    const void* _getCompressorKey( const Frame::Buffer buffer ) const;
+    const void* _getCompressorKey(const Frame::Buffer buffer) const;
 
     /**
      * Set the type of the pixel data in main memory for the given buffer.
@@ -414,30 +410,27 @@ private:
      * @param pixelSize the size of one pixel in bytes.
      * @param hasAlpha true if the pzixel data contains an alpha channel.
      */
-    void _setExternalFormat( const Frame::Buffer buffer,
-                             const uint32_t externalFormat,
-                             const uint32_t pixelSize,
-                             const bool hasAlpha );
+    void _setExternalFormat(const Frame::Buffer buffer,
+                            const uint32_t externalFormat,
+                            const uint32_t pixelSize, const bool hasAlpha);
 
-    bool _readback( const Frame::Buffer buffer, const Zoom& zoom,
-                    util::ObjectManager& glObjects );
+    bool _readback(const Frame::Buffer buffer, const Zoom& zoom,
+                   util::ObjectManager& glObjects);
 
-    bool _startReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                         util::ObjectManager& glObjects );
+    bool _startReadback(const Frame::Buffer buffer, const Zoom& zoom,
+                        util::ObjectManager& glObjects);
 
-    void _finishReadback( const Frame::Buffer buffer, const GLEWContext* );
-    bool _readbackZoom( const Frame::Buffer buffer, util::ObjectManager& om );
-    bool _writeImage( const std::string& filename, const Frame::Buffer buffer,
-                      const unsigned char* data ) const;
+    void _finishReadback(const Frame::Buffer buffer, const GLEWContext*);
+    bool _readbackZoom(const Frame::Buffer buffer, util::ObjectManager& om);
+    bool _writeImage(const std::string& filename, const Frame::Buffer buffer,
+                     const unsigned char* data) const;
 };
 
 /** eq::Image serializer. @version 2.1 */
-EQ_API co::DataOStream& operator << ( co::DataOStream& os, const Image& );
+EQ_API co::DataOStream& operator<<(co::DataOStream& os, const Image&);
 
 /** eq::Image deserializer. @version 2.1 */
-EQ_API co::DataIStream& operator >> ( co::DataIStream& is, Image& );
-
+EQ_API co::DataIStream& operator>>(co::DataIStream& is, Image&);
 }
-
 
 #endif // EQ_IMAGE_H

@@ -30,7 +30,7 @@ namespace detail
 class View : public eq::View
 {
 public:
-    explicit View( eq::Layout* parent );
+    explicit View(eq::Layout* parent);
 
     /** @name Data Access. */
     //@{
@@ -42,11 +42,11 @@ public:
 
     /** @name Operations. */
     //@{
-    bool handleEvent( eq::EventType type, const SizeEvent& event ) final;
-    bool handleEvent( eq::EventType type, const PointerEvent& event );
-    bool handleEvent( eq::EventType type, const KeyEvent& event );
-    bool handleEvent( const AxisEvent& event );
-    bool handleEvent( const ButtonEvent& event );
+    bool handleEvent(eq::EventType type, const SizeEvent& event) final;
+    bool handleEvent(eq::EventType type, const PointerEvent& event);
+    bool handleEvent(eq::EventType type, const KeyEvent& event);
+    bool handleEvent(const AxisEvent& event);
+    bool handleEvent(const ButtonEvent& event);
     bool updateData();
     //@}
 
@@ -58,8 +58,10 @@ private:
     bool configExit() final;
     void notifyAttach() final;
     void notifyDetached() final;
-    template< class E > bool _handleEvent( eq::EventType type, E& event );
-    template< class E > bool _handleEvent( E& event );
+    template <class E>
+    bool _handleEvent(eq::EventType type, E& event);
+    template <class E>
+    bool _handleEvent(E& event);
 };
 }
 }

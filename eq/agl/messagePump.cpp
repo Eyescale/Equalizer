@@ -27,14 +27,13 @@ namespace eq
 {
 namespace agl
 {
-
 MessagePump::MessagePump()
-        : _receiverQueue( 0 )
-        , _needGlobalLock( true )
+    : _receiverQueue(0)
+    , _needGlobalLock(true)
 {
-    const OSStatus status = CreateEvent( 0, 0, 0, 0, kEventAttributeNone,
-                                         &_wakeupEvent );
-    if( status != noErr )
+    const OSStatus status =
+        CreateEvent(0, 0, 0, 0, kEventAttributeNone, &_wakeupEvent);
+    if (status != noErr)
     {
         LBWARN << "CreateEvent failed: " << status << std::endl;
         LBUNREACHABLE;
@@ -43,60 +42,60 @@ MessagePump::MessagePump()
 
 MessagePump::~MessagePump()
 {
-    ReleaseEvent( _wakeupEvent );
+    ReleaseEvent(_wakeupEvent);
 }
 
 void MessagePump::postWakeup()
 {
-    if( _receiverQueue )
-        PostEventToQueue( _receiverQueue, _wakeupEvent, kEventPriorityStandard);
+    if (_receiverQueue)
+        PostEventToQueue(_receiverQueue, _wakeupEvent, kEventPriorityStandard);
 }
 
 void MessagePump::_initReceiverQueue()
 {
-    if( !_receiverQueue )
+    if (!_receiverQueue)
     {
         _receiverQueue = GetCurrentEventQueue();
-        _needGlobalLock = ( _receiverQueue == GetMainEventQueue( ));
-        LBASSERT( _receiverQueue );
+        _needGlobalLock = (_receiverQueue == GetMainEventQueue());
+        LBASSERT(_receiverQueue);
     }
 
-    LBASSERTINFO( _receiverQueue == GetCurrentEventQueue(),
-                  "MessagePump::dispatch() called from two different threads" );
+    LBASSERTINFO(_receiverQueue == GetCurrentEventQueue(),
+                 "MessagePump::dispatch() called from two different threads");
 }
 
-void MessagePump::dispatchOne( const uint32_t timeout )
+void MessagePump::dispatchOne(const uint32_t timeout)
 {
     _initReceiverQueue();
     _clock.reset();
 
-    for( int64_t timeLeft = timeout; timeLeft >= 0;
-         timeLeft = timeout - _clock.getTime64( ))
+    for (int64_t timeLeft = timeout; timeLeft >= 0;
+         timeLeft = timeout - _clock.getTime64())
     {
-        if( _needGlobalLock )
+        if (_needGlobalLock)
             Global::enterCarbon();
 
         EventRef event;
-        const float wait = LB_MIN( float( timeLeft ) * .001f, .05f /* 50ms */ );
-        const OSStatus status = ReceiveNextEvent( 0, 0, wait, true, &event );
-        if( status == noErr )
+        const float wait = LB_MIN(float(timeLeft) * .001f, .05f /* 50ms */);
+        const OSStatus status = ReceiveNextEvent(0, 0, wait, true, &event);
+        if (status == noErr)
         {
             LBVERB << "Dispatch Carbon event " << event << std::endl;
 
-            if( !_needGlobalLock )
+            if (!_needGlobalLock)
                 Global::enterCarbon();
             const EventTargetRef target = GetEventDispatcherTarget();
-            SendEventToEventTarget( event, target );
+            SendEventToEventTarget(event, target);
             Global::leaveCarbon();
 
-            ReleaseEvent( event );
+            ReleaseEvent(event);
             return;
         }
 
-        if( _needGlobalLock )
+        if (_needGlobalLock)
             Global::leaveCarbon();
 
-        if( status != eventLoopTimedOutErr )
+        if (status != eventLoopTimedOutErr)
         {
             LBWARN << "ReceiveNextEvent failed: " << status << std::endl;
             return;
@@ -108,18 +107,18 @@ void MessagePump::dispatchAll()
 {
     _initReceiverQueue();
 
-    while( true )
+    while (true)
     {
         EventRef event;
 
-        if( _needGlobalLock )
+        if (_needGlobalLock)
             Global::enterCarbon();
-        const OSStatus status = ReceiveNextEvent( 0, 0, 0.0, true, &event );
+        const OSStatus status = ReceiveNextEvent(0, 0, 0.0, true, &event);
 
-        if( status == eventLoopTimedOutErr )
+        if (status == eventLoopTimedOutErr)
             break;
 
-        if( status != noErr )
+        if (status != noErr)
         {
             LBWARN << "ReceiveNextEvent failed: " << status << std::endl;
             break;
@@ -127,19 +126,18 @@ void MessagePump::dispatchAll()
 
         LBVERB << "Dispatch Carbon event " << event << std::endl;
 
-        if( !_needGlobalLock )
+        if (!_needGlobalLock)
             Global::enterCarbon();
         const EventTargetRef target = GetEventDispatcherTarget();
-        SendEventToEventTarget( event, target );
+        SendEventToEventTarget(event, target);
         Global::leaveCarbon();
 
-        ReleaseEvent( event );
+        ReleaseEvent(event);
     }
 
-    if( _needGlobalLock )
+    if (_needGlobalLock)
         Global::leaveCarbon();
 }
-
 }
 }
 #endif // AGL

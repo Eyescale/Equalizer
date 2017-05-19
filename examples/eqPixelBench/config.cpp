@@ -30,12 +30,11 @@
 #include "config.h"
 #include "configEvent.h"
 
-
 namespace eqPixelBench
 {
-Config::Config( eq::ServerPtr parent )
-        : eq::Config( parent )
-        , _clock(0)
+Config::Config(eq::ServerPtr parent)
+    : eq::Config(parent)
+    , _clock(0)
 {
 }
 
@@ -45,24 +44,24 @@ Config::~Config()
     _clock = 0;
 }
 
-uint32_t Config::startFrame( const eq::uint128_t& frameID )
+uint32_t Config::startFrame(const eq::uint128_t& frameID)
 {
-    if( !_clock )
+    if (!_clock)
         _clock = new lunchbox::Clock;
 
     _clock->reset();
-    return eq::Config::startFrame( frameID );
+    return eq::Config::startFrame(frameID);
 }
 
-bool Config::handleEvent( eq::EventICommand command )
+bool Config::handleEvent(eq::EventICommand command)
 {
-    switch( command.getEventType( ))
+    switch (command.getEventType())
     {
     case READBACK:
     case ASSEMBLE:
     case START_LATENCY:
     {
-        switch( command.getEventType( ))
+        switch (command.getEventType())
         {
         case READBACK:
             std::cout << "readback";
@@ -75,36 +74,36 @@ bool Config::handleEvent( eq::EventICommand command )
             std::cout << "        ";
         }
 
-        const float msec = command.read< float >();
-        const std::string& name = command.read< std::string >();
-        const eq::Vector2i& area = command.read< eq::Vector2i >();
-        const std::string& formatType = command.read< std::string >();
-        const uint64_t dataSizeGPU = command.read< uint64_t >();
-        const uint64_t dataSizeCPU = command.read< uint64_t >();
+        const float msec = command.read<float>();
+        const std::string& name = command.read<std::string>();
+        const eq::Vector2i& area = command.read<eq::Vector2i>();
+        const std::string& formatType = command.read<std::string>();
+        const uint64_t dataSizeGPU = command.read<uint64_t>();
+        const uint64_t dataSizeCPU = command.read<uint64_t>();
 
         std::cout << " \"" << name << "\" " << formatType
-                  << std::string( 32-formatType.length(), ' ' ) << area.x()
+                  << std::string(32 - formatType.length(), ' ') << area.x()
                   << "x" << area.y() << ": ";
 
-        if( msec < 0.0f )
-            std::cout << "error 0x" << std::hex << static_cast< int >( -msec )
+        if (msec < 0.0f)
+            std::cout << "error 0x" << std::hex << static_cast<int>(-msec)
                       << std::dec;
         else
-            std::cout << static_cast< uint32_t >( area.x() * area.y() /
-                                                  msec / 1048.576f )
+            std::cout << static_cast<uint32_t>(area.x() * area.y() / msec /
+                                               1048.576f)
                       << "MPix/sec (" << msec << "ms, "
                       << unsigned(1000.0f / msec) << "FPS)";
 
-        if( command.getEventType() == READBACK )
+        if (command.getEventType() == READBACK)
         {
             std::cout << area << "( size GPU : " << dataSizeGPU << " bytes ";
             std::cout << "/ size CPU : " << dataSizeCPU << " bytes ";
-            std::cout << "/ time : " <<  msec << "ms )";
+            std::cout << "/ time : " << msec << "ms )";
         }
-        else if( command.getEventType() == ASSEMBLE )
+        else if (command.getEventType() == ASSEMBLE)
         {
             std::cout << area << "( size CPU : " << dataSizeCPU << " bytes ";
-            std::cout << "/ time : " <<  msec << "ms )";
+            std::cout << "/ time : " << msec << "ms )";
         }
 
         std::cout << std::endl;
@@ -112,7 +111,7 @@ bool Config::handleEvent( eq::EventICommand command )
     }
 
     default:
-        return eq::Config::handleEvent( command );
+        return eq::Config::handleEvent(command);
     }
 }
 }

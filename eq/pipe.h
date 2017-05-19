@@ -21,12 +21,12 @@
 #define EQ_PIPE_H
 
 #include <eq/api.h>
-#include <eq/eye.h>            // Eye enum
+#include <eq/eye.h> // Eye enum
 #include <eq/types.h>
-#include <eq/visitorResult.h>  // enum
+#include <eq/visitorResult.h> // enum
 
-#include <eq/fabric/pipe.h>           // base class
 #include <co/objectVersion.h>
+#include <eq/fabric/pipe.h> // base class
 
 namespace eq
 {
@@ -47,11 +47,11 @@ class ThreadAffinityVisitor;
  *
  * @sa fabric::Pipe
  */
-class Pipe : public fabric::Pipe< Node, Pipe, eq::Window, PipeVisitor >
+class Pipe : public fabric::Pipe<Node, Pipe, eq::Window, PipeVisitor>
 {
 public:
     /** Construct a new pipe. @version 1.0 */
-    EQ_API explicit Pipe( Node* parent );
+    EQ_API explicit Pipe(Node* parent);
 
     /** Destruct the pipe. @version 1.0 */
     EQ_API virtual ~Pipe();
@@ -59,9 +59,9 @@ public:
     /** @name Data Access. */
     //@{
     EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
-    co::CommandQueue* getMainThreadQueue(); //!< @internal
-    co::CommandQueue* getCommandThreadQueue(); //!< @internal
-    co::CommandQueue* getTransferThreadQueue(); //!< @internal
+    co::CommandQueue* getMainThreadQueue();        //!< @internal
+    co::CommandQueue* getCommandThreadQueue();     //!< @internal
+    co::CommandQueue* getTransferThreadQueue();    //!< @internal
 
     /** @return the parent configuration. @version 1.0 */
     EQ_API Config* getConfig();
@@ -121,24 +121,24 @@ public:
      * @param output true if an output frame, false if input frame
      * @return the frame.
      */
-    Frame* getFrame( const co::ObjectVersion& frameVersion,
-                     const Eye eye, const bool output );
+    Frame* getFrame(const co::ObjectVersion& frameVersion, const Eye eye,
+                    const bool output);
 
     /** @internal @return the queue for the given identifier and version. */
-    co::QueueSlave* getQueue( const uint128_t& queueID );
+    co::QueueSlave* getQueue(const uint128_t& queueID);
 
     /** @internal Clear the frame cache and delete all frames. */
-    void flushFrames( util::ObjectManager& om );
+    void flushFrames(util::ObjectManager& om);
 
     /** @internal @return the view for the given identifier and version. */
-    const View* getView( const co::ObjectVersion& viewVersion ) const;
+    const View* getView(const co::ObjectVersion& viewVersion) const;
 
     /** @internal @return the view for the given identifier and version. */
-    View* getView( const co::ObjectVersion& viewVersion );
+    View* getView(const co::ObjectVersion& viewVersion);
     //@}
 
     void waitExited() const; //!<  @internal Wait for the pipe to be exited
-    void notifyMapped(); //!< @internal
+    void notifyMapped();     //!< @internal
 
     /**
      * @internal
@@ -147,7 +147,7 @@ public:
      * @param frameNumber the frame number.
      * @sa releaseFrame()
      */
-    EQ_API void waitFrameFinished( const uint32_t frameNumber );
+    EQ_API void waitFrameFinished(const uint32_t frameNumber);
 
     /**
      * Send a pipe error event to the application node.
@@ -155,7 +155,7 @@ public:
      * @param error the error code.
      * @version 1.7.1
      */
-    EQ_API EventOCommand sendError( const uint32_t error );
+    EQ_API EventOCommand sendError(const uint32_t error);
 
     /**
      * @internal
@@ -164,9 +164,9 @@ public:
      * @param frameNumber the frame number.
      * @sa releaseFrameLocal()
      */
-    EQ_API void waitFrameLocal( const uint32_t frameNumber ) const;
+    EQ_API void waitFrameLocal(const uint32_t frameNumber) const;
 
-    EQ_API bool processEvent( Statistic& event );
+    EQ_API bool processEvent(Statistic& event);
 
     /** @internal Start the pipe thread. */
     void startThread();
@@ -197,7 +197,7 @@ public:
      * The os-specific pipe has to be initialized.
      * @version 1.0
      */
-    EQ_API void setSystemPipe( SystemPipe* pipe );
+    EQ_API void setSystemPipe(SystemPipe* pipe);
 
     /** @return the OS-specific pipe implementation. @version 1.0 */
     EQ_API SystemPipe* getSystemPipe();
@@ -227,7 +227,7 @@ public:
     //@}
 
     /** @internal @sa Serializable::setDirty() */
-    EQ_API virtual void setDirty( const uint64_t bits );
+    EQ_API virtual void setDirty(const uint64_t bits);
 
 protected:
     /** @name Information queries */
@@ -237,7 +237,7 @@ protected:
      *         port and device.
      * @version 1.11
      */
-    EQ_API bool isWindowSystemAvailable( const std::string& name ) const;
+    EQ_API bool isWindowSystemAvailable(const std::string& name) const;
     //@}
 
     /** @name Operations */
@@ -248,7 +248,7 @@ protected:
      * @param frameNumber the frame to start.
      * @version 1.0
      */
-    EQ_API void startFrame( const uint32_t frameNumber );
+    EQ_API void startFrame(const uint32_t frameNumber);
 
     /**
      * Signal the completion of a frame to the parent.
@@ -256,7 +256,7 @@ protected:
      * @param frameNumber the frame to end.
      * @version 1.0
      */
-    EQ_API void releaseFrame( const uint32_t frameNumber );
+    EQ_API void releaseFrame(const uint32_t frameNumber);
 
     /**
      * Release the local synchronization of the parent for a frame.
@@ -264,7 +264,7 @@ protected:
      * @param frameNumber the frame to release.
      * @version 1.0
      */
-    EQ_API void releaseFrameLocal( const uint32_t frameNumber );
+    EQ_API void releaseFrameLocal(const uint32_t frameNumber);
     //@}
 
     /**
@@ -291,7 +291,7 @@ protected:
      * @param initID the init identifier.
      * @version 1.0
      */
-    EQ_API virtual bool configInit( const uint128_t& initID );
+    EQ_API virtual bool configInit(const uint128_t& initID);
 
     /**
      * Initialize the OS-specific pipe.
@@ -299,7 +299,7 @@ protected:
      * @sa setSystemPipe()
      * @version 1.0
      */
-    EQ_API virtual bool configInitSystemPipe( const uint128_t& initID );
+    EQ_API virtual bool configInitSystemPipe(const uint128_t& initID);
 
     /**
      * De-initialize this pipe.
@@ -323,8 +323,8 @@ protected:
      *     Node::waitFrameStarted()
      * @version 1.0
      */
-    EQ_API virtual void frameStart( const uint128_t& frameID,
-                                    const uint32_t frameNumber );
+    EQ_API virtual void frameStart(const uint128_t& frameID,
+                                   const uint32_t frameNumber);
 
     /**
      * Finish rendering a frame.
@@ -340,8 +340,8 @@ protected:
      * @param frameNumber the frame to finish.
      * @version 1.0
      */
-    EQ_API virtual void frameFinish( const uint128_t& frameID,
-                                     const uint32_t frameNumber );
+    EQ_API virtual void frameFinish(const uint128_t& frameID,
+                                    const uint32_t frameNumber);
 
     /**
      * Finish drawing.
@@ -353,11 +353,11 @@ protected:
      * @param frameNumber the frame to finished with draw.
      * @version 1.0
      */
-    EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
-                                         const uint32_t frameNumber );
+    EQ_API virtual void frameDrawFinish(const uint128_t& frameID,
+                                        const uint32_t frameNumber);
 
     /** @internal */
-    EQ_API virtual void attach( const uint128_t& id, const uint32_t instanceID );
+    EQ_API virtual void attach(const uint128_t& id, const uint32_t instanceID);
 
 private:
     detail::Pipe* const _impl;
@@ -372,7 +372,7 @@ private:
     EQ_API int32_t _getAutoAffinity() const;
     friend class detail::ThreadAffinityVisitor;
 
-    //friend class Window;
+    // friend class Window;
 
     void _stopTransferThread();
 
@@ -386,19 +386,19 @@ private:
     void _flushQueues();
 
     /* The command functions. */
-    bool _cmdCreateWindow( co::ICommand& command );
-    bool _cmdDestroyWindow( co::ICommand& command );
-    bool _cmdConfigInit( co::ICommand& command );
-    bool _cmdConfigExit( co::ICommand& command );
-    bool _cmdFrameStartClock( co::ICommand& command );
-    bool _cmdFrameStart( co::ICommand& command );
-    bool _cmdFrameFinish( co::ICommand& command );
-    bool _cmdFrameDrawFinish( co::ICommand& command );
-    bool _cmdExitThread( co::ICommand& command );
-    bool _cmdDetachView( co::ICommand& command );
-    bool _cmdExitTransferThread( co::ICommand& command );
+    bool _cmdCreateWindow(co::ICommand& command);
+    bool _cmdDestroyWindow(co::ICommand& command);
+    bool _cmdConfigInit(co::ICommand& command);
+    bool _cmdConfigExit(co::ICommand& command);
+    bool _cmdFrameStartClock(co::ICommand& command);
+    bool _cmdFrameStart(co::ICommand& command);
+    bool _cmdFrameFinish(co::ICommand& command);
+    bool _cmdFrameDrawFinish(co::ICommand& command);
+    bool _cmdExitThread(co::ICommand& command);
+    bool _cmdDetachView(co::ICommand& command);
+    bool _cmdExitTransferThread(co::ICommand& command);
 
-    LB_TS_VAR( _pipeThread );
+    LB_TS_VAR(_pipeThread);
 };
 }
 

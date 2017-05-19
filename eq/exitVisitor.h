@@ -24,17 +24,17 @@ namespace detail
 class ExitVisitor : public ConfigVisitor
 {
 public:
-    VisitorResult visit( eq::Observer* observer ) final
+    VisitorResult visit(eq::Observer* observer) final
     {
-        if( observer->configExit( ))
+        if (observer->configExit())
             return TRAVERSE_CONTINUE;
         LBWARN << *observer << " exit failed" << std::endl;
         return TRAVERSE_TERMINATE;
     }
 
-    VisitorResult visit( eq::View* view ) final
+    VisitorResult visit(eq::View* view) final
     {
-        if( view->configExit( ))
+        if (view->configExit())
             return TRAVERSE_CONTINUE;
         LBWARN << *view << " exit failed" << std::endl;
         return TRAVERSE_TERMINATE;

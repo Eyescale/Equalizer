@@ -18,26 +18,22 @@
 
 namespace eq
 {
-
-ROITracker::Area::Area( const PixelViewport& pvp_,
-                              uint32_t       lastSkip_,
-                              uint32_t       skip_ )
-    :pvp(      pvp_      )
-    ,lastSkip( lastSkip_ )
-    ,skip(     skip_     )
+ROITracker::Area::Area(const PixelViewport& pvp_, uint32_t lastSkip_,
+                       uint32_t skip_)
+    : pvp(pvp_)
+    , lastSkip(lastSkip_)
+    , skip(skip_)
 {
 }
-
 
 ROITracker::ROITracker()
-    : _needsUpdate( false )
-    , _lastStage( 0 )
+    : _needsUpdate(false)
+    , _lastStage(0)
 {
-    _ticket   = reinterpret_cast< uint8_t* >( this );
-    _prvFrame = new std::unordered_map< uint32_t, Stage >;
-    _curFrame = new std::unordered_map< uint32_t, Stage >;
+    _ticket = reinterpret_cast<uint8_t*>(this);
+    _prvFrame = new std::unordered_map<uint32_t, Stage>;
+    _curFrame = new std::unordered_map<uint32_t, Stage>;
 }
-
 
 ROITracker::~ROITracker()
 {
@@ -47,29 +43,26 @@ ROITracker::~ROITracker()
     _curFrame = 0;
 }
 
-
-bool ROITracker::_returnPositive( uint8_t*& ticket )
+bool ROITracker::_returnPositive(uint8_t*& ticket)
 {
     ticket = ++_ticket;
     _needsUpdate = true;
     return true;
 }
 
-bool ROITracker::useROIFinder( const PixelViewport& pvp,
-                               const uint32_t       stage,
-                               const uint128_t&     frameID,
-                                     uint8_t*&      ticket )
+bool ROITracker::useROIFinder(const PixelViewport& pvp, const uint32_t stage,
+                              const uint128_t& frameID, uint8_t*& ticket)
 {
-    LBASSERT( !_needsUpdate );
+    LBASSERT(!_needsUpdate);
     ticket = 0;
 
     const uint32_t pvpArea = pvp.getArea();
-    if( pvpArea < 100 )
+    if (pvpArea < 100)
         return false;
 
-    if( _lastFrameID != frameID ) // new frame
+    if (_lastFrameID != frameID) // new frame
     {
-        std::unordered_map< uint32_t, Stage >* tmp = _prvFrame;
+        std::unordered_map<uint32_t, Stage>* tmp = _prvFrame;
         _prvFrame = _curFrame;
         _curFrame = tmp;
         _curFrame->clear();
@@ -78,81 +71,79 @@ bool ROITracker::useROIFinder( const PixelViewport& pvp,
 
     _lastStage = stage;
 
-    Stage& curStage = (*_curFrame)[ stage ];
+    Stage& curStage = (*_curFrame)[stage];
 
     // check if proper stage is avaliable
-    if( _prvFrame->find( stage ) == _prvFrame->end( )) // new stage
+    if (_prvFrame->find(stage) == _prvFrame->end()) // new stage
     {
-        curStage.areas.push_back( Area( pvp ));
-        return _returnPositive( ticket );
+        curStage.areas.push_back(Area(pvp));
+        return _returnPositive(ticket);
     }
-    //else existing stage, try to find matching area
+    // else existing stage, try to find matching area
 
-    const Area*    match     = 0;
-          uint32_t bestArea  = 0;
-    const Stage&   prvStage  = (*_prvFrame)[ stage ];
-    for( uint32_t i = 0; i < prvStage.areas.size(); i++ )
+    const Area* match = 0;
+    uint32_t bestArea = 0;
+    const Stage& prvStage = (*_prvFrame)[stage];
+    for (uint32_t i = 0; i < prvStage.areas.size(); i++)
     {
         PixelViewport tmp = prvStage.areas[i].pvp;
-        tmp.intersect( pvp );
+        tmp.intersect(pvp);
         const uint32_t area = tmp.getArea();
-        if( area > bestArea )
+        if (area > bestArea)
         {
             bestArea = area;
-            match    = &prvStage.areas[i];
-            if( area == pvpArea ) // full match
+            match = &prvStage.areas[i];
+            if (area == pvpArea) // full match
                 break;
         }
     }
 
-    if( bestArea < pvpArea*2/3 ) // no proper match found, new area
+    if (bestArea < pvpArea * 2 / 3) // no proper match found, new area
     {
-        curStage.areas.push_back( Area( pvp ));
-        return _returnPositive( ticket );
+        curStage.areas.push_back(Area(pvp));
+        return _returnPositive(ticket);
     }
     // else good match
 
-    if( match->skip == 0 ) // don't skip frame
+    if (match->skip == 0) // don't skip frame
     {
-        curStage.areas.push_back( Area( pvp, match->lastSkip ));
-        return _returnPositive( ticket );
+        curStage.areas.push_back(Area(pvp, match->lastSkip));
+        return _returnPositive(ticket);
     }
-    //else skip frame
+    // else skip frame
 
-    curStage.areas.push_back( Area( pvp, match->lastSkip, match->skip-1 ));
+    curStage.areas.push_back(Area(pvp, match->lastSkip, match->skip - 1));
     return false;
 }
 
-
-void ROITracker::updateDelay( const PixelViewports& pvps,
-                              const uint8_t* ticket )
+void ROITracker::updateDelay(const PixelViewports& pvps, const uint8_t* ticket)
 {
-    LBASSERT( _needsUpdate );
-    LBASSERTINFO( ticket == _ticket, "Wrong ticket" );
+    LBASSERT(_needsUpdate);
+    LBASSERTINFO(ticket == _ticket, "Wrong ticket");
 
-    if( ticket != _ticket )
+    if (ticket != _ticket)
     {
         LBERROR << "Wrong ticket" << std::endl;
         return;
     }
 
     uint32_t totalAreaFound = 0;
-    for( uint32_t i = 0; i < pvps.size(); i++ )
-        totalAreaFound += pvps[ i ].getArea();
+    for (uint32_t i = 0; i < pvps.size(); i++)
+        totalAreaFound += pvps[i].getArea();
 
-    Area& area = (*_curFrame)[ _lastStage ].areas.back();
-    if( totalAreaFound < area.pvp.getArea()*4/5 )
+    Area& area = (*_curFrame)[_lastStage].areas.back();
+    if (totalAreaFound < area.pvp.getArea() * 4 / 5)
     {
         // ROI cutted enough, reset failure statistics
         area.lastSkip = 0;
-    }else
+    }
+    else
     {
         // disable ROI for next frames, if it was failing before,
         // increase number of frames to skip
-        area.lastSkip = LB_MIN( area.lastSkip*2 + 1, 64 );
-        area.skip     = area.lastSkip;
+        area.lastSkip = LB_MIN(area.lastSkip * 2 + 1, 64);
+        area.skip = area.lastSkip;
     }
     _needsUpdate = false;
 }
-
 }

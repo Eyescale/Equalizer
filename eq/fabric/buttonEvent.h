@@ -27,19 +27,22 @@ namespace fabric
 /** Event for a (SpaceMouse) click. */
 struct ButtonEvent : public Event
 {
-    ButtonEvent() : button(0), buttons(0) {}
+    ButtonEvent()
+        : button(0)
+        , buttons(0)
+    {
+    }
 
-    uint32_t button;       //!< fired button
-    uint32_t buttons;      //!< current state of all buttons
+    uint32_t button;  //!< fired button
+    uint32_t buttons; //!< current state of all buttons
 };
 
 /** Print the button event to the given output stream. @version 1.0 */
-inline std::ostream& operator << ( std::ostream& os, const ButtonEvent& event )
+inline std::ostream& operator<<(std::ostream& os, const ButtonEvent& event)
 {
-    return os << static_cast< const Event& >( event )
-              << " buttons " << event.buttons;
+    return os << static_cast<const Event&>(event) << " buttons "
+              << event.buttons;
 }
-
 }
 }
 

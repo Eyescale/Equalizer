@@ -38,36 +38,36 @@ namespace eqPly
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Config* config = static_cast<const Config*>( getConfig( ));
+    const Config* config = static_cast<const Config*>(getConfig());
     const std::string& ws = config->getInitData().getWindowSystem();
-    if( isWindowSystemAvailable( ws ))
-        return eq::WindowSystem( ws );
+    if (isWindowSystemAvailable(ws))
+        return eq::WindowSystem(ws);
     return eq::Pipe::selectWindowSystem();
 }
 
-bool Pipe::configInit( const eq::uint128_t& initID )
+bool Pipe::configInit(const eq::uint128_t& initID)
 {
-    if( !eq::Pipe::configInit( initID ))
+    if (!eq::Pipe::configInit(initID))
         return false;
 
-    Config*         config      = static_cast<Config*>( getConfig( ));
-    const InitData& initData    = config->getInitData();
+    Config* config = static_cast<Config*>(getConfig());
+    const InitData& initData = config->getInitData();
     const eq::uint128_t& frameDataID = initData.getFrameDataID();
 
-    return config->mapObject( &_frameData, frameDataID );
+    return config->mapObject(&_frameData, frameDataID);
 }
 
 bool Pipe::configExit()
 {
     eq::Config* config = getConfig();
-    config->unmapObject( &_frameData );
+    config->unmapObject(&_frameData);
 
     return eq::Pipe::configExit();
 }
 
-void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
+void Pipe::frameStart(const eq::uint128_t& frameID, const uint32_t frameNumber)
 {
-    eq::Pipe::frameStart( frameID, frameNumber );
-    _frameData.sync( frameID );
+    eq::Pipe::frameStart(frameID, frameNumber);
+    _frameData.sync(frameID);
 }
 }

@@ -19,50 +19,60 @@
 #define EQFABRIC_COLORMASK_H
 
 #include <eq/fabric/api.h>
-#include <lunchbox/bitOperation.h>
 #include <iostream>
+#include <lunchbox/bitOperation.h>
 
 namespace eq
 {
 namespace fabric
 {
-    /**
-     * Defines which parts of the color buffer are to be written.
-     *
-     * Used to configure anaglyphic stereo rendering.
-     */
-    class ColorMask
+/**
+ * Defines which parts of the color buffer are to be written.
+ *
+ * Used to configure anaglyphic stereo rendering.
+ */
+class ColorMask
+{
+public:
+    /** Construct a color mask with all components enabled. @version 1.0 */
+    ColorMask()
+        : red(true)
+        , green(true)
+        , blue(true)
+        , alpha(true)
     {
-    public:
-        /** Construct a color mask with all components enabled. @version 1.0 */
-        ColorMask() : red( true ), green( true ), blue( true ), alpha( true ) {}
-
-        /** Construct a color mask with given default values. @version 1.0 */
-        ColorMask( const bool r, const bool g, const bool b,
-                   const bool a = true )
-                : red( r ), green( g ), blue( b ), alpha( a ) {}
-
-        bool red;
-        bool green;
-        bool blue;
-        bool alpha;
-
-        EQFABRIC_API static const ColorMask ALL;
-    };
-
-    inline std::ostream& operator << ( std::ostream& os, const ColorMask& mask )
-    {
-        os << "[ ";
-        if( mask.red )
-            os << "RED ";
-        if( mask.green )
-            os << "GREEN ";
-        if( mask.blue )
-            os << "BLUE ";
-        os << "]";
-
-        return os;
     }
+
+    /** Construct a color mask with given default values. @version 1.0 */
+    ColorMask(const bool r, const bool g, const bool b, const bool a = true)
+        : red(r)
+        , green(g)
+        , blue(b)
+        , alpha(a)
+    {
+    }
+
+    bool red;
+    bool green;
+    bool blue;
+    bool alpha;
+
+    EQFABRIC_API static const ColorMask ALL;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const ColorMask& mask)
+{
+    os << "[ ";
+    if (mask.red)
+        os << "RED ";
+    if (mask.green)
+        os << "GREEN ";
+    if (mask.blue)
+        os << "BLUE ";
+    os << "]";
+
+    return os;
+}
 }
 }
 

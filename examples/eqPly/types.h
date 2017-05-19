@@ -35,7 +35,7 @@
 #include <triply/vertexBufferRoot.h>
 
 #ifndef M_PI_2
-#  define M_PI_2 1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 namespace eqPly
@@ -44,11 +44,11 @@ class FrameData;
 class LocalInitData;
 class View;
 
-typedef triply::VertexBufferRoot  Model;
-typedef triply::VertexBufferDist  ModelDist;
+typedef triply::VertexBufferRoot Model;
+typedef triply::VertexBufferDist ModelDist;
 
-typedef std::vector< Model* > Models;
-typedef std::vector< ModelDist* > ModelDists;
+typedef std::vector<Model*> Models;
+typedef std::vector<ModelDist*> ModelDists;
 
 typedef Models::const_iterator ModelsCIter;
 typedef ModelDists::const_iterator ModelDistsCIter;
@@ -64,7 +64,7 @@ enum ColorMode
 enum LogTopics
 {
     LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
-    LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
+    LOG_CULL = eq::LOG_CUSTOM << 1   // 131072
 };
 
 enum EventType

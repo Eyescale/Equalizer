@@ -18,36 +18,33 @@
 #ifndef EQFABRIC_SEGMENT_H
 #define EQFABRIC_SEGMENT_H
 
+#include <eq/fabric/frustum.h>     // base class
+#include <eq/fabric/object.h>      // base class
+#include <eq/fabric/swapBarrier.h> // RefPtr member
 #include <eq/fabric/types.h>
-#include <eq/fabric/frustum.h>        // base class
-#include <eq/fabric/object.h>         // base class
-#include <eq/fabric/swapBarrier.h>    // RefPtr member
-#include <eq/fabric/viewport.h>       // member
+#include <eq/fabric/viewport.h> // member
 
 namespace eq
 {
 namespace fabric
 {
 /** Base data transport class for segments. @sa eq::Segment */
-template< class C, class S, class CH >
+template <class C, class S, class CH>
 // cppcheck-suppress noConstructor
 class Segment : public Object, public Frustum
 {
 public:
     /** The segment visitor type. @version 1.0 */
-    typedef LeafVisitor< S > Visitor;
+    typedef LeafVisitor<S> Visitor;
 
     /** @name Data Access */
     //@{
     /** @return the parent canvas. @version 1.0 */
     const C* getCanvas() const { return _canvas; }
-
     /** @return the parent canvas. @version 1.0 */
     C* getCanvas() { return _canvas; }
-
     /** @return the segment's viewport. @version 1.0 */
     const Viewport& getViewport() const { return _vp; }
-
     /**
      * @internal
      * Set the segment's viewport wrt its canvas.
@@ -58,7 +55,7 @@ public:
      *
      * @param vp the fractional viewport.
      */
-    EQFABRIC_INL void setViewport( const Viewport& vp );
+    EQFABRIC_INL void setViewport(const Viewport& vp);
 
     /**
      * @internal
@@ -69,27 +66,27 @@ public:
      *
      * @param channel the channel.
      */
-    void setChannel( CH* channel )
-    { _channel = channel; setDirty( DIRTY_CHANNEL ); }
+    void setChannel(CH* channel)
+    {
+        _channel = channel;
+        setDirty(DIRTY_CHANNEL);
+    }
 
     /** Return the output channel of this segment. @version 1.0 */
-    CH* getChannel()               { return _channel; }
-
+    CH* getChannel() { return _channel; }
     /** Return the output channel of this segment. @version 1.0 */
-    const CH* getChannel() const   { return _channel; }
-
+    const CH* getChannel() const { return _channel; }
     /** @internal @sa Frustum::setWall() */
-    EQFABRIC_INL virtual void setWall( const Wall& wall );
+    EQFABRIC_INL virtual void setWall(const Wall& wall);
 
     /** @internal @sa Frustum::setProjection() */
-    EQFABRIC_INL virtual void setProjection( const Projection& );
+    EQFABRIC_INL virtual void setProjection(const Projection&);
 
     /** @internal @sa Frustum::unsetFrustum() */
     EQFABRIC_INL virtual void unsetFrustum();
 
     /** @return the bitwise OR of the eye values. @version 1.0 */
     uint32_t getEyes() const { return _eyes; }
-
     /**
      * @internal
      * Set the eyes to be used by the segument.
@@ -98,7 +95,7 @@ public:
      *
      * @param eyes the segment eyes.
      */
-    EQFABRIC_INL void setEyes( const uint32_t eyes );
+    EQFABRIC_INL void setEyes(const uint32_t eyes);
 
     /**
      * @internal
@@ -108,8 +105,7 @@ public:
      *
      * @param eyes the segument eyes.
      */
-    void enableEye( const uint32_t eyes ) { _eyes |= eyes; }
-
+    void enableEye(const uint32_t eyes) { _eyes |= eyes; }
     /** @internal
      * Set a swap barrier.
      *
@@ -118,11 +114,10 @@ public:
      *
      * @param barrier the swap barrier.
      */
-    EQFABRIC_INL void setSwapBarrier( SwapBarrierPtr barrier );
+    EQFABRIC_INL void setSwapBarrier(SwapBarrierPtr barrier);
 
     /** @internal @return the current swap barrier. */
     SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
-
     /** @internal @return the current swap barrier. */
     SwapBarrierPtr getSwapBarrier() { return _swapBarrier; }
     //@}
@@ -136,54 +131,55 @@ public:
      * @return the result of the visitor traversal.
      * @version 1.0
      */
-    EQFABRIC_INL VisitorResult accept( Visitor& visitor );
+    EQFABRIC_INL VisitorResult accept(Visitor& visitor);
 
     /** Const-version of accept(). @version 1.0 */
-    EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
+    EQFABRIC_INL VisitorResult accept(Visitor& visitor) const;
 
     /** @internal Update unset frustum from parent */
     void inheritFrustum();
 
-    virtual void backup(); //!< @internal
+    virtual void backup();  //!< @internal
     virtual void restore(); //!< @internal
 
     /** @internal */
-    virtual uint128_t commit( const uint32_t incarnation=CO_COMMIT_NEXT );
+    virtual uint128_t commit(const uint32_t incarnation = CO_COMMIT_NEXT);
     //@}
 
 protected:
     /** @internal Construct a new Segment. */
-    EQFABRIC_INL explicit Segment( C* canvas );
+    EQFABRIC_INL explicit Segment(C* canvas);
 
     /** @internal Destruct this segment. */
     EQFABRIC_INL virtual ~Segment();
 
     /** @internal */
-    EQFABRIC_INL virtual void serialize( co::DataOStream& os,
-                                         const uint64_t dirtyBits );
+    EQFABRIC_INL virtual void serialize(co::DataOStream& os,
+                                        const uint64_t dirtyBits);
     /** @internal */
-    EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
-                                           const uint64_t dirtyBits );
-    virtual void setDirty( const uint64_t bits ); //!< @internal
+    EQFABRIC_INL virtual void deserialize(co::DataIStream& is,
+                                          const uint64_t dirtyBits);
+    virtual void setDirty(const uint64_t bits); //!< @internal
 
     /** @internal */
     enum DirtyBits
     {
-        DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
-        DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 1,
-        DIRTY_CHANNEL    = Object::DIRTY_CUSTOM << 2,
-        DIRTY_EYES       = Object::DIRTY_CUSTOM << 3,
-        DIRTY_SEGMENT_BITS = DIRTY_VIEWPORT | DIRTY_FRUSTUM |
-        DIRTY_CHANNEL | DIRTY_EYES | DIRTY_OBJECT_BITS
+        DIRTY_VIEWPORT = Object::DIRTY_CUSTOM << 0,
+        DIRTY_FRUSTUM = Object::DIRTY_CUSTOM << 1,
+        DIRTY_CHANNEL = Object::DIRTY_CUSTOM << 2,
+        DIRTY_EYES = Object::DIRTY_CUSTOM << 3,
+        DIRTY_SEGMENT_BITS = DIRTY_VIEWPORT | DIRTY_FRUSTUM | DIRTY_CHANNEL |
+                             DIRTY_EYES | DIRTY_OBJECT_BITS
     };
 
     /** @internal @return the bits to be re-committed by the master. */
     virtual uint64_t getRedistributableBits() const
-    { return DIRTY_SEGMENT_BITS; }
+    {
+        return DIRTY_SEGMENT_BITS;
+    }
 
     /** @internal */
-    virtual void notifyFrustumChanged() { setDirty( DIRTY_FRUSTUM ); }
-
+    virtual void notifyFrustumChanged() { setDirty(DIRTY_FRUSTUM); }
 private:
     /** The parent canvas. */
     C* const _canvas;
@@ -202,8 +198,8 @@ private:
     Private* _private; // placeholder for binary-compatible changes
 };
 
-template< class C, class S, class CH >
-std::ostream& operator << ( std::ostream&, const Segment< C, S, CH >& );
+template <class C, class S, class CH>
+std::ostream& operator<<(std::ostream&, const Segment<C, S, CH>&);
 }
 }
 #endif // EQFABRIC_SEGMENT_H

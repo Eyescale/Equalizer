@@ -34,47 +34,45 @@
 
 namespace eqPly
 {
-    class InitData : public co::Object
+class InitData : public co::Object
+{
+public:
+    InitData();
+    virtual ~InitData();
+
+    void setFrameDataID(const eq::uint128_t& id) { _frameDataID = id; }
+    eq::uint128_t getFrameDataID() const { return _frameDataID; }
+    const std::string& getWindowSystem() const { return _windowSystem; }
+    triply::RenderMode getRenderMode() const { return _renderMode; }
+    bool useGLSL() const { return _useGLSL; }
+    bool useInvertedFaces() const { return _invFaces; }
+    bool showLogo() const { return _logo; }
+    bool useROI() const { return _roi; }
+protected:
+    virtual void getInstanceData(co::DataOStream& os);
+    virtual void applyInstanceData(co::DataIStream& is);
+
+    void setWindowSystem(const std::string& windowSystem)
     {
-    public:
-        InitData();
-        virtual ~InitData();
-
-        void setFrameDataID( const eq::uint128_t& id )
-            { _frameDataID = id; }
-
-        eq::uint128_t getFrameDataID() const  { return _frameDataID; }
-        const std::string& getWindowSystem() const { return _windowSystem; }
-        triply::RenderMode getRenderMode() const       { return _renderMode; }
-        bool               useGLSL() const          { return _useGLSL; }
-        bool               useInvertedFaces() const { return _invFaces; }
-        bool               showLogo() const         { return _logo; }
-        bool               useROI() const           { return _roi; }
-
-    protected:
-        virtual void getInstanceData( co::DataOStream& os );
-        virtual void applyInstanceData( co::DataIStream& is );
-
-        void setWindowSystem( const std::string& windowSystem )
-            { _windowSystem = windowSystem; }
-        void setRenderMode( const triply::RenderMode renderMode )
-            { _renderMode = renderMode; }
-        void enableGLSL()          { _useGLSL  = true; }
-        void enableInvertedFaces() { _invFaces = true; }
-        void disableLogo()         { _logo     = false; }
-        void disableROI()          { _roi      = false; }
-
-    private:
-        eq::uint128_t      _frameDataID;
-        std::string        _windowSystem;
-        triply::RenderMode _renderMode;
-        bool               _useGLSL;
-        bool               _invFaces;
-        bool               _logo;
-        bool               _roi;
-    };
+        _windowSystem = windowSystem;
+    }
+    void setRenderMode(const triply::RenderMode renderMode)
+    {
+        _renderMode = renderMode;
+    }
+    void enableGLSL() { _useGLSL = true; }
+    void enableInvertedFaces() { _invFaces = true; }
+    void disableLogo() { _logo = false; }
+    void disableROI() { _roi = false; }
+private:
+    eq::uint128_t _frameDataID;
+    std::string _windowSystem;
+    triply::RenderMode _renderMode;
+    bool _useGLSL;
+    bool _invFaces;
+    bool _logo;
+    bool _roi;
+};
 }
 
-
 #endif // EQ_PLY_INITDATA_H
-

@@ -31,167 +31,166 @@
 
 namespace eqPly
 {
-
 FrameData::FrameData()
-    : _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
-    , _colorMode( COLOR_MODEL )
-    , _quality( 1.0f )
-    , _ortho( false )
-    , _statistics( false )
-    , _help( false )
-    , _wireframe( false )
-    , _pilotMode( false )
-    , _idle( false )
-    , _compression( true )
+    : _renderMode(triply::RENDER_MODE_DISPLAY_LIST)
+    , _colorMode(COLOR_MODEL)
+    , _quality(1.0f)
+    , _ortho(false)
+    , _statistics(false)
+    , _help(false)
+    , _wireframe(false)
+    , _pilotMode(false)
+    , _idle(false)
+    , _compression(true)
 {
     reset();
 }
 
-void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+void FrameData::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_CAMERA )
+    if (dirtyBits & DIRTY_CAMERA)
         os << _position << _rotation << _modelRotation;
-    if( dirtyBits & DIRTY_FLAGS )
+    if (dirtyBits & DIRTY_FLAGS)
         os << _modelID << _renderMode << _colorMode << _quality << _ortho
            << _statistics << _help << _wireframe << _pilotMode << _idle
            << _compression;
-    if( dirtyBits & DIRTY_VIEW )
+    if (dirtyBits & DIRTY_VIEW)
         os << _currentViewID;
-    if( dirtyBits & DIRTY_MESSAGE )
+    if (dirtyBits & DIRTY_MESSAGE)
         os << _message;
 }
 
-void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+void FrameData::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_CAMERA )
+    if (dirtyBits & DIRTY_CAMERA)
         is >> _position >> _rotation >> _modelRotation;
-    if( dirtyBits & DIRTY_FLAGS )
-        is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho
-           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idle
-           >> _compression;
-    if( dirtyBits & DIRTY_VIEW )
+    if (dirtyBits & DIRTY_FLAGS)
+        is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho >>
+            _statistics >> _help >> _wireframe >> _pilotMode >> _idle >>
+            _compression;
+    if (dirtyBits & DIRTY_VIEW)
         is >> _currentViewID;
-    if( dirtyBits & DIRTY_MESSAGE )
+    if (dirtyBits & DIRTY_MESSAGE)
         is >> _message;
 }
 
-void FrameData::setModelID( const eq::uint128_t& id )
+void FrameData::setModelID(const eq::uint128_t& id)
 {
-    if( _modelID == id )
+    if (_modelID == id)
         return;
 
     _modelID = id;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::setColorMode( const ColorMode mode )
+void FrameData::setColorMode(const ColorMode mode)
 {
     _colorMode = mode;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::setRenderMode( const triply::RenderMode mode )
+void FrameData::setRenderMode(const triply::RenderMode mode)
 {
     _renderMode = mode;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::setIdle( const bool idle )
+void FrameData::setIdle(const bool idle)
 {
-    if( _idle == idle )
+    if (_idle == idle)
         return;
 
     _idle = idle;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleOrtho()
 {
     _ortho = !_ortho;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleStatistics()
 {
     _statistics = !_statistics;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleHelp()
 {
     _help = !_help;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleWireframe()
 {
     _wireframe = !_wireframe;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleColorMode()
 {
-    _colorMode = static_cast< ColorMode >(( _colorMode + 1) % COLOR_ALL );
-    setDirty( DIRTY_FLAGS );
+    _colorMode = static_cast<ColorMode>((_colorMode + 1) % COLOR_ALL);
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::adjustQuality( const float delta )
+void FrameData::adjustQuality(const float delta)
 {
     _quality += delta;
-    _quality = LB_MAX( _quality, 0.1f );
-    _quality = LB_MIN( _quality, 1.0f );
-    setDirty( DIRTY_FLAGS );
+    _quality = LB_MAX(_quality, 0.1f);
+    _quality = LB_MIN(_quality, 1.0f);
+    setDirty(DIRTY_FLAGS);
     LBINFO << "Set non-idle image quality to " << _quality << std::endl;
 }
 
 void FrameData::togglePilotMode()
 {
     _pilotMode = !_pilotMode;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 triply::RenderMode FrameData::toggleRenderMode()
 {
-    _renderMode = static_cast< triply::RenderMode >(
-        ( _renderMode + 1) % triply::RENDER_MODE_ALL );
+    _renderMode = static_cast<triply::RenderMode>((_renderMode + 1) %
+                                                  triply::RENDER_MODE_ALL);
 
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
     return _renderMode;
 }
 
 void FrameData::toggleCompression()
 {
     _compression = !_compression;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::spinCamera( const float x, const float y )
+void FrameData::spinCamera(const float x, const float y)
 {
-    if( x == 0.f && y == 0.f )
+    if (x == 0.f && y == 0.f)
         return;
 
-    _rotation.pre_rotate_x( x );
-    _rotation.pre_rotate_y( y );
-    setDirty( DIRTY_CAMERA );
+    _rotation.pre_rotate_x(x);
+    _rotation.pre_rotate_y(y);
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::spinModel( const float x, const float y, const float z )
+void FrameData::spinModel(const float x, const float y, const float z)
 {
-    if( x == 0.f && y == 0.f && z == 0.f )
+    if (x == 0.f && y == 0.f && z == 0.f)
         return;
 
-    _modelRotation.pre_rotate_x( x );
-    _modelRotation.pre_rotate_y( y );
-    _modelRotation.pre_rotate_z( z );
-    setDirty( DIRTY_CAMERA );
+    _modelRotation.pre_rotate_x(x);
+    _modelRotation.pre_rotate_y(y);
+    _modelRotation.pre_rotate_z(z);
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::moveCamera( const float x, const float y, const float z )
+void FrameData::moveCamera(const float x, const float y, const float z)
 {
-    if( _pilotMode )
+    if (_pilotMode)
     {
         const eq::Matrix4f& matInverse = _rotation.inverse();
-        const eq::Vector4f shift = matInverse * eq::Vector4f( x, y, z, 1 );
+        const eq::Vector4f shift = matInverse * eq::Vector4f(x, y, z, 1);
         _position += shift;
     }
     else
@@ -201,66 +200,65 @@ void FrameData::moveCamera( const float x, const float y, const float z )
         _position.z() += z;
     }
 
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setCameraPosition( const eq::Vector3f& position )
+void FrameData::setCameraPosition(const eq::Vector3f& position)
 {
     _position = position;
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setRotation( const eq::Vector3f& rotation )
+void FrameData::setRotation(const eq::Vector3f& rotation)
 {
     _rotation = eq::Matrix4f();
-    _rotation.rotate_x( rotation.x() );
-    _rotation.rotate_y( rotation.y() );
-    _rotation.rotate_z( rotation.z() );
-    setDirty( DIRTY_CAMERA );
+    _rotation.rotate_x(rotation.x());
+    _rotation.rotate_y(rotation.y());
+    _rotation.rotate_z(rotation.z());
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setModelRotation(  const eq::Vector3f& rotation )
+void FrameData::setModelRotation(const eq::Vector3f& rotation)
 {
     _modelRotation = eq::Matrix4f();
-    _modelRotation.rotate_x( rotation.x( ));
-    _modelRotation.rotate_y( rotation.y( ));
-    _modelRotation.rotate_z( rotation.z( ));
-    setDirty( DIRTY_CAMERA );
+    _modelRotation.rotate_x(rotation.x());
+    _modelRotation.rotate_y(rotation.y());
+    _modelRotation.rotate_z(rotation.z());
+    setDirty(DIRTY_CAMERA);
 }
 
 void FrameData::reset()
 {
     eq::Matrix4f model = eq::Matrix4f();
-    model.rotate_x( static_cast<float>( -M_PI_2 ));
-    model.rotate_y( static_cast<float>( -M_PI_2 ));
+    model.rotate_x(static_cast<float>(-M_PI_2));
+    model.rotate_y(static_cast<float>(-M_PI_2));
 
-    if( _position == eq::Vector3f( 0.f, 0.f, -2.f ) &&
-        _rotation == eq::Matrix4f() && _modelRotation == model )
+    if (_position == eq::Vector3f(0.f, 0.f, -2.f) &&
+        _rotation == eq::Matrix4f() && _modelRotation == model)
     {
         _position.z() = 0.f;
     }
     else
     {
-        _position = eq::Vector3f( 0.f, 0.f, -2.f );
+        _position = eq::Vector3f(0.f, 0.f, -2.f);
         _rotation = eq::Matrix4f();
         _modelRotation = model;
     }
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setCurrentViewID( const eq::uint128_t& id )
+void FrameData::setCurrentViewID(const eq::uint128_t& id)
 {
     _currentViewID = id;
-    setDirty( DIRTY_VIEW );
+    setDirty(DIRTY_VIEW);
 }
 
-void FrameData::setMessage( const std::string& message )
+void FrameData::setMessage(const std::string& message)
 {
-    if( _message == message )
+    if (_message == message)
         return;
 
     _message = message;
-    setDirty( DIRTY_MESSAGE );
+    setDirty(DIRTY_MESSAGE);
 }
-
 }

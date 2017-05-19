@@ -24,11 +24,11 @@ namespace glx
 {
 namespace
 {
-static lunchbox::PerThread< Display,
-                            lunchbox::perThreadNoDelete > _currentDisplay;
+static lunchbox::PerThread<Display, lunchbox::perThreadNoDelete>
+    _currentDisplay;
 }
 
-void XSetCurrentDisplay( Display* display )
+void XSetCurrentDisplay(Display* display)
 {
     _currentDisplay = display;
 }
@@ -37,6 +37,5 @@ Display* XGetCurrentDisplay()
 {
     return _currentDisplay.get();
 }
-
 }
 }

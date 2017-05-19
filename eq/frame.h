@@ -22,13 +22,16 @@
 #define EQ_FRAME_H
 
 #include <eq/api.h>
+#include <eq/fabric/frame.h> // base class
 #include <eq/types.h>
 #include <eq/zoomFilter.h> // enum
-#include <eq/fabric/frame.h>   // base class
 
 namespace eq
 {
-namespace detail{ class Frame; }
+namespace detail
+{
+class Frame;
+}
 
 /**
  * A holder for a frame data and related parameters.
@@ -55,7 +58,7 @@ public:
      * Set the filter applied to zoomed assemble operations.
      * @version 1.0
      */
-    EQ_API void setZoomFilter( const ZoomFilter zoomFilter );
+    EQ_API void setZoomFilter(const ZoomFilter zoomFilter);
 
     /**
      * @return the filter applied to zoomed assemble operations.
@@ -67,7 +70,7 @@ public:
     EQ_API const Images& getImages() const;
 
     /** Set the data for this frame. @version 1.3.2 */
-    EQ_API void setFrameData( FrameDataPtr data );
+    EQ_API void setFrameData(FrameDataPtr data);
 
     /** @return the frame's data. @version 1.3.2 */
     EQ_API FrameDataPtr getFrameData();
@@ -84,16 +87,16 @@ public:
      * @param buffer the buffer to disable.
      * @version 1.0
      */
-    EQ_API void disableBuffer( const Buffer buffer );
+    EQ_API void disableBuffer(const Buffer buffer);
 
     /** Set alpha usage for newly allocated images. @version 1.0 */
-    EQ_API void setAlphaUsage( const bool useAlpha );
+    EQ_API void setAlphaUsage(const bool useAlpha);
 
     /** Set the minimum quality after compression. @version 1.0 */
-    EQ_API void setQuality( const Buffer buffer, const float quality );
+    EQ_API void setQuality(const Buffer buffer, const float quality);
 
     /** Sets a compressor for compression for following transmissions. */
-    EQ_API void useCompressor( const Buffer buffer, const uint32_t name );
+    EQ_API void useCompressor(const Buffer buffer, const uint32_t name);
     //@}
 
     /** @name Operations */
@@ -102,7 +105,7 @@ public:
     EQ_API void clear();
 
     /** @internal Deallocate all data from the given object manager. */
-    void deleteGLObjects( util::ObjectManager& om );
+    void deleteGLObjects(util::ObjectManager& om);
 
     /**
      * Read back a set of images.
@@ -115,10 +118,10 @@ public:
      * @param context the render context producing the pixel data.
      * @version 1.0
      */
-    EQ_API void readback( util::ObjectManager& glObjects,
-                          const DrawableConfig& config,
-                          const PixelViewports& regions,
-                          const RenderContext& context );
+    EQ_API void readback(util::ObjectManager& glObjects,
+                         const DrawableConfig& config,
+                         const PixelViewports& regions,
+                         const RenderContext& context);
 
     /**
      * Start reading back a set of images for this frame.
@@ -134,10 +137,10 @@ public:
      * @return the new images which need finishReadback.
      * @version 1.3.2
      */
-    EQ_API Images startReadback( util::ObjectManager& glObjects,
-                                 const DrawableConfig& config,
-                                 const PixelViewports& regions,
-                                 const RenderContext& context );
+    EQ_API Images startReadback(util::ObjectManager& glObjects,
+                                const DrawableConfig& config,
+                                const PixelViewports& regions,
+                                const RenderContext& context);
 
     /**
      * Set the frame ready.
@@ -157,8 +160,7 @@ public:
     EQ_API bool isReady() const;
 
     /** Wait for the frame to become available. @version 1.0 */
-    EQ_API void waitReady( const uint32_t timeout =
-                           LB_TIMEOUT_INDEFINITE ) const;
+    EQ_API void waitReady(const uint32_t timeout = LB_TIMEOUT_INDEFINITE) const;
 
     /**
      * Add a listener which will be incremented when the frame is ready.
@@ -166,7 +168,7 @@ public:
      * @param listener the listener.
      * @version 1.0
      */
-    void addListener( lunchbox::Monitor<uint32_t>& listener );
+    void addListener(lunchbox::Monitor<uint32_t>& listener);
 
     /**
      * Remove a frame listener.
@@ -174,7 +176,7 @@ public:
      * @param listener the listener.
      * @version 1.0
      */
-    void removeListener( lunchbox::Monitor<uint32_t>& listener );
+    void removeListener(lunchbox::Monitor<uint32_t>& listener);
     //@}
 
 private:

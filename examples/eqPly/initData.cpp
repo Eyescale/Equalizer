@@ -39,43 +39,42 @@
 
 namespace eqPly
 {
-
 InitData::InitData()
     : _frameDataID()
 #ifdef AGL
-    , _windowSystem( "AGL" )
+    , _windowSystem("AGL")
 #elif GLX
-    , _windowSystem( "GLX" )
+    , _windowSystem("GLX")
 #elif WGL
-    , _windowSystem( "WGL" )
+    , _windowSystem("WGL")
 #elif EQ_QT_USED
-    , _windowSystem( "Qt" )
+    , _windowSystem("Qt")
 #else
-#  error Unknown window system
+#error Unknown window system
 #endif
-    , _renderMode( triply::RENDER_MODE_DISPLAY_LIST )
-    , _useGLSL( false )
-    , _invFaces( false )
-    , _logo( true )
-    , _roi ( true )
-{}
+    , _renderMode(triply::RENDER_MODE_DISPLAY_LIST)
+    , _useGLSL(false)
+    , _invFaces(false)
+    , _logo(true)
+    , _roi(true)
+{
+}
 
 InitData::~InitData()
 {
-    setFrameDataID( eq::uint128_t( ));
+    setFrameDataID(eq::uint128_t());
 }
 
-void InitData::getInstanceData( co::DataOStream& os )
+void InitData::getInstanceData(co::DataOStream& os)
 {
     os << _frameDataID << _windowSystem << _renderMode << _useGLSL << _invFaces
        << _logo << _roi;
 }
 
-void InitData::applyInstanceData( co::DataIStream& is )
+void InitData::applyInstanceData(co::DataIStream& is)
 {
-    is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
-       >> _logo >> _roi;
-    LBASSERT( _frameDataID != 0 );
+    is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >>
+        _invFaces >> _logo >> _roi;
+    LBASSERT(_frameDataID != 0);
 }
-
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,24 +36,26 @@
 
 namespace eqPly
 {
-    /**
-     * Representation of a node in the cluster
-     * 
-     * Manages node-specific data, namely requesting the mapping of the
-     * initialization data by the local Config instance.
-     */
-    class Node : public eq::Node
+/**
+ * Representation of a node in the cluster
+ *
+ * Manages node-specific data, namely requesting the mapping of the
+ * initialization data by the local Config instance.
+ */
+class Node : public eq::Node
+{
+public:
+    Node(eq::Config* parent)
+        : eq::Node(parent)
     {
-    public:
-        Node( eq::Config* parent ) : eq::Node( parent ) {}
+    }
 
-    protected:
-        virtual ~Node(){}
+protected:
+    virtual ~Node() {}
+    virtual bool configInit(const eq::uint128_t& initID);
 
-        virtual bool configInit( const eq::uint128_t& initID );
-
-    private:
-    };
+private:
+};
 }
 
 #endif // EQ_PLY_NODE_H

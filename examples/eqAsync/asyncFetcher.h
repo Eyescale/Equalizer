@@ -35,14 +35,14 @@
 
 namespace eqAsync
 {
-
 /**
  *  Structure to associate OpenGL texture ids with an external key.
  */
 struct TextureId
 {
-    TextureId( const GLuint id_ = 0, const void* key_ = 0 )
-            : id( id_ ), key( key_ ){};
+    TextureId(const GLuint id_ = 0, const void* key_ = 0)
+        : id(id_)
+        , key(key_){};
 
     GLuint id;       // OpenGL texture id
     const void* key; // Object manager key; used to delete textures
@@ -51,7 +51,8 @@ struct TextureId
 class Window;
 
 /**
- *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
+ *  Asynchronous fetching thread. Creates and supplies new textures to the main
+ * rendering pipe.
  */
 class AsyncFetcher : protected lunchbox::Thread
 {
@@ -59,23 +60,21 @@ public:
     AsyncFetcher();
     ~AsyncFetcher();
 
-    void setup( Window* window );
+    void setup(Window* window);
     void stop();
 
-//    TextureId getTextureId()               { return _outQueue.pop().id;      }
-    bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
-    void deleteTexture( const void* key )  { _inQueue.push( key );           }
-
+    //    TextureId getTextureId()               { return _outQueue.pop().id; }
+    bool tryGetTextureId(TextureId& val) { return _outQueue.tryPop(val); }
+    void deleteTexture(const void* key) { _inQueue.push(key); }
 protected:
     virtual void run();
     const GLEWContext* glewGetContext() const;
 
 private:
-    lunchbox::MTQueue<const void*> _inQueue;       // textures to delete
-    lunchbox::MTQueue<TextureId>   _outQueue;      // generated textures
-    eq::SystemWindow*              _sharedWindow;
+    lunchbox::MTQueue<const void*> _inQueue; // textures to delete
+    lunchbox::MTQueue<TextureId> _outQueue;  // generated textures
+    eq::SystemWindow* _sharedWindow;
 };
-
 }
 
-#endif //EQASYNC_ASYNC_FETCHER_H
+#endif // EQASYNC_ASYNC_FETCHER_H

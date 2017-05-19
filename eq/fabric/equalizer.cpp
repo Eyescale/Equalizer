@@ -21,9 +21,8 @@
 #include "configParams.h"
 #include "global.h"
 
-#include <co/dataOStream.h>
 #include <co/dataIStream.h>
-
+#include <co/dataOStream.h>
 
 namespace eq
 {
@@ -35,48 +34,49 @@ class Equalizer
 {
 public:
     Equalizer()
-        : damping( .5f )
-        , boundaryf( std::numeric_limits<float>::epsilon( ))
-        , resistancef( .0f )
-        , assembleOnlyLimit( std::numeric_limits< float >::max( ))
-        , frameRate( 10.f )
-        , boundary2i( 1, 1 )
-        , resistance2i( 0, 0 )
-        , tilesize( 64, 64 )
-        , mode( fabric::Equalizer::MODE_2D )
-        , frozen( false )
+        : damping(.5f)
+        , boundaryf(std::numeric_limits<float>::epsilon())
+        , resistancef(.0f)
+        , assembleOnlyLimit(std::numeric_limits<float>::max())
+        , frameRate(10.f)
+        , boundary2i(1, 1)
+        , resistance2i(0, 0)
+        , tilesize(64, 64)
+        , mode(fabric::Equalizer::MODE_2D)
+        , frozen(false)
     {
         const uint32_t flags = eq::fabric::Global::getFlags();
-        switch( flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL )
+        switch (flags & fabric::ConfigParams::FLAG_LOAD_EQ_ALL)
         {
-            case fabric::ConfigParams::FLAG_LOAD_EQ_2D:
-                mode = fabric::Equalizer::MODE_2D;
-                break;
-            case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL:
-                mode = fabric::Equalizer::MODE_HORIZONTAL;
-                break;
-            case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL:
-                mode = fabric::Equalizer::MODE_VERTICAL;
-                break;
-            case fabric::ConfigParams::FLAG_NONE:
-                break;
-            default:
-                LBUNIMPLEMENTED;
+        case fabric::ConfigParams::FLAG_LOAD_EQ_2D:
+            mode = fabric::Equalizer::MODE_2D;
+            break;
+        case fabric::ConfigParams::FLAG_LOAD_EQ_HORIZONTAL:
+            mode = fabric::Equalizer::MODE_HORIZONTAL;
+            break;
+        case fabric::ConfigParams::FLAG_LOAD_EQ_VERTICAL:
+            mode = fabric::Equalizer::MODE_VERTICAL;
+            break;
+        case fabric::ConfigParams::FLAG_NONE:
+            break;
+        default:
+            LBUNIMPLEMENTED;
         }
     }
 
-    Equalizer( const Equalizer& rhs )
-        : damping( rhs.damping )
-        , boundaryf( rhs.boundaryf )
-        , resistancef( rhs.resistancef )
-        , assembleOnlyLimit( rhs.assembleOnlyLimit )
-        , frameRate( rhs.frameRate )
-        , boundary2i( rhs.boundary2i )
-        , resistance2i( rhs.resistance2i )
-        , tilesize( rhs.tilesize )
-        , mode( rhs.mode )
-        , frozen( rhs.frozen )
-    {}
+    Equalizer(const Equalizer& rhs)
+        : damping(rhs.damping)
+        , boundaryf(rhs.boundaryf)
+        , resistancef(rhs.resistancef)
+        , assembleOnlyLimit(rhs.assembleOnlyLimit)
+        , frameRate(rhs.frameRate)
+        , boundary2i(rhs.boundary2i)
+        , resistance2i(rhs.resistance2i)
+        , tilesize(rhs.tilesize)
+        , mode(rhs.mode)
+        , frozen(rhs.frozen)
+    {
+    }
 
     float damping;
     float boundaryf;
@@ -92,19 +92,21 @@ public:
 }
 
 Equalizer::Equalizer()
-    : _data( new detail::Equalizer )
-    , _backup( 0 )
-{}
+    : _data(new detail::Equalizer)
+    , _backup(0)
+{
+}
 
-Equalizer::Equalizer( const Equalizer& rhs )
-    : _data( new detail::Equalizer( *rhs._data ))
-    , _backup( 0 )
-{}
+Equalizer::Equalizer(const Equalizer& rhs)
+    : _data(new detail::Equalizer(*rhs._data))
+    , _backup(0)
+{
+}
 
 // cppcheck-suppress operatorEqVarError
-Equalizer& Equalizer::operator=( const Equalizer& rhs )
+Equalizer& Equalizer::operator=(const Equalizer& rhs)
 {
-    if( this == &rhs )
+    if (this == &rhs)
         return *this;
 
     *_data = *rhs._data;
@@ -116,7 +118,7 @@ Equalizer::~Equalizer()
     delete _data;
 }
 
-void Equalizer::setFrozen( const bool onOff )
+void Equalizer::setFrozen(const bool onOff)
 {
     _data->frozen = onOff;
 }
@@ -126,7 +128,7 @@ bool Equalizer::isFrozen() const
     return _data->frozen;
 }
 
-void Equalizer::setMode( const Mode mode )
+void Equalizer::setMode(const Mode mode)
 {
     _data->mode = mode;
 }
@@ -136,7 +138,7 @@ Equalizer::Mode Equalizer::getMode() const
     return _data->mode;
 }
 
-void Equalizer::setDamping( const float damping )
+void Equalizer::setDamping(const float damping)
 {
     _data->damping = damping;
 }
@@ -146,7 +148,7 @@ float Equalizer::getDamping() const
     return _data->damping;
 }
 
-void Equalizer::setFrameRate( const float frameRate )
+void Equalizer::setFrameRate(const float frameRate)
 {
     _data->frameRate = frameRate;
 }
@@ -156,15 +158,15 @@ float Equalizer::getFrameRate() const
     return _data->frameRate;
 }
 
-void Equalizer::setBoundary( const Vector2i& boundary )
+void Equalizer::setBoundary(const Vector2i& boundary)
 {
-    LBASSERT( boundary.x() > 0 && boundary.y() > 0 );
+    LBASSERT(boundary.x() > 0 && boundary.y() > 0);
     _data->boundary2i = boundary;
 }
 
-void Equalizer::setBoundary( const float boundary )
+void Equalizer::setBoundary(const float boundary)
 {
-    LBASSERT( boundary > 0.0f );
+    LBASSERT(boundary > 0.0f);
     _data->boundaryf = boundary;
 }
 
@@ -178,12 +180,12 @@ float Equalizer::getBoundaryf() const
     return _data->boundaryf;
 }
 
-void Equalizer::setResistance( const Vector2i& resistance )
+void Equalizer::setResistance(const Vector2i& resistance)
 {
     _data->resistance2i = resistance;
 }
 
-void Equalizer::setResistance( const float resistance )
+void Equalizer::setResistance(const float resistance)
 {
     _data->resistancef = resistance;
 }
@@ -198,7 +200,7 @@ float Equalizer::getResistancef() const
     return _data->resistancef;
 }
 
-void Equalizer::setAssembleOnlyLimit( const float limit )
+void Equalizer::setAssembleOnlyLimit(const float limit)
 {
     _data->assembleOnlyLimit = limit;
 }
@@ -208,7 +210,7 @@ float Equalizer::getAssembleOnlyLimit() const
     return _data->assembleOnlyLimit;
 }
 
-void Equalizer::setTileSize( const Vector2i& size )
+void Equalizer::setTileSize(const Vector2i& size)
 {
     _data->tilesize = size;
 }
@@ -218,7 +220,7 @@ const Vector2i& Equalizer::getTileSize() const
     return _data->tilesize;
 }
 
-void Equalizer::serialize( co::DataOStream& os ) const
+void Equalizer::serialize(co::DataOStream& os) const
 {
     os << _data->damping << _data->boundaryf << _data->resistancef
        << _data->assembleOnlyLimit << _data->frameRate << _data->boundary2i
@@ -226,47 +228,48 @@ void Equalizer::serialize( co::DataOStream& os ) const
        << _data->frozen;
 }
 
-void Equalizer::deserialize( co::DataIStream& is )
+void Equalizer::deserialize(co::DataIStream& is)
 {
-    is >> _data->damping >> _data->boundaryf >> _data->resistancef
-       >> _data->assembleOnlyLimit >> _data->frameRate >> _data->boundary2i
-       >> _data->resistance2i >> _data->tilesize >> _data->mode
-       >> _data->frozen;
+    is >> _data->damping >> _data->boundaryf >> _data->resistancef >>
+        _data->assembleOnlyLimit >> _data->frameRate >> _data->boundary2i >>
+        _data->resistance2i >> _data->tilesize >> _data->mode >> _data->frozen;
 }
 
 void Equalizer::backup()
 {
-    _backup = new detail::Equalizer( *_data );
+    _backup = new detail::Equalizer(*_data);
 }
 
 void Equalizer::restore()
 {
-    LBASSERT( _backup );
+    LBASSERT(_backup);
     delete _data;
     _data = _backup;
     _backup = 0;
 }
 
-co::DataOStream& operator << ( co::DataOStream& os, const Equalizer& eq )
+co::DataOStream& operator<<(co::DataOStream& os, const Equalizer& eq)
 {
-    eq.serialize( os );
+    eq.serialize(os);
     return os;
 }
 
-co::DataIStream& operator >> ( co::DataIStream& is, Equalizer& eq )
+co::DataIStream& operator>>(co::DataIStream& is, Equalizer& eq)
 {
-    eq.deserialize( is );
+    eq.deserialize(is);
     return is;
 }
 
-std::ostream& operator << ( std::ostream& os, const Equalizer::Mode mode )
+std::ostream& operator<<(std::ostream& os, const Equalizer::Mode mode)
 {
-    os << ( mode == Equalizer::MODE_2D         ? "2D" :
-            mode == Equalizer::MODE_VERTICAL   ? "VERTICAL" :
-            mode == Equalizer::MODE_HORIZONTAL ? "HORIZONTAL" :
-            mode == Equalizer::MODE_DB         ? "DB" : "ERROR" );
+    os << (mode == Equalizer::MODE_2D
+               ? "2D"
+               : mode == Equalizer::MODE_VERTICAL
+                     ? "VERTICAL"
+                     : mode == Equalizer::MODE_HORIZONTAL
+                           ? "HORIZONTAL"
+                           : mode == Equalizer::MODE_DB ? "DB" : "ERROR");
     return os;
 }
-
 }
 }

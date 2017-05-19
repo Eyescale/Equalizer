@@ -18,13 +18,16 @@
 #ifndef EQ_CANVAS_H
 #define EQ_CANVAS_H
 
-#include <eq/types.h>
 #include <eq/api.h>
 #include <eq/fabric/canvas.h> // base class
+#include <eq/types.h>
 
 namespace eq
 {
-namespace detail { class Canvas; }
+namespace detail
+{
+class Canvas;
+}
 
 /**
  * A canvas represents a logical 2D projection surface.
@@ -47,11 +50,11 @@ namespace detail { class Canvas; }
  *
  * @sa fabric::Canvas for public methods
  */
-class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
+class Canvas : public fabric::Canvas<Config, Canvas, Segment, Layout>
 {
 public:
     /** Construct a new canvas. @version 1.0 */
-    EQ_API explicit Canvas( Config* parent );
+    EQ_API explicit Canvas(Config* parent);
 
     /** Destruct this canvas. @version 1.0 */
     EQ_API virtual ~Canvas();

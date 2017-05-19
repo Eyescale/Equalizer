@@ -25,21 +25,21 @@ namespace eq
 {
 namespace fabric
 {
-    /** The algorithm to use for observer focal distance calculation */
-    enum FocusMode
-    {
-        FOCUSMODE_FIXED      = FIXED, //!< Focus on physical projection
-        /** Focus distance relative and in -Z axis of origin. */
-        FOCUSMODE_RELATIVE_TO_ORIGIN = RELATIVE_TO_ORIGIN,
-        /** Focus distance relative and in direction of observer. */
-        FOCUSMODE_RELATIVE_TO_OBSERVER = RELATIVE_TO_OBSERVER,
-    };
+/** The algorithm to use for observer focal distance calculation */
+enum FocusMode
+{
+    FOCUSMODE_FIXED = FIXED, //!< Focus on physical projection
+    /** Focus distance relative and in -Z axis of origin. */
+    FOCUSMODE_RELATIVE_TO_ORIGIN = RELATIVE_TO_ORIGIN,
+    /** Focus distance relative and in direction of observer. */
+    FOCUSMODE_RELATIVE_TO_OBSERVER = RELATIVE_TO_OBSERVER,
+};
 
-    inline std::ostream& operator << ( std::ostream& os, const FocusMode& mode )
-    {
-        os << IAttribute( mode );
-        return os;
-    }
+inline std::ostream& operator<<(std::ostream& os, const FocusMode& mode)
+{
+    os << IAttribute(mode);
+    return os;
+}
 }
 }
 

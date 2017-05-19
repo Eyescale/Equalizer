@@ -25,7 +25,6 @@ namespace eq
 {
 namespace detail
 {
-
 /**
  * Persist the color buffer of a channel to a file.
  * The name of the file is Channel::SATTR_DUMP_IMAGE.rgb
@@ -36,9 +35,8 @@ public:
     FileFrameWriter();
     ~FileFrameWriter();
 
-    void notifyNewImage( eq::Channel& channel, const eq::Image& image ) final;
+    void notifyNewImage(eq::Channel& channel, const eq::Image& image) final;
 };
-
 }
 }
 

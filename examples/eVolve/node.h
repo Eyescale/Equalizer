@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,16 +36,18 @@
 
 namespace eVolve
 {
-    class Node : public eq::Node
+class Node : public eq::Node
+{
+public:
+    Node(eq::Config* parent)
+        : eq::Node(parent)
     {
-    public:
-        Node( eq::Config* parent ) : eq::Node( parent ) {}
+    }
 
-    protected:
-        virtual ~Node(){}
-
-        virtual bool configInit( const eq::uint128_t& initID );
-    };
+protected:
+    virtual ~Node() {}
+    virtual bool configInit(const eq::uint128_t& initID);
+};
 }
 
 #endif // EVOLVE_NODE_H

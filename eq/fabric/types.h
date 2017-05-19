@@ -20,21 +20,21 @@
 #ifndef EQFABRIC_TYPES_H
 #define EQFABRIC_TYPES_H
 
+#include <co/types.h>
 #include <eq/fabric/api.h>
 #include <eq/fabric/errorCodes.h>
 #include <eq/fabric/eventEnums.h>
 #include <eq/fabric/eventType.h>
-#include <co/types.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/uint128_t.h>
 #include <lunchbox/visitorResult.h>
 #include <vmmlib/types.hpp>
 
 #ifdef _WIN32
-#  define EQ_DEFAULT_PORT (4242)
+#define EQ_DEFAULT_PORT (4242)
 #else
 // #241: Avoid using privilege ports below 1024
-#  define EQ_DEFAULT_PORT (( getuid() % 64511 ) + 1024 )
+#define EQ_DEFAULT_PORT ((getuid() % 64511) + 1024)
 #endif
 
 namespace eq
@@ -82,28 +82,42 @@ struct Statistic;
 struct ViewPath;
 struct WindowPath;
 
-template< class, class > class Channel;
-template< class, class > class Observer;
-template< class, class, class > class Layout;
-template< class, class, class > class Segment;
-template< class, class, class > class View;
-template< class, class, class, class > class Window;
-template< class, class, class, class > class Canvas;
-template< class, class, class, class > class Node;
-template< class, class, class, class > class Pipe;
-template< class, class, class, class, class, class > class Server;
-template< class, class, class, class, class, class, class > class Config;
+template <class, class>
+class Channel;
+template <class, class>
+class Observer;
+template <class, class, class>
+class Layout;
+template <class, class, class>
+class Segment;
+template <class, class, class>
+class View;
+template <class, class, class, class>
+class Window;
+template <class, class, class, class>
+class Canvas;
+template <class, class, class, class>
+class Node;
+template <class, class, class, class>
+class Pipe;
+template <class, class, class, class, class, class>
+class Server;
+template <class, class, class, class, class, class, class>
+class Config;
 
-template< class > class LeafVisitor;
-template< class, class > class ElementVisitor;
-template< class, class, class, class, class> class ConfigVisitor;
+template <class>
+class LeafVisitor;
+template <class, class>
+class ElementVisitor;
+template <class, class, class, class, class>
+class ConfigVisitor;
 
 /** A vector of eq::fabric::Error */
-typedef std::vector< Error > Errors;
+typedef std::vector<Error> Errors;
 /** A vector of eq::Statistic events */
-typedef std::vector< Statistic > Statistics;
+typedef std::vector<Statistic> Statistics;
 /** A vector of eq::Viewport */
-typedef std::vector< Viewport > Viewports;
+typedef std::vector<Viewport> Viewports;
 
 using co::Strings;
 using co::StringsCIter;
@@ -114,30 +128,30 @@ using lunchbox::VisitorResult;
 using lunchbox::TRAVERSE_CONTINUE;
 using lunchbox::TRAVERSE_PRUNE;
 using lunchbox::TRAVERSE_TERMINATE;
-typedef lunchbox::RefPtr< Client > ClientPtr;
-typedef lunchbox::RefPtr< const Client > ConstClientPtr;
-typedef lunchbox::RefPtr< SwapBarrier > SwapBarrierPtr;
-typedef lunchbox::RefPtr< const SwapBarrier > SwapBarrierConstPtr;
+typedef lunchbox::RefPtr<Client> ClientPtr;
+typedef lunchbox::RefPtr<const Client> ConstClientPtr;
+typedef lunchbox::RefPtr<SwapBarrier> SwapBarrierPtr;
+typedef lunchbox::RefPtr<const SwapBarrier> SwapBarrierConstPtr;
 
-using vmml::Matrix3d; //!< A 3x3 double matrix
-using vmml::Matrix4d; //!< A 4x4 double matrix
-using vmml::Matrix3f; //!< A 3x3 float matrix
-using vmml::Matrix4f; //!< A 4x4 float matrix
-using vmml::Vector2ui; //!< A two-component unsigned integer vector
-using vmml::Vector2i; //!< A two-component integer vector
-using vmml::Vector3ui; //!< A three-component unsigned integer vector
-using vmml::Vector3i; //!< A three-component integer vector
-using vmml::Vector4ui; //!< A four-component unsigned integer vector
-using vmml::Vector4i; //!< A four-component integer vector
-using vmml::Vector3d; //!< A three-component double vector
-using vmml::Vector4d; //!< A four-component double vector
-using vmml::Vector2f; //!< A two-component float vector
-using vmml::Vector3f; //!< A three-component float vector
-using vmml::Vector4f; //!< A four-component float vector
-using vmml::Vector3ub; //!< A three-component byte vector
-using vmml::Vector4ub; //!< A four-component byte vector
-using vmml::Frustumf; //!< A frustum definition
-using vmml::AABBf; //!< axis-aligned bounding box
+using vmml::Matrix3d;    //!< A 3x3 double matrix
+using vmml::Matrix4d;    //!< A 4x4 double matrix
+using vmml::Matrix3f;    //!< A 3x3 float matrix
+using vmml::Matrix4f;    //!< A 4x4 float matrix
+using vmml::Vector2ui;   //!< A two-component unsigned integer vector
+using vmml::Vector2i;    //!< A two-component integer vector
+using vmml::Vector3ui;   //!< A three-component unsigned integer vector
+using vmml::Vector3i;    //!< A three-component integer vector
+using vmml::Vector4ui;   //!< A four-component unsigned integer vector
+using vmml::Vector4i;    //!< A four-component integer vector
+using vmml::Vector3d;    //!< A three-component double vector
+using vmml::Vector4d;    //!< A four-component double vector
+using vmml::Vector2f;    //!< A two-component float vector
+using vmml::Vector3f;    //!< A three-component float vector
+using vmml::Vector4f;    //!< A four-component float vector
+using vmml::Vector3ub;   //!< A three-component byte vector
+using vmml::Vector4ub;   //!< A four-component byte vector
+using vmml::Frustumf;    //!< A frustum definition
+using vmml::AABBf;       //!< axis-aligned bounding box
 using vmml::Quaternionf; // !< A float quaternion
 }
 }

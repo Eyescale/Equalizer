@@ -25,7 +25,7 @@ namespace eq
 enum ZoomFilter
 {
     FILTER_NEAREST = 0x2600, //!< GL_NEAREST
-    FILTER_LINEAR  = 0x2601  //!< GL_LINEAR
+    FILTER_LINEAR = 0x2601   //!< GL_LINEAR
 };
 }
 #endif // EQ_ZOOMFILTER_H

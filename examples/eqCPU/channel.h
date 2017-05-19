@@ -33,22 +33,21 @@
 
 namespace eqCpu
 {
-
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent );
+    Channel(eq::Window* parent);
     virtual ~Channel() {}
-
 protected:
-    bool configInit( const eq::uint128_t& initID ) final
-        { return eq::Channel::configInit( initID ); }
+    bool configInit(const eq::uint128_t& initID) final
+    {
+        return eq::Channel::configInit(initID);
+    }
     bool configExit() final { return eq::Channel::configExit(); }
-
-    void frameDraw( const eq::uint128_t& frameID ) final;
-    void frameClear( const eq::uint128_t& frameID ) final;
-    void frameReadback( const eq::uint128_t&, const eq::Frames& ) final;
-    void frameAssemble( const eq::uint128_t&, const eq::Frames& ) final;
+    void frameDraw(const eq::uint128_t& frameID) final;
+    void frameClear(const eq::uint128_t& frameID) final;
+    void frameReadback(const eq::uint128_t&, const eq::Frames&) final;
+    void frameAssemble(const eq::uint128_t&, const eq::Frames&) final;
 
     void setupAssemblyState() final;
     void resetAssemblyState() final;

@@ -30,20 +30,19 @@
 #include "frameData.h"
 
 #ifndef M_PI_2
-#  define M_PI_2 1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 namespace eVolve
 {
-
 FrameData::FrameData()
-    : _ortho(         false )
-    , _colorMode(     COLOR_MODEL )
-    , _bgMode(        BG_BLACK )
-    , _normalsQuality(NQ_FULL )
-    , _statistics(    false )
-    , _help(          false )
-    , _quality( 1.0f )
+    : _ortho(false)
+    , _colorMode(COLOR_MODEL)
+    , _bgMode(BG_BLACK)
+    , _normalsQuality(NQ_FULL)
+    , _statistics(false)
+    , _help(false)
+    , _quality(1.0f)
 {
     reset();
     LBINFO << "New FrameData " << std::endl;
@@ -51,144 +50,142 @@ FrameData::FrameData()
 
 void FrameData::reset()
 {
-    _translation = eq::Vector3f( 0, 0, -2.f );
+    _translation = eq::Vector3f(0, 0, -2.f);
     _rotation = eq::Matrix4f();
-    _rotation.rotate_x( static_cast<float>( -M_PI_2 ));
-    _rotation.rotate_y( static_cast<float>( -M_PI_2 ));
+    _rotation.rotate_x(static_cast<float>(-M_PI_2));
+    _rotation.rotate_y(static_cast<float>(-M_PI_2));
 
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
 void FrameData::toggleBackground()
 {
-    _bgMode = static_cast< BackgroundMode >(( _bgMode + 1 ) % BG_ALL );
-    setDirty( DIRTY_FLAGS );
+    _bgMode = static_cast<BackgroundMode>((_bgMode + 1) % BG_ALL);
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleNormalsQuality()
 {
     _normalsQuality =
-        static_cast< NormalsQuality >(( _normalsQuality + 1 ) % NQ_ALL );
-    setDirty( DIRTY_FLAGS );
+        static_cast<NormalsQuality>((_normalsQuality + 1) % NQ_ALL);
+    setDirty(DIRTY_FLAGS);
 }
-
 
 void FrameData::toggleColorMode()
 {
-    _colorMode = static_cast< ColorMode >(( _colorMode + 1 ) % COLOR_ALL );
-    setDirty( DIRTY_FLAGS );
+    _colorMode = static_cast<ColorMode>((_colorMode + 1) % COLOR_ALL);
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::toggleOrtho( )
+void FrameData::toggleOrtho()
 {
     _ortho = !_ortho;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::setOrtho( const bool ortho )
+void FrameData::setOrtho(const bool ortho)
 {
     _ortho = ortho;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleStatistics()
 {
     _statistics = !_statistics;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
 void FrameData::toggleHelp()
 {
     _help = !_help;
-    setDirty( DIRTY_FLAGS );
+    setDirty(DIRTY_FLAGS);
 }
 
-void FrameData::spinCamera( const float x, const float y )
+void FrameData::spinCamera(const float x, const float y)
 {
-    _rotation.pre_rotate_x( x );
-    _rotation.pre_rotate_y( y );
+    _rotation.pre_rotate_x(x);
+    _rotation.pre_rotate_y(y);
 
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::moveCamera( const float x, const float y, const float z )
+void FrameData::moveCamera(const float x, const float y, const float z)
 {
     _translation.x() += x;
     _translation.y() += y;
     _translation.z() += z;
 
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setTranslation(   const eq::Vector3f& translation )
+void FrameData::setTranslation(const eq::Vector3f& translation)
 {
     _translation = translation;
-    setDirty( DIRTY_CAMERA );
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setRotation(  const eq::Vector3f& rotation )
+void FrameData::setRotation(const eq::Vector3f& rotation)
 {
     _rotation = eq::Matrix4f();
-    _rotation.rotate_x( rotation.x() );
-    _rotation.rotate_y( rotation.y() );
-    _rotation.rotate_z( rotation.z() );
-    setDirty( DIRTY_CAMERA );
+    _rotation.rotate_x(rotation.x());
+    _rotation.rotate_y(rotation.y());
+    _rotation.rotate_z(rotation.z());
+    setDirty(DIRTY_CAMERA);
 }
 
-void FrameData::setCurrentViewID( const eq::uint128_t& id )
+void FrameData::setCurrentViewID(const eq::uint128_t& id)
 {
     _currentViewID = id;
-    setDirty( DIRTY_VIEW );
+    setDirty(DIRTY_VIEW);
 }
 
-void FrameData::adjustQuality( const float delta )
+void FrameData::adjustQuality(const float delta)
 {
     _quality += delta;
-    _quality = LB_MAX( _quality, 0.1f );
-    _quality = LB_MIN( _quality, 1.0f );
-    setDirty( DIRTY_FLAGS );
+    _quality = LB_MAX(_quality, 0.1f);
+    _quality = LB_MIN(_quality, 1.0f);
+    setDirty(DIRTY_FLAGS);
     LBINFO << "Set non-idle image quality to " << _quality << std::endl;
 }
 
-void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+void FrameData::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_VIEW )
+    if (dirtyBits & DIRTY_VIEW)
         os << _currentViewID;
 
-    if( dirtyBits & DIRTY_CAMERA )
+    if (dirtyBits & DIRTY_CAMERA)
         os << _rotation << _translation;
 
-    if( dirtyBits & DIRTY_FLAGS )
-        os  << _ortho << _colorMode << _bgMode << _normalsQuality
-            << _statistics << _quality << _help;
+    if (dirtyBits & DIRTY_FLAGS)
+        os << _ortho << _colorMode << _bgMode << _normalsQuality << _statistics
+           << _quality << _help;
 
-    if( dirtyBits & DIRTY_MESSAGE )
+    if (dirtyBits & DIRTY_MESSAGE)
         os << _message;
 }
 
-void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
+void FrameData::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    if( dirtyBits & DIRTY_VIEW )
+    if (dirtyBits & DIRTY_VIEW)
         is >> _currentViewID;
 
-    if( dirtyBits & DIRTY_CAMERA )
+    if (dirtyBits & DIRTY_CAMERA)
         is >> _rotation >> _translation;
 
-    if( dirtyBits & DIRTY_FLAGS )
-        is  >> _ortho >> _colorMode >> _bgMode >> _normalsQuality
-            >> _statistics  >> _quality >> _help;
+    if (dirtyBits & DIRTY_FLAGS)
+        is >> _ortho >> _colorMode >> _bgMode >> _normalsQuality >>
+            _statistics >> _quality >> _help;
 
-    if( dirtyBits & DIRTY_MESSAGE )
+    if (dirtyBits & DIRTY_MESSAGE)
         is >> _message;
 }
 
-void FrameData::setMessage( const std::string& message )
+void FrameData::setMessage(const std::string& message)
 {
-    if( _message == message )
+    if (_message == message)
         return;
 
     _message = message;
-    setDirty( DIRTY_MESSAGE );
+    setDirty(DIRTY_MESSAGE);
 }
-
 }

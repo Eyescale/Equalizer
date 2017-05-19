@@ -36,46 +36,35 @@ namespace eq
 {
 namespace wgl
 {
-
 class WindowSystem : public WindowSystemIF
 {
 public:
     WindowSystem() {}
-
 private:
     std::string getName() const final { return "WGL"; }
-
-    eq::SystemWindow* createWindow( eq::Window* window,
-                                    const WindowSettings& settings ) final
+    eq::SystemWindow* createWindow(eq::Window* window,
+                                   const WindowSettings& settings) final
     {
         eq::Pipe* pipe = window->getPipe();
-        Pipe* wglPipe = dynamic_cast< Pipe* >( pipe->getSystemPipe( ));
-        return new Window( *window, settings, *wglPipe );
+        Pipe* wglPipe = dynamic_cast<Pipe*>(pipe->getSystemPipe());
+        return new Window(*window, settings, *wglPipe);
     }
 
-    eq::SystemPipe* createPipe(eq::Pipe* pipe) final
-    {
-        return new Pipe( pipe );
-    }
-
-    eq::MessagePump* createMessagePump() final
-    {
-        return new MessagePump;
-    }
-
-    bool setupFont( util::ObjectManager& gl, const void* key,
-                    const std::string& name, const uint32_t size ) const final
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) final { return new Pipe(pipe); }
+    eq::MessagePump* createMessagePump() final { return new MessagePump; }
+    bool setupFont(util::ObjectManager& gl, const void* key,
+                   const std::string& name, const uint32_t size) const final
     {
         HDC dc = wglGetCurrentDC();
-        if( !dc )
+        if (!dc)
         {
             LBWARN << "No WGL device context current" << std::endl;
             return false;
         }
 
         LOGFONT font;
-        memset( &font, 0, sizeof( font ));
-        font.lfHeight = -static_cast< LONG >( size );
+        memset(&font, 0, sizeof(font));
+        font.lfHeight = -static_cast<LONG>(size);
         font.lfWeight = FW_NORMAL;
         font.lfCharSet = ANSI_CHARSET;
         font.lfOutPrecision = OUT_DEFAULT_PRECIS;
@@ -83,52 +72,51 @@ private:
         font.lfQuality = DEFAULT_QUALITY;
         font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
 
-        if( name.empty( ))
-            strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+        if (name.empty())
+            strncpy(font.lfFaceName, "Times New Roman", LF_FACESIZE);
         else
-            strncpy( font.lfFaceName, name.c_str(), LF_FACESIZE );
+            strncpy(font.lfFaceName, name.c_str(), LF_FACESIZE);
 
-        font.lfFaceName[ LF_FACESIZE-1 ] = '\0';
+        font.lfFaceName[LF_FACESIZE - 1] = '\0';
 
-        HFONT newFont = CreateFontIndirect( &font );
-        if( !newFont )
+        HFONT newFont = CreateFontIndirect(&font);
+        if (!newFont)
         {
             LBDEBUG << "Can't load font " << name << ", using Times New Roman"
                     << std::endl;
 
-            strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
-            newFont = CreateFontIndirect( &font );
+            strncpy(font.lfFaceName, "Times New Roman", LF_FACESIZE);
+            newFont = CreateFontIndirect(&font);
         }
-        LBASSERT( newFont );
+        LBASSERT(newFont);
 
-        HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
+        HFONT oldFont = static_cast<HFONT>(SelectObject(dc, newFont));
 
-        const GLuint lists = _setupLists( gl, key, 256 );
-        const bool ret = wglUseFontBitmaps( dc, 0 , 255, lists );
+        const GLuint lists = _setupLists(gl, key, 256);
+        const bool ret = wglUseFontBitmaps(dc, 0, 255, lists);
 
-        SelectObject( dc, oldFont );
-        //DeleteObject( newFont );
+        SelectObject(dc, oldFont);
+        // DeleteObject( newFont );
 
-        if( !ret )
-            _setupLists( gl, key, 0 );
+        if (!ret)
+            _setupLists(gl, key, 0);
 
         return ret;
     }
 
-    void configInit( eq::Node* node )
+    void configInit(eq::Node* node)
     {
 #ifdef EQUALIZER_USE_MAGELLAN
-        EventHandler::initMagellan( node );
+        EventHandler::initMagellan(node);
 #endif
     }
 
-    void configExit( eq::Node* node )
+    void configExit(eq::Node* node)
     {
 #ifdef EQUALIZER_USE_MAGELLAN
-        EventHandler::exitMagellan( node );
+        EventHandler::exitMagellan(node);
 #endif
     }
 };
-
 }
 }

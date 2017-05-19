@@ -18,18 +18,18 @@
 #ifndef EQADMIN_WINDOW_H
 #define EQADMIN_WINDOW_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/window.h>       // base class
+#include <eq/admin/types.h>   // typedefs
+#include <eq/fabric/window.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Window : public fabric::Window< Pipe, Window, Channel >
+class Window : public fabric::Window<Pipe, Window, Channel>
 {
 public:
     /** Construct a new window. @version 1.0 */
-    EQADMIN_API explicit Window( Pipe* parent );
+    EQADMIN_API explicit Window(Pipe* parent);
 
     /** Destruct this window. @version 1.0 */
     EQADMIN_API virtual ~Window();

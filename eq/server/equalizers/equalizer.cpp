@@ -28,58 +28,58 @@ namespace eq
 {
 namespace server
 {
-
 Equalizer::Equalizer()
-    : _compound( 0 )
-    , _active( true )
+    : _compound(0)
+    , _active(true)
 {
     LBVERB << "New Equalizer @" << (void*)this << std::endl;
 }
 
-Equalizer::Equalizer( const fabric::Equalizer& from )
-    : fabric::Equalizer( from )
-    , _compound( 0 )
-    , _active( true )
-{}
-
-Equalizer::Equalizer( const Equalizer& from )
-    : fabric::Equalizer( from )
-    , CompoundListener( from )
-    , _compound( 0 )
-    , _active( from._active )
-{}
-
-Equalizer& Equalizer::operator = ( const fabric::Equalizer& from )
+Equalizer::Equalizer(const fabric::Equalizer& from)
+    : fabric::Equalizer(from)
+    , _compound(0)
+    , _active(true)
 {
-    fabric::Equalizer::operator = ( from );
+}
+
+Equalizer::Equalizer(const Equalizer& from)
+    : fabric::Equalizer(from)
+    , CompoundListener(from)
+    , _compound(0)
+    , _active(from._active)
+{
+}
+
+Equalizer& Equalizer::operator=(const fabric::Equalizer& from)
+{
+    fabric::Equalizer::operator=(from);
     return *this;
 }
 
 Equalizer::~Equalizer()
 {
-    attach( 0 );
+    attach(0);
 }
 
-void Equalizer::attach( Compound* compound )
+void Equalizer::attach(Compound* compound)
 {
-    if( _compound )
+    if (_compound)
     {
-        _compound->removeListener( this );
+        _compound->removeListener(this);
         _compound = 0;
     }
 
-    if( compound )
+    if (compound)
     {
         _compound = compound;
-        compound->addListener( this );
+        compound->addListener(this);
     }
 }
 
 const Config* Equalizer::getConfig() const
 {
-    LBASSERT( _compound );
+    LBASSERT(_compound);
     return _compound->getConfig();
 }
-
 }
 }

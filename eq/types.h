@@ -21,11 +21,11 @@
 #define EQ_TYPES_H
 
 #include <eq/defines.h>
-#include <eq/util/types.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/eventType.h>
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
+#include <eq/util/types.h>
 #include <lunchbox/atomic.h>
 #include <lunchbox/compiler.h>
 
@@ -109,71 +109,72 @@ using fabric::Wall;
 using fabric::Zoom;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */
-typedef fabric::LeafVisitor< Segment > SegmentVisitor;
+typedef fabric::LeafVisitor<Segment> SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
-typedef fabric::LeafVisitor< View > ViewVisitor;
+typedef fabric::LeafVisitor<View> ViewVisitor;
 
 /** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+typedef fabric::LeafVisitor<Observer> ObserverVisitor;
 
 /** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+typedef fabric::LeafVisitor<Channel> ChannelVisitor;
 
 /** A visitor to traverse canvases and children. */
-typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
+typedef fabric::ElementVisitor<Canvas, SegmentVisitor> CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+typedef fabric::ElementVisitor<Window, ChannelVisitor> WindowVisitor;
 
 /** A visitor to traverse pipes and children. */
-typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
+typedef fabric::ElementVisitor<Pipe, WindowVisitor> PipeVisitor;
 
 /** A visitor to traverse nodes and children. */
-typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
+typedef fabric::ElementVisitor<Node, PipeVisitor> NodeVisitor;
 
 /** A visitor to traverse layouts and children. */
-typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+typedef fabric::ElementVisitor<Layout, ViewVisitor> LayoutVisitor;
 
 /** A visitor to traverse configs and children. */
-typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
-// cppcheck-suppress unnecessaryForwardDeclaration
-                               CanvasVisitor, NodeVisitor > ConfigVisitor;
+typedef fabric::ConfigVisitor<Config, ObserverVisitor, LayoutVisitor,
+                              // cppcheck-suppress unnecessaryForwardDeclaration
+                              CanvasVisitor, NodeVisitor>
+    ConfigVisitor;
 
 /** A visitor to traverse servers and children. */
-typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
+typedef fabric::ElementVisitor<Server, ConfigVisitor> ServerVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::Config */
-typedef std::vector< Config* > Configs;
+typedef std::vector<Config*> Configs;
 /** A vector of pointers to eq::Server */
-typedef std::vector< Server* > Servers;
+typedef std::vector<Server*> Servers;
 /** A vector of pointers to eq::Node */
-typedef std::vector< Node* > Nodes;
+typedef std::vector<Node*> Nodes;
 /** A vector of pointers to eq::Pipe */
-typedef std::vector< Pipe* > Pipes;
+typedef std::vector<Pipe*> Pipes;
 /** A vector of pointers to eq::Window */
-typedef std::vector< Window* > Windows;
+typedef std::vector<Window*> Windows;
 /** A vector of pointers to eq::Channel */
-typedef std::vector< Channel* > Channels;
+typedef std::vector<Channel*> Channels;
 /** A vector of pointers to eq::Frame */
-typedef std::vector< Frame* > Frames;
+typedef std::vector<Frame*> Frames;
 /** A vector of pointers to eq::Image */
-typedef std::vector< Image* > Images;
+typedef std::vector<Image*> Images;
 /** A vector of pointers to eq::Observer */
-typedef std::vector< Observer* > Observers;
+typedef std::vector<Observer*> Observers;
 /** A vector of pointers to eq::Canvas */
-typedef std::vector< Canvas* > Canvases;
+typedef std::vector<Canvas*> Canvases;
 /** A vector of pointers to eq::Layout */
-typedef std::vector< Layout* > Layouts;
+typedef std::vector<Layout*> Layouts;
 /** A vector of pointers to eq::Segment */
-typedef std::vector< Segment* > Segments;
+typedef std::vector<Segment*> Segments;
 /** A vector of pointers to eq::View */
-typedef std::vector< View* > Views;
+typedef std::vector<View*> Views;
 /** A vector of eq::PixelViewport */
-typedef std::vector< PixelViewport > PixelViewports;
+typedef std::vector<PixelViewport> PixelViewports;
 /** A vector of image compositing operations. */
-typedef std::vector< ImageOp > ImageOps;
+typedef std::vector<ImageOp> ImageOps;
 
 /** A const_iterator over a eq::Config vector */
 typedef Configs::const_iterator ConfigsCIter;
@@ -207,30 +208,30 @@ typedef Views::const_iterator ViewsCIter;
 typedef PixelViewports::const_iterator PixelViewportsCIter;
 
 /** A reference-counted pointer to an eq::Client */
-typedef lunchbox::RefPtr< Client >        ClientPtr;
+typedef lunchbox::RefPtr<Client> ClientPtr;
 /** A reference-counted pointer to a const eq::Client */
-typedef lunchbox::RefPtr< const Client >  ConstClientPtr;
+typedef lunchbox::RefPtr<const Client> ConstClientPtr;
 /** A reference-counted pointer to an eq::Server */
-typedef lunchbox::RefPtr< Server >        ServerPtr;
+typedef lunchbox::RefPtr<Server> ServerPtr;
 /** A reference-counted pointer to an eq::FrameData */
-typedef lunchbox::RefPtr< FrameData >     FrameDataPtr;
+typedef lunchbox::RefPtr<FrameData> FrameDataPtr;
 /** A reference-counted pointer to a const eq::FrameData */
-typedef lunchbox::RefPtr< const FrameData >     ConstFrameDataPtr;
+typedef lunchbox::RefPtr<const FrameData> ConstFrameDataPtr;
 
-using fabric::Matrix3d;   //!< A 3x3 double matrix
-using fabric::Matrix4d;   //!< A 4x4 double matrix
-using fabric::Matrix3f;   //!< A 3x3 float matrix
-using fabric::Matrix4f;   //!< A 4x4 float matrix
-using fabric::Vector2i;   //!< A two-component integer vector
-using fabric::Vector3i;   //!< A three-component integer vector
-using fabric::Vector4i;   //!< A four-component integer vector
-using fabric::Vector3d;   //!< A three-component double vector
-using fabric::Vector4d;   //!< A four-component double vector
-using fabric::Vector2f;   //!< A two-component float vector
-using fabric::Vector3f;   //!< A three-component float vector
-using fabric::Vector4f;   //!< A four-component float vector
-using fabric::Vector3ub;  //!< A three-component byte vector
-using fabric::Frustumf;   //!< A frustum definition
+using fabric::Matrix3d;    //!< A 3x3 double matrix
+using fabric::Matrix4d;    //!< A 4x4 double matrix
+using fabric::Matrix3f;    //!< A 3x3 float matrix
+using fabric::Matrix4f;    //!< A 4x4 float matrix
+using fabric::Vector2i;    //!< A two-component integer vector
+using fabric::Vector3i;    //!< A three-component integer vector
+using fabric::Vector4i;    //!< A four-component integer vector
+using fabric::Vector3d;    //!< A three-component double vector
+using fabric::Vector4d;    //!< A four-component double vector
+using fabric::Vector2f;    //!< A two-component float vector
+using fabric::Vector3f;    //!< A three-component float vector
+using fabric::Vector4f;    //!< A four-component float vector
+using fabric::Vector3ub;   //!< A three-component byte vector
+using fabric::Frustumf;    //!< A frustum definition
 using fabric::Quaternionf; // !< A float quaternion
 
 using fabric::EventOCommand;
@@ -250,9 +251,9 @@ using fabric::Viewports;    //!< A vector of eq::Viewport
 using vmml::FrustumCullerf;
 
 /** A vector of bytes */
-typedef std::vector< uint8_t >    Vectorub;
+typedef std::vector<uint8_t> Vectorub;
 /** A vector of unsigned shorts */
-typedef std::vector< uint16_t >   Vectorus;
+typedef std::vector<uint16_t> Vectorus;
 
 using co::f_bool_t;
 
@@ -262,16 +263,19 @@ using lunchbox::uint128_t;
 
 /** @cond IGNORE */
 
-typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
+typedef co::WorkerThread<CommandQueue> Worker; // instantiated in worker.cpp
 
 namespace detail
 {
-class InitVisitor; //!< @internal
-class ExitVisitor; //!< @internal
+class InitVisitor;  //!< @internal
+class ExitVisitor;  //!< @internal
 class FrameVisitor; //!< @internal
 }
 
-namespace deflect { class Proxy; }
+namespace deflect
+{
+class Proxy;
+}
 /** @endcond */
 }
 
@@ -283,7 +287,10 @@ struct GLXEWContextStruct;
 typedef struct GLEWContextStruct GLEWContext;
 typedef struct WGLEWContextStruct WGLEWContext;
 typedef struct GLXEWContextStruct GLXEWContext;
-namespace GLStats { class Data; }
+namespace GLStats
+{
+class Data;
+}
 class QThread;
 /** @endcond */
 

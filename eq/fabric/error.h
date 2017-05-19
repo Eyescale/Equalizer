@@ -27,26 +27,24 @@ namespace eq
 {
 namespace fabric
 {
-
 /** A wrapper for error codes to allow intuitive bool-like usage. */
 class Error
 {
     typedef void (Error::*bool_t)() const;
     void bool_true() const {}
-
 public:
     /** Construct a new error. @version 1.7.1 */
-    EQFABRIC_API Error( const uint32_t code,
-                        const uint128_t& originator = uint128_t( ));
+    EQFABRIC_API Error(const uint32_t code,
+                       const uint128_t& originator = uint128_t());
 
     /** Assign the given error code. @version 1.7.1*/
-    EQFABRIC_API Error& operator = ( const ErrorCode code );
+    EQFABRIC_API Error& operator=(const ErrorCode code);
 
     /** @return true if an error occured. @version 1.7.1 */
     EQFABRIC_API operator bool_t() const;
 
     /** @return true if no error occured. @version 1.7.1 */
-    EQFABRIC_API bool operator ! () const;
+    EQFABRIC_API bool operator!() const;
 
     /** @return the error code. @version 1.7.1 */
     EQFABRIC_API uint32_t getCode() const;
@@ -55,20 +53,20 @@ public:
     EQFABRIC_API const uint128_t& getOriginator() const;
 
     /** @return true if the two errors have the same value. @version 1.7.1*/
-    EQFABRIC_API bool operator == ( const Error& rhs ) const;
+    EQFABRIC_API bool operator==(const Error& rhs) const;
 
     /** @return true if the two errors have different values. @version 1.7.1*/
-    EQFABRIC_API bool operator != ( const Error& rhs ) const;
+    EQFABRIC_API bool operator!=(const Error& rhs) const;
 
     /** @return true if the two errors have the same value. @version 1.7.1*/
-    EQFABRIC_API bool operator == ( const uint32_t code ) const;
+    EQFABRIC_API bool operator==(const uint32_t code) const;
 
     /** @return true if the two errors have different values. @version 1.7.1*/
-    EQFABRIC_API bool operator != ( const uint32_t code ) const;
+    EQFABRIC_API bool operator!=(const uint32_t code) const;
 
-    EQFABRIC_API Error(); //!< @internal
-    EQFABRIC_API void serialize( co::DataOStream& os ) const; //!< @internal
-    EQFABRIC_API void deserialize( co::DataIStream& is ); //!< @internal
+    EQFABRIC_API Error();                                   //!< @internal
+    EQFABRIC_API void serialize(co::DataOStream& os) const; //!< @internal
+    EQFABRIC_API void deserialize(co::DataIStream& is);     //!< @internal
 
 private:
     uint32_t _code;
@@ -76,8 +74,7 @@ private:
 };
 
 /** Print the error in a human-readable format. @version 1.0 */
-EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Error& );
-
+EQFABRIC_API std::ostream& operator<<(std::ostream& os, const Error&);
 }
 }
 

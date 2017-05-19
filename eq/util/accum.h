@@ -25,7 +25,10 @@ namespace eq
 {
 namespace util
 {
-namespace detail { class Accum; }
+namespace detail
+{
+class Accum;
+}
 
 /**
  * A C++ class to abstract an accumulation buffer.
@@ -40,7 +43,7 @@ class Accum
 {
 public:
     /** Construct a new accumulation buffer. @version 1.0 */
-    EQ_API explicit Accum( const GLEWContext* const glewContext );
+    EQ_API explicit Accum(const GLEWContext* const glewContext);
 
     /** Destruct the accumulation buffer. @version 1.0 */
     EQ_API ~Accum();
@@ -53,7 +56,7 @@ public:
      * @return true if initialized successfully.
      * @version 1.0
      */
-    EQ_API bool init( const PixelViewport& pvp, unsigned textureFormat );
+    EQ_API bool init(const PixelViewport& pvp, unsigned textureFormat);
 
     /** Exit the accum buffer. @version 1.0 */
     EQ_API void exit();
@@ -66,8 +69,8 @@ public:
      * @return true if the accumulation buffer has changed size.
      * @version 1.5.2
      */
-    EQ_API bool resize( const PixelViewport& pvp );
-    EQ_API bool resize( const int width, const int height ); //!<@deprecated
+    EQ_API bool resize(const PixelViewport& pvp);
+    EQ_API bool resize(const int width, const int height); //!<@deprecated
 
     /** Clear the accumulation buffer. @version 1.0 */
     EQ_API void clear();
@@ -109,7 +112,7 @@ public:
      * @param totalSteps the total number of steps to do.
      * @version 1.0
      */
-    EQ_API void setTotalSteps( uint32_t totalSteps );
+    EQ_API void setTotalSteps(uint32_t totalSteps);
 
     /** @return the total number of accumulations. @version 1.0 */
     EQ_API uint32_t getTotalSteps();
@@ -129,13 +132,13 @@ public:
      * @return true if the accumulation uses an FBO, false if it uses
      *         glAccum().
      */
-    EQ_API static bool usesFBO( const GLEWContext* glewContext );
+    EQ_API static bool usesFBO(const GLEWContext* glewContext);
 
     EQ_API const GLEWContext* glewGetContext() const;
 
 private:
-    Accum( const Accum& ) = delete;
-    Accum& operator=( const Accum& ) = delete;
+    Accum(const Accum&) = delete;
+    Accum& operator=(const Accum&) = delete;
     detail::Accum* const _impl;
 };
 }

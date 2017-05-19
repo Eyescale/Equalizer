@@ -24,27 +24,25 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */ 
-    
-// Vertex shader for Phong/Blinn-Phong Shading with one light source.
+ */
 
+// Vertex shader for Phong/Blinn-Phong Shading with one light source.
 
 varying vec3 normalEye;
 varying vec4 positionEye;
 
-
 void main()
 {
     // transform normal to eye coordinates
-    normalEye = normalize( gl_NormalMatrix * gl_Normal );
-    
+    normalEye = normalize(gl_NormalMatrix * gl_Normal);
+
     // transform position to eye coordinates
-    positionEye = normalize( gl_ModelViewMatrix * gl_Vertex );
-    
+    positionEye = normalize(gl_ModelViewMatrix * gl_Vertex);
+
     // transform position to screen coordinates
-    //gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    // gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     gl_Position = ftransform();
-    
+
     // pass the vertex colors on to the fragment shader
     gl_FrontColor = gl_Color;
 }

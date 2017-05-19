@@ -28,7 +28,6 @@ namespace util
 {
 namespace shader
 {
-
 /**
  * Compile a shader object from a GLSL source and print errors if any.
  *
@@ -38,8 +37,8 @@ namespace shader
  * @return true on successful compilation, false otherwise
  * @version 1.9
  */
-EQ_API bool compile( const GLEWContext* glewContext,
-                     const unsigned shader, const char* source );
+EQ_API bool compile(const GLEWContext* glewContext, const unsigned shader,
+                    const char* source);
 
 /**
  * Link a shader program from a given vertex and fragment GLSL source and print
@@ -52,10 +51,9 @@ EQ_API bool compile( const GLEWContext* glewContext,
  * @return true on successful linking, false otherwise
  * @version 1.9
  */
-EQ_API bool linkProgram( const GLEWContext* glewContext,
-                         const unsigned program, const char* vertexShaderSource,
-                         const char* fragmentShaderSource );
-
+EQ_API bool linkProgram(const GLEWContext* glewContext, const unsigned program,
+                        const char* vertexShaderSource,
+                        const char* fragmentShaderSource);
 }
 }
 }

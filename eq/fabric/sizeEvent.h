@@ -27,7 +27,15 @@ namespace fabric
 /** Event for a size or position change on a Window, Channel or View. */
 struct SizeEvent : public Event
 {
-    SizeEvent() : x(0), y(0), w(0), h(0), dw(0), dh(0) {}
+    SizeEvent()
+        : x(0)
+        , y(0)
+        , w(0)
+        , h(0)
+        , dw(0)
+        , dh(0)
+    {
+    }
 
     int32_t x; //!< new X position, relative to parent
     int32_t y; //!< new Y position, relative to parent
@@ -38,9 +46,9 @@ struct SizeEvent : public Event
 };
 
 /** Print the resize event to the given output stream. @version 1.0 */
-inline std::ostream& operator << ( std::ostream& os, const SizeEvent& event )
+inline std::ostream& operator<<(std::ostream& os, const SizeEvent& event)
 {
-    return os << static_cast< const Event& >( event ) << ' ' << event.x << 'x'
+    return os << static_cast<const Event&>(event) << ' ' << event.x << 'x'
               << event.y << '+' << event.w << '+' << event.h;
 }
 }

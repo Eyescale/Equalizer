@@ -30,22 +30,20 @@ class ConfigUpdateDataVisitor : public ConfigVisitor
 public:
     ConfigUpdateDataVisitor();
     virtual ~ConfigUpdateDataVisitor() {}
-
-    VisitorResult visitPre( Node* node ) override;
-    VisitorResult visitPost( Node* node ) override;
-    VisitorResult visitPre( Pipe* pipe ) override;
-    VisitorResult visitPost( Pipe* pipe ) override;
-    VisitorResult visitPre( Window* window ) override;
-    VisitorResult visitPost( Window* window ) override;
-    VisitorResult visit( Channel* channel ) override;
+    VisitorResult visitPre(Node* node) override;
+    VisitorResult visitPost(Node* node) override;
+    VisitorResult visitPre(Pipe* pipe) override;
+    VisitorResult visitPost(Pipe* pipe) override;
+    VisitorResult visitPre(Window* window) override;
+    VisitorResult visitPost(Window* window) override;
+    VisitorResult visit(Channel* channel) override;
 
     // No need to traverse compounds
-    VisitorResult visitPre( Compound* ) override { return TRAVERSE_PRUNE; }
-
+    VisitorResult visitPre(Compound*) override { return TRAVERSE_PRUNE; }
 private:
     const Channel* _lastDrawChannel;
-    const Window*  _lastDrawWindow;
-    const Pipe*    _lastDrawPipe;
+    const Window* _lastDrawWindow;
+    const Pipe* _lastDrawPipe;
 };
 }
 }

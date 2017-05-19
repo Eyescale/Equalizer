@@ -17,15 +17,16 @@
 
 #include "frustum.h"
 
-#include <co/dataOStream.h>
 #include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {
 namespace fabric
 {
 Frustum::Frustum()
-{}
+{
+}
 
 Frustum::~Frustum()
 {
@@ -42,101 +43,100 @@ void Frustum::restore()
     _data = _backup;
 }
 
-void Frustum::setWall( const Wall& wall )
+void Frustum::setWall(const Wall& wall)
 {
-    if( _data.wall == wall && _data.current == TYPE_WALL )
+    if (_data.wall == wall && _data.current == TYPE_WALL)
         return;
 
-    _data.wall       = wall;
+    _data.wall = wall;
     _data.projection = wall;
-    _data.current    = TYPE_WALL;
+    _data.current = TYPE_WALL;
     notifyFrustumChanged();
 }
 
-void Frustum::setProjection( const Projection& projection )
+void Frustum::setProjection(const Projection& projection)
 {
-    if( _data.projection == projection && _data.current == TYPE_PROJECTION )
+    if (_data.projection == projection && _data.current == TYPE_PROJECTION)
         return;
 
     _data.projection = projection;
-    _data.wall       = projection;
-    _data.current    = TYPE_PROJECTION;
+    _data.wall = projection;
+    _data.current = TYPE_PROJECTION;
     notifyFrustumChanged();
 }
 
 void Frustum::unsetFrustum()
 {
-    if( _data.current == TYPE_NONE )
+    if (_data.current == TYPE_NONE)
         return;
 
     _data.current = TYPE_NONE;
     notifyFrustumChanged();
 }
 
-void Frustum::serialize( co::DataOStream& os )
+void Frustum::serialize(co::DataOStream& os)
 {
-    switch( getCurrentType( ))
+    switch (getCurrentType())
     {
-        case TYPE_WALL:
-            os << TYPE_WALL << _data.wall;
-            break;
+    case TYPE_WALL:
+        os << TYPE_WALL << _data.wall;
+        break;
 
-        case TYPE_PROJECTION:
-            os << TYPE_PROJECTION << _data.projection;
-            break;
+    case TYPE_PROJECTION:
+        os << TYPE_PROJECTION << _data.projection;
+        break;
 
-        case TYPE_NONE:
-            os << TYPE_NONE;
-            break;
+    case TYPE_NONE:
+        os << TYPE_NONE;
+        break;
 
-        default:
-            LBASSERT( false );
+    default:
+        LBASSERT(false);
     }
 }
 
-void Frustum::deserialize( co::DataIStream& is )
+void Frustum::deserialize(co::DataIStream& is)
 {
     is >> _data.current;
 
-    switch( _data.current )
+    switch (_data.current)
     {
-        case TYPE_WALL:
-        {
-            is >> _data.wall;
-            break;
-        }
-        case Frustum::TYPE_PROJECTION:
-        {
-            is >> _data.projection;
-            break;
-        }
-        case Frustum::TYPE_NONE:
-            break;
+    case TYPE_WALL:
+    {
+        is >> _data.wall;
+        break;
+    }
+    case Frustum::TYPE_PROJECTION:
+    {
+        is >> _data.projection;
+        break;
+    }
+    case Frustum::TYPE_NONE:
+        break;
 
-        default:
-            LBASSERT( false );
+    default:
+        LBASSERT(false);
     }
     updateFrustum();
 }
 
-std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
+std::ostream& operator<<(std::ostream& os, const Frustum& frustum)
 {
-    switch( frustum.getCurrentType( ))
+    switch (frustum.getCurrentType())
     {
-        case Frustum::TYPE_WALL:
-            os << frustum.getWall() << std::endl;
-            break;
-        case Frustum::TYPE_PROJECTION:
-            os << frustum.getProjection() << std::endl;
-            break;
-        case Frustum::TYPE_NONE:
-            break;
-        default:
-            os << "INVALID FRUSTUM";
-            break;
+    case Frustum::TYPE_WALL:
+        os << frustum.getWall() << std::endl;
+        break;
+    case Frustum::TYPE_PROJECTION:
+        os << frustum.getProjection() << std::endl;
+        break;
+    case Frustum::TYPE_NONE:
+        break;
+    default:
+        os << "INVALID FRUSTUM";
+        break;
     }
     return os;
 }
-
 }
 }

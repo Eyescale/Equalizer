@@ -72,22 +72,23 @@
  * for images and links the input with the output frames. An Image represents a
  * 2D framebuffer area, containing color and/or depth information.
  *
- * <img src="http://www.equalizergraphics.com/documents/design/images/clientUML.png">
+ * <img
+ * src="http://www.equalizergraphics.com/documents/design/images/clientUML.png">
  */
 
 #include <eq/canvas.h>
-#include <eq/channelStatistics.h>
 #include <eq/channel.h>
+#include <eq/channelStatistics.h>
 #include <eq/client.h>
 #include <eq/compositor.h>
 #include <eq/config.h>
-#include <eq/eventICommand.h>
 #include <eq/error.h>
+#include <eq/eventICommand.h>
 #include <eq/exception.h>
 #include <eq/frame.h>
 #include <eq/frameData.h>
-#include <eq/global.h>
 #include <eq/glException.h>
+#include <eq/global.h>
 #include <eq/image.h>
 #include <eq/imageOp.h>
 #include <eq/init.h>
@@ -99,8 +100,8 @@
 #include <eq/observer.h>
 #include <eq/pipe.h>
 #include <eq/pixelData.h>
-#include <eq/server.h>
 #include <eq/segment.h>
+#include <eq/server.h>
 #include <eq/systemWindow.h>
 #include <eq/types.h>
 #include <eq/version.h>
@@ -109,8 +110,8 @@
 #include <eq/windowSystem.h>
 
 #ifdef EQ_SYSTEM_INCLUDES
-#  include <eq/gl.h>
-#  include <eq/system.h>
+#include <eq/gl.h>
+#include <eq/system.h>
 #endif
 
 #endif // EQCLIENT_H

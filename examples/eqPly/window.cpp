@@ -42,29 +42,28 @@
 
 namespace eqPly
 {
-
-bool Window::configInitSystemWindow( const eq::uint128_t& initID )
+bool Window::configInitSystemWindow(const eq::uint128_t& initID)
 {
 #ifndef Darwin
-    if( !eq::Window::configInitSystemWindow( initID ))
+    if (!eq::Window::configInitSystemWindow(initID))
         return false;
 
     // OpenGL version is less than 2.0.
-    if( !GLEW_EXT_framebuffer_object )
+    if (!GLEW_EXT_framebuffer_object)
     {
-        if( getDrawableConfig().accumBits )
+        if (getDrawableConfig().accumBits)
             return true;
 
         configExitSystemWindow();
 #endif
         // try with 64 bit accum buffer
-        setIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM, 16 );
-        if( eq::Window::configInitSystemWindow( initID ))
+        setIAttribute(eq::WindowSettings::IATTR_PLANES_ACCUM, 16);
+        if (eq::Window::configInitSystemWindow(initID))
             return true;
 
         // no anti-aliasing possible
-        setIAttribute( eq::WindowSettings::IATTR_PLANES_ACCUM, eq::AUTO );
-        return eq::Window::configInitSystemWindow( initID );
+        setIAttribute(eq::WindowSettings::IATTR_PLANES_ACCUM, eq::AUTO);
+        return eq::Window::configInitSystemWindow(initID);
 
 #ifndef Darwin
     }
@@ -72,25 +71,25 @@ bool Window::configInitSystemWindow( const eq::uint128_t& initID )
 #endif
 }
 
-bool Window::configInitGL( const eq::uint128_t& initID )
+bool Window::configInitGL(const eq::uint128_t& initID)
 {
-    if( !eq::Window::configInitGL( initID ))
+    if (!eq::Window::configInitGL(initID))
         return false;
 
-    glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, 1 );
-    glEnable( GL_CULL_FACE ); // OPT - produces sparser images in DB mode
-    glCullFace( GL_BACK );
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+    glEnable(GL_CULL_FACE); // OPT - produces sparser images in DB mode
+    glCullFace(GL_BACK);
 
-    LBASSERT( !_state );
-    _state = new VertexBufferState( getObjectManager( ));
+    LBASSERT(!_state);
+    _state = new VertexBufferState(getObjectManager());
 
-    const Config*   config   = static_cast< const Config* >( getConfig( ));
+    const Config* config = static_cast<const Config*>(getConfig());
     const InitData& initData = config->getInitData();
 
-    if( initData.showLogo( ))
+    if (initData.showLogo())
         _loadLogo();
 
-    if( initData.useGLSL() )
+    if (initData.useGLSL())
         _loadShaders();
 
     return true;
@@ -98,7 +97,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
 
 bool Window::configExitGL()
 {
-    if( _state && !_state->isShared( ))
+    if (_state && !_state->isShared())
         _state->deleteAll();
 
     delete _state;
@@ -110,13 +109,12 @@ bool Window::configExitGL()
 namespace
 {
 static const std::string _logoTextureName =
-                              std::string( lunchbox::getRootPath() +
-                                          "/share/Equalizer/data/logo.rgb" );
+    std::string(lunchbox::getRootPath() + "/share/Equalizer/data/logo.rgb");
 }
 
 void Window::_loadLogo()
 {
-    if( !GLEW_ARB_texture_rectangle )
+    if (!GLEW_ARB_texture_rectangle)
     {
         LBWARN << "Can't load overlay logo, GL_ARB_texture_rectangle not "
                << "available" << std::endl;
@@ -124,66 +122,66 @@ void Window::_loadLogo()
     }
 
     eq::util::ObjectManager& om = getObjectManager();
-    _logoTexture = om.getEqTexture( _logoTextureName.c_str( ));
-    if( _logoTexture )
+    _logoTexture = om.getEqTexture(_logoTextureName.c_str());
+    if (_logoTexture)
         return;
 
     eq::Image image;
-    if( !image.readImage( _logoTextureName, eq::Frame::Buffer::color ))
+    if (!image.readImage(_logoTextureName, eq::Frame::Buffer::color))
     {
         LBWARN << "Can't load overlay logo " << _logoTextureName << std::endl;
         return;
     }
 
-    _logoTexture = om.newEqTexture( _logoTextureName.c_str(),
-                                    GL_TEXTURE_RECTANGLE_ARB );
-    LBASSERT( _logoTexture );
+    _logoTexture =
+        om.newEqTexture(_logoTextureName.c_str(), GL_TEXTURE_RECTANGLE_ARB);
+    LBASSERT(_logoTexture);
 
-    if( !image.upload( eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(),
-        om ))
+    if (!image.upload(eq::Frame::Buffer::color, _logoTexture, eq::Vector2i(),
+                      om))
     {
         LBWARN << "Can't load overlay logo " << _logoTextureName << std::endl;
-        om.deleteEqTexture( _logoTextureName.c_str( ));
+        om.deleteEqTexture(_logoTextureName.c_str());
         _logoTexture = nullptr;
         return;
     }
 
-    image.deleteGLObjects( om );
+    image.deleteGLObjects(om);
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;
 }
 
 void Window::_loadShaders()
 {
-    if( _state->getProgram( getPipe( )) != VertexBufferState::INVALID )
+    if (_state->getProgram(getPipe()) != VertexBufferState::INVALID)
         // already loaded
         return;
 
     // Check if functions are available
-    if( !GLEW_VERSION_2_0 )
+    if (!GLEW_VERSION_2_0)
     {
         LBWARN << "Shader function pointers missing, using fixed function "
                << "pipeline" << std::endl;
         return;
     }
 
-    const GLuint program = _state->newProgram( getPipe( ));
-    if( !_state->linkProgram( program, vertexShader_glsl, fragmentShader_glsl ))
+    const GLuint program = _state->newProgram(getPipe());
+    if (!_state->linkProgram(program, vertexShader_glsl, fragmentShader_glsl))
         return;
 
     // turn off OpenGL lighting if we are using our own shaders
-    glDisable( GL_LIGHTING );
+    glDisable(GL_LIGHTING);
 
     LBINFO << "Shaders loaded successfully" << std::endl;
 }
 
-void Window::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Window::frameStart(const eq::uint128_t& frameID,
+                        const uint32_t frameNumber)
 {
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const Pipe* pipe = static_cast<Pipe*>(getPipe());
     const FrameData& frameData = pipe->getFrameData();
 
-    _state->setRenderMode( frameData.getRenderMode( ));
-    eq::Window::frameStart( frameID, frameNumber );
+    _state->setRenderMode(frameData.getRenderMode());
+    eq::Window::frameStart(frameID, frameNumber);
 }
-
 }

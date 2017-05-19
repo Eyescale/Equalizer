@@ -35,24 +35,23 @@ class FrameData;
 
 namespace eVolve
 {
-    class LocalInitData : public InitData
-    {
-    public:
-        LocalInitData();
+class LocalInitData : public InitData
+{
+public:
+    LocalInitData();
 
-        void parseArguments( int argc, char** argv );
+    void parseArguments(int argc, char** argv);
 
-        bool               isResident()     const { return _isResident; }
-        bool               getOrtho()       const { return _ortho;  }
-        uint32_t           getMaxFrames()   const { return _maxFrames; }
+    bool isResident() const { return _isResident; }
+    bool getOrtho() const { return _ortho; }
+    uint32_t getMaxFrames() const { return _maxFrames; }
+    LocalInitData& operator=(const LocalInitData& from);
 
-        LocalInitData& operator = ( const LocalInitData& from );
-
-    private:
-        uint32_t    _maxFrames;
-        bool        _isResident;
-        bool        _ortho;
-    };
+private:
+    uint32_t _maxFrames;
+    bool _isResident;
+    bool _ortho;
+};
 }
 
 #endif // EVOLVE_LOCALINITDATA_H

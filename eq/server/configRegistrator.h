@@ -18,7 +18,7 @@
 #ifndef EQSERVER_CONFIGREGISTRATOR_H
 #define EQSERVER_CONFIGREGISTRATOR_H
 
-#include "configVisitor.h"        // base class
+#include "configVisitor.h" // base class
 
 namespace eq
 {
@@ -26,88 +26,75 @@ namespace server
 {
 namespace
 {
-    /** Registers all objects of a config. @internal */
-    class ConfigRegistrator : public ConfigVisitor
+/** Registers all objects of a config. @internal */
+class ConfigRegistrator : public ConfigVisitor
+{
+public:
+    ConfigRegistrator() {}
+    virtual ~ConfigRegistrator() {}
+    virtual VisitorResult visit(Observer* observer)
     {
-    public:
-        ConfigRegistrator() {}
-        virtual ~ConfigRegistrator() {}
+        // double commit on update/delete
+        return _register(observer, observer->getConfig()->getLatency() + 1);
+    }
 
-        virtual VisitorResult visit( Observer* observer )
-            { 
-                // double commit on update/delete
-                return _register( observer, 
-                                  observer->getConfig()->getLatency() + 1 );
-            }
+    virtual VisitorResult visit(Segment* segment)
+    {
+        // double commit on update/delete
+        return _register(segment, segment->getConfig()->getLatency() + 1);
+    }
 
-        virtual VisitorResult visit( Segment* segment )
-            { 
-                // double commit on update/delete
-                return _register( segment,
-                                  segment->getConfig()->getLatency() + 1 );
-            }
+    virtual VisitorResult visitPost(Canvas* canvas)
+    {
+        // double commit on update/delete
+        return _register(canvas, canvas->getConfig()->getLatency() + 1);
+    }
 
-        virtual VisitorResult visitPost( Canvas* canvas )
-            { 
-                // double commit on update/delete
-                return _register( canvas,
-                                  canvas->getConfig()->getLatency() + 1 );
-            }
+    virtual VisitorResult visit(View* view)
+    {
+        // double commit on update/delete
+        return _register(view, view->getConfig()->getLatency() + 1);
+    }
 
-        virtual VisitorResult visit( View* view )
-            {
-                // double commit on update/delete
-                return _register( view,
-                                  view->getConfig()->getLatency() + 1 );
-            }
+    virtual VisitorResult visitPost(Layout* layout)
+    {
+        // double commit on update/delete
+        return _register(layout, layout->getConfig()->getLatency() + 1);
+    }
 
-        virtual VisitorResult visitPost( Layout* layout )
-            { 
-                // double commit on update/delete
-                return _register( layout,
-                                  layout->getConfig()->getLatency() + 1 );
-            }
+    virtual VisitorResult visit(Channel* channel)
+    {
+        return _register(channel, 0);
+    }
+    virtual VisitorResult visitPost(Window* window)
+    {
+        return _register(window, 0);
+    }
+    virtual VisitorResult visitPost(Pipe* pipe) { return _register(pipe, 0); }
+    virtual VisitorResult visitPost(Node* node) { return _register(node, 0); }
+    virtual VisitorResult visit(Compound* compound)
+    {
+        compound->register_();
+        return TRAVERSE_CONTINUE;
+    }
 
-        virtual VisitorResult visit( Channel* channel )
-            {
-                return _register( channel, 0 );
-            }
-        virtual VisitorResult visitPost( Window* window )
-            {
-                return _register( window, 0 );
-            }
-        virtual VisitorResult visitPost( Pipe* pipe )
-            {
-                return _register( pipe, 0 );
-            }
-        virtual VisitorResult visitPost( Node* node )
-            {
-                return _register( node, 0 );
-            }
+    virtual VisitorResult visitPost(Config* config)
+    {
+        return _register(config, 0);
+    }
 
-        virtual VisitorResult visit( Compound* compound )
-            {
-                compound->register_();
-                return TRAVERSE_CONTINUE;
-            }
-
-        virtual VisitorResult visitPost( Config* config )
-            {
-                return _register( config, 0 );
-            }
-
-    private:
-        template< class O >
-        VisitorResult _register( O* object, const uint32_t nBuffers )
-            {
-                ServerPtr server = object->getServer();
-                LBASSERT( !object->isAttached() );
-                server->registerObject( object );
-                if( nBuffers > 0 )
-                    object->setAutoObsolete( nBuffers );
-                return TRAVERSE_CONTINUE;
-            }
-    };
+private:
+    template <class O>
+    VisitorResult _register(O* object, const uint32_t nBuffers)
+    {
+        ServerPtr server = object->getServer();
+        LBASSERT(!object->isAttached());
+        server->registerObject(object);
+        if (nBuffers > 0)
+            object->setAutoObsolete(nBuffers);
+        return TRAVERSE_CONTINUE;
+    }
+};
 }
 }
 }

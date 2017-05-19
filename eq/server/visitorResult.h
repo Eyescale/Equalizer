@@ -24,14 +24,14 @@ namespace eq
 {
 namespace server
 {
-     /** The result code from any visit operation. */
-    typedef lunchbox::VisitorResult VisitorResult;
+/** The result code from any visit operation. */
+typedef lunchbox::VisitorResult VisitorResult;
 
-    /** @cond IGNORE */
-    using lunchbox::TRAVERSE_CONTINUE;
-    using lunchbox::TRAVERSE_TERMINATE;
-    using lunchbox::TRAVERSE_PRUNE;
-    /** @endcond */
+/** @cond IGNORE */
+using lunchbox::TRAVERSE_CONTINUE;
+using lunchbox::TRAVERSE_TERMINATE;
+using lunchbox::TRAVERSE_PRUNE;
+/** @endcond */
 }
 }
 #endif // EQSERVER_VISITORRESULT_H

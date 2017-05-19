@@ -18,18 +18,18 @@
 #ifndef EQADMIN_OBSERVER_H
 #define EQADMIN_OBSERVER_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/observer.h>       // base class
+#include <eq/admin/types.h>     // typedefs
+#include <eq/fabric/observer.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Observer : public fabric::Observer< Config, Observer >
+class Observer : public fabric::Observer<Config, Observer>
 {
 public:
     /** Construct a new observer. @version 1.0 */
-    EQADMIN_API explicit Observer( Config* parent );
+    EQADMIN_API explicit Observer(Config* parent);
 
     /** Destruct this observer. @version 1.0 */
     EQADMIN_API virtual ~Observer();
@@ -40,8 +40,8 @@ public:
     EQADMIN_API ServerPtr getServer();
     //@}
 
-    void addView( View* ) { /* nop */ } //!< @internal
-    void removeView( View* ) { /* nop */ } //!< @internal
+    void addView(View*) { /* nop */}    //!< @internal
+    void removeView(View*) { /* nop */} //!< @internal
 };
 }
 }

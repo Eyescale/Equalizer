@@ -19,9 +19,9 @@
 #ifndef EQ_COMMANDQUEUE_H
 #define EQ_COMMANDQUEUE_H
 
+#include <co/commandQueue.h> // base class
 #include <eq/types.h>
 #include <eq/windowSystem.h> // enum
-#include <co/commandQueue.h>    // base class
 
 namespace eq
 {
@@ -33,31 +33,34 @@ namespace eq
 class CommandQueue : public co::CommandQueue
 {
 public:
-    explicit CommandQueue( const size_t maxSize );
+    explicit CommandQueue(const size_t maxSize);
     virtual ~CommandQueue();
 
     /** @sa co::CommandQueue::push(). */
-    virtual void push( const co::ICommand& command );
+    virtual void push(const co::ICommand& command);
 
     /** @sa co::CommandQueue::pushFront(). */
-    virtual void pushFront( const co::ICommand& command );
+    virtual void pushFront(const co::ICommand& command);
 
     /** @sa co::CommandQueue::pop(). */
-    virtual co::ICommand pop( const uint32_t timeout =
-                              LB_TIMEOUT_INDEFINITE );
+    virtual co::ICommand pop(const uint32_t timeout = LB_TIMEOUT_INDEFINITE);
 
     /** @sa co::CommandQueue::popAll(). */
-    virtual co::ICommands popAll( const uint32_t timeout =
-                                  LB_TIMEOUT_INDEFINITE );
+    virtual co::ICommands popAll(
+        const uint32_t timeout = LB_TIMEOUT_INDEFINITE);
 
     /** @sa co::CommandQueue::tryPop(). */
     virtual co::ICommand tryPop();
 
     /** @sa reset the time spent in pop() and return the previous value. */
     int64_t resetWaitTime()
-    { const int64_t time = _waitTime; _waitTime = 0; return time; }
+    {
+        const int64_t time = _waitTime;
+        _waitTime = 0;
+        return time;
+    }
 
-    void setMessagePump( MessagePump* p ) { _messagePump = p; }
+    void setMessagePump(MessagePump* p) { _messagePump = p; }
     MessagePump* getMessagePump() { return _messagePump; }
     virtual void pump(); //!< @sa co::CommandQueue::pump()
 
@@ -69,4 +72,4 @@ private:
 };
 }
 
-#endif //EQ_COMMANDQUEUE_H
+#endif // EQ_COMMANDQUEUE_H

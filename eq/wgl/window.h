@@ -19,7 +19,7 @@
 #ifndef EQ_WGL_WINDOW_H
 #define EQ_WGL_WINDOW_H
 
-#include <eq/glWindow.h>       // base class
+#include <eq/glWindow.h> // base class
 #include <eq/os.h>
 #include <eq/wgl/types.h>
 
@@ -27,19 +27,23 @@ namespace eq
 {
 namespace wgl
 {
-namespace detail { class Window; }
+namespace detail
+{
+class Window;
+}
 
 /** The interface defining the minimum functionality for a WGL window. */
 class WindowIF : public GLWindow
 {
 public:
     /** Construct a new WGL window for the given eq::Window. @version 1.7.2 */
-    WindowIF( NotifierInterface& parent, const WindowSettings& settings )
-        : GLWindow( parent, settings ) {}
+    WindowIF(NotifierInterface& parent, const WindowSettings& settings)
+        : GLWindow(parent, settings)
+    {
+    }
 
     /** Destruct the WGL window. @version 1.0 */
     virtual ~WindowIF() {}
-
     /** @return the WGL rendering context. @version 1.0 */
     EQ_API virtual HGLRC getWGLContext() const = 0;
 
@@ -54,29 +58,38 @@ public:
 
     /** @return the Win32 affinity device context, if used. @version 1.0 */
     virtual HDC getWGLAffinityDC() { return 0; }
-
     /** Process a (re)size event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, SizeEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, SizeEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a mouse event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, PointerEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, PointerEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process a keyboard event. @return true if the event was handled. */
-    virtual bool processEvent( EventType type, KeyEvent& event )
-        { return GLWindow::processEvent( type, event ); }
+    virtual bool processEvent(EventType type, KeyEvent& event)
+    {
+        return GLWindow::processEvent(type, event);
+    }
 
     /** Process an axis event. @return true if the event was handled. */
-    virtual bool processEvent( AxisEvent& event )
-        { return GLWindow::processEvent( event ); }
+    virtual bool processEvent(AxisEvent& event)
+    {
+        return GLWindow::processEvent(event);
+    }
 
     /** Process a button event. @return true if the event was handled. */
-    virtual bool processEvent( ButtonEvent& event )
-        { return GLWindow::processEvent( event ); }
+    virtual bool processEvent(ButtonEvent& event)
+    {
+        return GLWindow::processEvent(event);
+    }
 
     /** Process a stateless event. @return true if the event was handled. */
-    virtual bool processEvent( EventType ) { return false; }
+    virtual bool processEvent(EventType) { return false; }
 };
 
 /** Equalizer default implementation of a WGL window */
@@ -84,11 +97,11 @@ class Window : public WindowIF
 {
 public:
     /** Create a new WGL window for the given eq::Window. @version 1.7.2 */
-    EQ_API Window( NotifierInterface& parent, const WindowSettings& settings,
-                   Pipe& pipe );
+    EQ_API Window(NotifierInterface& parent, const WindowSettings& settings,
+                  Pipe& pipe);
 
     /** Destruct the WGL window. @version 1.0 */
-    EQ_API virtual ~Window( );
+    EQ_API virtual ~Window();
 
     /** @name Data Access */
     /**
@@ -101,7 +114,7 @@ public:
      * @param context the WGL rendering context.
      * @version 1.0
      */
-    EQ_API virtual void setWGLContext( HGLRC context );
+    EQ_API virtual void setWGLContext(HGLRC context);
 
     //@{
     /**
@@ -113,7 +126,7 @@ public:
      * @param handle the window handle.
      * @version 1.0
      */
-    EQ_API virtual void setWGLWindowHandle( HWND handle );
+    EQ_API virtual void setWGLWindowHandle(HWND handle);
 
     /** @return the Win32 window handle. @version 1.0 */
     EQ_API virtual HWND getWGLWindowHandle() const;
@@ -147,7 +160,7 @@ public:
     EQ_API virtual bool configInit();
 
     /** @version 1.0 */
-    EQ_API virtual void configExit( );
+    EQ_API virtual void configExit();
 
     /**
      * Create, if needed, an affinity device context for this window.
@@ -194,7 +207,7 @@ public:
      * @return true if the drawable was created, false otherwise.
      * @version 1.0
      */
-    EQ_API virtual bool configInitWGLDrawable( int pixelFormat );
+    EQ_API virtual bool configInitWGLDrawable(int pixelFormat);
 
     /**
      * Initialize the window with an on-screen Win32 window.
@@ -205,10 +218,10 @@ public:
      * @return true if the drawable was created, false otherwise.
      * @version 1.0
      */
-    EQ_API virtual bool configInitWGLWindow( int pixelFormat );
+    EQ_API virtual bool configInitWGLWindow(int pixelFormat);
 
     /** Initialize the window for an off-screen FBO */
-    EQ_API virtual bool configInitWGLFBO( int pixelFormat );
+    EQ_API virtual bool configInitWGLFBO(int pixelFormat);
 
     /**
      * Create a WGL context.
@@ -221,7 +234,7 @@ public:
     EQ_API virtual HGLRC createWGLContext();
 
     /** Destroy the given WGL context. @version 1.0 */
-    EQ_API virtual void destroyWGLContext( HGLRC context );
+    EQ_API virtual void destroyWGLContext(HGLRC context);
 
     /**
      * Set up an WGLEventHandler, called by setWGLWindowHandle().
@@ -239,7 +252,7 @@ public:
     /** @name Operations. */
     //@{
     /** @version 1.0 */
-    EQ_API virtual void makeCurrent( const bool cache = true ) const;
+    EQ_API virtual void makeCurrent(const bool cache = true) const;
 
     /** @version 1.10 */
     EQ_API virtual void doneCurrent() const;
@@ -248,15 +261,14 @@ public:
     EQ_API virtual void swapBuffers();
 
     /** Join the WGL_NV_swap_group. @version 1.0 */
-    EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
-                                           const uint32_t barrier );
-
+    EQ_API virtual void joinNVSwapBarrier(const uint32_t group,
+                                          const uint32_t barrier);
 
     /** Unbind a WGL_NV_swap_barrier. @version 1.0 */
     void leaveNVSwapBarrier();
 
-    EQ_API bool processEvent( EventType type, PointerEvent& event ) override;
-    EQ_API bool processEvent( EventType type ) override;
+    EQ_API bool processEvent(EventType type, PointerEvent& event) override;
+    EQ_API bool processEvent(EventType type) override;
     //@}
 
 protected:
@@ -267,16 +279,16 @@ private:
     detail::Window* const _impl;
 
     /** Create an unmapped WGL window. */
-    HWND _createWGLWindow( const PixelViewport& pvp );
+    HWND _createWGLWindow(const PixelViewport& pvp);
 
     /** Use wglChoosePixelFormatARB */
-    int _chooseWGLPixelFormatARB( HDC pfDC );
+    int _chooseWGLPixelFormatARB(HDC pfDC);
 
     /** Use ChoosePixelFormat */
-    int _chooseWGLPixelFormat( HDC pfDC );
+    int _chooseWGLPixelFormat(HDC pfDC);
 
     void _initSwapSync();
-    void _resize( const PixelViewport& pvp ) override;
+    void _resize(const PixelViewport& pvp) override;
 };
 }
 }

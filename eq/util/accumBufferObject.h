@@ -36,7 +36,7 @@ class AccumBufferObject : public FrameBufferObject
 {
 public:
     /** Construct a new Accumulation Buffer Object. @version 1.0 */
-    EQ_API explicit AccumBufferObject( const GLEWContext* const glewContext );
+    EQ_API explicit AccumBufferObject(const GLEWContext* const glewContext);
 
     /** Destruct the Accumulation Buffer Object. @version 1.0 */
     EQ_API ~AccumBufferObject();
@@ -53,7 +53,7 @@ public:
      * @sa Window::getColorFormat(), glReadBuffer()
      * @version 1.0
      */
-    EQ_API bool init( const PixelViewport& pvp, const unsigned format );
+    EQ_API bool init(const PixelViewport& pvp, const unsigned format);
 
     /** De-initialize the Accumulation Buffer Object. @version 1.0 */
     EQ_API void exit();
@@ -68,7 +68,7 @@ public:
      *              during the load operation.
      * @version 1.0
      */
-    EQ_API void load( const float value );
+    EQ_API void load(const float value);
 
     /**
      * Accumulate the current read buffer into the accumulation buffer.
@@ -80,7 +80,7 @@ public:
      *              during the accum operation.
      * @version 1.0
      */
-    EQ_API void accum( const float value );
+    EQ_API void accum(const float value);
 
     /**
      * Transfer accumulation buffer values to the draw buffer.
@@ -92,7 +92,7 @@ public:
      *              values during the operation.
      * @version 1.0
      */
-    EQ_API void display( const float value );
+    EQ_API void display(const float value);
 
     /**
      * Resets the pixel viewport used in display and resizes the
@@ -103,10 +103,10 @@ public:
      *
      * @version 1.5.2
      */
-    EQ_API bool resize( const PixelViewport& pvp );
+    EQ_API bool resize(const PixelViewport& pvp);
 
 private:
-    void _setup( const PixelViewport& pvp );
+    void _setup(const PixelViewport& pvp);
     void _reset();
 
     /**
@@ -116,8 +116,8 @@ private:
      * @param pvp The size of the quad.
      * @param value the brightness factor of the result.
      */
-    void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp,
-                               const float value );
+    void _drawQuadWithTexture(Texture* texture, const PixelViewport& pvp,
+                              const float value);
 
     Texture* _texture;
     PixelViewport _pvp;

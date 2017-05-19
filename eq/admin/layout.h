@@ -18,18 +18,18 @@
 #ifndef EQADMIN_LAYOUT_H
 #define EQADMIN_LAYOUT_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/layout.h>       // base class
+#include <eq/admin/types.h>   // typedefs
+#include <eq/fabric/layout.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-class Layout : public fabric::Layout< Config, Layout, View >
+class Layout : public fabric::Layout<Config, Layout, View>
 {
 public:
     /** Construct a new layout. @version 1.0 */
-    EQADMIN_API explicit Layout( Config* parent );
+    EQADMIN_API explicit Layout(Config* parent);
 
     /** Destruct a layout. @version 1.0 */
     EQADMIN_API virtual ~Layout();

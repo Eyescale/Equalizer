@@ -35,15 +35,14 @@
 
 #include <eq/eq.h>
 
+#include <osg/Image>
 #include <osg/LightSource>
 #include <osg/Matrix>
-#include <osg/ref_ptr>
 #include <osg/Node>
-#include <osg/Image>
+#include <osg/ref_ptr>
 
 namespace osgScaleViewer
 {
-
 class FrameData;
 class Pipe;
 
@@ -55,20 +54,19 @@ class Pipe;
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent );
+    Channel(eq::Window* parent);
 
 protected:
     /** @sa eq::Channel::frameClear() */
-    virtual void frameClear( const eq::uint128_t& frameID );
+    virtual void frameClear(const eq::uint128_t& frameID);
 
     /** @sa eq::Channel::frameDraw() **/
-    virtual void frameDraw( const eq::uint128_t& frameID );
+    virtual void frameDraw(const eq::uint128_t& frameID);
 
     /** @sa eq::Channel::frameViewFinish() */
-    void frameViewFinish( const eq::uint128_t& frameID );
+    void frameViewFinish(const eq::uint128_t& frameID);
 
 private:
 };
-
 }
 #endif

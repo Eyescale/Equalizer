@@ -34,331 +34,327 @@ namespace eq
 {
 namespace fabric
 {
-template< class C, class L, class V >
-Layout< C, L, V >::Layout( C* config )
-        : _config( config )
+template <class C, class L, class V>
+Layout<C, L, V>::Layout(C* config)
+    : _config(config)
 {
-    LBASSERT( config );
-    static_cast< L* >( this )->_config->_addLayout( static_cast< L* >( this ));
-    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBASSERT(config);
+    static_cast<L*>(this)->_config->_addLayout(static_cast<L*>(this));
+    LBLOG(LOG_INIT) << "New " << lunchbox::className(this) << std::endl;
 }
 
-template< class C, class L, class V >
-Layout< C, L, V >::~Layout()
+template <class C, class L, class V>
+Layout<C, L, V>::~Layout()
 {
-    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
-    while( !_views.empty( ))
+    LBLOG(LOG_INIT) << "Delete " << lunchbox::className(this) << std::endl;
+    while (!_views.empty())
     {
         V* view = _views.back();
-        LBCHECK( _removeChild( view ));
-        release( view );
+        LBCHECK(_removeChild(view));
+        release(view);
     }
 
-    _config->_removeLayout( static_cast< L* >( this ));
+    _config->_removeLayout(static_cast<L*>(this));
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::attach( const uint128_t& id,
-                                const uint32_t instanceID )
+template <class C, class L, class V>
+void Layout<C, L, V>::attach(const uint128_t& id, const uint32_t instanceID)
 {
-    Object::attach( id, instanceID );
+    Object::attach(id, instanceID);
 
     co::CommandQueue* queue = _config->getMainThreadQueue();
-    LBASSERT( queue );
+    LBASSERT(queue);
 
-    registerCommand( CMD_LAYOUT_NEW_VIEW,
-                     CmdFunc( this, &Layout< C, L, V >::_cmdNewView ), queue );
-    registerCommand( CMD_LAYOUT_NEW_VIEW_REPLY,
-                     CmdFunc( this, &Layout< C, L, V >::_cmdNewViewReply ), 0 );
+    registerCommand(CMD_LAYOUT_NEW_VIEW,
+                    CmdFunc(this, &Layout<C, L, V>::_cmdNewView), queue);
+    registerCommand(CMD_LAYOUT_NEW_VIEW_REPLY,
+                    CmdFunc(this, &Layout<C, L, V>::_cmdNewViewReply), 0);
 }
 
-template< class C, class L, class V >
-uint128_t Layout< C, L, V >::commit( const uint32_t incarnation )
+template <class C, class L, class V>
+uint128_t Layout<C, L, V>::commit(const uint32_t incarnation)
 {
     // Always traverse views: view proxy objects may be dirty
-    commitChildren< V >( _views, CMD_LAYOUT_NEW_VIEW, incarnation );
-    return Object::commit( incarnation );
+    commitChildren<V>(_views, CMD_LAYOUT_NEW_VIEW, incarnation);
+    return Object::commit(incarnation);
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::serialize( co::DataOStream& os,
-                                   const uint64_t dirtyBits )
+template <class C, class L, class V>
+void Layout<C, L, V>::serialize(co::DataOStream& os, const uint64_t dirtyBits)
 {
-    Object::serialize( os, dirtyBits );
+    Object::serialize(os, dirtyBits);
 
-    if( dirtyBits & DIRTY_VIEWS && isMaster( ))
-        os.serializeChildren( _views );
-    if( dirtyBits & DIRTY_VIEWPORT )
+    if (dirtyBits & DIRTY_VIEWS && isMaster())
+        os.serializeChildren(_views);
+    if (dirtyBits & DIRTY_VIEWPORT)
         os << _pvp;
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::deserialize( co::DataIStream& is,
-                                     const uint64_t dirtyBits )
+template <class C, class L, class V>
+void Layout<C, L, V>::deserialize(co::DataIStream& is, const uint64_t dirtyBits)
 {
-    Object::deserialize( is, dirtyBits );
+    Object::deserialize(is, dirtyBits);
 
-    if( dirtyBits & DIRTY_VIEWS )
+    if (dirtyBits & DIRTY_VIEWS)
     {
-        if( isMaster( ))
-            syncChildren( _views );
+        if (isMaster())
+            syncChildren(_views);
         else
         {
             Views result;
-            is.deserializeChildren( this, _views, result );
-            _views.swap( result );
+            is.deserializeChildren(this, _views, result);
+            _views.swap(result);
         }
     }
-    if( dirtyBits & DIRTY_VIEWPORT )
+    if (dirtyBits & DIRTY_VIEWPORT)
     {
         is >> _pvp;
         notifyViewportChanged();
     }
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::setDirty( const uint64_t dirtyBits )
+template <class C, class L, class V>
+void Layout<C, L, V>::setDirty(const uint64_t dirtyBits)
 {
-    Object::setDirty( dirtyBits );
-    _config->setDirty( C::DIRTY_LAYOUTS );
+    Object::setDirty(dirtyBits);
+    _config->setDirty(C::DIRTY_LAYOUTS);
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::notifyDetach()
+template <class C, class L, class V>
+void Layout<C, L, V>::notifyDetach()
 {
     Object::notifyDetach();
-    releaseChildren< L, V >( _views );
+    releaseChildren<L, V>(_views);
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::create( V** view )
+template <class C, class L, class V>
+void Layout<C, L, V>::create(V** view)
 {
     *view = getConfig()->getServer()->getNodeFactory()->createView(
-        static_cast< L* >( this ));
+        static_cast<L*>(this));
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::release( V* view )
+template <class C, class L, class V>
+void Layout<C, L, V>::release(V* view)
 {
-    getConfig()->getServer()->getNodeFactory()->releaseView( view );
+    getConfig()->getServer()->getNodeFactory()->releaseView(view);
 }
 
-template< class C, class L, class V >
-const PixelViewport& Layout< C, L, V >::getPixelViewport() const
+template <class C, class L, class V>
+const PixelViewport& Layout<C, L, V>::getPixelViewport() const
 {
     return _pvp;
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::setPixelViewport( const PixelViewport& pvp )
+template <class C, class L, class V>
+void Layout<C, L, V>::setPixelViewport(const PixelViewport& pvp)
 {
-    if( _pvp == pvp )
+    if (_pvp == pvp)
         return;
     _pvp = pvp;
-    setDirty( DIRTY_VIEWPORT );
+    setDirty(DIRTY_VIEWPORT);
 }
 
 namespace
 {
-template< class L, class V >
-VisitorResult _accept( L* layout, V& visitor )
+template <class L, class V>
+VisitorResult _accept(L* layout, V& visitor)
 {
-    VisitorResult result = visitor.visitPre( layout );
-    if( result != TRAVERSE_CONTINUE )
+    VisitorResult result = visitor.visitPre(layout);
+    if (result != TRAVERSE_CONTINUE)
         return result;
 
     const typename L::Views& views = layout->getViews();
-    for( typename L::Views::const_iterator i = views.begin();
-         i != views.end(); ++i )
+    for (typename L::Views::const_iterator i = views.begin(); i != views.end();
+         ++i)
     {
-        switch( (*i)->accept( visitor ))
+        switch ((*i)->accept(visitor))
         {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( layout ))
-    {
         case TRAVERSE_TERMINATE:
             return TRAVERSE_TERMINATE;
 
         case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
+            result = TRAVERSE_PRUNE;
+            break;
 
         case TRAVERSE_CONTINUE:
         default:
             break;
+        }
+    }
+
+    switch (visitor.visitPost(layout))
+    {
+    case TRAVERSE_TERMINATE:
+        return TRAVERSE_TERMINATE;
+
+    case TRAVERSE_PRUNE:
+        return TRAVERSE_PRUNE;
+
+    case TRAVERSE_CONTINUE:
+    default:
+        break;
     }
 
     return result;
 }
 }
 
-template< class C, class L, class V >
-VisitorResult Layout< C, L, V >::accept( Visitor& visitor )
+template <class C, class L, class V>
+VisitorResult Layout<C, L, V>::accept(Visitor& visitor)
 {
-    return _accept( static_cast< L* >( this ), visitor );
+    return _accept(static_cast<L*>(this), visitor);
 }
 
-template< class C, class L, class V >
-VisitorResult Layout< C, L, V >::accept( Visitor& visitor ) const
+template <class C, class L, class V>
+VisitorResult Layout<C, L, V>::accept(Visitor& visitor) const
 {
-    return _accept( static_cast< const L* >( this ), visitor );
+    return _accept(static_cast<const L*>(this), visitor);
 }
 
-template< class C, class L, class V >
-void Layout< C, L, V >::_addChild( V* view )
+template <class C, class L, class V>
+void Layout<C, L, V>::_addChild(V* view)
 {
-    LBASSERT( view );
-    LBASSERT( view->getLayout() == this );
-    _views.push_back( view );
-    setDirty( DIRTY_VIEWS );
+    LBASSERT(view);
+    LBASSERT(view->getLayout() == this);
+    _views.push_back(view);
+    setDirty(DIRTY_VIEWS);
 }
 
-template< class C, class L, class V >
-bool Layout< C, L, V >::_removeChild( V* view )
+template <class C, class L, class V>
+bool Layout<C, L, V>::_removeChild(V* view)
 {
-    typename Views::iterator i = lunchbox::find( _views, view );
-    if( i == _views.end( ))
+    typename Views::iterator i = lunchbox::find(_views, view);
+    if (i == _views.end())
         return false;
 
-    LBASSERT( view->getLayout() == this );
-    _views.erase( i );
-    setDirty( DIRTY_VIEWS );
-    if( !isMaster( ))
-        postRemove( view );
+    LBASSERT(view->getLayout() == this);
+    _views.erase(i);
+    setDirty(DIRTY_VIEWS);
+    if (!isMaster())
+        postRemove(view);
     return true;
 }
 
-template< class C, class L, class V >
-template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
+template <class C, class L, class V>
+template <class O>
+void Layout<C, L, V>::_removeObserver(const O* observer)
 {
-    for( typename Views::const_iterator i = _views.begin();
-         i != _views.end(); ++i )
+    for (typename Views::const_iterator i = _views.begin(); i != _views.end();
+         ++i)
     {
         V* view = *i;
-        if( view->getObserver() == observer )
+        if (view->getObserver() == observer)
         {
             LBINFO << "Removing " << lunchbox::disableHeader << *observer
                    << " used by " << *view << std::endl
                    << lunchbox::enableHeader;
-            view->setObserver( 0 );
+            view->setObserver(0);
         }
     }
 }
 
-template< class C, class L, class V >
-bool Layout< C, L, V >::isActive() const
+template <class C, class L, class V>
+bool Layout<C, L, V>::isActive() const
 {
     const typename C::Canvases& canvases = _config->getCanvases();
-    for( typename C::Canvases::const_iterator i = canvases.begin();
-         i != canvases.end(); ++i )
+    for (typename C::Canvases::const_iterator i = canvases.begin();
+         i != canvases.end(); ++i)
     {
-        if( (*i)->getActiveLayout() == this )
+        if ((*i)->getActiveLayout() == this)
             return true;
     }
     return false;
 }
 
-template< class C, class L, class V >
-V* Layout< C, L, V >::getView( const ViewPath& path )
+template <class C, class L, class V>
+V* Layout<C, L, V>::getView(const ViewPath& path)
 {
-    LBASSERTINFO( _views.size() > path.viewIndex,
-                  _views.size() << " <= " << path.viewIndex << " " << this );
+    LBASSERTINFO(_views.size() > path.viewIndex,
+                 _views.size() << " <= " << path.viewIndex << " " << this);
 
-    if( _views.size() <= path.viewIndex )
+    if (_views.size() <= path.viewIndex)
         return 0;
 
-    return _views[ path.viewIndex ];
+    return _views[path.viewIndex];
 }
 
-template< class C, class L, class V >
-LayoutPath Layout< C, L, V >::getPath() const
+template <class C, class L, class V>
+LayoutPath Layout<C, L, V>::getPath() const
 {
-    LBASSERT( _config );
-    const std::vector< L* >& layouts = _config->getLayouts();
-    typename std::vector< L* >::const_iterator i = std::find( layouts.begin(),
-                                                              layouts.end(),
-                                                              this );
-    LBASSERT( i != layouts.end( ));
+    LBASSERT(_config);
+    const std::vector<L*>& layouts = _config->getLayouts();
+    typename std::vector<L*>::const_iterator i =
+        std::find(layouts.begin(), layouts.end(), this);
+    LBASSERT(i != layouts.end());
 
     LayoutPath path;
-    path.layoutIndex = std::distance( layouts.begin(), i );
+    path.layoutIndex = std::distance(layouts.begin(), i);
     return path;
 }
 
-template< class C, class L, class V >
-V* Layout< C, L, V >::findView( const std::string& name )
+template <class C, class L, class V>
+V* Layout<C, L, V>::findView(const std::string& name)
 {
-    NameFinder< V, Visitor > finder( name );
-    accept( finder );
+    NameFinder<V, Visitor> finder(name);
+    accept(finder);
     return finder.getResult();
 }
 
 //----------------------------------------------------------------------
 // ICommand handlers
 //----------------------------------------------------------------------
-template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewView( co::ICommand& cmd )
+template <class C, class L, class V>
+bool Layout<C, L, V>::_cmdNewView(co::ICommand& cmd)
 {
-    co::ObjectICommand command( cmd );
+    co::ObjectICommand command(cmd);
 
     V* view = 0;
-    create( &view );
-    LBASSERT( view );
+    create(&view);
+    LBASSERT(view);
 
-    getLocalNode()->registerObject( view );
-    view->setAutoObsolete( _config->getLatency() + 1 );
-    LBASSERT( view->isAttached() );
+    getLocalNode()->registerObject(view);
+    view->setAutoObsolete(_config->getLatency() + 1);
+    LBASSERT(view->isAttached());
 
-    send( command.getRemoteNode(), CMD_LAYOUT_NEW_VIEW_REPLY )
-            << command.read< uint32_t >() << view->getID();
+    send(command.getRemoteNode(), CMD_LAYOUT_NEW_VIEW_REPLY)
+        << command.read<uint32_t>() << view->getID();
 
     return true;
 }
 
-template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewViewReply( co::ICommand& cmd )
+template <class C, class L, class V>
+bool Layout<C, L, V>::_cmdNewViewReply(co::ICommand& cmd)
 {
-    co::ObjectICommand command( cmd );
-    const uint32_t requestID = command.read< uint32_t >();
-    const uint128_t& result = command.read< uint128_t >();
+    co::ObjectICommand command(cmd);
+    const uint32_t requestID = command.read<uint32_t>();
+    const uint128_t& result = command.read<uint128_t>();
 
-    getLocalNode()->serveRequest( requestID, result );
+    getLocalNode()->serveRequest(requestID, result);
 
     return true;
 }
 
-template< class C, class L, class V >
-std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
+template <class C, class L, class V>
+std::ostream& operator<<(std::ostream& os, const Layout<C, L, V>& layout)
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "layout"
        << std::endl;
     os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = layout.getName();
-    if( !name.empty( ))
+    if (!name.empty())
         os << "name     \"" << name << "\"" << std::endl;
 
-    const std::vector< V* >& views = layout.getViews();
-    for( typename std::vector< V* >::const_iterator i = views.begin();
-         i != views.end(); ++i )
+    const std::vector<V*>& views = layout.getViews();
+    for (typename std::vector<V*>::const_iterator i = views.begin();
+         i != views.end(); ++i)
     {
         os << **i;
     }
-    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
-       << lunchbox::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl
+       << lunchbox::enableHeader << lunchbox::enableFlush;
     return os;
 }
-
 }
 }

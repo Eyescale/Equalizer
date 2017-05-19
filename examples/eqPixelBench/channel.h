@@ -30,36 +30,32 @@
 #ifndef EQ_PIXELBENCH_CHANNEL_H
 #define EQ_PIXELBENCH_CHANNEL_H
 
-#include <eq/eq.h>
 #include "configEvent.h"
+#include <eq/eq.h>
 
 namespace eqPixelBench
 {
-
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent );
+    Channel(eq::Window* parent);
     virtual ~Channel() {}
-
 protected:
-    virtual void frameStart( const eq::uint128_t& frameID,
-                             const uint32_t frameNumber );
-    virtual void frameDraw( const eq::uint128_t& frameID );
+    virtual void frameStart(const eq::uint128_t& frameID,
+                            const uint32_t frameNumber);
+    virtual void frameDraw(const eq::uint128_t& frameID);
     virtual bool configExit();
 
 private:
-    void _draw( const eq::uint128_t& spin );
-    void _testFormats( float applyZoom );
+    void _draw(const eq::uint128_t& spin);
+    void _testFormats(float applyZoom);
     void _testTiledOperations();
     void _testDepthAssemble();
-    void _saveImage( const eq::Image* image,
-                     const char*      externalformat = "",
-                     const char*      info   = "" );
-    void _sendEvent( ConfigEventType type, const float msec,
-                     const eq::Vector2i& area,
-                     const std::string& formatType, const uint64_t dataSizeGPU,
-                     const uint64_t dataSizeCPU );
+    void _saveImage(const eq::Image* image, const char* externalformat = "",
+                    const char* info = "");
+    void _sendEvent(ConfigEventType type, const float msec,
+                    const eq::Vector2i& area, const std::string& formatType,
+                    const uint64_t dataSizeGPU, const uint64_t dataSizeCPU);
 
 private:
     eq::Frame _frame;
@@ -67,4 +63,3 @@ private:
 }
 
 #endif // EQ_PIXELBENCH_CHANNEL_H
-

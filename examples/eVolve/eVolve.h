@@ -43,7 +43,7 @@ typedef RawVolumeModelRenderer Renderer;
 class EVolve : public eq::Client
 {
 public:
-    EVolve( const LocalInitData& initData );
+    EVolve(const LocalInitData& initData);
 
     /** Run an eqPly instance. */
     int run();
@@ -52,7 +52,6 @@ public:
 
 protected:
     virtual ~EVolve() {}
-
     /** @sa eq::Client::clientLoop. */
     virtual void clientLoop();
 
@@ -62,18 +61,18 @@ private:
 
 enum ColorMode
 {
-    COLOR_MODEL,    //!< Render using the colors defined in the ply file
-    COLOR_DEMO,     //!< Use a unique color to demonstrate decomposition
-    COLOR_HALF_DEMO,//!< 50% unique color + 50% original color
-    COLOR_ALL       //!< @internal, must be last
+    COLOR_MODEL,     //!< Render using the colors defined in the ply file
+    COLOR_DEMO,      //!< Use a unique color to demonstrate decomposition
+    COLOR_HALF_DEMO, //!< 50% unique color + 50% original color
+    COLOR_ALL        //!< @internal, must be last
 };
 
 enum BackgroundMode
 {
-    BG_BLACK,   //!< Black background
-    BG_WHITE,   //!< White background
-    BG_COLOR,   //!< Unique color
-    BG_ALL      //!< @internal, must be last
+    BG_BLACK, //!< Black background
+    BG_WHITE, //!< White background
+    BG_COLOR, //!< Unique color
+    BG_ALL    //!< @internal, must be last
 };
 
 enum NormalsQuality
@@ -86,7 +85,7 @@ enum NormalsQuality
 
 enum LogTopics
 {
-    LOG_STATS = eq::LOG_CUSTOM      // 65536
+    LOG_STATS = eq::LOG_CUSTOM // 65536
 };
 }
 

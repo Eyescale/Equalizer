@@ -37,7 +37,6 @@ public:
     //@{
     co::Object* getFrameData();
     const GLEWContext* glewGetContext() const { return _glewContext; }
-
     const ObjectManager& getObjectManager() const;
     ObjectManager& getObjectManager();
 
@@ -50,14 +49,14 @@ public:
     const PixelViewport& getPixelViewport() const;
 
     bool useOrtho() const;
-    void setNearFar( const float nearPlane, const float farPlane );
+    void setNearFar(const float nearPlane, const float farPlane);
     //@}
 
     /** @name Current context. */
     //@{
-    void setPipe( Pipe* pipe ) { _pipe = pipe; }
-    void setWindow( Window* window );
-    void setChannel( Channel* channel );
+    void setPipe(Pipe* pipe) { _pipe = pipe; }
+    void setWindow(Window* window);
+    void setChannel(Channel* channel);
 
     const Window* getWindow() const { return _window; }
     //@}
@@ -80,9 +79,9 @@ public:
 
     /** @name Distributed Object API. */
     //@{
-    co::Object* mapObject( const uint128_t& identifier,
-                           co::Object* instance = 0 );
-    bool unmap( co::Object* object );
+    co::Object* mapObject(const uint128_t& identifier,
+                          co::Object* instance = 0);
+    bool unmap(co::Object* object);
 
 private:
     const GLEWContext* _glewContext;

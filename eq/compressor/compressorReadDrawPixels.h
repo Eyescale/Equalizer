@@ -27,7 +27,6 @@ namespace eq
 {
 namespace plugin
 {
-
 enum FlushMode
 {
     FLUSH_TEXTURE,
@@ -37,52 +36,56 @@ enum FlushMode
 class CompressorReadDrawPixels : public Compressor
 {
 public:
-    explicit CompressorReadDrawPixels( const unsigned name );
+    explicit CompressorReadDrawPixels(const unsigned name);
     virtual ~CompressorReadDrawPixels();
 
-    static void* getNewCompressor( const unsigned name )
-        { return new CompressorReadDrawPixels( name ); }
+    static void* getNewCompressor(const unsigned name)
+    {
+        return new CompressorReadDrawPixels(name);
+    }
 
-    static void* getNewDecompressor( const unsigned name )
-        { return new CompressorReadDrawPixels( name ); }
+    static void* getNewDecompressor(const unsigned name)
+    {
+        return new CompressorReadDrawPixels(name);
+    }
 
-    void compress( const void* const, const eq_uint64_t, const bool ) override
-        { LBDONTCALL; }
+    void compress(const void* const, const eq_uint64_t, const bool) override
+    {
+        LBDONTCALL;
+    }
 
-    static bool isCompatible( const GLEWContext* );
+    static bool isCompatible(const GLEWContext*);
 
-    void download( const GLEWContext*, const eq_uint64_t*, const unsigned,
-                   const eq_uint64_t, eq_uint64_t*, void** ) override;
+    void download(const GLEWContext*, const eq_uint64_t*, const unsigned,
+                  const eq_uint64_t, eq_uint64_t*, void**) override;
 
-    void upload( const GLEWContext*, const void*, const eq_uint64_t*,
-                 const eq_uint64_t, const eq_uint64_t*,
-                 const unsigned ) override;
+    void upload(const GLEWContext*, const void*, const eq_uint64_t*,
+                const eq_uint64_t, const eq_uint64_t*, const unsigned) override;
 
-    void startDownload( const GLEWContext*, const eq_uint64_t*, const unsigned,
-                        const eq_uint64_t) override;
+    void startDownload(const GLEWContext*, const eq_uint64_t*, const unsigned,
+                       const eq_uint64_t) override;
 
-    void finishDownload( const GLEWContext*, const eq_uint64_t*,
-                         const eq_uint64_t, eq_uint64_t*, void** ) override;
+    void finishDownload(const GLEWContext*, const eq_uint64_t*,
+                        const eq_uint64_t, eq_uint64_t*, void**) override;
 
 protected:
     lunchbox::Bufferb _buffer;
-    util::Texture*    _texture;
+    util::Texture* _texture;
     util::PixelBufferObject* _pbo;
-    unsigned    _internalFormat; //!< the GL format
-    unsigned    _format;         //!< the GL format
-    unsigned    _type;           //!< the GL type
-    const unsigned _depth;       //!< the size of one output token
+    unsigned _internalFormat; //!< the GL format
+    unsigned _format;         //!< the GL format
+    unsigned _type;           //!< the GL type
+    const unsigned _depth;    //!< the size of one output token
 
-    void _resizeBuffer( const eq_uint64_t );
-    void _initTexture( const GLEWContext*, const eq_uint64_t );
-    void _initAsyncTexture( const GLEWContext*, const eq_uint64_t,
-                            const eq_uint64_t );
-    bool _initPBO( const GLEWContext*, const eq_uint64_t );
-    void _initDownload( const GLEWContext*, const eq_uint64_t*, eq_uint64_t* );
-    void* _downloadTexture( const GLEWContext* glewContext,
-                            const FlushMode mode );
+    void _resizeBuffer(const eq_uint64_t);
+    void _initTexture(const GLEWContext*, const eq_uint64_t);
+    void _initAsyncTexture(const GLEWContext*, const eq_uint64_t,
+                           const eq_uint64_t);
+    bool _initPBO(const GLEWContext*, const eq_uint64_t);
+    void _initDownload(const GLEWContext*, const eq_uint64_t*, eq_uint64_t*);
+    void* _downloadTexture(const GLEWContext* glewContext,
+                           const FlushMode mode);
 };
-
 }
 }
 #endif // EQ_PLUGIN_COMPRESSORREADDRAWPIXELS

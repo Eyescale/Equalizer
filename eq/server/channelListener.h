@@ -28,8 +28,7 @@ namespace server
 class ChannelListener
 {
 public:
-    virtual ~ChannelListener(){}
-
+    virtual ~ChannelListener() {}
     /**
      * Notify that the channel has received new load data.
      *
@@ -38,11 +37,10 @@ public:
      * @param statistics the frame's statistic.
      * @param region the draw area wrt the channels viewport
      */
-    virtual void notifyLoadData( Channel* channel, uint32_t frameNumber,
-                                 const Statistics& statistics,
-                                 const Viewport& region ) = 0;
+    virtual void notifyLoadData(Channel* channel, uint32_t frameNumber,
+                                const Statistics& statistics,
+                                const Viewport& region) = 0;
 };
 }
 }
 #endif // EQS_CHANNEL_LISTENER_H
-

@@ -19,13 +19,16 @@
 #ifndef EQ_EVENTICOMMAND_H
 #define EQ_EVENTICOMMAND_H
 
+#include <co/objectICommand.h> // base class
 #include <eq/api.h>
 #include <eq/types.h>
-#include <co/objectICommand.h>   // base class
 
 namespace eq
 {
-namespace detail { class EventICommand; }
+namespace detail
+{
+class EventICommand;
+}
 
 /**
  * A command specialization for config events.
@@ -40,10 +43,10 @@ class EventICommand : public co::ObjectICommand
 public:
     /** @internal */
     // cppcheck-suppress noExplicitConstructor
-    EQ_API EventICommand( const co::ICommand& command );
+    EQ_API EventICommand(const co::ICommand& command);
 
     /** Copy-construct an event command. @version 1.5.1 */
-    EQ_API EventICommand( const EventICommand& rhs );
+    EQ_API EventICommand(const EventICommand& rhs);
 
     /** Destruct an event command. @version 1.5.1 */
     EQ_API ~EventICommand();
@@ -63,15 +66,14 @@ public:
 
 private:
     EventICommand();
-    EventICommand& operator = ( const EventICommand& );
+    EventICommand& operator=(const EventICommand&);
     detail::EventICommand* const _impl;
 
     void _init();
 };
 
 /** Print the event command to the given output stream. @version 1.5.1 */
-EQ_API std::ostream& operator << ( std::ostream& os,
-                                   const EventICommand& command );
+EQ_API std::ostream& operator<<(std::ostream& os, const EventICommand& command);
 }
 
 #endif // EQ_EVENTICOMMAND_H

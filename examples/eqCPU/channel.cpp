@@ -27,47 +27,46 @@
  */
 
 #include "channel.h"
-#include <eq/x11/window.h>
 #include <eq/system.h>
 #include <eq/window.h>
+#include <eq/x11/window.h>
 
 namespace eqCpu
 {
-
-Channel::Channel( eq::Window* parent )
-    : eq::Channel( parent )
+Channel::Channel(eq::Window* parent)
+    : eq::Channel(parent)
 {
 }
 
-void Channel::frameDraw( const eq::uint128_t& )
+void Channel::frameDraw(const eq::uint128_t&)
 {
-    eq::x11::Window* x11Window = static_cast< eq::x11::Window* >(
-                               getWindow()->getSystemWindow( ));
+    eq::x11::Window* x11Window =
+        static_cast<eq::x11::Window*>(getWindow()->getSystemWindow());
     Display* display = x11Window->getXDisplay();
     XID drawable = x11Window->getXDrawable();
-    const int screen = DefaultScreen( display );
+    const int screen = DefaultScreen(display);
 
-    XFillRectangle( display, drawable, DefaultGC( display, screen ),
-                    20, 20, 50, 50 );
+    XFillRectangle(display, drawable, DefaultGC(display, screen), 20, 20, 50,
+                   50);
 }
 
-void Channel::frameClear( const eq::uint128_t& )
+void Channel::frameClear(const eq::uint128_t&)
 {
     const eq::PixelViewport& pvp = getPixelViewport();
-    eq::x11::Window* x11Window = static_cast< eq::x11::Window* >(
-                               getWindow()->getSystemWindow( ));
+    eq::x11::Window* x11Window =
+        static_cast<eq::x11::Window*>(getWindow()->getSystemWindow());
     Display* display = x11Window->getXDisplay();
     XID drawable = x11Window->getXDrawable();
 
-    XClearArea( display, drawable, pvp.x, pvp.y, pvp.w, pvp.h, false );
+    XClearArea(display, drawable, pvp.x, pvp.y, pvp.w, pvp.h, false);
 }
 
-void Channel::frameReadback( const eq::uint128_t&, const eq::Frames& )
+void Channel::frameReadback(const eq::uint128_t&, const eq::Frames&)
 {
     LBUNIMPLEMENTED;
 }
 
-void Channel::frameAssemble( const eq::uint128_t&, const eq::Frames& )
+void Channel::frameAssemble(const eq::uint128_t&, const eq::Frames&)
 {
     LBUNIMPLEMENTED;
 }
@@ -79,5 +78,4 @@ void Channel::setupAssemblyState()
 void Channel::resetAssemblyState()
 {
 }
-
 }

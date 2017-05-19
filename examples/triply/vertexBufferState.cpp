@@ -26,32 +26,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "vertexBufferState.h"
 
 namespace triply
 {
-VertexBufferState::VertexBufferState( const GLEWContext* glewContext )
-        : _glewContext( glewContext )
-        , _renderMode( RENDER_MODE_DISPLAY_LIST )
-        , _useColors( false )
-        , _useFrustumCulling( true )
+VertexBufferState::VertexBufferState(const GLEWContext* glewContext)
+    : _glewContext(glewContext)
+    , _renderMode(RENDER_MODE_DISPLAY_LIST)
+    , _useColors(false)
+    , _useFrustumCulling(true)
 {
     _range[0] = 0.f;
     _range[1] = 1.f;
     resetRegion();
-    PLYLIBASSERT( glewContext );
+    PLYLIBASSERT(glewContext);
 }
 
-void VertexBufferState::setRenderMode( const RenderMode mode )
+void VertexBufferState::setRenderMode(const RenderMode mode)
 {
-    if( _renderMode == mode )
+    if (_renderMode == mode)
         return;
 
     _renderMode = mode;
 
     // Check if VBO funcs available, else fall back to display lists
-    if( _renderMode == RENDER_MODE_BUFFER_OBJECT && !GLEW_VERSION_1_5 )
+    if (_renderMode == RENDER_MODE_BUFFER_OBJECT && !GLEW_VERSION_1_5)
     {
         PLYLIBINFO << "VBO not available, using display lists" << std::endl;
         _renderMode = RENDER_MODE_DISPLAY_LIST;
@@ -60,96 +59,94 @@ void VertexBufferState::setRenderMode( const RenderMode mode )
 
 void VertexBufferState::resetRegion()
 {
-    _region[0] = std::numeric_limits< float >::max();
-    _region[1] = std::numeric_limits< float >::max();
-    _region[2] = -std::numeric_limits< float >::max();
-    _region[3] = -std::numeric_limits< float >::max();
+    _region[0] = std::numeric_limits<float>::max();
+    _region[1] = std::numeric_limits<float>::max();
+    _region[2] = -std::numeric_limits<float>::max();
+    _region[3] = -std::numeric_limits<float>::max();
 }
 
-void VertexBufferState::updateRegion( const BoundingBox& box )
+void VertexBufferState::updateRegion(const BoundingBox& box)
 {
-    const Vertex corners[8] = { Vertex( box[0][0], box[0][1], box[0][2] ),
-                                Vertex( box[1][0], box[0][1], box[0][2] ),
-                                Vertex( box[0][0], box[1][1], box[0][2] ),
-                                Vertex( box[1][0], box[1][1], box[0][2] ),
-                                Vertex( box[0][0], box[0][1], box[1][2] ),
-                                Vertex( box[1][0], box[0][1], box[1][2] ),
-                                Vertex( box[0][0], box[1][1], box[1][2] ),
-                                Vertex( box[1][0], box[1][1], box[1][2] ) };
+    const Vertex corners[8] = {Vertex(box[0][0], box[0][1], box[0][2]),
+                               Vertex(box[1][0], box[0][1], box[0][2]),
+                               Vertex(box[0][0], box[1][1], box[0][2]),
+                               Vertex(box[1][0], box[1][1], box[0][2]),
+                               Vertex(box[0][0], box[0][1], box[1][2]),
+                               Vertex(box[1][0], box[0][1], box[1][2]),
+                               Vertex(box[0][0], box[1][1], box[1][2]),
+                               Vertex(box[1][0], box[1][1], box[1][2])};
 
-    Vector4f region(  std::numeric_limits< float >::max(),
-                      std::numeric_limits< float >::max(),
-                     -std::numeric_limits< float >::max(),
-                     -std::numeric_limits< float >::max( ));
+    Vector4f region(std::numeric_limits<float>::max(),
+                    std::numeric_limits<float>::max(),
+                    -std::numeric_limits<float>::max(),
+                    -std::numeric_limits<float>::max());
 
-    for( size_t i = 0; i < 8; ++i )
+    for (size_t i = 0; i < 8; ++i)
     {
         const Vertex corner = _pmvMatrix * corners[i];
-        region[0] = std::min( corner[0], region[0] );
-        region[1] = std::min( corner[1], region[1] );
-        region[2] = std::max( corner[0], region[2] );
-        region[3] = std::max( corner[1], region[3] );
+        region[0] = std::min(corner[0], region[0]);
+        region[1] = std::min(corner[1], region[1]);
+        region[2] = std::max(corner[0], region[2]);
+        region[3] = std::max(corner[1], region[3]);
     }
 
     // transform region of interest from [ -1 -1 1 1 ] to normalized viewport
-    const Vector4f normalized( region[0] * .5f + .5f,
-                               region[1] * .5f + .5f,
-                               ( region[2] - region[0] ) * .5f,
-                               ( region[3] - region[1] ) * .5f );
+    const Vector4f normalized(region[0] * .5f + .5f, region[1] * .5f + .5f,
+                              (region[2] - region[0]) * .5f,
+                              (region[3] - region[1]) * .5f);
 
-    declareRegion( normalized );
-    _region[0] = std::min( _region[0], normalized[0] );
-    _region[1] = std::min( _region[1], normalized[1] );
-    _region[2] = std::max( _region[2], normalized[2] );
-    _region[3] = std::max( _region[3], normalized[3] );
+    declareRegion(normalized);
+    _region[0] = std::min(_region[0], normalized[0]);
+    _region[1] = std::min(_region[1], normalized[1]);
+    _region[2] = std::max(_region[2], normalized[2]);
+    _region[3] = std::max(_region[3], normalized[3]);
 }
 
 Vector4f VertexBufferState::getRegion() const
 {
-    if( _region[0] > _region[2] || _region[1] > _region[3] )
+    if (_region[0] > _region[2] || _region[1] > _region[3])
         return Vector4f();
 
     return _region;
 }
 
-GLuint VertexBufferStateSimple::getDisplayList( const void* key )
+GLuint VertexBufferStateSimple::getDisplayList(const void* key)
 {
-    if( _displayLists.find( key ) == _displayLists.end() )
+    if (_displayLists.find(key) == _displayLists.end())
         return INVALID;
     return _displayLists[key];
 }
 
-GLuint VertexBufferStateSimple::newDisplayList( const void* key )
+GLuint VertexBufferStateSimple::newDisplayList(const void* key)
 {
-    _displayLists[key] = glGenLists( 1 );
+    _displayLists[key] = glGenLists(1);
     return _displayLists[key];
 }
 
-GLuint VertexBufferStateSimple::getBufferObject( const void* key )
+GLuint VertexBufferStateSimple::getBufferObject(const void* key)
 {
-    if( _bufferObjects.find( key ) == _bufferObjects.end() )
+    if (_bufferObjects.find(key) == _bufferObjects.end())
         return INVALID;
     return _bufferObjects[key];
 }
 
-GLuint VertexBufferStateSimple::newBufferObject( const void* key )
+GLuint VertexBufferStateSimple::newBufferObject(const void* key)
 {
-    if( !GLEW_VERSION_1_5 )
+    if (!GLEW_VERSION_1_5)
         return INVALID;
-    glGenBuffers( 1, &_bufferObjects[key] );
+    glGenBuffers(1, &_bufferObjects[key]);
     return _bufferObjects[key];
 }
 
 void VertexBufferStateSimple::deleteAll()
 {
-    for( GLMapCIter i = _displayLists.begin(); i != _displayLists.end(); ++i )
-        glDeleteLists( i->second, 1 );
+    for (GLMapCIter i = _displayLists.begin(); i != _displayLists.end(); ++i)
+        glDeleteLists(i->second, 1);
 
-    for( GLMapCIter i = _bufferObjects.begin(); i != _bufferObjects.end(); ++i )
-        glDeleteBuffers( 1, &(i->second) );
+    for (GLMapCIter i = _bufferObjects.begin(); i != _bufferObjects.end(); ++i)
+        glDeleteBuffers(1, &(i->second));
 
     _displayLists.clear();
     _bufferObjects.clear();
 }
-
 }

@@ -31,16 +31,16 @@ namespace seq
 {
 namespace detail
 {
-
-Pipe::Pipe( eq::Node* parent )
-        : eq::Pipe( parent )
-        , _objects( 0 )
-        , _renderer( 0 )
-{}
+Pipe::Pipe(eq::Node* parent)
+    : eq::Pipe(parent)
+    , _objects(0)
+    , _renderer(0)
+{
+}
 
 Pipe::~Pipe()
 {
-    LBASSERT( !_objects );
+    LBASSERT(!_objects);
 }
 
 seq::Application* Pipe::getApplication()
@@ -55,49 +55,49 @@ Config* Pipe::getConfig()
 
 Node* Pipe::getNode()
 {
-    return static_cast< Node* >( eq::Pipe::getNode( ));
+    return static_cast<Node*>(eq::Pipe::getNode());
 }
 
 detail::Renderer* Pipe::getRendererImpl()
 {
-    LBASSERT( _renderer );
-    if( !_renderer )
+    LBASSERT(_renderer);
+    if (!_renderer)
         return 0;
     return _renderer->getImpl();
 }
 
 co::Object* Pipe::getFrameData()
 {
-    LBASSERT( _objects );
-    if( _objects )
+    LBASSERT(_objects);
+    if (_objects)
         return _objects->getFrameData();
     return 0;
 }
 
 ObjectMap* Pipe::getObjectMap()
 {
-   return _objects;
+    return _objects;
 }
 
-bool Pipe::configInit( const uint128_t& initID )
+bool Pipe::configInit(const uint128_t& initID)
 {
-    if( !eq::Pipe::configInit( initID ))
+    if (!eq::Pipe::configInit(initID))
         return false;
 
-    LBASSERT( !_renderer );
+    LBASSERT(!_renderer);
     _renderer = getApplication()->createRenderer();
-    if( !_renderer )
+    if (!_renderer)
     {
-        LBASSERT( _renderer );
-        sendError( ERROR_SEQUEL_CREATERENDERER_FAILED );
+        LBASSERT(_renderer);
+        sendError(ERROR_SEQUEL_CREATERENDERER_FAILED);
         return false;
     }
-    getRendererImpl()->setPipe( this );
+    getRendererImpl()->setPipe(this);
 
-    if( _mapData( initID ))
+    if (_mapData(initID))
         return true;
 
-    sendError( ERROR_SEQUEL_MAPOBJECT_FAILED );
+    sendError(ERROR_SEQUEL_MAPOBJECT_FAILED);
     return false;
 }
 
@@ -105,51 +105,50 @@ bool Pipe::configExit()
 {
     _unmapData();
 
-    if( _renderer )
+    if (_renderer)
     {
-        getRendererImpl()->setPipe( 0 );
-        getApplication()->destroyRenderer( _renderer );
+        getRendererImpl()->setPipe(0);
+        getApplication()->destroyRenderer(_renderer);
     }
     _renderer = 0;
 
     return eq::Pipe::configExit();
 }
 
-void Pipe::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+void Pipe::frameStart(const uint128_t& frameID, const uint32_t frameNumber)
 {
-    _syncData( frameID );
-    return eq::Pipe::frameStart( frameID, frameNumber );
+    _syncData(frameID);
+    return eq::Pipe::frameStart(frameID, frameNumber);
 }
 
-bool Pipe::_mapData( const uint128_t& initID )
+bool Pipe::_mapData(const uint128_t& initID)
 {
-    LBASSERT( !_objects );
-    LBASSERT( _renderer );
+    LBASSERT(!_objects);
+    LBASSERT(_renderer);
 
     Config* config = getConfig();
-    _objects = new ObjectMap( *config, *_renderer );
-    const uint32_t request = config->mapObjectNB( _objects, initID,
-                                                  co::VERSION_OLDEST,
-                                                  config->getApplicationNode());
-    if( !config->mapObjectSync( request ))
+    _objects = new ObjectMap(*config, *_renderer);
+    const uint32_t request =
+        config->mapObjectNB(_objects, initID, co::VERSION_OLDEST,
+                            config->getApplicationNode());
+    if (!config->mapObjectSync(request))
         return false;
     return true;
 }
 
-void Pipe::_syncData( const uint128_t& version )
+void Pipe::_syncData(const uint128_t& version)
 {
-    LBASSERT( _objects )
-    _objects->sync( version );
+    LBASSERT(_objects)
+    _objects->sync(version);
 }
 
 void Pipe::_unmapData()
 {
-    LBASSERT( _objects )
-        getConfig()->unmapObject( _objects );
+    LBASSERT(_objects)
+    getConfig()->unmapObject(_objects);
     _objects->clear();
     delete _objects;
     _objects = 0;
 }
-
 }
 }

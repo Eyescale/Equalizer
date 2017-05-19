@@ -31,8 +31,8 @@
 #include <eq/util/objectManager.h>
 #include <eq/util/texture.h>
 
-#include <lunchbox/buffer.h>
 #include <deflect/Stream.h>
+#include <lunchbox/buffer.h>
 
 namespace eq
 {
@@ -41,11 +41,11 @@ namespace deflect
 class Proxy::Impl : public boost::noncopyable
 {
 public:
-    explicit Impl( Channel& ch )
-        : channel( ch )
+    explicit Impl(Channel& ch)
+        : channel(ch)
     {
         const DrawableConfig& dc = channel.getDrawableConfig();
-        if( dc.colorBits != 8 )
+        if (dc.colorBits != 8)
         {
             LBWARN << "Can only stream 8-bit RGB(A) framebuffers to "
                    << "Deflect host, got " << dc.colorBits << " color bits"
@@ -54,11 +54,11 @@ public:
         }
 
         const std::string& deflectHost =
-               channel.getView()->getSAttribute( View::SATTR_DEFLECT_HOST );
+            channel.getView()->getSAttribute(View::SATTR_DEFLECT_HOST);
         const std::string& name =
-               channel.getView()->getSAttribute( View::SATTR_DEFLECT_ID );
-        stream.reset( new ::deflect::Stream( name, deflectHost ));
-        if( !stream->isConnected( ))
+            channel.getView()->getSAttribute(View::SATTR_DEFLECT_ID);
+        stream.reset(new ::deflect::Stream(name, deflectHost));
+        if (!stream->isConnected())
         {
             LBWARN << "Could not connect to Deflect host: " << deflectHost
                    << std::endl;
@@ -68,42 +68,41 @@ public:
 
     ~Impl()
     {
-        for( size_t i = 0; i < NUM_EYES; ++i )
-            if( _sendFuture[i].valid( ))
+        for (size_t i = 0; i < NUM_EYES; ++i)
+            if (_sendFuture[i].valid())
                 _sendFuture[i].wait();
-        if( _finishFuture.valid( ))
+        if (_finishFuture.valid())
             _finishFuture.wait();
     }
 
-    void notifyNewImage( Channel&, const Image& image )
+    void notifyNewImage(Channel&, const Image& image)
     {
-        switch( channel.getEye( ))
+        switch (channel.getEye())
         {
         case eq::EYE_LEFT:
-            _send( ::deflect::View::left_eye, EYE_LEFT_BIT, image );
+            _send(::deflect::View::left_eye, EYE_LEFT_BIT, image);
             return;
 
         case eq::EYE_RIGHT:
-            _send( ::deflect::View::right_eye, EYE_RIGHT_BIT, image );
+            _send(::deflect::View::right_eye, EYE_RIGHT_BIT, image);
             return;
 
         default:
-            _send( ::deflect::View::mono, EYE_CYCLOP_BIT, image );
+            _send(::deflect::View::mono, EYE_CYCLOP_BIT, image);
             return;
         }
-
     }
 
     void finishFrame()
     {
-        if( _finishFuture.valid() && !_finishFuture.get( ))
+        if (_finishFuture.valid() && !_finishFuture.get())
             stream.reset();
-        if( !stream )
+        if (!stream)
             return;
 
-        for( size_t i = 0; i < NUM_EYES; ++i )
+        for (size_t i = 0; i < NUM_EYES; ++i)
         {
-            if( _sendFuture[i].valid( ))
+            if (_sendFuture[i].valid())
             {
                 _finishFuture = stream->finishFrame();
                 return;
@@ -112,25 +111,25 @@ public:
     }
 
     Channel& channel;
-    std::unique_ptr< ::deflect::Stream > stream;
-    std::unique_ptr< EventHandler > eventHandler;
+    std::unique_ptr<::deflect::Stream> stream;
+    std::unique_ptr<EventHandler> eventHandler;
 
 private:
-    void _send( const ::deflect::View view, const Eye eye, const Image& image )
+    void _send(const ::deflect::View view, const Eye eye, const Image& image)
     {
-        if( _sendFuture[eye].valid() && !_sendFuture[eye].get( ))
+        if (_sendFuture[eye].valid() && !_sendFuture[eye].get())
             stream.reset();
-        if( !stream )
+        if (!stream)
             return;
 
         // copy pixels to perform swapYAxis()
-        const size_t dataSize = image.getPixelDataSize( Frame::Buffer::color );
-        _buffer[eye].replace( image.getPixelPointer( Frame::Buffer::color ),
-                              dataSize );
+        const size_t dataSize = image.getPixelDataSize(Frame::Buffer::color);
+        _buffer[eye].replace(image.getPixelPointer(Frame::Buffer::color),
+                             dataSize);
         const PixelViewport& pvp = image.getPixelViewport();
-        ::deflect::ImageWrapper::swapYAxis( _buffer[eye].getData(), pvp.w,
-                                            pvp.h,
-                                   image.getPixelSize( Frame::Buffer::color ));
+        ::deflect::ImageWrapper::swapYAxis(_buffer[eye].getData(), pvp.w, pvp.h,
+                                           image.getPixelSize(
+                                               Frame::Buffer::color));
 
         // determine image offset wrt global view
         const Viewport& vp = channel.getViewport();
@@ -139,14 +138,14 @@ private:
         const int32_t offsX = vp.x * width;
         const int32_t offsY = height - (vp.y * height + vp.h * height);
 
-        ::deflect::ImageWrapper imageWrapper( _buffer[eye].getData(), pvp.w,
-                                              pvp.h, ::deflect::BGRA, offsX,
-                                              offsY );
+        ::deflect::ImageWrapper imageWrapper(_buffer[eye].getData(), pvp.w,
+                                             pvp.h, ::deflect::BGRA, offsX,
+                                             offsY);
         imageWrapper.compressionPolicy = ::deflect::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
         imageWrapper.view = view;
 
-        _sendFuture[eye] = stream->send( imageWrapper );
+        _sendFuture[eye] = stream->send(imageWrapper);
     }
 
     lunchbox::Bufferb _buffer[NUM_EYES];
@@ -154,25 +153,25 @@ private:
     ::deflect::Stream::Future _finishFuture;
 };
 
-Proxy::Proxy( Channel& channel )
+Proxy::Proxy(Channel& channel)
     : ResultImageListener()
-    , _impl( new Impl( channel ))
+    , _impl(new Impl(channel))
 {
-    channel.addResultImageListener( this );
+    channel.addResultImageListener(this);
 }
 
 Proxy::~Proxy()
 {
-    _impl->channel.removeResultImageListener( this );
+    _impl->channel.removeResultImageListener(this);
 }
 
-void Proxy::notifyNewImage( Channel& channel, const Image& image )
+void Proxy::notifyNewImage(Channel& channel, const Image& image)
 {
-    _impl->notifyNewImage( channel, image );
+    _impl->notifyNewImage(channel, image);
 
-    if( !_impl->eventHandler && _impl->stream->registerForEvents( true ))
+    if (!_impl->eventHandler && _impl->stream->registerForEvents(true))
     {
-        _impl->eventHandler.reset( new EventHandler( this ));
+        _impl->eventHandler.reset(new EventHandler(this));
         LBDEBUG << "Installed event handler for Deflect proxy" << std::endl;
     }
 }
@@ -211,6 +210,5 @@ void Proxy::stopRunning()
 {
     return _impl->stream->getEvent();
 }
-
 }
 }

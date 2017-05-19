@@ -16,20 +16,19 @@
  */
 
 #include "window.h"
-#include <eq/system.h>
-#include <eq/fabric/drawableConfig.h>
 #include <co/objectOCommand.h>
+#include <eq/fabric/drawableConfig.h>
+#include <eq/system.h>
 
 namespace eq
 {
 namespace x11
 {
-
-Window::Window( NotifierInterface& parent, const WindowSettings& settings,
-                Display* xDisplay )
-    : SystemWindow( parent, settings )
-    , _xDisplay( xDisplay )
-    , _xDrawable( 0 )
+Window::Window(NotifierInterface& parent, const WindowSettings& settings,
+               Display* xDisplay)
+    : SystemWindow(parent, settings)
+    , _xDisplay(xDisplay)
+    , _xDrawable(0)
 {
 }
 
@@ -40,80 +39,77 @@ Display* Window::getXDisplay()
 
 bool Window::configInit()
 {
-    if( !_xDisplay )
+    if (!_xDisplay)
     {
-        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError(ERROR_GLXWINDOW_NO_DISPLAY);
         return false;
     }
 
-    if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
+    if (getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON)
     {
-        const int screen = DefaultScreen( _xDisplay );
-        setPixelViewport(
-            PixelViewport( 0, 0, DisplayWidth( _xDisplay, screen ),
-                           DisplayHeight( _xDisplay, screen )));
+        const int screen = DefaultScreen(_xDisplay);
+        setPixelViewport(PixelViewport(0, 0, DisplayWidth(_xDisplay, screen),
+                                       DisplayHeight(_xDisplay, screen)));
     }
 
     XID drawable = _createWindow();
-    if( !drawable )
+    if (!drawable)
         return false;
 
     // Grab keyboard focus in fullscreen mode
-    if( getIAttribute( WindowSettings::IATTR_HINT_FULLSCREEN ) == ON )
-        XGrabKeyboard( _xDisplay, drawable, True, GrabModeAsync, GrabModeAsync,
-                       CurrentTime );
+    if (getIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN) == ON)
+        XGrabKeyboard(_xDisplay, drawable, True, GrabModeAsync, GrabModeAsync,
+                      CurrentTime);
 
-    setXDrawable( drawable );
+    setXDrawable(drawable);
     return true;
 }
 
 XID Window::_createWindow()
 {
-    if( !_xDisplay )
+    if (!_xDisplay)
     {
-        sendError( ERROR_GLXWINDOW_NO_DISPLAY );
+        sendError(ERROR_GLXWINDOW_NO_DISPLAY);
         return false;
     }
 
-    const int screen = DefaultScreen( _xDisplay );
-    XID parent = RootWindow( _xDisplay, screen );
+    const int screen = DefaultScreen(_xDisplay);
+    XID parent = RootWindow(_xDisplay, screen);
     const PixelViewport& pvp = getPixelViewport();
-    XID drawable = XCreateSimpleWindow( _xDisplay,
-                                        parent,
-                                        pvp.x, pvp.y, pvp.w, pvp.h, 1,
-                                        BlackPixel( _xDisplay, screen ),
-                                        WhitePixel( _xDisplay, screen ));
-    if ( !drawable )
+    XID drawable = XCreateSimpleWindow(_xDisplay, parent, pvp.x, pvp.y, pvp.w,
+                                       pvp.h, 1, BlackPixel(_xDisplay, screen),
+                                       WhitePixel(_xDisplay, screen));
+    if (!drawable)
     {
-        sendError( ERROR_GLXWINDOW_CREATECONTEXT_FAILED );
+        sendError(ERROR_GLXWINDOW_CREATECONTEXT_FAILED);
         return 0;
     }
 
-    XSelectInput( _xDisplay, drawable, ExposureMask | KeyPressMask );
-    XMapWindow( _xDisplay, drawable );
+    XSelectInput(_xDisplay, drawable, ExposureMask | KeyPressMask);
+    XMapWindow(_xDisplay, drawable);
 
     std::stringstream windowTitle;
     windowTitle << "eqCpu Example";
-    XStoreName( _xDisplay, drawable, windowTitle.str().c_str( ));
+    XStoreName(_xDisplay, drawable, windowTitle.str().c_str());
 
     // Register for close window request from the window manager
-    Atom deleteAtom = XInternAtom( _xDisplay, "WM_DELETE_WINDOW", False );
-    XSetWMProtocols( _xDisplay, drawable, &deleteAtom, 1 );
+    Atom deleteAtom = XInternAtom(_xDisplay, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(_xDisplay, drawable, &deleteAtom, 1);
 
-    XMoveResizeWindow( _xDisplay, drawable, pvp.x, pvp.y, pvp.w, pvp.h );
-    XFlush( _xDisplay );
+    XMoveResizeWindow(_xDisplay, drawable, pvp.x, pvp.y, pvp.w, pvp.h);
+    XFlush(_xDisplay);
 
     return drawable;
 }
 
 void Window::configExit()
 {
-    if( _xDrawable )
-        XDestroyWindow( _xDisplay, _xDrawable );
-    setXDrawable( 0 );
+    if (_xDrawable)
+        XDestroyWindow(_xDisplay, _xDrawable);
+    setXDrawable(0);
 }
 
-void Window::queryDrawableConfig( DrawableConfig& drawableConfig )
+void Window::queryDrawableConfig(DrawableConfig& drawableConfig)
 {
     drawableConfig.stencilBits = 0;
     drawableConfig.alphaBits = 0;
@@ -124,15 +120,13 @@ void Window::queryDrawableConfig( DrawableConfig& drawableConfig )
 
 void Window::flush()
 {
-    XFlush( _xDisplay );
+    XFlush(_xDisplay);
 }
 
-void Window::resize( const PixelViewport& pvp )
+void Window::resize(const PixelViewport& pvp)
 {
-    if( _xDisplay && _xDrawable )
-        XMoveResizeWindow(  _xDisplay, _xDrawable,
-                            pvp.x, pvp.y, pvp.w, pvp.h );
+    if (_xDisplay && _xDrawable)
+        XMoveResizeWindow(_xDisplay, _xDrawable, pvp.x, pvp.y, pvp.w, pvp.h);
 }
-
 }
 }

@@ -27,50 +27,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #ifndef PLYLIB_VERTEXDATA_H
 #define PLYLIB_VERTEXDATA_H
 
-#include <triply/api.h>
 #include "typedefs.h"
+#include <triply/api.h>
 #include <vector>
-
 
 // defined elsewhere
 struct PlyFile;
 
 namespace triply
 {
-    /*  Holds the flat data and offers routines to read, scale and sort it.  */
-    class VertexData
-    {
-    public:
-        TRIPLY_API VertexData();
+/*  Holds the flat data and offers routines to read, scale and sort it.  */
+class VertexData
+{
+public:
+    TRIPLY_API VertexData();
 
-        TRIPLY_API bool readPlyFile( const std::string& file );
-        TRIPLY_API void sort( const Index start, const Index length, const Axis axis );
-        TRIPLY_API void scale( const float baseSize = 2.0f );
-        TRIPLY_API void calculateNormals();
-        TRIPLY_API void calculateBoundingBox();
-        const BoundingBox& getBoundingBox() const { return _boundingBox; }
-        TRIPLY_API Axis getLongestAxis( const size_t start, const size_t elements ) const;
+    TRIPLY_API bool readPlyFile(const std::string& file);
+    TRIPLY_API void sort(const Index start, const Index length,
+                         const Axis axis);
+    TRIPLY_API void scale(const float baseSize = 2.0f);
+    TRIPLY_API void calculateNormals();
+    TRIPLY_API void calculateBoundingBox();
+    const BoundingBox& getBoundingBox() const { return _boundingBox; }
+    TRIPLY_API Axis getLongestAxis(const size_t start,
+                                   const size_t elements) const;
 
-        void useInvertedFaces() { _invertFaces = true; }
+    void useInvertedFaces() { _invertFaces = true; }
+    std::vector<Vertex> vertices;
+    std::vector<Color> colors;
+    std::vector<Normal> normals;
+    std::vector<Triangle> triangles;
 
-        std::vector< Vertex >   vertices;
-        std::vector< Color >    colors;
-        std::vector< Normal >   normals;
-        std::vector< Triangle > triangles;
+private:
+    void readVertices(PlyFile* file, const int nVertices,
+                      const bool readColors);
+    void readTriangles(PlyFile* file, const int nFaces);
 
-    private:
-        void readVertices( PlyFile* file, const int nVertices,
-                           const bool readColors );
-        void readTriangles( PlyFile* file, const int nFaces );
-
-        BoundingBox _boundingBox;
-        bool        _invertFaces;
-    };
+    BoundingBox _boundingBox;
+    bool _invertFaces;
+};
 }
-
 
 #endif // PLYLIB_VERTEXDATA_H

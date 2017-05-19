@@ -39,18 +39,19 @@ namespace
 class FindChannelSegments : public eq::admin::ConfigVisitor
 {
 public:
-    FindChannelSegments( eq::admin::Channel* channel ) : _channel( channel ) {}
+    FindChannelSegments(eq::admin::Channel* channel)
+        : _channel(channel)
+    {
+    }
     virtual ~FindChannelSegments() {}
-
-    virtual eq::admin::VisitorResult visit( eq::admin::Segment* segment )
-        {
-            if( segment->getChannel() == _channel )
-                _segments.push_back( segment );
-            return eq::admin::TRAVERSE_CONTINUE;
-        }
+    virtual eq::admin::VisitorResult visit(eq::admin::Segment* segment)
+    {
+        if (segment->getChannel() == _channel)
+            _segments.push_back(segment);
+        return eq::admin::TRAVERSE_CONTINUE;
+    }
 
     const eq::admin::Segments& getResult() const { return _segments; }
-
 private:
     eq::admin::Channel* const _channel;
     eq::admin::Segments _segments;
@@ -59,40 +60,42 @@ private:
 class FindCanvasLayouts : public eq::admin::ConfigVisitor
 {
 public:
-    FindCanvasLayouts( const eq::admin::Canvas* canvas )
-            : _canvas( canvas ), _layout( 0 ) {}
+    FindCanvasLayouts(const eq::admin::Canvas* canvas)
+        : _canvas(canvas)
+        , _layout(0)
+    {
+    }
     virtual ~FindCanvasLayouts() {}
-
-    virtual eq::admin::VisitorResult visitPre( eq::admin::Canvas* canvas )
+    virtual eq::admin::VisitorResult visitPre(eq::admin::Canvas* canvas)
+    {
+        if (canvas == _canvas && !_layout)
         {
-            if( canvas == _canvas && !_layout )
+            const eq::admin::Layouts& layouts = canvas->getLayouts();
+            eq::admin::Config* config = canvas->getConfig();
+            for (eq::admin::Layouts::const_iterator i = layouts.begin();
+                 i != layouts.end(); ++i)
             {
-                const eq::admin::Layouts& layouts = canvas->getLayouts();
-                eq::admin::Config* config = canvas->getConfig();
-                for( eq::admin::Layouts::const_iterator i = layouts.begin();
-                     i != layouts.end(); ++i )
+                _layout = *i;
+                if (_layout &&
+                    config->accept(*this) == eq::admin::TRAVERSE_CONTINUE)
                 {
-                    _layout = *i;
-                    if( _layout &&
-                        config->accept(*this) == eq::admin::TRAVERSE_CONTINUE )
-                    {
-                        _layouts.push_back( _layout );
-                    }
+                    _layouts.push_back(_layout);
                 }
-                _layout = 0;
-                return eq::admin::TRAVERSE_TERMINATE;
             }
-            else if( canvas != _canvas && _layout )
-            {
-                const eq::admin::Layouts& layouts = canvas->getLayouts();
-                if( lunchbox::find( layouts, _layout ) != layouts.end( ))
-                    return eq::admin::TRAVERSE_TERMINATE; // layout used by this canvas
-            }
-            return eq::admin::TRAVERSE_CONTINUE;
+            _layout = 0;
+            return eq::admin::TRAVERSE_TERMINATE;
         }
+        else if (canvas != _canvas && _layout)
+        {
+            const eq::admin::Layouts& layouts = canvas->getLayouts();
+            if (lunchbox::find(layouts, _layout) != layouts.end())
+                return eq::admin::TRAVERSE_TERMINATE; // layout used by this
+                                                      // canvas
+        }
+        return eq::admin::TRAVERSE_CONTINUE;
+    }
 
     const eq::admin::Layouts& getResult() const { return _layouts; }
-
 private:
     const eq::admin::Canvas* const _canvas;
     eq::admin::Layout* _layout;
@@ -102,55 +105,55 @@ private:
 class FindLayoutObservers : public eq::admin::ConfigVisitor
 {
 public:
-    FindLayoutObservers( const eq::admin::Layout* layout )
-            : _layout( layout ), _observer( 0 ) {}
+    FindLayoutObservers(const eq::admin::Layout* layout)
+        : _layout(layout)
+        , _observer(0)
+    {
+    }
     virtual ~FindLayoutObservers() {}
-
-    virtual eq::admin::VisitorResult visit( eq::admin::View* view )
+    virtual eq::admin::VisitorResult visit(eq::admin::View* view)
+    {
+        if (view->getLayout() == _layout && !_observer)
         {
-            if( view->getLayout() == _layout && !_observer )
+            eq::admin::Config* config = view->getConfig();
+            _observer = view->getObserver();
+            if (_observer &&
+                config->accept(*this) == eq::admin::TRAVERSE_CONTINUE)
             {
-                eq::admin::Config* config = view->getConfig();
-                _observer = view->getObserver();
-                if( _observer &&
-                    config->accept(*this) == eq::admin::TRAVERSE_CONTINUE )
-                {
-                    _observers.push_back( _observer );
-                    view->setObserver( 0 ); // observer will be deleted
-                }
-                _observer = 0;
-                return eq::admin::TRAVERSE_TERMINATE;
+                _observers.push_back(_observer);
+                view->setObserver(0); // observer will be deleted
             }
-            else if( view->getLayout() != _layout && _observer )
-            {
-                if( _observer == view->getObserver( ))
-                    return eq::admin::TRAVERSE_TERMINATE; // used by layout
-            }
-            return eq::admin::TRAVERSE_CONTINUE;
+            _observer = 0;
+            return eq::admin::TRAVERSE_TERMINATE;
         }
+        else if (view->getLayout() != _layout && _observer)
+        {
+            if (_observer == view->getObserver())
+                return eq::admin::TRAVERSE_TERMINATE; // used by layout
+        }
+        return eq::admin::TRAVERSE_CONTINUE;
+    }
 
     const eq::admin::Observers& getResult() const { return _observers; }
-
 private:
     const eq::admin::Layout* const _layout;
     eq::admin::Observer* _observer;
     eq::admin::Observers _observers;
 };
-
 }
 
-inline bool removeWindow( eq::admin::ServerPtr server )
+inline bool removeWindow(eq::admin::ServerPtr server)
 {
-    if( !server )
-       return false;
+    if (!server)
+        return false;
 
     // Find first pipe...
-    eq::admin::Pipe* pipe = findPipe( server );
-    if( !pipe )
-       return false;
+    eq::admin::Pipe* pipe = findPipe(server);
+    if (!pipe)
+        return false;
 
     const eq::admin::Windows& windows = pipe->getWindows();
-    if( windows.size() < 2 )
+    if (windows.size() < 2)
         return false;
 
     // Remove last window (->channels->segment->canvas->layout->view)
@@ -158,41 +161,41 @@ inline bool removeWindow( eq::admin::ServerPtr server )
     eq::admin::Config* config = pipe->getConfig();
 
     const eq::admin::Channels& channels = window->getChannels();
-    for( eq::admin::Channels::const_iterator i = channels.begin();
-         i != channels.end(); ++i )
+    for (eq::admin::Channels::const_iterator i = channels.begin();
+         i != channels.end(); ++i)
     {
         // delete dependent segments
         eq::admin::Channel* channel = *i;
-        FindChannelSegments channelSegments( channel );
-        config->accept( channelSegments );
+        FindChannelSegments channelSegments(channel);
+        config->accept(channelSegments);
         const eq::admin::Segments& segments = channelSegments.getResult();
 
-        for( eq::admin::Segments::const_iterator j = segments.begin();
-             j != segments.end(); ++j )
+        for (eq::admin::Segments::const_iterator j = segments.begin();
+             j != segments.end(); ++j)
         {
             eq::admin::Segment* segment = *j;
             eq::admin::Canvas* canvas = segment->getCanvas();
             delete segment;
 
             // delete now-empty canvases
-            if( !canvas->getSegments().empty( ))
+            if (!canvas->getSegments().empty())
                 continue;
 
             // delete now-empty layouts
-            FindCanvasLayouts canvasLayouts( canvas );
-            config->accept( canvasLayouts );
+            FindCanvasLayouts canvasLayouts(canvas);
+            config->accept(canvasLayouts);
             const eq::admin::Layouts& layouts = canvasLayouts.getResult();
-            for( eq::admin::Layouts::const_iterator k = layouts.begin();
-                 k != layouts.end(); ++k )
+            for (eq::admin::Layouts::const_iterator k = layouts.begin();
+                 k != layouts.end(); ++k)
             {
                 eq::admin::Layout* layout = *k;
-                FindLayoutObservers layoutObservers( layout );
-                config->accept( layoutObservers );
+                FindLayoutObservers layoutObservers(layout);
+                config->accept(layoutObservers);
                 eq::admin::Observers observers = layoutObservers.getResult();
-                lunchbox::usort( observers );
+                lunchbox::usort(observers);
 
-                for( eq::admin::Observers::const_iterator l = observers.begin();
-                     l != observers.end(); ++l )
+                for (eq::admin::Observers::const_iterator l = observers.begin();
+                     l != observers.end(); ++l)
                 {
                     delete *l;
                 }
@@ -206,6 +209,5 @@ inline bool removeWindow( eq::admin::ServerPtr server )
     config->commit();
     return true;
 }
-
 }
 #endif // EQ_ADMIN_REMOVE_WINDOW_H

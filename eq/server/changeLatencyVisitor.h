@@ -40,75 +40,66 @@ namespace server
 class ChangeLatencyVisitor : public ConfigVisitor
 {
 public:
-    explicit ChangeLatencyVisitor( const uint32_t latency )
-        : _latency( latency ) {}
+    explicit ChangeLatencyVisitor(const uint32_t latency)
+        : _latency(latency)
+    {
+    }
 
-    virtual VisitorResult visit( Compound* compound )
+    virtual VisitorResult visit(Compound* compound)
     {
         const Frames& outputFrames = compound->getOutputFrames();
-        for( FramesCIter i = outputFrames.begin();
-             i != outputFrames.end(); ++i )
+        for (FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i)
         {
             Frame* frame = *i;
-            frame->setAutoObsolete( _latency );
+            frame->setAutoObsolete(_latency);
         }
 
         const Frames& inputFrames = compound->getInputFrames();
-        for( FramesCIter i = inputFrames.begin();
-             i != inputFrames.end(); ++i )
+        for (FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i)
         {
             Frame* frame = *i;
-            frame->setAutoObsolete( _latency );
+            frame->setAutoObsolete(_latency);
         }
 
         const TileQueues& outputTileQueues = compound->getOutputTileQueues();
-        for( TileQueuesCIter i = outputTileQueues.begin();
-             i != outputTileQueues.end(); ++i )
+        for (TileQueuesCIter i = outputTileQueues.begin();
+             i != outputTileQueues.end(); ++i)
         {
             TileQueue* queue = *i;
-            queue->setAutoObsolete( _latency );
+            queue->setAutoObsolete(_latency);
         }
 
         const TileQueues& inputTileQueues = compound->getInputTileQueues();
-        for( TileQueuesCIter i = inputTileQueues.begin();
-             i != inputTileQueues.end(); ++i )
+        for (TileQueuesCIter i = inputTileQueues.begin();
+             i != inputTileQueues.end(); ++i)
         {
             TileQueue* queue = *i;
-            queue->setAutoObsolete( _latency );
+            queue->setAutoObsolete(_latency);
         }
         return TRAVERSE_CONTINUE;
     }
 
-    virtual VisitorResult visitPre( Node* node )
+    virtual VisitorResult visitPre(Node* node)
     {
-        node->changeLatency( _latency );
+        node->changeLatency(_latency);
         return TRAVERSE_CONTINUE;
     }
 
-    virtual VisitorResult visit( Observer* observer )
-        { return _visit( observer ); }
-
-    virtual VisitorResult visitPre( Layout* layout )
-        { return _visit( layout ); }
-    virtual VisitorResult visit( View* view )
-        { return _visit( view ); }
-
-    virtual VisitorResult visitPre( Segment* segment )
-        { return _visit( segment ); }
-    virtual VisitorResult visit( Segment* segment )
-        { return _visit( segment ); }
-
+    virtual VisitorResult visit(Observer* observer) { return _visit(observer); }
+    virtual VisitorResult visitPre(Layout* layout) { return _visit(layout); }
+    virtual VisitorResult visit(View* view) { return _visit(view); }
+    virtual VisitorResult visitPre(Segment* segment) { return _visit(segment); }
+    virtual VisitorResult visit(Segment* segment) { return _visit(segment); }
 private:
     const uint32_t _latency;
 
-    VisitorResult _visit( co::Object* object )
-        {
-            // double commit on update/delete
-            object->setAutoObsolete( _latency + 1 );
-            return TRAVERSE_CONTINUE;
-        }
+    VisitorResult _visit(co::Object* object)
+    {
+        // double commit on update/delete
+        object->setAutoObsolete(_latency + 1);
+        return TRAVERSE_CONTINUE;
+    }
 };
-
 }
 }
 #endif // EQSERVER_CHANGELATENCYVISITOR

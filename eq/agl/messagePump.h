@@ -22,37 +22,37 @@
 #ifdef AGL
 
 #include <eq/agl/types.h>
-#include <eq/messagePump.h>  // base class
+#include <eq/messagePump.h> // base class
 #include <lunchbox/clock.h> // member
 namespace eq
 {
 namespace agl
 {
-    /** A message pump receiving and dispatching Carbon events. */
+/** A message pump receiving and dispatching Carbon events. */
 class MessagePump : public eq::MessagePump
-    {
-    public:
-        /** Construct a new AGL message pump. @version 1.0 */
-        MessagePump();
+{
+public:
+    /** Construct a new AGL message pump. @version 1.0 */
+    MessagePump();
 
-        /** Destruct this message pump. @version 1.0 */
-        virtual ~MessagePump();
+    /** Destruct this message pump. @version 1.0 */
+    virtual ~MessagePump();
 
-        void postWakeup() final;
-        void dispatchAll() final;
-        void dispatchOne( const uint32_t timeout=LB_TIMEOUT_INDEFINITE ) final;
+    void postWakeup() final;
+    void dispatchAll() final;
+    void dispatchOne(const uint32_t timeout = LB_TIMEOUT_INDEFINITE) final;
 
-    private:
-        EventQueueRef _receiverQueue;
-        EventRef      _wakeupEvent;
-        lunchbox::Clock _clock;
-        bool          _needGlobalLock;
+private:
+    EventQueueRef _receiverQueue;
+    EventRef _wakeupEvent;
+    lunchbox::Clock _clock;
+    bool _needGlobalLock;
 
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+    struct Private;
+    Private* _private; // placeholder for binary-compatible changes
 
-        void _initReceiverQueue();
-    };
+    void _initReceiverQueue();
+};
 }
 }
 #endif // AGL

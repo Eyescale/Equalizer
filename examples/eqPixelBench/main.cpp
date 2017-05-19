@@ -30,25 +30,30 @@
 #include "config.h"
 #include "window.h"
 
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig( eq::ServerPtr parent )
-        { return new eqPixelBench::Config( parent ); }
-    virtual eq::Window* createWindow( eq::Pipe* parent )
-        { return new eqPixelBench::Window( parent ); }
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new eqPixelBench::Channel( parent ); }
+    virtual eq::Config* createConfig(eq::ServerPtr parent)
+    {
+        return new eqPixelBench::Config(parent);
+    }
+    virtual eq::Window* createWindow(eq::Pipe* parent)
+    {
+        return new eqPixelBench::Window(parent);
+    }
+    virtual eq::Channel* createChannel(eq::Window* parent)
+    {
+        return new eqPixelBench::Channel(parent);
+    }
 };
 
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-    for( int i=1; i < argc; ++i )
+    for (int i = 1; i < argc; ++i)
     {
-        if( std::string( argv[ i ]) == "--help" )
+        if (std::string(argv[i]) == "--help")
         {
-            std::cout << lunchbox::getFilename( argv[0] )
+            std::cout << lunchbox::getFilename(argv[0])
                       << ": benchmark CPU-GPU transfers" << std::endl
                       << eq::getHelp() << eq::Client::getHelp() << std::endl;
             return EXIT_SUCCESS;
@@ -57,7 +62,7 @@ int main( int argc, char** argv )
 
     // 1. initialization of local node
     NodeFactory nodeFactory;
-    if( !eq::init( argc, argv, &nodeFactory ))
+    if (!eq::init(argc, argv, &nodeFactory))
     {
         LBERROR << "Equalizer init failed" << std::endl;
         eq::exit();
@@ -65,7 +70,7 @@ int main( int argc, char** argv )
     }
 
     eq::ClientPtr client = new eq::Client;
-    if( !client->initLocal( argc, argv ))
+    if (!client->initLocal(argc, argv))
     {
         LBERROR << "Can't init client" << std::endl;
         eq::exit();
@@ -74,7 +79,7 @@ int main( int argc, char** argv )
 
     // 2. connect to server
     eq::ServerPtr server = new eq::Server;
-    if( !client->connectServer( server ))
+    if (!client->connectServer(server))
     {
         LBERROR << "Can't open server" << std::endl;
         client->exitLocal();
@@ -84,13 +89,13 @@ int main( int argc, char** argv )
 
     // 3. choose config
     eq::fabric::ConfigParams configParams;
-    eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
-        server->chooseConfig( configParams ));
+    eqPixelBench::Config* config =
+        static_cast<eqPixelBench::Config*>(server->chooseConfig(configParams));
 
-    if( !config )
+    if (!config)
     {
         LBERROR << "No matching config on server" << std::endl;
-        client->disconnectServer( server );
+        client->disconnectServer(server);
         client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
@@ -99,38 +104,38 @@ int main( int argc, char** argv )
     // 4. init config
     lunchbox::Clock clock;
 
-    if( !config->init( co::uint128_t( )))
+    if (!config->init(co::uint128_t()))
     {
-        server->releaseConfig( config );
-        client->disconnectServer( server );
+        server->releaseConfig(config);
+        client->disconnectServer(server);
         client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
     }
 
-    LBLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
-                            << std::endl;
+    LBLOG(eq::LOG_CUSTOM) << "Config init took " << clock.getTimef() << " ms"
+                          << std::endl;
 
     // 5. render three frames
     clock.reset();
-    for( uint32_t i = 0; i < 3; ++i )
+    for (uint32_t i = 0; i < 3; ++i)
     {
-        config->startFrame( co::uint128_t( ));
+        config->startFrame(co::uint128_t());
         config->finishAllFrames();
     }
-    LBLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
-                            << ( 1.0f / clock.getTimef() * 1000.f) << " FPS)"
-                            << std::endl;
+    LBLOG(eq::LOG_CUSTOM) << "Rendering took " << clock.getTimef() << " ms ("
+                          << (1.0f / clock.getTimef() * 1000.f) << " FPS)"
+                          << std::endl;
 
     // 6. exit config
     clock.reset();
     config->exit();
-    LBLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms"
-                            << std::endl;
+    LBLOG(eq::LOG_CUSTOM) << "Exit took " << clock.getTimef() << " ms"
+                          << std::endl;
 
     // 7. cleanup and exit
-    server->releaseConfig( config );
-    if( !client->disconnectServer( server ))
+    server->releaseConfig(config);
+    if (!client->disconnectServer(server))
         LBERROR << "Client::disconnectServer failed" << std::endl;
     server = 0;
 

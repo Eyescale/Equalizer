@@ -24,17 +24,20 @@ namespace eq
 {
 namespace fabric
 {
-template< class T, class V > class NameFinder : public V
+template <class T, class V>
+class NameFinder : public V
 {
 public:
-    explicit NameFinder( const std::string& name )
-        : _name( name ), _result( 0 ) {}
-    virtual ~NameFinder(){}
-
-    virtual VisitorResult visitPre( T* entity ) { return visit( entity ); }
-    virtual VisitorResult visit( T* entity )
+    explicit NameFinder(const std::string& name)
+        : _name(name)
+        , _result(0)
     {
-        if( entity->getName() == _name )
+    }
+    virtual ~NameFinder() {}
+    virtual VisitorResult visitPre(T* entity) { return visit(entity); }
+    virtual VisitorResult visit(T* entity)
+    {
+        if (entity->getName() == _name)
         {
             _result = entity;
             return TRAVERSE_TERMINATE;
@@ -43,12 +46,10 @@ public:
     }
 
     T* getResult() { return _result; }
-
 private:
     const std::string _name;
-    T*                _result;
+    T* _result;
 };
-
 }
 }
 #endif // EQFABRIC_NAMEFINDER_H

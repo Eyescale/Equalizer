@@ -18,11 +18,11 @@
 #ifndef EQ_COMPOSITOR_H
 #define EQ_COMPOSITOR_H
 
-#include <eq/frame.h>          // nested type Frame::Buffer
-#include <eq/types.h>          // type definitions
+#include <eq/frame.h> // nested type Frame::Buffer
+#include <eq/types.h> // type definitions
 
-#include <eq/fabric/pixel.h>          // member
-#include <eq/fabric/zoom.h>           // member
+#include <eq/fabric/pixel.h> // member
+#include <eq/fabric/zoom.h>  // member
 
 #include <vector>
 
@@ -37,7 +37,8 @@ namespace eq
  * useful for advanced tasks, e.g., mergeFramesCPU() to perform compositing on
  * the CPU into a main memory buffer.
  *
- * <img src="http://www.equalizergraphics.com/documents/design/images/compositor.png">
+ * <img
+ * src="http://www.equalizergraphics.com/documents/design/images/compositor.png">
  */
 class EQ_API Compositor
 {
@@ -54,8 +55,8 @@ public:
      * @return the number of different subpixel steps assembled.
      * @version 1.0
      */
-    static uint32_t assembleFrames( const Frames& frames,
-                                    Channel* channel, util::Accum* accum );
+    static uint32_t assembleFrames(const Frames& frames, Channel* channel,
+                                   util::Accum* accum);
 
     /**
      * Assemble all frames in the given order using the fastest implemented
@@ -69,10 +70,10 @@ public:
      * @return the number of different subpixel steps assembled.
      * @version 1.11
      */
-    static uint32_t blendFrames( const Frames& frames, Channel* channel,
-                                 util::Accum* accum );
-    static uint32_t blendImages( const ImageOps& images, Channel* channel,
-                                 util::Accum* accum );
+    static uint32_t blendFrames(const Frames& frames, Channel* channel,
+                                util::Accum* accum);
+    static uint32_t blendImages(const ImageOps& images, Channel* channel,
+                                util::Accum* accum);
 
     /**
      * Assemble all frames in the order they become available directly on the
@@ -84,9 +85,9 @@ public:
      * @return the number of different subpixel steps assembled.
      * @version 1.0
      */
-    static uint32_t assembleFramesUnsorted( const Frames& frames,
-                                            Channel* channel,
-                                            util::Accum* accum );
+    static uint32_t assembleFramesUnsorted(const Frames& frames,
+                                           Channel* channel,
+                                           util::Accum* accum);
 
     /**
      * Assemble all frames in the given order in a memory buffer using the CPU
@@ -105,10 +106,10 @@ public:
      * @return the number of different subpixel steps assembled (0 or 1).
      * @version 1.0
      */
-    static uint32_t assembleFramesCPU( const Frames& frames, Channel* channel,
-                                       const bool blend = false );
-    static uint32_t assembleImagesCPU( const ImageOps& ops, Channel* channel,
-                                       const bool blend );
+    static uint32_t assembleFramesCPU(const Frames& frames, Channel* channel,
+                                      const bool blend = false);
+    static uint32_t assembleImagesCPU(const ImageOps& ops, Channel* channel,
+                                      const bool blend);
 
     /**
      * Merge the provided frames in the given order into one image in main
@@ -120,18 +121,17 @@ public:
      *
      * @version 1.0
      */
-    static const Image* mergeFramesCPU( const Frames& frames,
-                                        const bool blend = false,
-                               const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
-    static const Image* mergeImagesCPU( const ImageOps& ops, const bool blend );
+    static const Image* mergeFramesCPU(
+        const Frames& frames, const bool blend = false,
+        const uint32_t timeout = LB_TIMEOUT_INDEFINITE);
+    static const Image* mergeImagesCPU(const ImageOps& ops, const bool blend);
 
     /**
      * Assemble a frame into the frame buffer using the default algorithm.
      * @version 1.0
      */
-    static void assembleFrame( const Frame* frame, Channel* channel );
+    static void assembleFrame(const Frame* frame, Channel* channel);
     //@}
-
 
     /** @name Image-based operations. */
     //@{
@@ -141,7 +141,7 @@ public:
      * @param operation an ImageOp struct describing the operation.
      * @param channel the destination channel
      */
-    static void assembleImage( const ImageOp& operation, Channel* channel );
+    static void assembleImage(const ImageOp& operation, Channel* channel);
 
     /**
      * Setup the stencil buffer for a pixel compound recomposition.
@@ -149,23 +149,23 @@ public:
      * @param operation the assembly parameters.
      * @param channel the destination channel
      */
-    static void setupStencilBuffer( const ImageOp& operation,
-                                    const Channel* channel );
+    static void setupStencilBuffer(const ImageOp& operation,
+                                   const Channel* channel);
 
     /**
      * Clear the stencil buffer after a pixel compound recomposition.
      *
      * @param operation the assembly parameters.
      */
-    static void clearStencilBuffer( const ImageOp& operation );
+    static void clearStencilBuffer(const ImageOp& operation);
 
     /**
      * Setup the OpenGL state.
      * @param pvp the current pixel viewport.
      * @param gl the OpenGL function table
      */
-    static void setupAssemblyState( const PixelViewport& pvp,
-                                    const GLEWContext* gl );
+    static void setupAssemblyState(const PixelViewport& pvp,
+                                   const GLEWContext* gl);
 
     /**
      * Reset the OpenGL state.
@@ -173,21 +173,21 @@ public:
     static void resetAssemblyState();
 
     /** Start a tile-based assembly of the image color attachment. */
-    static void assembleImage2D( const ImageOp& op, Channel* channel );
+    static void assembleImage2D(const ImageOp& op, Channel* channel);
     /** Start a Z-based assembly of the image color and depth attachment. */
-    static void assembleImageDB( const ImageOp& op, Channel* channel );
+    static void assembleImageDB(const ImageOp& op, Channel* channel);
 
     /**
      * Start a Z-based assembly of the image color and depth attachment, based
      * on OpenGL 1.1 functionality.
      */
-    static void assembleImageDB_FF( const ImageOp& op, Channel* channel );
+    static void assembleImageDB_FF(const ImageOp& op, Channel* channel);
 
     /**
      * Start a Z-based assembly of the image color and depth attachment,
      * using GLSL.
      */
-    static void assembleImageDB_GLSL( const ImageOp& op, Channel* channel );
+    static void assembleImageDB_GLSL(const ImageOp& op, Channel* channel);
     //@}
 
     /** @name Region of Interest. */
@@ -198,7 +198,7 @@ public:
      * Called from all assembleImage methods.
      * @version 1.3
      */
-    static void declareRegion( const ImageOp& op, Channel* channel );
+    static void declareRegion(const ImageOp& op, Channel* channel);
     //@}
 
     /** @name Early assembly. */
@@ -207,8 +207,7 @@ public:
     class WaitHandle;
 
     /** Start waiting on a set of input frames. @version 1.3.1 */
-    static WaitHandle* startWaitFrames( const Frames& frames,
-                                        Channel* channel );
+    static WaitHandle* startWaitFrames(const Frames& frames, Channel* channel);
 
     /**
      * Wait for one input frame from a set of pending frames.
@@ -222,19 +221,19 @@ public:
      * @return One ready frame, or 0 if all frames have been processed.
      * @version 1.3.1
      */
-    static Frame* waitFrame( WaitHandle* handle );
+    static Frame* waitFrame(WaitHandle* handle);
     //@}
 
     /** @name Introspection and setup */
     //@{
-    static bool isSubPixelDecomposition( const Frames& frames );
-    static bool isSubPixelDecomposition( const ImageOps& ops );
-    static Frames extractOneSubPixel( Frames& frames );
-    static ImageOps extractOneSubPixel( ImageOps& ops );
+    static bool isSubPixelDecomposition(const Frames& frames);
+    static bool isSubPixelDecomposition(const ImageOps& ops);
+    static Frames extractOneSubPixel(Frames& frames);
+    static ImageOps extractOneSubPixel(ImageOps& ops);
     //@}
 
 private:
-    typedef std::pair< const Frame*, const Image* > FrameImage;
+    typedef std::pair<const Frame*, const Image*> FrameImage;
 };
 }
 

@@ -41,35 +41,35 @@ namespace eqPly
 class View : public eq::View
 {
 public:
-    View( eq::Layout* parent );
+    View(eq::Layout* parent);
     virtual ~View();
 
-    void setModelID( const eq::uint128_t& id );
+    void setModelID(const eq::uint128_t& id);
     const eq::uint128_t& getModelID() const { return _modelID; }
-
-    void setIdleSteps( const int32_t steps );
+    void setIdleSteps(const int32_t steps);
     int32_t getIdleSteps() const { return _idleSteps; }
-
     void toggleEqualizer();
 
 private:
     class Proxy : public co::Serializable
     {
     public:
-        Proxy( View* view ) : _view( view ) {}
+        Proxy(View* view)
+            : _view(view)
+        {
+        }
 
     protected:
         /** The changed parts of the view. */
         enum DirtyBits
         {
             DIRTY_MODEL = co::Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_IDLE  = co::Serializable::DIRTY_CUSTOM << 1
+            DIRTY_IDLE = co::Serializable::DIRTY_CUSTOM << 1
         };
 
-        virtual void serialize( co::DataOStream&, const uint64_t );
-        virtual void deserialize( co::DataIStream&, const uint64_t );
+        virtual void serialize(co::DataOStream&, const uint64_t);
+        virtual void deserialize(co::DataIStream&, const uint64_t);
         virtual void notifyNewVersion() { sync(); }
-
     private:
         View* const _view;
         friend class eqPly::View;

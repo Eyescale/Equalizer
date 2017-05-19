@@ -26,15 +26,14 @@ namespace eq
 {
 namespace admin
 {
-
 /** @cond IGNORE */
 typedef fabric::Client Super;
 /** @endcond */
 
 Client::Client()
     : Super()
-    , _mainThreadQueue( co::Global::getCommandQueueLimit( ))
-    , _private( 0 )
+    , _mainThreadQueue(co::Global::getCommandQueueLimit())
+    , _private(0)
 {
 }
 
@@ -43,47 +42,46 @@ Client::~Client()
     close();
 }
 
-bool Client::connectServer( ServerPtr server )
+bool Client::connectServer(ServerPtr server)
 {
     // connect to local server, if any
     co::ConnectionPtr connection = server::connectLocalServer();
-    if( connection && connect( server, connection ))
+    if (connection && connect(server, connection))
     {
-        server->setClient( this );
+        server->setClient(this);
         server->map();
         return true;
     }
 
-    if( !Super::connectServer( server ))
+    if (!Super::connectServer(server))
         return false;
 
-    server->setClient( this );
+    server->setClient(this);
     server->map();
     return true;
 }
 
-bool Client::disconnectServer( ServerPtr server )
+bool Client::disconnectServer(ServerPtr server)
 {
     server->unmap();
-    server->setClient( 0 );
-    return Super::disconnectServer( server.get( ));
+    server->setClient(0);
+    return Super::disconnectServer(server.get());
 }
 
-co::NodePtr Client::createNode( const uint32_t type )
+co::NodePtr Client::createNode(const uint32_t type)
 {
-    switch( type )
+    switch (type)
     {
-        case fabric::NODETYPE_SERVER:
-        {
-            Server* server = new Server;
-            server->setClient( this );
-            return server;
-        }
+    case fabric::NODETYPE_SERVER:
+    {
+        Server* server = new Server;
+        server->setClient(this);
+        return server;
+    }
 
-        default:
-            return Super::createNode( type );
+    default:
+        return Super::createNode(type);
     }
 }
-
 }
 }
