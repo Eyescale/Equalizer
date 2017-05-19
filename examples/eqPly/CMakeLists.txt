@@ -50,9 +50,9 @@ if(EQUALIZER_USE_QT5WIDGETS AND
     # Using Qt as the window system for the smoke test in Linux only if
     # DISPLAY is set, otherwise the QApplication constructor fails.
     (NOT (CMAKE_SYSTEM_NAME MATCHES "Linux") OR DEFINED $ENV{DISPLAY}))
-  common_smoke_test(eqPly -n 1 -w Qt)
+  common_smoke_test(eqPly -n 1 -w Qt --ignoreNoConfig)
 else()
-  common_smoke_test(eqPly -n 1)
+  common_smoke_test(eqPly -n 1 --ignoreNoConfig)
 endif()
 
 # create and install .bin files

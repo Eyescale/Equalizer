@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,6 +50,7 @@ namespace eqPly
         uint32_t           getMaxFrames()    const { return _maxFrames; }
         bool               useColor()        const { return _color; }
         bool               isResident()      const { return _isResident; }
+        bool               ignoreNoConfig()  const { return _ignoreNoConfig; }
 
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
@@ -62,6 +63,7 @@ namespace eqPly
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;
+        bool        _ignoreNoConfig;
     };
 }
 

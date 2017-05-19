@@ -48,6 +48,7 @@ LocalInitData::LocalInitData()
     , _maxFrames( 0xffffffffu )
     , _color( true )
     , _isResident( false )
+    , _ignoreNoConfig( false )
 {
     _filenames.push_back( lunchbox::getRootPath() +
                           "/share/Equalizer/data" );
@@ -60,6 +61,7 @@ LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _isResident  = from._isResident;
     _filenames    = from._filenames;
     _pathFilename = from._pathFilename;
+    _ignoreNoConfig = from._ignoreNoConfig;
 
     setWindowSystem( from.getWindowSystem( ));
     setRenderMode( from.getRenderMode( ));
@@ -138,6 +140,11 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         ( "disableROI,d",
           po::bool_switch(&userDefinedDisableROI)->default_value( false ),
           "Disable region of interest (ROI)" );
+    po::options_description all;
+    all.add(options);
+    all.add_options()
+        ( "ignoreNoConfig",
+          po::bool_switch(&_ignoreNoConfig)->default_value( false ));
 
     po::variables_map variableMap;
 
@@ -145,8 +152,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     {
         // parse program options, ignore all non related options
         po::store( po::command_line_parser( argc, argv ).options(
-                       options ).allow_unregistered().run(),
-                   variableMap );
+                       all ).allow_unregistered().run(), variableMap );
         po::notify( variableMap );
     }
     catch( std::exception& exception )
