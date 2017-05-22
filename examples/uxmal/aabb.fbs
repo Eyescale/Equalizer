@@ -5,6 +5,7 @@ namespace uxmal;
 
 table AABB
 {
+    id:uint128_t;
     frame:uint32_t;
     min:[float:3];
     max:[float:3];
