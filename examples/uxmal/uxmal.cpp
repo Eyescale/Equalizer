@@ -36,9 +36,10 @@
 #include <lunchbox/file.h>
 #include <zeroeq/subscriber.h>
 
+#include <set>
 #include <stdlib.h>
 
-namespace eqUxmal
+namespace uxmal
 {
 namespace
 {
@@ -47,12 +48,15 @@ eq::Vector3f _xfm(const float x, const float y, const float z,
 {
     return eq::Vector3f(eq::Matrix4f(m, m + 16) * eq::Vector4f(x, y, z, 1.f));
 }
+static const std::vector<eq::Vector3f> _colors{{1, 1, 1}, {1, 0, 0}, {0, 1, 0},
+                                               {0, 0, 1}, {1, 1, 0}, {1, 0, 1},
+                                               {0, 1, 1}};
 }
 
 struct Box
 {
-    explicit Box(const uxmal::Frustum& f)
-        : color(1.f, 1.f, 1.f)
+    explicit Box(const eq::uint128_t& i, const Frustum& f)
+        : id(i)
         , corners{_xfm(f.getLeft(), f.getBottom(), -f.getNear(), f.getView()),
                   _xfm(f.getRight(), f.getBottom(), -f.getNear(), f.getView()),
                   _xfm(f.getRight(), f.getTop(), -f.getNear(), f.getView()),
@@ -72,8 +76,8 @@ struct Box
     {
     }
 
-    explicit Box(const uxmal::AABB& b)
-        : color(.5f, .5f, .5f)
+    explicit Box(const eq::uint128_t& i, const AABB& b)
+        : id(i)
         , corners{{b.getMin()[0], b.getMin()[1], b.getMin()[2]},
                   {b.getMin()[0], b.getMax()[1], b.getMin()[2]},
                   {b.getMax()[0], b.getMax()[1], b.getMin()[2]},
@@ -85,7 +89,7 @@ struct Box
     {
     }
 
-    const eq::Vector3f color;
+    const eq::uint128_t id;
     const eq::Vector3f corners[8];
 };
 
@@ -100,6 +104,7 @@ class Renderer : public seq::Renderer
         {
             _dataFrame = object->getFrame();
             _boxes.clear();
+            _ids.clear();
         }
 
         if (_dataFrame > object->getFrame() + 10) // restarted app, reset
@@ -108,25 +113,27 @@ class Renderer : public seq::Renderer
         if (_dataFrame != object->getFrame())
             return;
 
-        _boxes.emplace_back(Box{*object});
+        auto i = _ids.find(object->getId());
+        if (i == _ids.end())
+            i = _ids.insert(object->getId()).first;
+        _boxes.emplace_back(Box{object->getId(), *object});
     }
 
 public:
     Renderer(seq::Application& application)
         : seq::Renderer(application)
     {
-        _subscriber.subscribe(uxmal::Frustum::ZEROBUF_TYPE_IDENTIFIER(),
+        _subscriber.subscribe(Frustum::ZEROBUF_TYPE_IDENTIFIER(),
                               [this](const void* data, const size_t size) {
-                                  _handle<uxmal::Frustum>(data, size);
+                                  _handle<Frustum>(data, size);
                               });
-        _subscriber.subscribe(uxmal::AABB::ZEROBUF_TYPE_IDENTIFIER(),
+        _subscriber.subscribe(AABB::ZEROBUF_TYPE_IDENTIFIER(),
                               [this](const void* data, const size_t size) {
-                                  _handle<uxmal::AABB>(data, size);
+                                  _handle<AABB>(data, size);
                               });
     }
     virtual ~Renderer() {}
 protected:
-    void draw(co::Object* frameData) final;
     bool init(co::Object*) final
     {
         glEnable(GL_LINE_SMOOTH);
@@ -136,11 +143,38 @@ protected:
         return true;
     }
 
+    void draw(co::Object*) final
+    {
+        while (_subscriber.receive(0))
+            /*poll ZeroEQ events for new data*/;
+
+        applyRenderContext(); // set up OpenGL State
+        applyModelMatrix();
+        glDisable(GL_LIGHTING);
+
+        static const size_t loop[] = {0, 1, 2, 3, 0, 4, 5, 6,
+                                      7, 4, 7, 3, 2, 6, 5, 1};
+        for (const auto& box : _boxes)
+        {
+            auto index =
+                std::distance(_ids.begin(), _ids.find(box.id)) % _colors.size();
+            const auto& color = _colors[index];
+            glColor4f(color[0], color[1], color[2], 0.5f);
+            glBegin(GL_LINE_LOOP);
+            for (const size_t i : loop)
+                glVertex3f(box.corners[i].x(), box.corners[i].y(),
+                           box.corners[i].z());
+            glEnd();
+        }
+        requestRedraw();
+    }
+
 private:
     zeroeq::Subscriber _subscriber;
     uint32_t _dataFrame = 0;
 
     std::vector<Box> _boxes;
+    std::set<eq::uint128_t> _ids;
 };
 
 class Application : public seq::Application
@@ -169,34 +203,10 @@ typedef lunchbox::RefPtr<Application> ApplicationPtr;
 
 int main(const int argc, char** argv)
 {
-    eqUxmal::ApplicationPtr app = new eqUxmal::Application;
+    uxmal::ApplicationPtr app = new uxmal::Application;
 
     if (app->init(argc, argv, 0) && app->run(0) && app->exit())
         return EXIT_SUCCESS;
 
     return EXIT_FAILURE;
-}
-
-/** The rendering routine, a.k.a., glutDisplayFunc() */
-void eqUxmal::Renderer::draw(co::Object* /*frameData*/)
-{
-    while (_subscriber.receive(0))
-        /*poll ZeroEQ events for new data*/;
-
-    applyRenderContext(); // set up OpenGL State
-    applyModelMatrix();
-    glDisable(GL_LIGHTING);
-
-    static const size_t loop[] = {0, 1, 2, 3, 0, 4, 5, 6,
-                                  7, 4, 7, 3, 2, 6, 5, 1};
-    for (const auto& box : _boxes)
-    {
-        glColor3f(box.color[0], box.color[1], box.color[2]);
-        glBegin(GL_LINE_LOOP);
-        for (const size_t i : loop)
-            glVertex3f(box.corners[i].x(), box.corners[i].y(),
-                       box.corners[i].z());
-        glEnd();
-    }
-    requestRedraw();
 }

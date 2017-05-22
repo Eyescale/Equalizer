@@ -785,17 +785,18 @@ void Channel::_updateNearFar(const triply::BoundingSphere& boundingSphere)
     const auto model = rotation * position * modelRotation;
     const auto xfm = (getHeadTransform() * model).inverse();
 
-    _publisher.publish(
-        uxmal::Frustum(getCurrentFrame(), frustum.left(), frustum.right(),
-                       frustum.bottom(), frustum.top(), frustum.nearPlane(),
-                       frustum.farPlane(), {xfm.data(), xfm.data() + 16}));
+    _publisher.publish(uxmal::Frustum(getID(), getCurrentFrame(),
+                                      frustum.left(), frustum.right(),
+                                      frustum.bottom(), frustum.top(),
+                                      frustum.nearPlane(), frustum.farPlane(),
+                                      {xfm.data(), xfm.data() + 16}));
 #endif
 }
 
 void Channel::publishAABB(const triply::BoundingBox& box)
 {
 #ifdef UXMAL
-    _publisher.publish(uxmal::AABB(getCurrentFrame(),
+    _publisher.publish(uxmal::AABB(getID(), getCurrentFrame(),
                                    {box[0][0], box[0][1], box[0][2]},
                                    {box[1][0], box[1][1], box[1][2]}));
 #endif

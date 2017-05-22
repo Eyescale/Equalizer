@@ -5,6 +5,7 @@ namespace uxmal;
 
 table Frustum
 {
+    id:uint128_t;
     frame:uint32_t;
     left:float;
     right:float;
