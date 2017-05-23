@@ -124,8 +124,7 @@ private:
 
 // compound type definitions
 typedef vmml::vector<3, Index> Triangle;
-typedef ArrayWrapper<Vertex, 2> BoundingBox;
-typedef vmml::vector<4, float> BoundingSphere;
+typedef vmml::AABBf BoundingBox;
 typedef ArrayWrapper<float, 2> Range;
 
 // maximum triangle count per leaf node (keep in mind that the number of
@@ -145,10 +144,10 @@ enum Axis
 };
 inline std::ostream& operator<<(std::ostream& os, const Axis axis)
 {
-    os << (axis == AXIS_X
-               ? "x axis"
-               : axis == AXIS_Y ? "y axis"
-                                : axis == AXIS_Z ? "z axis" : "ERROR");
+    os << (axis == AXIS_X ? "x axis" : axis == AXIS_Y
+                                           ? "y axis"
+                                           : axis == AXIS_Z ? "z axis"
+                                                            : "ERROR");
     return os;
 }
 

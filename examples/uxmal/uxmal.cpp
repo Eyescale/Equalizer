@@ -55,7 +55,7 @@ static const std::vector<eq::Vector3f> _colors{{1, 1, 1}, {1, 0, 0}, {0, 1, 0},
 
 struct Box
 {
-    explicit Box(const eq::uint128_t& i, const Frustum& f)
+    Box(const eq::uint128_t& i, const Frustum& f)
         : id(i)
         , corners{_xfm(f.getLeft(), f.getBottom(), -f.getNear(), f.getView()),
                   _xfm(f.getRight(), f.getBottom(), -f.getNear(), f.getView()),
@@ -76,7 +76,7 @@ struct Box
     {
     }
 
-    explicit Box(const eq::uint128_t& i, const AABB& b)
+    Box(const eq::uint128_t& i, const AABB& b)
         : id(i)
         , corners{{b.getMin()[0], b.getMin()[1], b.getMin()[2]},
                   {b.getMin()[0], b.getMax()[1], b.getMin()[2]},

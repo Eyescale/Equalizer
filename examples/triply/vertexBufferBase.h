@@ -47,7 +47,6 @@ public:
     TRIPLY_API virtual Index getNumberOfVertices() const = 0;
 
     const BoundingBox& getBoundingBox() const { return _boundingBox; }
-    const BoundingSphere& getBoundingSphere() const { return _boundingSphere; }
     const float* getRange() const { return &_range[0]; }
     virtual const VertexBufferBase* getLeft() const { return nullptr; }
     virtual const VertexBufferBase* getRight() const { return nullptr; }
@@ -57,7 +56,6 @@ public:
 
 protected:
     VertexBufferBase()
-        : _boundingSphere(0.0f)
     {
         _range[0] = 0.0f;
         _range[1] = 1.0f;
@@ -66,8 +64,6 @@ protected:
     virtual void toStream(std::ostream& os)
     {
         os.write(reinterpret_cast<char*>(&_boundingBox), sizeof(BoundingBox));
-        os.write(reinterpret_cast<char*>(&_boundingSphere),
-                 sizeof(BoundingSphere));
         os.write(reinterpret_cast<char*>(&_range), sizeof(Range));
     }
 
@@ -75,8 +71,6 @@ protected:
     {
         memRead(reinterpret_cast<char*>(&_boundingBox), addr,
                 sizeof(_boundingBox));
-        memRead(reinterpret_cast<char*>(&_boundingSphere), addr,
-                sizeof(_boundingSphere));
         memRead(reinterpret_cast<char*>(&_range), addr, sizeof(Range));
     }
 
@@ -92,7 +86,6 @@ protected:
     virtual Type getType() const = 0;
 
     BoundingBox _boundingBox;
-    BoundingSphere _boundingSphere;
     Range _range;
 };
 }

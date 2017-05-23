@@ -108,9 +108,8 @@ void VertexBufferRoot::cullDraw(VertexBufferState& state) const
 
         // bounding sphere view frustum culling
         const vmml::Visibility visibility =
-            state.useFrustumCulling()
-                ? culler.test(treeNode->getBoundingSphere())
-                : vmml::VISIBILITY_FULL;
+            state.useFrustumCulling() ? culler.test(treeNode->getBoundingBox())
+                                      : vmml::VISIBILITY_FULL;
         switch (visibility)
         {
         case vmml::VISIBILITY_FULL:

@@ -41,6 +41,7 @@ namespace seq
 using namespace eq::util::shader;
 
 using eq::fabric::RenderContext;
+using vmml::AABBf;
 using eq::AxisEvent;
 using eq::ButtonEvent;
 using eq::Event;

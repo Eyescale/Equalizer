@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,7 +65,7 @@ void Renderer::draw(co::Object* frameDataObj)
     if (!model)
         return;
 
-    updateNearFar(model->getBoundingSphere());
+    updateNearFar(model->getBoundingBox());
     applyRenderContext();
 
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);

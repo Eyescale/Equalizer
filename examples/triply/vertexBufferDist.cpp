@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2017, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ void VertexBufferDist::getInstanceData(co::DataOStream& os)
     else
         os << eq::uint128_t() << Type::none;
 
-    os << _node._boundingSphere << _node._range;
+    os << _node._boundingBox << _node._range;
 
     if (_isRoot())
     {
@@ -115,8 +115,7 @@ void VertexBufferDist::getInstanceData(co::DataOStream& os)
         const VertexBufferLeaf& leaf =
             dynamic_cast<const VertexBufferLeaf&>(_node);
 
-        os << leaf._boundingBox[0] << leaf._boundingBox[1]
-           << uint64_t(leaf._vertexStart) << uint64_t(leaf._indexStart)
+        os << uint64_t(leaf._vertexStart) << uint64_t(leaf._indexStart)
            << uint64_t(leaf._indexLength) << leaf._vertexLength;
     }
 }
@@ -128,7 +127,7 @@ void VertexBufferDist::applyInstanceData(co::DataIStream& is)
     const eq::uint128_t& rightID = is.read<eq::uint128_t>();
     const Type rightType = is.read<Type>();
 
-    is >> _node._boundingSphere >> _node._range;
+    is >> _node._boundingBox >> _node._range;
 
     if (_isRoot())
     {
@@ -142,8 +141,7 @@ void VertexBufferDist::applyInstanceData(co::DataIStream& is)
     {
         VertexBufferLeaf& leaf = dynamic_cast<VertexBufferLeaf&>(_node);
         uint64_t i1, i2, i3;
-        is >> leaf._boundingBox[0] >> leaf._boundingBox[1] >> i1 >> i2 >> i3 >>
-            leaf._vertexLength;
+        is >> i1 >> i2 >> i3 >> leaf._vertexLength;
         leaf._vertexStart = size_t(i1);
         leaf._indexStart = size_t(i2);
         leaf._indexLength = size_t(i3);

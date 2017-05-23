@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,8 +50,6 @@ public:
                          const Axis axis);
     TRIPLY_API void scale(const float baseSize = 2.0f);
     TRIPLY_API void calculateNormals();
-    TRIPLY_API void calculateBoundingBox();
-    const BoundingBox& getBoundingBox() const { return _boundingBox; }
     TRIPLY_API Axis getLongestAxis(const size_t start,
                                    const size_t elements) const;
 
@@ -66,7 +64,6 @@ private:
                       const bool readColors);
     void readTriangles(PlyFile* file, const int nFaces);
 
-    BoundingBox _boundingBox;
     bool _invertFaces;
 };
 }

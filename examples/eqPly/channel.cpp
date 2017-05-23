@@ -130,7 +130,7 @@ void Channel::frameDraw(const eq::uint128_t& frameID)
         state.setFrustumCulling(false); // create all display lists/VBOs
 
     if (model)
-        _updateNearFar(model->getBoundingSphere());
+        _updateNearFar(model->getBoundingBox());
 
     eq::Channel::frameDraw(frameID); // Setup OpenGL state
 
@@ -735,7 +735,7 @@ void Channel::_drawHelp()
     resetOverlayState();
 }
 
-void Channel::_updateNearFar(const triply::BoundingSphere& boundingSphere)
+void Channel::_updateNearFar(const triply::BoundingBox& box)
 {
     // compute dynamic near/far plane of whole model
     const FrameData& frameData = _getFrameData();
@@ -748,10 +748,10 @@ void Channel::_updateNearFar(const triply::BoundingSphere& boundingSphere)
 
     front -= zero;
     front.normalize();
-    front *= boundingSphere.w();
+    front *= box.getSize().length() * 0.5f;
 
     const eq::Vector3f& center =
-        frameData.getCameraPosition() - boundingSphere.get_sub_vector<3, 0>();
+        frameData.getCameraPosition() - box.getCenter();
     const eq::Vector3f nearPoint = view * (center - front);
     const eq::Vector3f farPoint = view * (center + front);
 
@@ -793,12 +793,14 @@ void Channel::_updateNearFar(const triply::BoundingSphere& boundingSphere)
 #endif
 }
 
-void Channel::publishAABB(const triply::BoundingBox& box)
+void Channel::publishAABB(const triply::BoundingBox& box LB_UNUSED)
 {
 #ifdef UXMAL
+    const auto& min = box.getMin();
+    const auto& max = box.getMax();
     _publisher.publish(uxmal::AABB(getID(), getCurrentFrame(),
-                                   {box[0][0], box[0][1], box[0][2]},
-                                   {box[1][0], box[1][1], box[1][2]}));
+                                   {min[0], min[1], min[2]},
+                                   {max[0], max[1], max[2]}));
 #endif
 }
 }

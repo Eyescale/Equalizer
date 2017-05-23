@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Petros Kataras <petroskataras@gmail.com>
  *
@@ -156,6 +156,11 @@ void Renderer::updateNearFar(const Vector4f& boundingSphere)
 
         setNearFar(zNear, zFar);
     }
+}
+
+void Renderer::updateNearFar(const AABBf& box)
+{
+    updateNearFar({box.getCenter(), box.getSize().length() * 0.5f});
 }
 
 void Renderer::setNearFar(const float nearPlane, const float farPlane)
