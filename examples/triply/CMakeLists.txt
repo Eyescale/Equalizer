@@ -1,5 +1,5 @@
 
-# Copyright (c) 2011-2015 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2011-2017 Stefan Eilemann <eile@eyescale.ch>
 
 set(TRIPLY_PUBLIC_HEADERS
   ply.h
@@ -15,7 +15,6 @@ set(TRIPLY_PUBLIC_HEADERS
 
 set(TRIPLY_SOURCES
   plyfile.cpp
-  vertexBufferBase.cpp
   vertexBufferDist.cpp
   vertexBufferLeaf.cpp
   vertexBufferNode.cpp

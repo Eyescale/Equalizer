@@ -67,14 +67,13 @@ void VertexBufferState::resetRegion()
 
 void VertexBufferState::updateRegion(const BoundingBox& box)
 {
-    const Vertex corners[8] = {Vertex(box[0][0], box[0][1], box[0][2]),
-                               Vertex(box[1][0], box[0][1], box[0][2]),
-                               Vertex(box[0][0], box[1][1], box[0][2]),
-                               Vertex(box[1][0], box[1][1], box[0][2]),
-                               Vertex(box[0][0], box[0][1], box[1][2]),
-                               Vertex(box[1][0], box[0][1], box[1][2]),
-                               Vertex(box[0][0], box[1][1], box[1][2]),
-                               Vertex(box[1][0], box[1][1], box[1][2])};
+    const auto& min = box.getMin();
+    const auto& max = box.getMax();
+    const Vertex corners[8] = {
+        Vertex(min[0], min[1], min[2]), Vertex(max[0], min[1], min[2]),
+        Vertex(min[0], max[1], min[2]), Vertex(max[0], max[1], min[2]),
+        Vertex(min[0], min[1], max[2]), Vertex(max[0], min[1], max[2]),
+        Vertex(min[0], max[1], max[2]), Vertex(max[0], max[1], max[2])};
 
     Vector4f region(std::numeric_limits<float>::max(),
                     std::numeric_limits<float>::max(),

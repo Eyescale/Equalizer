@@ -119,6 +119,14 @@ public:
     SEQ_API void updateNearFar(const Vector4f& boundingSphere);
 
     /**
+     * Update the near and far planes to tightly enclose the given bounding box.
+     *
+     * @param box the axis-aligned bounding box of the scene to be rendered.
+     * @version 1.7.1
+     */
+    SEQ_API void updateNearFar(const AABBf& box);
+
+    /**
      * Set the near and far planes.
      *
      * The given near and far planes update the current perspective and

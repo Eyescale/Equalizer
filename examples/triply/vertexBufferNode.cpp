@@ -87,32 +87,8 @@ void VertexBufferNode::updateBounds()
     _left->updateBounds();
     _right->updateBounds();
 
-    // compute enclosing box
-    const auto& box1 = _left->getBoundingBox();
-    const auto& box2 = _right->getBoundingBox();
-    _boundingBox[0][0] = std::min(box1[0][0], box2[0][0]);
-    _boundingBox[0][1] = std::min(box1[0][1], box2[0][1]);
-    _boundingBox[0][2] = std::min(box1[0][2], box2[0][2]);
-    _boundingBox[1][0] = std::max(box1[1][0], box2[1][0]);
-    _boundingBox[1][1] = std::max(box1[1][1], box2[1][1]);
-    _boundingBox[1][2] = std::max(box1[1][2], box2[1][2]);
-
-    // compute enclosing sphere
-    const auto sphere1 = _left->getBoundingSphere();
-    const auto sphere2 = _right->getBoundingSphere();
-    const Vertex center1(sphere1.array);
-    const Vertex center2(sphere2.array);
-    Vertex c1ToC2 = center2 - center1;
-    c1ToC2.normalize();
-
-    const Vertex outer1 = center1 - c1ToC2 * sphere1.w();
-    const Vertex outer2 = center2 + c1ToC2 * sphere2.w();
-
-    Vertex vertexBoundingSphere = Vertex(outer1 + outer2) * 0.5f;
-    _boundingSphere.x() = vertexBoundingSphere.x();
-    _boundingSphere.y() = vertexBoundingSphere.y();
-    _boundingSphere.z() = vertexBoundingSphere.z();
-    _boundingSphere.w() = Vertex(outer1 - outer2).length() * 0.5f;
+    _boundingBox = _left->getBoundingBox();
+    _boundingBox.merge(_right->getBoundingBox());
 }
 
 /*  Compute the range from the children's ranges.  */

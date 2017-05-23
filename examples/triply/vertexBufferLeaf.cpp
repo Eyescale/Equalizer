@@ -79,97 +79,16 @@ void VertexBufferLeaf::setupTree(VertexData& data, const Index start,
 /*  Compute the bounding sphere of the leaf's indexed vertices.  */
 void VertexBufferLeaf::updateBounds()
 {
-    // We determine a bounding sphere by:
-    // 1) Using the inner sphere of the dominant axis of the bounding box as an
-    //    estimate
-    // 2) Test all points to be in that sphere
-    // 3) Expand the sphere to contain all points outside.
-
-    // 1a) initialize and compute a bounding box
-    _boundingBox[0] =
-        _globalData.vertices[_vertexStart + _globalData.indices[_indexStart]];
-    _boundingBox[1] =
-        _globalData.vertices[_vertexStart + _globalData.indices[_indexStart]];
+    _boundingBox = {
+        _globalData.vertices[_vertexStart + _globalData.indices[_indexStart]],
+        _globalData.vertices[_vertexStart + _globalData.indices[_indexStart]]};
 
     for (Index i = 1 + _indexStart; i < _indexStart + _indexLength; ++i)
     {
-        const Vertex& vertex =
+        const auto& vertex =
             _globalData.vertices[_vertexStart + _globalData.indices[i]];
-        _boundingBox[0][0] = std::min(_boundingBox[0][0], vertex[0]);
-        _boundingBox[0][1] = std::min(_boundingBox[0][1], vertex[1]);
-        _boundingBox[0][2] = std::min(_boundingBox[0][2], vertex[2]);
-        _boundingBox[1][0] = std::max(_boundingBox[1][0], vertex[0]);
-        _boundingBox[1][1] = std::max(_boundingBox[1][1], vertex[1]);
-        _boundingBox[1][2] = std::max(_boundingBox[1][2], vertex[2]);
+        _boundingBox.merge(vertex);
     }
-
-    // 1b) get inner sphere of bounding box as an initial estimate
-    _boundingSphere.x() = (_boundingBox[0].x() + _boundingBox[1].x()) * 0.5f;
-    _boundingSphere.y() = (_boundingBox[0].y() + _boundingBox[1].y()) * 0.5f;
-    _boundingSphere.z() = (_boundingBox[0].z() + _boundingBox[1].z()) * 0.5f;
-
-    _boundingSphere.w() = std::max(_boundingBox[1].x() - _boundingBox[0].x(),
-                                   _boundingBox[1].y() - _boundingBox[0].y());
-    _boundingSphere.w() = std::max(_boundingBox[1].z() - _boundingBox[0].z(),
-                                   _boundingSphere.w());
-    _boundingSphere.w() *= .5f;
-
-    float radius = _boundingSphere.w();
-    float radiusSquared = radius * radius;
-    Vertex center(_boundingSphere.array);
-
-    // 2) Extent bounding sphere to contain all all points
-    for (Index offset = 0; offset < _indexLength; ++offset)
-    {
-        const Vertex& vertex =
-            _globalData.vertices[_vertexStart +
-                                 _globalData.indices[_indexStart + offset]];
-
-        const Vertex centerToPoint = vertex - center;
-        const float distanceSquared = centerToPoint.squared_length();
-        if (distanceSquared <= radiusSquared) // point is inside existing BS
-            continue;
-
-        // 3) expand sphere to contain 'outside' points
-        const float distance = sqrtf(distanceSquared);
-        const float delta = distance - radius;
-
-        radius = (radius + distance) * .5f;
-        radiusSquared = radius * radius;
-        const Vertex normdelta = normalize(centerToPoint) * (0.5f * delta);
-
-        center += normdelta;
-
-        LBASSERTINFO(Vertex(vertex - center).squared_length() <=
-                         (radiusSquared +
-                          2.f * std::numeric_limits<float>::epsilon()),
-                     vertex << " c " << center << " r " << radius << " ("
-                            << Vertex(vertex - center).length() << ")");
-    }
-
-#ifndef NDEBUG
-    // 2a) re-test all points to be in the estimated bounding sphere
-    for (Index offset = 0; offset < _indexLength; ++offset)
-    {
-        const Vertex& vertex =
-            _globalData.vertices[_vertexStart +
-                                 _globalData.indices[_indexStart + offset]];
-
-        const Vertex centerToPoint = vertex - center;
-        const float distanceSquared = centerToPoint.squared_length();
-        LBASSERTINFO(distanceSquared <=
-                         (radiusSquared +
-                          2.f * std::numeric_limits<float>::epsilon()),
-                     vertex << " c " << center << " r " << radius << " ("
-                            << Vertex(vertex - center).length() << ")");
-    }
-#endif
-
-    // store optimal bounding sphere
-    _boundingSphere.x() = center.x();
-    _boundingSphere.y() = center.y();
-    _boundingSphere.z() = center.z();
-    _boundingSphere.w() = radius;
 }
 
 /*  Compute the range of this child.  */

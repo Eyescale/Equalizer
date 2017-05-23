@@ -73,7 +73,7 @@ private:
     void _drawModel(const Model* model);
     void _drawOverlay();
     void _drawHelp();
-    void _updateNearFar(const triply::BoundingSphere& boundingSphere);
+    void _updateNearFar(const triply::BoundingBox& box);
 
     bool _isDone() const;
 

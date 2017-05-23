@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2017, Tobias Wolf <twolf@access.unizh.ch>
+ *                          Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,8 +46,6 @@ using namespace triply;
 VertexData::VertexData()
     : _invertFaces(false)
 {
-    _boundingBox[0] = Vertex(0.0f);
-    _boundingBox[1] = Vertex(0.0f);
 }
 
 /*  Read the vertex and (if available/wanted) color data from the open file.  */
@@ -261,19 +259,6 @@ void VertexData::calculateNormals()
 #endif
 }
 
-/*  Calculate the bounding box of the current vertex data.  */
-void VertexData::calculateBoundingBox()
-{
-    _boundingBox[0] = vertices[0];
-    _boundingBox[1] = vertices[0];
-    for (size_t v = 1; v < vertices.size(); ++v)
-        for (size_t i = 0; i < 3; ++i)
-        {
-            _boundingBox[0][i] = std::min(_boundingBox[0][i], vertices[v][i]);
-            _boundingBox[1][i] = std::max(_boundingBox[1][i], vertices[v][i]);
-        }
-}
-
 /* Calculates longest axis for a set of triangles */
 Axis VertexData::getLongestAxis(const size_t start, const size_t elements) const
 {
@@ -287,26 +272,18 @@ Axis VertexData::getLongestAxis(const size_t start, const size_t elements) const
         return AXIS_X;
     }
 
-    BoundingBox bb;
-    bb[0] = vertices[triangles[start][0]];
-    bb[1] = vertices[triangles[start][0]];
+    BoundingBox bb{vertices[triangles[start][0]],
+                   vertices[triangles[start][0]]};
 
     for (size_t t = start; t < start + elements; ++t)
         for (size_t v = 0; v < 3; ++v)
-            for (size_t i = 0; i < 3; ++i)
-            {
-                bb[0][i] = std::min(bb[0][i], vertices[triangles[t][v]][i]);
-                bb[1][i] = std::max(bb[1][i], vertices[triangles[t][v]][i]);
-            }
+            bb.merge(vertices[triangles[t][v]]);
+    const auto size = bb.getSize();
 
-    const GLfloat bbX = bb[1][0] - bb[0][0];
-    const GLfloat bbY = bb[1][1] - bb[0][1];
-    const GLfloat bbZ = bb[1][2] - bb[0][2];
-
-    if (bbX >= bbY && bbX >= bbZ)
+    if (size.x() >= size.y() && size.x() >= size.z())
         return AXIS_X;
 
-    if (bbY >= bbX && bbY >= bbZ)
+    if (size.y() >= size.x() && size.y() >= size.z())
         return AXIS_Y;
 
     return AXIS_Z;
@@ -315,37 +292,23 @@ Axis VertexData::getLongestAxis(const size_t start, const size_t elements) const
 /*  Scales the data to be within +- baseSize/2 (default 2.0) coordinates.  */
 void VertexData::scale(const float baseSize)
 {
-    // calculate bounding box if not yet done
-    if (_boundingBox[0].length() == 0.0f && _boundingBox[1].length() == 0.0f)
-        calculateBoundingBox();
+    BoundingBox boundingBox{vertices[0], vertices[0]};
+    for (size_t v = 1; v < vertices.size(); ++v)
+        boundingBox.merge(vertices[v]);
 
     // find largest dimension and determine scale factor
-    float factor = 0.0f;
-    for (size_t i = 0; i < 3; ++i)
-        factor = std::max(factor, _boundingBox[1][i] - _boundingBox[0][i]);
-    factor = baseSize / factor;
+    const float factor = baseSize / boundingBox.getSize().find_max();
 
     // determine scale offset
-    Vertex offset;
-    for (size_t i = 0; i < 3; ++i)
-        offset[i] = (_boundingBox[0][i] + _boundingBox[1][i]) * 0.5f;
+    const Vertex offset = boundingBox.getCenter();
 
 // scale the data
 #pragma omp parallel for
     for (ssize_t v = 0; v < ssize_t(vertices.size()); ++v)
-        for (size_t i = 0; i < 3; ++i)
-        {
-            vertices[v][i] -= offset[i];
-            vertices[v][i] *= factor;
-        }
-
-    // scale the bounding box
-    for (size_t v = 0; v < 2; ++v)
-        for (size_t i = 0; i < 3; ++i)
-        {
-            _boundingBox[v][i] -= offset[i];
-            _boundingBox[v][i] *= factor;
-        }
+    {
+        vertices[v] -= offset;
+        vertices[v] *= factor;
+    }
 }
 
 /** @cond IGNORE */

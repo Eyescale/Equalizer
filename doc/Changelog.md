@@ -3,6 +3,9 @@ Changelog {#Changelog}
 
 # git master
 
+* [632](https://github.com/Eyescale/Equalizer/pull/632)
+  Add uxmal: A ZeroBuf vocabulary and application for LOD and cull debugging
+
 # Release 2.1 (29-May-2017)
 
 * [629](https://github.com/Eyescale/Equalizer/pull/629)
