@@ -19,7 +19,6 @@ GTAGS
 auxiliary/
 build/
 CMakeLists.txt.user*
-CMake/common
 Makefile
 Collage/
 Deflect/

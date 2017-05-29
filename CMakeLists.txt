@@ -1,5 +1,5 @@
 
-# Copyright (c) 2010-2016 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010-2017 Stefan Eilemann <eile@eyescale.ch>
 #                         Daniel Pfeifer <daniel@pfeifer-mail.de>
 
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
@@ -8,7 +8,9 @@ set(Equalizer_VERSION_ABI 210)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
                               ${CMAKE_SOURCE_DIR}/CMake/common)
-include(GitExternal)
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/CMake/common/Common.cmake)
+  message(FATAL_ERROR "CMake/common missing, run: git submodule update --init")
+endif()
 
 set(EQUALIZER_INCLUDE_NAME eq)
 set(EQUALIZER_DEB_DEPENDS bison flex libboost-program-options-dev

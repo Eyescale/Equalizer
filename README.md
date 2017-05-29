@@ -69,10 +69,10 @@ environment. The following platforms and build environments are tested:
 
 ## Linux, Mac OS X
 
-    git clone https://github.com/Eyescale/Equalizer.git
+    git clone --recursive https://github.com/Eyescale/Equalizer.git
     mkdir Equalizer/build
     cd Equalizer/build
-    cmake -GNinja ..
+    cmake -GNinja -DCLONE_SUBPROJECTS=ON ..
     ninja
 
 ## Windows
