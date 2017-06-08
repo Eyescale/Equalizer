@@ -3,8 +3,6 @@
 #                         Maxim Makhinya <maxmah@gmail.com>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-common_find_package(ZeroEQ)
-common_find_package(ZeroBuf)
 
 include_directories(BEFORE
   include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
