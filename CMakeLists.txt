@@ -78,6 +78,8 @@ common_find_package(Qt5Widgets)
 common_find_package(vmmlib REQUIRED)
 common_find_package(VRPN)
 common_find_package(X11 SYSTEM)
+common_find_package(ZeroEQ)
+common_find_package(ZeroBuf)
 if(APPLE) # tweak window systems before finding glew
   if(EQ_AGL_USED)
     common_find_package_disable(X11)
