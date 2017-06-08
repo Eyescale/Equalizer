@@ -8,7 +8,7 @@ set(UXMAL_FBS
 zerobuf_generate_cxx(UXMAL ${UXMAL_DIR} ${UXMAL_FBS})
 
 set(UXMAL_LINK_LIBRARIES ZeroBuf ZeroEQ)
-set(UXMAL_PUBLIC_HEADERS ${CULLBUG_HEADERS})
+set(UXMAL_PUBLIC_HEADERS ${UXMAL_HEADERS})
 common_library(uxmal)
 target_compile_definitions(uxmal PUBLIC UXMAL)
 
