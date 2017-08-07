@@ -6,7 +6,8 @@
 #  2160 x 3440 projector surface
 #  25% overlap
 #  [2.3m height]
-#  11880 x 3440 pixels
+#  11880 x 3440 pixels front
+#  2560x1280 floor
 
 # Notes:
 #  Windows are 10x too small and need to be distributed to nodes{}
@@ -30,7 +31,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 100 216 344 ]
+                    viewport [ 230 100 216 344 ]
                     channel
                     {
                         name "channel1l"
@@ -41,7 +42,7 @@ server
             {
                 window
                 {
-                    viewport [ 262 100 216 344 ]
+                    viewport [ 392 100 216 344 ]
                     channel
                     {
                         name "channel2l"
@@ -52,7 +53,7 @@ server
             {
                 window
                 {
-                    viewport [ 424 100 216 344 ]
+                    viewport [ 554 100 216 344 ]
                     channel
                     {
                         name "channel3l"
@@ -63,7 +64,7 @@ server
             {
                 window
                 {
-                    viewport [ 586 100 216 344 ]
+                    viewport [ 716 100 216 344 ]
                     channel
                     {
                         name "channel4l"
@@ -74,7 +75,7 @@ server
             {
                 window
                 {
-                    viewport [ 748 100 216 344 ]
+                    viewport [ 878 100 216 344 ]
                     channel
                     {
                         name "channel5l"
@@ -85,7 +86,7 @@ server
             {
                 window
                 {
-                    viewport [ 910 100 216 344 ]
+                    viewport [ 1040 100 216 344 ]
                     channel
                     {
                         name "channel6l"
@@ -96,7 +97,7 @@ server
             {
                 window
                 {
-                    viewport [ 1072 100 216 344 ]
+                    viewport [ 1202 100 216 344 ]
                     channel
                     {
                         name "channel7l"
@@ -107,7 +108,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 500 216 344 ]
+                    viewport [ 230 500 216 344 ]
                     channel
                     {
                         name "channel1r"
@@ -118,7 +119,7 @@ server
             {
                 window
                 {
-                    viewport [ 262 500 216 344 ]
+                    viewport [ 392 500 216 344 ]
                     channel
                     {
                         name "channel2r"
@@ -129,7 +130,7 @@ server
             {
                 window
                 {
-                    viewport [ 424 500 216 344 ]
+                    viewport [ 554 500 216 344 ]
                     channel
                     {
                         name "channel3r"
@@ -140,7 +141,7 @@ server
             {
                 window
                 {
-                    viewport [ 586 500 216 344 ]
+                    viewport [ 716 500 216 344 ]
                     channel
                     {
                         name "channel4r"
@@ -151,7 +152,7 @@ server
             {
                 window
                 {
-                    viewport [ 748 500 216 344 ]
+                    viewport [ 878 500 216 344 ]
                     channel
                     {
                         name "channel5r"
@@ -162,7 +163,7 @@ server
             {
                 window
                 {
-                    viewport [ 910 500 216 344 ]
+                    viewport [ 1040 500 216 344 ]
                     channel
                     {
                         name "channel6r"
@@ -173,10 +174,32 @@ server
             {
                 window
                 {
-                    viewport [ 1072 500 216 344 ]
+                    viewport [ 1202 500 216 344 ]
                     channel
                     {
                         name "channel7r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 50 900 758 379 ]
+                    channel
+                    {
+                        name "channelbl"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 850 900 758 379 ]
+                    channel
+                    {
+                        name "channelbr"
                     }
                 }
             }
@@ -365,6 +388,28 @@ server
                     distance     2.55
                     fov          [ 32.73 52.13 ]
                     hpr          [ -73.635 0 0 ]
+                }
+            }
+            segment
+            {
+                channel "channelbl"
+                eye [ LEFT CYCLOP ]
+                wall
+                {
+                    bottom_left  [ -2.55 -1.15 0 ]
+                    bottom_right [  2.55 -1.15 0 ]
+                    top_left     [ -2.55 -1.15 -2.55 ]
+                }
+            }
+            segment
+            {
+                channel "channelbr"
+                eye [ RIGHT CYCLOP ]
+                wall
+                {
+                    bottom_left  [ -2.55 -1.15 0 ]
+                    bottom_right [  2.55 -1.15 0 ]
+                    top_left     [ -2.55 -1.15 -2.55 ]
                 }
             }
         }
