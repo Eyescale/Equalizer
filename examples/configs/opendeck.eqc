@@ -11,7 +11,8 @@
 # Notes:
 #  Windows are 10x too small and need to be distributed to nodes{}
 #  Windows are positioned overlap-correct
-#  Overlap used is 25%, which results in total resolution of 12150 px wide
+#  7*2160 - 11880 = 3240 px lost in six blend zones = 540 px per zone
+#  vertical FOV computed for square pixels: 32.73 * 3440 / 2160 = 52.13
 
 global
 {
@@ -40,7 +41,7 @@ server
             {
                 window
                 {
-                    viewport [ 289 100 216 344 ]
+                    viewport [ 262 100 216 344 ]
                     channel
                     {
                         name "channel2l"
@@ -51,7 +52,7 @@ server
             {
                 window
                 {
-                    viewport [ 451 100 216 344 ]
+                    viewport [ 424 100 216 344 ]
                     channel
                     {
                         name "channel3l"
@@ -62,7 +63,7 @@ server
             {
                 window
                 {
-                    viewport [ 613 100 216 344 ]
+                    viewport [ 586 100 216 344 ]
                     channel
                     {
                         name "channel4l"
@@ -73,7 +74,7 @@ server
             {
                 window
                 {
-                    viewport [ 775 100 216 344 ]
+                    viewport [ 748 100 216 344 ]
                     channel
                     {
                         name "channel5l"
@@ -84,7 +85,7 @@ server
             {
                 window
                 {
-                    viewport [ 937 100 216 344 ]
+                    viewport [ 910 100 216 344 ]
                     channel
                     {
                         name "channel6l"
@@ -95,7 +96,7 @@ server
             {
                 window
                 {
-                    viewport [ 1099 100 216 344 ]
+                    viewport [ 1072 100 216 344 ]
                     channel
                     {
                         name "channel7l"
@@ -117,7 +118,7 @@ server
             {
                 window
                 {
-                    viewport [ 289 500 216 344 ]
+                    viewport [ 262 500 216 344 ]
                     channel
                     {
                         name "channel2r"
@@ -128,7 +129,7 @@ server
             {
                 window
                 {
-                    viewport [ 451 500 216 344 ]
+                    viewport [ 424 500 216 344 ]
                     channel
                     {
                         name "channel3r"
@@ -139,7 +140,7 @@ server
             {
                 window
                 {
-                    viewport [ 613 500 216 344 ]
+                    viewport [ 586 500 216 344 ]
                     channel
                     {
                         name "channel4r"
@@ -150,7 +151,7 @@ server
             {
                 window
                 {
-                    viewport [ 775 500 216 344 ]
+                    viewport [ 748 500 216 344 ]
                     channel
                     {
                         name "channel5r"
@@ -161,7 +162,7 @@ server
             {
                 window
                 {
-                    viewport [ 937 500 216 344 ]
+                    viewport [ 910 500 216 344 ]
                     channel
                     {
                         name "channel6r"
@@ -172,7 +173,7 @@ server
             {
                 window
                 {
-                    viewport [ 1099 500 216 344 ]
+                    viewport [ 1072 500 216 344 ]
                     channel
                     {
                         name "channel7r"
@@ -199,7 +200,7 @@ server
 
             segment
             {
-                viewport [ 0 0 .177778 1 ]
+                viewport [ 0 0 .181818  1 ]
                 channel "channel1l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -211,7 +212,7 @@ server
             }
             segment
             {
-                viewport [ .155556 0 .177778 1 ]
+                viewport [ .136364 0 .181818  1 ]
                 channel "channel2l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -223,7 +224,7 @@ server
             }
             segment
             {
-                viewport [ .288889 0 .177778 1 ]
+                viewport [ .272727 0 .181818  1 ]
                 channel "channel3l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -235,7 +236,7 @@ server
             }
             segment
             {
-                viewport [ .422222 0 .177778 1 ]
+                viewport [ .409091 0 .181818  1 ]
                 channel "channel4l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -247,7 +248,7 @@ server
             }
             segment
             {
-                viewport [ .555556 0 .177778 1 ]
+                viewport [ .545455 0 .181818  1 ]
                 channel "channel5l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -259,7 +260,7 @@ server
             }
             segment
             {
-                viewport [ .688889 0 .177778 1 ]
+                viewport [ .681818 0 .181818  1 ]
                 channel "channel6l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -271,7 +272,7 @@ server
             }
             segment
             {
-                viewport [ .822222 0 .177778 1 ]
+                viewport [ .818182 0 .181818  1 ]
                 channel "channel7l"
                 eye [ LEFT CYCLOP ]
                 projection
@@ -284,7 +285,7 @@ server
 
             segment
             {
-                viewport [ 0 0 .177778 1 ]
+                viewport [ 0 0 .181818  1 ]
                 channel "channel1r"
                 eye [ RIGHT CYCLOP ]
                 projection
@@ -296,7 +297,7 @@ server
             }
             segment
             {
-                viewport [ .155556 0 .177778 1 ]
+                viewport [ .136364 0 .181818  1 ]
                 channel "channel2r"
                 eye [ RIGHT CYCLOP ]
                 projection
@@ -308,7 +309,7 @@ server
             }
             segment
             {
-                viewport [ .288889 0 .177778 1 ]
+                viewport [ .272727 0 .181818  1 ]
                 channel "channel3r"
                 eye [ RIGHT CYCLOP ]
                 projection
@@ -320,7 +321,7 @@ server
             }
             segment
             {
-                viewport [ .422222 0 .177778 1 ]
+                viewport [ .409091 0 .181818  1 ]
                 channel "channel4r"
                 eye [ RIGHT CYCLOP ]
                 projection
@@ -332,7 +333,7 @@ server
             }
             segment
             {
-                viewport [ .555556 0 .177778 1 ]
+                viewport [ .545455 0 .181818  1 ]
                 channel "channel5r"
                 eye [ RIGHT CYCLOP ]
                 projection
@@ -344,7 +345,7 @@ server
             }
             segment
             {
-                viewport [ .688889 0 .177778 1 ]
+                viewport [ .681818 0 .181818  1 ]
                 channel "channel6r"
                 eye [ RIGHT CYCLOP ]
                 projection
@@ -356,7 +357,7 @@ server
             }
             segment
             {
-                viewport [ .822222 0 .177778 1 ]
+                viewport [ .818182 0 .181818  1 ]
                 channel "channel7r"
                 eye [ RIGHT CYCLOP ]
                 projection
