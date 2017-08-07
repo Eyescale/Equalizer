@@ -1,0 +1,371 @@
+#Equalizer 1.2 ascii
+
+# Given:
+#  2.55 m radius 180 degree projection surface
+#  32.73 degree projector horizontal FOV
+#  2160 x 3440 projector surface
+#  25% overlap
+#  [2.3m height]
+#  11880 x 3440 pixels
+
+# Notes:
+#  Windows are 10x too small and need to be distributed to nodes{}
+#  Windows are positioned overlap-correct
+#  Overlap used is 25%, which results in total resolution of 12150 px wide
+
+global
+{
+    EQ_WINDOW_IATTR_HINT_DECORATION OFF
+}
+server
+{
+    connection{ hostname "127.0.0.1" }
+    config
+    {
+        appNode
+        {
+            connection{ hostname "127.0.0.1" }
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 100 216 344 ]
+                    channel
+                    {
+                        name "channel1l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 289 100 216 344 ]
+                    channel
+                    {
+                        name "channel2l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 451 100 216 344 ]
+                    channel
+                    {
+                        name "channel3l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 613 100 216 344 ]
+                    channel
+                    {
+                        name "channel4l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 775 100 216 344 ]
+                    channel
+                    {
+                        name "channel5l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 937 100 216 344 ]
+                    channel
+                    {
+                        name "channel6l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 1099 100 216 344 ]
+                    channel
+                    {
+                        name "channel7l"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 500 216 344 ]
+                    channel
+                    {
+                        name "channel1r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 289 500 216 344 ]
+                    channel
+                    {
+                        name "channel2r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 451 500 216 344 ]
+                    channel
+                    {
+                        name "channel3r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 613 500 216 344 ]
+                    channel
+                    {
+                        name "channel4r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 775 500 216 344 ]
+                    channel
+                    {
+                        name "channel5r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 937 500 216 344 ]
+                    channel
+                    {
+                        name "channel6r"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 1099 500 216 344 ]
+                    channel
+                    {
+                        name "channel7r"
+                    }
+                }
+            }
+        }
+
+        observer{}
+        layout
+        {
+            name "all"
+            view {
+                observer 0
+                mode STEREO
+            }
+        }
+        canvas
+        {
+            layout "all"
+            swapbarrier{
+                # NV_group 0 NV_barrier 0
+            }
+
+            segment
+            {
+                viewport [ 0 0 .177778 1 ]
+                channel "channel1l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 73.635 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .155556 0 .177778 1 ]
+                channel "channel2l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 49.09 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .288889 0 .177778 1 ]
+                channel "channel3l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 24.545 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .422222 0 .177778 1 ]
+                channel "channel4l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 0 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .555556 0 .177778 1 ]
+                channel "channel5l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ -24.545 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .688889 0 .177778 1 ]
+                channel "channel6l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ -49.09 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .822222 0 .177778 1 ]
+                channel "channel7l"
+                eye [ LEFT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ -73.635 0 0 ]
+                }
+            }
+
+            segment
+            {
+                viewport [ 0 0 .177778 1 ]
+                channel "channel1r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 73.635 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .155556 0 .177778 1 ]
+                channel "channel2r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 49.09 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .288889 0 .177778 1 ]
+                channel "channel3r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 24.545 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .422222 0 .177778 1 ]
+                channel "channel4r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ 0 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .555556 0 .177778 1 ]
+                channel "channel5r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ -24.545 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .688889 0 .177778 1 ]
+                channel "channel6r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ -49.09 0 0 ]
+                }
+            }
+            segment
+            {
+                viewport [ .822222 0 .177778 1 ]
+                channel "channel7r"
+                eye [ RIGHT CYCLOP ]
+                projection
+                {
+                    distance     2.55
+                    fov          [ 32.73 52.13 ]
+                    hpr          [ -73.635 0 0 ]
+                }
+            }
+        }
+    }
+}
