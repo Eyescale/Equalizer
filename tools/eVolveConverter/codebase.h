@@ -43,7 +43,6 @@
 #endif
 #ifdef WINOS
 #define NOMINMAX
-#include <winbase.h>
 #include <windows.h>
 #endif
 

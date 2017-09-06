@@ -28,6 +28,7 @@
 #include <eq/pipe.h>
 
 #include <lunchbox/log.h>
+#include <lunchbox/debug.h>
 
 namespace eq
 {
@@ -842,8 +843,11 @@ HGLRC Window::createWGLContext()
     }
 
     // share context
-    if (!coreContext && shareCtx && !wglShareLists(shareCtx, context))
-        LBWARN << "Context sharing failed: " << lunchbox::sysError << std::endl;
+	if (!coreContext && shareCtx && !wglShareLists(shareCtx, context))
+	{
+		LBWARN << "Context sharing failed: " << lunchbox::sysError
+			<< lunchbox::backtrace << std::endl;
+	}
 
     return context;
 }

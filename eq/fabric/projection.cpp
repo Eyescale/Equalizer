@@ -16,13 +16,11 @@
  */
 
 #include "projection.h"
+#include "vmmlib.h"
 #include "wall.h"
 
 #include <lunchbox/log.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327
-#endif
 #define DEG2RAD(angle) ((angle) * static_cast<float>(M_PI) / 180.f)
 #define RAD2DEG(angle) ((angle)*180.f / static_cast<float>(M_PI))
 
