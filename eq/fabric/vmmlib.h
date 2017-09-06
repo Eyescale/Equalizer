@@ -18,6 +18,19 @@
 #ifndef EQFABRIC_VMMLIB_H
 #define EQFABRIC_VMMLIB_H
 
+#if defined(_MSC_VER)
+ //can otherwise cause problems with, e.g., M_PI under Windows.
+#define _USE_MATH_DEFINES
+#include <cmath>
+#ifndef M_PI
+#include <corecrt_math_defines.h>
+#endif
+#else
+#ifndef M_PI
+#define M_PI 3.1415926535897932
+#endif
+#endif
+
 #include <eq/fabric/types.h>
 #include <lunchbox/bitOperation.h>
 
