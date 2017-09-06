@@ -54,6 +54,12 @@ if(APPLE)
   include_directories(SYSTEM /opt/X11/include /usr/X11R6/include)
 endif()
 
+if(MSVC)
+  include(UseGnuWin32)
+else()
+  set(PTHREAD_LIBRARIES pthread)
+endif()
+
 common_find_package(Boost REQUIRED COMPONENTS
   program_options filesystem system thread)
 common_find_package(BISON REQUIRED)
@@ -153,12 +159,6 @@ if(APPLE)
 endif()
 
 list(APPEND CPPCHECK_EXTRA_ARGS -DEQUALIZERFABRIC_STATIC=)
-
-if(MSVC)
-  include(UseGnuWin32)
-else()
-  set(PTHREAD_LIBRARIES pthread)
-endif()
 
 if(APPLE)
   add_definitions(-DDarwin)

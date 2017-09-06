@@ -18,11 +18,9 @@
 #include "frustumData.h"
 
 #include <eq/fabric/projection.h>
+#include <eq/fabric/vmmlib.h>
 #include <eq/fabric/wall.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327
-#endif
 #define DEG2RAD(angle) ((angle) * static_cast<float>(M_PI) / 180.f)
 
 namespace eq
