@@ -25,6 +25,20 @@ if(TRAVIS)
     client/restart.cpp
     sequel/reliabilityOff.cpp
     server/reliability.cpp)
+
+  if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    # Trusty on Travis has problems with anonymous pipe() used by:
+    set(EXCLUDE_FROM_TESTS
+     admin/windowCreation.cpp
+     client/configUpdate.cpp
+     client/configVisitor.cpp
+     client/dumpImage.cpp
+     client/issue270.cpp
+     client/issue304.cpp
+     client/restart.cpp
+     server/reliability.cpp
+   )
+  endif()
 endif()
 
 set(TEST_LIBRARIES Equalizer EqualizerAdmin EqualizerServer EqualizerFabric

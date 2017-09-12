@@ -2,9 +2,21 @@ notifications:
   email:
     on_success: never
 language: cpp
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: BUILD_TYPE=Debug
+    - os: linux
+      dist: trusty
+      sudo: required
+      env:  BUILD_TYPE=Release
+    - os: osx
+      env: BUILD_TYPE=Debug
+    - os: osx
+      env: BUILD_TYPE=Release
 sudo: false
-os:
-  - osx
 env:
   global:
     - NINJA_STATUS="[%p %u/%t@%o %r]"
@@ -12,15 +24,36 @@ env:
     - TRAVIS=1
     - CMAKE_PREFIX_PATH=/usr/local/opt/qt5:$CMAKE_PREFIX_PATH
     - LIBJPEGTURBO_ROOT=/usr/local/opt/jpeg-turbo
-  matrix:
-  - BUILD_TYPE=Debug
-  - BUILD_TYPE=Release
+addons:
+  apt:
+    packages:
+      - cppcheck
+      - clang-format-3.8
+      - doxygen
+      - ninja-build
+      - libboost-all-dev
+      - bison
+      - flex
+      - avahi-daemon
+      - libavahi-client-dev
+      - libjpeg-turbo8-dev
+      - libturbojpeg
+      - qtbase5-dev
+      - libx11-dev
+      - libgl1-mesa-dev
+      - libglewmx1.6-dev
+      - libspnav-dev
+      - libopenscenegraph-dev
+      - libopencv-dev
 before_install:
-  - brew update
-  - brew outdated cmake || brew upgrade cmake
-  - brew install cppcheck doxygen ninja jpeg-turbo qt5
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated cmake || brew upgrade cmake; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install cppcheck doxygen ninja clang-format jpeg-turbo qt5; fi
 script:
   - mkdir $BUILD_TYPE
   - cd $BUILD_TYPE
   - cmake -GNinja -DCLONE_SUBPROJECTS=ON -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
   - ninja all && ninja $PROJECT_NAME-tests && ninja install
+  - find . -name '*.[hc]' -o -name '*.[hci]pp' -o -name '*.frag' -o -name '*.vert' -o -name '*.ispc' -o -name '*.ih' | grep -v 'CMake/common' | xargs clang-format -style=file -fallback-style=none -i
+  - git diff
+  - git diff-index --quiet HEAD --

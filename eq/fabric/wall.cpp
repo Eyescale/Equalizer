@@ -17,9 +17,9 @@
  */
 
 #include "wall.h"
-#include "vmmlib.h"
 #include "pixelViewport.h"
 #include "projection.h"
+#include "vmmlib.h"
 
 #include <lunchbox/log.h>
 

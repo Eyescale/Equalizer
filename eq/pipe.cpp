@@ -110,7 +110,7 @@ protected:
     bool init() override
     {
         setName(std::string("Draw") +
-                boost::lexical_cast<std::string>(_pipe->getPath().pipeIndex));
+                std::to_string(_pipe->getPath().pipeIndex));
         return true;
     }
 
@@ -137,7 +137,7 @@ public:
     {
         if (!co::Worker::init())
             return false;
-        setName(std::string("Tfer") + boost::lexical_cast<std::string>(_index));
+        setName(std::string("Tfer") + std::to_string(_index));
 #ifdef EQ_QT_USED
         _qThread = QThread::currentThread();
 #endif
