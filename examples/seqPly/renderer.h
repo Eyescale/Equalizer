@@ -44,6 +44,7 @@ public:
     }
     virtual ~Renderer() {}
     State& getState() { return *_state; }
+
 protected:
     virtual bool init(co::Object* initData);
     virtual bool exit();

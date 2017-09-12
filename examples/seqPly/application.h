@@ -56,8 +56,8 @@ public:
     bool run();
     virtual bool exit();
 
-    virtual seq::Renderer* createRenderer();
-    virtual co::Object* createObject(const uint32_t type);
+    seq::Renderer* createRenderer() final;
+    co::Object* createObject(const uint32_t type) final;
 
     const Model* getModel(const eq::uint128_t& modelID);
 

@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2010, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2007-2017, Stefan Eilemann <eile@equalizergraphics.com>
+ *                          Cedric Stalder <cedric.stalder@gmail.com>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,7 +75,7 @@ bool startLocalServer(const std::string& config)
 {
     if (_serverThread.isRunning())
     {
-        LBWARN << "Only one app-local per process server allowed" << std::endl;
+        LBWARN << "Only one app-local server per process allowed" << std::endl;
         return false;
     }
 

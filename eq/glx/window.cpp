@@ -750,10 +750,6 @@ void Window::joinNVSwapBarrier(const uint32_t group, const uint32_t barrier)
     if (group == 0)
         return;
 
-#if 1
-    LBWARN << "Entering untested function GLXWindow::joinNVSwapBarrier"
-           << std::endl;
-
     if (!GLXEW_NV_swap_group)
     {
         LBWARN << "NV Swap group extension not supported" << std::endl;
@@ -798,9 +794,6 @@ void Window::joinNVSwapBarrier(const uint32_t group, const uint32_t barrier)
 
     LBVERB << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
-#else
-    LBUNIMPLEMENTED;
-#endif
 }
 
 void Window::leaveNVSwapBarrier()

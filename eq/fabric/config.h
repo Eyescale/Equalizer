@@ -53,6 +53,7 @@ public:
     const Layouts& getLayouts() const { return _layouts; }
     /** @return the vector of canvases, app-node only. @version 1.0 */
     const Canvases& getCanvases() const { return _canvases; }
+
     /**
      * @internal
      * @return the timeout in ms or LB_TIMEOUT_INDEFINITE for failures.

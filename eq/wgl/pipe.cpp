@@ -287,8 +287,7 @@ bool Pipe::_configInitWGLEW()
             _maxOpenGLVersion = static_cast<float>(atof(glVersion));
     }
     else
-        sendError(ERROR_WGLPIPE_WGLEWINIT_FAILED)
-            << boost::lexical_cast<std::string>(result);
+        sendError(ERROR_WGLPIPE_WGLEWINIT_FAILED) << std::to_string(result);
 
     wglDeleteContext(context);
     ReleaseDC(hWnd, dc);
