@@ -29,6 +29,7 @@
 
 #include <lunchbox/debug.h>
 #include <lunchbox/log.h>
+#include <lunchbox/debug.h>
 
 namespace eq
 {

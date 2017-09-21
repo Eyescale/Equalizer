@@ -19,10 +19,10 @@
 #ifndef EQFABRIC_WALL_H
 #define EQFABRIC_WALL_H
 
+#include <iostream>
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
 #include <eq/fabric/vmmlib.h>
-#include <iostream>
 
 namespace eq
 {
