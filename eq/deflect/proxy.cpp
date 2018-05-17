@@ -122,16 +122,12 @@ private:
         if (!stream)
             return;
 
-        // copy pixels to perform swapYAxis()
-        const size_t dataSize = image.getPixelDataSize(Frame::Buffer::color);
+        // copy pixels to retain data until _sendFuture is ready
         _buffer[eye].replace(image.getPixelPointer(Frame::Buffer::color),
-                             dataSize);
-        const PixelViewport& pvp = image.getPixelViewport();
-        ::deflect::ImageWrapper::swapYAxis(_buffer[eye].getData(), pvp.w, pvp.h,
-                                           image.getPixelSize(
-                                               Frame::Buffer::color));
+                             image.getPixelDataSize(Frame::Buffer::color));
 
         // determine image offset wrt global view
+        const PixelViewport& pvp = image.getPixelViewport();
         const Viewport& vp = channel.getViewport();
         const int32_t width = pvp.w / vp.w;
         const int32_t height = pvp.h / vp.h;
@@ -144,6 +140,7 @@ private:
         imageWrapper.compressionPolicy = ::deflect::COMPRESSION_ON;
         imageWrapper.compressionQuality = 100;
         imageWrapper.view = view;
+        imageWrapper.rowOrder = ::deflect::RowOrder::bottom_up;
 
         _sendFuture[eye] = stream->send(imageWrapper);
     }
