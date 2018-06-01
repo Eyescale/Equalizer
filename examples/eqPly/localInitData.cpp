@@ -49,6 +49,9 @@ LocalInitData::LocalInitData()
     , _color(true)
     , _isResident(false)
     , _ignoreNoConfig(false)
+    , _centerCamera(false)
+    , _disableRescaling(false)
+    , _disableAnimation(false)
 {
     _filenames.push_back(lunchbox::getRootPath() + "/share/Equalizer/data");
 }
@@ -61,6 +64,9 @@ LocalInitData& LocalInitData::operator=(const LocalInitData& from)
     _filenames = from._filenames;
     _pathFilename = from._pathFilename;
     _ignoreNoConfig = from._ignoreNoConfig;
+    _centerCamera = from._centerCamera;
+    _disableRescaling = from._disableRescaling;
+    _disableAnimation = from._disableAnimation;
 
     setWindowSystem(from.getWindowSystem());
     setRenderMode(from.getRenderMode());
@@ -102,6 +108,7 @@ void LocalInitData::parseArguments(const int argc, char** argv)
     bool userDefinedInvertFaces(false);
     bool userDefinedDisableLogo(false);
     bool userDefinedDisableROI(false);
+    bool userDefinedUseImmersiveMode(false);
 
     const std::string& desc = EqPly::getHelp();
     po::options_description options(desc + " Version " +
@@ -136,7 +143,18 @@ void LocalInitData::parseArguments(const int argc, char** argv)
         "Disable overlay logo")(
         "disableROI,d",
         po::bool_switch(&userDefinedDisableROI)->default_value(false),
-        "Disable region of interest (ROI)");
+        "Disable region of interest (ROI)")(
+        "immersive",
+        po::bool_switch(&userDefinedUseImmersiveMode)->default_value(false),
+        "Immersive mode (equivalent to -o -z -s -p)")(
+        "centerCamera,z", po::bool_switch(&_centerCamera)->default_value(false),
+        "Center the camera at (0,0,0)")(
+        "disableRescaling,s",
+        po::bool_switch(&_disableRescaling)->default_value(false),
+        "Disable re-scaling of the model(s)")(
+        "disableAnimation,p",
+        po::bool_switch(&_disableAnimation)->default_value(false),
+        "Disable camera animation");
     po::options_description all;
     all.add(options);
     all.add_options()("ignoreNoConfig",
@@ -195,6 +213,14 @@ void LocalInitData::parseArguments(const int argc, char** argv)
             setRenderMode(triply::RENDER_MODE_DISPLAY_LIST);
         else if (userDefinedRenderMode == "vbo")
             setRenderMode(triply::RENDER_MODE_BUFFER_OBJECT);
+    }
+
+    if (userDefinedUseImmersiveMode)
+    {
+        _centerCamera = true;
+        _disableRescaling = true;
+        _disableAnimation = true;
+        userDefinedDisableLogo = true;
     }
 
     if (userDefinedUseGLSL)

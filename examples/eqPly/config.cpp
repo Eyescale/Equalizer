@@ -90,6 +90,12 @@ bool Config::init()
     _loadModels();
     _registerModels();
 
+    if (_initData.centerCamera())
+    {
+        _frameData.setCameraPosition(eq::Vector3f::zero());
+        _frameData.setModelRotation(eq::Vector3f::zero());
+    }
+
     const eq::Canvases& canvases = getCanvases();
     if (canvases.empty())
         _currentCanvas = 0;
@@ -144,6 +150,8 @@ void Config::_loadModels()
 
             if (_initData.useInvertedFaces())
                 model->useInvertedFaces();
+            if (!_initData.rescaleModels())
+                model->disableRescaling();
 
             if (!model->readFromFile(filename.c_str()))
             {
@@ -254,7 +262,7 @@ void Config::_updateData()
         _frameData.setRotation(curStep.rotation);
         _frameData.setCameraPosition(curStep.position);
     }
-    else
+    else if (_initData.useCameraAnimation())
     {
         if (_frameData.usePilotMode())
             _frameData.spinCamera(-0.001f * _spinX, -0.001f * _spinY);

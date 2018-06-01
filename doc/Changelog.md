@@ -3,6 +3,9 @@ Changelog {#Changelog}
 
 # git master
 
+* [644](https://github.com/Eyescale/Equalizer/pull/644)
+  EqPly: new --immersive command line option to render a model in real-world
+  units in a VR environement.
 * [632](https://github.com/Eyescale/Equalizer/pull/632)
   Add uxmal: A ZeroBuf vocabulary and application for LOD and cull debugging
 
