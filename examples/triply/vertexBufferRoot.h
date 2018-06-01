@@ -40,11 +40,8 @@ namespace triply
 class VertexBufferRoot : public VertexBufferNode
 {
 public:
-    VertexBufferRoot()
-        : VertexBufferNode()
-        , _invertFaces(false)
-    {
-    }
+    VertexBufferRoot() = default;
+
     TRIPLY_API VertexBufferRoot(const std::string& filename);
 
     TRIPLY_API virtual void cullDraw(VertexBufferState& state) const;
@@ -55,6 +52,7 @@ public:
     TRIPLY_API bool readFromFile(const std::string& filename);
     bool hasColors() const { return !_data.colors.empty(); }
     void useInvertedFaces() { _invertFaces = true; }
+    void disableRescaling() { _rescale = false; }
     const std::string& getName() const { return _name; }
 protected:
     TRIPLY_API void toStream(std::ostream& os) final;
@@ -69,7 +67,8 @@ private:
 
     friend class VertexBufferDist;
     VertexBufferData _data;
-    bool _invertFaces;
+    bool _invertFaces = false;
+    bool _rescale = true;
     std::string _name;
 };
 }

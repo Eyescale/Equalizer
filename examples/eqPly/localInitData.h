@@ -43,6 +43,7 @@ class LocalInitData : public InitData
 {
 public:
     LocalInitData();
+    LocalInitData& operator=(const LocalInitData& from);
 
     void parseArguments(const int argc, char** argv);
 
@@ -52,8 +53,9 @@ public:
     bool isResident() const { return _isResident; }
     bool ignoreNoConfig() const { return _ignoreNoConfig; }
     const std::vector<std::string>& getFilenames() const { return _filenames; }
-    LocalInitData& operator=(const LocalInitData& from);
-
+    bool centerCamera() const { return _centerCamera; }
+    bool rescaleModels() const { return !_disableRescaling; }
+    bool useCameraAnimation() const { return !_disableAnimation; }
 private:
     eq::Strings _filenames;
     std::string _pathFilename;
@@ -61,6 +63,9 @@ private:
     bool _color;
     bool _isResident;
     bool _ignoreNoConfig;
+    bool _centerCamera;
+    bool _disableRescaling;
+    bool _disableAnimation;
 };
 }
 

@@ -53,7 +53,6 @@ std::string getArchitectureFilename(const std::string& filename);
 
 VertexBufferRoot::VertexBufferRoot(const std::string& filename)
     : VertexBufferNode()
-    , _invertFaces(false)
 {
     if (!readFromFile(filename))
         throw std::runtime_error("Can't read " + filename);
@@ -258,7 +257,8 @@ bool VertexBufferRoot::_constructFromPly(const std::string& filename)
     ++progress;
 
     data.calculateNormals();
-    data.scale(2.0f);
+    if (_rescale)
+        data.scale(2.0f);
     ++progress;
 
     setupTree(data, progress);
