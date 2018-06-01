@@ -229,12 +229,8 @@ void FrameData::setModelRotation(const eq::Vector3f& rotation)
 
 void FrameData::reset()
 {
-    eq::Matrix4f model = eq::Matrix4f();
-    model.rotate_x(static_cast<float>(-M_PI_2));
-    model.rotate_y(static_cast<float>(-M_PI_2));
-
     if (_position == eq::Vector3f(0.f, 0.f, -2.f) &&
-        _rotation == eq::Matrix4f() && _modelRotation == model)
+        _rotation == eq::Matrix4f() && _modelRotation == eq::Matrix4f())
     {
         _position.z() = 0.f;
     }
@@ -242,7 +238,7 @@ void FrameData::reset()
     {
         _position = eq::Vector3f(0.f, 0.f, -2.f);
         _rotation = eq::Matrix4f();
-        _modelRotation = model;
+        _modelRotation = eq::Matrix4f();
     }
     setDirty(DIRTY_CAMERA);
 }
