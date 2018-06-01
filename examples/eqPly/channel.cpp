@@ -748,7 +748,7 @@ void Channel::_updateNearFar(const triply::BoundingBox& box)
 
     front -= zero;
     front.normalize();
-    front *= box.getSize().length() * 0.5f;
+    front *= box.getSize().length();
 
     const eq::Vector3f& center =
         frameData.getCameraPosition() - box.getCenter();
