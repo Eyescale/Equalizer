@@ -91,10 +91,7 @@ bool Config::init()
     _registerModels();
 
     if (_initData.centerCamera())
-    {
         _frameData.setCameraPosition(eq::Vector3f::zero());
-        _frameData.setModelRotation(eq::Vector3f::zero());
-    }
 
     const eq::Canvases& canvases = getCanvases();
     if (canvases.empty())
