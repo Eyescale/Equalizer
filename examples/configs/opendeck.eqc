@@ -2,36 +2,68 @@
 
 # Given:
 #  2.55 m radius 180 degree projection surface
-#  32.73 degree projector horizontal FOV
-#  2160 x 3440 projector surface
-#  25% overlap
-#  [2.3m height]
-#  11880 x 3440 pixels front
-#  2560x1280 floor
+#  2.3m height
+#  2160 x 3424 projector surface
+#  530 px overlap
+#  11940 x 3424 pixels wall
+#  4096 x 2160 floor
 
 # Notes:
-#  Windows are 10x too small and need to be distributed to nodes{}
+#  Origin is on the floor at the center of the circle
 #  Windows are positioned overlap-correct
-#  7*2160 - 11880 = 3240 px lost in six blend zones = 540 px per zone
-#  vertical FOV computed for square pixels: 32.73 * 3440 / 2160 = 52.13
+#  z-axis points away from the wall
 
 global
 {
     EQ_WINDOW_IATTR_HINT_DECORATION OFF
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN OFF
 }
 server
 {
-    connection{ hostname "127.0.0.1" }
+    connection{ hostname "cave1" }
     config
     {
+        latency 0
         appNode
         {
-            connection{ hostname "127.0.0.1" }
+            connection{ hostname "cave1" }
             pipe
             {
+                name "Floor projection - left"
+                device 0
                 window
                 {
-                    viewport [ 230 100 216 344 ]
+                    #viewport [ 0 0 4096 2160 ]
+                    channel
+                    {
+                        name "channelfl"
+                    }
+                }
+            }
+            pipe
+            {
+                name "Floor projection - right"
+                device 1
+                window
+                {
+                    #viewport [ 0 0 4096 2160 ]
+                    channel
+                    {
+                        name "channelfr"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave2" }
+            pipe
+            {
+                name "Wall 1 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel1l"
@@ -40,9 +72,28 @@ server
             }
             pipe
             {
+                name "Wall 1 - right"
+                device 1
                 window
                 {
-                    viewport [ 392 100 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
+                    channel
+                    {
+                        name "channel1r"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave3" }
+            pipe
+            {
+                name "Wall 2 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel2l"
@@ -51,9 +102,28 @@ server
             }
             pipe
             {
+                name "Wall 2 - right"
+                device 1
                 window
                 {
-                    viewport [ 554 100 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
+                    channel
+                    {
+                        name "channel2r"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave4" }
+            pipe
+            {
+                name "Wall 3 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel3l"
@@ -62,9 +132,28 @@ server
             }
             pipe
             {
+                name "Wall 3 - right"
+                device 1
                 window
                 {
-                    viewport [ 716 100 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
+                    channel
+                    {
+                        name "channel3r"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave5" }
+            pipe
+            {
+                name "Wall 4 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel4l"
@@ -73,9 +162,28 @@ server
             }
             pipe
             {
+                name "Wall 4 - right"
+                device 1
                 window
                 {
-                    viewport [ 878 100 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
+                    channel
+                    {
+                        name "channel4r"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave6" }
+            pipe
+            {
+                name "Wall 5 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel5l"
@@ -84,9 +192,28 @@ server
             }
             pipe
             {
+                name "Wall 5 - right"
+                device 1
                 window
                 {
-                    viewport [ 1040 100 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
+                    channel
+                    {
+                        name "channel5r"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave7" }
+            pipe
+            {
+                name "Wall 6 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel6l"
@@ -95,9 +222,28 @@ server
             }
             pipe
             {
+                name "Wall 6 - right"
+                device 1
                 window
                 {
-                    viewport [ 1202 100 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
+                    channel
+                    {
+                        name "channel6r"
+                    }
+                }
+            }
+        }
+        node
+        {
+            connection{ hostname "cave8" }
+            pipe
+            {
+                name "Wall 7 - left"
+                device 0
+                window
+                {
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel7l"
@@ -106,110 +252,27 @@ server
             }
             pipe
             {
+                name "Wall 7 - right"
+                device 1
                 window
                 {
-                    viewport [ 230 500 216 344 ]
-                    channel
-                    {
-                        name "channel1r"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 392 500 216 344 ]
-                    channel
-                    {
-                        name "channel2r"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 554 500 216 344 ]
-                    channel
-                    {
-                        name "channel3r"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 716 500 216 344 ]
-                    channel
-                    {
-                        name "channel4r"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 878 500 216 344 ]
-                    channel
-                    {
-                        name "channel5r"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 1040 500 216 344 ]
-                    channel
-                    {
-                        name "channel6r"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 1202 500 216 344 ]
+                    viewport [ 0 0 2160 3424 ]
                     channel
                     {
                         name "channel7r"
                     }
                 }
             }
-            pipe
-            {
-                window
-                {
-                    viewport [ 50 900 758 379 ]
-                    channel
-                    {
-                        name "channelbl"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 850 900 758 379 ]
-                    channel
-                    {
-                        name "channelbr"
-                    }
-                }
-            }
         }
-
-        observer{}
+        observer
+        {
+            vrpn_tracker "DTrack@cave1"
+        }
         layout
         {
             name "all"
-            view {
+            view
+            {
                 observer 0
                 mode STEREO
             }
@@ -217,199 +280,185 @@ server
         canvas
         {
             layout "all"
-            swapbarrier{
-                # NV_group 0 NV_barrier 0
+            swapbarrier
+            {
+                NV_group 0 NV_barrier 0
             }
-
             segment
             {
-                viewport [ 0 0 .181818  1 ]
                 channel "channel1l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 73.635 0 0 ]
+                    bottom_left [ -2.55 0.0 0 ]
+                    bottom_right [ -2.14914 0.0 -1.37247 ]
+                    top_left [ -2.55 2.3 0 ]
                 }
             }
             segment
             {
-                viewport [ .136364 0 .181818  1 ]
                 channel "channel2l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 49.09 0 0 ]
+                    bottom_left [ -2.31906 0.0 -1.06042 ]
+                    bottom_right [ -1.38376 0.0 -2.14189 ]
+                    top_left [ -2.31906 2.3 -1.06042 ]
                 }
             }
             segment
             {
-                viewport [ .272727 0 .181818  1 ]
                 channel "channel3l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 24.545 0 0 ]
+                    bottom_left [ -1.66805 0.0 -1.92876 ]
+                    bottom_right [ -0.367732 0.0 -2.52335 ]
+                    top_left [ -1.66805 2.3 -1.92876 ]
                 }
             }
             segment
             {
-                viewport [ .409091 0 .181818  1 ]
                 channel "channel4l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 0 0 0 ]
+                    bottom_left [ -0.714906 0.0 -2.44774 ]
+                    bottom_right [ 0.714906 0.0 -2.44774 ]
+                    top_left [ -0.714906 2.3 -2.44774 ]
                 }
             }
             segment
             {
-                viewport [ .545455 0 .181818  1 ]
                 channel "channel5l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ -24.545 0 0 ]
+                    bottom_left [ 0.367732 0.0 -2.52335 ]
+                    bottom_right [ 1.66805 0.0 -1.92876 ]
+                    top_left [ 0.367732 2.3 -2.52335 ]
                 }
             }
             segment
             {
-                viewport [ .681818 0 .181818  1 ]
                 channel "channel6l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ -49.09 0 0 ]
+                    bottom_left [ 1.38376 0.0 -2.14189 ]
+                    bottom_right [ 2.31906 0.0 -1.06042 ]
+                    top_left [ 1.38376 2.3 -2.14189 ]
                 }
             }
             segment
             {
-                viewport [ .818182 0 .181818  1 ]
                 channel "channel7l"
                 eye [ LEFT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ -73.635 0 0 ]
+                    bottom_left [ 2.14914 0.0 -1.37247 ]
+                    bottom_right [ 2.55 0.0 0 ]
+                    top_left [ 2.14914 2.3 -1.37247 ]
                 }
             }
 
             segment
             {
-                viewport [ 0 0 .181818  1 ]
                 channel "channel1r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 73.635 0 0 ]
+                    bottom_left [ -2.55 0.0 0 ]
+                    bottom_right [ -2.14914 0.0 -1.37247 ]
+                    top_left [ -2.55 2.3 0 ]
                 }
             }
             segment
             {
-                viewport [ .136364 0 .181818  1 ]
                 channel "channel2r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 49.09 0 0 ]
+                    bottom_left [ -2.31906 0.0 -1.06042 ]
+                    bottom_right [ -1.38376 0.0 -2.14189 ]
+                    top_left [ -2.31906 2.3 -1.06042 ]
                 }
             }
             segment
             {
-                viewport [ .272727 0 .181818  1 ]
                 channel "channel3r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 24.545 0 0 ]
+                    bottom_left [ -1.66805 0.0 -1.92876 ]
+                    bottom_right [ -0.367732 0.0 -2.52335 ]
+                    top_left [ -1.66805 2.3 -1.92876 ]
                 }
             }
             segment
             {
-                viewport [ .409091 0 .181818  1 ]
                 channel "channel4r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ 0 0 0 ]
+                    bottom_left [ -0.714906 0.0 -2.44774 ]
+                    bottom_right [ 0.714906 0.0 -2.44774 ]
+                    top_left [ -0.714906 2.3 -2.44774 ]
                 }
             }
             segment
             {
-                viewport [ .545455 0 .181818  1 ]
                 channel "channel5r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ -24.545 0 0 ]
+                    bottom_left [ 0.367732 0.0 -2.52335 ]
+                    bottom_right [ 1.66805 0.0 -1.92876 ]
+                    top_left [ 0.367732 2.3 -2.52335 ]
                 }
             }
             segment
             {
-                viewport [ .681818 0 .181818  1 ]
                 channel "channel6r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ -49.09 0 0 ]
+                    bottom_left [ 1.38376 0.0 -2.14189 ]
+                    bottom_right [ 2.31906 0.0 -1.06042 ]
+                    top_left [ 1.38376 2.3 -2.14189 ]
                 }
             }
             segment
             {
-                viewport [ .818182 0 .181818  1 ]
                 channel "channel7r"
                 eye [ RIGHT CYCLOP ]
-                projection
+                wall
                 {
-                    distance     2.55
-                    fov          [ 32.73 52.13 ]
-                    hpr          [ -73.635 0 0 ]
+                    bottom_left [ 2.14914 0.0 -1.37247 ]
+                    bottom_right [ 2.55 0.0 0 ]
+                    top_left [ 2.14914 2.3 -1.37247 ]
                 }
             }
             segment
             {
-                channel "channelbl"
+                channel "channelfl"
                 eye [ LEFT CYCLOP ]
                 wall
                 {
-                    bottom_left  [ -2.55 -1.15 0 ]
-                    bottom_right [  2.55 -1.15 0 ]
-                    top_left     [ -2.55 -1.15 -2.55 ]
+                    bottom_left  [ -2.55 -0.001 0 ]
+                    bottom_right [  2.55 -0.001 0 ]
+                    top_left     [ -2.55 -0.001 -2.55 ]
                 }
             }
             segment
             {
-                channel "channelbr"
+                channel "channelfr"
                 eye [ RIGHT CYCLOP ]
                 wall
                 {
-                    bottom_left  [ -2.55 -1.15 0 ]
-                    bottom_right [  2.55 -1.15 0 ]
-                    top_left     [ -2.55 -1.15 -2.55 ]
+                    bottom_left  [ -2.55 -0.001 0 ]
+                    bottom_right [  2.55 -0.001 0 ]
+                    top_left     [ -2.55 -0.001 -2.55 ]
                 }
             }
         }
