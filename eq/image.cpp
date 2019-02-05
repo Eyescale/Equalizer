@@ -1296,6 +1296,7 @@ bool Image::_writeImage(const std::string& filename, const Frame::Buffer buffer,
     {
     case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
         header.maxValue = 1023;
+        // falls through
     case EQ_COMPRESSOR_DATATYPE_BGRA:
     case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
     case EQ_COMPRESSOR_DATATYPE_RGBA:

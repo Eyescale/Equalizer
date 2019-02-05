@@ -257,9 +257,6 @@ std::ostream& operator<<(std::ostream& os, const Wall::Type& type)
         os << "HMD";
         break;
 
-    default:
-        LBASSERT(false);
-
     case Wall::TYPE_FIXED:
         os << "fixed";
         break;

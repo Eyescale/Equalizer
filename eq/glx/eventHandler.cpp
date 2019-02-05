@@ -429,8 +429,7 @@ bool EventHandler::_processEvent(const XEvent& event)
         if (static_cast<Atom>(event.xclient.data.l[0]) != deleteAtom)
             return false; // not a delete message, ignore.
     }
-    // else: delete message, fall through
-
+    // Falls through
     case DestroyNotify:
         return _window->processEvent(EVENT_WINDOW_CLOSE, event);
 
@@ -522,7 +521,7 @@ bool EventHandler::_processEvent(const XEvent& event)
 
     default:
         LBWARN << "Unhandled X event, type " << event.type << std::endl;
-    // no break;
+    // falls through
     case ReparentNotify:
     case VisibilityNotify:
         return _window->processEvent(EVENT_UNKNOWN, event);
