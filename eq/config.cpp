@@ -834,7 +834,7 @@ void Config::addStatistic(const Statistic& stat LB_UNUSED)
     case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
         type.subgroup = "transmit";
         item.thread = THREAD_ASYNC2;
-    // no break;
+    // falls through
     case Statistic::CHANNEL_FRAME_WAIT_READY:
         type.group = "channel";
         item.layer = 1;
@@ -870,7 +870,7 @@ void Config::addStatistic(const Statistic& stat LB_UNUSED)
 
     case Statistic::CONFIG_WAIT_FINISH_FRAME:
         item.layer = 1;
-    // no break;
+    // falls through
     case Statistic::CONFIG_START_FRAME:
     case Statistic::CONFIG_FINISH_FRAME:
         type.group = "config";
@@ -900,7 +900,7 @@ void Config::addStatistic(const Statistic& stat LB_UNUSED)
         }
         _impl->statistics->setText(text.str());
     }
-    // no break;
+    // falls through
 
     case Statistic::WINDOW_FPS:
     case Statistic::NONE:

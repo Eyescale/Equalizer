@@ -154,7 +154,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
     default:
         LBWARN << "Unknown drawable type " << drawableHint << ", using window"
                << std::endl;
-    // no break;
+    // falls through
     case UNDEFINED:
     case OFF: // needs fbConfig with visual for dummy window
     case FBO: // No typo - FBO needs fbConfig with visual for dummy window
@@ -444,7 +444,7 @@ bool Window::configInitGLXDrawable(GLXFBConfig* fbConfig)
     default:
         LBWARN << "Unknown drawable type " << getIAttribute(IATTR_HINT_DRAWABLE)
                << ", using window" << std::endl;
-    // no break;
+    // falls through
     case UNDEFINED:
     case WINDOW:
         return configInitGLXWindow(fbConfig);
