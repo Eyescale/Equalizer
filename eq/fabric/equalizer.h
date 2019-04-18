@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2017, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2012-2018, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,11 +21,7 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/vmmlib.h>
 
-namespace co
-{
-class DataOStream;
-class DataIStream;
-}
+#include <co/types.h>
 
 namespace eq
 {
@@ -90,7 +86,7 @@ public:
     EQFABRIC_API void setBoundary(const Vector2i& boundary);
 
     /** Set a boundary for DB ranges. */
-    EQFABRIC_API void setBoundary(const float boundary);
+    EQFABRIC_API void setBoundary(float boundary);
 
     /** @return the boundary for 2D tiles. */
     EQFABRIC_API const Vector2i& getBoundary2i() const;
@@ -111,7 +107,7 @@ public:
     EQFABRIC_API float getResistancef() const;
 
     /** Set the limit when to assign assemble tasks only. */
-    EQFABRIC_API void setAssembleOnlyLimit(const float limit);
+    EQFABRIC_API void setAssembleOnlyLimit(float limit);
 
     /** @return the limit when to assign assemble tasks only. */
     EQFABRIC_API float getAssembleOnlyLimit() const;
@@ -121,6 +117,12 @@ public:
 
     /** @return the tile size for the TileEqualizer. */
     EQFABRIC_API const Vector2i& getTileSize() const;
+
+    /** Set the database range for the TileEqualizer. */
+    EQFABRIC_API void setChunkSize(float size);
+
+    /** @return the database range for the TileEqualizer. */
+    EQFABRIC_API float getChunkSize() const;
     //@}
 
     EQFABRIC_API void serialize(co::DataOStream& os) const; //!< @internal
@@ -139,7 +141,7 @@ EQFABRIC_API co::DataOStream& operator<<(co::DataOStream& os, const Equalizer&);
 EQFABRIC_API co::DataIStream& operator>>(co::DataIStream& is, Equalizer&);
 
 EQFABRIC_API std::ostream& operator<<(std::ostream& os, const Equalizer::Mode);
-}
-}
+} // namespace fabric
+} // namespace eq
 
 #endif // EQFABRIC_EQUALIZER_H

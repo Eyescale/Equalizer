@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -74,10 +74,10 @@ typedef std::vector<Observer*> Observers;
 typedef std::vector<Segment*> Segments;
 typedef std::vector<View*> Views;
 
-using lunchbox::uint128_t;
-using lunchbox::uint128_t;
 using lunchbox::Strings;
 using lunchbox::StringsCIter;
+using lunchbox::uint128_t;
+using lunchbox::uint128_t;
 
 typedef Configs::const_iterator ConfigsCIter;
 typedef Configs::iterator ConfigsIter;
@@ -141,19 +141,19 @@ using fabric::Wall;
 using fabric::WindowSettings;
 using fabric::Zoom;
 
-using fabric::NodePath;
-using fabric::PipePath;
-using fabric::WindowPath;
-using fabric::ChannelPath;
 using fabric::CanvasPath;
-using fabric::SegmentPath;
-using fabric::ObserverPath;
+using fabric::ChannelPath;
 using fabric::LayoutPath;
+using fabric::NodePath;
+using fabric::ObserverPath;
+using fabric::PipePath;
+using fabric::SegmentPath;
 using fabric::ViewPath;
+using fabric::WindowPath;
 
 using fabric::CORE;
-using fabric::SOCKET;
 using fabric::EYES_STEREO;
+using fabric::SOCKET;
 using fabric::UNDEFINED;
 
 /** A visitor to traverse segments. @sa Segment::accept() */
@@ -190,18 +190,18 @@ typedef fabric::ElementVisitor<Layout, ViewVisitor> LayoutVisitor;
 typedef fabric::ElementVisitor<Server, ConfigVisitor> ServerVisitor;
 
 using fabric::Eye;
-using fabric::EYE_UNDEFINED;
 using fabric::EYE_CYCLOP;
 using fabric::EYE_LEFT;
 using fabric::EYE_RIGHT;
-using fabric::EYES_STEREO;
+using fabric::EYE_UNDEFINED;
 using fabric::EYES_ALL;
+using fabric::EYES_STEREO;
 using fabric::NUM_EYES;
 
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;
-using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
 using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
-}
-}
+using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
+} // namespace server
+} // namespace eq
 #endif // EQSERVER_TYPES_H

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
@@ -1243,6 +1243,8 @@ tileEqualizerField:
     EQTOKEN_NAME STRING                   { tileEqualizer->setName( $2 ); }
     | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'
                    { tileEqualizer->setTileSize( eq::fabric::Vector2i( $3, $4 )); }
+   | EQTOKEN_SIZE FLOAT { tileEqualizer->setChunkSize( $2 ); }
+
 
 swapBarrier:
     EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
@@ -1301,6 +1303,8 @@ tileQueueField:
     EQTOKEN_NAME STRING { tileQueue->setName( $2 ); }
     | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'
         { tileQueue->setTileSize( eq::fabric::Vector2i( $3, $4 )); }
+    | EQTOKEN_SIZE FLOAT
+        { tileQueue->setChunkSize( $2 ); }
 
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:

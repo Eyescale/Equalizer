@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
- *               2011-2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
+/* Copyright (c) 2011-2018, Stefan Eilemann <eile@eyescale.ch>
+ *                          Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -57,10 +57,19 @@ public:
     Node* getNode() const { return _compound ? _compound->getNode() : 0; }
     void setName(const std::string& name) { _name = name; }
     const std::string& getName() const { return _name; }
+
     /** Set the size of the tiles. */
     void setTileSize(const Vector2i& size) { _size = size; }
+
     /** @return the tile size. */
     const Vector2i& getTileSize() const { return _size; }
+
+    /** Set the size of the DB chunk. */
+    void setChunkSize(const float size) { _chunkSize = size; }
+
+    /** @return the DB chunk size. */
+    float getChunkSize() const { return _chunkSize; }
+
     /** Add a tile to the queue. */
     void addTile(const Tile& tile, const Eye eye);
 
@@ -114,6 +123,9 @@ private:
     /** The size of each tile in the queue. */
     Vector2i _size;
 
+    /** The DB range width of each tile in the queue. */
+    float _chunkSize = 1;
+
     /** The collage queue pool. */
     std::deque<LatencyQueue*> _queues;
 
@@ -125,6 +137,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const TileQueue* frame);
-}
-}
+} // namespace server
+} // namespace eq
 #endif // EQSERVER_TILEQUEUE_H

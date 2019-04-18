@@ -81,7 +81,7 @@ bool _setDrawBuffers()
 
     return true;
 }
-}
+} // namespace
 
 ChannelUpdateVisitor::ChannelUpdateVisitor(Channel* channel,
                                            const uint128_t frameID,
@@ -237,13 +237,30 @@ void ChannelUpdateVisitor::_updateDrawTiles(const Compound* compound,
         const uint128_t& id = outputQueue->getQueueMasterID(context.eye);
         LBASSERT(id != 0);
 
-        const bool isLocal = (_channel == destChannel);
-        const uint32_t tasks = compound->getInheritTasks() &
-                               (eq::fabric::TASK_CLEAR | eq::fabric::TASK_DRAW |
-                                eq::fabric::TASK_READBACK);
+        const bool isChunkQueue = outputQueue->getChunkSize() < 1;
+        if (isChunkQueue)
+        {
+            if (compound->testInheritTask(fabric::TASK_CLEAR))
+                _sendClear(context);
 
-        _channel->send(fabric::CMD_CHANNEL_FRAME_TILES)
-            << context << isLocal << id << tasks << frameIDs;
+            _channel->send(fabric::CMD_CHANNEL_FRAME_TILES)
+                << context << true << id << eq::fabric::TASK_DRAW << frameIDs;
+
+            if (compound->testInheritTask(fabric::TASK_READBACK))
+                _channel->send(fabric::CMD_CHANNEL_FRAME_READBACK)
+                    << context << frameIDs;
+        }
+        else // 2D tile queue
+        {
+            const bool isLocal = (_channel == destChannel);
+            const uint32_t tasks =
+                compound->getInheritTasks() &
+                (eq::fabric::TASK_CLEAR | eq::fabric::TASK_DRAW |
+                 eq::fabric::TASK_READBACK);
+
+            _channel->send(fabric::CMD_CHANNEL_FRAME_TILES)
+                << context << isLocal << id << tasks << frameIDs;
+        }
         _updated = true;
         LBLOG(LOG_TASKS) << "TASK tiles " << _channel->getName() << " "
                          << std::endl;
@@ -396,9 +413,9 @@ void ChannelUpdateVisitor::_updateAssemble(const Compound* compound,
         return;
 
     // assemble task
-    LBLOG(LOG_ASSEMBLY | LOG_TASKS) << "TASK assemble " << _channel->getName()
-                                    << " nFrames " << frames.size()
-                                    << std::endl;
+    LBLOG(LOG_ASSEMBLY | LOG_TASKS)
+        << "TASK assemble " << _channel->getName() << " nFrames "
+        << frames.size() << std::endl;
     _channel->send(fabric::CMD_CHANNEL_FRAME_ASSEMBLE) << context << frames;
     _updated = true;
 }
@@ -433,9 +450,9 @@ void ChannelUpdateVisitor::_updateReadback(const Compound* compound,
     // readback task
     _channel->send(fabric::CMD_CHANNEL_FRAME_READBACK) << context << frames;
     _updated = true;
-    LBLOG(LOG_ASSEMBLY | LOG_TASKS) << "TASK readback " << _channel->getName()
-                                    << " nFrames " << frames.size()
-                                    << std::endl;
+    LBLOG(LOG_ASSEMBLY | LOG_TASKS)
+        << "TASK readback " << _channel->getName() << " nFrames "
+        << frames.size() << std::endl;
 }
 
 void ChannelUpdateVisitor::_updateViewStart(const Compound* compound,
@@ -462,5 +479,5 @@ void ChannelUpdateVisitor::_updateViewFinish(const Compound* compound,
                      << std::endl;
     _channel->send(fabric::CMD_CHANNEL_FRAME_VIEW_FINISH) << context;
 }
-}
-}
+} // namespace server
+} // namespace eq

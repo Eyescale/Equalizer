@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@gmail.com>
- *               2012-2013, Stefan.Eilemann@epfl.ch
+ *               2012-2018, Stefan.Eilemann@epfl.ch
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,8 @@ public:
         , frameRate(10.f)
         , boundary2i(1, 1)
         , resistance2i(0, 0)
-        , tilesize(64, 64)
+        , tileSize(64, 64)
+        , chunkSize(1)
         , mode(fabric::Equalizer::MODE_2D)
         , frozen(false)
     {
@@ -72,7 +73,8 @@ public:
         , frameRate(rhs.frameRate)
         , boundary2i(rhs.boundary2i)
         , resistance2i(rhs.resistance2i)
-        , tilesize(rhs.tilesize)
+        , tileSize(rhs.tileSize)
+        , chunkSize(rhs.chunkSize)
         , mode(rhs.mode)
         , frozen(rhs.frozen)
     {
@@ -85,11 +87,12 @@ public:
     float frameRate;
     Vector2i boundary2i;
     Vector2i resistance2i;
-    Vector2i tilesize;
+    Vector2i tileSize;
+    float chunkSize;
     fabric::Equalizer::Mode mode;
     bool frozen;
 };
-}
+} // namespace detail
 
 Equalizer::Equalizer()
     : _data(new detail::Equalizer)
@@ -212,27 +215,38 @@ float Equalizer::getAssembleOnlyLimit() const
 
 void Equalizer::setTileSize(const Vector2i& size)
 {
-    _data->tilesize = size;
+    _data->tileSize = size;
 }
 
 const Vector2i& Equalizer::getTileSize() const
 {
-    return _data->tilesize;
+    return _data->tileSize;
+}
+
+void Equalizer::setChunkSize(const float size)
+{
+    _data->chunkSize = size;
+}
+
+float Equalizer::getChunkSize() const
+{
+    return _data->chunkSize;
 }
 
 void Equalizer::serialize(co::DataOStream& os) const
 {
     os << _data->damping << _data->boundaryf << _data->resistancef
        << _data->assembleOnlyLimit << _data->frameRate << _data->boundary2i
-       << _data->resistance2i << _data->tilesize << _data->mode
-       << _data->frozen;
+       << _data->resistance2i << _data->tileSize << _data->chunkSize
+       << _data->mode << _data->frozen;
 }
 
 void Equalizer::deserialize(co::DataIStream& is)
 {
     is >> _data->damping >> _data->boundaryf >> _data->resistancef >>
         _data->assembleOnlyLimit >> _data->frameRate >> _data->boundary2i >>
-        _data->resistance2i >> _data->tilesize >> _data->mode >> _data->frozen;
+        _data->resistance2i >> _data->tileSize >> _data->chunkSize >>
+        _data->mode >> _data->frozen;
 }
 
 void Equalizer::backup()
@@ -271,5 +285,5 @@ std::ostream& operator<<(std::ostream& os, const Equalizer::Mode mode)
                            : mode == Equalizer::MODE_DB ? "DB" : "ERROR");
     return os;
 }
-}
-}
+} // namespace fabric
+} // namespace eq

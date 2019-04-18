@@ -72,7 +72,7 @@ void CompoundUpdateOutputVisitor::_updateQueues(Compound* compound)
         queue->cycleData(_frameNumber, compound);
 
         //----- Generate tile task commands
-        _generateTiles(queue, compound);
+        _generateWorkItems(queue, compound);
         _outputTileQueues[name] = queue;
     }
 }
@@ -175,11 +175,20 @@ void CompoundUpdateOutputVisitor::_updateFrames(Compound* compound)
     }
 }
 
+void CompoundUpdateOutputVisitor::_generateWorkItems(TileQueue* queue,
+                                                     Compound* compound)
+{
+    if (queue->getChunkSize() < 1)
+        _generateChunks(queue, compound);
+    else
+        _generateTiles(queue, compound);
+}
+
 void CompoundUpdateOutputVisitor::_generateTiles(TileQueue* queue,
                                                  Compound* compound)
 {
     const Vector2i& tileSize = queue->getTileSize();
-    const PixelViewport pvp = compound->getInheritPixelViewport();
+    const PixelViewport& pvp = compound->getInheritPixelViewport();
     if (!pvp.hasArea())
         return;
 
@@ -191,6 +200,34 @@ void CompoundUpdateOutputVisitor::_generateTiles(TileQueue* queue,
 
     tiles::generateZigzag(tiles, dim);
     _addTilesToQueue(queue, compound, tiles);
+}
+
+void CompoundUpdateOutputVisitor::_generateChunks(TileQueue* queue,
+                                                  Compound* compound)
+{
+    const float size = queue->getChunkSize();
+    const Range& range = compound->getInheritRange();
+    if (!range.hasData())
+        return;
+
+    for (float start = range.start; start < range.end; start += size)
+    {
+        for (fabric::Eye eye = fabric::EYE_CYCLOP; eye < fabric::EYES_ALL;
+             eye = fabric::Eye(eye << 1))
+        {
+            if (!(compound->getInheritEyes() & eye) ||
+                !compound->isInheritActive(eye))
+            {
+                continue;
+            }
+
+            Tile tile(compound->getInheritPixelViewport(), Viewport(),
+                      Range(start, std::min(start + size, range.end)));
+            compound->computeTileFrustum(tile.frustum, eye, tile.vp, false);
+            compound->computeTileFrustum(tile.ortho, eye, tile.vp, true);
+            queue->addTile(tile, eye);
+        }
+    }
 }
 
 void CompoundUpdateOutputVisitor::_addTilesToQueue(
@@ -226,7 +263,7 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue(
                 continue;
             }
 
-            Tile tileItem(tilePVP, tileVP);
+            Tile tileItem(tilePVP, tileVP, compound->getInheritRange());
             compound->computeTileFrustum(tileItem.frustum, eye, tileItem.vp,
                                          false);
             compound->computeTileFrustum(tileItem.ortho, eye, tileItem.vp,
@@ -309,5 +346,5 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers(Compound* compound)
         _swapBarriers[name] = window->joinSwapBarrier(_swapBarriers[name]);
     }
 }
-}
-}
+} // namespace server
+} // namespace eq

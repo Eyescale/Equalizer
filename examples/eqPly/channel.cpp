@@ -803,4 +803,4 @@ void Channel::publishAABB(const triply::BoundingBox& box LB_UNUSED)
                                    {max[0], max[1], max[2]}));
 #endif
 }
-}
+} // namespace eqPly
