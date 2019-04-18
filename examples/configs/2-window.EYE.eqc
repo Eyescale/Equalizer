@@ -46,7 +46,7 @@ server
                 eye     [ LEFT CYCLOP ]
             }
             compound  # right eye draw operation on channel1
-            { 
+            {
                 eye     [ RIGHT ]
                 compound
                 {
@@ -56,5 +56,5 @@ server
                 inputframe { name "frame.channel1" }
             }
         }
-    }    
+    }
 }

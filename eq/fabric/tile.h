@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2012-2017, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2012-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #define EQFABRIC_TILE_H
 
 #include <eq/fabric/pixelViewport.h>
+#include <eq/fabric/range.h>
 #include <eq/fabric/viewport.h>
 
 namespace eq
@@ -30,9 +31,10 @@ class Tile
 {
 public:
     Tile() {}
-    Tile(const PixelViewport& pvp_, const Viewport& vp_)
+    Tile(const PixelViewport& pvp_, const Viewport& vp_, const Range& range_)
         : pvp(pvp_)
         , vp(vp_)
+        , range(range_)
     {
     }
 
@@ -40,8 +42,9 @@ public:
     Frustumf ortho;
     PixelViewport pvp;
     Viewport vp;
+    Range range;
 };
-}
-}
+} // namespace fabric
+} // namespace eq
 
 #endif // EQFABRIC_TILE_H

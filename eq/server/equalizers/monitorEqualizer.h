@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,6 @@
 #define EQS_MONITOREQUALIZER_H
 
 #include "equalizer.h" // base class
-
-#include <deque>
-#include <map>
 
 namespace eq
 {
@@ -44,9 +41,11 @@ public:
     void notifyUpdatePre(Compound* compound, const uint32_t frameNumber) final;
 
     uint32_t getType() const final { return fabric::MONITOR_EQUALIZER; }
+
 protected:
     void notifyChildAdded(Compound*, Compound*) override {}
     void notifyChildRemove(Compound*, Compound*) override {}
+
 private:
     /** Init the source frame viewports. */
     void _updateViewports();
@@ -58,7 +57,7 @@ private:
     Viewports _viewports;
     Frames _outputFrames;
 };
-}
-}
+} // namespace server
+} // namespace eq
 
 #endif // EQS_MONITOREQUALIZER_H

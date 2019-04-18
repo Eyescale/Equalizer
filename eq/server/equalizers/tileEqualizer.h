@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -40,9 +40,11 @@ public:
     void setName(const std::string& name) { _name = name; }
     const std::string& getName() const { return _name; }
     uint32_t getType() const final { return fabric::TILE_EQUALIZER; }
+
 protected:
     void notifyChildAdded(Compound*, Compound*) override {}
     void notifyChildRemove(Compound*, Compound*) override {}
+
 private:
     std::string _getQueueName() const;
     void _destroyQueues(Compound* compound);
@@ -52,7 +54,7 @@ private:
     std::string _name;
 };
 
-} // server
-} // eq
+} // namespace server
+} // namespace eq
 
 #endif // EQS_TILEEQUALIZER_H

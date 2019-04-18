@@ -11,6 +11,8 @@ list(APPEND CPPCHECK_EXTRA_ARGS
   --suppress=*:${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp
   --suppress=*:${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   --suppress=*:${CMAKE_CURRENT_SOURCE_DIR}/loader.l)
+set_property(SOURCE ${BISON_PARSER_OUTPUTS} ${FLEX_LEXER_OUTPUTS}
+  PROPERTY SKIP_AUTOGEN ON)
 
 if(CPPCHECK_VERSION VERSION_LESS 1.68)
   list(APPEND CPPCHECK_EXTRA_ARGS --suppress=operatorEqVarError:

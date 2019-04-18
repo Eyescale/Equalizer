@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -29,7 +29,6 @@
 #include <lunchbox/atomic.h>
 #include <lunchbox/compiler.h>
 
-#include <map>
 #include <vector>
 
 namespace eq
@@ -218,29 +217,29 @@ typedef lunchbox::RefPtr<FrameData> FrameDataPtr;
 /** A reference-counted pointer to a const eq::FrameData */
 typedef lunchbox::RefPtr<const FrameData> ConstFrameDataPtr;
 
-using fabric::Matrix3d;    //!< A 3x3 double matrix
-using fabric::Matrix4d;    //!< A 4x4 double matrix
-using fabric::Matrix3f;    //!< A 3x3 float matrix
-using fabric::Matrix4f;    //!< A 4x4 float matrix
-using fabric::Vector2i;    //!< A two-component integer vector
-using fabric::Vector3i;    //!< A three-component integer vector
-using fabric::Vector4i;    //!< A four-component integer vector
-using fabric::Vector3d;    //!< A three-component double vector
-using fabric::Vector4d;    //!< A four-component double vector
-using fabric::Vector2f;    //!< A two-component float vector
-using fabric::Vector3f;    //!< A three-component float vector
-using fabric::Vector4f;    //!< A four-component float vector
-using fabric::Vector3ub;   //!< A three-component byte vector
 using fabric::Frustumf;    //!< A frustum definition
+using fabric::Matrix3d;    //!< A 3x3 double matrix
+using fabric::Matrix3f;    //!< A 3x3 float matrix
+using fabric::Matrix4d;    //!< A 4x4 double matrix
+using fabric::Matrix4f;    //!< A 4x4 float matrix
 using fabric::Quaternionf; // !< A float quaternion
+using fabric::Vector2f;    //!< A two-component float vector
+using fabric::Vector2i;    //!< A two-component integer vector
+using fabric::Vector3d;    //!< A three-component double vector
+using fabric::Vector3f;    //!< A three-component float vector
+using fabric::Vector3i;    //!< A three-component integer vector
+using fabric::Vector3ub;   //!< A three-component byte vector
+using fabric::Vector4d;    //!< A four-component double vector
+using fabric::Vector4f;    //!< A four-component float vector
+using fabric::Vector4i;    //!< A four-component integer vector
 
+using fabric::CMD_CONFIG_EVENT;
 using fabric::EventOCommand;
 using fabric::EventType;
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;
-using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
 using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
-using fabric::CMD_CONFIG_EVENT;
+using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
 
 using fabric::Statistics;   //!< A vector of Statistic events
 using fabric::Strings;      //!< A vector of std::strings
@@ -270,14 +269,14 @@ namespace detail
 class InitVisitor;  //!< @internal
 class ExitVisitor;  //!< @internal
 class FrameVisitor; //!< @internal
-}
+} // namespace detail
 
 namespace deflect
 {
 class Proxy;
 }
 /** @endcond */
-}
+} // namespace eq
 
 /** @cond IGNORE */
 // GLEW

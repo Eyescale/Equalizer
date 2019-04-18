@@ -130,7 +130,7 @@ int main(int argc, char** argv)
     std::vector<uint32_t>& names = finder.names;
     std::cout << images.size() << " test images X " << names.size()
               << " plugins" << std::endl;
-    TESTINFO(names.size() > 23, names.size());
+    TESTINFO(names.size() > 21, names.size());
 
     std::cout.setf(std::ios::right, std::ios::adjustfield);
     std::cout.precision(5);

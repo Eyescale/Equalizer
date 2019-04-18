@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2015, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -60,10 +60,12 @@ private:
     void _updateSwapBarriers(Compound* compound);
     void _updateZoom(const Compound* compound, Frame* frame);
 
-    void _generateTiles(TileQueue* queue, Compound* compound);
-    void _addTilesToQueue(TileQueue* queue, Compound* compound,
-                          const std::vector<Vector2i>& tiles);
+    static void _generateWorkItems(TileQueue* queue, Compound* compound);
+    static void _generateTiles(TileQueue* queue, Compound* compound);
+    static void _generateChunks(TileQueue* queue, Compound* compound);
+    static void _addTilesToQueue(TileQueue* queue, Compound* compound,
+                                 const std::vector<Vector2i>& tiles);
 };
-}
-}
+} // namespace server
+} // namespace eq
 #endif // EQSERVER_CONSTCOMPOUNDVISITOR_H

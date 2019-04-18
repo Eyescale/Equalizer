@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2016, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,6 +39,8 @@ void RenderContext::apply(const Tile& tile, const bool local)
     ortho = tile.ortho;
     pvp = tile.pvp;
     vp = tile.vp;
+    range = tile.range;
+
     if (!local)
     {
         pvp.x = 0;
@@ -49,7 +51,8 @@ void RenderContext::apply(const Tile& tile, const bool local)
 std::ostream& operator<<(std::ostream& os, const RenderContext& ctx)
 {
     return os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp
-              << " " << ctx.range << " " << ctx.eye << " " << ctx.zoom;
+              << " range " << ctx.range << " " << ctx.range << " " << ctx.eye
+              << " " << ctx.zoom;
 }
-}
-}
+} // namespace fabric
+} // namespace eq

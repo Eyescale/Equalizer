@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2017, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -79,6 +79,7 @@ public:
 
     /** @internal @return true if the database range covers some data. */
     bool hasData() const { return (end - start) > 0.f; }
+
     /** @internal Apply (accumulate) another database range. */
     void apply(const Range& rhs)
     {
@@ -105,7 +106,7 @@ inline std::ostream& operator<<(std::ostream& os, const Range& range)
     os << "range    [ " << range.start << " " << range.end << " ]";
     return os;
 }
-}
-}
+} // namespace fabric
+} // namespace eq
 
 #endif // EQFABRIC_RANGE_H
