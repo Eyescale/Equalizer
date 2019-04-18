@@ -21,9 +21,6 @@
 #include "../channelListener.h" // base class
 #include "equalizer.h"          // base class
 
-#include <deque>
-#include <map>
-
 namespace eq
 {
 namespace server
@@ -49,14 +46,16 @@ public:
                         const Viewport& region) final;
 
     uint32_t getType() const final { return fabric::DFR_EQUALIZER; }
+
 protected:
     void notifyChildAdded(Compound*, Compound*) override {}
     void notifyChildRemove(Compound*, Compound*) override {}
+
 private:
     float _current;    //!< Framerate of the last finished frame
     int64_t _lastTime; //!< Last frames' timestamp
 };
-}
-}
+} // namespace server
+} // namespace eq
 
 #endif // EQS_DFREQUALIZER_H

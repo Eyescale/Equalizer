@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2013, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2018, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,9 +20,6 @@
 
 #include "../channelListener.h" // base class
 #include "equalizer.h"          // base class
-
-#include <deque>
-#include <map>
 
 namespace eq
 {
@@ -50,6 +47,7 @@ public:
     void notifyUpdatePre(Compound* compound, const uint32_t frameNumber) final;
 
     uint32_t getType() const final { return fabric::FRAMERATE_EQUALIZER; }
+
 protected:
     void notifyChildAdded(Compound*, Compound*) override
     {
@@ -90,7 +88,7 @@ private:
     void _init();
     void _exit();
 };
-}
-}
+} // namespace server
+} // namespace eq
 
 #endif // EQS_LOADBALANCER_H

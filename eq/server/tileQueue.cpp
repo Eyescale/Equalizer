@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2016, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2018, Stefan Eilemann <eile@eyescale.ch>
  *                          Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,8 +30,6 @@ namespace server
 TileQueue::TileQueue()
     : co::Object()
     , _compound(0)
-    , _name()
-    , _size(0, 0)
 {
     for (unsigned i = 0; i < NUM_EYES; ++i)
     {
@@ -45,6 +43,7 @@ TileQueue::TileQueue(const TileQueue& from)
     , _compound(0)
     , _name(from._name)
     , _size(from._size)
+    , _chunkSize(from._chunkSize)
 {
     for (unsigned i = 0; i < NUM_EYES; ++i)
     {
@@ -88,8 +87,8 @@ void TileQueue::cycleData(const uint32_t frameNumber, const Compound* compound)
             queue = new LatencyQueue;
 
             getLocalNode()->registerObject(&queue->_queue);
-            queue->_queue.setAutoObsolete(
-                1); // current + in use by render nodes
+            queue->_queue.setAutoObsolete(1); // current + in use by render
+                                              // nodes
         }
 
         queue->_queue.clear();
@@ -110,13 +109,9 @@ void TileQueue::setOutputQueue(TileQueue* queue, const Compound* compound)
     }
 }
 
-void TileQueue::getInstanceData(co::DataOStream&)
-{
-}
+void TileQueue::getInstanceData(co::DataOStream&) {}
 
-void TileQueue::applyInstanceData(co::DataIStream&)
-{
-}
+void TileQueue::applyInstanceData(co::DataIStream&) {}
 
 void TileQueue::flush()
 {
@@ -164,8 +159,12 @@ std::ostream& operator<<(std::ostream& os, const TileQueue* tileQueue)
     if (size != Vector2i())
         os << "size      " << size << std::endl;
 
+    const float chunkSize = tileQueue->getChunkSize();
+    if (chunkSize < 1)
+        os << "chunk     " << chunkSize << std::endl;
+
     os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
     return os;
 }
-}
-}
+} // namespace server
+} // namespace eq

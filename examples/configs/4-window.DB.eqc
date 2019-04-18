@@ -72,25 +72,25 @@ server
                 bottom_right [  .32 -.2 -.75 ]
                 top_left     [ -.32  .2 -.75 ]
             }
-            
+
             compound
             {
                 range   [ 0 .25 ]
             }
             compound
-            { 
+            {
                 channel "channel1"
                 range   [ .25 .5 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel2"
                 range   [ .5 .75 ]
                 outputframe {}
             }
             compound
-            { 
+            {
                 channel "channel3"
                 range   [ .75 1 ]
                 outputframe {}
@@ -99,5 +99,5 @@ server
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
         }
-    }    
+    }
 }

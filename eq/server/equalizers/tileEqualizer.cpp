@@ -45,9 +45,8 @@ TileQueue* _findQueue(const std::string& name, const TileQueues& queues)
 class InputQueueCreator : public CompoundVisitor
 {
 public:
-    InputQueueCreator(const eq::fabric::Vector2i& size, const std::string& name)
+    InputQueueCreator(const std::string& name)
         : CompoundVisitor()
-        , _tileSize(size)
         , _name(name)
     {
     }
@@ -65,7 +64,6 @@ public:
         TileQueue* input = new TileQueue;
         ServerPtr server = compound->getServer();
         server->registerObject(input);
-        input->setTileSize(_tileSize);
         input->setName(_name);
         input->setAutoObsolete(compound->getConfig()->getLatency());
 
@@ -74,7 +72,6 @@ public:
     }
 
 private:
-    const eq::fabric::Vector2i& _tileSize;
     const std::string& _name;
 };
 
@@ -106,7 +103,7 @@ public:
 private:
     const std::string& _name;
 };
-}
+} // namespace
 
 TileEqualizer::TileEqualizer()
     : Equalizer()
@@ -139,13 +136,14 @@ void TileEqualizer::_createQueues(Compound* compound)
         ServerPtr server = compound->getServer();
         server->registerObject(output);
         output->setTileSize(getTileSize());
+        output->setChunkSize(getChunkSize());
         output->setName(name);
         output->setAutoObsolete(compound->getConfig()->getLatency());
 
         compound->addOutputTileQueue(output);
     }
 
-    InputQueueCreator creator(getTileSize(), name);
+    InputQueueCreator creator(name);
     compound->accept(creator);
 }
 
@@ -183,13 +181,15 @@ std::ostream& operator<<(std::ostream& os, const TileEqualizer* lb)
     {
         os << lunchbox::disableFlush << "tile_equalizer" << std::endl
            << "{" << std::endl
-           << "    name \"" << lb->getName() << "\"" << std::endl
-           << "    size " << lb->getTileSize() << std::endl
-           << "}" << std::endl
-           << lunchbox::enableFlush;
+           << "    name \"" << lb->getName() << "\"" << std::endl;
+        if (lb->getChunkSize() < 1)
+            os << "    size  " << lb->getChunkSize() << std::endl;
+        else
+            os << "    size  " << lb->getTileSize() << std::endl;
+        os << "}" << std::endl << lunchbox::enableFlush;
     }
     return os;
 }
 
-} // server
-} // eq
+} // namespace server
+} // namespace eq
