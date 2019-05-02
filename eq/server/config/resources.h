@@ -29,6 +29,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DS "DBDirectSend"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_2D "DB_2D"
 #define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL "Subpixel"
+#define EQ_SERVER_CONFIG_LAYOUT_DPLEX "DPlex"
 
 namespace eq
 {
@@ -61,8 +62,10 @@ private:
     static Compound* _addDB2DCompound(Compound* root, const Channels& channels,
                                       fabric::ConfigParams params);
     static Compound* _addSubpixelCompound(Compound* root, const Channels&);
+    static Compound* _addDPlexCompound(Compound* root, const Channels&);
     static const Compounds& _addSources(Compound* compound, const Channels&,
-                                        const bool destChannelFrame = false);
+                                        bool destChannelFrame = false,
+                                        bool useDestChannel = true);
     static void _fill2DCompound(Compound* compound, const Channels& channels);
 };
 }

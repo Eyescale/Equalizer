@@ -139,17 +139,16 @@ void Display::discoverLocal(Config* config, const ConfigParams& params)
     const bool scalability = nodes.size() > 1 || pipes.size() > 1;
 
     if (scalability)
-        names.push_back(EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC);
-
-    names.push_back(EQ_SERVER_CONFIG_LAYOUT_SIMPLE);
-
-    if (scalability)
     {
-        names.push_back(EQ_SERVER_CONFIG_LAYOUT_DB_DS);
+        names.push_back(EQ_SERVER_CONFIG_LAYOUT_2D_STATIC);
+        names.push_back(EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC);
         names.push_back(EQ_SERVER_CONFIG_LAYOUT_DB_STATIC);
         names.push_back(EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC);
-        names.push_back(EQ_SERVER_CONFIG_LAYOUT_2D_STATIC);
+        names.push_back(EQ_SERVER_CONFIG_LAYOUT_DB_DS);
         names.push_back(EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL);
+
+        if (nodes.size() == 1)
+            names.push_back(EQ_SERVER_CONFIG_LAYOUT_DPLEX);
 
         if (params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS_DB &&
             nodes.size() > 1)
@@ -164,6 +163,8 @@ void Display::discoverLocal(Config* config, const ConfigParams& params)
             }
         }
     }
+    else
+        names.push_back(EQ_SERVER_CONFIG_LAYOUT_SIMPLE);
 
     for (StringsCIter i = names.begin(); i != names.end(); ++i)
     {
