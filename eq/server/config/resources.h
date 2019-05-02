@@ -45,6 +45,7 @@ public:
     static Channels configureSourceChannels(Config* config);
     static void configure(const Compounds& compounds, const Channels& channels,
                           const fabric::ConfigParams& params);
+    static void configureWall(Config* config, const Channels& channels);
 
 private:
     static Compound* _addMonoCompound(Compound* root, const Channels& channels,

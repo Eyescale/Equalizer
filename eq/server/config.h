@@ -189,6 +189,11 @@ public:
     uint128_t getInitID() { return _initID; }
     /** Activate the given canvas after it is complete (dest channels). */
     virtual void activateCanvas(Canvas* canvas);
+    /**
+     *  Activate the given canvas and layout after it is complete.
+     *  @return the created channels
+     */
+    Channels activateLayout(Canvas* canvas, Layout* layout);
 
     /** Initialize the given canvas in a running configuration */
     virtual void updateCanvas(Canvas* canvas);

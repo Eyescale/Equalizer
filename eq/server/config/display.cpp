@@ -44,6 +44,14 @@ void _choosePixelViewport(Window& window)
 {
     int32_t width = window.getIAttribute(WindowSettings::IATTR_HINT_WIDTH);
     int32_t height = window.getIAttribute(WindowSettings::IATTR_HINT_HEIGHT);
+
+    if (getenv("EQ_SERVER_CONFIG_DEMO"))
+    {
+        window.setViewport(Viewport(0, 0, 1, 1));
+        window.setIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN, fabric::ON);
+        return;
+    }
+
     if (width == fabric::UNDEFINED && height == fabric::UNDEFINED)
     {
         window.setViewport(Viewport(.25f, .2f, .5f, .5f));
