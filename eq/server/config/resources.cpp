@@ -510,24 +510,14 @@ void Resources::configure(const Compounds& compounds, const Channels& channels,
     if (compounds.empty() || channels.empty()) // No additional resources
         return;
 
-#ifndef NDEBUG
-    const Canvas* canvas = 0;
-#endif
-    for (CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i)
+    for (const Compound* compound : compounds)
     {
-        const Compounds& children = (*i)->getChildren();
-        LBASSERT(children.size() == 1);
+        const Compounds& children = compound->getChildren();
+        LBASSERTINFO(children.size() == 1, *compound);
         if (children.size() != 1)
             continue;
 
         Compound* segmentCompound = children.front();
-#ifndef NDEBUG
-        const Channel* channel = segmentCompound->getChannel();
-        LBASSERT(channel);
-        LBASSERT(!canvas || channel->getCanvas() == canvas);
-        canvas = channel->getCanvas();
-#endif
-
         _addMonoCompound(segmentCompound, channels, params);
         _addStereoCompound(segmentCompound, channels, params);
     }
@@ -591,11 +581,6 @@ static Channels _filter(const Channels& input, const std::string& filter)
 Compound* Resources::_addMonoCompound(Compound* root, const Channels& channels,
                                       const fabric::ConfigParams& params)
 {
-    const Channel* channel = root->getChannel();
-    const Layout* layout = channel->getLayout();
-    const std::string& name = layout->getName();
-
-    Compound* compound = 0;
     const bool multiProcess =
         params.getFlags() & fabric::ConfigParams::FLAG_MULTIPROCESS;
     const bool multiProcessDB =
@@ -606,10 +591,16 @@ Compound* Resources::_addMonoCompound(Compound* root, const Channels& channels,
     const Channels& activeDBChannels =
         _filter(channels, multiProcessDB ? " mp " : " mt ");
 
+    const std::string& name = root->getParent()->getName();
     if (name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE)
-        /* nop */;
-    else if (name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
-             name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC)
+        return nullptr; // nop
+
+    if (name == EQ_SERVER_COMPOUND_CLEAR)
+        return _addClearCompound(root, activeChannels);
+
+    Compound* compound = nullptr;
+    if (name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
+        name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC)
     {
         compound = _add2DCompound(root, activeChannels, params);
     }
@@ -632,7 +623,7 @@ Compound* Resources::_addMonoCompound(Compound* root, const Channels& channels,
         compound = _addDPlexCompound(root, activeChannels);
     else
     {
-        LBASSERTINFO(false, "Unimplemented mode " << name);
+        LBASSERTINFO(false, "Unimplemented mode " << name << " for " << *root);
     }
 
     if (compound)
@@ -645,11 +636,12 @@ Compound* Resources::_addStereoCompound(Compound* root,
                                         const Channels& channels,
                                         const fabric::ConfigParams& params)
 {
-    const Channel* channel = root->getChannel();
-    const Layout* layout = channel->getLayout();
-    const std::string& name = layout->getName();
-    if (name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE)
+    const std::string& name = root->getName();
+    if (name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE ||
+        name == EQ_SERVER_COMPOUND_CLEAR)
+    {
         return 0;
+    }
 
     Compound* compound = new Compound(root);
     compound->setName("Stereo");
@@ -672,6 +664,7 @@ Compound* Resources::_addStereoCompound(Compound* root,
     Channels rightChannels(active.end() - split);
     std::copy(split, active.end(), rightChannels.begin());
 
+    const Channel* channel = root->getChannel();
     Compound* left = 0;
     if (leftChannels.empty() ||
         (leftChannels.size() == 1 && leftChannels.front() == channel))
@@ -697,12 +690,25 @@ Compound* Resources::_addStereoCompound(Compound* root,
     return compound;
 }
 
+Compound* Resources::_addClearCompound(Compound* root, const Channels& channels)
+{
+    const Channel* destChannel = root->getChannel();
+    for (Channel* channel : channels)
+    {
+        if (channel != destChannel)
+        {
+            Compound* compound = new Compound(root);
+            compound->setChannel(channel);
+            compound->setTasks(fabric::TASK_CLEAR);
+        }
+    }
+    return root;
+}
+
 Compound* Resources::_add2DCompound(Compound* root, const Channels& channels,
                                     fabric::ConfigParams params)
 {
-    const Channel* channel = root->getChannel();
-    const Layout* layout = channel->getLayout();
-    const std::string& name = layout->getName();
+    const std::string& name = root->getParent()->getName();
 
     Compound* compound = new Compound(root);
     compound->setName(name);
