@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011-2017, Stefan Eilemann <eile@eyescale.h>
+/* Copyright (c) 2011-2019, Stefan Eilemann <eile@eyescale.h>
  *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *                          Julio Delgado Mangas <julio.delgadomangas@epfl.ch>
  *
@@ -19,6 +19,7 @@
 
 #include "resources.h"
 
+#include "../canvas.h"
 #include "../compound.h"
 #include "../configVisitor.h"
 #include "../connectionDescription.h"
@@ -28,6 +29,7 @@
 #include "../node.h"
 #include "../pipe.h"
 #include "../segment.h"
+#include "../view.h"
 #include "../window.h"
 
 #include <eq/fabric/configParams.h>
@@ -431,7 +433,7 @@ public:
     {
     }
 
-    virtual VisitorResult visitPre(Pipe* pipe)
+    VisitorResult visitPre(Pipe* pipe) final
     {
         const Node* node = pipe->getNode();
         if (node->isApplicationNode() && node->getPipes().front() == pipe)
@@ -445,7 +447,12 @@ public:
         Window* window = new Window(pipe);
         if (!pipe->getPixelViewport().isValid())
             window->setPixelViewport(_pvp);
-        window->setIAttribute(WindowSettings::IATTR_HINT_DRAWABLE, fabric::FBO);
+        if (getenv("EQ_SERVER_CONFIG_DEMO"))
+            window->setIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN,
+                                  fabric::ON);
+        else
+            window->setIAttribute(WindowSettings::IATTR_HINT_DRAWABLE,
+                                  fabric::FBO);
         window->setName(pipe->getName() + " source window");
 
         _channels.push_back(new Channel(window));
@@ -517,6 +524,51 @@ void Resources::configure(const Compounds& compounds, const Channels& channels,
 
         _addMonoCompound(segmentCompound, channels, params);
         _addStereoCompound(segmentCompound, channels, params);
+    }
+}
+
+void Resources::configureWall(Config* config, const Channels& channels)
+{
+    const size_t nRows = std::ceil(std::sqrt(channels.size()));
+    const size_t nCols = std::ceil(channels.size() / float(nRows));
+    const float width = 1.f / float(nRows);
+    const float height = 1.f / float(nCols);
+
+    Layout* layout = new Layout(config);
+    layout->setName("Wall");
+    new View(layout);
+
+    Canvas* canvas = config->getCanvases()[0];
+    canvas->addLayout(layout);
+
+    for (size_t c = 0; c < nCols; ++c)
+    {
+        for (size_t r = 0; r < nRows; ++r)
+        {
+            const size_t i = r * nCols + c;
+            if (i >= channels.size())
+                return;
+
+            Segment* segment = new Segment(canvas);
+            segment->setViewport(
+                Viewport(c * width, (nRows - r - 1) * height, width, height));
+            segment->setChannel(channels[i]);
+        }
+    }
+
+    const auto destChannels = config->activateLayout(canvas, layout);
+    SwapBarrier* barrier = new SwapBarrier;
+    Compound* compound = new Compound(config);
+    compound->setName("Wall");
+
+    for (Channel* channel : destChannels)
+    {
+        if (channel == destChannels[0])
+            continue; // Ignore first dest channel used for scalability
+
+        Compound* destCompound = new Compound(compound);
+        destCompound->setChannel(channel);
+        destCompound->setSwapBarrier(barrier);
     }
 }
 

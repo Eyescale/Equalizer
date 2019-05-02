@@ -328,8 +328,7 @@ WindowPath Window<P, W, C, Settings>::getPath() const
     WindowPath path(pipe->getPath());
 
     const typename std::vector<W*>& windows = pipe->getWindows();
-    typename std::vector<W*>::const_iterator i =
-        std::find(windows.begin(), windows.end(), this);
+    auto i = std::find(windows.begin(), windows.end(), this);
     LBASSERT(i != windows.end());
     path.windowIndex = std::distance(windows.begin(), i);
     return path;

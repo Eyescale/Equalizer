@@ -211,95 +211,99 @@ void Config::activateCanvas(Canvas* canvas)
     LBASSERT(canvas->isStopped());
     LBASSERT(lunchbox::find(getCanvases(), canvas) != getCanvases().end());
 
-    const Layouts& layouts = canvas->getLayouts();
+    for (Layout* layout : canvas->getLayouts())
+        activateLayout(canvas, layout);
+}
+
+Channels Config::activateLayout(Canvas* canvas, Layout* layout)
+{
+    if (!layout)
+        return Channels();
+
     const Segments& segments = canvas->getSegments();
+    Channels channels;
 
-    for (Layouts::const_iterator i = layouts.begin(); i != layouts.end(); ++i)
+    const Views& views = layout->getViews();
+    for (Views::const_iterator j = views.begin(); j != views.end(); ++j)
     {
-        const Layout* layout = *i;
-        if (!layout)
-            continue;
+        View* view = *j;
 
-        const Views& views = layout->getViews();
-        for (Views::const_iterator j = views.begin(); j != views.end(); ++j)
+        for (Segments::const_iterator k = segments.begin(); k != segments.end();
+             ++k)
         {
-            View* view = *j;
+            Segment* segment = *k;
+            Viewport viewport = segment->getViewport();
+            viewport.intersect(view->getViewport());
 
-            for (Segments::const_iterator k = segments.begin();
-                 k != segments.end(); ++k)
+            if (!viewport.hasArea())
             {
-                Segment* segment = *k;
-                Viewport viewport = segment->getViewport();
-                viewport.intersect(view->getViewport());
+                LBLOG(LOG_VIEW) << "View " << view->getName()
+                                << view->getViewport() << " doesn't intersect "
+                                << segment->getName() << segment->getViewport()
+                                << std::endl;
 
-                if (!viewport.hasArea())
-                {
-                    LBLOG(LOG_VIEW)
-                        << "View " << view->getName() << view->getViewport()
-                        << " doesn't intersect " << segment->getName()
-                        << segment->getViewport() << std::endl;
-
-                    continue;
-                }
-
-                Channel* segmentChannel = segment->getChannel();
-                if (!segmentChannel)
-                {
-                    LBWARN << "Segment " << segment->getName()
-                           << " has no output channel" << std::endl;
-                    continue;
-                }
-
-                if (findChannel(segment, view))
-                    continue;
-
-                // create and add new channel
-                Channel* channel = new Channel(*segmentChannel);
-                channel->init(); // not in ctor, virtual method
-                channel->setOutput(view, segment);
-
-                //----- compute channel viewport:
-                // segment/view intersection in canvas space...
-                Viewport contribution = viewport;
-                // ... in segment space...
-                contribution.transform(segment->getViewport());
-
-                // segment output area
-                if (segmentChannel->hasFixedViewport())
-                {
-                    Viewport subViewport = segmentChannel->getViewport();
-                    LBASSERT(subViewport.isValid());
-                    if (!subViewport.isValid())
-                        subViewport = eq::fabric::Viewport::FULL;
-
-                    // ...our part of it
-                    subViewport.apply(contribution);
-                    channel->setViewport(subViewport);
-                    LBLOG(LOG_VIEW)
-                        << "View @" << (void*)view << ' ' << view->getViewport()
-                        << " intersects " << segment->getName()
-                        << segment->getViewport() << " at " << subViewport
-                        << " using channel @" << (void*)channel << std::endl;
-                }
-                else
-                {
-                    PixelViewport pvp = segmentChannel->getPixelViewport();
-                    LBASSERT(pvp.isValid());
-                    pvp.apply(contribution);
-                    channel->setPixelViewport(pvp);
-                    LBLOG(LOG_VIEW)
-                        << "View @" << (void*)view << ' ' << view->getViewport()
-                        << " intersects " << segment->getName()
-                        << segment->getViewport() << " at " << pvp
-                        << " using channel @" << (void*)channel << std::endl;
-                }
-
-                if (channel->getWindow()->isAttached())
-                    // parent is already registered - register channel as well
-                    getServer()->registerObject(channel);
+                continue;
             }
+
+            Channel* segmentChannel = segment->getChannel();
+            if (!segmentChannel)
+            {
+                LBWARN << "Segment " << segment->getName()
+                       << " has no output channel" << std::endl;
+                continue;
+            }
+
+            if (findChannel(segment, view))
+                continue;
+
+            // create and add new channel
+            Channel* channel = new Channel(*segmentChannel);
+            channel->init(); // not in ctor, virtual method
+            channel->setOutput(view, segment);
+            channels.push_back(channel);
+
+            //----- compute channel viewport:
+            // segment/view intersection in canvas space...
+            Viewport contribution = viewport;
+            // ... in segment space...
+            contribution.transform(segment->getViewport());
+
+            // segment output area
+            if (segmentChannel->hasFixedViewport())
+            {
+                Viewport subViewport = segmentChannel->getViewport();
+                LBASSERT(subViewport.isValid());
+                if (!subViewport.isValid())
+                    subViewport = eq::fabric::Viewport::FULL;
+
+                // ...our part of it
+                subViewport.apply(contribution);
+                channel->setViewport(subViewport);
+                LBLOG(LOG_VIEW) << "View @" << (void*)view << ' '
+                                << view->getViewport() << " intersects "
+                                << segment->getName() << segment->getViewport()
+                                << " at " << subViewport << " using channel @"
+                                << (void*)channel << std::endl;
+            }
+            else
+            {
+                PixelViewport pvp = segmentChannel->getPixelViewport();
+                LBASSERT(pvp.isValid());
+                pvp.apply(contribution);
+                channel->setPixelViewport(pvp);
+                LBLOG(LOG_VIEW) << "View @" << (void*)view << ' '
+                                << view->getViewport() << " intersects "
+                                << segment->getName() << segment->getViewport()
+                                << " at " << pvp << " using channel @"
+                                << (void*)channel << std::endl;
+            }
+
+            if (channel->getWindow()->isAttached())
+                // parent is already registered - register channel as well
+                getServer()->registerObject(channel);
         }
     }
+    return channels;
 }
 
 void Config::updateCanvas(Canvas* canvas)
