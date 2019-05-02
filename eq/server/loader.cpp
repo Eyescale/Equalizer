@@ -111,12 +111,14 @@ Compounds Loader::addOutputCompounds(ServerPtr server)
             const Layout* layout = channels.front()->getLayout();
 
             Compound* group = new Compound(config);
+            group->setName(layout->getName());
             for (ChannelsIter j = channels.begin(); j != channels.end();)
             {
                 Channel* channel = *j;
                 if (channel->getLayout() == layout)
                 {
                     Compound* compound = new Compound(group);
+                    compound->setName(layout->getName());
                     compound->setChannel(channel);
                     j = channels.erase(j);
                 }

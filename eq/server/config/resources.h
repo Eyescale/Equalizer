@@ -30,6 +30,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_DB_2D "DB_2D"
 #define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL "Subpixel"
 #define EQ_SERVER_CONFIG_LAYOUT_DPLEX "DPlex"
+#define EQ_SERVER_COMPOUND_CLEAR "clear"
 
 namespace eq
 {
@@ -54,6 +55,8 @@ private:
     static Compound* _addStereoCompound(Compound* root,
                                         const Channels& channels,
                                         const fabric::ConfigParams& params);
+    static Compound* _addClearCompound(Compound* root,
+                                       const Channels& channels);
     static Compound* _add2DCompound(Compound* root, const Channels& channels,
                                     fabric::ConfigParams params);
     static Compound* _addDBCompound(Compound* root, const Channels& channels,

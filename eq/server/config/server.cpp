@@ -54,16 +54,29 @@ Config* Server::configure(ServerPtr server, const std::string& session,
     }
 
     Display::discoverLocal(config, params);
-    const Compounds compounds = Loader::addOutputCompounds(server);
+
+    // create clear compound first so it clears before rendering
+    Compound* clear =
+        getenv("EQ_SERVER_CONFIG_DEMO") ? new Compound(config) : nullptr;
+
+    Compounds compounds = Loader::addOutputCompounds(server);
     if (compounds.empty())
     {
         delete config;
         return 0;
     }
 
-    const Channels channels = Resources::configureSourceChannels(config);
-    Resources::configure(compounds, channels, params);
-    Resources::configureWall(config, channels);
+    if (clear)
+    {
+        clear->setName(EQ_SERVER_COMPOUND_CLEAR);
+        compounds.push_back(clear);
+        clear = new Compound(clear);
+        clear->setName(EQ_SERVER_COMPOUND_CLEAR);
+    }
+
+    const Channels sources = Resources::configureSourceChannels(config);
+    Resources::configure(compounds, sources, params);
+    Resources::configureWall(config, sources);
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";
