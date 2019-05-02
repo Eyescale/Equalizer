@@ -416,6 +416,12 @@ bool Resources::discover(ServerPtr server, Config* config,
 
         config->setServerConnections(connections);
     }
+    else
+    {
+        const uint32_t latency =
+            std::max(1u, uint32_t(node->getPipes().size() - 1));
+        config->setLatency(latency);
+    }
 
     if (!excludedDisplays.empty())
         ::setenv("VGL_EXCLUDE", excludedDisplays.c_str(), 1 /*overwrite*/);
@@ -622,6 +628,8 @@ Compound* Resources::_addMonoCompound(Compound* root, const Channels& channels,
     }
     else if (name == EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL)
         compound = _addSubpixelCompound(root, activeChannels);
+    else if (name == EQ_SERVER_CONFIG_LAYOUT_DPLEX)
+        compound = _addDPlexCompound(root, activeChannels);
     else
     {
         LBASSERTINFO(false, "Unimplemented mode " << name);
@@ -903,20 +911,38 @@ Compound* Resources::_addSubpixelCompound(Compound* root,
     return compound;
 }
 
+Compound* Resources::_addDPlexCompound(Compound* root, const Channels& channels)
+{
+    Compound* compound = new Compound(root);
+    compound->setName(EQ_SERVER_CONFIG_LAYOUT_DPLEX);
+
+    const Compounds& children = _addSources(compound, channels, false, false);
+    const uint32_t nChildren = uint32_t(children.size());
+    for (CompoundsCIter i = children.begin(); i != children.end(); ++i)
+    {
+        (*i)->setPhase(i - children.begin());
+        (*i)->setPeriod(nChildren);
+    }
+    return compound;
+}
+
 const Compounds& Resources::_addSources(Compound* compound,
                                         const Channels& channels,
-                                        const bool destChannelFrame)
+                                        const bool destChannelFrame,
+                                        const bool useDestChannel)
 {
     const Channel* rootChannel = compound->getChannel();
     const Segment* segment = rootChannel->getSegment();
     const Channel* outputChannel = segment ? segment->getChannel() : 0;
 
-    for (ChannelsCIter i = channels.begin(); i != channels.end(); ++i)
+    for (Channel* channel : channels)
     {
-        Channel* channel = *i;
+        const bool isDestChannel = channel == outputChannel;
+        if (!useDestChannel && isDestChannel)
+            continue;
+
         Compound* child = new Compound(compound);
 
-        const bool isDestChannel = channel == outputChannel;
         if (isDestChannel && !destChannelFrame)
             continue;
         if (!isDestChannel)

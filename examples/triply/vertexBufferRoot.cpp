@@ -243,7 +243,7 @@ std::string getArchitectureFilename(const std::string& filename)
 /*  Functions extracted out of readFromFile to enhance readability.  */
 bool VertexBufferRoot::_constructFromPly(const std::string& filename)
 {
-    PLYLIBINFO << "Reading PLY file." << std::endl;
+    PLYLIBINFO << "Reading " << filename << std::endl;
     boost::progress_display progress(12);
 
     VertexData data;
