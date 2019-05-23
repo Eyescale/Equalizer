@@ -87,28 +87,12 @@ void Channel::frameClear(const eq::uint128_t& /*frameID*/)
     _initJitter();
     resetRegions();
 
-    const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = lunchbox::getIndexOfLastBit(getEye());
     if (_isDone() && !_accum[eyeIndex].transfer)
         return;
 
     applyBuffer();
     applyViewport();
-
-    const eq::View* view = getView();
-    if (view && frameData.getCurrentViewID() == view->getID())
-        glClearColor(1.f, 1.f, 1.f, 0.f);
-#ifndef NDEBUG
-    else if (getenv("EQ_TAINT_CHANNELS"))
-    {
-        const eq::Vector3ub color = getUniqueColor();
-        glClearColor(color.r() / 255.f, color.g() / 255.f, color.b() / 255.f,
-                     0.f);
-    }
-#endif // NDEBUG
-    else
-        glClearColor(0.f, 0.f, 0.f, 0.0f);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -695,21 +679,21 @@ void Channel::_drawHelp()
 
         const float width = pvp.w / vp.w;
         const float xOffset = vp.x * width;
+        const float xPos = 0.618f * width - xOffset;
 
         const float yOffset = vp.y * height;
-        const float yPos = 0.618f * height;
-        float y = yPos - yOffset;
+        float y = 22.f - yOffset;
 
         for (size_t pos = message.find('\n'); pos != std::string::npos;
              pos = message.find('\n'))
         {
-            glRasterPos3f(10.f - xOffset, y, 0.99f);
+            glRasterPos3f(xPos, y, 0.99f);
             font->draw(message.substr(0, pos));
             message = message.substr(pos + 1);
             y -= 22.f;
         }
         // last line
-        glRasterPos3f(10.f - xOffset, y, 0.99f);
+        glRasterPos3f(xPos, y, 0.99f);
         font->draw(message);
     }
 
