@@ -20,8 +20,8 @@ server
                 window
                 {
                     channel { name "channel" }
-                    channel { name "lchannel" viewport [ 0 0 1 .5 ] }
-                    channel { name "rchannel" viewport [ 0 .5 1 .5 ] }
+                    channel { name "lchannel" viewport [ 0 0 .5 1 ] }
+                    channel { name "rchannel" viewport [ .5 0 .5 1 ] }
                 }
             }
             pipe { device 0 window { channel { name "channel0" }}}

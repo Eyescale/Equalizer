@@ -106,10 +106,8 @@ private:
 
     CameraAnimation _animation;
 
-    uint64_t _messageTime;
-
     bool _redraw;
-    bool _useIdleAA;
+    bool _useIdleAA = false;
 
     int32_t _numFramesAA;
 
