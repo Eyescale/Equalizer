@@ -30,6 +30,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_DB_2D "DB_2D"
 #define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL "Subpixel"
 #define EQ_SERVER_CONFIG_LAYOUT_DPLEX "DPlex"
+#define EQ_SERVER_CONFIG_LAYOUT_WALL "Wall"
 #define EQ_SERVER_COMPOUND_CLEAR "clear"
 
 namespace eq
@@ -71,6 +72,25 @@ private:
                                         bool useDestChannel = true);
     static void _fill2DCompound(Compound* compound, const Channels& channels);
 };
+
+enum class DemoMode
+{
+    none,
+    fullscreen,
+    window
+};
+
+static const DemoMode demoMode = []() {
+    const auto env = (getenv("EQ_SERVER_CONFIG_DEMOMODE"));
+    if (!env)
+        return DemoMode::none;
+
+    const std::string mode(env);
+    if (env == std::string("window"))
+        return DemoMode::window;
+
+    return DemoMode::fullscreen;
+}();
 }
 }
 }

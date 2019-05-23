@@ -96,11 +96,10 @@ public:
     const VolumeScaling& getVolumeScaling() const { return _volScaling; }
     void glewSetContext(const GLEWContext* context) { _glewContext = context; }
     const GLEWContext* glewGetContext() const { return _glewContext; }
-protected:
+private:
     bool _createVolumeTexture(GLuint& volume, DataInTextureDimensions& TD,
                               const eq::Range& range);
 
-private:
     struct VolumePart
     {
         GLuint volume;              //!< 3D texture ID
