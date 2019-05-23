@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2011-2013, Stefan Eilemann <eile@eyescale.h>
- *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+/* Copyright (c) 2011-2019, Stefan Eilemann <eile@eyescale.h>
+ *                          Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,6 +29,8 @@
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DS "DBDirectSend"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_2D "DB_2D"
 #define EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL "Subpixel"
+#define EQ_SERVER_CONFIG_LAYOUT_TILES "Tiles"
+#define EQ_SERVER_CONFIG_LAYOUT_CHUNKS "Chunks"
 #define EQ_SERVER_CONFIG_LAYOUT_DPLEX "DPlex"
 #define EQ_SERVER_CONFIG_LAYOUT_WALL "Wall"
 #define EQ_SERVER_COMPOUND_CLEAR "clear"
@@ -49,28 +51,6 @@ public:
     static void configure(const Compounds& compounds, const Channels& channels,
                           const fabric::ConfigParams& params);
     static void configureWall(Config* config, const Channels& channels);
-
-private:
-    static Compound* _addMonoCompound(Compound* root, const Channels& channels,
-                                      const fabric::ConfigParams& params);
-    static Compound* _addStereoCompound(Compound* root,
-                                        const Channels& channels,
-                                        const fabric::ConfigParams& params);
-    static Compound* _addClearCompound(Compound* root,
-                                       const Channels& channels);
-    static Compound* _add2DCompound(Compound* root, const Channels& channels,
-                                    fabric::ConfigParams params);
-    static Compound* _addDBCompound(Compound* root, const Channels& channels,
-                                    fabric::ConfigParams params);
-    static Compound* _addDSCompound(Compound* root, const Channels& channels);
-    static Compound* _addDB2DCompound(Compound* root, const Channels& channels,
-                                      fabric::ConfigParams params);
-    static Compound* _addSubpixelCompound(Compound* root, const Channels&);
-    static Compound* _addDPlexCompound(Compound* root, const Channels&);
-    static const Compounds& _addSources(Compound* compound, const Channels&,
-                                        bool destChannelFrame = false,
-                                        bool useDestChannel = true);
-    static void _fill2DCompound(Compound* compound, const Channels& channels);
 };
 
 enum class DemoMode
