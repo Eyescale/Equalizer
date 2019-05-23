@@ -1,0 +1,344 @@
+#Equalizer 1.2 ascii
+
+# one-pipe configuration for LG CF3D projector
+
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_COMPOUND_IATTR_STEREO_MODE PASSIVE
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                device 3
+                window
+                {
+                    channel { name "channel" }
+                    channel { name "lchannel" viewport [ 0 0 1 .5 ] }
+                    channel { name "rchannel" viewport [ 0 .5 1 .5 ] }
+                }
+            }
+            pipe { device 0 window { channel { name "channel0" }}}
+            pipe { device 1 window { channel { name "channel1" }}}
+            pipe { device 2 window { channel { name "channel2" }}}
+        }
+        observer{}
+        layout{ name "subpixel" view { observer 0 mode STEREO }}
+        layout{ name "2D" view { observer 0 mode STEREO }}
+        layout{ name "DB" view { observer 0 mode STEREO }}
+        canvas
+        {
+            layout "subpixel"
+            layout "2D"
+            layout "DB"
+            wall {}
+            segment { channel "channel" eye [ CYCLOP ] }
+            segment { channel "lchannel" eye [ LEFT ] }
+            segment { channel "rchannel" eye [ RIGHT ] }
+        }
+        compound { 
+            channel  ( canvas 0  segment 0   layout "subpixel"  view 0 )
+            compound
+            {
+                subpixel  [ 0 4 ]
+                outputframe
+                {
+                    name     "Frame.0"
+                    type      texture
+                }
+            }
+            compound
+            {
+                channel  "channel0"
+                subpixel  [ 1 4 ]
+                outputframe
+                {
+                    name     "Frame.1"
+                }
+            }
+            compound
+            {
+                channel  "channel1"
+                subpixel  [ 2 4 ]
+                outputframe
+                {
+                    name     "Frame.2"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                subpixel  [ 3 4 ]
+                outputframe
+                {
+                    name     "Frame.3"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.0"
+            }
+            inputframe
+            {
+                name     "Frame.1"
+            }
+            inputframe
+            {
+                name     "Frame.2"
+            }
+            inputframe
+            {
+                name     "Frame.3"
+            }
+        }
+        compound {
+            channel  ( canvas 0  segment 1   layout "subpixel"  view 0 )
+            compound
+            {
+                subpixel  [ 0 2 ]
+                outputframe
+                {
+                    name     "Frame.4"
+                    type      texture
+                }
+            }
+            compound
+            {
+                channel  "channel0"
+                subpixel  [ 1 2 ]
+                outputframe
+                {
+                    name     "Frame.5"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.4"
+            }
+            inputframe
+            {
+                name     "Frame.5"
+            }
+        }
+        compound { 
+            channel  ( canvas 0  segment 2   layout "subpixel"  view 0 )
+            compound
+            {
+                channel  "channel1"
+                subpixel  [ 0 2 ]
+                outputframe
+                {
+                    name     "Frame.6"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                subpixel  [ 1 2 ]
+                outputframe
+                {
+                    name     "Frame.7"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.6"
+            }
+            inputframe
+            {
+                name     "Frame.7"
+            }
+        }
+
+        compound { 
+            channel  ( canvas 0  segment 0   layout "2D"  view 0 )
+            load_equalizer {}
+            compound
+            {
+            }
+            compound
+            {
+                channel  "channel0"
+                outputframe
+                {
+                    name     "Frame.1"
+                }
+            }
+            compound
+            {
+                channel  "channel1"
+                outputframe
+                {
+                    name     "Frame.2"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                outputframe
+                {
+                    name     "Frame.3"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.1"
+            }
+            inputframe
+            {
+                name     "Frame.2"
+            }
+            inputframe
+            {
+                name     "Frame.3"
+            }
+        }
+        compound {
+            channel  ( canvas 0  segment 1   layout "2D"  view 0 )
+            load_equalizer {}
+            compound
+            {
+            }
+            compound
+            {
+                channel  "channel0"
+                outputframe
+                {
+                    name     "Frame.5"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.5"
+            }
+        }
+        compound { 
+            channel  ( canvas 0  segment 2   layout "2D"  view 0 )
+            load_equalizer {}
+            compound
+            {
+                channel  "channel1"
+                outputframe
+                {
+                    name     "Frame.6"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                outputframe
+                {
+                    name     "Frame.7"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.6"
+            }
+            inputframe
+            {
+                name     "Frame.7"
+            }
+        }
+
+        compound { 
+            channel  ( canvas 0  segment 0   layout "DB"  view 0 )
+            load_equalizer { mode DB damping 0.9 }
+            buffers  [ COLOR DEPTH ]
+            compound
+            {
+            }
+            compound
+            {
+                channel  "channel0"
+                outputframe
+                {
+                    name     "Frame.1"
+                }
+            }
+            compound
+            {
+                channel  "channel1"
+                outputframe
+                {
+                    name     "Frame.2"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                outputframe
+                {
+                    name     "Frame.3"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.1"
+            }
+            inputframe
+            {
+                name     "Frame.2"
+            }
+            inputframe
+            {
+                name     "Frame.3"
+            }
+        }
+        compound {
+            channel  ( canvas 0  segment 1   layout "DB"  view 0 )
+            load_equalizer { mode DB damping 0.9 }
+            buffers  [ COLOR DEPTH ]
+            compound
+            {
+            }
+            compound
+            {
+                channel  "channel0"
+                outputframe
+                {
+                    name     "Frame.5"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.5"
+            }
+        }
+        compound { 
+            channel  ( canvas 0  segment 2   layout "DB"  view 0 )
+            load_equalizer { mode DB damping 0.9 }
+            buffers  [ COLOR DEPTH ]
+            compound
+            {
+                channel  "channel1"
+                outputframe
+                {
+                    name     "Frame.6"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                outputframe
+                {
+                    name     "Frame.7"
+                }
+            }
+            inputframe
+            {
+                name     "Frame.6"
+            }
+            inputframe
+            {
+                name     "Frame.7"
+            }
+        }
+    }
+}
