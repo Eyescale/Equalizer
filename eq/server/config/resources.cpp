@@ -64,6 +64,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 
 #define USE_IPv4
 
@@ -523,6 +524,13 @@ void Resources::configure(const Compounds& compounds, const Channels& channels,
     }
 }
 
+static const float bezelSize = ([]() {
+    const auto env = getenv("EQ_SERVER_CONFIG_BEZELS");
+    if (!env)
+        return 0.f;
+    return float(std::atof(env)) / 100.f;
+})();
+
 void Resources::configureWall(Config* config, const Channels& channels)
 {
     const size_t nRows = std::ceil(std::sqrt(channels.size()));
@@ -546,8 +554,15 @@ void Resources::configureWall(Config* config, const Channels& channels)
                 return;
 
             Segment* segment = new Segment(canvas);
-            segment->setViewport(
-                Viewport(c * width, (nRows - r - 1) * height, width, height));
+            const float leftBezel = c == 0 ? 0.f : bezelSize;
+            const float rightBezel = c == nCols - 1 ? 0.f : bezelSize;
+            const float bottomBezel = r == 0 ? 0.f : bezelSize;
+            const float topBezel = r == nRows - 1 ? 0.f : bezelSize;
+
+            segment->setViewport(Viewport(c * width + leftBezel,
+                                          (nRows - r - 1) * height + topBezel,
+                                          width - leftBezel - rightBezel,
+                                          height - topBezel - bottomBezel));
             segment->setChannel(channels[i]);
         }
     }
