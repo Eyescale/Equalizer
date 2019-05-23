@@ -146,6 +146,8 @@ void Display::discoverLocal(Config* config, const ConfigParams& params)
         names.push_back(EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC);
         names.push_back(EQ_SERVER_CONFIG_LAYOUT_DB_DS);
         names.push_back(EQ_SERVER_CONFIG_LAYOUT_SUBPIXEL);
+        names.push_back(EQ_SERVER_CONFIG_LAYOUT_TILES);
+        names.push_back(EQ_SERVER_CONFIG_LAYOUT_CHUNKS);
 
         if (nodes.size() == 1)
             names.push_back(EQ_SERVER_CONFIG_LAYOUT_DPLEX);
