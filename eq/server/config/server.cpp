@@ -57,7 +57,7 @@ Config* Server::configure(ServerPtr server, const std::string& session,
 
     // create clear compound first so it clears before rendering
     Compound* clear =
-        getenv("EQ_SERVER_CONFIG_DEMO") ? new Compound(config) : nullptr;
+        demoMode == DemoMode::none ? nullptr : new Compound(config);
 
     Compounds compounds = Loader::addOutputCompounds(server);
     if (compounds.empty())
@@ -76,7 +76,8 @@ Config* Server::configure(ServerPtr server, const std::string& session,
 
     const Channels sources = Resources::configureSourceChannels(config);
     Resources::configure(compounds, sources, params);
-    Resources::configureWall(config, sources);
+    if (demoMode == DemoMode::fullscreen)
+        Resources::configureWall(config, sources);
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";

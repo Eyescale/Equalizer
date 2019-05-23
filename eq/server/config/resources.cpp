@@ -453,12 +453,12 @@ public:
         Window* window = new Window(pipe);
         if (!pipe->getPixelViewport().isValid())
             window->setPixelViewport(_pvp);
-        if (getenv("EQ_SERVER_CONFIG_DEMO"))
-            window->setIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN,
-                                  fabric::ON);
-        else
+        if (demoMode == DemoMode::none)
             window->setIAttribute(WindowSettings::IATTR_HINT_DRAWABLE,
                                   fabric::FBO);
+        else
+            window->setIAttribute(WindowSettings::IATTR_HINT_FULLSCREEN,
+                                  fabric::ON);
         window->setName(pipe->getName() + " source window");
 
         _channels.push_back(new Channel(window));
@@ -531,7 +531,7 @@ void Resources::configureWall(Config* config, const Channels& channels)
     const float height = 1.f / float(nCols);
 
     Layout* layout = new Layout(config);
-    layout->setName("Wall");
+    layout->setName(EQ_SERVER_CONFIG_LAYOUT_WALL);
     new View(layout);
 
     Canvas* canvas = config->getCanvases()[0];
@@ -555,7 +555,7 @@ void Resources::configureWall(Config* config, const Channels& channels)
     const auto destChannels = config->activateLayout(canvas, layout);
     SwapBarrier* barrier = new SwapBarrier;
     Compound* compound = new Compound(config);
-    compound->setName("Wall");
+    compound->setName(EQ_SERVER_CONFIG_LAYOUT_WALL);
 
     for (Channel* channel : destChannels)
     {
