@@ -46,9 +46,7 @@ Config::Config(eq::ServerPtr parent)
     , _spinY(5)
     , _advance(0)
     , _currentCanvas(0)
-    , _messageTime(0)
     , _redraw(true)
-    , _useIdleAA(true)
     , _numFramesAA(0)
 {
 }
@@ -99,7 +97,7 @@ bool Config::init()
     else
         _currentCanvas = canvases.front();
 
-    _setMessage("Welcome to eqPly\nPress F1 for help");
+    _switchLayout(0);
     return true;
 }
 
@@ -298,16 +296,6 @@ uint32_t Config::getAnimationFrame()
 
 bool Config::_needNewFrame()
 {
-    if (_messageTime > 0)
-    {
-        if (getTime() - _messageTime > 2000) // reset message after two seconds
-        {
-            _messageTime = 0;
-            _frameData.setMessage("");
-        }
-        return true;
-    }
-
     return (_spinX != 0 || _spinY != 0 || _advance != 0 || _redraw);
 }
 
@@ -960,12 +948,10 @@ void Config::_screenshot()
         });
 }
 
-void Config::_switchLayout(int32_t increment)
+void Config::_switchLayout(const int32_t increment)
 {
     if (!_currentCanvas)
         return;
-
-    _frameData.setCurrentViewID(eq::uint128_t());
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
@@ -975,21 +961,13 @@ void Config::_switchLayout(int32_t increment)
     _currentCanvas->useLayout(uint32_t(index));
 
     const eq::Layout* layout = layouts[index];
-    std::ostringstream stream;
-    stream << "Layout ";
     if (layout)
     {
         const std::string& name = layout->getName();
-        if (name.empty())
-            stream << index;
-        else
-            stream << name;
+        _setMessage(name);
+        const auto view = layout->getViews().front();
+        _frameData.setCurrentViewID(view ? view->getID() : eq::uint128_t());
     }
-    else
-        stream << "NONE";
-
-    stream << " active";
-    _setMessage(stream.str());
 }
 
 void Config::_switchLayoutSize()
@@ -1068,7 +1046,6 @@ void Config::_setFocusMode(const eq::FocusMode mode)
 void Config::_setMessage(const std::string& message)
 {
     _frameData.setMessage(message);
-    _messageTime = getTime();
 }
 
 eq::admin::ServerPtr Config::_getAdminServer()
