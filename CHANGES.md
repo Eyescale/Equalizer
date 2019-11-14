@@ -92,7 +92,7 @@ To port, replace:
   tryNextEvent() & nextEvent().
 
   eq::ConfigEvent is replaced by EventOCommand for sending and by
-  eq::EventCommand for receiving events.
+  eq::EventICommand for receiving events.
   Old API is deprecated and will be removed in version 2.0.
 
 31/Jul/2012
