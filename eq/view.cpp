@@ -80,7 +80,7 @@ public:
     std::map<uint32_t, Screenshot> screenshot;
     eq::View::ScreenshotFunc screenshotFunc;
 };
-}
+} // namespace detail
 
 typedef fabric::View<Layout, View, Observer> Super;
 
@@ -193,6 +193,7 @@ bool View::handleEvent(const EventType type, const SizeEvent& event)
 
     default:
         LBUNIMPLEMENTED;
+    /* fall-thru */
     case eq::View::TYPE_NONE:
         return false;
     }
@@ -212,8 +213,8 @@ void View::disableScreenshot()
 void View::sendScreenshotEvent(const Viewport& viewport,
                                const uint32_t frameNumber, const Image& image)
 {
-    getConfig()->sendEvent(EVENT_VIEW_SCREENSHOT) << getID() << viewport
-                                                  << frameNumber << image;
+    getConfig()->sendEvent(EVENT_VIEW_SCREENSHOT)
+        << getID() << viewport << frameNumber << image;
 }
 
 bool View::handleEvent(EventICommand& command)
@@ -243,7 +244,7 @@ bool View::_handleScreenshot(EventICommand& command)
 
     return true;
 }
-}
+} // namespace eq
 
 #include <eq/fabric/view.ipp>
 template class eq::fabric::View<eq::Layout, eq::View, eq::Observer>;

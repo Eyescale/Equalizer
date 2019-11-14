@@ -393,7 +393,7 @@ void LoadEqualizer::_updateNode(Node* node, const Viewport& vp,
     {
     default:
         LBUNIMPLEMENTED;
-
+    /* fall-thru */
     case MODE_VERTICAL:
         leftVP.w = vp.w * .5f;
         rightVP.x = leftVP.getXEnd();
@@ -1132,5 +1132,5 @@ std::ostream& operator<<(std::ostream& os, const LoadEqualizer* lb)
     os << '}' << std::endl << lunchbox::enableFlush;
     return os;
 }
-}
-}
+} // namespace server
+} // namespace eq

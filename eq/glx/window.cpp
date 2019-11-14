@@ -72,7 +72,7 @@ public:
 
     MessagePump* const messagePump;
 };
-}
+} // namespace detail
 
 Window::Window(NotifierInterface& parent, const WindowSettings& settings,
                Display* xDisplay, const GLXEWContext* glxewContext,
@@ -96,7 +96,7 @@ static Bool WaitForNotify(Display*, XEvent* e, char* arg)
 {
     return (e->type == MapNotify) && (e->xmap.window == (::Window)arg);
 }
-}
+} // namespace
 
 bool Window::configInit()
 {
@@ -632,7 +632,9 @@ void Window::setXDrawable(XID drawable)
     default:
         LBERROR << "Unknown drawable type " << drawableType << std::endl;
         LBUNIMPLEMENTED;
+    /* fall-thru */
     case OFF:
+    /* fall-thru */
     case FBO:
         LBASSERT(getPixelViewport().hasArea());
     }
@@ -880,5 +882,5 @@ void Window::exitEventHandler()
     delete _impl->glXEventHandler;
     _impl->glXEventHandler = 0;
 }
-}
-}
+} // namespace glx
+} // namespace eq

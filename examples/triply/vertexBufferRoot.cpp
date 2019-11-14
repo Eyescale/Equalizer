@@ -123,7 +123,8 @@ void VertexBufferRoot::cullDraw(VertexBufferState& state) const
 #endif
                 break;
             }
-        // partial range, fall through to partial visibility
+            // partial range, fall through to partial visibility
+            /* fall-thru */
 
         case vmml::VISIBILITY_PARTIAL:
         {
@@ -443,4 +444,4 @@ void VertexBufferRoot::toStream(std::ostream& os)
     _data.toStream(os);
     VertexBufferNode::toStream(os);
 }
-}
+} // namespace triply
