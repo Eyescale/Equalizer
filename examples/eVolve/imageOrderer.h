@@ -48,7 +48,7 @@ bool _cmpRangesInc(const eq::ImageOp& a, const eq::ImageOp& b)
     return a.image->getContext().range.start >
            b.image->getContext().range.start;
 }
-}
+} // namespace
 
 void orderImages(eq::ImageOps& images, const eq::Matrix4f& modelviewM,
                  const eq::Matrix3f& modelviewITM, const eq::Matrix4f& rotation,
@@ -95,18 +95,18 @@ void orderImages(eq::ImageOps& images, const eq::Matrix4f& modelviewM,
     minPos++;
     if (minPos < images.size() - 1)
     {
-        eq::ImageOps imagesTmp = images;
-
-        // copy slices that should be rendered first
-        memcpy(&images[nImages - minPos - 1], &imagesTmp[0],
-               (minPos + 1) * sizeof(eq::ImageOp));
+        eq::ImageOps imagesTmp;
 
         // copy slices that should be rendered last, in reverse order
         for (size_t i = 0; i < nImages - minPos - 1; ++i)
-            images[i] = imagesTmp[nImages - i - 1];
+            images.push_back(imagesTmp[nImages - i - 1]);
+
+        // copy slices that should be rendered first
+        std::copy(imagesTmp.begin(), imagesTmp.begin() + minPos + 1,
+                  std::back_inserter(images));
     }
 }
 /** @endcond */
-}
+} // namespace eVolve
 
 #endif // EVOLVE_IMAGE_ORDERER_H

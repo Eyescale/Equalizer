@@ -66,7 +66,7 @@ public:
     bool defined;
     const GLEWContext* glewContext;
 };
-}
+} // namespace detail
 
 Texture::Texture(const unsigned target, const GLEWContext* const glewContext)
     : _impl(new detail::Texture(target, glewContext))
@@ -109,6 +109,7 @@ uint32_t Texture::getCompressorTarget() const
 
     default:
         LBUNIMPLEMENTED;
+    /* fall-thru */
     case GL_TEXTURE_2D:
         return EQ_COMPRESSOR_USE_TEXTURE_2D;
     }
@@ -214,7 +215,7 @@ static bool _isPOT(const uint32_t width, const uint32_t height)
     return (width > 0 && height > 0 && (width & (width - 1)) == 0 &&
             (height & (height - 1)) == 0);
 }
-}
+} // namespace
 
 void Texture::_grow(const int32_t width, const int32_t height)
 {
@@ -464,5 +465,5 @@ std::ostream& operator<<(std::ostream& os, const Texture& texture)
               << texture.getFormat() << " type " << texture.getType()
               << std::dec << (texture.isValid() ? "" : " invalid");
 }
-}
-}
+} // namespace util
+} // namespace eq

@@ -679,7 +679,7 @@ static void _computeHeadTransform(Matrix4f& result, const Matrix4f& xfm,
         result.array[i + 3] = xfm.array[i + 3];
     }
 }
-}
+} // namespace
 
 void Compound::_computePerspective(RenderContext& context,
                                    const Vector3f& eye) const
@@ -739,6 +739,7 @@ Vector3f Compound::_getEyePosition(const Eye eye) const
 
     default:
         LBUNIMPLEMENTED;
+    /* fall-thru */
     case EYE_CYCLOP:
         return Vector3f();
     }
@@ -995,7 +996,7 @@ VisitorResult _accept(C* compound, CompoundVisitor& visitor)
     }
     return result;
 }
-}
+} // namespace
 
 VisitorResult Compound::accept(CompoundVisitor& visitor)
 {
@@ -1451,9 +1452,8 @@ void Compound::_updateInheritStereo()
     const Window* window = _inherit.channel->getWindow();
     const bool stereoWindow = window->getDrawableConfig().stereo;
     const bool usesFBO =
-        window &&
-        window->getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) ==
-            fabric::FBO;
+        window && window->getIAttribute(WindowSettings::IATTR_HINT_DRAWABLE) ==
+                      fabric::FBO;
 
     if (stereoWindow && !usesFBO)
         _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
@@ -1722,5 +1722,5 @@ std::ostream& operator<<(std::ostream& os, const Compound& compound)
 
     return os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
 }
-}
-}
+} // namespace server
+} // namespace eq
