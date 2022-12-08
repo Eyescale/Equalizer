@@ -225,7 +225,7 @@ co::DataIStream& operator>>(co::DataIStream& is, Attachment& at)
 {
     return is >> at.active >> at.memory >> at.quality >> at.zoom;
 }
-}
+} // namespace
 
 namespace detail
 {
@@ -319,7 +319,7 @@ public:
         return finder.result;
     }
 };
-}
+} // namespace detail
 
 Image::Image()
     : _impl(new detail::Image)
@@ -477,7 +477,7 @@ public:
 private:
     const uint32_t token_;
 };
-}
+} // namespace
 
 std::vector<uint32_t> Image::findCompressors(const Frame::Buffer buffer) const
 {
@@ -1232,7 +1232,7 @@ void put16f(std::ostream& os, const char* ptr)
     const float f = half_to_float(value);
     put32f(os, (const char*)&f);
 }
-}
+} // namespace
 
 bool Image::writeImage(const std::string& filename,
                        const Frame::Buffer buffer) const
@@ -1391,6 +1391,7 @@ bool Image::_writeImage(const std::string& filename, const Frame::Buffer buffer,
         LBWARN << static_cast<int>(header.bytesPerChannel)
                << " bytes per channel not supported by RGB spec" << std::endl;
 
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
     strncpy(header.filename, filename.c_str(), 80);
     header.convert();
     image.write(reinterpret_cast<const char*>(&header), sizeof(header));
@@ -1804,4 +1805,4 @@ co::DataIStream& operator>>(co::DataIStream& is, Image& image)
         image._impl->pvp >> image._impl->type >> image._impl->zoom;
     return is;
 }
-}
+} // namespace eq

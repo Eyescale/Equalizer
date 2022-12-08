@@ -57,6 +57,7 @@ namespace
 static const char seed = 42;
 static const char* shaderDBKey = &seed;
 static const char* colorDBKey = shaderDBKey + 1;
+#pragma GCC diagnostic ignored "-Warray-bounds"
 static const char* depthDBKey = shaderDBKey + 2;
 
 // Image used for CPU-based assembly
@@ -681,7 +682,7 @@ util::Accum* _obtainAccum(Channel* channel)
     accum->clear();
     return accum;
 }
-}
+} // namespace
 
 uint32_t Compositor::assembleFrames(const Frames& frames, Channel* channel,
                                     util::Accum* accum)
@@ -1415,4 +1416,4 @@ void Compositor::resetAssemblyState()
     EQ_GL_CALL(glPopMatrix());
     EQ_GL_CALL(glPopAttrib());
 }
-}
+} // namespace eq
